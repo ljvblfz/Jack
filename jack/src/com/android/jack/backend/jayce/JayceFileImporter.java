@@ -184,12 +184,12 @@ public class JayceFileImporter {
                   .getInputLibraryLocation()
                   .getInputLibrary();
           String pathWithoutExt =
-              path.substring(0, path.lastIndexOf(FileType.JAYCE.getFileExtension()));
+              path.substring(0, path.lastIndexOf(JAYCE_FILE_EXTENSION));
           try {
             String previousDigest =
                 ((GenericInputVFile)
                     previousInputLibrary.getFile(
-                        FileType.DEX, new VPath(pathWithoutExt, '/'))).getDigest();
+                        FileType.PREBUILT, new VPath(pathWithoutExt, '/'))).getDigest();
             if (previousDigest != null
                 && previousDigest.equals(((GenericInputVFile) jayceFile).getDigest())) {
               return; // both types are identical, ignore

@@ -18,6 +18,7 @@ package com.android.jack.library;
 
 import com.android.sched.vfs.VPath;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 
@@ -53,4 +54,8 @@ public interface JackLibrary extends Library {
 
   @Nonnull
   public boolean containsProperty(@Nonnull String key);
+
+  @Nonnull
+  public String buildPropertyName(@Nonnull FileType type, @CheckForNull String suffix);
+
 }

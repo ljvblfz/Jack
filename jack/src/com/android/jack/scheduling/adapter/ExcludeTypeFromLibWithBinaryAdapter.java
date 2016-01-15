@@ -61,7 +61,7 @@ public class ExcludeTypeFromLibWithBinaryAdapter
             if (location instanceof TypeInInputLibraryLocation) {
               InputLibrary inputLibrary = ((TypeInInputLibraryLocation) location)
                   .getInputLibraryLocation().getInputLibrary();
-              if (inputLibrary.containsFileType(FileType.DEX)) {
+              if (inputLibrary.containsFileType(FileType.PREBUILT)) {
                 return false;
               }
             }

@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.android.jack.library.v0000;
+package com.android.jack.library.v0002;
 
 /**
  * Library version.
  */
 public class Version {
 
-  public static final int MINOR_MIN = 0;
+  public static final int MINOR_MIN = 1;
 
-  public static final int MINOR = 0;
+  public static final int MINOR = 1;
 
-  public static final int MAJOR = 0;
+  public static final int MAJOR = 2;
 }

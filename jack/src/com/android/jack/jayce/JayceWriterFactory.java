@@ -36,11 +36,12 @@ public abstract class JayceWriterFactory {
       @Nonnull OutputStream out) {
     JayceInternalWriterImpl jayceWriter = new JayceInternalWriterImpl(out);
 
-    outputJackLibrary.putProperty(FileType.JAYCE.buildPropertyName(null /* suffix */),
+    outputJackLibrary.putProperty(
+        outputJackLibrary.buildPropertyName(FileType.JAYCE, null /* suffix */),
         String.valueOf(true));
-    outputJackLibrary.putProperty(JayceProperties.KEY_JAYCE_MAJOR_VERSION,
+    outputJackLibrary.putProperty(outputJackLibrary.keyJayceMajorVersion,
         String.valueOf(DEFAULT_MAJOR_VERSION));
-    outputJackLibrary.putProperty(JayceProperties.KEY_JAYCE_MINOR_VERSION,
+    outputJackLibrary.putProperty(outputJackLibrary.keyJayceMinorVersion,
         String.valueOf(jayceWriter.getCurrentMinor()));
 
     return jayceWriter;

@@ -70,17 +70,17 @@ public class DexInLibraryWriter extends DexWriter implements
       InputVFile in;
       InputLibrary inputLibrary =
           ((TypeInInputLibraryLocation) loc).getInputLibraryLocation().getInputLibrary();
-      if (inputLibrary.containsFileType(FileType.DEX)) {
+      if (inputLibrary.containsFileType(FileType.PREBUILT)) {
         if (!inputLibrary.getLocation().equals(outputLibrary.getLocation())) {
           try {
-            in = inputLibrary.getFile(FileType.DEX,
+            in = inputLibrary.getFile(FileType.PREBUILT,
                 new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
           } catch (FileTypeDoesNotExistException e) {
             // this was created by Jack, so this should not happen
             throw new AssertionError(e);
           }
 
-          vFile = outputLibrary.createFile(FileType.DEX,
+          vFile = outputLibrary.createFile(FileType.PREBUILT,
               new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
 
           InputStream is = in.getInputStream();
@@ -104,7 +104,7 @@ public class DexInLibraryWriter extends DexWriter implements
     typeDex.add(cdiMarker.getClassDefItem());
     OutputStream outStream = null;
     try {
-      vFile = outputLibrary.createFile(FileType.DEX,
+      vFile = outputLibrary.createFile(FileType.PREBUILT,
           new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
     } catch (IOException e) {
       throw new JackIOException("Could not create Dex file in output "

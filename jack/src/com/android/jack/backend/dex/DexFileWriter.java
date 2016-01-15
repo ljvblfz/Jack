@@ -20,7 +20,6 @@ import com.android.jack.JackAbortException;
 import com.android.jack.Options;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.library.DumpInLibrary;
-import com.android.jack.library.FileType;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.sched.item.Description;
@@ -49,10 +48,17 @@ public class DexFileWriter extends DexWriter implements RunnableSchedulable<JSes
   /**
    * File name prefix of a {@code .dex} file automatically loaded in an archive.
    */
+  @Nonnull
   static final String DEX_PREFIX = "classes";
 
+  /**
+   * Dex file extension: {@code .dex}.
+   */
   @Nonnull
-  public static final String DEX_FILENAME = DEX_PREFIX + FileType.DEX.getFileExtension();
+  public static final String DEX_FILE_EXTENSION = ".dex";
+
+  @Nonnull
+  public static final String DEX_FILENAME = DEX_PREFIX + DEX_FILE_EXTENSION;
 
   @Nonnull
   public static final ImplementationPropertyId<DexWritingTool> DEX_WRITING_POLICY =

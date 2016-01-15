@@ -38,6 +38,9 @@ import javax.annotation.Nonnull;
 public abstract class Dependency {
 
   @Nonnull
+  public static final String DEPENDENCY_FILE_EXTENSION = ".dep";
+
+  @Nonnull
   protected static final String END_OF_MAP = "#";
 
   private static final char LIST_VALUE_SEPARATOR = ',';

@@ -17,7 +17,6 @@
 package com.android.jack.library;
 
 import com.android.jack.Jack;
-import com.android.jack.jayce.JayceProperties;
 import com.android.sched.util.findbugs.SuppressFBWarnings;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
@@ -117,21 +116,21 @@ public abstract class InputJackLibrary  extends CommonJackLibrary implements Inp
 
   private final synchronized void ensureJayceLoaded() throws LibraryFormatException {
     if (jayceReaderConstructor == null) {
-      String jayceMajorVersionStr = getProperty(JayceProperties.KEY_JAYCE_MAJOR_VERSION);
+      String jayceMajorVersionStr = getProperty(keyJayceMajorVersion);
       try {
         jayceMajorVersion = Integer.parseInt(jayceMajorVersionStr);
       } catch (NumberFormatException e) {
         logger.log(Level.SEVERE, "Failed to parse the property "
-            + JayceProperties.KEY_JAYCE_MAJOR_VERSION + " from "
+            + keyJayceMajorVersion + " from "
             + location.getDescription(), e);
         throw new LibraryFormatException(location);
       }
 
       try {
-        jayceMinorVersion = Integer.parseInt(getProperty(JayceProperties.KEY_JAYCE_MINOR_VERSION));
+        jayceMinorVersion = Integer.parseInt(getProperty(keyJayceMinorVersion));
       } catch (NumberFormatException e) {
         logger.log(Level.SEVERE, "Failed to parse the property "
-            + JayceProperties.KEY_JAYCE_MINOR_VERSION + " from "
+            + keyJayceMinorVersion + " from "
             + location.getDescription(), e);
         throw new LibraryFormatException(location);
       }

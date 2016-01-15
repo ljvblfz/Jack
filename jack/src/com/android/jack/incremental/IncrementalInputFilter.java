@@ -321,7 +321,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
         deletedTypes.add(typeNameToRemove);
         VPath vpath = new VPath(typeNameToRemove, '/');
         deleteFile(FileType.JAYCE, vpath);
-        deleteFile(FileType.DEX, vpath);
+        deleteFile(FileType.PREBUILT, vpath);
       }
     }
   }
@@ -407,7 +407,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
         for (String typeName : fileDependencies.getTypeNames(javaFileName)) {
           InputVFile dexFile;
           try {
-            dexFile = incrementalInputLibrary.getFile(FileType.DEX, new VPath(typeName, '/'));
+            dexFile = incrementalInputLibrary.getFile(FileType.PREBUILT, new VPath(typeName, '/'));
           } catch (FileTypeDoesNotExistException e) {
             dexFile = null;
           }

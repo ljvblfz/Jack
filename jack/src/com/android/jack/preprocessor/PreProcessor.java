@@ -33,6 +33,8 @@ import javax.annotation.Nonnull;
 @Description("Preprocessor support")
 @HasKeyId
 public class PreProcessor implements Feature {
+  @Nonnull
+  public static final String PREPROCESSOR_FILE_EXTENSION = ".jpp";
 
   @Nonnull
   public static final BooleanPropertyId ENABLE = BooleanPropertyId.create(

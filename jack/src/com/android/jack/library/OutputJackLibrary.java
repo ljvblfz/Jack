@@ -16,11 +16,15 @@
 
 package com.android.jack.library;
 
-import javax.annotation.Nonnull;
+import java.util.Properties;
 
 /**
  * Interface representing an output jack library.
  */
-public interface OutputJackLibrary extends OutputLibrary {
-  public void putProperty(@Nonnull String key, @Nonnull String value);
+public abstract class OutputJackLibrary extends CommonJackLibrary
+  implements OutputLibrary, JackLibrary {
+
+  public OutputJackLibrary(Properties libraryProperties) {
+    super(libraryProperties);
+  }
 }

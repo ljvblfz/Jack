@@ -76,17 +76,19 @@ public class PreProcessorApplier implements RunnableSchedulable<JSession> {
 
     for (Iterator<InputLibrary> iter = session.getPathSources(); iter.hasNext();) {
       InputLibrary inputLibrary = iter.next();
-      Iterator<InputVFile> metaFileIt = inputLibrary.iterator(FileType.JPP);
+      Iterator<InputVFile> metaFileIt = inputLibrary.iterator(FileType.META);
       while (metaFileIt.hasNext()) {
         InputVFile inputFile = metaFileIt.next();
-        InputStream inputStream = inputFile.getInputStream();
-        try {
-          rules.addAll(parseRules(session, inputStream, inputFile.getLocation()));
-        } finally {
+        if (inputFile.getName().endsWith(PreProcessor.PREPROCESSOR_FILE_EXTENSION)) {
+          InputStream inputStream = inputFile.getInputStream();
           try {
-            inputStream.close();
-          } catch (IOException e) {
-            // nothing to handle for inputs
+            rules.addAll(parseRules(session, inputStream, inputFile.getLocation()));
+          } finally {
+            try {
+              inputStream.close();
+            } catch (IOException e) {
+              // nothing to handle for inputs
+            }
           }
         }
       }

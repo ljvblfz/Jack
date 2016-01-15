@@ -19,7 +19,6 @@ package com.android.jack.test.toolchain;
 import com.google.common.base.Joiner;
 import com.google.common.io.Files;
 
-import com.android.jack.library.FileType;
 import com.android.jack.library.JackLibrary;
 import com.android.jack.test.TestsProperties;
 import com.android.jack.test.util.ExecFileException;
@@ -41,6 +40,10 @@ import javax.annotation.Nonnull;
  */
 public abstract class JillBasedToolchain extends JackCliToolchain {
 
+  @Nonnull
+  private static final String META_DIR = "meta";
+  @Nonnull
+  private static final String RSC_DIR = "rsc";
   @Nonnull
   protected File jillPrebuilt;
   @Nonnull
@@ -102,7 +105,7 @@ public abstract class JillBasedToolchain extends JackCliToolchain {
 
       File resDestDir;
       if (resImport.size() > 0) {
-        resDestDir = new File(classesDir, FileType.RSC.getPrefix());
+        resDestDir = new File(classesDir, RSC_DIR);
         if (!resDestDir.exists() && !resDestDir.mkdir()) {
           throw new AssertionError("Could not create resource dir");
         }
@@ -114,7 +117,7 @@ public abstract class JillBasedToolchain extends JackCliToolchain {
 
       File metaDestDir;
       if (metaImport.size() > 0) {
-        metaDestDir = new File(classesDir, FileType.JPP.getPrefix());
+        metaDestDir = new File(classesDir, META_DIR);
         if (!metaDestDir.exists() && !metaDestDir.mkdir()) {
           throw new AssertionError("Could not create meta dir");
         }
@@ -386,12 +389,12 @@ public abstract class JillBasedToolchain extends JackCliToolchain {
 
     File rscDir;
     if (in.isDirectory()) {
-      rscDir = new File(in, FileType.RSC.getPrefix());
+      rscDir = new File(in, RSC_DIR);
     } else {
       // Assume it's a library archive
       File tmpUnzippedLib = AbstractTestTools.createTempDir();
       AbstractTestTools.unzip(in, tmpUnzippedLib);
-      rscDir = new File(tmpUnzippedLib, FileType.RSC.getPrefix());
+      rscDir = new File(tmpUnzippedLib, RSC_DIR);
     }
 
     if (rscDir.exists()) {
@@ -399,7 +402,7 @@ public abstract class JillBasedToolchain extends JackCliToolchain {
       File tmpUnzippedOutLib = AbstractTestTools.createTempDir();
       AbstractTestTools.unzip(tmpOut, tmpUnzippedOutLib);
 
-      File destRscDir = new File(tmpUnzippedOutLib, FileType.RSC.getPrefix());
+      File destRscDir = new File(tmpUnzippedOutLib, RSC_DIR);
       if (!destRscDir.mkdir()) {
         throw new AssertionError("Could not create directory: '" + destRscDir.getPath() + "'");
       }
@@ -418,7 +421,7 @@ public abstract class JillBasedToolchain extends JackCliToolchain {
         fr.close();
       }
 
-      prop.setProperty("rsc", "true");
+      prop.setProperty(RSC_DIR, "true");
       FileWriter fw = new FileWriter(jackProperties);
       try {
         prop.store(fw, "Edited by legacy-jill toolchain");

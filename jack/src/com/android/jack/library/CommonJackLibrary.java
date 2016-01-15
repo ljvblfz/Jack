@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -42,6 +43,13 @@ public abstract class CommonJackLibrary implements JackLibrary {
 
   @Nonnull
   protected final Properties libraryProperties;
+
+  @Nonnull
+  public final String keyJayceMajorVersion =
+    buildPropertyName(FileType.JAYCE, ".version.major");
+  @Nonnull
+  public final String keyJayceMinorVersion =
+    buildPropertyName(FileType.JAYCE, ".version.minor");
 
   // TODO(jack-team): Change it to protected
   @Nonnull
@@ -81,6 +89,15 @@ public abstract class CommonJackLibrary implements JackLibrary {
     return fileTypes.contains(fileType);
   }
 
+  @Override
+  @Nonnull
+  public String buildPropertyName(@Nonnull FileType type, @CheckForNull String suffix) {
+    return (getPropertyPrefix(type) + (suffix == null ? "" : suffix));
+  }
+
+  @Nonnull
+  protected abstract String getPropertyPrefix(@Nonnull FileType type);
+
   protected void addFileType(@Nonnull FileType ft) {
     fileTypes.add(ft);
   }
@@ -88,7 +105,7 @@ public abstract class CommonJackLibrary implements JackLibrary {
   protected void fillFileTypes() {
     for (FileType ft : FileType.values()) {
       try {
-        String propertyName = ft.buildPropertyName(null /*suffix*/);
+        String propertyName = buildPropertyName(ft, null /*suffix*/);
         if (containsProperty(propertyName) && Boolean.parseBoolean(getProperty(propertyName))) {
           fileTypes.add(ft);
         }
@@ -98,16 +115,12 @@ public abstract class CommonJackLibrary implements JackLibrary {
     }
   }
 
-  protected void fillFiles(@Nonnull InputVDir vDir, @Nonnull FileType fileType,
-      @Nonnull List<InputVFile> files) {
+  protected void fillFiles(@Nonnull InputVDir vDir, @Nonnull List<InputVFile> files) {
     for (InputVElement subFile : vDir.list()) {
       if (subFile.isVDir()) {
-        fillFiles((InputVDir) subFile, fileType, files);
+        fillFiles((InputVDir) subFile, files);
       } else {
-        InputVFile vFile = (InputVFile) subFile;
-        if (fileType.isOfType(vFile)) {
-          files.add(vFile);
-        }
+        files.add((InputVFile) subFile);
       }
     }
   }

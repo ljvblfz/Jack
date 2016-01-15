@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.jack.library.v0001;
+package com.android.jack.library.v0002;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -65,19 +65,16 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   private static final VPath RSC_PREFIX = new VPath("rsc", '/');
 
   @Nonnull
-  private static final VPath DEPENDENCY_PREFIX = new VPath("dependencies", '/');
+  private static final VPath LOG_PREFIX = new VPath("log", '/');
 
   @Nonnull
-  private static final VPath LOG_PREFIX = new VPath("logs", '/');
-
-  @Nonnull
-  private static final VPath JPP_PREFIX = new VPath("jpp", '/');
+  private static final VPath META_PREFIX = new VPath("meta", '/');
 
   @Nonnull
   private static final VPath JAYCE_PREFIX = new VPath("jayce", '/');
 
   @Nonnull
-  private static final VPath DEX_PREFIX = new VPath("dex", '/');
+  private static final VPath PREBUILT_PREFIX = new VPath("prebuilt", '/');
 
   @Nonnull
   private final Map<FileType, InputVFS> sectionVFS =
@@ -238,20 +235,26 @@ public class InputJackLibraryImpl extends InputJackLibrary {
 
     }
   }
+
   @Override
   @Nonnull
   protected String getPropertyPrefix(@Nonnull FileType type) {
+    return getPropertyPrefixImpl(type);
+  }
+
+  @Nonnull
+  static String getPropertyPrefixImpl(@Nonnull FileType type) {
     switch (type) {
       case PREBUILT:
-        return "dex";
+        return "prebuilt";
       case JAYCE:
         return "jayce";
       case META:
-        return "jpp";
+        return "meta";
       case LOG:
-        return "logs";
+        return "log";
       case DEPENDENCIES:
-        return "dependencies";
+        return "meta";
       case RSC:
         return "rsc";
       default:
@@ -260,7 +263,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   }
 
   @Nonnull
-  private static String getExtension(@Nonnull FileType type) {
+  static String getExtension(@Nonnull FileType type) {
     switch (type) {
       case PREBUILT:
         return DexFileWriter.DEX_FILE_EXTENSION;
@@ -274,19 +277,20 @@ public class InputJackLibraryImpl extends InputJackLibrary {
         return "";
     }
   }
+
   @Nonnull
-  private static VPath getSectionPath(@Nonnull FileType type) {
+  static VPath getSectionPath(@Nonnull FileType type) {
     switch (type) {
       case PREBUILT:
-        return DEX_PREFIX;
+        return PREBUILT_PREFIX;
       case JAYCE:
         return JAYCE_PREFIX;
       case META:
-        return JPP_PREFIX;
+        return META_PREFIX;
       case LOG:
         return LOG_PREFIX;
       case DEPENDENCIES:
-        return DEPENDENCY_PREFIX;
+        return META_PREFIX;
       case RSC:
         return RSC_PREFIX;
       default:

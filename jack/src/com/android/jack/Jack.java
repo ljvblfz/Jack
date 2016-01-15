@@ -585,7 +585,7 @@ public abstract class Jack {
 
         if (config.get(Options.GENERATE_DEX_FILE).booleanValue()) {
           request.addProduction(DexFileProduct.class);
-          session.addGeneratedFileType(FileType.DEX);
+          session.addGeneratedFileType(FileType.PREBUILT);
         }
 
         if (config.get(Options.OPTIMIZED_ENUM_SWITCH) == SwitchEnumOptStrategy.FEEDBACK) {
@@ -963,7 +963,7 @@ public abstract class Jack {
     // TODO(jack-team): Remove this hack
     boolean preDexing = !getSession().getImportedLibraries().isEmpty();
     for (InputLibrary il : getSession().getImportedLibraries()) {
-      if (!il.containsFileType(FileType.DEX)) {
+      if (!il.containsFileType(FileType.PREBUILT)) {
         preDexing = false;
       }
     }
@@ -971,7 +971,7 @@ public abstract class Jack {
         || features.contains(Shrinking.class)
         || features.contains(LambdaToAnonymousConverter.class)) {
       for (InputLibrary il : getSession().getImportedLibraries()) {
-        ((InputJackLibrary) il).fileTypes.remove(FileType.DEX);
+        ((InputJackLibrary) il).fileTypes.remove(FileType.PREBUILT);
       }
     }
     logger.log(Level.INFO, "Jack pre-dexing is " + (preDexing ? "enabled" : "disabled"));

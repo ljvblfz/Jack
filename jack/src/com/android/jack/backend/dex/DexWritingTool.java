@@ -113,7 +113,7 @@ public abstract class DexWritingTool {
     if (dexCount == 1) {
       dexName = DexFileWriter.DEX_FILENAME;
     } else {
-      dexName = DexFileWriter.DEX_PREFIX + dexCount + FileType.DEX.getFileExtension();
+      dexName = DexFileWriter.DEX_PREFIX + dexCount + DexFileWriter.DEX_FILE_EXTENSION;
     }
     try {
       return outputVfs.getRootOutputVDir().createOutputVFile(new VPath(dexName, '/'));
@@ -157,14 +157,14 @@ public abstract class DexWritingTool {
       if (location instanceof TypeInInputLibraryLocation) {
         InputLibrary inputLibrary =
             ((TypeInInputLibraryLocation) location).getInputLibraryLocation().getInputLibrary();
-        if (inputLibrary.containsFileType(FileType.DEX)) {
-          inputVFile = inputLibrary.getFile(FileType.DEX,
+        if (inputLibrary.containsFileType(FileType.PREBUILT)) {
+          inputVFile = inputLibrary.getFile(FileType.PREBUILT,
               new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
         }
       }
 
       if (inputVFile == null) {
-        inputVFile = jackOutputLibrary.getFile(FileType.DEX,
+        inputVFile = jackOutputLibrary.getFile(FileType.PREBUILT,
             new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
       }
     } catch (FileTypeDoesNotExistException e) {

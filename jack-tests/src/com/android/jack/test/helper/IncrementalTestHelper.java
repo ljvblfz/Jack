@@ -16,6 +16,7 @@
 
 package com.android.jack.test.helper;
 
+import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.library.FileType;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.LibraryIOException;
@@ -163,7 +164,7 @@ public class IncrementalTestHelper {
         if (previousDate == null || jayceFile.getLastModified() > previousDate.longValue()) {
           String fqnWithExtension = path.getPathAsString('.');
           String fqn = fqnWithExtension.substring(0,
-              fqnWithExtension.lastIndexOf(FileType.JAYCE.getFileExtension()));
+              fqnWithExtension.lastIndexOf(JayceFileImporter.JAYCE_FILE_EXTENSION));
           fqnOfRebuiltTypes.add(fqn);
         }
       }

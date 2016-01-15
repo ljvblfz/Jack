@@ -56,10 +56,10 @@ public class ResourceTests {
   @Nonnull
   private static final String COMMON_PATH = "com/android/jack/resource/test001/jack/";
   @Nonnull
-  private static final String JACK_FILE_PATH = FileType.JAYCE.getPrefix() + "/" + COMMON_PATH
+  private static final String JACK_FILE_PATH = "jayce/" + COMMON_PATH
       + "IrrelevantForTest.jayce";
   @Nonnull
-  private static final String DEX_FILE_PATH = FileType.DEX.getPrefix() + "/" + COMMON_PATH
+  private static final String DEX_FILE_PATH = "dex/" + COMMON_PATH
       + "IrrelevantForTest.dex";
   @Nonnull
   private static final String RESOURCE1_SHORTPATH = "Resource1";

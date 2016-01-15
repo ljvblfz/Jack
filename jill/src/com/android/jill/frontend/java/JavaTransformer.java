@@ -49,7 +49,7 @@ import javax.annotation.Nonnull;
 public class JavaTransformer {
 
   @Nonnull
-  private static final String LIB_MAJOR_VERSION = "1";
+  private static final String LIB_MAJOR_VERSION = "2";
 
   @Nonnull
   private static final String LIB_MINOR_VERSION = "1";

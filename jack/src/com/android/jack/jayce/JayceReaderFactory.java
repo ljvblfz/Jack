@@ -45,7 +45,7 @@ public abstract class JayceReaderFactory {
   @Nonnull
   public static JayceInternalReader get(@Nonnull InputJackLibrary inputJackLibrary,
       @Nonnull InputStream in) throws LibraryFormatException {
-    String majorVersionStr = inputJackLibrary.getProperty(JayceProperties.KEY_JAYCE_MAJOR_VERSION);
+    String majorVersionStr = inputJackLibrary.getProperty(inputJackLibrary.keyJayceMajorVersion);
 
     int majorVersion = inputJackLibrary.getJayceMajorVersion();
     int minorVersion = inputJackLibrary.getJayceMinorVersion();

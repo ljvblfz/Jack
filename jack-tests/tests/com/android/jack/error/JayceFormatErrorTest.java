@@ -17,8 +17,6 @@
 package com.android.jack.error;
 
 import com.android.jack.JackAbortException;
-import com.android.jack.jayce.JayceProperties;
-import com.android.jack.library.FileType;
 import com.android.jack.library.JackLibrary;
 import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.library.LibraryFormatException;
@@ -35,10 +33,15 @@ import org.junit.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 
+import javax.annotation.Nonnull;
+
 /**
  * Test checking the behavior of Jack with an invalid Jayce format.
  */
 public class JayceFormatErrorTest {
+
+  @Nonnull
+  private static final String JAYCE_SECTION_PATH = "jayce";
 
   /**
    * Checks that compilation fails correctly when a jayce file is corrupted.
@@ -47,7 +50,7 @@ public class JayceFormatErrorTest {
   public void testJayceFormatError() throws Exception {
     ErrorTestHelper helper = new ErrorTestHelper();
 
-    AbstractTestTools.createFile(new File(helper.getJackFolder(), FileType.JAYCE.getPrefix()), "jack.incremental",
+    AbstractTestTools.createFile(new File(helper.getJackFolder(), JAYCE_SECTION_PATH), "jack.incremental",
                 "A.jayce", "jayce(" + JackLibraryFactory.DEFAULT_MAJOR_VERSION + "." + Version.MINOR
                     + ")Corrupted");
     AbstractTestTools.createFile(helper.getJackFolder(), "", "jack.properties",
@@ -55,9 +58,9 @@ public class JayceFormatErrorTest {
                 + JackLibrary.KEY_LIB_EMITTER_VERSION + "=0\n"
                 + JackLibrary.KEY_LIB_MAJOR_VERSION + "=" + Version.MAJOR + "\n"
                 + JackLibrary.KEY_LIB_MINOR_VERSION + "=" + Version.MINOR + "\n"
-                + FileType.JAYCE.buildPropertyName(null /*suffix*/) + "=true\n"
-                + JayceProperties.KEY_JAYCE_MAJOR_VERSION + "=2\n"
-                + JayceProperties.KEY_JAYCE_MINOR_VERSION + "=14\n");
+                + "jayce=true\n"
+                + "jayce.version.major=2\n"
+                + "jayce.version.minor=14\n");
 
     AbstractTestTools.createFile(helper.getSourceFolder(),"jack.incremental", "B.java",
         "package jack.incremental; \n"+
@@ -92,16 +95,16 @@ public class JayceFormatErrorTest {
   public void testJayceHeaderError() throws Exception {
     ErrorTestHelper helper = new ErrorTestHelper();
 
-    AbstractTestTools.createFile(new File(helper.getJackFolder(), FileType.JAYCE.getPrefix()), "jack.incremental",
+    AbstractTestTools.createFile(new File(helper.getJackFolder(), JAYCE_SECTION_PATH), "jack.incremental",
                 "A.jayce", "jayce()");
     AbstractTestTools.createFile(helper.getJackFolder(), "", "jack.properties",
                 JackLibrary.KEY_LIB_EMITTER + "=unknown\n"
                 + JackLibrary.KEY_LIB_EMITTER_VERSION + "=0\n"
                 + JackLibrary.KEY_LIB_MAJOR_VERSION + "=" + Version.MAJOR + "\n"
                 + JackLibrary.KEY_LIB_MINOR_VERSION + "=" + Version.MINOR + "\n"
-                + FileType.JAYCE.buildPropertyName(null /*suffix*/) + "=true\n"
-                + JayceProperties.KEY_JAYCE_MAJOR_VERSION + "=2\n"
-                + JayceProperties.KEY_JAYCE_MINOR_VERSION + "=14\n");
+                + "jayce=true\n"
+                + "jayce.version.major=2\n"
+                + "jayce.version.minor=14\n");
 
 
     AbstractTestTools.createFile(helper.getSourceFolder(),"jack.incremental", "B.java",
@@ -137,7 +140,7 @@ public class JayceFormatErrorTest {
   public void testJayceVersionError() throws Exception {
     ErrorTestHelper helper = new ErrorTestHelper();
 
-    AbstractTestTools.createFile(new File(helper.getJackFolder(), FileType.JAYCE.getPrefix()),
+    AbstractTestTools.createFile(new File(helper.getJackFolder(), JAYCE_SECTION_PATH),
         "jack.incremental",
         "A.jayce", "jayce()");
     AbstractTestTools.createFile(helper.getJackFolder(), "", "jack.properties",
@@ -145,9 +148,9 @@ public class JayceFormatErrorTest {
         + JackLibrary.KEY_LIB_EMITTER_VERSION + "=0\n"
         + JackLibrary.KEY_LIB_MAJOR_VERSION + "=" + Version.MAJOR + "\n"
         + JackLibrary.KEY_LIB_MINOR_VERSION + "=" + Version.MINOR + "\n"
-        + FileType.JAYCE.buildPropertyName(null /*suffix*/) + "=true\n"
-        + JayceProperties.KEY_JAYCE_MAJOR_VERSION + "=0\n"
-        + JayceProperties.KEY_JAYCE_MINOR_VERSION + "=0\n");
+        + "jayce=true\n"
+        + "jayce.version.major=0\n"
+        + "jayce.version.minor=0\n");
 
     AbstractTestTools.createFile(helper.getSourceFolder(),"jack.incremental", "B.java",
         "package jack.incremental; \n"+
