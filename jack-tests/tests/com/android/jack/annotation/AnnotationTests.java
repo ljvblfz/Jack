@@ -293,6 +293,7 @@ public class AnnotationTests extends RuntimeTest {
    */
   @Test
   @Category(SlowTests.class)
+  @KnownIssue(candidate=JillBasedToolchain.class)
   public void test015_jill() throws Exception {
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JillBasedToolchain.class);
@@ -392,6 +393,7 @@ public class AnnotationTests extends RuntimeTest {
    */
   @Test
   @Category(SlowTests.class)
+  @KnownIssue(candidate=JillBasedToolchain.class)
   public void test017_jill() throws Exception {
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JillBasedToolchain.class);
