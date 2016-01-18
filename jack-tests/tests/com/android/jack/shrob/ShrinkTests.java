@@ -213,6 +213,8 @@ public class ShrinkTests extends AbstractTest {
           new ProguardFlags(new File( shrobTestsDir, "test021"),"proguard.flags001"));
       shrinkOut = AbstractTestTools.createTempDir();
       toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
+      // This test does not use the SourceToDexComparisonTestHelper since it
+      // calls libToLib instead of srcToExe.
       toolchain.libToLib(jackOut, shrinkOut, /* zipFiles = */ false);
 
       new ComparatorMapping(candidateNodeListing,
@@ -224,13 +226,14 @@ public class ShrinkTests extends AbstractTest {
       toolchain.libToExe(shrinkOut, dexOut, /* zipFile = */ false);
 
     } catch (Exception e) {
-      String message = "Not deleting temp files of failed ShrinkTest.test20 in:\n" +
-          "- " + jackOut.getAbsolutePath();
+      String message =
+          "Not deleting temp files of failed ShrinkTest.test21 in:" + TextUtils.LINE_SEPARATOR
+          + "- " + jackOut.getAbsolutePath();
       if (shrinkOut != null) {
-        message += "\n- " + shrinkOut.getAbsolutePath();
+        message += TextUtils.LINE_SEPARATOR + "- " + shrinkOut.getAbsolutePath();
       }
       if (dexOut != null) {
-        message += "\n- " + dexOut.getAbsolutePath();
+        message += TextUtils.LINE_SEPARATOR + "- " + dexOut.getAbsolutePath();
       }
       System.err.println();
       System.err.println(message);
