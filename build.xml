@@ -2293,6 +2293,7 @@
     <mkdir dir="${jack.tests.output}/test-jack-by-name/html"/>
     <java fork="true" resultproperty="test-jack.failure"
       classname="com.android.jack.test.junit.JackJunitLauncherXml">
+      <jvmarg value="-Dfile.encoding=utf-8" />
       <jvmarg value="-Dtests.config=${tests.config}"/>
       <jvmarg value="${jack.tests.assertions}"/>
       <classpath>
@@ -2323,6 +2324,7 @@
     <mkdir dir="${jack.tests.output}/test-jack/html"/>
     <java fork="true" resultproperty="test-jack.failure"
       classname="com.android.jack.test.junit.JackJunitLauncherXml">
+      <jvmarg value="-Dfile.encoding=utf-8" />
       <jvmarg value="-Dtests.config=${tests.config}"/>
       <jvmarg value="${jack.tests.assertions}"/>
       <classpath>
@@ -2353,6 +2355,7 @@
      <mkdir dir="${jack.tests.output}/test-jack-long/html"/>
      <java fork="true" resultproperty="test-jack.failure"
        classname="com.android.jack.test.junit.JackJunitLauncherXml">
+       <jvmarg value="-Dfile.encoding=utf-8" />
        <jvmarg value="-Dtests.config=${tests.config}"/>
        <jvmarg value="${jack.tests.assertions}"/>
        <classpath>
@@ -2383,6 +2386,7 @@
       <mkdir dir="${jack.tests.output}/test-jack-all/html"/>
       <java fork="true" resultproperty="test-jack.failure"
         classname="com.android.jack.test.junit.JackJunitLauncherXml">
+        <jvmarg value="-Dfile.encoding=utf-8" />
         <jvmarg value="-Dtests.config=${tests.config}"/>
         <jvmarg value="${jack.tests.assertions}"/>
         <classpath>
@@ -2413,6 +2417,7 @@
   <target name="test-sched-nodep">
       <mkdir dir="${jack.tests.output}/test-sched/html"/>
       <junit fork="yes" failureproperty="test-jack.failure">
+        <jvmarg value="-Dfile.encoding=utf-8" />
         <jvmarg value="${jack.tests.assertions}"/>
         <formatter type="xml"/>
         <classpath>
