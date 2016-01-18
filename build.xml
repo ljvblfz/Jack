@@ -2148,19 +2148,7 @@
     <delete dir="${core-stubs-mini.dist.dir}" />
   </target>
 
-  <target name="core-stubs-mini-check">
-    <uptodate property="core-stubs-mini.uptodate"
-      targetfile="${core-stubs-mini.dist.dir}/${core-stubs-mini.jack.libname}">
-      <srcfiles dir="${core-stubs-mini.dir}/src">
-        <include name="**/*.java"/>
-      </srcfiles>
-      <srcresources>
-        <dirset dir="${core-stubs-mini.dir}/src"/>
-      </srcresources>
-    </uptodate>
-  </target>
-
-  <target name="core-stubs-mini" depends="jack-intermediate,core-stubs-mini-check" unless="core-stubs-mini.uptodate">
+  <target name="core-stubs-mini" depends="jack-intermediate">
     <mkdir dir="${core-stubs-mini.dist.dir}"/>
     <mkdir dir="${core-stubs-mini.build.outdir}"/>
     <fileset dir="${core-stubs-mini.dir}/src">
@@ -2203,6 +2191,14 @@
        <filelist refid="core-stubs-mini.result.libs" />
     </copy>
   </target>
+
+
+  <!-- ******************* -->
+  <!-- prebuilts           -->
+  <!-- ******************* -->
+
+  <target name="prebuilts" description="build and deploy prebuilt libraries"
+    depends="core-stubs-mini,junit4-lib,junit4-jack-lib"/>
 
 
   <!-- ******************* -->
