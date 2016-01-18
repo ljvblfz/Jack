@@ -129,8 +129,8 @@ public abstract class JackLibraryFactory {
     } catch (IllegalArgumentException e) {
       throw new AssertionError("Illegal argument for library constructor for version " + version);
     } catch (ClassNotFoundException e) {
-      throw new LibraryVersionException(
-          "Library " + vdir + " has an unsupported version " + version);
+      throw new LibraryVersionException("Library " + vdir.getLocation().getDescription()
+          + " has an unsupported version " + version);
     } catch (NoSuchMethodException e) {
       throw new AssertionError("Library constructor not found for version " + version);
     } catch (InstantiationException e) {
