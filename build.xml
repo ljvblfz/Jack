@@ -876,7 +876,6 @@
       <arg value="${jack-tests.build.dir}/${jack-tests.libname}" />
       <arg value="${jackunittests.dist.dir}/${jackunittests.libname}" />
       <arg line="${jackunittests.static.libs.list}" />
-      <arg line="${jill-api.dist.dir}/${jill-api.lib.name}"/>
       <arg line="${jack.static.libs.list}" />
       <arg value="${jack-tests.dist.dir}/${jack-tests.execname}" />
     </java>
@@ -889,6 +888,7 @@
   <property name="jill.build.dir" value="${jill.dir}/build/jill" />
   <property name="jill.libs.dir" value="${jill.dir}/libs" />
   <property name="jill.build.outdir" value="${jill.build.dir}/classes" />
+  <property name="jill.exec.build.dir" value="${jill.build.dir}/package" />
   <property name="jill.dist.dir" value="${jill.dir}/dist" />
   <property name="jill.execname" value="jill.jar" />
   <property name="jill.libname" value="jill-lib.jar" />
@@ -958,7 +958,11 @@
   </target>
 
   <target name="jill" depends="jill-compile">
-      <copy todir="${jill.build.outdir}">
+      <mkdir dir="${jill.exec.build.dir}"/>
+      <copy todir="${jill.exec.build.dir}">
+        <fileset dir="${jill.build.outdir}">
+          <include name="**/*" />
+        </fileset>
         <fileset dir="${jill.dir}/rsc">
           <include name="**/*" />
         </fileset>
@@ -978,16 +982,16 @@
           <include name="**/*" />
         </fileset>
       </copy>
-      <unzip dest="${jill.build.outdir}" src="${guava.dist.dir}/${guava.libname}">
+      <unzip dest="${jill.exec.build.dir}" src="${guava.dist.dir}/${guava.libname}">
         <patternset excludes="META-INF/**"/>
       </unzip>
 
       <copy file="${jack-project.dir}/version.properties"
-            tofile="${jill.build.outdir}/jill-version.properties"/>
+            tofile="${jill.exec.build.dir}/jill-version.properties"/>
 
       <jar destfile="${jill.dist.dir}/${jill.execname}"
             manifest="${jill.dir}/etc/manifest.txt"
-            basedir="${jill.build.outdir}"
+            basedir="${jill.exec.build.dir}"
             includes="**"/>
   </target>
 
