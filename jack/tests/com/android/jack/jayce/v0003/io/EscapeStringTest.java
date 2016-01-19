@@ -112,9 +112,9 @@ public class EscapeStringTest {
   private String writeStringAndReadItAfter(@Nonnull String stringToWrite)
       throws IOException, IllegalOptionsException {
     File tmp = TestTools.createTempFile("tmp", "");
+    RunnableHooks hooks = new RunnableHooks();
     try {
       Options options = new Options();
-      RunnableHooks hooks = new RunnableHooks();
       options.checkValidity(hooks);
       options.getConfigBuilder(hooks).setDebug();
       ThreadConfig.setConfig(options.getConfig());
@@ -132,6 +132,7 @@ public class EscapeStringTest {
       throw new AssertionError(e);
     } finally {
       ThreadConfig.unsetConfig();
+      hooks.runHooks();
     }
   }
 }

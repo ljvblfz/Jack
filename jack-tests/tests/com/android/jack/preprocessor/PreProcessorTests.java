@@ -83,39 +83,41 @@ public class PreProcessorTests {
     args.setClasspath(AbstractTestTools.getClasspathsAsString(toolchain.getDefaultBootClasspath(),
         new File[] {tempDir}));
     RunnableHooks hooks = new RunnableHooks();
-    JSession session = TestTools.buildSession(args, hooks);
-    ANTLRFileStream in = new ANTLRFileStream(new File(testDir, "config.jpp").getAbsolutePath());
-    PreProcessorLexer lexer = new PreProcessorLexer(in);
-    CommonTokenStream tokens = new CommonTokenStream(lexer);
-    PreProcessorParser parser = new PreProcessorParser(tokens);
-    Collection<Rule> rules = parser.rules(session, new NoLocation());
-    Scope scope = new TypeToEmitScope(session);
-    Map<Entry, Rule> map = new HashMap<Entry, Rule>();
-    for (Rule rule : rules) {
-      Context context = new Context(rule);
-      if (!rule.getSet().eval(scope, context).isEmpty()) {
-        for (AddAnnotationStep request : context.getSteps()) {
-          request.apply(map);
+    try {
+      JSession session = TestTools.buildSession(args, hooks);
+      ANTLRFileStream in = new ANTLRFileStream(new File(testDir, "config.jpp").getAbsolutePath());
+      PreProcessorLexer lexer = new PreProcessorLexer(in);
+      CommonTokenStream tokens = new CommonTokenStream(lexer);
+      PreProcessorParser parser = new PreProcessorParser(tokens);
+      Collection<Rule> rules = parser.rules(session, new NoLocation());
+      Scope scope = new TypeToEmitScope(session);
+      Map<Entry, Rule> map = new HashMap<Entry, Rule>();
+      for (Rule rule : rules) {
+        Context context = new Context(rule);
+        if (!rule.getSet().eval(scope, context).isEmpty()) {
+          for (AddAnnotationStep request : context.getSteps()) {
+            request.apply(map);
+          }
         }
       }
-    }
 
-    JAnnotationType installerAnnotation = session.getPhantomLookup().getAnnotationType(
-        "Lcom/android/jack/preprocessor/test001/jack/MultiDexInstaller;");
-    JNodeLookup lookup = session.getLookup();
-    {
-      JDefinedClassOrInterface coi = lookup.getClass(
-          "Lcom/android/jack/preprocessor/test001/jack/app1/ApplicationActivity1;");
-      Assert.assertFalse(coi.getAnnotations(installerAnnotation).isEmpty());
-      for (JMethod method : coi.getMethods()) {
-        if (method.getName().equals("noAnnotation")) {
-          Assert.assertTrue(method.getAnnotations(installerAnnotation).isEmpty());
-        } else {
-          Assert.assertFalse(method.getAnnotations(installerAnnotation).isEmpty());
+      JAnnotationType installerAnnotation = session.getPhantomLookup().getAnnotationType(
+          "Lcom/android/jack/preprocessor/test001/jack/MultiDexInstaller;");
+      JNodeLookup lookup = session.getLookup();
+      {
+        JDefinedClassOrInterface coi = lookup.getClass(
+            "Lcom/android/jack/preprocessor/test001/jack/app1/ApplicationActivity1;");
+        Assert.assertFalse(coi.getAnnotations(installerAnnotation).isEmpty());
+        for (JMethod method : coi.getMethods()) {
+          if (method.getName().equals("noAnnotation")) {
+            Assert.assertTrue(method.getAnnotations(installerAnnotation).isEmpty());
+          } else {
+            Assert.assertFalse(method.getAnnotations(installerAnnotation).isEmpty());
+          }
         }
       }
+    } finally {
+      hooks.runHooks();
     }
-
-    hooks.runHooks();
   }
 }

@@ -46,23 +46,36 @@ import com.android.sched.util.config.ThreadConfig;
 
 import junit.framework.Assert;
 
+import org.junit.AfterClass;
 import org.junit.Assume;
+import org.junit.BeforeClass;
 import org.junit.Test;
+
+import javax.annotation.Nonnull;
 
 /**
  * JUnit test for getType.
  */
 public class Types {
 
-  public Types() throws ConfigurationException, IllegalOptionsException {
+  @Nonnull
+  private static RunnableHooks hooks;
+
+  @BeforeClass
+  public static void setUp() throws ConfigurationException, IllegalOptionsException {
     Options options = new Options();
-    RunnableHooks hooks = new RunnableHooks();
+    hooks = new RunnableHooks();
     options.checkValidity(hooks);
     options.getConfigBuilder(hooks).setDebug();
     ThreadConfig.setConfig(options.getConfig());
 
     JSession session = Jack.getSession();
     session.getLookup().getOrCreatePackage("java/lang");
+  }
+
+  @AfterClass
+  public static void tearDown() {
+    hooks.runHooks();
   }
 
   @Test
