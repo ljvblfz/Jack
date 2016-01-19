@@ -181,7 +181,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
         InputVFile vFile = (InputVFile) subFile;
         if (!isJayce(vFile)
             && !isJPP(vFile)
-            && !vFile.getName().equals(JackLibrary.LIBRARY_PROPERTIES_VPATH.getLastElement())) {
+            && !vFile.getName().equals(JackLibrary.LIBRARY_PROPERTIES_VPATH.getLastName())) {
           files.add(vFile);
         }
       }
