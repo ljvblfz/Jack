@@ -16,11 +16,10 @@
 
 package com.android.jack.shrob.proguard;
 
-import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.ir.formatter.BinarySignatureFormatter;
 import com.android.jack.ir.formatter.SourceFormatter;
 import com.android.jack.ir.formatter.TypeAndMethodFormatter;
-import com.android.jack.ir.formatter.TypeFormatter;
+import com.android.jack.ir.formatter.TypePackageAndMethodFormatter;
 import com.android.jack.shrob.spec.AnnotationSpecification;
 import com.android.jack.shrob.spec.ClassSpecification;
 import com.android.jack.shrob.spec.ClassTypeSpecification;
@@ -72,11 +71,10 @@ public class GrammarActions {
   @Nonnull
   private static final TypeAndMethodFormatter signatureFormatter =
       BinarySignatureFormatter.getFormatter();
+
   @Nonnull
-  private static final BinaryQualifiedNameFormatter binaryNameFormatter =
-      BinaryQualifiedNameFormatter.getFormatter();
-  @Nonnull
-  private static final TypeFormatter sourceFormatter = SourceFormatter.getFormatter();
+  private static final TypePackageAndMethodFormatter sourceFormatter =
+      SourceFormatter.getFormatter();
 
   private GrammarActions() {
   }
@@ -87,12 +85,7 @@ public class GrammarActions {
   }
 
   @Nonnull
-  public static BinaryQualifiedNameFormatter getBinaryNameFormatter() {
-    return binaryNameFormatter;
-  }
-
-  @Nonnull
-  public static TypeFormatter getSourceFormatter() {
+  public static TypePackageAndMethodFormatter getSourceFormatter() {
     return sourceFormatter;
   }
 
@@ -167,7 +160,7 @@ public class GrammarActions {
     } else if (name.equals("void")) {
       sig.append("V");
     } else {
-      sig.append("L" + convertNameToPattern(name) + ";");
+      sig.append(convertNameToPattern(NamingTools.getTypeSignatureName(name)));
     }
 
     return sig.toString();
@@ -179,9 +172,6 @@ public class GrammarActions {
     for (int i = 0; i < name.length(); i++) {
       char c = name.charAt(i);
       switch(c) {
-        case '.':
-          sb.append('/');
-          break;
         case '?':
           // ? matches any single character in a name
           // but not the package separator

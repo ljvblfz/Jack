@@ -54,7 +54,7 @@ public class InheritanceSpecification implements Specification<JDefinedClassOrIn
       return false;
     }
 
-    return (className.matches(GrammarActions.getBinaryNameFormatter().getName(type)));
+    return (className.matches(GrammarActions.getSourceFormatter().getName(type)));
   }
 
   @Override

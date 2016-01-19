@@ -40,7 +40,7 @@ public class AnnotationSpecification implements Specification<Collection<JAnnota
 
     for (JAnnotation annotation : t) {
       if (annotationType.matches(
-          GrammarActions.getBinaryNameFormatter().getName(annotation.getType()))) {
+          GrammarActions.getSourceFormatter().getName(annotation.getType()))) {
         annotationFound = true;
       }
     }

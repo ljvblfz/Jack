@@ -63,7 +63,7 @@ public class MethodSpecification implements Specification<JMethod>{
         return true;
       }
       methodName = signature.replace(NamingTools.INIT_NAME,
-          GrammarActions.getBinaryNameFormatter().getName(t.getEnclosingType()));
+          GrammarActions.getSourceFormatter().getName(t.getEnclosingType()));
       if (sigPattern.matches(methodName)) {
         return true;
       }

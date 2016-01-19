@@ -102,7 +102,7 @@ public class ClassSpecification implements Specification<JDefinedClassOrInterfac
       return false;
     }
 
-    if (!name.matches(GrammarActions.getBinaryNameFormatter().getName(type))) {
+    if (!name.matches(GrammarActions.getSourceFormatter().getName(type))) {
       return false;
     }
 

@@ -97,7 +97,7 @@ public class NameKeeper implements RunnableSchedulable<JPackage> {
       } else if (flags.getKeepPackageNames() != null) {
         if (!isMarked(pack)) {
           if (flags.getKeepPackageNames()
-              .matches(GrammarActions.getBinaryNameFormatter().getName(pack))) {
+              .matches(GrammarActions.getSourceFormatter().getName(pack))) {
             keepName(pack);
           }
         }
