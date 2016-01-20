@@ -87,6 +87,7 @@
         <file name="${jack-server.dir}/etc/jack" />
         <file name="${jack-server.dir}/etc/jack-admin" />
         <file name="${jack-server.dir}/etc/jack-diagnose" />
+        <file name="${jack-server.dir}/README-jack-server.md" />
       </filelist>
     </copy>
     <replace file="${jack-top-dist.dir}/jack"
