@@ -1,3 +1,5 @@
+This documentation describes usage of Jack server %%VERSION%%.
+
 # Jack server
 
 The Jack server's goal is to handle a pool of Jack compiler instances in order to limit memory usage
