@@ -70,9 +70,10 @@ public class Api01ConfigImpl implements Api01Config {
     try {
       Jack.check(options, configHooks);
     } catch (com.android.sched.util.config.ConfigurationException e) {
+      configHooks.runHooks();
       throw new ConfigurationException(e.getMessage(), e);
     } catch (IllegalOptionsException e) {
-
+      configHooks.runHooks();
       throw new ConfigurationException(e.getMessage(), e);
     }
 
