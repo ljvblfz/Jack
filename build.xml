@@ -2219,6 +2219,10 @@
     <istrue value="${tests.disable-assertions}"/>
   </condition>
 
+  <condition property="jack.tests.console-output" value="--console-output" else="">
+    <istrue value="${tests.console-output}"/>
+  </condition>
+
   <filelist id="jack.junit.tests.classpath" dir="/">
     <file name="${jack-tests.dist.dir}/${jack-tests.execname}" />
     <file name="${ddm-lib.dist.dir}/${ddm-lib.libname}" />
@@ -2302,6 +2306,7 @@
       </classpath>
       <arg value="${jack.tests.output}/test-jack-by-name/test-jack-by-name.xml" />
       <arg value="${test.name}" />
+      <arg line="${jack.tests.console-output}" />
     </java>
     <junitreport todir="${jack.tests.output}/test-jack-by-name">
       <fileset dir="${jack.tests.output}/test-jack-by-name">
@@ -2333,6 +2338,7 @@
       </classpath>
       <arg value="${jack.tests.output}/test-jack/test-jack.xml" />
       <arg value="com.android.jack.PreSubmitTests" />
+      <arg line="${jack.tests.console-output}" />
     </java>
     <junitreport todir="${jack.tests.output}/test-jack">
       <fileset dir="${jack.tests.output}/test-jack">
@@ -2364,6 +2370,7 @@
        </classpath>
        <arg value="${jack.tests.output}/test-jack-long/test-jack-long.xml" />
        <arg value="com.android.jack.LongLastingTests" />
+       <arg line="${jack.tests.console-output}" />
      </java>
      <junitreport todir="${jack.tests.output}/test-jack-long">
        <fileset dir="${jack.tests.output}/test-jack-long">
@@ -2395,6 +2402,7 @@
         </classpath>
         <arg value="${jack.tests.output}/test-jack-all/test-jack-all.xml" />
         <arg value="com.android.jack.AllWithJackTests" />
+        <arg line="${jack.tests.console-output}" />
       </java>
       <junitreport todir="${jack.tests.output}/test-jack-all">
         <fileset dir="${jack.tests.output}/test-jack-all">

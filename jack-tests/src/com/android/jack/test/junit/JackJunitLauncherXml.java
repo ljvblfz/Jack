@@ -374,16 +374,47 @@ public class JackJunitLauncherXml {
     }
   }
 
+  private static class DualPrintStream extends PrintStream {
+
+    @Nonnull
+    private PrintStream secondaryPrintStream;
+
+    public DualPrintStream(@Nonnull OutputStream out, @Nonnull PrintStream secondaryPrintStream) {
+      super(out);
+      this.secondaryPrintStream = secondaryPrintStream;
+    }
+
+    @Override
+    public void write(int b) {
+      super.write(b);
+      secondaryPrintStream.write(b);
+    }
+
+    @Override
+    public void write(@Nonnull byte[] buf, @Nonnegative int off, @Nonnegative int len) {
+      super.write(buf, off, len);
+      secondaryPrintStream.write(buf, off, len);
+    }
+
+  }
+
   /**
    * Entry point
-   * @param args <output file>  <test class>
+   * @param args <output file>  <test class> [--console-output]
    * @throws ClassNotFoundException
    * @throws IOException
    */
   public static void main(@Nonnull String[] args) throws ClassNotFoundException, IOException {
-    if (args.length != 2) {
-      System.err.println("Usage: <test> <output-file>");
-      System.exit(ExitStatus.BAD_ARGUMENTS);
+
+    boolean outputToConsole = false;
+
+    if (args.length > 2) {
+      if (args.length != 3 || !args[2].equals("--console-output")) {
+        System.err.println("Usage: <test> <output-file> [--console-output]");
+        System.exit(ExitStatus.BAD_ARGUMENTS);
+      } else {
+        outputToConsole = true;
+      }
     }
 
     String fileName = args[0];
@@ -391,17 +422,24 @@ public class JackJunitLauncherXml {
 
     XMLRunListener listener = new XMLRunListener(new FileOutputStream(fileName));
 
-    JUnitCore core = new JUnitCore();
-    core.addListener(listener);
-
     PrintStream stdOut = System.out;
     PrintStream stdErr = System.err;
+
+    JUnitCore core = new JUnitCore();
+    core.addListener(listener);
 
     ByteArrayOutputStream outputStreamByteArray = new ByteArrayOutputStream();
     ByteArrayOutputStream errorStreamByteArray = new ByteArrayOutputStream();
 
-    PrintStream outputStream = new PrintStream(outputStreamByteArray);
-    PrintStream errorStream = new PrintStream(errorStreamByteArray);
+    PrintStream outputStream;
+    PrintStream errorStream;
+    if (outputToConsole) {
+      outputStream = new DualPrintStream(outputStreamByteArray, stdOut);
+      errorStream = new DualPrintStream(errorStreamByteArray, stdErr);
+    } else {
+      outputStream = new PrintStream(outputStreamByteArray);
+      errorStream = new PrintStream(errorStreamByteArray);
+    }
 
     System.setOut(outputStream);
     System.setErr(errorStream);
