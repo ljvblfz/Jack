@@ -66,10 +66,14 @@ import javax.annotation.Nonnull;
  *  - condition (1) a must have a value and b must be variable reference
  *  - condition (2) if s0 and s1 are in the same block then the variable b must not be redefine
  *  between statement s0 and s1
- *  - condition (3) if s0 and s1 are not into the same block then all definitions of b used
- *  by s0 must reach the block containing s1 and this block must not redefine b between the
- *  beginning of the block and s1
+ *  - condition (3) if s0 and s1 are not into the same block then all definitions of b used by s0
+ *  must reach the block containing s1 and all of these definitions must dominates s0. The block
+ *  that contains s1 must not redefine b between the beginning of this block and s1
  *
+ * Temporary restriction of condition(3)
+ * if several definitions of b exists, Jack must checks that all definition statements dominate s0.
+ * Currently, as it can not be done efficiently (without walk through the cfg) we do not optimize
+ * this case and restrict optimization to case where b has only one definitions.
  */
 @Description("Simplify use definitions chains.")
 @Constraint(need = {UseDefsMarker.class, ThreeAddressCodeForm.class, ControlFlowGraph.class})
@@ -103,6 +107,7 @@ public class UseDefsChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
       for (JVariableRef varRefOfa : varsUsedBys1.toArray(new JVariableRef[varsUsedBys1.size()])) {
         List<DefinitionMarker> defsOfa = OptimizationTools.getUsedDefinitions(varRefOfa);
 
+        // Condition(0)
         if (defsOfa.size() == 1) {
           DefinitionMarker defOfa = defsOfa.get(0);
 
@@ -158,7 +163,7 @@ public class UseDefsChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
       } else {
         // Condition (3)
         List<DefinitionMarker> defsOfbUseFroms0 = OptimizationTools.getUsedDefinitions(varRefb);
-        if (bbHasOnlyDefinitions(bbOfs1, b, defsOfbUseFroms0)
+        if (defsOfbUseFroms0.size() == 1 && bbHasOnlyDefinitions(bbOfs1, b, defsOfbUseFroms0)
             && !hasLocalDef(b, bbOfs1, null, s1)) {
           return true;
         }
