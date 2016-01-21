@@ -46,15 +46,15 @@ public abstract class JillApiToolchainBase extends JillBasedToolchain {
   private static JillProvider configProvider;
 
   @Nonnull
-  private static String releaseName;
+  private String releaseName;
   @Nonnegative
-  private static int releaseCode;
+  private int releaseCode;
   @Nonnull
-  private static SubReleaseKind subReleaseKind;
+  private SubReleaseKind subReleaseKind;
   @Nonnegative
-  private static int subSubReleaseCode;
+  private int subSubReleaseCode;
   @Nonnull
-  private static String compilerVersion;
+  private String compilerVersion;
 
 
   protected <T extends JillConfig> JillApiToolchainBase(@Nonnull File jillPrebuilt,

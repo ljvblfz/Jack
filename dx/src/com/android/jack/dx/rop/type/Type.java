@@ -33,7 +33,7 @@ public final class Type implements TypeBearer, Comparable<Type> {
 
   // STOPSHIP: Remove closures from descriptor until the runtime support them.
   @Deprecated
-  public static String ReplaceClosureFromDescriptor(@Nonnull String descriptor) {
+  public static String replaceClosureFromDescriptor(@Nonnull String descriptor) {
     int pos = descriptor.indexOf("\\");
     if (pos == -1) {
       return descriptor;
