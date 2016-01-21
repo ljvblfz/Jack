@@ -103,8 +103,10 @@ import com.android.jack.jayce.JaycePackageLoader;
 import com.android.jack.library.FileType;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputLibrary;
+import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.LibraryReadingException;
+import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.meta.LibraryMetaWriter;
@@ -310,6 +312,8 @@ import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
 import com.android.sched.vfs.Container;
+import com.android.sched.vfs.ReadWriteZipFS;
+import com.android.sched.vfs.VFS;
 
 import org.antlr.runtime.RecognitionException;
 
@@ -461,14 +465,13 @@ public abstract class Jack {
 
       JSession session = getSession();
 
-      try {
-        buildSession(session, options, hooks);
+      OutputJackLibrary outputJackLibrary = null;
 
-        if (config.get(Options.GENERATE_JACK_LIBRARY).booleanValue()) {
-          InputFilter inputFilter = session.getInputFilter();
-          assert inputFilter != null;
-          session.setJackOutputLibrary(inputFilter.getOutputJackLibrary());
-        }
+      try {
+        outputJackLibrary = createOutputJackLibrary();
+        session.setJackOutputLibrary(outputJackLibrary);
+
+        buildSession(session, options, hooks);
 
         Request request = createInitialRequest();
         request.addFeature(PreProcessor.class);
@@ -729,9 +732,8 @@ public abstract class Jack {
         plan.getScheduleInstance().process(session);
       } finally {
         try {
-          InputFilter inputFilter = session.getInputFilter();
-          if (inputFilter != null) {
-            inputFilter.getOutputJackLibrary().close();
+          if (outputJackLibrary != null) {
+            outputJackLibrary.close();
           }
 
           // TODO(jack-team): auto-close
@@ -751,6 +753,24 @@ public abstract class Jack {
       }
       ThreadConfig.unsetConfig();
     }
+  }
+
+  @Nonnull
+  private static OutputJackLibrary createOutputJackLibrary() {
+    VFS outputJackVfs = null;
+    if (ThreadConfig.get(Options.GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER).booleanValue()) {
+      VFS dirVFS = ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR);
+      outputJackVfs = ThreadConfig.get(Options.LIBRARY_OUTPUT_ZIP);
+      ((ReadWriteZipFS) outputJackVfs).setWorkVFS(dirVFS);
+    } else {
+      if (ThreadConfig.get(Options.LIBRARY_OUTPUT_CONTAINER_TYPE) == Container.DIR) {
+        outputJackVfs = ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR);
+      } else {
+        outputJackVfs = ThreadConfig.get(Options.LIBRARY_OUTPUT_ZIP);
+      }
+    }
+    return JackLibraryFactory.getOutputLibrary(outputJackVfs,
+        Jack.getEmitterId(), Jack.getVersion().getVerboseVersion());
   }
 
   @Nonnull

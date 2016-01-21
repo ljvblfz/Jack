@@ -53,7 +53,9 @@ import com.android.sched.util.log.TracerFactory;
 import com.android.sched.util.log.stats.Counter;
 import com.android.sched.util.log.stats.CounterImpl;
 import com.android.sched.util.log.stats.StatisticId;
+import com.android.sched.vfs.Container;
 import com.android.sched.vfs.InputVFile;
+import com.android.sched.vfs.VFS;
 import com.android.sched.vfs.VPath;
 
 import java.io.File;
@@ -208,7 +210,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
     if (config.get(INCREMENTAL_LOG).booleanValue()) {
       IncrementalLogWriter incLog;
       try {
-        incLog = new IncrementalLogWriter(getOutputJackLibrary());
+        incLog = new IncrementalLogWriter(session.getJackOutputLibrary());
         incLog.writeString("type: " + (incrementalInputLibrary == null ? "full" : "incremental"));
         incLog.writeLibraryDescriptions("classpath", classpathContent);
         incLog.writeStrings("classpath digests (" + (libraryDependencies.hasSameLibraryOnClasspath(
@@ -303,7 +305,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
       typeDependencies.update(fileDependencies, deletedFileNames, modifiedFileNames);
       fileDependencies.update(deletedFileNames, modifiedFileNames);
 
-      OutputJackLibrary outputLibrary = getOutputJackLibrary();
+      OutputJackLibrary outputLibrary = Jack.getSession().getJackOutputLibrary();
       FileDependenciesInLibraryWriter.write(outputLibrary, fileDependencies);
       TypeDependenciesInLibraryWriter.write(outputLibrary, typeDependencies);
       LibraryDependenciesInLibraryWriter.write(outputLibrary, libraryDependencies);
@@ -370,6 +372,13 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
 
   @CheckForNull
   private InputJackLibrary getIncrementalInternalLibrary() {
+    VFS incrementalVfs;
+    if (ThreadConfig.get(Options.GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER).booleanValue()
+        || ThreadConfig.get(Options.LIBRARY_OUTPUT_CONTAINER_TYPE) == Container.ZIP) {
+      incrementalVfs = ThreadConfig.get(Options.LIBRARY_OUTPUT_ZIP);
+    } else {
+      incrementalVfs = ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR);
+    }
     try {
       return JackLibraryFactory.getInputLibrary(incrementalVfs);
     } catch (NotJackLibraryException e) {
