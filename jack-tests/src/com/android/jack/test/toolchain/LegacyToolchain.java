@@ -107,11 +107,11 @@ public class LegacyToolchain extends AndroidToolchain {
       }
       if (staticLibs.size() > 0) {
         for (File staticLib : staticLibs) {
-          AbstractTestTools.unzip(staticLib, classesDir);
+          AbstractTestTools.unzip(staticLib, classesDir, isVerbose);
         }
       }
       if (zipFiles) {
-        AbstractTestTools.createjar(out, classesDir);
+        AbstractTestTools.createjar(out, classesDir, isVerbose);
       }
     } catch (IOException e) {
       throw new RuntimeException("Legacy toolchain exited with an error", e);

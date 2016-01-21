@@ -92,7 +92,7 @@ public abstract class JillBasedToolchain extends JackCliToolchain {
             AbstractTestTools.copyDirectory(staticLib, classesDir);
           } else {
             assert staticLib.isFile();
-            AbstractTestTools.unzip(staticLib, classesDir);
+            AbstractTestTools.unzip(staticLib, classesDir, isVerbose);
           }
         }
       }
@@ -132,7 +132,7 @@ public abstract class JillBasedToolchain extends JackCliToolchain {
       File jarFileJarjar = new File(tmpJarsDir, "legacyLibJarjar.jar");
       File jarFileProguard = new File(tmpJarsDir, "legacyLibProguard.jar");
 
-      AbstractTestTools.createjar(jarFile, classesDir);
+      AbstractTestTools.createjar(jarFile, classesDir, isVerbose);
 
       if (jarjarRules.size() > 0) {
         if (jarjarRules.size() > 1) {
@@ -153,7 +153,7 @@ public abstract class JillBasedToolchain extends JackCliToolchain {
       if (zipFiles) {
         Files.copy(jarFileProguard, out);
       } else {
-        AbstractTestTools.unzip(jarFileProguard, out);
+        AbstractTestTools.unzip(jarFileProguard, out, isVerbose);
       }
 
     } catch (IOException e) {
@@ -229,7 +229,7 @@ public abstract class JillBasedToolchain extends JackCliToolchain {
       compileWithExternalRefCompiler(sources,
           getClasspathAsString() + File.pathSeparatorChar + staticLibsAsCpAsString, classesDir);
     }
-    AbstractTestTools.createjar(jarFile, classesDir);
+    AbstractTestTools.createjar(jarFile, classesDir, isVerbose);
 
     return jarFile;
   }
@@ -393,14 +393,14 @@ public abstract class JillBasedToolchain extends JackCliToolchain {
     } else {
       // Assume it's a library archive
       File tmpUnzippedLib = AbstractTestTools.createTempDir();
-      AbstractTestTools.unzip(in, tmpUnzippedLib);
+      AbstractTestTools.unzip(in, tmpUnzippedLib, isVerbose);
       rscDir = new File(tmpUnzippedLib, RSC_DIR);
     }
 
     if (rscDir.exists()) {
 
       File tmpUnzippedOutLib = AbstractTestTools.createTempDir();
-      AbstractTestTools.unzip(tmpOut, tmpUnzippedOutLib);
+      AbstractTestTools.unzip(tmpOut, tmpUnzippedOutLib, isVerbose);
 
       File destRscDir = new File(tmpUnzippedOutLib, RSC_DIR);
       if (!destRscDir.mkdir()) {
@@ -429,7 +429,7 @@ public abstract class JillBasedToolchain extends JackCliToolchain {
         fw.close();
       }
 
-      AbstractTestTools.zip(tmpUnzippedOutLib, out);
+      AbstractTestTools.zip(tmpUnzippedOutLib, out, isVerbose);
     } else {
       Files.copy(tmpOut, out);
     }

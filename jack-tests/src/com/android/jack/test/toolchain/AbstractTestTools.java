@@ -579,11 +579,17 @@ public abstract class AbstractTestTools {
 
   }
 
-  public static void unzip(@Nonnull File jarfile, @Nonnull File outputFolder) {
-    String[] commandLine = new String[] {"unzip", "-qo", jarfile.getAbsolutePath(), "-d",
+  public static void unzip(@Nonnull File jarfile, @Nonnull File outputFolder, boolean verbose) {
+
+    String options = verbose ? "-o" : "-qo";
+
+    String[] commandLine = new String[] {"unzip", options, jarfile.getAbsolutePath(), "-d",
         outputFolder.getAbsolutePath()};
 
     ExecuteFile execFile = new ExecuteFile(commandLine);
+    execFile.setVerbose(verbose);
+    execFile.setErr(System.err);
+    execFile.setOut(System.out);
 
     try {
       if (execFile.run() != 0) {
@@ -594,10 +600,16 @@ public abstract class AbstractTestTools {
     }
   }
 
-  public static void zip(@Nonnull File directory, @Nonnull File outputFile) throws IOException {
-    String[] commandLine = new String[] {"zip", "-r", outputFile.getAbsolutePath(), "."};
+  public static void zip(@Nonnull File directory, @Nonnull File outputFile, boolean verbose)
+      throws IOException {
+
+    String options = verbose ? "-r" : "-qr";
+
+    String[] commandLine;
+    commandLine = new String[] {"zip", options, outputFile.getAbsolutePath(), "."};
 
     ExecuteFile execFile = new ExecuteFile(commandLine);
+    execFile.setVerbose(verbose);
     execFile.setWorkingDir(directory, /* create = */ false);
     execFile.setErr(System.err);
     execFile.setOut(System.out);
@@ -611,15 +623,21 @@ public abstract class AbstractTestTools {
     }
   }
 
-  public static void createjar(@Nonnull File jarfile, @Nonnull File inputFiles) {
+  public static void createjar(@Nonnull File jarfile, @Nonnull File inputFiles, boolean verbose) {
+
+    String options = verbose ? "-cfv" : "-cf";
+
     String[] commandLine = new String[] {"jar",
-        "cf",
+        options,
         jarfile.getAbsolutePath(),
         "-C",
         inputFiles.getAbsolutePath(),
         "."};
 
     ExecuteFile execFile = new ExecuteFile(commandLine);
+    execFile.setVerbose(verbose);
+    execFile.setErr(System.err);
+    execFile.setOut(System.out);
 
     try {
       if (execFile.run() != 0) {
