@@ -22,10 +22,14 @@ import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNullLiteral;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.optimizations.Optimizations;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
 
@@ -39,9 +43,12 @@ public class FinallyTest {
     String classBinaryName = "com/android/jack/tryfinally/finally005/jack/Finally005";
     String methodSignature = "get()V";
 
-    JMethod m =
-        TestTools.getJMethodWithSignatureFilter(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
-            + classBinaryName + ";", methodSignature);
+    Map<String, String> additionalProps = new HashMap<String, String>();
+    additionalProps.put(Optimizations.IfSimplifier.ENABLE.getName(), "true");
+    additionalProps.put(Optimizations.ExpressionSimplifier.ENABLE.getName(), "true");
+    JMethod m = TestTools.getJMethodWithSignatureFilter(
+        TestTools.getJackTestFromBinaryName(classBinaryName), "L" + classBinaryName + ";",
+        methodSignature, additionalProps);
     Assert.assertNotNull(m);
 
     new checkUselessIf().accept(m);

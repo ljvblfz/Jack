@@ -49,6 +49,7 @@ import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.ThreadConfig;
 
 import java.util.List;
@@ -62,6 +63,7 @@ import javax.annotation.Nonnull;
 @Description("Simplify if that uses only boolean constants.")
 @Constraint(need = {UseDefsMarker.class, NoImplicitBlock.class, ThreeAddressCodeForm.class,
     ControlFlowGraph.class})
+@Support(Optimizations.IfSimplifier.class)
 public class IfWithConstantSimplifier implements RunnableSchedulable<JMethod> {
 
   @Nonnull

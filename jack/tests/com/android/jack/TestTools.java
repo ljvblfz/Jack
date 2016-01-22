@@ -26,6 +26,7 @@ import com.android.jack.ir.formatter.MethodFormatter;
 import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.lookup.JMethodSignatureLookupException;
+import com.android.jack.optimizations.Optimizations;
 import com.android.jack.optimizations.tailrecursion.TailRecursionOptimization;
 import com.android.jack.scheduling.feature.DropMethodBody;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
@@ -42,8 +43,8 @@ import com.android.sched.scheduler.Request;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotChangePermissionException;
+import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
@@ -68,6 +69,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -382,6 +384,18 @@ public class TestTools {
     if (config.get(Options.OPTIMIZE_TAIL_RECURSION).booleanValue()) {
       request.addFeature(TailRecursionOptimization.class);
     }
+    if (config.get(Optimizations.DefUseSimplifier.ENABLE).booleanValue()) {
+      request.addFeature(Optimizations.DefUseSimplifier.class);
+    }
+    if (config.get(Optimizations.UseDefSimplifier.ENABLE).booleanValue()) {
+      request.addFeature(Optimizations.UseDefSimplifier.class);
+    }
+    if (config.get(Optimizations.ExpressionSimplifier.ENABLE).booleanValue()) {
+      request.addFeature(Optimizations.ExpressionSimplifier.class);
+    }
+    if (config.get(Optimizations.IfSimplifier.ENABLE).booleanValue()) {
+      request.addFeature(Optimizations.IfSimplifier.class);
+    }
 
     if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.ENABLE) {
       request.addFeature(EnabledAssertionFeature.class);
@@ -426,11 +440,22 @@ public class TestTools {
   @Nonnull
   public static JMethod getJMethodWithSignatureFilter(@Nonnull File fileName,
       @Nonnull String className, @Nonnull String methodSignature) throws Exception {
+    return getJMethodWithSignatureFilter(fileName, className, methodSignature,
+        Collections.<String,String>emptyMap());
+  }
+
+  @Nonnull
+  public static JMethod getJMethodWithSignatureFilter(@Nonnull File fileName,
+      @Nonnull String className, @Nonnull String methodSignature,
+      @Nonnull Map<String, String> propNameValue) throws Exception {
     Options commandLineArgs = TestTools.buildCommandLineArgs(fileName);
     commandLineArgs.addProperty(Options.METHOD_FILTER.getName(), "method-with-signature");
     commandLineArgs.addProperty(SignatureMethodFilter.METHOD_SIGNATURE_FILTER.getName(),
         methodSignature);
     commandLineArgs.addProperty(Options.DROP_METHOD_BODY.getName(), "false");
+    for(Map.Entry<String, String> entry: propNameValue.entrySet()){
+      commandLineArgs.addProperty(entry.getKey(), entry.getValue());
+    }
     return getJMethodWithCommandLineArgs(commandLineArgs, className, methodSignature);
   }
 

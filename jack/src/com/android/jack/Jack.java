@@ -105,6 +105,7 @@ import com.android.jack.optimizations.DefUsesChainsSimplifier;
 import com.android.jack.optimizations.ExpressionSimplifier;
 import com.android.jack.optimizations.IfWithConstantSimplifier;
 import com.android.jack.optimizations.NotSimplifier;
+import com.android.jack.optimizations.Optimizations;
 import com.android.jack.optimizations.UnusedDefinitionRemover;
 import com.android.jack.optimizations.UseDefsChainsSimplifier;
 import com.android.jack.optimizations.tailrecursion.TailRecursionOptimization;
@@ -595,6 +596,19 @@ public abstract class Jack {
           request.addFeature(OptimizedSwitchEnumNonFeedbackFeature.class);
         }
 
+        if (config.get(Optimizations.DefUseSimplifier.ENABLE).booleanValue()) {
+          request.addFeature(Optimizations.DefUseSimplifier.class);
+        }
+        if (config.get(Optimizations.UseDefSimplifier.ENABLE).booleanValue()) {
+          request.addFeature(Optimizations.UseDefSimplifier.class);
+        }
+        if (config.get(Optimizations.ExpressionSimplifier.ENABLE).booleanValue()) {
+          request.addFeature(Optimizations.ExpressionSimplifier.class);
+        }
+        if (config.get(Optimizations.IfSimplifier.ENABLE).booleanValue()) {
+          request.addFeature(Optimizations.IfSimplifier.class);
+        }
+
         if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.ENABLE) {
           request.addFeature(EnabledAssertionFeature.class);
         } else if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.DYNAMIC) {
@@ -1030,8 +1044,7 @@ public abstract class Jack {
         if (features.contains(VisibilityBridge.class)) {
           typePlan2.append(VisibilityBridgeAdder.class);
         }
-        SubPlanBuilder<JMethod> methodPlan =
-            typePlan2.appendSubPlan(JMethodAdapter.class);
+        SubPlanBuilder<JMethod> methodPlan = typePlan2.appendSubPlan(JMethodAdapter.class);
         methodPlan.append(NotSimplifier.class);
         if (features.contains(SourceVersion7.class)) {
           methodPlan.append(TryWithResourcesTransformer.class);
@@ -1339,8 +1352,12 @@ public abstract class Jack {
           methodPlan4.append(UseDefsChecker.class);
         }
         methodPlan4.append(ConstantRefinerAndVariableRemover.class);
-        methodPlan4.append(UseDefsChainsSimplifier.class);
-        methodPlan4.append(DefUsesChainsSimplifier.class);
+        if (features.contains(Optimizations.UseDefSimplifier.class)) {
+          methodPlan4.append(UseDefsChainsSimplifier.class);
+        }
+        if (features.contains(Optimizations.DefUseSimplifier.class)) {
+          methodPlan4.append(DefUsesChainsSimplifier.class);
+        }
         // Instructions are removed by DefUsesChainsSimplifier thus rebuild the cfg.
         methodPlan4.append(CfgMarkerRemover.class);
         methodPlan4.append(CfgBuilder.class);
@@ -1348,13 +1365,17 @@ public abstract class Jack {
         methodPlan4.append(RefAsStatementRemover.class);
         methodPlan4.append(CfgMarkerRemover.class);
         methodPlan4.append(CfgBuilder.class);
-        methodPlan4.append(IfWithConstantSimplifier.class);
+        if (features.contains(Optimizations.IfSimplifier.class)) {
+          methodPlan4.append(IfWithConstantSimplifier.class);
+        }
         methodPlan4.append(UnusedLocalRemover.class);
         methodPlan4.append(DefUsesAndUseDefsChainRemover.class);
         methodPlan4.append(DefinitionMarkerRemover.class);
         methodPlan4.append(UsedVariableRemover.class);
         methodPlan4.append(ReachingDefinitionsRemover.class);
-        methodPlan4.append(ExpressionSimplifier.class);
+        if (features.contains(Optimizations.ExpressionSimplifier.class)) {
+          methodPlan4.append(ExpressionSimplifier.class);
+        }
         methodPlan4.append(UselessIfRemover.class);
         methodPlan4.append(CfgMarkerRemover.class);
         methodPlan4.append(CfgBuilder.class);
