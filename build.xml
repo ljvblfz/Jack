@@ -156,7 +156,7 @@
       </filelist>
     </copy>
 
-    <tempfile property="jack-dist.tmp" prefix="jack-dist" destdir="${java.io.tmpdir}"/>
+    <tempfile property="jack-dist.tmp" prefix="ant-jack-dist" destdir="${java.io.tmpdir}" deleteonexit="true"/>
     <mkdir dir="${jack-dist.tmp}"/>
 
     <copy file="${jack-project.dir}/version.properties" tofile="${jack-dist.tmp}/version.properties"/>
@@ -208,7 +208,7 @@
       </filelist>
     </copy>
 
-    <tempfile property="jill-dist.tmp" prefix="jill-dist" destdir="${java.io.tmpdir}"/>
+    <tempfile property="jill-dist.tmp" prefix="ant-jill-dist" destdir="${java.io.tmpdir}" deleteonexit="true"/>
     <mkdir dir="${jill-dist.tmp}"/>
 
     <copy file="${jack-project.dir}/version.properties" tofile="${jill-dist.tmp}/version.properties"/>
@@ -244,7 +244,7 @@
     jack-jar-tools">
     <mkdir dir="${jack-top-dist.dir}"/>
 
-    <tempfile property="tools-dist.tmp" prefix="tools-dist" destdir="${java.io.tmpdir}"/>
+    <tempfile property="tools-dist.tmp" prefix="ant-tools-dist" destdir="${java.io.tmpdir}" deleteonexit="true"/>
     <mkdir dir="${tools-dist.tmp}"/>
 
     <copy file="${jack-project.dir}/version.properties" tofile="${tools-dist.tmp}/version.properties"/>

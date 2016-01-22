@@ -51,7 +51,7 @@
     jack-server,
     jack-launcher">
 
-    <tempfile property="jack-server-dist.tmp" prefix="jack-server-dist" destdir="${java.io.tmpdir}"/>
+    <tempfile property="ant-jack-server-dist.tmp" prefix="jack-server-dist" destdir="${java.io.tmpdir}" deleteonexit="true"/>
     <mkdir dir="${jack-top-dist.dir}"/>
 
     <mkdir dir="${jack-server-dist.tmp}"/>
