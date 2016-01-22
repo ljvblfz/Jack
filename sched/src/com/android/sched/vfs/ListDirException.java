@@ -16,6 +16,8 @@
 
 package com.android.sched.vfs;
 
+import com.android.sched.util.location.DirectoryLocation;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -28,14 +30,14 @@ public class ListDirException extends IOException {
 
   private static final long serialVersionUID = 1L;
   @Nonnull
-  private final File dir;
+  private final DirectoryLocation directoryLocation;
 
   public ListDirException(@Nonnull File dir) {
-    this.dir = dir;
+    this.directoryLocation = new DirectoryLocation(dir);
   }
 
   @Override
   public String getMessage() {
-    return "Failed to list directory content '" + dir.getPath() + "'";
+    return "Failed to list directory content '" + directoryLocation.getDescription() + "'";
   }
 }

@@ -19,6 +19,7 @@ package com.android.jill;
 import com.android.jill.frontend.java.JavaTransformer;
 import com.android.jill.utils.FileUtils;
 import com.android.sched.util.Version;
+import com.android.sched.vfs.ListDirException;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,14 +50,18 @@ public class Jill {
         try {
           jt.transform(new JarFile(binaryFile));
         } catch (IOException e) {
-          throw new JillException("Fails to create jar file " + binaryFile.getName(), e);
+          throw new JillException("Failed to create jar file " + binaryFile.getName(), e);
         }
       } else {
         throw new JillException("Unsupported file type: " + binaryFile.getName());
       }
     } else {
       List<File> javaBinaryFiles = new ArrayList<File>();
-      FileUtils.getJavaBinaryFiles(binaryFile, javaBinaryFiles);
+      try {
+        FileUtils.getJavaBinaryFiles(binaryFile, javaBinaryFiles);
+      } catch (ListDirException e) {
+        throw new JillException(e);
+      }
       jt.transform(javaBinaryFiles);
     }
   }

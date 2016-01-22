@@ -16,7 +16,9 @@
 
 package com.android.sched.util.file;
 
+import com.android.sched.util.ConcurrentIOException;
 import com.android.sched.util.findbugs.SuppressFBWarnings;
+import com.android.sched.vfs.ListDirException;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,7 +75,11 @@ public final class FileUtils {
     if (!dir.isDirectory()) {
       throw new AssertionError();
     }
-    for (File sub : dir.listFiles()) {
+    File[] fileList = dir.listFiles();
+    if (fileList == null) {
+      throw new ConcurrentIOException(new ListDirException(dir));
+    }
+    for (File sub : fileList) {
       deleteSubElement(sub);
     }
     if (!dir.delete()) {
@@ -85,7 +91,11 @@ public final class FileUtils {
   //Ignore delete return value: best effort
   private static void deleteSubElement(@Nonnull File dir) {
     if (dir.isDirectory()) {
-      for (File sub : dir.listFiles()) {
+      File[] fileList = dir.listFiles();
+      if (fileList == null) {
+        throw new ConcurrentIOException(new ListDirException(dir));
+      }
+      for (File sub : fileList) {
         deleteSubElement(sub);
       }
     }

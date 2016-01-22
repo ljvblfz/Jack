@@ -16,6 +16,8 @@
 
 package com.android.jill.utils;
 
+import com.android.sched.vfs.ListDirException;
+
 import java.io.File;
 import java.util.List;
 
@@ -32,9 +34,13 @@ public class FileUtils {
   @Nonnull
   public static final String JAR_FILE_EXTENSION = ".jar";
 
-  public static void getJavaBinaryFiles(@Nonnull File file, @Nonnull List<File> binaryFiles) {
+  public static void getJavaBinaryFiles(@Nonnull File file, @Nonnull List<File> binaryFiles)
+      throws ListDirException {
     if (file.isDirectory()) {
       File allFiles[] = file.listFiles();
+      if (allFiles == null) {
+        throw new ListDirException(file);
+      }
       for (File aFile : allFiles) {
         getJavaBinaryFiles(aFile, binaryFiles);
       }
