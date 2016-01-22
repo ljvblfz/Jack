@@ -18,8 +18,8 @@ package com.android.jack.compile.androidtree.bouncycastle;
 
 import com.android.jack.JarJarRules;
 import com.android.jack.TestTools;
-import com.android.jack.category.RedundantTests;
-import com.android.jack.category.SlowTests;
+import com.android.jack.test.category.RedundantTests;
+import com.android.jack.test.category.SlowTests;
 import com.android.jack.test.comparator.ComparatorDex;
 import com.android.jack.test.helper.CheckDexStructureTestHelper;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;

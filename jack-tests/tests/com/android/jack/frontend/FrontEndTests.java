@@ -17,7 +17,7 @@
 package com.android.jack.frontend;
 
 import com.android.jack.Options;
-import com.android.jack.category.ExtraTests;
+import com.android.jack.test.category.ExtraTests;
 import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;

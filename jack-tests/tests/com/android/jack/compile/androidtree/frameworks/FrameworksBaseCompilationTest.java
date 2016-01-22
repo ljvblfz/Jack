@@ -18,7 +18,7 @@ package com.android.jack.compile.androidtree.frameworks;
 
 import com.android.jack.TestTools;
 import com.android.jack.backend.dex.DexFileWriter;
-import com.android.jack.category.SlowTests;
+import com.android.jack.test.category.SlowTests;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
