@@ -16,19 +16,15 @@
 
 package com.android.jack.annotation;
 
-import com.google.common.collect.Lists;
-
 import com.android.jack.Options;
 import com.android.jack.TestTools;
-import com.android.jack.category.SlowTests;
 import com.android.jack.ir.ast.JDefinedAnnotationType;
 import com.android.jack.ir.ast.JDefinedEnum;
 import com.android.jack.ir.ast.JEnumLiteral;
-import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JSession;
-import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.test.category.RuntimeRegressionTest;
+import com.android.jack.test.category.SlowTests;
 import com.android.jack.test.helper.CheckDexStructureTestHelper;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.junit.KnownIssue;

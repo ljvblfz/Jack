@@ -17,7 +17,7 @@
 package com.android.jack.compile.androidtree.dalvik.omnibus;
 
 import com.android.jack.TestTools;
-import com.android.jack.category.SlowTests;
+import com.android.jack.test.category.SlowTests;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.AndroidToolchain;
 
