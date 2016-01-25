@@ -179,8 +179,7 @@ This may mean that your server never managed to start, see
 
 ### If your compilation gets stuck without any progress
 
-Please report and give us additional information by:  
-  - Attaching the file produced by `jack-admin dump-report`  
-  - Restart the server by issuing commands `jack-admin kill-server; jack-admin start-server`
+Please report and give us additional information by attaching the file produced by
+`jack-admin dump-report`.  
+Then restart the server by issuing commands `jack-admin kill-server; jack-admin start-server`
 
- 
