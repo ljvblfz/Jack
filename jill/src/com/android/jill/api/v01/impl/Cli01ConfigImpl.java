@@ -38,8 +38,9 @@ public class Cli01ConfigImpl implements Cli01Config {
 
   @CheckForNull
   private PrintStream standardError;
-  @CheckForNull
-  private File workingDirectory;
+
+  @Nonnull
+  private File workingDirectory = new File(".");
 
   @Override
   @Nonnull
