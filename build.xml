@@ -870,14 +870,14 @@
       </classpath>
     </javac>
     <!-- package -->
-    <jar destfile="${jack-tests.build.dir}/${jack-tests.libname}"
+    <jar destfile="${jack-tests.dist.dir}/${jack-tests.libname}"
       basedir="${jack-tests.build.outdir}"
       includes="**"/>
     <!-- add sched support -->
     <pathconvert property="jackunittests.static.libs.list" pathsep=" " refid="jackunittests.static.libs.fileset" />
     <pathconvert property="jack.static.libs.list" pathsep=" " refid="jack.static.libs.fileset" />
     <java jar="${jackunittests.tools.dir}/${sched-build.execname}" fork="true" failonerror="true">
-      <arg value="${jack-tests.build.dir}/${jack-tests.libname}" />
+      <arg value="${jack-tests.dist.dir}/${jack-tests.libname}" />
       <arg value="${jackunittests.dist.dir}/${jackunittests.libname}" />
       <arg line="${jackunittests.static.libs.list}" />
       <arg line="${jack.static.libs.list}" />

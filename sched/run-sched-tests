@@ -19,6 +19,9 @@ CURRENT_DIR=$(dirname $0)
 java -cp ${CURRENT_DIR}/libs/junit4.jar:\
 ${CURRENT_DIR}/dist/schedtests-lib.jar:\
 ${CURRENT_DIR}/dist/sched-lib.jar:\
-${CURRENT_DIR}/libs/guava-lib.jar \
+${CURRENT_DIR}/libs/guava-lib.jar:\
+${CURRENT_DIR}/libs/freemarker-lib.jar:\
+${CURRENT_DIR}/libs/maths-lib.jar:\
+${CURRENT_DIR}/libs/watchmaker-lib.jar \
 org.junit.runner.JUnitCore \
 com.android.sched.AllTests
