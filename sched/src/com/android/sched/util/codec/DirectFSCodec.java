@@ -38,7 +38,7 @@ import javax.annotation.Nonnull;
  * This {@link StringCodec} is used to create an instance of {@link VFS} backed by a
  * filesystem directory.
  */
-public class DirectFSCodec extends FileOrDirCodec<VFS> {
+public class DirectFSCodec extends FileOrDirCodec<VFS> implements VFSCodec {
 
   @CheckForNull
   private String infoString;

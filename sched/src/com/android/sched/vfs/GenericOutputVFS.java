@@ -61,6 +61,11 @@ public class GenericOutputVFS extends AbstractVFS implements OutputVFS {
   }
 
   @Override
+  public boolean isClosed() {
+    return vfs.isClosed();
+  }
+
+  @Override
   @Nonnull
   public String toString() {
     return "outputFS >> " + vfs.toString();

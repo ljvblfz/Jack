@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,12 @@
  * limitations under the License.
  */
 
-package com.android.sched.vfs;
+package com.android.sched.util.codec;
 
-import com.android.sched.util.file.CannotCloseException;
-import com.android.sched.util.location.HasLocation;
-
-import javax.annotation.Nonnull;
+import com.android.sched.vfs.VFS;
 
 /**
- * An output VFS.
+ * A {@link StringCodec} is used to create an instance of {@link VFS}.
  */
-public interface OutputVFS extends HasLocation, AutoCloseable {
-  @Nonnull
-  String getPath();
-  @Nonnull
-  OutputVDir getRootOutputVDir();
+public interface VFSCodec extends StringCodec<VFS> {}
 
-  boolean needsSequentialWriting();
-  @Override
-  void close() throws CannotCloseException;
-
-  boolean isClosed();
-}

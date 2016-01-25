@@ -80,6 +80,11 @@ public class GenericInputOutputVFS extends AbstractVFS implements InputOutputVFS
   }
 
   @Override
+  public boolean isClosed() {
+    return vfs.isClosed();
+  }
+
+  @Override
   @Nonnull
   public String toString() {
     return "ioFS >> " + vfs.toString();

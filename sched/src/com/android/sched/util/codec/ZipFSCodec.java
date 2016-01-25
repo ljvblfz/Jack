@@ -44,7 +44,7 @@ import javax.annotation.Nonnull;
  * This {@link StringCodec} is used to create an instance of {@link VFS} backed by a
  * filesystem directory, which is then zipped when closed.
  */
-public class ZipFSCodec extends FileOrDirCodec<VFS> {
+public class ZipFSCodec extends FileOrDirCodec<VFS> implements VFSCodec {
 
   @Nonnull
   private final MessageDigestCodec messageDigestCodec = new MessageDigestCodec();
