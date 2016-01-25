@@ -20,6 +20,7 @@ import com.android.jack.test.helper.FileChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
 import junit.framework.Assert;
@@ -175,185 +176,133 @@ public class LambdaTest {
 
   @Test
   public void testLamba001() throws Exception {
-    new RuntimeTestHelper(LAMBDA001)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(LAMBDA001);
   }
 
   @Test
   public void testLamba002() throws Exception {
-    new RuntimeTestHelper(LAMBDA002)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(LAMBDA002);
   }
 
   @Test
   public void testLamba003() throws Exception {
-    new RuntimeTestHelper(LAMBDA003)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(LAMBDA003);
   }
 
   @Test
   public void testLamba004() throws Exception {
-    new RuntimeTestHelper(LAMBDA004)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(LAMBDA004);
   }
 
   @Test
   public void testLamba005() throws Exception {
-    new RuntimeTestHelper(LAMBDA005)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(LAMBDA005);
   }
 
   @Test
   public void testLamba006() throws Exception {
-    new RuntimeTestHelper(LAMBDA006)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(LAMBDA006);
   }
 
   @Test
   public void testLamba007() throws Exception {
-    new RuntimeTestHelper(LAMBDA007)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(LAMBDA007);
   }
 
   @Test
   public void testLamba008() throws Exception {
-    new RuntimeTestHelper(LAMBDA008)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(LAMBDA008);
   }
 
   @Test
   public void testLamba009() throws Exception {
-    new RuntimeTestHelper(LAMBDA009)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(LAMBDA009);
   }
 
   @Test
   public void testLamba010() throws Exception {
-    new RuntimeTestHelper(LAMBDA010)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(LAMBDA010);
   }
 
   @Test
   public void testLamba011() throws Exception {
-    new RuntimeTestHelper(LAMBDA011)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(LAMBDA011);
   }
 
   @Test
   public void testLamba012() throws Exception {
-    new RuntimeTestHelper(LAMBDA012)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(LAMBDA012);
   }
 
   @Test
   public void testLamba013() throws Exception {
-    new RuntimeTestHelper(LAMBDA013)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(LAMBDA013);
   }
 
   @Test
   public void testLamba014() throws Exception {
-    new RuntimeTestHelper(LAMBDA014)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(LAMBDA014);
   }
 
   @Test
   public void testLamba015() throws Exception {
-    new RuntimeTestHelper(LAMBDA015)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(LAMBDA015);
   }
 
   @Test
   public void testLamba016() throws Exception {
-    new RuntimeTestHelper(LAMBDA016)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(LAMBDA016);
   }
 
   @Test
   public void testLamba017() throws Exception {
-    new RuntimeTestHelper(LAMBDA017)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(LAMBDA017);
   }
 
   @Test
   public void testLamba018() throws Exception {
-    new RuntimeTestHelper(LAMBDA018)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(LAMBDA018);
   }
 
   @Test
   public void testLamba019() throws Exception {
-    new RuntimeTestHelper(LAMBDA019)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(LAMBDA019);
   }
 
   @Test
   public void testLamba020() throws Exception {
-    new RuntimeTestHelper(LAMBDA020)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(LAMBDA020);
   }
 
   @Test
   public void testLamba021() throws Exception {
-    new RuntimeTestHelper(LAMBDA021)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(LAMBDA021);
   }
 
   @Test
   public void testLamba022() throws Exception {
-    new RuntimeTestHelper(LAMBDA022)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(LAMBDA022);
   }
 
 
   @Test
   public void testLamba023() throws Exception {
-    new RuntimeTestHelper(LAMBDA023)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(LAMBDA023);
   }
 
   @Test
   public void testLamba024() throws Exception {
-    new RuntimeTestHelper(LAMBDA024)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(LAMBDA024);
   }
 
   @Test
   public void testLamba025() throws Exception {
-    new RuntimeTestHelper(LAMBDA025)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(LAMBDA025);
   }
 
   @Test
   public void testLamba026() throws Exception {
-    new RuntimeTestHelper(LAMBDA026)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(LAMBDA026);
   }
 
   private class ShrinkFileChecker implements FileChecker {
@@ -395,36 +344,34 @@ public class LambdaTest {
 
   @Test
   public void testLamba027() throws Exception {
-    new RuntimeTestHelper(LAMBDA027)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(LAMBDA027);
   }
 
   @Test
   public void testLamba028() throws Exception {
-    new RuntimeTestHelper(LAMBDA028)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(LAMBDA028);
   }
 
   @Test
   public void testLamba029() throws Exception {
-    new RuntimeTestHelper(LAMBDA029)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(LAMBDA029);
   }
 
   @Test
   public void testLamba030() throws Exception {
-    new RuntimeTestHelper(LAMBDA030)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(LAMBDA030);
   }
 
   @Test
   public void testLamba031() throws Exception {
-    new RuntimeTestHelper(LAMBDA031)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(LAMBDA031);
   }
+
+  private void run(@Nonnull RuntimeTestInfo rti) throws Exception {
+    new RuntimeTestHelper(rti)
+        .setSourceLevel(SourceLevel.JAVA_8)
+        .addIgnoredCandidateToolchain(JillBasedToolchain.class)
+        .compileAndRunTest();
+  }
+
 }

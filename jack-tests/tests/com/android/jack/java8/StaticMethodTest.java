@@ -18,9 +18,12 @@ package com.android.jack.java8;
 
 import org.junit.Test;
 
+import javax.annotation.Nonnull;
+
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
 
@@ -39,15 +42,18 @@ public class StaticMethodTest {
 
   @Test
   public void testStaticMethod001() throws Exception {
-    new RuntimeTestHelper(STATICTMETHOD001)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(STATICTMETHOD001);
   }
 
   @Test
   public void testStaticMethod002() throws Exception {
-    new RuntimeTestHelper(STATICTMETHOD002)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(STATICTMETHOD002);
+  }
+
+  private void run(@Nonnull RuntimeTestInfo rti) throws Exception {
+    new RuntimeTestHelper(rti)
+        .setSourceLevel(SourceLevel.JAVA_8)
+        .addIgnoredCandidateToolchain(JillBasedToolchain.class)
+        .compileAndRunTest();
   }
 }

@@ -30,6 +30,7 @@ import junit.framework.JUnit4TestAdapter;
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.tests.compiler.regression.InterfaceMethodsTest;
+import org.junit.internal.AssumptionViolatedException;
 import org.junit.runner.Description;
 import org.junit.runner.manipulation.Filter;
 import org.junit.runner.manipulation.NoTestsRemainException;
@@ -134,15 +135,23 @@ public class EcjInterfaceMethodsTest extends InterfaceMethodsTest {
   // Only compile source file
   @Override
   public void runConformTest(String[] srcDescription) {
+    List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
+    excludeList.add(JillBasedToolchain.class);
+
+    JackBasedToolchain jackToolchain = null;
+    try {
+      jackToolchain =
+          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeList);
+    } catch (AssumptionViolatedException e) {
+      // Handle JUnit4 feature in JUnit3 tests.
+      return;
+    }
+
     try {
       File sourceFolder = buildSourceFolder(srcDescription);
+      File dexOutDir = AbstractTestTools.createTempDir();
 
       // Build dex file
-      List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
-      excludeList.add(JillBasedToolchain.class);
-      File dexOutDir = AbstractTestTools.createTempDir();
-      JackBasedToolchain jackToolchain =
-          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeList);
       jackToolchain.addToClasspath(jackToolchain.getDefaultBootClasspath());
       jackToolchain.setSourceLevel(SourceLevel.JAVA_8);
       jackToolchain.srcToExe(dexOutDir, /* zipFile = */ false, sourceFolder);
@@ -155,17 +164,28 @@ public class EcjInterfaceMethodsTest extends InterfaceMethodsTest {
   //Compile and run source file
   @Override
   public void runConformTest(String[] srcDescription, String expectedResult) {
-    try {
-      File sourceFolder = buildSourceFolder(srcDescription);
 
       // Build dex file
       List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
       excludeList.add(JillBasedToolchain.class);
-      File dexOutDir = AbstractTestTools.createTempDir();
-      JackBasedToolchain jackToolchain =
-          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeList);
+
+      JackBasedToolchain jackToolchain = null;
+      try {
+        jackToolchain =
+            AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeList);
+      } catch (AssumptionViolatedException e) {
+        // Handle JUnit4 feature in JUnit3 tests.
+        return;
+      }
+
+
       jackToolchain.addToClasspath(jackToolchain.getDefaultBootClasspath());
       jackToolchain.setSourceLevel(SourceLevel.JAVA_8);
+
+    try {
+      File dexOutDir = AbstractTestTools.createTempDir();
+      File sourceFolder = buildSourceFolder(srcDescription);
+
       jackToolchain.srcToExe(dexOutDir, /* zipFile = */ false, sourceFolder);
 
       File dexFile = new File(dexOutDir, "classes.dex");

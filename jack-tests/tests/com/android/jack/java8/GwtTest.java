@@ -18,10 +18,13 @@ package com.android.jack.java8;
 
 import org.junit.Test;
 
+import javax.annotation.Nonnull;
+
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
 
@@ -237,359 +240,265 @@ public class GwtTest {
 
   @Test
   public void testLambdaNoCapture() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_1)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_1);
   }
 
   @Test
   public void testLambdaCaptureLocal() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_2)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_2);
   }
 
   @Test
   public void testLambdaCaptureLocalWithInnerClass() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_3)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_3);
   }
 
   @Test
   public void testLambdaCaptureLocalAndFieldWithInnerClass() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_4)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_4);
   }
 
   @Test
   public void testLambdaCaptureLocalAndField() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_5)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_5);
   }
 
   @Test
   public void testCompileLambdaCaptureOuterInnerField() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_6)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_6);
   }
 
   @Test
   public void testStaticReferenceBinding() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_7)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_7);
   }
 
   @Test
   public void testInstanceReferenceBinding() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_8)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_8);
   }
 
   @Test
   public void testImplicitQualifierReferenceBinding() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_9)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_9);
   }
 
   @Test
   public void testConstructorReferenceBinding() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_10)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_10);
   }
 
   @Test
   public void testStaticInterfaceMethod() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_11)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_11);
   }
 
   @Test
   public void testArrayConstructorReference() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_12)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_12);
   }
 
   @Test
   public void testArrayConstructorReferenceBoxed() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_13)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_13);
   }
 
   @Test
   public void testVarArgsReferenceBinding() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_14)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_14);
   }
 
   @Test
   public void testVarArgsPassthroughReferenceBinding() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_15)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_15);
   }
 
   @Test
   public void testVarArgsPassthroughReferenceBindingProvidedArray() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_16)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_16);
   }
 
   @Test
   public void testSuperReferenceExpression() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_17)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_17);
   }
 
   @Test
   public void testSuperReferenceExpressionWithVarArgs() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_18)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_18);
   }
 
   @Test
   public void testPrivateConstructorReference() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_19)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_19);
   }
 
   @Test
   public void testLambdaCaptureParameter() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_20)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_20);
   }
 
   @Test
   public void testLambdaNestingCaptureLocal() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_21)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_21);
   }
 
   @Test
   public void testLambdaNestingCaptureField_InnerClassCapturingOuterClassVariable() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_22)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_22);
   }
 
   @Test
   public void testInnerClassCaptureLocalFromOuterLambda() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_23)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_23);
   }
 
   @Test
   public void testLambdaNestingCaptureField() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_24)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_24);
   }
 
   @Test
   public void testLambdaMultipleNestingCaptureFieldAndLocal() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_25)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_25);
   }
 
   @Test
   public void testLambdaMultipleNestingCaptureFieldAndLocalInnerClass() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_26)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_26);
   }
 
   @Test
   public void testMethodRefWithSameName() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_27)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_27);
   }
 
   @Test
   public void testDefaultInterfaceMethod() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_28)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_28);
   }
 
   @Test
   @KnownIssue
   public void testDefaultInterfaceMethodVirtualUpRef() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_29)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_29);
   }
 
   @Test
   public void DefaultInterfaceImplVirtualUpRefTwoInterfaces() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_30)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_30);
   }
 
   @Test
   public void testDefenderMethodByInterfaceInstance() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_31)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_31);
   }
 
   @Test
   public void testDefaultMethodReference() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_32)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_32);
   }
 
   @Test
   public void testThisRefInDefenderMethod() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_33)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_33);
   }
 
   @Test
   public void testClassImplementsTwoInterfacesWithSameDefenderMethod() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_34)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_34);
   }
 
   @Test
   public void testAbstractClassImplementsInterface() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_35)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_35);
   }
 
   @Test
   public void testSuperRefInDefenderMethod() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_36)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_36);
   }
 
   @Test
   public void testSuperThisRefsInDefenderMethod() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_37)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_37);
   }
 
   @Test
   public void testNestedInterfaceClass() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_38)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_38);
   }
 
   @Test
   public void testBaseIntersectionCast() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_39)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_39);
   }
 
   @Test
   public void testIntersectionCastWithLambdaExpr() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_40)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_40);
   }
 
   @Test
   public void testIntersectionCastPolymorphism() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_41)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_41);
   }
 
   @Test
   public void testLambdaNestingInAnonymousCaptureLocal() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_42)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_42);
   }
 
   @Test
   public void testLambdaNestingInMultipleMixedAnonymousCaptureLocal() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_43)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_43);
   }
 
   @Test
   public void testLambdaNestingInMultipleMixedAnonymousCaptureLocal_withInterference() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_44)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_44);
   }
 
   @Test
   public void testLambdaNestingInMultipleMixedAnonymousCaptureLocalAndField() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_45)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_45);
   }
 
   @Test
   public void testLambdaNestingInMultipleAnonymousCaptureLocal() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_46)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_46);
   }
 
   @Test
   public void testMultipleDefaults_fromInterfaces_left() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_47)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_47);
   }
 
   @Test
   public void testMultipleDefaults_fromInterfaces_right() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_48)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_48);
   }
 
   @Test
   public void testMultipleDefaults_superclass_left() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_49)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_49);
   }
 
   @Test
   public void testMultipleDefaults_superclass_right() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_50)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_50);
   }
 
   @Test
   public void testInterfaceThis() throws Exception {
-    new RuntimeTestHelper(GWT_LAMBDA_TEST_51)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(GWT_LAMBDA_TEST_51);
   }
+
+  private void run(@Nonnull RuntimeTestInfo rti) throws Exception {
+    new RuntimeTestHelper(rti)
+        .setSourceLevel(SourceLevel.JAVA_8)
+        .addIgnoredCandidateToolchain(JillBasedToolchain.class)
+        .compileAndRunTest();
+  }
+
 }

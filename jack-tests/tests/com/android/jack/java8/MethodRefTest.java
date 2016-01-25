@@ -19,9 +19,12 @@ package com.android.jack.java8;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
 import org.junit.Test;
+
+import javax.annotation.Nonnull;
 
 
 /**
@@ -67,64 +70,54 @@ public class MethodRefTest {
 
   @Test
   public void testMethodRef001() throws Exception {
-    new RuntimeTestHelper(METHODREF001)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(METHODREF001);
   }
 
   @Test
   public void testMethodRef002() throws Exception {
-    new RuntimeTestHelper(METHODREF002)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(METHODREF002);
   }
 
   @Test
   public void testMethodRef003() throws Exception {
-    new RuntimeTestHelper(METHODREF003)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(METHODREF003);
   }
 
   @Test
   public void testMethodRef004() throws Exception {
-    new RuntimeTestHelper(METHODREF004)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(METHODREF004);
   }
 
   @Test
   public void testMethodRef005() throws Exception {
-    new RuntimeTestHelper(METHODREF005)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(METHODREF005);
   }
 
   @Test
   public void testMethodRef006() throws Exception {
-    new RuntimeTestHelper(METHODREF006)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(METHODREF006);
   }
 
   @Test
   public void testMethodRef007() throws Exception {
-    new RuntimeTestHelper(METHODREF007)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(METHODREF007);
   }
 
   @Test
   public void testMethodRef008() throws Exception {
-    new RuntimeTestHelper(METHODREF008)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(METHODREF008);
   }
 
   @Test
   public void testMethodRef009() throws Exception {
-    new RuntimeTestHelper(METHODREF009)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    run(METHODREF009);
   }
+
+  private void run(@Nonnull RuntimeTestInfo rti) throws Exception {
+    new RuntimeTestHelper(rti)
+        .setSourceLevel(SourceLevel.JAVA_8)
+        .addIgnoredCandidateToolchain(JillBasedToolchain.class)
+        .compileAndRunTest();
+  }
+
 }
