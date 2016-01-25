@@ -102,23 +102,23 @@ public abstract class CommandLine {
       printExceptionMessage(err, e, "Out of memory error.");
       err.println("Try increasing heap size with java option '-Xmx<size>'");
       err.println(INTERRUPTED_COMPILATION_WARNING);
-      logger.log(Level.FINE, "Out of memory error:", e);
+      logger.log(Level.SEVERE, "Out of memory error:", e);
       return (ExitStatus.FAILURE_VM);
     } catch (StackOverflowError e) {
       printExceptionMessage(err, e, "Stack overflow error.");
       err.println("Try increasing stack size with java option '-Xss<size>'");
       err.println(INTERRUPTED_COMPILATION_WARNING);
-      logger.log(Level.FINE, "Stack overflow error:", e);
+      logger.log(Level.SEVERE, "Stack overflow error:", e);
       return (ExitStatus.FAILURE_VM);
     } catch (VirtualMachineError e) {
       printExceptionMessage(err, e, "Virtual machine error: " + e.getClass() + ".");
       err.println(INTERRUPTED_COMPILATION_WARNING);
-      logger.log(Level.FINE, "Virtual machine error:", e);
+      logger.log(Level.SEVERE, "Virtual machine error:", e);
       return (ExitStatus.FAILURE_VM);
     } catch (UnrecoverableException e) {
       err.println("Unrecoverable error: " + e.getMessage());
       err.println(INTERRUPTED_COMPILATION_WARNING);
-      logger.log(Level.FINE, "Unrecoverable exception:", e);
+      logger.log(Level.SEVERE, "Unrecoverable exception:", e);
       return (ExitStatus.FAILURE_UNRECOVERABLE);
     } catch (JackAbortException e) {
       // Exception should already have been reported, do not print message.
