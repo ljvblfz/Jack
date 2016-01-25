@@ -1,0 +1,1 @@
+This tests contains inner classes with names containing '$'.

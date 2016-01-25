@@ -601,6 +601,11 @@ public abstract class AbstractTest {
     runTest("044", "001", "");
   }
 
+  @Test
+  public void test52_001() throws Exception {
+    runTest("052", "001", "");
+  }
+
   protected void checkToolchainIsNotJillBased() {
     List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
     excludeList.add(JillBasedToolchain.class);

@@ -1,0 +1,4 @@
+Lcom/android/jack/shrob/test052/jack/Outer$Member$Class$Member3$B;:
+Lcom/android/jack/shrob/test052/jack/Outer$Member$Class;:
+Lcom/android/jack/shrob/test052/jack/Outer;:
+<init>()V

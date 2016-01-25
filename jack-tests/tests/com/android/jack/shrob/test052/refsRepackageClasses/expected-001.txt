@@ -1,0 +1,4 @@
+com.android.jack.shrob.test052.jack.Outer$Member$Class$Member3$B -> Cihrf$Zrzorf$Pyngg$Zrzorf3$O:
+com.android.jack.shrob.test052.jack.Outer$Member$Class -> Cihrf$Zrzorf$Pyngg:
+com.android.jack.shrob.test052.jack.Outer -> Cihrf:
+    void <init>() -> <init>
