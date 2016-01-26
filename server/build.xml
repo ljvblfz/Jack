@@ -110,6 +110,10 @@
                    value="${version}"
                    encoding="UTF-8"/>
 
+    <exec executable="pandoc" failifexecutionfails="false">
+      <arg line="--from=markdown --to=plain --output=${jack-top-dist.dir}/README-jack-server.txt ${jack-top-dist.dir}/README-jack-server.md"/>
+    </exec>
+
     <!-- <copy> and <replace> do not retain file permissions -->
     <chmod perm="755" file="${jack-top-dist.dir}/jack"/>
     <chmod perm="755" file="${jack-top-dist.dir}/jack-admin"/>
