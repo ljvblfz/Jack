@@ -115,7 +115,6 @@ import com.android.jack.ir.ast.JTryStatement;
 import com.android.jack.ir.ast.marker.GenericSignature;
 import com.android.jack.ir.ast.marker.SimpleName;
 import com.android.jack.ir.ast.marker.ThisRefTypeInfo;
-import com.android.jack.optimizations.NotSimplifier;
 import com.android.jack.transformations.EmptyClinit;
 import com.android.jack.transformations.ast.BooleanTestOutsideIf;
 import com.android.jack.transformations.ast.ImplicitBoxingAndUnboxing;
@@ -245,7 +244,6 @@ import com.android.sched.item.Name;
     OriginDigestMarker.class,
     MultiDimensionNewArray.class,
     NoImplicitBlock.class,
-    NotSimplifier.NotExpressionsSimplified.class,
     GenericSignature.class,
     SimpleName.class,
     SourceCast.class,

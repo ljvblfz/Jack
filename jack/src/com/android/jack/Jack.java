@@ -614,6 +614,9 @@ public abstract class Jack {
         if (config.get(Optimizations.IfSimplifier.ENABLE).booleanValue()) {
           request.addFeature(Optimizations.IfSimplifier.class);
         }
+        if (config.get(Optimizations.NotSimplifier.ENABLE).booleanValue()) {
+          request.addFeature(Optimizations.NotSimplifier.class);
+        }
 
         if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.ENABLE) {
           request.addFeature(EnabledAssertionFeature.class);
@@ -1057,10 +1060,15 @@ public abstract class Jack {
         if (features.contains(VisibilityBridge.class)) {
           typePlan2.append(VisibilityBridgeAdder.class);
         }
-        SubPlanBuilder<JMethod> methodPlan = typePlan2.appendSubPlan(JMethodAdapter.class);
-        methodPlan.append(NotSimplifier.class);
-        if (features.contains(SourceVersion7.class)) {
-          methodPlan.append(TryWithResourcesTransformer.class);
+        if (features.contains(Optimizations.NotSimplifier.class)
+            || features.contains(SourceVersion7.class)) {
+          SubPlanBuilder<JMethod> methodPlan = typePlan2.appendSubPlan(JMethodAdapter.class);
+          if (features.contains(Optimizations.NotSimplifier.class)) {
+            methodPlan.append(NotSimplifier.class);
+          }
+          if (features.contains(SourceVersion7.class)) {
+            methodPlan.append(TryWithResourcesTransformer.class);
+          }
         }
       }
     }

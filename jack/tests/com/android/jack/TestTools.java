@@ -396,6 +396,9 @@ public class TestTools {
     if (config.get(Optimizations.IfSimplifier.ENABLE).booleanValue()) {
       request.addFeature(Optimizations.IfSimplifier.class);
     }
+    if (config.get(Optimizations.NotSimplifier.ENABLE).booleanValue()) {
+      request.addFeature(Optimizations.NotSimplifier.class);
+    }
 
     if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.ENABLE) {
       request.addFeature(EnabledAssertionFeature.class);

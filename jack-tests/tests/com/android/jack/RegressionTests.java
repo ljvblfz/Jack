@@ -101,7 +101,6 @@ public class RegressionTests {
       new ThrowstatementTests(),
       new TrycatchTests(),
       new TryfinallyTests(),
-      new TypeTests(),
       new UnaryTests(),
       new VerifyTests(),
   };

@@ -16,17 +16,14 @@
 
 package com.android.jack.type;
 
+import org.junit.Test;
+
 import com.android.jack.optimizations.Optimizations;
-import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.RuntimeTestHelper;
-import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-
-public class TypeTests extends RuntimeTest {
+public class TypeTests {
 
   private RuntimeTestInfo TEST001 = new RuntimeTestInfo(
     AbstractTestTools.getTestRootDir("com.android.jack.type.test001"),
@@ -38,7 +35,6 @@ public class TypeTests extends RuntimeTest {
 
 
   @Test
-  @Category(RuntimeRegressionTest.class)
   public void test001() throws Exception {
     new RuntimeTestHelper(TEST001)
         .addProperty(Optimizations.UseDefSimplifier.ENABLE.getName(), "true")
@@ -47,16 +43,9 @@ public class TypeTests extends RuntimeTest {
   }
 
   @Test
-  @Category(RuntimeRegressionTest.class)
   public void test002() throws Exception {
     new RuntimeTestHelper(TEST002)
         .addProperty(Optimizations.IfSimplifier.ENABLE.getName(), "true")
         .compileAndRunTest();
-  }
-
-  @Override
-  protected void fillRtTestInfos() {
-    rtTestInfos.add(TEST001);
-    rtTestInfos.add(TEST002);
   }
 }

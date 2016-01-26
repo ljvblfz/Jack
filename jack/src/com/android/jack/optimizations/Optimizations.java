@@ -79,4 +79,16 @@ public class Optimizations {
             "Optimize 'if' expressions using a boolean constant")
         .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
   }
+
+  /**
+   * A {@link Feature} that represents optimization of '!' operator.
+   */
+  @HasKeyId
+  @Description("Optimize '!' operator")
+  public static class NotSimplifier implements Feature {
+    @Nonnull
+    public static final BooleanPropertyId ENABLE =
+        BooleanPropertyId.create("jack.optimization.not-simplifier", "Optimize '!' operator")
+            .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
+  }
 }
