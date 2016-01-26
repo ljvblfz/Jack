@@ -17,22 +17,19 @@
 package com.android.jack.shrob;
 
 import com.android.jack.Options;
+import com.android.jack.shrob.obfuscation.MappingApplier;
 import com.android.jack.shrob.obfuscation.NameProviderFactory;
 import com.android.jack.test.comparator.ComparatorMapping;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
 import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.DummyToolchain;
-import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
-import com.android.jack.test.toolchain.LegacyJillToolchain;
 
 import org.junit.Test;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -116,5 +113,38 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
   @KnownIssue(candidate=IncrementalToolchain.class)
   public void test15_001() throws Exception {
     super.test15_001();
+  }
+
+  @Test
+  public void test047() throws Exception {
+    String testPackageName = "com.android.jack.shrob.test047";
+    File testFolder = AbstractTestTools.getTestRootDir(testPackageName);
+
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    File refFolder = new File(testFolder, "refsObfuscationWithoutMapping");
+
+    toolchain.addProperty(NameProviderFactory.NAMEPROVIDER.getName(), "rot13");
+    toolchain.addProperty(Options.METHOD_FILTER.getName(), "supported-methods");
+    // Only difference with other tests: allows mapping collision
+    toolchain.addProperty(MappingApplier.COLLISION_POLICY.getName(), "ignore");
+
+    File candidateOutputMapping = AbstractTestTools.createTempFile("mapping", ".txt");
+    File refOutputMapping = new File(refFolder, "expected-001.txt");
+
+    File proguardFlagsFile = addOptionsToFlagsFile(
+        new File(testFolder, "proguard.flags001"),
+        testFolder,
+        " -printmapping " + candidateOutputMapping.getAbsolutePath());
+
+    toolchain.addProguardFlags(proguardFlagsFile);
+
+    SourceToDexComparisonTestHelper env =
+        new SourceToDexComparisonTestHelper(new File(testFolder, "jack"));
+
+    env.setCandidateTestTools(toolchain);
+    env.setReferenceTestTools(new DummyToolchain());
+
+    env.runTest(new ComparatorMapping(refOutputMapping, candidateOutputMapping));
   }
 }
