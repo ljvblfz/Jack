@@ -111,8 +111,11 @@ public class MultiWorkersScheduleInstance<T extends Component>
     @Nonnegative
     private long currentTaskStartOn;
 
-    public Worker(@Nonnull BlockingDeque<Task> queue) {
+    public Worker(@Nonnull String name, @Nonnull BlockingDeque<Task> queue,
+        @Nonnegative long stackSize) {
+      super(null, null, name, stackSize);
       this.queue = queue;
+      this.setDaemon(true);
     }
 
     /*
@@ -451,11 +454,10 @@ public class MultiWorkersScheduleInstance<T extends Component>
     int threadPoolSize = getThreadPoolSize();
 
     List<Worker> activeWorkers = new ArrayList<Worker>(threadPoolSize);
+    long stackSize = ThreadConfig.get(ScheduleInstance.DEFAULT_STACK_SIZE).longValue();
     for (int i = 0; i < threadPoolSize; i++) {
-      Worker worker = new Worker(queue);
+      Worker worker = new Worker("sched-worker-" + i, queue, stackSize);
 
-      worker.setName("sched-worker-" + i);
-      worker.setDaemon(true);
       worker.start();
       activeWorkers.add(worker);
     }
