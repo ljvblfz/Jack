@@ -54,6 +54,7 @@ import com.android.sched.item.Description;
 import com.android.sched.item.Tag;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
 
@@ -77,6 +78,7 @@ import javax.annotation.Nonnull;
     JByteLiteral.class,
     JShortLiteral.class,
     JCharLiteral.class})
+@Support(Optimizations.ExpressionSimplifier.class)
 public class ExpressionSimplifier implements RunnableSchedulable<JMethod> {
 
   /**

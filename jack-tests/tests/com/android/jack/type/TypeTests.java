@@ -16,6 +16,7 @@
 
 package com.android.jack.type;
 
+import com.android.jack.optimizations.Optimizations;
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.runtime.RuntimeTest;
@@ -39,13 +40,18 @@ public class TypeTests extends RuntimeTest {
   @Test
   @Category(RuntimeRegressionTest.class)
   public void test001() throws Exception {
-    new RuntimeTestHelper(TEST001).compileAndRunTest();
+    new RuntimeTestHelper(TEST001)
+        .addProperty(Optimizations.UseDefSimplifier.ENABLE.getName(), "true")
+        .addProperty(Optimizations.IfSimplifier.ENABLE.getName(), "true")
+        .compileAndRunTest();
   }
 
   @Test
   @Category(RuntimeRegressionTest.class)
   public void test002() throws Exception {
-    new RuntimeTestHelper(TEST002).compileAndRunTest();
+    new RuntimeTestHelper(TEST002)
+        .addProperty(Optimizations.IfSimplifier.ENABLE.getName(), "true")
+        .compileAndRunTest();
   }
 
   @Override

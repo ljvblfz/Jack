@@ -41,6 +41,7 @@ import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
@@ -86,6 +87,7 @@ import javax.annotation.Nonnull;
 @Description("Simplify definition uses chains.")
 @Constraint(need = {DefinitionMarker.class, UseDefsMarker.class, ThreeAddressCodeForm.class,
     ControlFlowGraph.class})
+@Support(Optimizations.DefUseSimplifier.class)
 public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
     implements RunnableSchedulable<JMethod> {
 
