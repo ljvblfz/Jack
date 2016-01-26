@@ -33,7 +33,7 @@ import com.android.jack.analysis.dependency.type.TypeDependenciesCollector;
 import com.android.jack.analysis.dependency.type.TypeDependenciesInLibraryWriter;
 import com.android.jack.analysis.dfa.reachingdefs.ReachingDefinitions;
 import com.android.jack.analysis.dfa.reachingdefs.ReachingDefinitionsRemover;
-import com.android.jack.analysis.tracer.SubClassOrInterfaceFinder;
+import com.android.jack.analysis.tracer.ExtendingOrImplementingClassFinder;
 import com.android.jack.backend.ResourceWriter;
 import com.android.jack.backend.dex.ClassAnnotationBuilder;
 import com.android.jack.backend.dex.ClassDefItemBuilder;
@@ -903,10 +903,9 @@ public abstract class Jack {
     ProductionSet productions = planBuilder.getRequest().getTargetProductions();
     FeatureSet features = planBuilder.getRequest().getFeatures();
     boolean isShrinking = features.contains(Shrinking.class);
-    boolean isObfuscating = features.contains(Obfuscation.class);
     boolean isMultiDexWithConstraints = features.contains(MultiDexLegacy.class);
-    if (!(isShrinking || isObfuscating || isMultiDexWithConstraints
-            || productions.contains(SeedFile.class))) {
+    if (!(isShrinking || features.contains(Obfuscation.class)
+        || isMultiDexWithConstraints || productions.contains(SeedFile.class))) {
       // nothing to do
       return;
     }
@@ -914,7 +913,8 @@ public abstract class Jack {
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-      if (isShrinking || isObfuscating || productions.contains(SeedFile.class)) {
+      if (isShrinking || features.contains(Obfuscation.class)
+          || productions.contains(SeedFile.class)) {
         typePlan.append(SeedFinder.class);
         if (productions.contains(SeedFile.class)) {
           planBuilder.append(SeedPrinter.class);
@@ -927,9 +927,9 @@ public abstract class Jack {
         typePlan.append(AnnotatedFinder.class);
       }
 
-      if (isMultiDexWithConstraints || isShrinking || isObfuscating) {
-        SubPlanBuilder<JPackage> packagePlan = planBuilder.appendSubPlan(JPackageAdapter.class);
-        packagePlan.append(SubClassOrInterfaceFinder.class);
+      if (isMultiDexWithConstraints || isShrinking) {
+        typePlan.append(ExtendingOrImplementingClassFinder.class);
+
       }
     }
 

@@ -17,13 +17,13 @@
 package com.android.jack.shrob.shrink;
 
 import com.android.jack.analysis.tracer.ComposedTracerBrush;
+import com.android.jack.analysis.tracer.ExtendingOrImplementingClassMarker;
 import com.android.jack.analysis.tracer.Tracer;
 import com.android.jack.analysis.tracer.TracerBrush;
 import com.android.jack.backend.dex.MultiDexLegacyTracerBrush;
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.scheduling.feature.SourceVersion8;
-import com.android.jack.shrob.obfuscation.SubClassOrInterfaceMarker;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Optional;
@@ -37,7 +37,7 @@ import javax.annotation.Nonnull;
  * Trace for shrink and main dex.
  */
 @Description("Trace for shrink and main dex.")
-@Constraint(need = SubClassOrInterfaceMarker.class)
+@Constraint(need = ExtendingOrImplementingClassMarker.class)
 @Use({KeeperBrush.class, MultiDexLegacyTracerBrush.class})
 @Optional(@ToSupport(feature = SourceVersion8.class,
     add = @Constraint(need = JAnnotation.RepeatedAnnotation.class)))

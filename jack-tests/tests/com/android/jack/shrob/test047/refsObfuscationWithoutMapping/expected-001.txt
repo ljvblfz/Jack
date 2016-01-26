@@ -1,6 +1,0 @@
-com.android.jack.shrob.test047.jack.A -> p.a:
-    void <init>() -> <init>
-    int m() -> z__
-com.android.jack.shrob.test047.jack.B -> p.b:
-    void <init>() -> <init>
-    int n() -> a

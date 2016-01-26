@@ -117,23 +117,29 @@ public class NameProviderFactory {
   }
 
   @Nonnull
-  public NameProvider getFieldNameProvider() throws JackIOException {
+  public NameProvider getFieldNameProvider(@Nonnull Collection<JFieldId> fieldIds)
+      throws JackIOException {
     NameProvider provider;
     if (globalFieldNameProvider != null) {
       provider = globalFieldNameProvider;
     } else {
-      provider = getNameProvider(obfuscationDictionary);
+      Set<String> existingNames = new HashSet<String>();
+      fillExistingName(fieldIds, existingNames);
+      provider = new UniqueNameProvider(getNameProvider(obfuscationDictionary), existingNames);
     }
     return provider;
   }
 
   @Nonnull
-  public NameProvider getMethodNameProvider() throws JackIOException {
+  public NameProvider getMethodNameProvider(@Nonnull Collection<JMethodId> methodIds)
+      throws JackIOException {
     NameProvider provider;
     if (globalMethodNameProvider != null) {
       provider = globalMethodNameProvider;
     } else {
-      provider = getNameProvider(obfuscationDictionary);
+      Set<String> existingNames = new HashSet<String>();
+      fillExistingName(methodIds, existingNames);
+      provider = new UniqueNameProvider(getNameProvider(obfuscationDictionary), existingNames);
     }
     return provider;
   }

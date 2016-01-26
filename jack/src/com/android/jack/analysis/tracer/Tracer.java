@@ -60,7 +60,6 @@ import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.lookup.JMethodLookupException;
 import com.android.jack.reporting.Reporter.Severity;
-import com.android.jack.shrob.obfuscation.SubClassOrInterfaceMarker;
 import com.android.jack.shrob.shrink.PartialTypeHierarchy;
 import com.android.sched.item.Description;
 import com.android.sched.marker.LocalMarkerManager;
@@ -274,10 +273,10 @@ public class Tracer extends JVisitor {
     }
 
     if (receiverType instanceof JDefinedClassOrInterface && mustTraceOverridingMethods) {
-      SubClassOrInterfaceMarker marker =
-          ((LocalMarkerManager) receiverType).getMarker(SubClassOrInterfaceMarker.class);
+      ExtendingOrImplementingClassMarker marker =
+          ((LocalMarkerManager) receiverType).getMarker(ExtendingOrImplementingClassMarker.class);
       if (marker != null) {
-        for (JDefinedClass subClass : marker.getSubClasses()) {
+        for (JDefinedClass subClass : marker.getExtendingOrImplementingClasses()) {
           if (brush.traceMarked(subClass)) {
             JMethod implementation = findImplementation(mid, returnType, subClass);
             if (implementation != null) {

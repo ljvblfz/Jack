@@ -49,6 +49,7 @@ import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.PropertyId;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -192,31 +193,51 @@ public class Renamer implements RunnableSchedulable<JSession> {
       return super.visit(pack);
     }
 
+    @Nonnull
+    private Collection<JFieldId> collectAllFieldIdsInHierarchy(
+        @Nonnull JDefinedClassOrInterface referenceType) {
+      List<JFieldId> collectedFields = new ArrayList<JFieldId>();
+      assert allTypes != null;
+      for (JDefinedClassOrInterface type : allTypes) {
+        if (referenceType.canBeSafelyUpcast(type) || type.canBeSafelyUpcast(referenceType)) {
+          for (JField field : type.getFields()) {
+            collectedFields.add(field.getId());
+          }
+        }
+      }
+      return collectedFields;
+    }
+
+    @Nonnull
+    private Collection<JMethodId> collectAllMethodIdsInHierarchy(
+        @Nonnull JDefinedClassOrInterface referenceType) {
+      Set<JMethodId> collectedMethods = new HashSet<JMethodId>();
+      assert allTypes != null;
+      for (JDefinedClassOrInterface type : allTypes) {
+        if (referenceType.canBeSafelyUpcast(type) || type.canBeSafelyUpcast(referenceType)) {
+          for (JMethod method : type.getMethods()) {
+            collectedMethods.add(method.getMethodId());
+          }
+        }
+      }
+      return collectedMethods;
+    }
+
     @Override
     public boolean visit(@Nonnull JDefinedClassOrInterface type) {
       if (!type.isExternal()) {
-        NameProvider fieldNameProvider = nameProviderFactory.getFieldNameProvider();
+        Collection<JFieldId> allFieldsInHierarchy = collectAllFieldIdsInHierarchy(type);
+        NameProvider fieldNameProvider =
+            nameProviderFactory.getFieldNameProvider(allFieldsInHierarchy);
         for (JField field : type.getFields()) {
-          JFieldId id = field.getId();
-          if (mustBeRenamed(id)) {
-            String name;
-            do {
-              name = fieldNameProvider.getNewName(getKey(field));
-            } while (FieldInHierarchyFinderVisitor.containsFieldKey(name, field));
-            rename(id, fieldNameProvider);
-          }
+          rename(field.getId(), fieldNameProvider);
         }
 
-        NameProvider methodNameProvider = nameProviderFactory.getMethodNameProvider();
+        Collection<JMethodId> allMethodsInHierarchy = collectAllMethodIdsInHierarchy(type);
+        NameProvider methodNameProvider =
+            nameProviderFactory.getMethodNameProvider(allMethodsInHierarchy);
         for (JMethod method : type.getMethods()) {
-          JMethodId methodId = method.getMethodId();
-          if (mustBeRenamed(methodId)) {
-            String name;
-            do {
-              name = fieldNameProvider.getNewName(getKey(method));
-            } while (MethodInHierarchyFinder.containsMethodKey(name, methodId));
-            rename(methodId, methodNameProvider);
-          }
+          rename(method.getMethodId(), methodNameProvider);
         }
       }
 
