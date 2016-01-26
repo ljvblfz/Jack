@@ -52,7 +52,6 @@ import com.android.jack.optimizations.unuseddef.UnusedDefTest;
 import com.android.jack.optimizations.uselesscopy.UselessVariableCopyTest;
 import com.android.jack.order.OrderTests;
 import com.android.jack.preprocessor.PreProcessorTests;
-import com.android.jack.reflect.ReflectTests;
 import com.android.jack.resource.ResourceTests;
 import com.android.jack.returnstatement.ReturnstatementTests;
 import com.android.jack.shrob.ShrobAllTests;
@@ -125,7 +124,6 @@ import org.junit.runners.Suite.SuiteClasses;
     OpcodesTests.class,
     ParserTest.class,
     PreProcessorTests.class,
-    ReflectTests.class,
     ReturnstatementTests.class,
     ResourceTests.class,
     ReachingDefsTests.class,
