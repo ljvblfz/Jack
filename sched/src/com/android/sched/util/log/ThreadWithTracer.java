@@ -39,19 +39,19 @@ public class ThreadWithTracer extends Thread {
     tracer = TracerFactory.getTracer();
   }
 
-  public ThreadWithTracer(@Nonnull ThreadGroup group, @Nonnull Runnable target,
+  public ThreadWithTracer(@CheckForNull ThreadGroup group, @Nonnull Runnable target,
       @Nonnull String name, @Nonnegative long stackSize) {
     super(group, target, name, stackSize);
     tracer = TracerFactory.getTracer();
   }
 
-  public ThreadWithTracer(@Nonnull ThreadGroup group, @Nonnull Runnable target,
+  public ThreadWithTracer(@CheckForNull ThreadGroup group, @Nonnull Runnable target,
       @Nonnull String name) {
     super(group, target, name);
     tracer = TracerFactory.getTracer();
   }
 
-  public ThreadWithTracer(@Nonnull ThreadGroup group, @Nonnull Runnable target) {
+  public ThreadWithTracer(@CheckForNull ThreadGroup group, @Nonnull Runnable target) {
     super(group, target);
     tracer = TracerFactory.getTracer();
   }
