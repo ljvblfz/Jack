@@ -93,6 +93,8 @@ public class DexInLibraryWriter extends DexWriter implements
           } catch (FileTypeDoesNotExistException e) {
             // Pre-dex is not accessible, thus write dex file from type
           }
+        } else {
+          return;
         }
       }
     }
