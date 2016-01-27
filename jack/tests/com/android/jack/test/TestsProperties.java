@@ -26,7 +26,11 @@ import javax.annotation.Nonnull;
 
 public class TestsProperties {
 
+  @Nonnull
   public static final String JACK_HOME_KEY ="jack.home";
+
+  @Nonnull
+  public static final String TEST_CONFIG_KEY = "tests.config";
 
   @Nonnull
   private static final File JACK_ROOT_DIR;
@@ -39,7 +43,7 @@ public class TestsProperties {
 
   static {
     testsProperties = new Properties();
-    String filePath = System.getProperty("tests.config");
+    String filePath = System.getProperty(TEST_CONFIG_KEY);
 
     if (filePath == null) {
       throw new TestConfigurationException(
