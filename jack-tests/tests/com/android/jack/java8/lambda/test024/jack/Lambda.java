@@ -16,10 +16,14 @@
 
 package com.android.jack.java8.lambda.test024.jack;
 
+class Data {
+  public final int field = 1;
+}
+
 public class Lambda {
 
   public int useI1() {
-    return ((I1)(() -> 1)).m();
+    return ((I1)(() -> new Data().field)).m();
   }
 
   public String useI2() {

@@ -42,6 +42,7 @@ import com.android.jack.ir.ast.JFieldNameLiteral;
 import com.android.jack.ir.ast.JFieldRef;
 import com.android.jack.ir.ast.JInstanceOf;
 import com.android.jack.ir.ast.JInterface;
+import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JLiteral;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
@@ -56,6 +57,7 @@ import com.android.jack.ir.ast.JReinterpretCastOperation;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeStringLiteral;
 import com.android.jack.ir.ast.JVariable;
+import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.lookup.JMethodLookupException;
@@ -213,12 +215,6 @@ public class Tracer extends JVisitor {
             brush.endTraceSeed(method);
           }
         }
-      }
-
-      // STOPSHIP: Need to adapt tracer to support lambda
-      for (JMethod method : t.getLambdaMethods()) {
-        // Force to keep lambda method
-        trace(method);
       }
 
       brush.endTrace(t);
@@ -531,5 +527,20 @@ public class Tracer extends JVisitor {
   @Override
   public void endVisit(@Nonnull JVariable x) {
     trace(x.getType());
+  }
+
+  @Override
+  public void endVisit(@Nonnull JLambda lambdaExpr) {
+    trace(lambdaExpr.getType());
+    for (JInterface interfaze : lambdaExpr.getInterfaceBounds()) {
+      trace(interfaze);
+    }
+    for (JParameter arg : lambdaExpr.getParameters()) {
+      trace(arg.getType());
+    }
+    for (JVariableRef capturedVar : lambdaExpr.getCapturedVariables()) {
+      trace(capturedVar.getType());
+    }
+    accept(lambdaExpr.getBody());
   }
 }
