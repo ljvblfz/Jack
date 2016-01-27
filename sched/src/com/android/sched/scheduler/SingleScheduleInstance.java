@@ -22,9 +22,12 @@ import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Schedulable;
 import com.android.sched.schedulable.VisitorSchedulable;
 import com.android.sched.util.codec.ImplementationName;
+import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.log.ThreadWithTracer;
 
 import java.util.Iterator;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -49,24 +52,61 @@ public class SingleScheduleInstance<T extends Component> extends ScheduleInstanc
   @SuppressWarnings({"rawtypes", "unchecked"})
   public <X extends VisitorSchedulable<T>, U extends Component> void process(@Nonnull T t)
       throws ProcessException {
-    for (SchedStep step : steps) {
-      Schedulable instance = step.getInstance();
+    Worker worker = new Worker(t);
+    Thread thread =
+        new ThreadWithTracer(null, worker, ThreadConfig.getConfig().getName() + "-worker",
+            ThreadConfig.get(ScheduleInstance.DEFAULT_STACK_SIZE).longValue());
+    thread.setDaemon(true);
+    thread.start();
 
-      ManagedSchedulable managedSchedulable =
-          schedulableManager.getManagedSchedulable(instance.getClass());
+    try {
+      thread.join();
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
 
-      if (instance instanceof AdapterSchedulable) {
-        ScheduleInstance<U> subSchedInstance = (ScheduleInstance<U>) step.getSubSchedInstance();
-        assert subSchedInstance != null;
+    worker.throwIfNecessary();
+  }
 
-        Iterator<U> iterData = adaptWithLog((AdapterSchedulable<T, U>) instance, t);
-        while (iterData.hasNext()) {
-          subSchedInstance.process(iterData.next());
+  private class Worker<X extends VisitorSchedulable<T>, U extends Component> implements Runnable {
+    @Nonnull
+    private final T t;
+    @CheckForNull
+    private ProcessException exception;
+
+    public Worker(@Nonnull T t) {
+      this.t = t;
+    }
+
+    @Override
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public void run() {
+      try {
+        for (SchedStep step : steps) {
+          Schedulable instance = step.getInstance();
+
+          if (instance instanceof AdapterSchedulable) {
+            ScheduleInstance<U> subSchedInstance = (ScheduleInstance<U>) step.getSubSchedInstance();
+            assert subSchedInstance != null;
+
+            Iterator<U> iterData = adaptWithLog((AdapterSchedulable<T, U>) instance, t);
+            while (iterData.hasNext()) {
+              subSchedInstance.process(iterData.next());
+            }
+          } else if (instance instanceof RunnableSchedulable) {
+            runWithLog((RunnableSchedulable) instance, t);
+          } else if (instance instanceof VisitorSchedulable) {
+            visitWithLog((VisitorSchedulable) instance, t);
+          }
         }
-      } else if (instance instanceof RunnableSchedulable) {
-        runWithLog((RunnableSchedulable) instance, t);
-      } else if (instance instanceof VisitorSchedulable) {
-        visitWithLog((VisitorSchedulable) instance, t);
+      } catch (ProcessException e) {
+       exception = e;
+      }
+    }
+
+    public void throwIfNecessary() throws ProcessException {
+      if (exception != null) {
+        throw exception;
       }
     }
   }

@@ -26,6 +26,7 @@ import com.android.sched.transform.TransformRequest;
 import com.android.sched.util.codec.VariableName;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.config.id.LongPropertyId;
 import com.android.sched.util.config.id.ReflectFactoryPropertyId;
 import com.android.sched.util.log.Event;
 import com.android.sched.util.log.LoggerFactory;
@@ -57,6 +58,12 @@ public abstract class ScheduleInstance<T extends Component> {
       ReflectFactoryPropertyId<ScheduleInstance> DEFAULT_RUNNER = ReflectFactoryPropertyId.create(
           "sched.runner", "Set kind of runner for runnable", ScheduleInstance.class)
           .addArgType(Plan.class).addDefaultValue("multi-threaded");
+
+  @Nonnull
+  public static final LongPropertyId DEFAULT_STACK_SIZE =
+      LongPropertyId.create("sched.runner.stack-size", "Size of Worker stack in bytes").withMin(0)
+          .addDefaultValue(1024 * 1024 * 2);
+
   @Nonnull
   private final Logger logger = LoggerFactory.getLogger();
   @Nonnull

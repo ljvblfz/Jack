@@ -120,9 +120,12 @@ public class MultiWorkersScheduleInstance<T extends Component>
     @Nonnull
     private final Tracer tracer;
 
-    public Worker(@Nonnull BlockingDeque<Task> queue) {
+    public Worker(@Nonnull String name, @Nonnull BlockingDeque<Task> queue,
+        @Nonnegative long stackSize) {
+      super(null, null, name, stackSize);
       this.queue = queue;
       this.tracer = TracerFactory.getTracer();
+      this.setDaemon(true);
     }
 
     /*
@@ -482,12 +485,10 @@ public class MultiWorkersScheduleInstance<T extends Component>
     int threadPoolSize = getThreadPoolSize();
 
     String name = ThreadConfig.getConfig().getName() + "-worker-";
+    long stackSize = ThreadConfig.get(ScheduleInstance.DEFAULT_STACK_SIZE).longValue();
     List<Worker> activeWorkers = new ArrayList<Worker>(threadPoolSize);
     for (int i = 0; i < threadPoolSize; i++) {
-      Worker worker = new Worker(queue);
-
-      worker.setName(name + i);
-      worker.setDaemon(true);
+      Worker worker = new Worker(name + i, queue, stackSize);
       worker.start();
       activeWorkers.add(worker);
     }

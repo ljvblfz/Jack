@@ -20,6 +20,7 @@ import com.android.jack.config.id.Carnac;
 import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.load.JackLoadingException;
 import com.android.sched.scheduler.ProcessException;
+import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.util.TextUtils;
 import com.android.sched.util.UnrecoverableException;
 import com.android.sched.util.codec.Parser.ValueDescription;
@@ -106,7 +107,8 @@ public abstract class CommandLine {
       return (ExitStatus.FAILURE_VM);
     } catch (StackOverflowError e) {
       printExceptionMessage(err, e, "Stack overflow error.");
-      err.println("Try increasing stack size with java option '-Xss<size>'");
+      err.println("Try increasing stack size with property '"
+          + ScheduleInstance.DEFAULT_STACK_SIZE.getName() + "'");
       err.println(INTERRUPTED_COMPILATION_WARNING);
       logger.log(Level.SEVERE, "Stack overflow error:", e);
       return (ExitStatus.FAILURE_VM);
