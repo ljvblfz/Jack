@@ -16,12 +16,26 @@
 
 package com.android.jack.jarjar;
 
+import com.android.jack.Options;
+import com.android.jack.library.FileType;
+import com.android.jack.library.InputJackLibrary;
+import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.test.TestsProperties;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.runner.RuntimeRunner;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
+import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.file.FileOrDirectory.ChangePermission;
+import com.android.sched.util.file.FileOrDirectory.Existence;
+import com.android.sched.util.file.InputZipFile;
+import com.android.sched.vfs.InputVFile;
+import com.android.sched.vfs.ReadWriteZipFS;
+import com.android.sched.vfs.ReadZipFS;
+import com.android.sched.vfs.VFS;
+import com.android.sched.vfs.VPath;
 
 import junit.framework.Assert;
 
@@ -29,6 +43,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -49,6 +64,11 @@ public class JarjarTests {
   private RuntimeTestInfo JARJAR004 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.jarjar.test004"),
       "com.android.jack.jarjar.test004.dx.Tests");
+
+  @Nonnull
+  private RuntimeTestInfo JARJAR005 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.jarjar.test005"),
+      "com.android.jack.jarjar.test005.dx.Tests");
 
   @Test
   public void jarjar001() throws Exception {
@@ -164,5 +184,79 @@ public class JarjarTests {
 
   }
 
+  /**
+   * This test checks that all types are correctly moved into another package.
+   * @throws Exception
+   */
+  @Test
+  public void jarjar005() throws Exception {
+    IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
+    File outLib =
+        AbstractTestTools.createTempFile("jarjarTest005Lib", toolchain.getLibraryExtension());
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+        .setJarjarRules(
+            Collections.singletonList(new File(JARJAR005.directory, "jarjar-rules.txt")))
+        .srcToLib(outLib,
+            /* zipFiles = */ true, new File(JARJAR005.directory, "jack"));
+
+    // Add some boiler plate code to init the configuration because, if previous compilation has
+    // been done with jack api toolchain, configuration has been unset.
+    Options options = new Options();
+    RunnableHooks hooks = new RunnableHooks();
+    options.checkValidity(hooks);
+    options.getConfigBuilder(hooks).setDebug();
+    ThreadConfig.setConfig(options.getConfig());
+
+    InputJackLibrary inputJackLibrary = null;
+    VFS vfs = null;
+    try {
+      // work around a VFS bug
+      // inputJackLibrary = AbstractTestTools.getInputJackLibrary(outLib);
+
+      vfs = new ReadZipFS(
+          new InputZipFile(outLib.getPath(), hooks, Existence.MUST_EXIST, ChangePermission.NOCHANGE));
+
+      inputJackLibrary = JackLibraryFactory.getInputLibrary(vfs);
+
+      VPath pathToA = new VPath("com/android/jack/jarjar/test005/jack/renamed/A", '/');
+      VPath pathToB = new VPath("com/android/jack/jarjar/test005/jack/renamed/B", '/');
+      VPath pathToC = new VPath("com/android/jack/jarjar/test005/jack/renamed/C", '/');
+
+      inputJackLibrary.getFile(FileType.JAYCE, pathToA);
+      inputJackLibrary.getFile(FileType.JAYCE, pathToB);
+      inputJackLibrary.getFile(FileType.JAYCE, pathToC);
+      inputJackLibrary.getFile(FileType.PREBUILT, pathToA);
+      inputJackLibrary.getFile(FileType.PREBUILT, pathToB);
+      inputJackLibrary.getFile(FileType.PREBUILT, pathToC);
+      Iterator<InputVFile> iterator = inputJackLibrary.iterator(FileType.JAYCE);
+      while (iterator.hasNext()) {
+        InputVFile file = iterator.next();
+        if (file.getPathFromRoot().getPathAsString('/').contains("original")) {
+          Assert.fail();
+        }
+      }
+      iterator = inputJackLibrary.iterator(FileType.PREBUILT);
+      while (iterator.hasNext()) {
+        InputVFile file = iterator.next();
+        if (file.getPathFromRoot().getPathAsString('/').contains("original")) {
+          Assert.fail();
+        }
+      }
+    } finally {
+      if (inputJackLibrary != null) {
+        try {
+          inputJackLibrary.close();
+        } catch (UnsupportedOperationException e) {
+          // work around a VFS bug
+        }
+      }
+      if (vfs != null) {
+        vfs.close();
+      }
+      hooks.runHooks();
+      ThreadConfig.unsetConfig();
+    }
+
+  }
 
 }

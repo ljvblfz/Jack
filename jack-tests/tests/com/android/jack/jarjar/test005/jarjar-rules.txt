@@ -1,0 +1,1 @@
+rule com.android.jack.jarjar.test005.jack.original.** com.android.jack.jarjar.test005.jack.renamed.@1
