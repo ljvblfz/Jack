@@ -19,6 +19,8 @@ package com.android.jack.backend.dex;
 import com.android.jack.Jack;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
+import com.android.sched.util.SubReleaseKind;
+import com.android.sched.util.Version;
 import com.android.sched.vfs.VPath;
 
 import javax.annotation.Nonnull;
@@ -29,14 +31,19 @@ import javax.annotation.Nonnull;
 public abstract class DexWriter {
 
   @Nonnull
-  private static final String JACK_DEX_TAG_HEADER = "emitter: " + Jack.getEmitterId();
+  private static final String JACK_DEX_TAG_HEADER = "emitter: " + Jack.getEmitterId() + "-";
 
   @Nonnull
   private static final String JACK_DEX_TAG;
 
   static {
-    String bid = Jack.getVersion().getBuildId();
-    JACK_DEX_TAG = JACK_DEX_TAG_HEADER + (bid != null ? " " + bid : "");
+    Version version = Jack.getVersion();
+    String tag = JACK_DEX_TAG_HEADER + version.getReleaseCode() + "." + version.getSubReleaseCode();
+    if (version.getSubReleaseKind() == SubReleaseKind.ENGINEERING) {
+      tag += "-eng";
+    }
+
+    JACK_DEX_TAG = tag;
   }
 
   @Nonnull
