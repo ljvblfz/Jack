@@ -953,7 +953,7 @@ public abstract class Jack {
             planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
         typePlan.append(TypeShrinker.class);
         {
-          SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
+          SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodOnlyAdapter.class);
           methodPlan.append(MethodShrinker.class);
         }
         {
