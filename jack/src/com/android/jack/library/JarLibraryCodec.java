@@ -63,7 +63,8 @@ public class JarLibraryCodec extends FileOrDirCodec<JarLibrary> {
       throws ParsingException {
     InputZipFile inputZipFile;
     try {
-      inputZipFile = new InputZipFile(string, context.getRunnableHooks(), existence, change);
+      inputZipFile = new InputZipFile(context.getWorkingDirectory(), string,
+          context.getRunnableHooks(), existence, change);
     } catch (NotFileException e) {
       throw new ParsingException(e.getMessage(), e);
     } catch (NoSuchFileException e) {
