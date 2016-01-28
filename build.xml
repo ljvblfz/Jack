@@ -75,6 +75,7 @@
     dist-clean" />
 
   <dirname property="jack-project.dir" file="${ant.file.jack}"/>
+  <property name="jill-project.dir" value="${jack-project.dir}/../jill"/>
 
   <property name="jack.dir" value="${jack-project.dir}/jack" />
   <property name="jack-api.dir" value="${jack-project.dir}/jack-api" />
@@ -103,15 +104,16 @@
   <property name="dx-ref.dir" value="${jack-project.dir}/dx-ref"/>
   <property name="core-stubs-mini.dir" value="${jack-project.dir}/core-stubs-mini"/>
 
-  <property name="jill.dir" value="${jack-project.dir}/../jill/jill" />
-  <property name="jill-api.dir" value="${jack-project.dir}/../jill/jill-api" />
-  <property name="asm4.dir" value="${jack-project.dir}/../jill/asm4" />
+  <property name="jill.dir" value="${jill-project.dir}/jill" />
+  <property name="jill-api.dir" value="${jill-project.dir}/jill-api" />
+  <property name="asm4.dir" value="${jill-project.dir}/asm4" />
 
   <!-- ******************* -->
   <!-- Distributed files   -->
   <!-- ******************* -->
 
   <property name="jack-top-dist.dir" value="${jack-project.dir}/dist" />
+  <property name="jill-top-dist.dir" value="${jill-project.dir}/dist" />
 
   <target name="dist-clean">
     <delete dir="${jack-top-dist.dir}"/>
