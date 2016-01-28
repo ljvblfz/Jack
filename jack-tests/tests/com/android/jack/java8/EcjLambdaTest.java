@@ -32,12 +32,10 @@ import org.junit.runner.Description;
 import org.junit.runner.manipulation.Filter;
 import org.junit.runner.manipulation.NoTestsRemainException;
 
-import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.runner.AbstractRuntimeRunner;
 import com.android.jack.test.runner.RuntimeRunner;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
-import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.LegacyJillToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
@@ -186,12 +184,7 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ((AbstractRuntimeRunner) runner).setOutputStream(out);
         String mainClass = srcDescription[0].substring(0, srcDescription[0].lastIndexOf('.'));
-        String[] trArgs = RuntimeTestHelper.getRuntimeArgs(
-            runner.getClass().getSimpleName(),
-            new File(
-                AbstractTestTools.getTestRootDir("com.android.jack.java8"),
-                "enableDefaultMethods.properties"));
-        Assert.assertEquals(0, runner.run(trArgs, mainClass, dexFile));
+        Assert.assertEquals(0, runner.run(new String[0], mainClass, dexFile));
         Assert.assertEquals(expectedResult, out.toString().trim());
       }
     } catch (Exception e) {
