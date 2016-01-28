@@ -27,7 +27,10 @@
     jack-tests,
     dx-lib,
     sched-lib,
-    schedtests-lib"/>
+    schedtests-lib,
+    jill,
+    jill-api,
+    jill-api-src"/>
 
   <target name="clean" depends="jack-clean,
     jack-api-lib-clean,
@@ -65,6 +68,10 @@
     dx-ref-lib-clean,
     core-stubs-mini-clean,
     jack-default-lib-clean,
+    jill-clean,
+    jill-api-lib-clean,
+    jill-api-src-clean,
+    asm4-clean,
     dist-clean" />
 
   <dirname property="jack-project.dir" file="${ant.file.jack}"/>
@@ -96,6 +103,10 @@
   <property name="dx-ref.dir" value="${jack-project.dir}/dx-ref"/>
   <property name="core-stubs-mini.dir" value="${jack-project.dir}/core-stubs-mini"/>
 
+  <property name="jill.dir" value="${jack-project.dir}/../jill/jill" />
+  <property name="jill-api.dir" value="${jack-project.dir}/../jill/jill-api" />
+  <property name="asm4.dir" value="${jack-project.dir}/../jill/asm4" />
+
   <!-- ******************* -->
   <!-- Distributed files   -->
   <!-- ******************* -->
@@ -111,7 +122,9 @@
     <fail message="dist.build-id is undefined" unless="dist.build-id" />
   </target>
 
-  <target name="dist"
+  <target name="dist" depends="jack-dist, jill-dist"/>
+
+  <target name="jack-dist"
     description="package a Jack distribution" depends="
     dist-check,
     jack,
@@ -176,6 +189,42 @@
 
   </target>
 
+  <target name="jill-dist" description="package a Jill distribution" depends="
+    dist-check,
+    jill,
+    jill-api,
+    jill-api-src">
+    <mkdir dir="${jill-top-dist.dir}"/>
+    <copy todir="${jill-top-dist.dir}" flatten="true">
+      <filelist dir="/" >
+        <file name="${jill.dist.dir}/${jill.execname}" />
+        <file name="${jill-api.dist.dir}/${jill-api.name}" />
+        <file name="${jill-api.dist.dir}/${jill-api-src.name}" />
+      </filelist>
+    </copy>
+
+    <mkdir dir="${jill-top-dist.dir}/tmp"/>
+
+    <copy file="${jill-project.dir}/version.properties" tofile="${jill-top-dist.dir}/tmp/version.properties"/>
+     <propertyfile file="${jill-top-dist.dir}/tmp/version.properties">
+       <entry key="version.sha" value="${dist.sha}"/>
+       <entry key="version.buildid" value="${dist.build-id}"/>
+     </propertyfile>
+
+    <copy file="${jill-top-dist.dir}/tmp/version.properties" tofile="${jill-top-dist.dir}/tmp/jill-version.properties"/>
+     <jar destfile="${jill-top-dist.dir}/${jill.execname}" update="true"
+       basedir="${jill-top-dist.dir}/tmp"
+       includes="jill-version.properties"/>
+
+    <copy file="${jill-top-dist.dir}/tmp/version.properties" tofile="${jill-top-dist.dir}/tmp/jill-api-version.properties"/>
+     <jar destfile="${jill-top-dist.dir}/${jill-api.name}" update="true"
+       basedir="${jill-top-dist.dir}/tmp"
+       includes="jill-api-version.properties"/>
+
+    <delete dir="${jill-top-dist.dir}/tmp"/>
+
+  </target>
+
 
   <!-- ******************* -->
   <!-- Jack-lib            -->
@@ -216,7 +265,7 @@
 
   <target name="jack-lib-compile-step1"
     depends="jack-copy-libs,sched-build,antlr,sched-build-lib,allocation-lib,
-    dx-lib,freemarker-lib,maths-lib,sched-lib,watchmaker-lib">
+    dx-lib,freemarker-lib,maths-lib,sched-lib,watchmaker-lib,jill-lib,jill-api-lib,asm4-lib">
     <!-- project layout -->
     <!-- avoid incremental compilation with annotation processor -->
     <mkdir dir="${jack.build.outdir}"/>
@@ -240,6 +289,9 @@
       <file name="${freemarker.dist.dir}/${freemarker.libname}" />
       <file name="${watchmaker.dist.dir}/${watchmaker.libname}" />
       <file name="${maths.dist.dir}/${maths.libname}" />
+      <file name="${jill.dist.dir}/${jill.libname}" />
+      <file name="${jill-api.dist.dir}/${jill-api.lib.name}" />
+      <file name="${asm4.dist.dir}/${asm4.libname}" />
     </filelist>
     <copy todir="${jack.tools.dir}" flatten="true">
       <filelist dir="/" >
@@ -842,6 +894,197 @@
       <arg value="${jack-tests.dist.dir}/${jack-tests.execname}" />
     </java>
   </target>
+
+
+  <!-- ******************* -->
+  <!-- jill                -->
+  <!-- ******************* -->
+  <property name="jill.build.dir" value="${jill.dir}/build/jill" />
+  <property name="jill.libs.dir" value="${jill.dir}/libs" />
+  <property name="jill.build.outdir" value="${jill.build.dir}/classes" />
+  <property name="jill.exec.build.dir" value="${jill.build.dir}/package" />
+  <property name="jill.dist.dir" value="${jill.dir}/dist" />
+  <property name="jill.execname" value="jill.jar" />
+  <property name="jill.libname" value="jill-lib.jar" />
+
+  <target name="jill-clean">
+    <delete dir="${jill.build.dir}" />
+    <delete dir="${jill.dist.dir}" />
+    <delete dir="${jill.libs.dir}" />
+  </target>
+
+  <target name="jill-copy-libs" depends="jill-api-lib,sched-lib,guava-lib,asm4-lib,args4j-lib,jsr305-lib,
+    dexcomparator-lib">
+    <copy todir="${jill.libs.dir}" flatten="true">
+      <filelist id="jill.libs.filelist" dir="/" >
+        <file name="${jill-api.dist.dir}/${jill-api.lib.name}"/>
+        <file name="${schedlib.dist.dir}/${schedlib.libname}"/>
+        <file name="${guava.dist.dir}/${guava.libname}"/>
+        <file name="${args4j.dist.dir}/${args4j.libname}"/>
+        <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
+        <file name="${asm4.dist.dir}/${asm4.libname}"/>
+        <file name="${dexcomparator.dist.dir}/${dexcomparator.libname}"/>
+      </filelist>
+    </copy>
+  </target>
+
+  <target name="jill-check">
+    <union id ="jill.uptodate.files">
+      <filelist refid="jill.libs.filelist" />
+    </union>
+    <uptodate property="jill.uptodate" >
+      <srcfiles dir="${jill.dir}/src" />
+      <srcresources refid="jill.uptodate.files" />
+      <srcfiles dir="${jill.dir}/rsc"/>
+      <compositemapper>
+        <mergemapper to="${jill.dist.dir}/${jill.execname}" />
+        <mergemapper to="${jill.dist.dir}/${jill.libname}" />
+      </compositemapper>
+    </uptodate>
+  </target>
+
+  <target name="jill-compile" depends="jill-copy-libs, jill-check" unless="jill.uptodate">
+    <!-- project layout -->
+    <delete dir="${jill.build.outdir}"/>
+    <mkdir dir="${jill.build.outdir}"/>
+    <mkdir dir="${jill.dist.dir}"/>
+    <!-- compile -->
+    <javac encoding="UTF-8" srcdir="${jill.dir}/src"
+          destdir="${jill.build.outdir}"
+          source="1.5" target="1.5"
+          debug="true" includeantruntime="false">
+      <classpath>
+        <filelist refid="jill.libs.filelist" />
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="jill-lib" depends="jill-compile">
+    <copy file="${jack-project.dir}/version.properties"
+          tofile="${jill.build.outdir}/jill-version.properties"/>
+    <jar destfile="${jill.dist.dir}/${jill.libname}"
+          basedir="${jill.build.outdir}"
+          includes="**"/>
+  </target>
+
+  <target name="jill" depends="jill-compile">
+    <mkdir dir="${jill.exec.build.dir}"/>
+    <copy todir="${jill.exec.build.dir}">
+      <fileset dir="${jill.build.outdir}">
+        <include name="**/*" />
+      </fileset>
+      <fileset dir="${jill.dir}/rsc">
+        <include name="**/*" />
+      </fileset>
+      <fileset dir="${jill-api.lib.build.outdir}">
+        <include name="**/*" />
+      </fileset>
+      <fileset dir="${guava.build.outdir}">
+        <include name="**/*" />
+      </fileset>
+      <fileset dir="${schedlib.build.outdir}">
+        <include name="**/*" />
+      </fileset>
+      <fileset dir="${args4j.build.outdir}">
+        <include name="**/*" />
+      </fileset>
+      <fileset dir="${jsr305.build.outdir}">
+        <include name="**/*" />
+      </fileset>
+      <fileset dir="${asm4.build.outdir}">
+        <include name="**/*" />
+      </fileset>
+    </copy>
+    <unzip dest="${jill.exec.build.dir}" src="${guava.dist.dir}/${guava.libname}">
+      <patternset excludes="META-INF/**"/>
+    </unzip>
+
+    <copy file="${jack-project.dir}/version.properties"
+          tofile="${jill.exec.build.dir}/jill-version.properties"/>
+
+    <jar destfile="${jill.dist.dir}/${jill.execname}"
+          manifest="${jill.dir}/etc/manifest.txt"
+          basedir="${jill.exec.build.dir}"
+          includes="**"/>
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- jill-api-lib        -->
+  <!-- ******************* -->
+  <property name="jill-api.lib.build.dir" value="${jill-api.dir}/build/lib" />
+  <property name="jill-api.lib.build.outdir" value="${jill-api.lib.build.dir}/classes" />
+  <property name="jill-api.libs.dir" value="${jill-api.dir}/libs" />
+  <property name="jill-api.dist.dir" value="${jill-api.dir}/dist" />
+  <property name="jill-api.lib.name" value="jill-api-lib.jar" />
+
+  <target name="jill-api-lib-clean">
+    <delete dir="${jill-api.lib.build.dir}"/>
+    <delete dir="${jill-api.dist.dir}"/>
+    <delete dir="${jill-api.libs.dir}"/>
+  </target>
+
+  <target name="jill-api-lib-copy-libs" depends="jsr305-lib">
+    <copy todir="${jill-api.libs.dir}" flatten="true">
+      <filelist dir="/" >
+        <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
+      </filelist>
+    </copy>
+  </target>
+
+  <target name="jill-api-check">
+    <uptodate property="jill-api.uptodate" targetfile="${jill-api.dist.dir}/${jill-api.lib.name}">
+      <srcfiles dir="${jill-api.dir}/src" />
+      <srcfiles file="${jsr305.dist.dir}/${jsr305.libname}" />
+    </uptodate>
+  </target>
+
+  <target name="jill-api-lib" depends="jill-api-lib-copy-libs, jill-api-check" unless="jill-api.uptodate">
+    <delete dir="${jill-api.lib.build.outdir}"/>
+    <mkdir dir="${jill-api.lib.build.outdir}"/>
+    <javac  encoding="UTF-8" srcdir="${jill-api.dir}/src" destdir="${jill-api.lib.build.outdir}"
+          source="1.6" target="1.6" debug="true"
+          includeantruntime="false"  includeDestClasses="false" nowarn="true">
+      <classpath>
+        <filelist dir="/" files="${jsr305.dist.dir}/${jsr305.libname}" />
+      </classpath>
+      <exclude name="com/android/jack/api/example/**"/>
+    </javac>
+    <jar destfile="${jill-api.dist.dir}/${jill-api.lib.name}">
+      <fileset dir="${jill-api.lib.build.outdir}"/>
+    </jar>
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- jill-api            -->
+  <!-- ******************* -->
+  <property name="jill-api.build.dir" value="${jill-api.dir}/build/exec" />
+  <property name="jill-api.build.outdir" value="${jill-api.build.dir}/classes" />
+  <property name="jill-api.name" value="jill-api.jar" />
+
+  <target name="jill-api" depends="jill-api-lib">
+    <jar destfile="${jill-api.dist.dir}/${jill-api.name}">
+      <fileset dir="${jsr305.build.outdir}"/>
+      <fileset dir="${jill-api.lib.build.outdir}"/>
+    </jar>
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- jill-api-src        -->
+  <!-- ******************* -->
+  <property name="jill-api-src.name" value="jill-api-src.zip" />
+
+  <target name="jill-api-src-clean">
+    <delete dir="${jill-api.dist.dir}/${jill-api-src.name}"/>
+  </target>
+
+  <target name="jill-api-src">
+    <zip destfile="${jill-api.dist.dir}/${jill-api-src.name}"
+        basedir="${jill-api.dir}/src" />
+  </target>
+
 
 
   <!-- ******************* -->
@@ -1797,6 +2040,44 @@
             basedir="${dexlib.build.outdir}"
             includes="**"/>
   </target>
+
+
+  <!-- ******************* -->
+  <!-- asm4                -->
+  <!-- ******************* -->
+  <property name="asm4.build.dir" value="${asm4.dir}/build" />
+  <property name="asm4.build.outdir" value="${asm4.build.dir}/classes" />
+  <property name="asm4.dist.dir" value="${asm4.dir}/dist" />
+  <property name="asm4.libname" value="asm4-lib.jar" />
+
+  <target name="asm4-clean">
+    <delete dir="${asm4.build.dir}" />
+    <delete dir="${asm4.dist.dir}" />
+  </target>
+
+  <target name="asm4-lib">
+    <!-- project layout -->
+    <mkdir dir="${asm4.build.outdir}"/>
+    <mkdir dir="${asm4.dist.dir}"/>
+    <!-- compile -->
+    <dependset>
+      <sources>
+        <fileset dir="${asm4.dir}/src" />
+      </sources>
+      <targets>
+        <fileset file="${asm4.dist.dir}/${asm4.libname}"/>
+      </targets>
+    </dependset>
+    <javac  encoding="UTF-8" srcdir="${asm4.dir}/src"
+          destdir="${asm4.build.outdir}"
+          source="1.5" target="1.5"
+          debug="true" includeantruntime="false"/>
+    <!-- package -->
+    <jar destfile="${asm4.dist.dir}/${asm4.libname}"
+          basedir="${asm4.build.outdir}"
+          includes="**"/>
+  </target>
+
 
   <!-- ******************* -->
   <!-- jack-default-lib    -->
