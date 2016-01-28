@@ -271,7 +271,7 @@ public class ClasspathTests {
           .srcToLib(testOut, /* zipFiles = */ true, srcDir);
     } catch (JackAbortException e) {
       String errString = errOut.toString();
-      Assert.assertTrue(errString.contains("ERROR: Library reading phase"));
+      Assert.assertTrue(errString.contains("ERROR: Error during the library reading phase"));
       Assert.assertTrue(errString.contains("is not a jack library"));
     }
   }
