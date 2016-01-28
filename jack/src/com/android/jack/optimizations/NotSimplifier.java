@@ -19,10 +19,20 @@ package com.android.jack.optimizations;
 import com.android.jack.Jack;
 import com.android.jack.Options;
 import com.android.jack.ir.JNodeInternalError;
+import com.android.jack.ir.ast.JAndOperation;
 import com.android.jack.ir.ast.JBinaryOperation;
 import com.android.jack.ir.ast.JBinaryOperator;
+import com.android.jack.ir.ast.JBitAndOperation;
+import com.android.jack.ir.ast.JBitOrOperation;
+import com.android.jack.ir.ast.JEqOperation;
 import com.android.jack.ir.ast.JExpression;
+import com.android.jack.ir.ast.JGtOperation;
+import com.android.jack.ir.ast.JGteOperation;
+import com.android.jack.ir.ast.JLtOperation;
+import com.android.jack.ir.ast.JLteOperation;
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JNeqOperation;
+import com.android.jack.ir.ast.JOrOperation;
 import com.android.jack.ir.ast.JPrefixNotOperation;
 import com.android.jack.ir.ast.JPrimitiveType.JBooleanType;
 import com.android.jack.ir.ast.JUnaryOperation;
@@ -36,7 +46,6 @@ import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
-import com.android.sched.item.Tag;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
@@ -50,18 +59,13 @@ import javax.annotation.Nonnull;
  */
 @Description("Simplify '!' operator when it is valuable")
 @Constraint(need = {JPrefixNotOperation.class}, no = {ThreeAddressCodeForm.class})
-@Transform(add = {NotSimplifier.NotExpressionsSimplified.class})
+@Transform(add = {JPrefixNotOperation.class, JGteOperation.class, JGtOperation.class,
+    JLteOperation.class, JLtOperation.class, JEqOperation.class, JNeqOperation.class,
+    JAndOperation.class, JOrOperation.class, JBitAndOperation.class, JBitOrOperation.class})
 public class NotSimplifier implements RunnableSchedulable<JMethod> {
 
   @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
-
-  /**
-   * A {@link Tag} meaning that '!' expressions were simplified.
-   */
-  @Description("'!' Expressions were simplified.")
-  public static final class NotExpressionsSimplified implements Tag {
-  }
 
   /**
    * Count number of operators before and after that the transformation will be apply to check if it

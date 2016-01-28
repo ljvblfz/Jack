@@ -25,7 +25,6 @@ import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
-import com.android.jack.optimizations.NotSimplifier.NotExpressionsSimplified;
 import com.android.jack.transformations.booleanoperators.FallThroughMarker.FallThroughEnum;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
@@ -48,7 +47,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Removes conditional operator && and ||.")
 @Name("ConditionalAndOrRemover")
-@Constraint(need = {JConditionalOperation.class, NotExpressionsSimplified.class})
+@Constraint(need = {JConditionalOperation.class})
 @Transform(add = {JConditionalExpression.class, JBooleanLiteral.class, FallThroughMarker.class},
     remove = {JConditionalOperation.class, ThreeAddressCodeForm.class})
 public class ConditionalAndOrRemover implements RunnableSchedulable<JMethod> {

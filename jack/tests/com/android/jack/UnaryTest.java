@@ -19,10 +19,14 @@ package com.android.jack;
 import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.optimizations.Optimizations;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
 
@@ -35,19 +39,25 @@ public class UnaryTest {
   public void testCompile5() throws Exception {
     String classBinaryName = "com/android/jack/unary/test005/jack/UnaryNot";
     String methodSignature = "getValue1(II)I";
+
+    Map<String, String> additionalProperty = new HashMap<String, String>();
+    additionalProperty.put(Optimizations.NotSimplifier.ENABLE.getName(), "true");
+
     JMethod m =
         TestTools.getJMethodWithSignatureFilter(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
-            + classBinaryName + ";", methodSignature);
+            + classBinaryName + ";", methodSignature, additionalProperty);
 
     Assert.assertNotNull(m);
     CountIfStatement cis = new CountIfStatement();
     cis.accept(m);
     Assert.assertEquals(1, cis.countIf);
 
+    additionalProperty.put(Optimizations.DefUseSimplifier.ENABLE.getName(), "true");
+    additionalProperty.put(Optimizations.IfSimplifier.ENABLE.getName(), "true");
     methodSignature = "getValue2(IIII)I";
     m =
         TestTools.getJMethodWithSignatureFilter(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
-            + classBinaryName + ";", methodSignature);
+            + classBinaryName + ";", methodSignature, additionalProperty);
 
     Assert.assertNotNull(m);
     cis = new CountIfStatement();
