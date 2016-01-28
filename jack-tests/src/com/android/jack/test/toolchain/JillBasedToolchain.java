@@ -45,19 +45,16 @@ public abstract class JillBasedToolchain extends JackCliToolchain {
   @Nonnull
   private static final String RSC_DIR = "rsc";
   @Nonnull
-  protected File jillPrebuilt;
-  @Nonnull
   private File refCompilerPrebuilt;
   @Nonnull
   private File jarjarPrebuilt;
   @Nonnull
   private File proguardPrebuilt;
 
-  JillBasedToolchain(@Nonnull File jillPrebuilt, @Nonnull File jackPrebuilt,
+  JillBasedToolchain(@Nonnull File jackPrebuilt,
       @Nonnull File refCompilerPrebuilt, @Nonnull File jarjarPrebuilt,
       @Nonnull File proguardPrebuilt) {
     super(jackPrebuilt);
-    this.jillPrebuilt = jillPrebuilt;
     this.refCompilerPrebuilt = refCompilerPrebuilt;
     this.jarjarPrebuilt = jarjarPrebuilt;
     this.proguardPrebuilt = proguardPrebuilt;

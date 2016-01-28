@@ -23,6 +23,7 @@ import com.android.sched.util.log.LoggerFactory;
 
 import java.io.File;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -33,7 +34,7 @@ public class JillApiV01Toolchain extends JillApiToolchainBase {
   @Nonnull
   private Api01Config apiV01Config;
 
-  JillApiV01Toolchain(@Nonnull File jillPrebuilt, @Nonnull File jackPrebuilt,
+  JillApiV01Toolchain(@CheckForNull File jillPrebuilt, @Nonnull File jackPrebuilt,
       @Nonnull File refCompilerPrebuilt, @Nonnull File jarjarPrebuilt,
       @Nonnull File proguardPrebuilt) {
     super(jillPrebuilt, jackPrebuilt, Api01Config.class, refCompilerPrebuilt, jarjarPrebuilt,

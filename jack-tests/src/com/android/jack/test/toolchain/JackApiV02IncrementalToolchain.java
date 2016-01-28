@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -30,7 +31,7 @@ import javax.annotation.Nonnull;
 public class JackApiV02IncrementalToolchain
     extends JackApiV02Toolchain implements IncrementalToolchain {
 
-  JackApiV02IncrementalToolchain(@Nonnull File jackPrebuilt) {
+  JackApiV02IncrementalToolchain(@CheckForNull File jackPrebuilt) {
     super(jackPrebuilt);
   }
 

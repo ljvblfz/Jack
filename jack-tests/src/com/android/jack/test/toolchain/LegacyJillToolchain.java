@@ -30,9 +30,13 @@ import javax.annotation.Nonnull;
  */
 public class LegacyJillToolchain extends JillBasedToolchain {
 
+  @Nonnull
+  private File jillPrebuilt;
+
   public LegacyJillToolchain(@Nonnull File refCompilerPrebuilt, @Nonnull File jillPrebuilt,
       @Nonnull File jackPrebuilt, @Nonnull File jarjarPrebuilt, @Nonnull File proguardPrebuilt) {
-    super(jillPrebuilt, jackPrebuilt, refCompilerPrebuilt, jarjarPrebuilt, proguardPrebuilt);
+    super(jackPrebuilt, refCompilerPrebuilt, jarjarPrebuilt, proguardPrebuilt);
+    this.jillPrebuilt = jillPrebuilt;
   }
 
   @Override

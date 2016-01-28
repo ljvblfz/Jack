@@ -164,7 +164,8 @@ public abstract class AbstractTestTools {
     @Override
     @Nonnull
     public JackApiV01Toolchain build() {
-      return new JackApiV01Toolchain(getPrebuilt("jack"));
+      File jackPrebuilt = isPrebuiltAvailable("jack") ? getPrebuilt("jack") : null;
+      return new JackApiV01Toolchain(jackPrebuilt);
     }
   }
 
@@ -173,7 +174,8 @@ public abstract class AbstractTestTools {
     @Override
     @Nonnull
     public JackApiV02IncrementalToolchain build() {
-      return new JackApiV02IncrementalToolchain(getPrebuilt("jack"));
+      File jackPrebuilt = isPrebuiltAvailable("jack") ? getPrebuilt("jack") : null;
+      return new JackApiV02IncrementalToolchain(jackPrebuilt);
     }
   }
 
@@ -182,7 +184,8 @@ public abstract class AbstractTestTools {
     @Override
     @Nonnull
     public JackApiV02TwoStepsToolchain build() {
-      return new JackApiV02TwoStepsToolchain(getPrebuilt("jack"));
+      File jackPrebuilt = isPrebuiltAvailable("jack") ? getPrebuilt("jack") : null;
+      return new JackApiV02TwoStepsToolchain(jackPrebuilt);
     }
   }
 
@@ -191,14 +194,15 @@ public abstract class AbstractTestTools {
     @Override
     @Nonnull
     public JackApiV02Toolchain build() {
-      return new JackApiV02Toolchain(getPrebuilt("jack"));
+      File jackPrebuilt = isPrebuiltAvailable("jack") ? getPrebuilt("jack") : null;
+      return new JackApiV02Toolchain(jackPrebuilt);
     }
   }
 
   private static class LegacyJillToolchainBuilder implements ToolchainBuilder {
 
     @Override
-    public IToolchain build() {
+    public LegacyJillToolchain build() {
       return new LegacyJillToolchain(getPrebuilt("legacy-java-compiler"), getPrebuilt("jill"),
           getPrebuilt("jack"), getPrebuilt("jarjar"), getPrebuilt("proguard"));
     }
@@ -206,21 +210,30 @@ public abstract class AbstractTestTools {
 
   private static class JillApiV01ToolchainBuilder implements ToolchainBuilder {
 
-@Override
-    public IToolchain build() {
-      return new JillApiV01Toolchain(getPrebuilt("jill"), getPrebuilt("jack"),
+    @Override
+    public JillApiV01Toolchain build() {
+      File jillPrebuilt = isPrebuiltAvailable("jill") ? getPrebuilt("jill") : null;
+      return new JillApiV01Toolchain(jillPrebuilt, getPrebuilt("jack"),
           getPrebuilt("legacy-java-compiler"), getPrebuilt("jarjar"), getPrebuilt("proguard"));
     }
   }
 
+  public static boolean isPrebuiltAvailable(@Nonnull String prebuiltName) {
+    return !getPrebuiltPath(prebuiltName).equals("");
+  }
+
+  @Nonnull
+  private static String getPrebuiltPath(@Nonnull String prebuiltName) {
+    return TestsProperties.getProperty(TOOLCHAIN_PREBUILT_PREFIX + prebuiltName).trim();
+  }
+
+  @Nonnull
   public static File getPrebuilt(@Nonnull String prebuiltName) {
     String prebuiltVarName = TOOLCHAIN_PREBUILT_PREFIX + prebuiltName;
-    String prebuiltPath;
-
-    prebuiltPath = TestsProperties.getProperty(prebuiltVarName);
+    String prebuiltPath = TestsProperties.getProperty(prebuiltVarName).trim();
 
     if (prebuiltPath.equals("")) {
-      throw new TestConfigurationException("Property '" + prebuiltVarName + "' is not set");
+      throw new AssertionError("Property '" + prebuiltVarName + "' is not set");
     }
 
     File result = new File(prebuiltPath);
@@ -761,14 +774,12 @@ public abstract class AbstractTestTools {
     printProperty(TOOLCHAIN_CANDIDATE_KEY);
     printProperty(TOOLCHAIN_REFERENCE_KEY);
 
-    String prebuiltPath = printProperty(TOOLCHAIN_PREBUILT_PREFIX + "jack");
-    if (!prebuiltPath.equals("")) {
-      System.out.println(TOOLCHAIN_PREBUILT_PREFIX + "jack.version = " + getVersion("jack"));
-    }
-    prebuiltPath = printProperty(TOOLCHAIN_PREBUILT_PREFIX + "jill");
-    if (!prebuiltPath.equals("")) {
-      System.out.println(TOOLCHAIN_PREBUILT_PREFIX + "jill.version = " + getVersion("jill"));
-    }
+    printProperty(TOOLCHAIN_PREBUILT_PREFIX + "jack");
+    System.out.println(TOOLCHAIN_PREBUILT_PREFIX + "jack.version = " + getVersion("jack"));
+
+    printProperty(TOOLCHAIN_PREBUILT_PREFIX + "jill");
+    System.out.println(TOOLCHAIN_PREBUILT_PREFIX + "jill.version = " + getVersion("jill"));
+
     printProperty(TOOLCHAIN_PREBUILT_PREFIX + "jarjar");
     printProperty(TOOLCHAIN_PREBUILT_PREFIX + "proguard");
 
@@ -789,7 +800,7 @@ public abstract class AbstractTestTools {
   }
 
   private static String printProperty(@Nonnull String propertyName) {
-    String value = TestsProperties.getProperty(propertyName);
+    String value = TestsProperties.getProperty(propertyName).trim();
     System.out.println(propertyName + " = " + value);
     return value;
   }
@@ -833,37 +844,59 @@ public abstract class AbstractTestTools {
   @Nonnull
   private static String getVersion(@Nonnull String name) {
 
-    File prebuilt = getPrebuilt(name);
+    String versionFileName = name + "-version.properties";
 
-    if (prebuilt.getName().endsWith(".jar")) {
-      JarFile jarFile = null;
-      try {
-        jarFile = new JarFile(prebuilt);
-        ZipEntry entry = jarFile.getEntry(name + "-version.properties");
-        InputStream is = jarFile.getInputStream(entry);
-        Version version = new Version(is);
+    InputStream is = null;
+    JarFile jarFile = null;
 
-        return version.getVerboseVersion();
+    try {
 
-      } catch (IOException e) {
-        throw new TestConfigurationException(e);
-      } finally {
-        if (jarFile != null) {
-          try {
-            jarFile.close();
-          } catch (IOException e) {
-          }
+      if (isPrebuiltAvailable(name)) {
+        File prebuilt = getPrebuilt(name);
+
+        if (prebuilt.getName().endsWith(".jar")) {
+
+          jarFile = new JarFile(prebuilt);
+          ZipEntry entry = jarFile.getEntry(name + "-version.properties");
+          is = jarFile.getInputStream(entry);
+          Version version = new Version(is);
+
+          return version.getVerboseVersion();
+
+        } else if (prebuilt.getName().endsWith("jack")) {
+          return getServerJackVersion(prebuilt);
+        } else {
+          System.err.println(
+              "Could not fetch version of prebuilt '" + name + "': '" + prebuilt.getName() + "'");
+          return "<unknown>";
+        }
+
+      } else {
+        is = AbstractTestTools.class.getClassLoader().getResourceAsStream(versionFileName);
+
+        if (is == null) {
+          throw new TestConfigurationException("Could not find '" + versionFileName + "'");
+        }
+
+        return new Version(is).getVerboseVersion() + " (found on classpath)";
+      }
+    } catch (IOException e) {
+      throw new TestConfigurationException(e);
+    } finally {
+      if (is != null) {
+        try {
+          is.close();
+        } catch (IOException e) {
         }
       }
-    } else if (name.endsWith("jack")) {
-      return getServerJackVersion(prebuilt);
-    } else {
-      System.err.println("Could not fetch version of prebuilt '" + name + "'");
-      return "<unknown>";
+      if (jarFile != null) {
+        try {
+          jarFile.close();
+        } catch (IOException e) {
+        }
+      }
     }
-
   }
-
 
   private static String getServerJackVersion(@Nonnull File jackScript) {
 

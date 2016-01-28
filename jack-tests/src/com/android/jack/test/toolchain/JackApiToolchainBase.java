@@ -86,19 +86,40 @@ public abstract class JackApiToolchainBase extends JackBasedToolchain {
     return compilerVersion;
   }
 
-  protected <T extends JackConfig> JackApiToolchainBase(@Nonnull File jackPrebuilt,
+  protected <T extends JackConfig> JackApiToolchainBase(@CheckForNull File jackPrebuilt,
       @Nonnull Class<T> jackConfig) {
 
     try {
-      ClassLoader classLoader = URLClassLoader.newInstance(new URL[] {jackPrebuilt.toURI().toURL()},
-          JackApiToolchainBase.class.getClassLoader());
-      ServiceLoader<JackProvider> serviceLoader =
-          ServiceLoader.load(JackProvider.class, classLoader);
+      ClassLoader classLoader = null;
+
+      ServiceLoader<JackProvider> serviceLoader;
+
+      if (jackPrebuilt != null) {
+        classLoader = URLClassLoader.newInstance(
+            new URL[] {jackPrebuilt.toURI().toURL()}, JackApiToolchainBase.class.getClassLoader());
+        serviceLoader = ServiceLoader.load(JackProvider.class, classLoader);
+      } else {
+        serviceLoader = ServiceLoader.load(JackProvider.class);
+      }
+
       configProvider = serviceLoader.iterator().next();
+
+      if (jackPrebuilt != null && configProvider.getClass().getClassLoader() != classLoader) {
+        throw new TestConfigurationException("Jack compiler is not loaded from '" + jackPrebuilt
+            + "'. Unset jack prebuilt property in configuration file");
+      }
+
     } catch (MalformedURLException e1) {
       throw new TestConfigurationException(e1);
     } catch (NoSuchElementException e) {
-      throw new TestConfigurationException(e);
+      if (jackPrebuilt == null) {
+        throw new TestConfigurationException(
+            "JackProvider could not be loaded. Ensure Jack is present on classpath or prebuilt is"
+            + " specified in configuration file", e);
+      } else {
+        throw new TestConfigurationException(e);
+      }
+
     }
 
     assert configProvider != null;
