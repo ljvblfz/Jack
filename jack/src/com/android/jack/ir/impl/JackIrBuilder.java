@@ -143,7 +143,6 @@ import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ArrayAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.ArrayInitializer;
 import org.eclipse.jdt.internal.compiler.ast.ArrayReference;
-import org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.AssertStatement;
 import org.eclipse.jdt.internal.compiler.ast.Assignment;
 import org.eclipse.jdt.internal.compiler.ast.BinaryExpression;
@@ -1453,7 +1452,7 @@ public class JackIrBuilder {
         List<JExpression> dims = new ArrayList<JExpression>();
 
         dims.add(args.get(0).makeRef(sourceInfo));
-        for (int dim = 0; dim < ((ArrayTypeReference) lhs).dimensions - 1; dim++) {
+        for (int dim = 0; dim < ((TypeReference) lhs).dimensions() - 1; dim++) {
           dims.add(new JAbsentArrayDimension(SourceInfo.UNKNOWN));
         }
 
