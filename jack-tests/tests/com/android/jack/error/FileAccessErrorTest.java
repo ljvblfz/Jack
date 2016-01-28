@@ -123,7 +123,7 @@ public class FileAccessErrorTest {
       Assert.assertTrue(e.getCause().getCause() instanceof WrongPermissionException);
     } finally {
       String errString = errOut.toString();
-      Assert.assertTrue(errString.contains("ERROR: Library reading phase: directory"));
+      Assert.assertTrue(errString.contains("ERROR: Error during the library reading phase: directory"));
       Assert.assertTrue(errString.contains("is not readable"));
       if (!helper.getJackFolder().setReadable(true)) {
         Assert.fail("Fails to change file permissions of " + helper.getJackFolder().getAbsolutePath());
