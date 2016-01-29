@@ -49,7 +49,7 @@ public interface Parser<T> {
       throws ParsingException;
 
   /**
-   * @return a textual expression of the values that are suitable for this configurationn property.
+   * @return a textual expression of the values that are suitable for this configuration property.
    */
   @Nonnull
   public String getUsage();
