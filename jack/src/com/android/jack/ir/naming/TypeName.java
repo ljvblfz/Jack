@@ -18,6 +18,7 @@ package com.android.jack.ir.naming;
 
 import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JClassOrInterface;
+import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.ir.formatter.BinarySignatureFormatter;
@@ -113,19 +114,31 @@ public class TypeName extends AbstractName {
 
   @Nonnull
   private static String getSimpleName(@Nonnull JType type) {
-    String typeName = type.getName();
-    int simpleNameBeginIndex = typeName.lastIndexOf("$");
+    if (type instanceof JDefinedClassOrInterface) {
+      JDefinedClassOrInterface clOrI = (JDefinedClassOrInterface) type;
+      if (clOrI.isAnonymous()) {
+        return "";
+      } else {
+        String simpleName = type.getName();
+        JClassOrInterface enclosingType = clOrI.getEnclosingType();
 
-    if (simpleNameBeginIndex == -1) {
-      return typeName;
-    } else {
-      int length = typeName.length();
-      simpleNameBeginIndex++;
-      while (simpleNameBeginIndex < length
-          && Character.isDigit(typeName.charAt(simpleNameBeginIndex))) {
-        simpleNameBeginIndex++;
+        if (enclosingType != null) {
+          // Remove enclosing type name from simpleName
+          int simpleNameBeginIndex = enclosingType.getName().length() + 1;
+          assert simpleName.charAt(simpleNameBeginIndex - 1) == '$';
+
+          // Simple name of Foo$1Bar is Bar, it happens when there is another class named Foo$Bar
+          while (Character.isDigit(simpleName.charAt(simpleNameBeginIndex))) {
+            simpleNameBeginIndex++;
+          }
+
+          simpleName = simpleName.substring(simpleNameBeginIndex);
+        }
+
+        return simpleName;
       }
-      return typeName.substring(simpleNameBeginIndex);
+    } else {
+      throw new AssertionError();
     }
   }
 }
