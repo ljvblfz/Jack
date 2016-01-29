@@ -753,6 +753,9 @@ public abstract class AbstractTestTools {
   private static void printConfig() {
     System.out.println("Tests configuration:");
 
+    System.out.println(TestsProperties.TEST_CONFIG_KEY + " = "
+        + System.getProperty(TestsProperties.TEST_CONFIG_KEY));
+
     printProperty(TestsProperties.JACK_HOME_KEY);
 
     printProperty(TOOLCHAIN_CANDIDATE_KEY);
@@ -760,7 +763,7 @@ public abstract class AbstractTestTools {
 
     String prebuiltPath = printProperty(TOOLCHAIN_PREBUILT_PREFIX + "jack");
     if (!prebuiltPath.equals("")) {
-      System.out.println(TOOLCHAIN_PREBUILT_PREFIX + "jack.version  = " + getVersion("jack"));
+      System.out.println(TOOLCHAIN_PREBUILT_PREFIX + "jack.version = " + getVersion("jack"));
     }
     prebuiltPath = printProperty(TOOLCHAIN_PREBUILT_PREFIX + "jill");
     if (!prebuiltPath.equals("")) {
