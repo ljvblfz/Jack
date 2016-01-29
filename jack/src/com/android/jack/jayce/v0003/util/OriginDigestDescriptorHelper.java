@@ -25,7 +25,8 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
- * A helper class to encode {@link Set<OriginalDigestElement>} values in Jayce format.
+ * A helper class to encode a {@link Set}&lt;{@link OriginDigestElement}&gt; values in
+ * Jayce format.
  */
 public class OriginDigestDescriptorHelper {
 

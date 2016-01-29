@@ -118,7 +118,7 @@ public final class CstNat extends Constant {
    * @return {@code non-null;} the descriptor
    */
   public CstString getDescriptor() {
-    return new CstString(Type.ReplaceClosureFromDescriptor(descriptor.getString()));
+    return new CstString(Type.replaceClosureFromDescriptor(descriptor.getString()));
   }
 
   /**
