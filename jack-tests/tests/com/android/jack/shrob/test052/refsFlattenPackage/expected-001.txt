@@ -1,0 +1,4 @@
+com.android.jack.shrob.test052.jack.Outer$Member$Class$Member3$B -> flatpackage.wnpx.Cihrf$Zrzorf$Pyngg$Zrzorf3$O:
+com.android.jack.shrob.test052.jack.Outer$Member$Class -> flatpackage.wnpx.Cihrf$Zrzorf$Pyngg:
+com.android.jack.shrob.test052.jack.Outer -> flatpackage.wnpx.Cihrf:
+    void <init>() -> <init>
