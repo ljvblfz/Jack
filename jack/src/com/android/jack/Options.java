@@ -180,7 +180,7 @@ public class Options {
   @Nonnull
   public static final BooleanPropertyId CODE_COVERVAGE = BooleanPropertyId
       .create("jack.coverage", "Enable code coverage")
-      .addDefaultValue(Boolean.FALSE);
+      .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
 
   @Nonnull
   public static final BooleanPropertyId INCREMENTAL_MODE = BooleanPropertyId
