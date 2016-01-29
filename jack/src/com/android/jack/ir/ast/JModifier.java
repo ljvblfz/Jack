@@ -46,11 +46,12 @@ public class JModifier {
 
   // Extra Jack modifiers
   public static final int COMPILE_TIME_CONSTANT = 0x20000;
+  //Jack does not longer support ANONYMOUS_TYPE modifier, nevertheless old libraries can have it
+  @Deprecated
   public static final int ANONYMOUS_TYPE        = 0x40000;
 
   private static final int TYPE_MODIFIER_MASK = PUBLIC | PROTECTED | PRIVATE | STATIC | FINAL
-      | ENUM | SYNTHETIC | ABSTRACT | INTERFACE | ANNOTATION | SUPER | STRICTFP | ANONYMOUS_TYPE
-      | DEPRECATED;
+      | ENUM | SYNTHETIC | ABSTRACT | INTERFACE | ANNOTATION | SUPER | STRICTFP | DEPRECATED;
 
   private static final int FIELD_MODIFIER_MASK = PUBLIC | PROTECTED | PRIVATE | STATIC
       | FINAL | TRANSIENT | VOLATILE | ENUM | SYNTHETIC | COMPILE_TIME_CONSTANT | DEPRECATED;
@@ -131,10 +132,6 @@ public class JModifier {
 
   public static boolean isCompileTimeConstant(int modifier) {
     return ((modifier & COMPILE_TIME_CONSTANT) == COMPILE_TIME_CONSTANT);
-  }
-
-  public static boolean isAnonymousType(int modifier) {
-    return ((modifier & ANONYMOUS_TYPE) == ANONYMOUS_TYPE);
   }
 
   public static boolean isStaticInitializer(int modifier) {

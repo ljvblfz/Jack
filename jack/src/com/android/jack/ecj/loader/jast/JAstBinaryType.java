@@ -29,7 +29,6 @@ import com.android.jack.ir.ast.JIntLiteral;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JLiteral;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JNameValuePair;
 import com.android.jack.ir.ast.JNullLiteral;
 import com.android.jack.ir.ast.marker.SimpleName;
@@ -89,7 +88,6 @@ class JAstBinaryType implements IBinaryType {
       modifiers = jDeclaredType.getModifier();
     }
     modifiers = LoaderUtils.convertJAstModifiersToEcj(modifiers, jDeclaredType);
-    modifiers &= ~JModifier.ANONYMOUS_TYPE;
 
     JClassOrInterface enclosingType = jDeclaredType.getEnclosingType();
     if (enclosingType != null && !isAnonymous()

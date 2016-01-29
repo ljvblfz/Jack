@@ -23,6 +23,7 @@ import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.sourceinfo.SourceInfo;
@@ -117,6 +118,7 @@ public class NClassType extends NDeclaredType {
     assert signature != null;
     String binaryName = NamingTools.getClassBinaryNameFromDescriptor(signature);
     String simpleName = NamingTools.getSimpleClassNameFromBinaryName(binaryName);
+    modifiers &= ~JModifier.ANONYMOUS_TYPE;
     JDefinedClass jClassType =
         new JDefinedClass(SourceInfo.UNKNOWN, simpleName, modifiers, enclosingPackage, loader);
     return jClassType;

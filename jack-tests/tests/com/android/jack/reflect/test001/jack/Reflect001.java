@@ -26,6 +26,10 @@ public class Reflect001 {
 
   private class C{}
 
+  private interface $1{}
+
+  private interface ${}
+
   public String getSimpleNameInner1() {
     return C.class.getSimpleName();
   }
@@ -50,6 +54,22 @@ public class Reflect001 {
     return new $1I().getClass().getSimpleName();
   }
 
+  public String getSimpleNameInner7() {
+    return $1.class.getSimpleName();
+  }
+
+  public String getSimpleNameInner8() {
+    return $.class.getSimpleName();
+  }
+
+  public String getSimpleNameAnonymous1() {
+    return new $(){}.getClass().getSimpleName();
+  }
+
+  public String getSimpleNameAnonymous2() {
+    return new $1(){}.getClass().getSimpleName();
+  }
+
   public boolean isAnonymousInner1() {
     return C.class.isAnonymousClass();
   }
@@ -70,6 +90,13 @@ public class Reflect001 {
     return new I(){}.getClass().isAnonymousClass();
   }
 
+  public boolean isAnonymousInner6() {
+    return new $1(){}.getClass().isAnonymousClass();
+  }
+
+  public boolean isAnonymousInner7() {
+    return new $(){}.getClass().isAnonymousClass();
+  }
 
   public String getSimpleNameLocal1() {
     class $1I{}

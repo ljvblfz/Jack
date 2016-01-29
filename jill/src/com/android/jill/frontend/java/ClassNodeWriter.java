@@ -41,7 +41,6 @@ public class ClassNodeWriter extends JillWriter {
 
   // Extra Jack modifiers
   public static final int COMPILE_TIME_CONSTANT = 0x20000;
-  public static final int ANONYMOUS_TYPE = 0x40000;
 
   @Nonnull
   private final AnnotationWriter annotWriter;
@@ -97,8 +96,7 @@ public class ClassNodeWriter extends JillWriter {
     sourceInfoWriter.writeDebugBegin(cn);
     writer.writeKeyword(Token.CLASS);
     writer.writeOpen();
-    writer.writeInt(
-        AsmHelper.getModifiers(cn) | (AsmHelper.getSourceName(cn).equals("") ? ANONYMOUS_TYPE : 0));
+    writer.writeInt(AsmHelper.getModifiers(cn));
     writer.writeId(AsmHelper.getDescriptor(cn));
     writer.writeId(cn.superName != null ? Type.getObjectType(cn.superName).getDescriptor() : null);
     writer.writeIds(AsmHelper.getDescriptorsFromInternalNames(cn.interfaces));

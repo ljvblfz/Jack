@@ -31,6 +31,10 @@ public class Tests {
     Assert.assertEquals("$A$B$C",  new Reflect001().getSimpleNameInner4());
     Assert.assertEquals("$1I",  new Reflect001().getSimpleNameInner5());
     Assert.assertEquals("$1I",  new Reflect001().getSimpleNameInner6());
+    Assert.assertEquals("$1",  new Reflect001().getSimpleNameInner7());
+    Assert.assertEquals("$",  new Reflect001().getSimpleNameInner8());
+    Assert.assertEquals("",  new Reflect001().getSimpleNameAnonymous1());
+    Assert.assertEquals("",  new Reflect001().getSimpleNameAnonymous2());
   }
 
   @Test
@@ -48,6 +52,8 @@ public class Tests {
     Assert.assertFalse(new Reflect001().isAnonymousInner3());
     Assert.assertFalse(new Reflect001().isAnonymousInner4());
     Assert.assertTrue(new Reflect001().isAnonymousInner5());
+    Assert.assertTrue(new Reflect001().isAnonymousInner6());
+    Assert.assertTrue(new Reflect001().isAnonymousInner7());
   }
 
   @Test

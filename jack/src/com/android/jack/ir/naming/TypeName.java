@@ -93,7 +93,7 @@ public class TypeName extends AbstractName {
           assert type instanceof JClassOrInterface;
           return sourceQnFormatter.getName(type);
         case SIMPLE_NAME:
-          return getSimpleName(type);
+          return getSimpleName((JDefinedClassOrInterface) type);
         default: {
           throw new AssertionError();
         }
@@ -113,32 +113,24 @@ public class TypeName extends AbstractName {
   }
 
   @Nonnull
-  private static String getSimpleName(@Nonnull JType type) {
-    if (type instanceof JDefinedClassOrInterface) {
-      JDefinedClassOrInterface clOrI = (JDefinedClassOrInterface) type;
-      if (clOrI.isAnonymous()) {
-        return "";
-      } else {
-        String simpleName = type.getName();
-        JClassOrInterface enclosingType = clOrI.getEnclosingType();
+  public static String getSimpleName(@Nonnull JDefinedClassOrInterface type) {
+    String simpleName = type.getName();
+    JClassOrInterface enclosingType = type.getEnclosingType();
 
-        if (enclosingType != null) {
-          // Remove enclosing type name from simpleName
-          int simpleNameBeginIndex = enclosingType.getName().length() + 1;
-          assert simpleName.charAt(simpleNameBeginIndex - 1) == '$';
+    if (enclosingType != null) {
+      // Remove enclosing type name from simpleName
+      int simpleNameBeginIndex = enclosingType.getName().length() + 1;
+      assert simpleName.charAt(simpleNameBeginIndex - 1) == '$';
 
-          // Simple name of Foo$1Bar is Bar, it happens when there is another class named Foo$Bar
-          while (Character.isDigit(simpleName.charAt(simpleNameBeginIndex))) {
-            simpleNameBeginIndex++;
-          }
-
-          simpleName = simpleName.substring(simpleNameBeginIndex);
-        }
-
-        return simpleName;
+      // Simple name of Foo$1Bar is Bar, it happens when there is another class named Foo$Bar
+      while (simpleNameBeginIndex < simpleName.length()
+          && Character.isDigit(simpleName.charAt(simpleNameBeginIndex))) {
+        simpleNameBeginIndex++;
       }
-    } else {
-      throw new AssertionError();
+
+      simpleName = simpleName.substring(simpleNameBeginIndex);
     }
+
+    return simpleName;
   }
 }
