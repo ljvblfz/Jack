@@ -32,6 +32,7 @@ import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
@@ -137,9 +138,61 @@ public class JayceFormatErrorTest {
    * version on classpath.
    */
   @Test
-  public void testJayceVersionError() throws Exception {
+  public void testJayceVersionErrorOnClasspath() throws Exception {
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     ErrorTestHelper helper = new ErrorTestHelper();
 
+    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+    toolchain.setErrorStream(errOut);
+
+    // add the lib with bad Jayce format on classpath
+    toolchain.addToClasspath(helper.getJackFolder());
+
+    try {
+      commonJayceVersionError(toolchain, helper);
+      Assert.fail();
+    } catch (JackAbortException e) {
+      // Failure is OK since Jayce format version 0 is not supported.
+      Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
+      Assert.assertTrue(e.getCause().getCause() instanceof LibraryFormatException);
+    } finally {
+      Assert.assertTrue(errOut.toString().contains("is an invalid library")); // user reporting
+      Assert.assertTrue(errOut.toString().contains("Jayce version 0 not supported")); // system log
+    }
+  }
+
+  /**
+   * Checks that compilation fails correctly with a Jack library containing an invalid Jayce format
+   * version on import.
+   */
+  @Test
+  public void testJayceVersionErrorOnImport() throws Exception {
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    ErrorTestHelper helper = new ErrorTestHelper();
+
+    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+    toolchain.setErrorStream(errOut);
+
+    // import the lib with bad Jayce format
+    toolchain.addStaticLibs(helper.getJackFolder());
+
+    try {
+      commonJayceVersionError(toolchain, helper);
+      Assert.fail();
+    } catch (JackAbortException e) {
+      // Failure is OK since Jayce format version 0 is not supported.
+      Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
+      Assert.assertTrue(e.getCause().getCause() instanceof LibraryFormatException);
+    } finally {
+      Assert.assertTrue(errOut.toString().contains("is an invalid library")); // user reporting
+      Assert.assertTrue(errOut.toString().contains("Jayce version 0 not supported")); // system log
+    }
+  }
+
+  private void commonJayceVersionError(@Nonnull JackApiToolchainBase toolchain,
+      @Nonnull ErrorTestHelper helper) throws Exception {
     AbstractTestTools.createFile(new File(helper.getJackFolder(), JAYCE_SECTION_PATH),
         "jack.incremental",
         "A.jayce", "jayce()");
@@ -156,24 +209,7 @@ public class JayceFormatErrorTest {
         "package jack.incremental; \n"+
         "public class B extends A {} \n");
 
-    JackApiToolchainBase toolchain =
-        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
-
-    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
-    toolchain.setErrorStream(errOut);
-
-    try {
-      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
-      .addToClasspath(helper.getJackFolder())
-      .srcToExe(helper.getOutputDexFolder(), /* zipFile= */ false, helper.getSourceFolder());
-      Assert.fail();
-    } catch (JackAbortException e) {
-      // Failure is OK since Jayce format version 0 is not supported.
-      Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
-      Assert.assertTrue(e.getCause().getCause() instanceof LibraryFormatException);
-    } finally {
-      Assert.assertTrue(errOut.toString().contains("is an invalid library")); // user reporting
-      Assert.assertTrue(errOut.toString().contains("Jayce version 0 not supported")); // system log
-    }
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+        .srcToExe(helper.getOutputDexFolder(), /* zipFile= */ false, helper.getSourceFolder());
   }
 }
