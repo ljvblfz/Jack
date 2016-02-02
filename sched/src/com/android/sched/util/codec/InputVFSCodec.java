@@ -17,22 +17,13 @@
 package com.android.sched.util.codec;
 
 
-import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.config.ConfigurationError;
-import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
-import com.android.sched.util.file.InputZipFile;
 import com.android.sched.util.log.LoggerFactory;
-import com.android.sched.vfs.DirectFS;
-import com.android.sched.vfs.GenericInputVFS;
 import com.android.sched.vfs.InputVFS;
-import com.android.sched.vfs.ReadZipFS;
-import com.android.sched.vfs.VFS;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
@@ -40,7 +31,7 @@ import javax.annotation.Nonnull;
 /**
  * This {@link StringCodec} is used to create an instance of {@link InputVFS}.
  */
-public class InputVFSCodec extends FileOrDirCodec<InputVFS> {
+abstract class InputVFSCodec extends FileOrDirCodec<InputVFS> {
 
   @Nonnull
   private final Logger logger = LoggerFactory.getLogger();
@@ -75,33 +66,6 @@ public class InputVFSCodec extends FileOrDirCodec<InputVFS> {
   @Nonnull
   public String getVariableName() {
     return "zip-or-dir";
-  }
-
-  @Override
-  @Nonnull
-  public InputVFS checkString(@Nonnull CodecContext context, @Nonnull final String string)
-      throws ParsingException {
-    final VFS vfs;
-    try {
-      File dirOrZip = new File(string);
-      if (dirOrZip.isDirectory()) {
-        vfs = new DirectFS(new Directory(context.getWorkingDirectory(),
-            string,
-            context.getRunnableHooks(),
-            Existence.MUST_EXIST,
-            Permission.READ,
-            change), Permission.READ);
-      } else {
-        RunnableHooks hooks = context.getRunnableHooks();
-        assert hooks != null;
-        vfs = new ReadZipFS(new InputZipFile(context.getWorkingDirectory(), string, hooks,
-            Existence.MUST_EXIST, change));
-      }
-
-      return new GenericInputVFS(vfs);
-    } catch (IOException e) {
-      throw new ParsingException(e.getMessage(), e);
-    }
   }
 
   @Override
