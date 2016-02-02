@@ -32,10 +32,12 @@ public class Test001ReachingDefinitionsChecker implements ReachingDefinitionsChe
           for (DefinitionMarker dm : rdm.getReachingDefs()) {
             if (dm.hasValue()) {
               JAsgOperation asg = (JAsgOperation) dm.getDefinition();
-              if (asg.getLhs() instanceof JVariableRef
-                  && ((JVariableRef) asg.getLhs()).getTarget().getName().equals("result")
-                  && asg.getRhs() instanceof JIntLiteral) {
-                foundResultDef = true;
+              if (asg.getLhs() instanceof JVariableRef) {
+                String varName = ((JVariableRef) asg.getLhs()).getTarget().getName();
+                if (varName != null && varName.equals("result")
+                    && asg.getRhs() instanceof JIntLiteral) {
+                  foundResultDef = true;
+                }
               }
             }
           }
