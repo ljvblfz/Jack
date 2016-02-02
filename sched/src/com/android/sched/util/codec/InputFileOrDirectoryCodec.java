@@ -22,6 +22,8 @@ import com.android.sched.util.file.FileOrDirectory;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.InputStreamFile;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.location.StringLocation;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,12 +54,15 @@ public class InputFileOrDirectoryCodec extends FileOrDirCodec<FileOrDirectory> {
   @CheckForNull
   public FileOrDirectory checkString(@Nonnull CodecContext context, @Nonnull String string)
       throws ParsingException {
-    File file = new File(string);
     try {
-      if (file.isFile()) {
-        return new InputStreamFile(context.getWorkingDirectory(), string);
+      Directory workingDir = context.getWorkingDirectory();
+      File file = FileOrDirectory.getFileFromWorkingDirectory(workingDir, string);
+      if (!file.exists()) {
+        throw new ParsingException(new NoSuchFileException(new StringLocation(string)));
+      } else if (file.isFile()) {
+        return new InputStreamFile(workingDir, string);
       } else {
-        return new Directory(context.getWorkingDirectory(),
+        return new Directory(workingDir,
             string,
             context.getRunnableHooks(),
             existence,
