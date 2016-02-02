@@ -5,7 +5,5 @@ com.android.jack.shrob.test019.jack.B$Inner2$Inner3 -> com.android.jack.shrob.te
     void <init>() -> <init>
 com.android.jack.shrob.test019.jack.B$C$Inner4 -> com.android.jack.shrob.test019.jack.B$C$Inner4:
     void <init>() -> <init>
-com.android.jack.shrob.test019.jack.B$E -> O$R:
-    void <init>() -> <init>
 com.android.jack.shrob.test019.jack.B$E$1 -> com.android.jack.shrob.test019.jack.B$E$1:
     void <init>() -> <init>
