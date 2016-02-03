@@ -57,7 +57,7 @@ public interface Api01Config extends JackConfig {
       @Nonnull ResourceCollisionPolicy resourceImportCollisionPolicy) throws ConfigurationException;
 
   /**
-   * Sets the Java source version.
+   * Sets the Java source version (from 3 to 7).
    * @param javaSourceVersion the Java source version
    * @throws ConfigurationException
    */
