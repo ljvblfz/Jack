@@ -26,7 +26,9 @@ import com.android.jack.test.runner.RuntimeRunner;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.collect.Lists;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
@@ -42,6 +44,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -190,7 +193,9 @@ public class JarjarTests {
    */
   @Test
   public void jarjar005() throws Exception {
-    IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(JillBasedToolchain.class);
+    IToolchain toolchain = AbstractTestTools.getCandidateToolchain(IToolchain.class, exclude);
     File outLib =
         AbstractTestTools.createTempFile("jarjarTest005Lib", toolchain.getLibraryExtension());
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
