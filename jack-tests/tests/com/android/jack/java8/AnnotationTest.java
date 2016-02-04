@@ -16,13 +16,16 @@
 
 package com.android.jack.java8;
 
-import org.junit.Test;
-
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.JackApiV01;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
+
+import org.junit.Test;
+
+import javax.annotation.Nonnull;
 
 /**
  * JUnit test for compilation of annotations.
@@ -44,24 +47,26 @@ public class AnnotationTest {
   @Test
   @KnownIssue
   public void testAnnotation001() throws Exception {
-    new RuntimeTestHelper(ANNOTATION001)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    compileAndRun(ANNOTATION001);
   }
 
   @Test
   @KnownIssue
   public void testAnnotation002() throws Exception {
-    new RuntimeTestHelper(ANNOTATION002)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .compileAndRunTest();
+    compileAndRun(ANNOTATION002);
   }
 
   @Test
   @KnownIssue
   public void testAnnotation003() throws Exception {
-    new RuntimeTestHelper(ANNOTATION003)
+    compileAndRun(ANNOTATION003);
+  }
+
+  private void compileAndRun(@Nonnull RuntimeTestInfo testInfo) throws Exception {
+    new RuntimeTestHelper(testInfo)
     .setSourceLevel(SourceLevel.JAVA_8)
+    .addIgnoredCandidateToolchain(JackApiV01.class)
     .compileAndRunTest();
   }
+
 }

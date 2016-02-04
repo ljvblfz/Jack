@@ -23,6 +23,7 @@ import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.JackApiV01;
 import com.android.jack.test.toolchain.JackCliToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
@@ -62,6 +63,7 @@ public class IntersectionTypeTest {
     .setSourceLevel(SourceLevel.JAVA_8)
     .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .addIgnoredCandidateToolchain(JillBasedToolchain.class)
+    .addIgnoredCandidateToolchain(JackApiV01.class)
     .compileAndRunTest();
   }
 
@@ -71,6 +73,7 @@ public class IntersectionTypeTest {
     .setSourceLevel(SourceLevel.JAVA_8)
     .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .addIgnoredCandidateToolchain(JillBasedToolchain.class)
+    .addIgnoredCandidateToolchain(JackApiV01.class)
     .compileAndRunTest();
   }
 
@@ -80,6 +83,7 @@ public class IntersectionTypeTest {
     .setSourceLevel(SourceLevel.JAVA_8)
     .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
     .addIgnoredCandidateToolchain(JillBasedToolchain.class)
+    .addIgnoredCandidateToolchain(JackApiV01.class)
     .compileAndRunTest();
   }
 
@@ -88,7 +92,9 @@ public class IntersectionTypeTest {
     try {
       new RuntimeTestHelper(INTERSECTION_TYPE_004).setSourceLevel(SourceLevel.JAVA_8)
           .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
-          .addIgnoredCandidateToolchain(JackCliToolchain.class).compileAndRunTest();
+          .addIgnoredCandidateToolchain(JackCliToolchain.class)
+          .addIgnoredCandidateToolchain(JackApiV01.class)
+          .compileAndRunTest();
       Assert.fail();
     } catch (FrontendCompilationException e) {
       // Compilation error is ok
@@ -100,7 +106,9 @@ public class IntersectionTypeTest {
     try {
       new RuntimeTestHelper(INTERSECTION_TYPE_005).setSourceLevel(SourceLevel.JAVA_8)
           .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
-          .addIgnoredCandidateToolchain(JackCliToolchain.class).compileAndRunTest();
+          .addIgnoredCandidateToolchain(JackCliToolchain.class)
+          .addIgnoredCandidateToolchain(JackApiV01.class)
+          .compileAndRunTest();
       Assert.fail();
     } catch (FrontendCompilationException e) {
       // Compilation error is ok

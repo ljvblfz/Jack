@@ -34,6 +34,7 @@ import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.JackApiV01;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
@@ -249,6 +250,7 @@ public class DefaultMethodTest {
     new RuntimeTestHelper(rti)
     .setSourceLevel(SourceLevel.JAVA_8)
     .addIgnoredCandidateToolchain(JillBasedToolchain.class)
+    .addIgnoredCandidateToolchain(JackApiV01.class)
     .compileAndRunTest();
   }
 }

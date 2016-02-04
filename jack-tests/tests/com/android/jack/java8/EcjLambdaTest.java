@@ -36,6 +36,7 @@ import com.android.jack.test.runner.AbstractRuntimeRunner;
 import com.android.jack.test.runner.RuntimeRunner;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.test.toolchain.JackApiV01;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.LegacyJillToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
@@ -127,6 +128,7 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
   public void runConformTest(String[] srcDescription) {
     List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
     excludeList.add(LegacyJillToolchain.class);
+    excludeList.add(JackApiV01.class);
 
     JackBasedToolchain jackToolchain = null;
     try {
@@ -157,6 +159,7 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
   public void runConformTest(String[] srcDescription, String expectedResult) {
     List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
     excludeList.add(LegacyJillToolchain.class);
+    excludeList.add(JackApiV01.class);
 
     JackBasedToolchain jackToolchain = null;
     try {

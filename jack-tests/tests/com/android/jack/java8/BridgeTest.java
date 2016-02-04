@@ -21,6 +21,7 @@ import org.junit.Test;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.JackApiV01;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
 public class BridgeTest {
@@ -33,6 +34,7 @@ public class BridgeTest {
   public void testBridge001() throws Exception {
     new RuntimeTestHelper(BRIDGE001)
     .setSourceLevel(SourceLevel.JAVA_8)
+    .addIgnoredCandidateToolchain(JackApiV01.class)
     .compileAndRunTest();
   }
 

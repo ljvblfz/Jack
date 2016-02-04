@@ -100,26 +100,6 @@ public abstract class JackBasedToolchain extends AndroidToolchain {
     return this;
   }
 
-  @Override
-  @Nonnull
-  public JackBasedToolchain setSourceLevel(@Nonnull SourceLevel sourceLevel) {
-    super.setSourceLevel(sourceLevel);
-    switch (sourceLevel) {
-      case JAVA_6:
-        addProperty("jack.java.source.version", "1.6");
-        break;
-      case JAVA_7:
-        addProperty("jack.java.source.version", "1.7");
-        break;
-      case JAVA_8:
-        addProperty("jack.java.source.version", "1.8");
-        break;
-      default:
-        throw new AssertionError("Unkown level: '" + sourceLevel.toString() + "'");
-    }
-    return this;
-  }
-
   @Nonnull
   public abstract JackBasedToolchain setIncrementalFolder(@Nonnull File incrementalFolder);
 
