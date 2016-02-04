@@ -21,8 +21,10 @@ import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JPhantomInterface;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.JVariableRef;
+import com.android.jack.ir.ast.MissingJTypeLookupException;
 import com.android.jack.jayce.JayceClassOrInterfaceLoader;
 import com.android.jack.jayce.NodeLevel;
 import com.android.jack.jayce.linker.VariableRefLinker;
@@ -113,8 +115,12 @@ public class NLambda extends NExpression {
       jBounds.add(exportSession.getLookup().getInterface(bound));
     }
 
+    JInterface implementedInterface = exportSession.getLookup().getInterface(typeSig);
+    if (implementedInterface instanceof JPhantomInterface) {
+      throw new MissingJTypeLookupException((JPhantomInterface) implementedInterface);
+    }
     JLambda lambda = new JLambda(sourceInfo.exportAsJast(exportSession), lambdaMethod,
-        (JDefinedInterface) exportSession.getLookup().getInterface(typeSig), captureInstance,
+        (JDefinedInterface) implementedInterface, captureInstance,
         jBounds);
 
     for (String capturedVariableId : capturedVariableIds) {
