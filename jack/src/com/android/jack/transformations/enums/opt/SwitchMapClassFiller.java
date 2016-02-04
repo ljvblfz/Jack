@@ -68,9 +68,11 @@ import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.NamingTools;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -418,8 +420,15 @@ public class SwitchMapClassFiller {
         syntheticSwitchMapInitializer.getMarker(EnumMappingMarker.class);
 
     assert enumMappingMarker != null;
-    Map<JFieldId, Integer> enumFieldsMap = enumMappingMarker.getMapping();
-
+    // Sort enum fields to generate deterministic code
+    Map<JFieldId, Integer> enumFieldsMap =
+        new TreeMap<JFieldId, Integer>(new Comparator<JFieldId>() {
+          @Override
+          public int compare(JFieldId field1, JFieldId field2) {
+            return field1.getName().compareTo(field2.getName());
+          }
+        });
+    enumFieldsMap.putAll(enumMappingMarker.getMapping());
     // for each field inside of map, emit code to explicitly map it to compile time ordinal
     for (Map.Entry<JFieldId, Integer> enumFieldEntry : enumFieldsMap.entrySet()) {
       JBlock tryBlock = new JBlock(SourceInfo.UNKNOWN);

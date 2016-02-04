@@ -56,5 +56,4 @@ public final class EnumMappingMarker implements Marker {
   public Marker cloneIfNeeded() {
     return this;
   }
-
 }
