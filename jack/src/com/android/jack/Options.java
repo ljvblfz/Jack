@@ -48,6 +48,7 @@ import com.android.jack.util.ClassNameCodec;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.util.HasDescription;
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.SubReleaseKind;
 import com.android.sched.util.codec.CaseInsensitiveDirectFSCodec;
 import com.android.sched.util.codec.DirectDirOutputVFSCodec;
 import com.android.sched.util.codec.DirectoryCodec;
@@ -459,11 +460,13 @@ public class Options {
    */
   @Option(name = "--sanity-checks",
       handler = ExplicitBooleanOptionHandler.class, metaVar = "[on | off]")
-  private boolean sanityChecks = true;
+  private boolean sanityChecks =
+      Jack.getVersion().getSubReleaseKind() == SubReleaseKind.ENGINEERING;
   @Nonnull
-  public static final BooleanPropertyId SANITY_CHECKS = BooleanPropertyId.create(
-      "jack.sanitychecks", "enable/disable compiler sanity checks")
-      .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
+  public static final BooleanPropertyId SANITY_CHECKS =
+      BooleanPropertyId.create("jack.sanity-checks", "Compiler sanity checks")
+          .addCategory(DumpInLibrary.class)
+          .addDefaultValue(Jack.getVersion().getSubReleaseKind() == SubReleaseKind.ENGINEERING);
 
   /**
    * Enable tracer and output into this dir (.html).
