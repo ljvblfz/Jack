@@ -57,7 +57,7 @@ import javax.annotation.Nonnull;
 public class Api01ConfigImpl implements Api01Config {
 
   @Nonnull
-  private final Options options;
+  protected final Options options;
 
   public Api01ConfigImpl() {
     options = new Options();
