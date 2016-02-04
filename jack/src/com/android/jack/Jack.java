@@ -1037,12 +1037,15 @@ public abstract class Jack {
       planBuilder.append(AstChecker.class);
     }
 
+    if (features.contains(CodeCoverage.class)) {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+          planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
+      typePlan.append(CodeCoverageSelector.class);
+    }
+
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
-      if (features.contains(CodeCoverage.class)) {
-        typePlan.append(CodeCoverageSelector.class);
-      }
       {
         if (features.contains(CompiledTypeStats.class)) {
           SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);

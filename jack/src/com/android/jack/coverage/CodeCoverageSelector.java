@@ -23,6 +23,7 @@ import com.android.jack.ir.formatter.SourceFormatter;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Protect;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
@@ -42,6 +43,7 @@ import javax.annotation.Nonnull;
 @Support(CodeCoverage.class)
 @Constraint(need = OriginalNames.class)
 @Transform(add = CodeCoverageMarker.Initialized.class)
+@Protect(add = JDefinedClassOrInterface.class)
 public class CodeCoverageSelector implements RunnableSchedulable<JDefinedClassOrInterface> {
   /**
    * The packages that are excluded from code coverage by default.
