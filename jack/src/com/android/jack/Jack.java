@@ -928,9 +928,6 @@ public abstract class Jack {
       if (shrinking || features.contains(Obfuscation.class)
           || productions.contains(SeedFile.class)) {
         typePlan.append(SeedFinder.class);
-        if (productions.contains(SeedFile.class)) {
-          planBuilder.append(SeedPrinter.class);
-        }
       }
 
       if (multiDex) {
@@ -1349,6 +1346,9 @@ public abstract class Jack {
       planBuilder.append(LibraryDependenciesInLibraryWriter.class);
     }
 
+    if (productions.contains(SeedFile.class)) {
+      planBuilder.append(SeedPrinter.class);
+    }
     if (productions.contains(Mapping.class)) {
       planBuilder.append(MappingPrinter.class);
     }

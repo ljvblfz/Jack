@@ -10,13 +10,10 @@ com.android.jack.shrob.test001.jack.K: java.lang.String TAG2
 com.android.jack.shrob.test001.jack.K: K()
 com.android.jack.shrob.test001.jack.K: void keep()
 com.android.jack.shrob.test001.jack.K: void <clinit>()
-com.android.jack.shrob.test001.jack.K: void $init()
 com.android.jack.shrob.test001.jack.L
 com.android.jack.shrob.test001.jack.L: java.lang.String TAG
 com.android.jack.shrob.test001.jack.L: L()
 com.android.jack.shrob.test001.jack.L: void onReceive()
-com.android.jack.shrob.test001.jack.L: void <clinit>()
-com.android.jack.shrob.test001.jack.L: void $init()
 com.android.jack.shrob.test001.jack.Reflect2
 com.android.jack.shrob.test001.jack.Reflect2: int fieldPublic
 com.android.jack.shrob.test001.jack.Reflect2: int fieldPrivate
@@ -31,15 +28,9 @@ com.android.jack.shrob.test001.jack.Reflect2: Reflect2()
 com.android.jack.shrob.test001.jack.Reflect2: void calledMethod()
 com.android.jack.shrob.test001.jack.Reflect2: void m(com.android.jack.shrob.test001.jack.Reflect2$A)
 com.android.jack.shrob.test001.jack.Reflect2: void privateMethod(com.android.jack.shrob.test001.jack.Reflect2$B)
-com.android.jack.shrob.test001.jack.Reflect2: void <clinit>()
-com.android.jack.shrob.test001.jack.Reflect2: void $init()
 com.android.jack.shrob.test001.jack.Reflect2$A
 com.android.jack.shrob.test001.jack.Reflect2$A: com.android.jack.shrob.test001.jack.Reflect2 this$0
 com.android.jack.shrob.test001.jack.Reflect2$A: Reflect2$A(com.android.jack.shrob.test001.jack.Reflect2)
-com.android.jack.shrob.test001.jack.Reflect2$A: void <clinit>()
-com.android.jack.shrob.test001.jack.Reflect2$A: void $init()
 com.android.jack.shrob.test001.jack.Reflect2$B
 com.android.jack.shrob.test001.jack.Reflect2$B: com.android.jack.shrob.test001.jack.Reflect2 this$0
 com.android.jack.shrob.test001.jack.Reflect2$B: Reflect2$B(com.android.jack.shrob.test001.jack.Reflect2)
-com.android.jack.shrob.test001.jack.Reflect2$B: void <clinit>()
-com.android.jack.shrob.test001.jack.Reflect2$B: void $init()

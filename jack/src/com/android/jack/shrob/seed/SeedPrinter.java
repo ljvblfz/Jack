@@ -25,6 +25,7 @@ import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.shrob.proguard.GrammarActions;
+import com.android.jack.transformations.ast.removeinit.FieldInitMethod;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Produce;
@@ -47,7 +48,7 @@ import javax.annotation.Nonnull;
 @HasKeyId
 @Description("Visitor that prints the seeds")
 @Produce(SeedFile.class)
-@Constraint(need = {OriginalNames.class, SeedMarker.class})
+@Constraint(need = {OriginalNames.class, SeedMarker.class}, no = FieldInitMethod.class)
 public class SeedPrinter implements RunnableSchedulable<JSession> {
 
   @Nonnull

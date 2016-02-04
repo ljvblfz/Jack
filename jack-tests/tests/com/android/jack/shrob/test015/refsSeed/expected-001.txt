@@ -2,13 +2,7 @@ com.android.jack.shrob.test015.jack.A
 com.android.jack.shrob.test015.jack.A: A()
 com.android.jack.shrob.test015.jack.A: com.android.jack.shrob.test015.jack.B m()
 com.android.jack.shrob.test015.jack.A: void m(com.android.jack.shrob.test015.jack.A)
-com.android.jack.shrob.test015.jack.A: void <clinit>()
-com.android.jack.shrob.test015.jack.A: void $init()
 com.android.jack.shrob.test015.jack.A$I
-com.android.jack.shrob.test015.jack.A$I: void <clinit>()
 com.android.jack.shrob.test015.jack.A$J
-com.android.jack.shrob.test015.jack.A$J: void <clinit>()
 com.android.jack.shrob.test015.jack.B
 com.android.jack.shrob.test015.jack.B: B()
-com.android.jack.shrob.test015.jack.B: void <clinit>()
-com.android.jack.shrob.test015.jack.B: void $init()

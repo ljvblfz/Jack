@@ -2,4 +2,3 @@ com.android.jack.shrob.test006.jack.A
 com.android.jack.shrob.test006.jack.A: void m()
 com.android.jack.shrob.test006.jack.A: void m2()
 com.android.jack.shrob.test006.jack.A: int m8()
-com.android.jack.shrob.test006.jack.A: void $init()

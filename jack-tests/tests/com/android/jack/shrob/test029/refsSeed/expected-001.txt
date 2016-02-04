@@ -1,5 +1,3 @@
 com.android.jack.shrob.test029.jack.Kept
 com.android.jack.shrob.test029.jack.Kept: Kept()
 com.android.jack.shrob.test029.jack.Kept: void kept()
-com.android.jack.shrob.test029.jack.Kept: void <clinit>()
-com.android.jack.shrob.test029.jack.Kept: void $init()
