@@ -51,13 +51,6 @@ import javax.annotation.Nonnull;
 @Transform(add = CodeCoverageMarker.Initialized.class)
 @Protect(add = JDefinedClassOrInterface.class)
 public class CodeCoverageSelector implements RunnableSchedulable<JDefinedClassOrInterface> {
-  /**
-   * The packages that are excluded from code coverage by default.
-   */
-  private static final String[] EXCLUDED_PACKAGES = {
-      "org.jacoco.*", // JaCoCo
-      "com.vladium.emma.*" // EMMA
-  };
 
   @Nonnull
   public static final PropertyId<CoverageFilterSet> COVERAGE_JACOCO_INCLUDES =
@@ -77,7 +70,7 @@ public class CodeCoverageSelector implements RunnableSchedulable<JDefinedClassOr
               "jack.coverage.jacoco.exclude",
               "Class names excluded from the code coverage instrumentation",
               new CoverageFilterSetCodec())
-          .addDefaultValue(new CoverageFilterSet(EXCLUDED_PACKAGES))
+          .addDefaultValue(new CoverageFilterSet())
           .requiredIf(Options.CODE_COVERVAGE.getValue().isTrue())
           .addCategory(DumpInLibrary.class);
 

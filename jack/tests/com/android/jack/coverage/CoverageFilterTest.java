@@ -20,6 +20,9 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.Nonnull;
 
 public class CoverageFilterTest {
@@ -36,7 +39,7 @@ public class CoverageFilterTest {
   }
 
   private static CoverageFilter createExcludeFilter(@Nonnull String... excludes) {
-    return new CoverageFilter(new CoverageFilterSet(),create(excludes));
+    return new CoverageFilter(new CoverageFilterSet(), create(excludes));
   }
 
   @Test
@@ -107,6 +110,33 @@ public class CoverageFilterTest {
     Assert.assertFalse(filter.matches("foo"));
     Assert.assertFalse(filter.matches("bar"));
     Assert.assertFalse(filter.matches("foo.bar"));
+  }
+
+  /**
+   * Check default excluded classes are always excluded.
+   */
+  @Test
+  public void testDefaultExcludes() {
+    List<CoverageFilter> filters = new ArrayList<CoverageFilter>();
+    // Add an empty filter.
+    filters.add(new CoverageFilter(new CoverageFilterSet(), new CoverageFilterSet()));
+    // Add an include-only filter.
+    filters.add(new CoverageFilter(create("foo"), new CoverageFilterSet()));
+    // Add an exclude-only filter.
+    filters.add(new CoverageFilter(new CoverageFilterSet(), create("foo")));
+    // Add one include filter per excluded package. Even specified as to be included, it
+    // must be excluded.
+    for (String packageName : CoverageFilter.EXCLUDED_PACKAGES) {
+      filters.add(new CoverageFilter(create(packageName), new CoverageFilterSet()));
+    }
+
+    // Check default excluded packages are always excluded.
+    for (CoverageFilter filter : filters) {
+      for (String packagePatternName : CoverageFilter.EXCLUDED_PACKAGES) {
+        String packageName = CoveragePatternCodec.fakeWildcards(packagePatternName);
+        Assert.assertFalse(filter.matches(packageName));
+      }
+    }
   }
 
   @Test
