@@ -1039,7 +1039,7 @@ public abstract class Jack {
 
     if (features.contains(CodeCoverage.class)) {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       typePlan.append(CodeCoverageSelector.class);
     }
 
