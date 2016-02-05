@@ -98,6 +98,11 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   public InputVFile getFile(@Nonnull FileType fileType, @Nonnull VPath typePath)
       throws FileTypeDoesNotExistException {
     try {
+      if (!containsFileType(fileType)) {
+        // Even if the file exists, it is not accessible because fileType does not belong to the
+        // library, thus do not return it.
+        throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
+      }
       InputVFS currentSectionVFS = getSectionVFS(fileType);
       return currentSectionVFS.getRootInputVDir().getInputVFile(
           buildFileVPath(fileType, typePath));
