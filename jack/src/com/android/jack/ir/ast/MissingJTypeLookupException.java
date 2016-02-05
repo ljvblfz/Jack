@@ -44,6 +44,11 @@ public class MissingJTypeLookupException extends JTypeLookupException {
     typeSignature = Jack.getLookupFormatter().getName(pack, typeName);
   }
 
+  public MissingJTypeLookupException(@Nonnull JPhantomClassOrInterface phantomType) {
+    super();
+    typeSignature = Jack.getUserFriendlyFormatter().getName(phantomType);
+  }
+
   @Override
   @Nonnull
   public String getMessage() {

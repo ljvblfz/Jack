@@ -19,6 +19,7 @@ package com.android.jack.ir.ast;
 import com.android.jack.JackAbortException;
 import com.android.jack.ir.HasSourceInfo;
 import com.android.jack.ir.JNodeInternalError;
+import com.android.jack.load.JackLoadingException;
 import com.android.sched.transform.TransformRequest;
 
 import java.util.ArrayList;
@@ -89,6 +90,10 @@ public class JVisitor {
     if (e instanceof JackAbortException) {
       // No need to wrap JackAbortException
       throw (JackAbortException) e;
+    }
+    if (e instanceof JackLoadingException) {
+      // No need to wrap JackLoadingException
+      throw (JackLoadingException) e;
     }
     JNodeInternalError ice;
     if (e instanceof JNodeInternalError) {
