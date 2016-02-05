@@ -168,9 +168,15 @@ class RopRegisterManager {
   }
 
   private boolean isSynthetic(@Nonnull JVariable var) {
-    return var.isSynthetic()
-        || var.getName().startsWith("-p_") || var.getName().startsWith("-l_")
-        || var.getName().startsWith("-s_") || var.getName().startsWith("-e_");
+    if (var.isSynthetic()) {
+      return true;
+    }
+    String varName = var.getName();
+    if (varName == null) {
+      return false;
+    }
+    return varName.startsWith("-p_") || varName.startsWith("-l_")
+        || varName.startsWith("-s_") || varName.startsWith("-e_");
   }
 
   /**
