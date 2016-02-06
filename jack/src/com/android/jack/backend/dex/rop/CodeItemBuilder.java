@@ -288,6 +288,7 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
 
         ropBb.createBasicBlock(bb.getId(), il, successors, primarySuccessor);
       } else if (bb instanceof ThrowBasicBlock) {
+        assert bb.getSuccessors().size() >= 1;
         ThrowBasicBlock throwBlock = (ThrowBasicBlock) bb;
         InsnList il = createInsnList(instructions, 0);
         il.setImmutable();
@@ -303,6 +304,7 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
         ropBb.createBasicBlock(bb.getId(), il, successors, primarySuccessor);
 
       } else if (bb instanceof PeiBasicBlock) {
+        assert bb.getSuccessors().size() >= 2;
         PeiBasicBlock peiBlock = (PeiBasicBlock) bb;
         Insn lastInstruction = instructions.get(instructions.size() - 1);
 
