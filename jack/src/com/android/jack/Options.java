@@ -1237,7 +1237,8 @@ public class Options {
       try {
         FileUtils.deleteDir(dir.getFile());
       } catch (IOException e) {
-        throw new JackIOException("Failed to delete temporary directory " + dir, e);
+        throw new JackIOException(
+            "Failed to delete temporary " + dir.getLocation().getDescription(), e);
       }
     }
   }

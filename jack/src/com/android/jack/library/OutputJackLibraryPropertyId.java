@@ -44,7 +44,7 @@ public class OutputJackLibraryPropertyId extends PropertyId<OutputJackLibrary> i
 
     public CannotCloseOutputLibException(@Nonnull OutputJackLibrary lib,
         @Nonnull LibraryIOException e) {
-      super("Cannot close output Jack library " + lib.getLocation(), e);
+      super("Cannot close output Jack library " + lib.getLocation().getDescription(), e);
     }
 
     @Override

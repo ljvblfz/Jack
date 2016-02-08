@@ -121,7 +121,8 @@ public class DexInLibraryWriter extends DexWriter implements
       typeDex.prepare();
       typeDex.writeTo(outStream, null, false);
     } catch (IOException e) {
-      throw new JackIOException("Could not write Dex file to output " + vFile, e);
+      throw new JackIOException(
+          "Could not write Dex file to output " + vFile.getLocation().getDescription(), e);
     } finally {
       if (outStream != null) {
         outStream.close();

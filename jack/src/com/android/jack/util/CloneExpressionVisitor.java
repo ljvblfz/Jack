@@ -83,7 +83,7 @@ public class CloneExpressionVisitor extends JVisitor {
     this.accept(expr);
 
     if (expression == null) {
-      throw new AssertionError("Unable to clone expression " + expr);
+      throw new AssertionError("Unable to clone expression " + expr.toString());
     }
 
     for (Marker m : expr.getAllMarkers()) {

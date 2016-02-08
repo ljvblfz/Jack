@@ -114,8 +114,8 @@ class Tokenizer {
   private void readToken(@Nonnull Token expected) throws IOException {
     next();
     if (currentTokenId != expected) {
-      throw new ParseException(
-        "Unexpected token " + currentTokenId + "while token " + expected + " was expected");
+      throw new ParseException("Unexpected token " + String.valueOf(currentTokenId)
+          + " while token " + expected.toString() + " was expected");
     }
   }
 

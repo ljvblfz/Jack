@@ -3303,7 +3303,7 @@ public class JackIrBuilder {
         for (MethodBinding method : refBinding.methods()) {
           char[] methodSig = method.signature();
           if (new String(method.constantPoolName()).equals("getClass")
-              && new String(methodSig).equals("()" + CommonTypes.JAVA_LANG_CLASS)) {
+              && new String(methodSig).equals("()" + CommonTypes.JAVA_LANG_CLASS.toString())) {
             try {
               return getTypeMap().get(method);
             } catch (JTypeLookupException e) {
@@ -3812,7 +3812,7 @@ public class JackIrBuilder {
           assert field instanceof JEnumField;
           parsed = new JEnumLiteral(makeSourceInfo(nameReference), field.getId());
         } else {
-          throw new AssertionError("Not yet supported " + nameReference);
+          throw new AssertionError("Not yet supported " + nameReference.toString());
         }
       } catch (JTypeLookupException e) {
         throw translateException(nameReference, e);

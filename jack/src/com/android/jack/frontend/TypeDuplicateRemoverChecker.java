@@ -153,8 +153,9 @@ public class TypeDuplicateRemoverChecker implements RunnableSchedulable<JSession
     }
   }
 
-  private static AssertionError createError(Object checked, Field f) {
-    String message = "Duplicate type found in " + checked + " of class " +
+  @Nonnull
+  private static AssertionError createError(@Nonnull Object checked, @Nonnull Field f) {
+    String message = "Duplicate type found in " + checked.toString() + " of class " +
         checked.getClass().getName() + " in field " + f.getName();
     return new AssertionError(message);
   }

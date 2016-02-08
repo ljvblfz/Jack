@@ -159,8 +159,9 @@ public class Api01ConfigImpl implements Api01Config {
         break;
       }
       default: {
-        throw new ConfigurationException("Debug info level '" + debugLevel + "' is unsupported");
-      }
+          throw new ConfigurationException(
+              "Debug info level '" + debugLevel.toString() + "' is unsupported");
+        }
     }
   }
 
@@ -316,22 +317,23 @@ public class Api01ConfigImpl implements Api01Config {
   public void setResourceImportCollisionPolicy(
       @Nonnull ResourceCollisionPolicy resourceImportCollisionPolicy)
       throws ConfigurationException {
-    String collissionPolicy = null;
+    String collisionPolicy = null;
     switch (resourceImportCollisionPolicy) {
       case FAIL: {
-        collissionPolicy = "fail";
+        collisionPolicy = "fail";
         break;
       }
       case KEEP_FIRST: {
-        collissionPolicy = "keep-first";
+        collisionPolicy = "keep-first";
         break;
       }
-      default: {
-        throw new ConfigurationException(
-            "Resource collision policy '" + resourceImportCollisionPolicy + "' is unsupported");
-      }
+      default:
+        {
+          throw new ConfigurationException("Resource collision policy '"
+              + resourceImportCollisionPolicy.toString() + "' is unsupported");
+        }
     }
-    options.addProperty(ResourceImporter.RESOURCE_COLLISION_POLICY.getName(), collissionPolicy);
+    options.addProperty(ResourceImporter.RESOURCE_COLLISION_POLICY.getName(), collisionPolicy);
   }
 
   @Override

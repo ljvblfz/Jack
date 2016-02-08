@@ -20,6 +20,7 @@ import com.android.jack.library.v0002.OutputJackLibraryImpl;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.MessageDigestPropertyId;
+import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.GenericInputVFS;
 import com.android.sched.vfs.InputVFS;
@@ -92,9 +93,10 @@ public abstract class JackLibraryFactory {
       return (getVersionString(
           Integer.parseInt((String) libraryProperties.get(JackLibrary.KEY_LIB_MAJOR_VERSION))));
     } catch (NumberFormatException e) {
+      Location location = vdir.getLocation();
       logger.log(Level.SEVERE, "Failed to parse the property " + JackLibrary.KEY_LIB_MAJOR_VERSION
-          + " from the library " + vdir, e);
-      throw new LibraryFormatException(vdir.getLocation());
+          + " from the library " + location.getDescription(), e);
+      throw new LibraryFormatException(location);
     }
   }
 

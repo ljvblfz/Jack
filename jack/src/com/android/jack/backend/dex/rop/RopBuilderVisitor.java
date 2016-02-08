@@ -674,7 +674,7 @@ class RopBuilderVisitor extends JVisitor {
        case NEQ:
          return Rops.opCmpl(type);
       default:
-        throw new AssertionError("Operator " + op + " not yet supported into IfStmt.");
+        throw new AssertionError("Operator " + op.toString() + " not yet supported into IfStmt.");
     }
   }
 
@@ -701,7 +701,7 @@ class RopBuilderVisitor extends JVisitor {
        case NEQ:
          return Rops.opIfNe(sources);
       default:
-        throw new AssertionError("Operator " + op
+        throw new AssertionError("Operator " + op.toString()
             + " not yet supported into IfStmt.");
     }
   }
@@ -729,7 +729,7 @@ class RopBuilderVisitor extends JVisitor {
        case NEQ:
          return Rops.opIfEq(sources);
       default:
-        throw new AssertionError("Operator " + op
+        throw new AssertionError("Operator " + op.toString()
             + " not yet supported into IfStmt.");
     }
   }

@@ -113,7 +113,8 @@ public abstract class CommandLine {
       logger.log(Level.SEVERE, "Stack overflow error:", e);
       return (ExitStatus.FAILURE_VM);
     } catch (VirtualMachineError e) {
-      printExceptionMessage(err, e, "Virtual machine error: " + e.getClass() + ".");
+      printExceptionMessage(
+          err, e, "Virtual machine error: " + e.getClass().getCanonicalName() + ".");
       err.println(INTERRUPTED_COMPILATION_WARNING);
       logger.log(Level.SEVERE, "Virtual machine error:", e);
       return (ExitStatus.FAILURE_VM);
