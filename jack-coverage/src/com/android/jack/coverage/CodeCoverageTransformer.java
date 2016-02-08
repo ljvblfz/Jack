@@ -406,35 +406,23 @@ public class CodeCoverageTransformer  extends SourceDigestAdder
       // Iterates over every basic block to insert code for probe and removes the ProbeMarker.
       ControlFlowGraph controlFlowGraph = m.getMarker(ControlFlowGraph.class);
       assert controlFlowGraph != null;
-      final BasicBlock entryBlock = controlFlowGraph.getEntryNode();
-      final BasicBlock exitBlock = controlFlowGraph.getExitNode();
       for (BasicBlock bb : controlFlowGraph.getNodes()) {
         ProbeMarker probeMarker = bb.removeMarker(ProbeMarker.class);
         if (probeMarker == null) {
-          // The basic block may not have been marked.
-          assert (bb == entryBlock || bb == exitBlock);
           continue;
         }
-        if (bb == entryBlock || bb == exitBlock) {
-          continue;
+        // We must set the probe at the end of this basic block.
+        assert !bb.getStatements().isEmpty();
+        JStatement insertionPoint = bb.getLastInstruction();
+        ProbeDescription probe = probeMarker.getProbe();
+        TransformationStep transformationStep;
+        JStatement probeStatement = createProbeStatement(insertionPoint.getSourceInfo(), probe);
+        if (canInsertProbeBeforeLastStatement(bb)) {
+          transformationStep = new AppendBefore(insertionPoint, probeStatement);
+        } else {
+          transformationStep = new PrependAfter(insertionPoint, probeStatement);
         }
-        BasicBlock insertionBlock = probeMarker.getInsertionBlock();
-        assert insertionBlock != null;
-        if (bb == insertionBlock) {
-          // We must set the probe at the end of this basic block.
-          assert !bb.getStatements().isEmpty() : bb;
-          JStatement insertionPoint = bb.getLastInstruction();
-          ProbeDescription probe = probeMarker.getProbe();
-          TransformationStep transformationStep;
-          JStatement probeStatement = createProbeStatement(insertionPoint.getSourceInfo(), probe);
-          boolean insertBeforeLastStatement = canInsertProbeBeforeLastStatement(bb);
-          if (insertBeforeLastStatement) {
-            transformationStep = new AppendBefore(insertionPoint, probeStatement);
-          } else {
-            transformationStep = new PrependAfter(insertionPoint, probeStatement);
-          }
-          transformationRequest.append(transformationStep);
-        }
+        transformationRequest.append(transformationStep);
       }
       return false;
     }
@@ -490,7 +478,7 @@ public class CodeCoverageTransformer  extends SourceDigestAdder
     return coverageInitMethod;
   }
 
-  /** Generates body of JaCoCo initialization method in three-adress-code form.
+  /** Generates body of JaCoCo initialization method in three-address-code form.
    *
    * @param coverageInitMethod
    * @param coverageDataField
