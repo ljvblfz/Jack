@@ -16,26 +16,43 @@
 
 package com.android.jack.tools.jacoco;
 
-import org.jacoco.core.internal.analysis.MethodCoverageImpl;
-
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 
 /**
- * Jack specialization of method coverage.
+ * An enumeration of possible exit status returned by the reporter.
  */
-public class JackMethodCoverage extends MethodCoverageImpl {
-  @Nonnegative
-  private final int id;
+public enum ExitStatus {
+  /**
+   * Successful execution without any error.
+   */
+  SUCCESS(0),
 
-  public JackMethodCoverage(
-      @Nonnegative int id, @Nonnull String name, @Nonnull String desc, @Nonnull String signature) {
-    super(name, desc, signature);
-    this.id = id;
+  /**
+   * Usage error from the user (incorrect argument, missing file, ...).
+   */
+  USAGE_ERROR(1),
+
+  /**
+   * Internal error.
+   */
+  INTERNAL_ERROR(2);
+
+  @Nonnegative
+  private final int exitStatusCode;
+
+  private ExitStatus(@Nonnegative int exitStatusCode) {
+    assert exitStatusCode > 0;
+    this.exitStatusCode = exitStatusCode;
   }
 
+  /**
+   * Returns the exit status code used in {@link System#exit(int)}.
+   *
+   * @return the exit status code.
+   */
   @Nonnegative
-  public int getId() {
-    return id;
+  public int getExitStatus() {
+    return exitStatusCode;
   }
 }
+

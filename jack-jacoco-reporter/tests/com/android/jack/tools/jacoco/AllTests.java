@@ -16,26 +16,10 @@
 
 package com.android.jack.tools.jacoco;
 
-import org.jacoco.core.internal.analysis.MethodCoverageImpl;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import org.junit.runners.Suite.SuiteClasses;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-
-/**
- * Jack specialization of method coverage.
- */
-public class JackMethodCoverage extends MethodCoverageImpl {
-  @Nonnegative
-  private final int id;
-
-  public JackMethodCoverage(
-      @Nonnegative int id, @Nonnull String name, @Nonnull String desc, @Nonnull String signature) {
-    super(name, desc, signature);
-    this.id = id;
-  }
-
-  @Nonnegative
-  public int getId() {
-    return id;
-  }
-}
+@RunWith(Suite.class)
+@SuiteClasses(value = {OptionsTest.class, JackCoverageAnalyzerTest.class, ReporterTest.class})
+public class AllTests {}

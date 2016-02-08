@@ -2726,7 +2726,8 @@
     <delete dir="${jack-jacoco-reporter.libs.dir}" />
   </target>
 
-  <target name="jack-jacoco-reporter-copy-libs" depends="jsr305-lib,args4j-lib,asm4-lib,gson-lib,jacoco-libs">
+  <target name="jack-jacoco-reporter-copy-libs"
+    depends="jsr305-lib,args4j-lib,asm4-lib,gson-lib,junit4,jacoco-libs">
     <copy todir="${jack-jacoco-reporter.libs.dir}" flatten="true">
       <filelist dir="/" >
         <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
@@ -2736,6 +2737,7 @@
         <file name="${gson.dist.dir}/${gson.libname}"/>
         <file name="${jacoco.dist.dir}/${jacoco.core.libname}"/>
         <file name="${jacoco.dist.dir}/${jacoco.report.libname}"/>
+        <file name="${junit4.dist.dir}/${junit4.execname}"/>
       </filelist>
     </copy>
   </target>

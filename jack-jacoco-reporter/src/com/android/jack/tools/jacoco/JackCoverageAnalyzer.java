@@ -45,44 +45,57 @@ import javax.annotation.Nonnull;
  * Code coverage report analyzer.
  */
 public class JackCoverageAnalyzer {
-  @Nonnull private static final String CURRENT_VERSION = "1.0";
+  @Nonnull
+  public static final String CURRENT_VERSION = "1.0";
 
-  @Nonnull private static final String JSON_VERSION_ATTRIBUTE = "version";
+  @Nonnull
+  public static final String JSON_VERSION_ATTRIBUTE = "version";
 
-  @Nonnull private static final String JSON_DATA_ATTRIBUTE = "data";
+  @Nonnull
+  public static final String JSON_DATA_ATTRIBUTE = "data";
 
-  @Nonnull private final ExecutionDataStore executionDataStore;
+  @Nonnull
+  private final ExecutionDataStore executionDataStore;
 
-  @Nonnull private final ICoverageVisitor coverageVisitor;
+  @Nonnull
+  private final ICoverageVisitor coverageVisitor;
 
-  public JackCoverageAnalyzer(
-      @Nonnull ExecutionDataStore executionDataStore, @Nonnull ICoverageVisitor coverageVisitor) {
+  /**
+   * Constructs a {@link JackCoverageAnalyzer}.
+   *
+   * @param executionDataStore a {@link ExecutionDataStore} containing runtime coverage information.
+   * @param coverageVisitor a {@link ICoverageVisitor} notified of each coverage element created
+   *        during the analysis.
+   */
+  public JackCoverageAnalyzer(@Nonnull ExecutionDataStore executionDataStore,
+      @Nonnull ICoverageVisitor coverageVisitor) {
     this.executionDataStore = executionDataStore;
     this.coverageVisitor = coverageVisitor;
   }
 
   /**
-   * Reads the coverage description file and report each class to the {@link ICoverageVisitor}.
+   * Analyzes a coverage description file.
    *
-   * @param jackCoverageDescriptionFile
-   * @throws IOException
+   * @param coverageDescriptionFile a coverage description file to be analyzed
+   * @throws IOException in case of file error
    */
-  public void analyze(@Nonnull File jackCoverageDescriptionFile) throws IOException {
-    if (!jackCoverageDescriptionFile.exists()) {
-      throw new IllegalArgumentException(
-          "File " + jackCoverageDescriptionFile + " does not exist.");
-    }
-
-    InputStream is = new FileInputStream(jackCoverageDescriptionFile);
+  public void analyze(@Nonnull File coverageDescriptionFile) throws IOException {
+    InputStream inputStream = new FileInputStream(coverageDescriptionFile);
     try {
-      analyze(is);
+      analyze(inputStream);
     } finally {
-      is.close();
+      inputStream.close();
     }
   }
 
-  private void analyze(@Nonnull InputStream coverageDescriptionInputStream) throws IOException {
-    JsonReader jsonReader = new JsonReader(new InputStreamReader(coverageDescriptionInputStream));
+  /**
+   * Analyzes a coverage description input stream.
+   *
+   * @param inputStream a coverage description input stream
+   * @throws IOException in case of read error
+   */
+  public void analyze(@Nonnull InputStream inputStream) throws IOException {
+    JsonReader jsonReader = new JsonReader(new InputStreamReader(inputStream));
     readMetadata(jsonReader);
   }
 
@@ -161,6 +174,17 @@ public class JackCoverageAnalyzer {
     }
     jsonReader.endObject();
 
+    // Check mandatory attributes.
+    if (id == 0) {
+      throw new JsonParseException("Missing 'id' attribute");
+    }
+    if (className == null) {
+      throw new JsonParseException("Missing 'name' attribute");
+    }
+    if (superClassName == null) {
+      throw new JsonParseException("Missing 'superClassName' attribute");
+    }
+
     final ExecutionData executionData = executionDataStore.get(id);
     boolean noMatch;
     if (executionData != null) {
@@ -173,9 +197,8 @@ public class JackCoverageAnalyzer {
 
     // Build the class coverage.
     String[] interfacesArray = interfaces.toArray(new String[0]);
-    ClassCoverageImpl c =
-        new ClassCoverageImpl(
-            className, id, noMatch, "L" + className + ";", superClassName, interfacesArray);
+    ClassCoverageImpl c = new ClassCoverageImpl(className, id, noMatch, "L" + className + ";",
+        superClassName, interfacesArray);
     c.setSourceFileName(sourceFile);
 
     // Update methods with probes.
@@ -216,10 +239,8 @@ public class JackCoverageAnalyzer {
   }
 
   // Parses probes.
-  private static void readProbes(
-      @Nonnull JsonReader jsonReader,
-      @Nonnull List<ProbeDescription> probes,
-      @Nonnull List<? extends IMethodCoverage> methods)
+  private static void readProbes(@Nonnull JsonReader jsonReader,
+      @Nonnull List<ProbeDescription> probes, @Nonnull List<? extends IMethodCoverage> methods)
       throws IOException {
     jsonReader.beginArray();
     while (jsonReader.hasNext()) {
@@ -229,9 +250,8 @@ public class JackCoverageAnalyzer {
   }
 
   // Parses one probe.
-  private static ProbeDescription readProbe(
-      @Nonnull JsonReader jsonReader, @Nonnull List<? extends IMethodCoverage> methods)
-      throws IOException {
+  private static ProbeDescription readProbe(@Nonnull JsonReader jsonReader,
+      @Nonnull List<? extends IMethodCoverage> methods) throws IOException {
     ProbeDescription probe = new ProbeDescription();
     jsonReader.beginObject();
     while (jsonReader.hasNext()) {
@@ -277,8 +297,8 @@ public class JackCoverageAnalyzer {
     jsonReader.endArray();
   }
 
-  private static void readMethods(
-      @Nonnull JsonReader jsonReader, @Nonnull List<IMethodCoverage> methods) throws IOException {
+  private static void readMethods(@Nonnull JsonReader jsonReader,
+      @Nonnull List<IMethodCoverage> methods) throws IOException {
     jsonReader.beginArray();
     while (jsonReader.hasNext()) {
       methods.add(readMethod(jsonReader));

@@ -16,26 +16,16 @@
 
 package com.android.jack.tools.jacoco;
 
-import org.jacoco.core.internal.analysis.MethodCoverageImpl;
-
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
- * Jack specialization of method coverage.
+ * A reporter exception.
  */
-public class JackMethodCoverage extends MethodCoverageImpl {
-  @Nonnegative
-  private final int id;
+public class ReporterException extends Exception {
 
-  public JackMethodCoverage(
-      @Nonnegative int id, @Nonnull String name, @Nonnull String desc, @Nonnull String signature) {
-    super(name, desc, signature);
-    this.id = id;
-  }
+  private static final long serialVersionUID = 1L;
 
-  @Nonnegative
-  public int getId() {
-    return id;
+  public ReporterException(@Nonnull String msg) {
+    super(msg);
   }
 }

@@ -16,26 +16,40 @@
 
 package com.android.jack.tools.jacoco;
 
-import org.jacoco.core.internal.analysis.MethodCoverageImpl;
-
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
- * Jack specialization of method coverage.
+ * Defines constants for the reporter.
  */
-public class JackMethodCoverage extends MethodCoverageImpl {
-  @Nonnegative
-  private final int id;
+public interface Constants {
+  /**
+   * The default report name.
+   */
+  @Nonnull
+  public static final String DEFAULT_REPORT_NAME = "Report";
 
-  public JackMethodCoverage(
-      @Nonnegative int id, @Nonnull String name, @Nonnull String desc, @Nonnull String signature) {
-    super(name, desc, signature);
-    this.id = id;
-  }
+  /**
+   * The default report type.
+   */
+  @Nonnull
+  public static final ReportType DEFAULT_REPORT_TYPE = ReportType.HTML;
 
+  /**
+   * The default output encoding.
+   */
+  @Nonnull
+  public static final String DEFAULT_OUTPUT_ENCODING = "UTF-8";
+
+  /**
+   * The default input encoding of source files.
+   */
+  @Nonnull
+  public static final String DEFAULT_INPUT_ENCODING = "UTF-8";
+
+  /**
+   * The default tab width.
+   */
   @Nonnegative
-  public int getId() {
-    return id;
-  }
+  public static final int DEFAULT_TAB_WIDTH = 4;
 }

@@ -18,45 +18,36 @@ package com.android.jack.tools.jacoco;
 
 import com.android.sched.util.Version;
 
-import org.jacoco.core.analysis.CoverageBuilder;
-import org.jacoco.core.analysis.IBundleCoverage;
-import org.jacoco.core.tools.ExecFileLoader;
-import org.jacoco.report.DirectorySourceFileLocator;
-import org.jacoco.report.FileMultiReportOutput;
-import org.jacoco.report.IReportVisitor;
-import org.jacoco.report.MultiSourceFileLocator;
-import org.jacoco.report.csv.CSVFormatter;
-import org.jacoco.report.html.HTMLFormatter;
-import org.jacoco.report.xml.XMLFormatter;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.ParserProperties;
 import org.kohsuke.args4j.spi.OptionHandler;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.text.MessageFormat;
 import java.util.Arrays;
-import java.util.List;
-
 import javax.annotation.Nonnull;
 
 /**
- * Jack code coverage reporter.
+ * Main class for command-line usage.
  */
 public class Main {
-  public static void main(String[] args) {
+  /**
+   * Generates a report from command-line.
+   *
+   * @param args the command-line arguments.
+   */
+  public static void main(@Nonnull String[] args) {
     try {
-      Options options = parseCommandLine(Arrays.asList(args));
+      Options options = Options.parseCommandLine(Arrays.asList(args));
       if (options.askForHelp()) {
         printUsage(System.out);
       } else if (options.askForVersion()) {
         printVersion(System.out);
       } else {
-        createReport(options);
+        Reporter reporter = createReporter(options);
+        reporter.createReport();
       }
     } catch (CmdLineException e) {
       System.err.println(e.getMessage());
@@ -66,9 +57,12 @@ public class Main {
       } else {
         System.err.println("Try --help for help.");
       }
+    } catch (ReporterException e) {
+      e.printStackTrace(System.err);
+      printErrorAndExit(ExitStatus.USAGE_ERROR, e.getMessage());
     } catch (IOException e) {
       e.printStackTrace(System.err);
-      printErrorAndExit(ErrorCode.INERNAL_ERROR, e.getMessage());
+      printErrorAndExit(ExitStatus.INTERNAL_ERROR, e.getMessage());
     }
   }
 
@@ -82,13 +76,18 @@ public class Main {
   }
 
   @Nonnull
-  private static Options parseCommandLine(@Nonnull List<String> list) throws CmdLineException {
-    Options options = new Options();
-    CmdLineParser parser =
-        new CmdLineParser(options, ParserProperties.defaults().withUsageWidth(100));
-    parser.parseArgument(list);
-    parser.stopOptionParsing();
-    return options;
+  private static Reporter createReporter(@Nonnull Options options) throws ReporterException {
+    Reporter reporter = new Reporter();
+    reporter.setCoverageExecutionDataFiles(options.getCoverageExecutionFiles());
+    reporter.setCoverageDescriptionFiles(options.getCoverageDescriptionFiles());
+    reporter.setReportOutputDirectory(options.getReportOutputDirectory());
+    reporter.setSourceFilesDirectories(options.getSourceFilesDirectories());
+    reporter.setReportName(options.getReportName());
+    reporter.setReportType(options.getReportType());
+    reporter.setOutputEncoding(options.getOutputReportEncoding());
+    reporter.setSourceFilesEncoding(options.getInputSourceFilesEncoding());
+    reporter.setTabWidth(options.getTabWidth());
+    return reporter;
   }
 
   private static void printUsage(@Nonnull PrintStream printStream) {
@@ -119,136 +118,8 @@ public class Main {
     printStream.append(outputStream.toString());
   }
 
-  private static void createReport(@Nonnull Options options) throws IOException {
-    List<File> coverageDescriptionFiles = options.getCoverageDescriptionFiles();
-    for (File coverageDescriptionFile : coverageDescriptionFiles) {
-      checkFileExists(coverageDescriptionFile);
-      checkCanReadFromFile(coverageDescriptionFile);
-    }
-
-    List<File> coverageExecutionDataFiles = options.getCoverageExecutionFiles();
-    for (File coverageExecutionDataFile : coverageExecutionDataFiles) {
-      checkFileExists(coverageExecutionDataFile);
-      checkCanReadFromFile(coverageExecutionDataFile);
-    }
-
-    File reportOutputFile = options.getReportOutputDirectory();
-    assert reportOutputFile != null;
-    checkDirectoryExists(reportOutputFile);
-    checkCanWriteToFile(reportOutputFile);
-
-    List<File> sourceFilesDirectories = options.getSourceFilesDirectories();
-    for (File sourceFilesDirectory : sourceFilesDirectories) {
-      checkDirectoryExists(sourceFilesDirectory);
-      checkCanReadFromFile(sourceFilesDirectory);
-    }
-
-    String reportName = options.getReportName();
-    ReportType reportType = options.getReportType();
-    String outputEncoding = options.getOutputReportEncoding();
-
-    // Load coverage execution files.
-    ExecFileLoader loader = new ExecFileLoader();
-    for (File coverageExecutionDataFile : coverageExecutionDataFiles) {
-      loader.load(coverageExecutionDataFile);
-    }
-
-    // Analyze coverage.
-    CoverageBuilder coverageBuilder = new CoverageBuilder();
-    JackCoverageAnalyzer analyzer =
-        new JackCoverageAnalyzer(loader.getExecutionDataStore(), coverageBuilder);
-    for (File coverageDescriptionFile : coverageDescriptionFiles) {
-      analyzer.analyze(coverageDescriptionFile);
-    }
-    IBundleCoverage bundleCoverage = coverageBuilder.getBundle(reportName);
-
-    // Create report.
-    IReportVisitor visitor = null;
-    switch (reportType) {
-      case HTML:
-        HTMLFormatter htmlFormatter = new HTMLFormatter();
-        htmlFormatter.setOutputEncoding(outputEncoding);
-        visitor = htmlFormatter.createVisitor(new FileMultiReportOutput(reportOutputFile));
-        break;
-
-      case XML:
-        XMLFormatter xmlFormatter = new XMLFormatter();
-        xmlFormatter.setOutputEncoding(outputEncoding);
-        File xmlReportFile = new File(reportOutputFile, "report.xml");
-        visitor = xmlFormatter.createVisitor(new FileOutputStream(xmlReportFile));
-        break;
-
-      case CSV:
-        CSVFormatter csvFormatter = new CSVFormatter();
-        csvFormatter.setOutputEncoding(outputEncoding);
-        File csvReportFile = new File(reportOutputFile, "report.csv");
-        visitor = csvFormatter.createVisitor(new FileOutputStream(csvReportFile));
-        break;
-
-      default:
-        throw new IllegalArgumentException("Unknown report type");
-    }
-
-    if (visitor == null) {
-      throw new NullPointerException("Report's visitor has not been created");
-    }
-
-
-    // Initialize the report with all of the execution and session
-    // information. At this point the report doesn't know about the
-    // structure of the report being created
-    visitor.visitInfo(
-        loader.getSessionInfoStore().getInfos(), loader.getExecutionDataStore().getContents());
-
-    // Populate the report structure with the bundle coverage information.
-    // Call visitGroup if you need groups in your report.
-    int tabWidth = options.getTabWidth();
-    MultiSourceFileLocator sourceFileLocator = new MultiSourceFileLocator(tabWidth);
-    final String sourceFilesEncoding = options.getInputSourceFilesEncoding();
-    for (File sourceFilesDirectory : sourceFilesDirectories) {
-      sourceFileLocator.add(
-          new DirectorySourceFileLocator(sourceFilesDirectory, sourceFilesEncoding, tabWidth));
-    }
-    visitor.visitBundle(bundleCoverage, sourceFileLocator);
-
-    // Signal end of structure information to allow report to write all
-    // information out
-    visitor.visitEnd();
-
-    System.out.println("Created report at " + reportOutputFile);
-  }
-
-  private static void checkFileExists(@Nonnull File file) {
-    if (!file.exists()) {
-      printErrorAndExit(
-          ErrorCode.USAGE_ERROR, MessageFormat.format("File {0} does not exist", file));
-    }
-  }
-
-  private static void checkCanReadFromFile(@Nonnull File file) {
-    if (!file.canRead()) {
-      printErrorAndExit(
-          ErrorCode.USAGE_ERROR, MessageFormat.format("Cannot read from file {0}", file));
-    }
-  }
-
-  private static void checkCanWriteToFile(@Nonnull File file) {
-    if (!file.canWrite()) {
-      printErrorAndExit(
-          ErrorCode.USAGE_ERROR, MessageFormat.format("Cannot write to file {0}", file));
-    }
-  }
-
-  private static void checkDirectoryExists(@Nonnull File file) {
-    checkFileExists(file);
-    if (!file.isDirectory()) {
-      printErrorAndExit(
-          ErrorCode.USAGE_ERROR, MessageFormat.format("File {0} is not a directory", file));
-    }
-  }
-
-  private static void printErrorAndExit(@Nonnull ErrorCode error, String msg) {
+  private static void printErrorAndExit(@Nonnull ExitStatus error, @Nonnull String msg) {
     System.err.println(msg);
-    System.exit(error.getErrorCode());
+    System.exit(error.getExitStatus());
   }
 }
