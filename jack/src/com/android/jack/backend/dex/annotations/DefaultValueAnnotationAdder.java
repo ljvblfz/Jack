@@ -70,7 +70,7 @@ import javax.annotation.Nonnull;
  * </pre>
  * will be transformed to: <br>
  * <pre>
- * @dalvik.annotation.AnnotationDefault(value = @Annotation1(v2 = 2))
+ * {@literal @}dalvik.annotation.AnnotationDefault(value = {@literal @}Annotation1(v2 = 2))
  * public @interface Annotation1 {
  *  int v1;
  *  int v2;
