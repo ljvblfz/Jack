@@ -23,6 +23,15 @@ import javax.annotation.Nonnull;
  */
 public class CoverageFilter {
   /**
+   * The packages that are excluded from code coverage by default.
+   */
+  // package visible for testing.
+  static final String[] EXCLUDED_PACKAGES = {
+      "org.jacoco.*", // JaCoCo
+      "com.vladium.emma.*" // EMMA
+  };
+
+  /**
    * Set of classes included in code coverage instrumentation.
    */
   @Nonnull
@@ -37,6 +46,9 @@ public class CoverageFilter {
   public CoverageFilter(@Nonnull CoverageFilterSet includes, @Nonnull CoverageFilterSet excludes) {
     this.includes = includes;
     this.excludes = excludes;
+    for (String packageName : EXCLUDED_PACKAGES) {
+      excludes.addPattern(new CoveragePattern(packageName));
+    }
   }
 
   public CoverageFilter() {

@@ -93,7 +93,8 @@ public class CoveragePatternCodec implements StringCodec<CoveragePattern> {
    * @param string a class name that may contain wildcard characters
    * @return a class name without wildcard characters
    */
-  private static String fakeWildcards(@Nonnull String string) {
+  // package visible for testing.
+  static String fakeWildcards(@Nonnull String string) {
     return string.replace('*', 'a').replace('?', 'b');
   }
 }

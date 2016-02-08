@@ -32,23 +32,6 @@ public class CoverageFilterSet {
   private final List<CoveragePattern> patterns = new ArrayList<CoveragePattern>();
 
   /**
-   * Constructs an empty {@link CoverageFilterSet}.
-   */
-  public CoverageFilterSet() {
-  }
-
-  /**
-   * Constructs a {@link CoverageFilterSet} and adds the given <code>strings</code> as patterns.
-   *
-   * @param strings the patterns to add to the set
-   */
-  public CoverageFilterSet(@Nonnull String[] strings) {
-    for (String string : strings) {
-      addPattern(new CoveragePattern(string));
-    }
-  }
-
-  /**
    * Adds a new pattern to this set unless it has previously been added.
    *
    * @param pattern a class name pattern (like foo.bar.*)

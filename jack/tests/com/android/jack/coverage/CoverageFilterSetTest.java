@@ -30,11 +30,6 @@ public class CoverageFilterSetTest {
     Assert.assertTrue(filterSet.isEmpty());
     Assert.assertNotNull(filterSet.getPatterns());
     Assert.assertTrue(filterSet.getPatterns().isEmpty());
-
-    filterSet = new CoverageFilterSet(new String[]{"a", "b"});
-    Assert.assertFalse(filterSet.isEmpty());
-    Assert.assertNotNull(filterSet.getPatterns());
-    Assert.assertEquals(2, filterSet.getPatterns().size());
   }
 
   @Test
