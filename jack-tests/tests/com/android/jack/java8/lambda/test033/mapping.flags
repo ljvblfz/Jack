@@ -1,0 +1,2 @@
+com.android.jack.java8.lambda.test033.jack.C -> com.android.jack.java8.lambda.test033.jack.Z:
+boolean check(java.lang.Object) -> renamedGetValue

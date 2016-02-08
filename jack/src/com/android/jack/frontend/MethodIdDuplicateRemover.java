@@ -18,11 +18,16 @@ package com.android.jack.frontend;
 
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JClassOrInterface;
+import com.android.jack.ir.ast.JInterface;
+import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWithReturnType;
 import com.android.jack.ir.ast.JNameValuePair;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.ir.ast.MethodKind;
+import com.android.jack.lookup.JMethodWithReturnLookupException;
 
 import java.util.Collection;
 
@@ -47,6 +52,20 @@ public class MethodIdDuplicateRemover extends JVisitor {
     } else {
       return receiverType.getOrCreateMethodId(id.getName(), id.getParamTypes(), id.getKind());
     }
+  }
+
+  @Override
+  public boolean visit(@Nonnull JLambda lambda) {
+    JInterface lambdaType = lambda.getType();
+    try {
+      JMethodIdWithReturnType mthIdWithReturnType = lambda.getMethodIdToImplement();
+      JMethodId newMthId = lambdaType.getMethodId(mthIdWithReturnType.getName(),
+          mthIdWithReturnType.getParameterTypes(), MethodKind.INSTANCE_VIRTUAL);
+      mthIdWithReturnType.setMethodId(newMthId);
+    } catch (JMethodWithReturnLookupException e) {
+      throw new AssertionError();
+    }
+    return super.visit(lambda);
   }
 
   @Override

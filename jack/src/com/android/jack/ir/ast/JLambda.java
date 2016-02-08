@@ -33,36 +33,56 @@ import javax.annotation.Nonnull;
 @Description("Lambda expression")
 public class JLambda extends JExpression {
 
+  @Nonnull
+  private final JMethodIdWithReturnType mthIdToImplement;
+
+  @Nonnull
+  private final JInterface type;
+
+  @Nonnull
+  private final List<JInterface> interfaceBounds;
+
   private boolean captureInstance;
 
   @Nonnull
   private final List<JVariableRef> capturedVariablesRef = new ArrayList<JVariableRef>(0);
 
+  // TODO(jack-team): JMethod must be replace by a JCallable
   @Nonnull
   private final JMethod method;
 
   @Nonnull
-  private final JDefinedInterface type;
+  private final List<JMethodIdWithReturnType> bridges = new ArrayList<JMethodIdWithReturnType>();
 
-  @Nonnull
-  private final JMethodBody body;
-
-  @Nonnull
-  private final List<JInterface> interfaceBounds;
-
-  public JLambda(@Nonnull SourceInfo info, @Nonnull JMethod method, @Nonnull JDefinedInterface type,
-      boolean captureInstance, @Nonnull List<JInterface> interfaceBounds) {
+  public JLambda(@Nonnull SourceInfo info, @Nonnull JMethodIdWithReturnType mthToImplement,
+      @Nonnull JMethod method, @Nonnull JInterface type, boolean captureInstance,
+      @Nonnull List<JInterface> interfaceBounds) {
     super(info);
     assert method != null;
     assert type != null;
-    assert type.isSingleAbstractMethodType();
+    this.mthIdToImplement = mthToImplement;
     this.type = type;
     this.method = method;
     this.captureInstance = captureInstance;
-    JMethodBody localBody = (JMethodBody) method.getBody();
-    assert localBody != null;
-    body = localBody;
     this.interfaceBounds = interfaceBounds;
+  }
+
+  @Nonnull
+  public JMethodIdWithReturnType getMethodIdToImplement() {
+    return mthIdToImplement;
+  }
+
+  @Nonnull
+  public List<JMethodIdWithReturnType> getBridgeMethodIds() {
+    return bridges;
+  }
+
+  public void addBridgeMethodId(@Nonnull JMethodIdWithReturnType bridgeMethodId) {
+    this.bridges.add(bridgeMethodId);
+  }
+
+  public void addBridgeMethodIds(@Nonnull List<JMethodIdWithReturnType> bridgeMethodIds) {
+    this.bridges.addAll(bridgeMethodIds);
   }
 
   public void addCapturedVariable(@Nonnull JVariableRef capturedVariableRef) {
@@ -80,6 +100,8 @@ public class JLambda extends JExpression {
   @Override
   public void traverse(@Nonnull ScheduleInstance<? super Component> schedule) throws Exception {
     schedule.process(this);
+    JMethodBody body = (JMethodBody) method.getBody();
+    assert body != null;
     body.traverse(schedule);
   }
 
@@ -90,13 +112,15 @@ public class JLambda extends JExpression {
 
   @Override
   @Nonnull
-  public JDefinedInterface getType() {
+  public JInterface getType() {
     return type;
   }
 
   @Nonnull
-  public JBlock getBody() {
-    return body.getBlock();
+  public JMethodBody getBody() {
+    JMethodBody body = (JMethodBody) method.getBody();
+    assert body != null;
+    return body;
   }
 
   @Nonnull
@@ -104,6 +128,7 @@ public class JLambda extends JExpression {
     return method.getParams();
   }
 
+  @Deprecated
   @Nonnull
   public JMethod getMethod() {
     return method;

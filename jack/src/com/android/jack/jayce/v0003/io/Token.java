@@ -93,6 +93,7 @@ import com.android.jack.jayce.v0003.nodes.NLteOperation;
 import com.android.jack.jayce.v0003.nodes.NMethod;
 import com.android.jack.jayce.v0003.nodes.NMethodBody;
 import com.android.jack.jayce.v0003.nodes.NMethodCall;
+import com.android.jack.jayce.v0003.nodes.NMethodIdWithReturnType;
 import com.android.jack.jayce.v0003.nodes.NMethodLiteral;
 import com.android.jack.jayce.v0003.nodes.NModOperation;
 import com.android.jack.jayce.v0003.nodes.NMulOperation;
@@ -674,6 +675,13 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NMethodCall();
+    }
+  },
+  METHODID_WITH_RETURN_TYPE("method-id-with-return-type", NodeLevel.STRUCTURE) {
+    @Nonnull
+    @Override
+    public NNode newNode() {
+      return new NMethodIdWithReturnType();
     }
   },
   METHOD_LITERAL("method-literal", NodeLevel.STRUCTURE) {

@@ -344,8 +344,8 @@ public class CloneExpressionVisitor extends JVisitor {
 
   @Override
   public boolean visit(@Nonnull JLambda x) {
-    expression = new JLambda(x.getSourceInfo(), x.getMethod(), x.getType(),
-        x.needToCaptureInstance(), x.getInterfaceBounds());
+    expression = new JLambda(x.getSourceInfo(), x.getMethodIdToImplement(), x.getMethod(),
+        x.getType(), x.needToCaptureInstance(), x.getInterfaceBounds());
     return false;
   }
 }

@@ -18,7 +18,6 @@ package com.android.jack.java8;
 
 import com.android.jack.test.helper.FileChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
-import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackApiV01;
@@ -179,6 +178,19 @@ public class LambdaTest {
   private RuntimeTestInfo LAMBDA032 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test032"),
       "com.android.jack.java8.lambda.test032.jack.Tests");
+
+  private RuntimeTestInfo LAMBDA033 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test033"),
+      "com.android.jack.java8.lambda.test033.jack.Tests")
+          .addProguardFlagsFileName("proguard.flags");
+
+  private RuntimeTestInfo LAMBDA034 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test034"),
+      "com.android.jack.java8.lambda.test034.jack.Tests");
+
+  private RuntimeTestInfo LAMBDA035 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test035"),
+      "com.android.jack.java8.lambda.test035.jack.Tests");
 
   @Test
   public void testLamba001() throws Exception {
@@ -374,9 +386,23 @@ public class LambdaTest {
   }
 
   @Test
-  @KnownIssue
   public void testLamba032() throws Exception {
     run(LAMBDA032);
+  }
+
+  @Test
+  public void testLamba033() throws Exception {
+    run(LAMBDA033);
+  }
+
+  @Test
+  public void testLamba034() throws Exception {
+    run(LAMBDA034);
+  }
+
+  @Test
+  public void testLamba035() throws Exception {
+    run(LAMBDA035);
   }
 
   private void run(@Nonnull RuntimeTestInfo rti) throws Exception {

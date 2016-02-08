@@ -80,6 +80,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWithReturnType;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JMultiExpression;
 import com.android.jack.ir.ast.JNameValuePair;
@@ -1394,6 +1395,8 @@ public class JackIrBuilder {
       MethodInfo newMethodInfo =
           createMethodInfoForLambda(referenceExpression.descriptor, /* arguments = */ null,
               /* (MethodScope) referenceExpression.enclosingScope */ curMethod.scope);
+      JMethodIdWithReturnType methodIdToImplement =
+          getJMethodIdWithReturnType(referenceExpression.descriptor.original());
       newMethodInfo.method.setThis(null);
       newMethodInfo.method.setModifier(newMethodInfo.method.getModifier() & ~JModifier.STATIC);
       JType returnTypeOfLambdaMethod = newMethodInfo.method.getType();
@@ -1407,10 +1410,10 @@ public class JackIrBuilder {
             || referenceExpression.lhs instanceof QualifiedThisReference;
         boolean shouldCaptureInstance = isSuperRef || isThisRef;
 
-        exprRepresentingLambda =
-            new JLambda(sourceInfo, newMethodInfo.method,
-                (JDefinedInterface) getTypeMap().get(referenceExpression.resolvedType),
-                shouldCaptureInstance, getInterfaceBounds(referenceExpression, blockScope));
+        exprRepresentingLambda = new JLambda(sourceInfo, methodIdToImplement, newMethodInfo.method,
+            (JDefinedInterface) getTypeMap().get(referenceExpression.resolvedType),
+            shouldCaptureInstance, getInterfaceBounds(referenceExpression, blockScope));
+        ((JLambda) exprRepresentingLambda).addBridgeMethodIds(getBridges(referenceExpression));
 
         if (!(referenceExpression.lhs instanceof TypeReference)) {
           if (lhsExpr != null && !shouldCaptureInstance) {
@@ -1472,9 +1475,12 @@ public class JackIrBuilder {
       } else if (referenceExpression.isArrayConstructorReference()) {
         assert args.size() == 1;
 
-        exprRepresentingLambda = new JLambda(sourceInfo, newMethodInfo.method,
-            (JDefinedInterface) getTypeMap().get(referenceExpression.resolvedType),
-            /* captureInstance= */ false, getInterfaceBounds(referenceExpression, blockScope));
+        exprRepresentingLambda =
+            new JLambda(sourceInfo, methodIdToImplement, newMethodInfo.method,
+                (JDefinedInterface) getTypeMap().get(referenceExpression.resolvedType),
+                /* captureInstance= */ false, getInterfaceBounds(referenceExpression, blockScope));
+        ((JLambda) exprRepresentingLambda)
+            .addBridgeMethodIds(getBridges(referenceExpression));
 
         Expression lhs = referenceExpression.lhs;
         JArrayType arrayType = (JArrayType) getTypeMap().get(lhs.resolvedType);
@@ -1530,9 +1536,12 @@ public class JackIrBuilder {
         }
       }
 
-      JLambda lambda = new JLambda(sourceInfo, newMethodInfo.method,
+      JLambda lambda = new JLambda(sourceInfo,
+          getJMethodIdWithReturnType(referenceExpression.descriptor.original()),
+          newMethodInfo.method,
           (JDefinedInterface) getTypeMap().get(referenceExpression.resolvedType),
           shouldCaptureInstance, getInterfaceBounds(referenceExpression, blockScope));
+      lambda.addBridgeMethodIds(getBridges(referenceExpression));
 
       addArgToMethodCall(referenceExpression, argsOfLambdaMth, constructor,
           newInstance, paramCountCons, 0);
@@ -1663,6 +1672,32 @@ public class JackIrBuilder {
       return true;
     }
 
+    @Nonnull
+    private JMethodIdWithReturnType getJMethodIdWithReturnType(@Nonnull MethodBinding mb) {
+      JMethodId methodId =
+          new JMethodId(ReferenceMapper.intern(mb.selector), MethodKind.INSTANCE_VIRTUAL);
+
+      for (TypeBinding parameterType : mb.parameters) {
+        methodId.addParam(getTypeMap().get(parameterType));
+      }
+
+      return new JMethodIdWithReturnType(methodId, getTypeMap().get(mb.returnType));
+    }
+
+    @Nonnull
+    private List<JMethodIdWithReturnType> getBridges(@Nonnull FunctionalExpression fe) {
+      MethodBinding[] bridges = fe.getRequiredBridges();
+      List<JMethodIdWithReturnType> mds = new ArrayList<JMethodIdWithReturnType>();
+
+      if (bridges != null) {
+        for (MethodBinding bridge : bridges) {
+          mds.add(getJMethodIdWithReturnType(bridge));
+        }
+      }
+
+      return mds;
+    }
+
     @Override
     public void endVisit(LambdaExpression lambdaExpression, BlockScope blockScope) {
       MethodInfo lambdaMethodInfo = curMethod;
@@ -1695,10 +1730,12 @@ public class JackIrBuilder {
       popMethodInfo();
 
       SourceInfo sourceInfo = makeSourceInfo(lambdaExpression);
-      JLambda lambda = new JLambda(sourceInfo, lambdaMethodInfo.method,
+      JLambda lambda = new JLambda(sourceInfo,
+          getJMethodIdWithReturnType(lambdaExpression.descriptor.original()),
+          lambdaMethodInfo.method,
           (JDefinedInterface) getTypeMap().get(lambdaExpression.resolvedType),
-          lambdaExpression.shouldCaptureInstance,
-          getInterfaceBounds(lambdaExpression, blockScope));
+          lambdaExpression.shouldCaptureInstance, getInterfaceBounds(lambdaExpression, blockScope));
+      lambda.addBridgeMethodIds(getBridges(lambdaExpression));
 
       // Capture all local variable that are not already moved into fields
       for (SyntheticArgumentBinding synthArg : lambdaExpression.outerLocalVariables) {

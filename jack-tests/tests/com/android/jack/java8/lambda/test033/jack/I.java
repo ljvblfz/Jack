@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,8 @@
  * limitations under the License.
  */
 
-package com.android.jack.library.v0002;
+package com.android.jack.java8.lambda.test033.jack;
 
-/**
- * Library version.
- */
-public class Version {
-
-  public static final int MINOR_MIN = 2;
-
-  public static final int MINOR = 2;
-
-  public static final int MAJOR = 2;
+interface C<T> {
+  boolean check(T t);
 }

@@ -16,18 +16,15 @@
 
 package com.android.jack.jayce.v0003.nodes;
 
-import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JPhantomInterface;
+import com.android.jack.ir.ast.JMethodIdWithReturnType;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.JVariableRef;
-import com.android.jack.ir.ast.MissingJTypeLookupException;
 import com.android.jack.jayce.JayceClassOrInterfaceLoader;
 import com.android.jack.jayce.NodeLevel;
-import com.android.jack.jayce.linker.VariableRefLinker;
 import com.android.jack.jayce.v0003.io.ExportSession;
 import com.android.jack.jayce.v0003.io.ImportHelper;
 import com.android.jack.jayce.v0003.io.JayceInternalReaderImpl;
@@ -37,6 +34,7 @@ import com.android.jack.lookup.JMethodLookupException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.CheckForNull;
@@ -65,7 +63,13 @@ public class NLambda extends NExpression {
   public NSourceInfo sourceInfo;
 
   @Nonnull
-  private List<String> boundsIds = new ArrayList<String>();
+  private List<String> boundsIds = Collections.emptyList();
+
+  @CheckForNull
+  private NMethodIdWithReturnType mthIdToImplement;
+
+  @Nonnull
+  private List<NMethodIdWithReturnType> bridges = Collections.emptyList();
 
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
@@ -78,6 +82,8 @@ public class NLambda extends NExpression {
     typeSig = ImportHelper.getSignatureName(lambda.getType());
     sourceInfo = loader.load(lambda.getSourceInfo());
     boundsIds = ImportHelper.getSignatureNameList(lambda.getInterfaceBounds());
+    mthIdToImplement = (NMethodIdWithReturnType) loader.load(lambda.getMethodIdToImplement());
+    bridges = loader.load(NMethodIdWithReturnType.class, lambda.getBridgeMethodIds());
   }
 
   @Override
@@ -88,6 +94,7 @@ public class NLambda extends NExpression {
     assert capturedVariableIds != null;
     assert method != null;
     assert typeSig != null;
+    assert mthIdToImplement != null;
 
     ExportSession exportSessionForLambdaMethStructure = new ExportSession(exportSession.getLookup(),
         exportSession.getSession(), NodeLevel.STRUCTURE);
@@ -115,17 +122,14 @@ public class NLambda extends NExpression {
       jBounds.add(exportSession.getLookup().getInterface(bound));
     }
 
-    JInterface implementedInterface = exportSession.getLookup().getInterface(typeSig);
-    if (implementedInterface instanceof JPhantomInterface) {
-      throw new MissingJTypeLookupException((JPhantomInterface) implementedInterface);
-    }
-    JLambda lambda = new JLambda(sourceInfo.exportAsJast(exportSession), lambdaMethod,
-        (JDefinedInterface) implementedInterface, captureInstance,
-        jBounds);
+    JMethodIdWithReturnType mthIdToImplements =
+        (JMethodIdWithReturnType) mthIdToImplement.exportAsJast(exportSession);
 
-    for (String capturedVariableId : capturedVariableIds) {
-      exportSession.getVariableResolver().addLink(capturedVariableId,
-          new VariableRefLinker(lambda));
+    JLambda lambda = new JLambda(sourceInfo.exportAsJast(exportSession), mthIdToImplements,
+        lambdaMethod, exportSession.getLookup().getInterface(typeSig), captureInstance, jBounds);
+
+    for (NMethodIdWithReturnType bridge : bridges) {
+      lambda.addBridgeMethodId((JMethodIdWithReturnType) bridge.exportAsJast(exportSession));
     }
 
     return lambda;
@@ -138,6 +142,8 @@ public class NLambda extends NExpression {
     out.writeNode(method);
     out.writeId(typeSig);
     out.writeIds(boundsIds);
+    out.writeNode(mthIdToImplement);
+    out.writeNodes(bridges);
   }
 
   @Override
@@ -147,6 +153,8 @@ public class NLambda extends NExpression {
     method = in.readNode(NMethod.class);
     typeSig = in.readId();
     boundsIds = in.readIds();
+    mthIdToImplement = in.readNode(NMethodIdWithReturnType.class);
+    bridges = in.readNodes(NMethodIdWithReturnType.class);
   }
 
   @Override

@@ -115,6 +115,7 @@ public enum Token {
   METHOD("method"),
   METHOD_BODY("body"),
   METHOD_CALL("call"),
+  METHODID_WITH_RETURN_TYPE("mthid-rt"),
   METHOD_LITERAL("method-literal"),
   MOD_OPERATION("%"),
   MUL_OPERATION("*"),
