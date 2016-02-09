@@ -24,6 +24,7 @@ import com.android.jack.api.v01.Api01Config;
 import com.android.jack.api.v01.CompilationException;
 import com.android.jack.api.v01.ConfigurationException;
 import com.android.jack.api.v01.DebugInfoLevel;
+import com.android.jack.api.v01.JavaSourceVersion;
 import com.android.jack.api.v01.ReporterKind;
 import com.android.jack.api.v01.VerbosityLevel;
 import com.android.jack.test.TestConfigurationException;
@@ -41,7 +42,7 @@ import javax.annotation.Nonnull;
 /**
  * This {@link Toolchain} uses Jack through v01 API
  */
-public class JackApiV01Toolchain extends JackApiToolchainBase {
+public class JackApiV01Toolchain extends JackApiToolchainBase implements JackApiV01 {
 
   @Nonnull
   private Api01Config apiV01Config;
@@ -157,6 +158,29 @@ public class JackApiV01Toolchain extends JackApiToolchainBase {
       throw new TestConfigurationException(e);
     }
     return this;
+  }
+
+  @Override
+  @Nonnull
+  public JackApiV01Toolchain setSourceLevel(@Nonnull SourceLevel sourceLevel) {
+    super.setSourceLevel(sourceLevel);
+
+    try {
+    switch (sourceLevel) {
+      case JAVA_6:
+        apiV01Config.setJavaSourceVersion(JavaSourceVersion.JAVA_6);
+        break;
+      case JAVA_7:
+        apiV01Config.setJavaSourceVersion(JavaSourceVersion.JAVA_7);
+        break;
+      default:
+        throw new AssertionError("Unkown level: '" + sourceLevel.toString() + "'");
+    }
+    } catch (ConfigurationException e) {
+      throw new TestConfigurationException();
+    }
+    return this;
+
   }
 
   private void run() throws Exception {

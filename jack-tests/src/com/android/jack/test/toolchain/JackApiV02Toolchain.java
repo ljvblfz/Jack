@@ -26,6 +26,7 @@ import com.android.jack.api.v01.DebugInfoLevel;
 import com.android.jack.api.v01.ReporterKind;
 import com.android.jack.api.v01.VerbosityLevel;
 import com.android.jack.api.v02.Api02Config;
+import com.android.jack.api.v02.JavaSourceVersion;
 import com.android.jack.test.TestConfigurationException;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.Container;
@@ -41,7 +42,7 @@ import javax.annotation.Nonnull;
 /**
  * This {@link Toolchain} uses Jack through v02 API
  */
-public class JackApiV02Toolchain extends JackApiToolchainBase {
+public class JackApiV02Toolchain extends JackApiToolchainBase implements JackApiV02 {
 
   @Nonnull
   private Api02Config apiV02Config;
@@ -166,6 +167,32 @@ public class JackApiV02Toolchain extends JackApiToolchainBase {
       throw new TestConfigurationException(e);
     }
     return this;
+  }
+
+  @Override
+  @Nonnull
+  public JackApiV02Toolchain setSourceLevel(@Nonnull SourceLevel sourceLevel) {
+    super.setSourceLevel(sourceLevel);
+
+    try {
+    switch (sourceLevel) {
+      case JAVA_6:
+        apiV02Config.setJavaSourceVersion(JavaSourceVersion.JAVA_6);
+        break;
+      case JAVA_7:
+        apiV02Config.setJavaSourceVersion(JavaSourceVersion.JAVA_7);
+        break;
+      case JAVA_8:
+        apiV02Config.setJavaSourceVersion(JavaSourceVersion.JAVA_8);
+        break;
+      default:
+        throw new AssertionError("Unkown level: '" + sourceLevel.toString() + "'");
+    }
+    } catch (ConfigurationException e) {
+      throw new TestConfigurationException();
+    }
+    return this;
+
   }
 
   private void run() throws Exception {
