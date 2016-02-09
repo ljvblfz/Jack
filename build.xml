@@ -156,9 +156,9 @@
         <fileset file="${jack.dist.dir}/${jack.libname}" />
       </union>
       <pathconvert property="dist-doc.classpath.path" refid="dist-doc.classpath.files" />
-      <!-- Jack -->
-      <mkdir dir="${jack-internal-doc.dir}/jack" />
-      <javadoc destdir="${jack-internal-doc.dir}/jack"
+      <!-- Jack and Sched -->
+      <mkdir dir="${jack-internal-doc.dir}" />
+      <javadoc destdir="${jack-internal-doc.dir}"
         author="true"
         version="true"
         use="true"
@@ -166,21 +166,11 @@
         classpath="${dist-doc.classpath.path}"
         nodeprecated="true">
           <fileset dir="${jack.dir}/src" excludes="**/tonicsystems/jarjar/**" includes="**/*.java" />
+          <fileset dir="${sched.dir}/src" includes="**/*.java" />
       </javadoc>
-      <!-- Sched -->
-      <mkdir dir="${jack-internal-doc.dir}/sched" />
-      <javadoc destdir="${jack-internal-doc.dir}/sched"
-        author="true"
-        version="true"
-        use="true"
-        windowtitle="Sched lib"
-        classpath="${dist-doc.classpath.path}"
-        nodeprecated="true">
-        <fileset dir="${sched.dir}/src" includes="**/*.java" />
-      </javadoc>
-      <!-- Jack API -->
+      <!-- Jack API and Jill API -->
       <mkdir dir="${jack-external-doc.dir}/jack-api" />
-      <javadoc destdir="${jack-external-doc.dir}/jack-api"
+      <javadoc destdir="${jack-external-doc.dir}"
         author="true"
         version="true"
         use="true"
@@ -188,16 +178,6 @@
         classpath="${dist-doc.classpath.path}"
         nodeprecated="true">
         <fileset dir="${jack-api.dir}/src" includes="**/*.java" />
-      </javadoc>
-      <!-- Jill API -->
-      <mkdir dir="${jack-external-doc.dir}/jill-api" />
-      <javadoc destdir="${jack-external-doc.dir}/jill-api"
-        author="true"
-        version="true"
-        use="true"
-        windowtitle="Jill API"
-        classpath="${dist-doc.classpath.path}"
-        nodeprecated="true">
         <fileset dir="${jill-api.dir}/src" includes="**/*.java" />
       </javadoc>
     </target>
