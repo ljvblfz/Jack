@@ -175,8 +175,8 @@ public class KeyValueCodec<T> implements StringCodec<T> {
       sb.append(')');
     }
 
-    throw new CheckingException("The value must be {" + sb.toString() + "} but is '" + value + " ("
-        + value.getClass().getCanonicalName() + ")'");
+    throw new CheckingException("The value must be {" + sb.toString() + "} but is '"
+        + value.toString() + " (" + value.getClass().getCanonicalName() + ")'");
   }
 
   @Override

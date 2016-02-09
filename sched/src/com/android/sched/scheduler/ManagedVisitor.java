@@ -56,7 +56,7 @@ public class ManagedVisitor extends ManagedSchedulable {
 
     if (schedulableOn == visitorTo) {
       throw new SchedulableNotConformException("VisitorSchedulable '" + getName()
-          + "' can not adapt from/to the same type '" + schedulableOn + "'");
+          + "' can not adapt from/to the same type '" + schedulableOn.getCanonicalName() + "'");
     }
 
     LoggerFactory.getLogger().log(Level.CONFIG, "{0}", this);

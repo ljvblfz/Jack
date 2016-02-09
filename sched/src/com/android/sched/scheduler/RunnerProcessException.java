@@ -32,7 +32,7 @@ public class RunnerProcessException extends ProcessException {
       @CheckForNull ManagedSchedulable managedSchedulable, @Nonnull Object data,
       @Nonnull Throwable cause) {
     super(runner, managedSchedulable, data, cause);
-    setMessage("Error during '" + getName() + "' runner on '" + getData() + "'"
+    setMessage("Error during '" + getName() + "' runner on '" + getData().toString() + "'"
         + getAdditionalCauseMessage());
   }
 }

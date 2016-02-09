@@ -241,7 +241,7 @@ public class SchedAnnotationProcessor extends AbstractProcessor {
         }
       } catch (IOException e) {
         env.getMessager().printMessage(Kind.ERROR,
-            "Can not write resource file for '" + data.getResourceName() + "': " + e.getMessage());
+            "Cannot write resource file for '" + data.getResourceName() + "': " + e.getMessage());
       }
     } else {
       // Process annotations
@@ -341,8 +341,8 @@ public class SchedAnnotationProcessor extends AbstractProcessor {
               for (com.android.sched.build.SchedDiscover.SchedData elt : data.get(ifaceName)) {
                 if (name.getValue().equals(elt.getExtra())) {
                   env.getMessager().printMessage(Kind.ERROR,
-                      "Same name '" + name.getValue() + "' on '" + elt.getName() + "'", element,
-                      am, name);
+                      "Same name '" + name.getValue().toString() + "' on '" + elt.getName() + "'",
+                      element, am, name);
                 }
               }
 

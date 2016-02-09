@@ -32,7 +32,7 @@ public class VisitorProcessException extends ProcessException {
       @CheckForNull ManagedSchedulable managedSchedulable, @Nonnull Object data,
       @Nonnull Throwable cause) {
     super(visitor, managedSchedulable, data, cause);
-    setMessage("Error during '" + getName() + "' visitor on '" + getData() + "'"
+    setMessage("Error during '" + getName() + "' visitor on '" + getData().toString() + "'"
         + getAdditionalCauseMessage());
   }
 }

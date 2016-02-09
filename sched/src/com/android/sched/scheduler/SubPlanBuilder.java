@@ -54,8 +54,8 @@ public class SubPlanBuilder<T extends Component> {
     }
 
     if (!ir.getRunOn().equals(runOn)) {
-      throw new PlanError("'" + ir.getName() + "' expect to be applied on '" + ir.getRunOn()
-          + "' but was on '" + runOn + "'");
+      throw new PlanError("'" + ir.getName() + "' expect to be applied on '"
+          + ir.getRunOn().toString() + "' but was on '" + runOn.toString() + "'");
     }
 
     append(ir);
@@ -63,8 +63,8 @@ public class SubPlanBuilder<T extends Component> {
 
   public void append(@Nonnull ManagedRunnable runner) {
     assert runner != null;
-    assert runner.getRunOn().equals(runOn) : "Expect '" + runner.getRunOn() + "', have '" + runOn
-        + "'";
+    assert runner.getRunOn().equals(
+        runOn) : "Expect '" + runner.getRunOn().toString() + "', have '" + runOn.toString() + "'";
 
     plan.appendStep(new PlanStep(runner));
   }
@@ -88,8 +88,8 @@ public class SubPlanBuilder<T extends Component> {
     }
 
     if (!ia.getRunOn().equals(runOn)) {
-      throw new PlanError("'" + ia.getName() + "' expect to be applied on '" + ia.getRunOn()
-          + "' but was on '" + runOn + "'");
+      throw new PlanError("'" + ia.getName() + "' expect to be applied on '"
+          + ia.getRunOn().toString() + "' but was on '" + runOn.toString() + "'");
     }
 
     return appendSubPlan(ia);
@@ -99,8 +99,8 @@ public class SubPlanBuilder<T extends Component> {
   @Nonnull
   public <U extends Component> SubPlanBuilder<U> appendSubPlan(@Nonnull ManagedVisitor visitor) {
     assert visitor != null;
-    assert visitor.getRunOn().equals(runOn) : "Expect '" + visitor.getRunOn() + "', have '" + runOn
-        + "'";
+    assert visitor.getRunOn().equals(
+        runOn) : "Expect '" + visitor.getRunOn().toString() + "', have '" + runOn.toString() + "'";
 
     SubPlanBuilder<U> subPlanBuilder = new SubPlanBuilder<U>((Class<U>) visitor.getRunOnAfter());
     plan.appendStep(new PlanStep(visitor, subPlanBuilder.plan));

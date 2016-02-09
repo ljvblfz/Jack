@@ -159,7 +159,8 @@ public class ManagedMarker implements HasDescription {
           logger.log(Level.SEVERE, "Program can not be here", e);
           throw new AssertionError(e);
         } catch (InvocationTargetException e) {
-          logger.log(Level.WARNING, "Method '" + dvo.method + "' threw an exception", e.getCause());
+          logger.log(Level.WARNING, "Method '" + dvo.method.toString() + "' threw an exception",
+              e.getCause());
 
           return false;
         }
@@ -235,17 +236,17 @@ public class ManagedMarker implements HasDescription {
 
       if (dynamicValidOnAnnotation != null) {
         if (!method.getReturnType().equals(Boolean.TYPE)) {
-          throw new MarkerNotConformException("Annotated method '" + method + "' with @"
+          throw new MarkerNotConformException("Annotated method '" + method.toString() + "' with @"
               + DynamicValidOn.class.getSimpleName() + " must have a 'boolean' return type");
         }
 
         if (method.getParameterTypes().length != 1) {
-          throw new MarkerNotConformException("Annotated method '" + method + "' with @"
+          throw new MarkerNotConformException("Annotated method '" + method.toString() + "' with @"
               + DynamicValidOn.class.getSimpleName() + " must have a single parameter");
         }
 
         if (!MarkerManager.class.isAssignableFrom(method.getParameterTypes()[0])) {
-          throw new MarkerNotConformException("Annotated method '" + method + "' with @"
+          throw new MarkerNotConformException("Annotated method '" + method.toString() + "' with @"
               + DynamicValidOn.class.getSimpleName() + " must have a parameter assignable from "
               + MarkerManager.class.getSimpleName());
         }
@@ -254,16 +255,17 @@ public class ManagedMarker implements HasDescription {
           if (marked.isAssignableFrom(method.getParameterTypes()[0])) {
             throw new MarkerNotConformException("Marker '" + name + "' cannot have both a static @"
                 + ValidOn.class.getName() + " (on class '" + marker.getCanonicalName()
-                + "') and a @" + DynamicValidOn.class.getName() + " (on method '" + method + "'");
+                + "') and a @" + DynamicValidOn.class.getName() + " (on method '"
+                + method.toString() + "'");
           }
         }
 
         for (InternalDynamicValidOn dvo : dynamicValidOn) {
           if (dvo.validOn.isAssignableFrom(method.getParameterTypes()[0])
               || method.getParameterTypes()[0].isAssignableFrom(dvo.validOn)) {
-            throw new MarkerNotConformException("Marker '" + name
-                + "' cannot have two @" + DynamicValidOn.class.getName() + " ('" + method
-                + "' and '" + dvo.method + "')");
+            throw new MarkerNotConformException("Marker '" + name + "' cannot have two @"
+                + DynamicValidOn.class.getName() + " ('" + method.toString() + "' and '"
+                + dvo.method.toString() + "')");
           }
         }
 

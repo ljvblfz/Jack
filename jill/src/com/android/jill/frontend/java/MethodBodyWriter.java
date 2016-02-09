@@ -129,7 +129,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         @Nonnull LabelNode labelNode, @Nonnegative int switchIdx, @CheckForNull Integer key) {
       this.labelNode = labelNode;
       this.key = key;
-      caseId = switchIdx + "_" + (this.key != null ? this.key : "default");
+      caseId = switchIdx + "_" + (this.key != null ? this.key.toString() : "default");
     }
   }
 

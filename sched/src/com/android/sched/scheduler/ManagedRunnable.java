@@ -157,21 +157,21 @@ public class ManagedRunnable extends ManagedSchedulable {
   private void checkValidity() throws SchedulableNotConformException {
     if (addedTags.containsOne(removedTags)) {
       throw new SchedulableNotConformException("RunnableSchedulable '" + getName()
-          + "' can not have same tags " + addedTags.getIntersection(removedTags)
+          + "' can not have same tags " + addedTags.getIntersection(removedTags).toString()
           + " in added and removed");
     }
 
     if (getAllPossibleNeededTags().containsOne(getAllPossibleUnsupportedTags())) {
       throw new SchedulableNotConformException("RunnableSchedulable '" + getName()
           + "' can not have same tags "
-          + getAllPossibleNeededTags().getIntersection(getAllPossibleUnsupportedTags())
+          + getAllPossibleNeededTags().getIntersection(getAllPossibleUnsupportedTags()).toString()
           + " in needed and unsupported");
     }
 
     if (removedTags.containsOne(getAllPossibleUnsupportedTags())) {
       throw new SchedulableNotConformException("RunnableSchedulable '" + getName()
           + "' can not have same tags "
-          + removedTags.getIntersection(getAllPossibleUnsupportedTags())
+          + removedTags.getIntersection(getAllPossibleUnsupportedTags()).toString()
           + " in removed and unsupported");
     }
   }
