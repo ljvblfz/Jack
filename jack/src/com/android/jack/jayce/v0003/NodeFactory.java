@@ -778,7 +778,7 @@ public class NodeFactory {
     } else if (from instanceof Marker) {
       return createMarkerNode((Marker) from);
     }
-    throw new AssertionError("Not yet implemented (" + from.getClass() + ")");
+    throw new AssertionError("Not yet implemented (" + from.getClass().getCanonicalName() + ")");
   }
 
   @CheckForNull

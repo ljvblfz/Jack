@@ -204,7 +204,8 @@ public class JayceClassOrInterfaceLoader extends AbstractClassOrInterfaceLoader 
             in.close();
           }
         } catch (IOException e) {
-          logger.log(Level.WARNING, "Failed to close input stream on '" + source + "'", e);
+          logger.log(Level.WARNING,
+              "Failed to close input stream on " + source.getLocation().getDescription(), e);
         }
       }
       tracer.getStatistic(NNODE_RELOAD).add(loadCount > 0);

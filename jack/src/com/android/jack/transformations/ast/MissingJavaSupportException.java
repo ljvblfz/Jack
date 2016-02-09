@@ -39,7 +39,7 @@ public class MissingJavaSupportException extends Exception {
 
   @Override
   public String getMessage() {
-    return "Missing requirement for Java source version " + javaVersion + " support: "
+    return "Missing requirement for Java source version " + javaVersion.toString() + " support: "
         + getCause().getMessage();
   }
 }

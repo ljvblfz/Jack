@@ -65,8 +65,8 @@ class JavaPrecedenceVisitor extends JVisitor {
   public static int exec(JExpression expression) {
     JavaPrecedenceVisitor visitor = new JavaPrecedenceVisitor();
     visitor.accept(expression);
-    assert visitor.answer >= 0 : "Precedence must be >= 0 (" + expression + ") "
-        + expression.getClass();
+    assert visitor.answer >= 0 : "Precedence must be >= 0 (" + expression.toString() + ") "
+        + expression.getClass().toString();
     return visitor.answer;
   }
 

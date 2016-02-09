@@ -67,7 +67,7 @@ public class Api02ConfigImpl extends Api01ConfigImpl implements Api02Config {
       }
       default: {
         throw new ConfigurationException(
-            "Java source version '" + javaSourceVersion + "' is unsupported");
+            "Java source version '" + javaSourceVersion.toString() + "' is unsupported");
       }
     }
 

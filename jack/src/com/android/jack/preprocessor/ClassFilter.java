@@ -108,7 +108,7 @@ public class ClassFilter implements Expression<Collection<JClassOrInterface>, Sc
   @Nonnull
   @Override
   public String toString() {
-    return "class " + name;
+    return "class " + name.toString();
   }
 
 }

@@ -55,6 +55,6 @@ public class AnnotationSpecification implements Specification<Collection<JAnnota
   @Override
   @Nonnull
   public String toString() {
-    return "@" + annotationType;
+    return "@" + annotationType.toString();
   }
 }

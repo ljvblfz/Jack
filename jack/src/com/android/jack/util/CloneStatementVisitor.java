@@ -178,7 +178,7 @@ public class CloneStatementVisitor extends CloneExpressionVisitor {
     JStatement clonedStatement = statement;
 
     if (clonedStatement == null) {
-      throw new AssertionError("Unable to clone statement " + stmt);
+      throw new AssertionError("Unable to clone statement " + stmt.toString());
     }
 
     for (Marker m : stmt.getAllMarkers()) {

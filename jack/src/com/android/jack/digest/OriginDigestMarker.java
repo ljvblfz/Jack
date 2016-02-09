@@ -90,7 +90,7 @@ public class OriginDigestMarker implements SerializableMarker {
 
   @Override
   public String toString() {
-    return "<" + descriptor + "," + algo + "," + new String(encode(digest)) + ">";
+    return "<" + descriptor.toString() + "," + algo + "," + new String(encode(digest)) + ">";
   }
 
   @Nonnull

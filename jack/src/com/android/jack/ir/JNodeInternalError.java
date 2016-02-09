@@ -130,7 +130,7 @@ public class JNodeInternalError extends Error {
     } else {
       NodeInfo bottomNode = nodeTrace.get(0);
       return message + ": " + bottomNode.getClassName() + " at \""
-          + bottomNode.getSourceInfo() + '"';
+          + String.valueOf(bottomNode.getSourceInfo()) + '"';
     }
   }
 

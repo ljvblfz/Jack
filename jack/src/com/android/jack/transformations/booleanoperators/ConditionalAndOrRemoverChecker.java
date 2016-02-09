@@ -50,7 +50,7 @@ public class ConditionalAndOrRemoverChecker implements RunnableSchedulable<JMeth
     public boolean visit(@Nonnull JBinaryOperation binOp) {
       super.visit(binOp);
       if (binOp.getOp() == JBinaryOperator.AND || binOp.getOp() == JBinaryOperator.OR) {
-        throw new AssertionError("Conditonal operator found : " + binOp.toSource());
+        throw new AssertionError("Conditional operator found : " + binOp.toSource());
       }
       return true;
     }

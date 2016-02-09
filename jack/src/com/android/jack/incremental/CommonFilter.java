@@ -381,7 +381,7 @@ public abstract class CommonFilter {
         public void run() {
           boolean deleted = tempFile.delete();
           if (!deleted) {
-            throw new JackIOException("Failed to delete temporary file " + tempFile);
+            throw new JackIOException("Failed to delete temporary file " + tempFile.getPath());
           }
         }
       };

@@ -967,7 +967,7 @@ public enum Token {
 
   @Nonnull
   public NNode newNode() throws InvalidTokenException {
-    throw new InvalidTokenException("No node coresponding to token " + this);
+    throw new InvalidTokenException("No node coresponding to token " + this.toString());
   }
 
 @Nonnull

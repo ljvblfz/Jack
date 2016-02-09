@@ -79,8 +79,9 @@ public abstract class NDeclaredType extends NNode implements HasSourceInfo, Decl
         }
       }
     }
-    throw new IllegalArgumentException("getMethodNode can be called only with JMethod argument" +
-        " created by the receiver DeclaredTypeNode. " + jMethod + " was not created by " + this);
+    throw new IllegalArgumentException("getMethodNode can be called only with JMethod argument"
+        + " created by the receiver DeclaredTypeNode. " + jMethod.toString()
+        + " was not created by " + this);
   }
 
   private boolean isSameArgTypeList(@Nonnull JMethod jMethod, @Nonnull NMethod nMethod) {

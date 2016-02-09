@@ -208,7 +208,8 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
     try {
       node = token.newNode();
     } catch (InvalidTokenException e) {
-      throw new ParseException("Unexpected token " + token + " while expecting node.", e);
+      throw new ParseException(
+          "Unexpected token " + token.toString() + " while expecting node.", e);
     }
     Percent statistic = null;
     if (token == Token.METHOD_BODY) {
