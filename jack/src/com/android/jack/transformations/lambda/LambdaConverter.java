@@ -252,7 +252,7 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
 
       // Replace a lambda expression by the following code:
       // new <current class name>$LambdaImpl<class counter>(value of captured variables,...)
-      JNewInstance newAnnonymous = new JNewInstance(SourceInfo.UNKNOWN,
+      JNewInstance newAnnonymous = new JNewInstance(lambdaExpr.getSourceInfo(),
           lambdaImplCons.getEnclosingType(), lambdaImplCons.getMethodId());
 
       for (JVariableRef capturedVarRef : lambdaExpr.getCapturedVariables()) {
