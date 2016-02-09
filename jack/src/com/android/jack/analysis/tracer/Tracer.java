@@ -168,10 +168,10 @@ public class Tracer extends JVisitor {
 
 
         if (t.isAnonymous()) {
-          trace(t.getEnclosingType());
           if (brush.startTraceEnclosingMethod()) {
             JMethod enclosingMethod = ((JDefinedClass) t).getEnclosingMethod();
             if (enclosingMethod != null) {
+              trace(t.getEnclosingType());
               trace(enclosingMethod);
             }
             brush.endTraceEnclosingMethod();
