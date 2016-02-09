@@ -65,8 +65,7 @@ public class CodeCoverageMetadataFileWriter implements RunnableSchedulable<JSess
   public static final PropertyId<OutputStreamFile> COVERAGE_METADATA_FILE = PropertyId.create(
       "jack.coverage.metadata.file", "File where the coverage metadata will be emitted",
       new OutputStreamCodec(Existence.MAY_EXIST).allowStandardOutputOrError())
-      .requiredIf(Options.CODE_COVERVAGE.getValue().isTrue())
-      .addDefaultValue("coverage.em");
+      .requiredIf(Options.CODE_COVERVAGE.getValue().isTrue());
 
   private static final TypeAndMethodFormatter binaryFormatter =
       BinarySignatureFormatter.getFormatter();
