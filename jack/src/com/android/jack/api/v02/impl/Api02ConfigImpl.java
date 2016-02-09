@@ -21,6 +21,7 @@ import com.android.jack.api.v01.ConfigurationException;
 import com.android.jack.api.v01.impl.Api01ConfigImpl;
 import com.android.jack.api.v02.Api02Config;
 import com.android.jack.api.v02.JavaSourceVersion;
+import com.android.jack.api.v02.VerbosityLevel;
 import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
 
 import java.io.File;
@@ -72,6 +73,31 @@ public class Api02ConfigImpl extends Api01ConfigImpl implements Api02Config {
     }
 
     options.addProperty(Options.JAVA_SOURCE_VERSION.getName(), javaSourceVersionWrapped.toString());
+  }
+
+  @Override
+  public void setVerbosityLevel(@Nonnull VerbosityLevel verbosityLevel)
+      throws ConfigurationException {
+    com.android.jack.Options.VerbosityLevel jackVerbosityLevel;
+    switch (verbosityLevel) {
+      case ERROR: {
+        jackVerbosityLevel = com.android.jack.Options.VerbosityLevel.ERROR;
+        break;
+      }
+      case INFO: {
+        jackVerbosityLevel = com.android.jack.Options.VerbosityLevel.INFO;
+        break;
+      }
+      case WARNING: {
+        jackVerbosityLevel = com.android.jack.Options.VerbosityLevel.WARNING;
+        break;
+      }
+      default: {
+        throw new ConfigurationException(
+            "Verbosity level '" + verbosityLevel.toString() + "' is unsupported");
+      }
+    }
+    options.setVerbosityLevel(jackVerbosityLevel);
   }
 
   @Override

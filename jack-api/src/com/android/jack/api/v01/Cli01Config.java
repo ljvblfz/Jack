@@ -32,7 +32,7 @@ public interface Cli01Config extends JackConfig {
    * Creates an instance of the {@link Cli01CompilationTask} according to this configuration.
    * @param args To be handled as command line arguments.
    * @return The {@link Cli01CompilationTask}
-   * @throws ConfigurationException
+   * @throws ConfigurationException if something is wrong in Jack's configuration
    */
   @Nonnull
   Cli01CompilationTask getTask(@Nonnull String[] args) throws ConfigurationException;

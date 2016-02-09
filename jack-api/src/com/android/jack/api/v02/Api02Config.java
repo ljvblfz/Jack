@@ -30,15 +30,22 @@ public interface Api02Config extends Api01Config {
   /**
    * Sets the Java source version (from 3 to 8).
    * @param javaSourceVersion the Java source version
-   * @throws ConfigurationException
+   * @throws ConfigurationException if something is wrong in Jack's configuration
    */
   void setJavaSourceVersion(@Nonnull JavaSourceVersion javaSourceVersion)
       throws ConfigurationException;
 
   /**
+   * Sets the verbosity level.
+   * @param verbosityLevel the verbosity level
+   * @throws ConfigurationException if something is wrong in Jack's configuration
+   */
+  void setVerbosityLevel(@Nonnull VerbosityLevel verbosityLevel) throws ConfigurationException;
+
+  /**
    * Sets the base directory all relative paths will be based on.
    * @param baseDir the base directory
-   * @throws ConfigurationException
+   * @throws ConfigurationException if something is wrong in Jack's configuration
    */
   void setBaseDirectory(@Nonnull File baseDir) throws ConfigurationException;
 }
