@@ -18,6 +18,7 @@ package com.android.jack.java8;
 
 import com.android.jack.test.helper.FileChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackApiV01;
@@ -174,6 +175,10 @@ public class LambdaTest {
   private RuntimeTestInfo LAMBDA031 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test031"),
       "com.android.jack.java8.lambda.test031.jack.Tests");
+
+  private RuntimeTestInfo LAMBDA032 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test032"),
+      "com.android.jack.java8.lambda.test032.jack.Tests");
 
   @Test
   public void testLamba001() throws Exception {
@@ -366,6 +371,12 @@ public class LambdaTest {
   @Test
   public void testLamba031() throws Exception {
     run(LAMBDA031);
+  }
+
+  @Test
+  @KnownIssue
+  public void testLamba032() throws Exception {
+    run(LAMBDA032);
   }
 
   private void run(@Nonnull RuntimeTestInfo rti) throws Exception {
