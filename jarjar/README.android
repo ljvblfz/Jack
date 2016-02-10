@@ -1,4 +1,1 @@
-This is jarjar 1.4.
-
-The jarjar.jar prebuilt was built from source package available here https://jarjar.googlecode.com/files/jarjar-src-1.4.zip
-
+This is jarjar 1.4 using ASM 5.0.4 r1790.
