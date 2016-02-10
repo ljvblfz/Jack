@@ -41,7 +41,7 @@ import javax.annotation.Nonnull;
  * <p>When adding an {@code Item} composed of several {@code Item}s (using the annotation
  * {@link ComposedOf}), all the {@code Item}s are added to the {@code ItemSet}.
  *
- * @param <T> a type of {@code Item}
+ * @param <T> a type of {@link Item}
  */
 @HasKeyId
 public class ItemSet<T extends Item> implements Cloneable, Iterable<Class<? extends T>> {
@@ -64,7 +64,11 @@ public class ItemSet<T extends Item> implements Cloneable, Iterable<Class<? exte
   }
 
   public boolean contains(@Nonnull Class<? extends T> item) {
-    return containsAll(manager.getManagedItem(item).getBitmap());
+    return contains(manager.getManagedItem(item));
+  }
+
+  public boolean contains(@Nonnull ManagedItem item) {
+    return containsAll(item.getBitmap());
   }
 
   public boolean containsAll(@Nonnull ItemSet<T> set) {
@@ -113,6 +117,10 @@ public class ItemSet<T extends Item> implements Cloneable, Iterable<Class<? exte
     }
 
     return true;
+  }
+
+  public void intersectWith(@Nonnull ItemSet<T> set) {
+    computeIntersection(this, set);
   }
 
   protected void computeIntersection(@Nonnull ItemSet<T> inter, @Nonnull ItemSet<T> set) {
@@ -172,7 +180,11 @@ public class ItemSet<T extends Item> implements Cloneable, Iterable<Class<? exte
   }
 
   public void add(@Nonnull Class<? extends T> item) {
-    add(manager.getManagedItem(item).getBitmap());
+    add(manager.getManagedItem(item));
+  }
+
+  public void add(@Nonnull ManagedItem item) {
+    add(item.getBitmap());
   }
 
   private void add(@Nonnull long[] bitmap) {
@@ -188,7 +200,11 @@ public class ItemSet<T extends Item> implements Cloneable, Iterable<Class<? exte
   }
 
   public void remove(@Nonnull Class<? extends T> item) {
-    remove(manager.getManagedItem(item).getBitmap());
+    remove(manager.getManagedItem(item));
+  }
+
+  public void remove(@Nonnull ManagedItem item) {
+    remove(item.getBitmap());
   }
 
   private void remove(@Nonnull long[] bitmap) {
@@ -345,18 +361,49 @@ public class ItemSet<T extends Item> implements Cloneable, Iterable<Class<? exte
   }
 
   @Nonnull
+  public Iterator<ManagedItem> managedIterator() {
+    return new ManagedItemIterator<T>(this);
+  }
+
+  @Nonnull
   @Override
   public Iterator<Class<? extends T>> iterator() {
     return new ItemIterator<T>(this);
   }
 
   private class ItemIterator<T extends Item> implements Iterator<Class<? extends T>> {
+    @Nonnull
+    private final ManagedItemIterator<T> iterator;
+
+    ItemIterator(@Nonnull ItemSet<? extends T> set) {
+      iterator = new ManagedItemIterator<T>(set);
+    }
+
+    @Override
+    public boolean hasNext() {
+      return iterator.hasNext();
+    }
+
+    @Nonnull
+    @Override
+    @SuppressWarnings("unchecked")
+    public Class<? extends T> next() {
+      return (Class<? extends T>) iterator.next().getItem();
+    }
+
+    @Override
+    public void remove() {
+      iterator.remove();
+    }
+  }
+
+  private class ManagedItemIterator<T extends Item> implements Iterator<ManagedItem> {
     private int ptrIntegers;
     private int ptrBits;
     private long mask;
     private final ItemSet<? extends T> set;
 
-    ItemIterator(@Nonnull ItemSet<? extends T> set) {
+    ManagedItemIterator(@Nonnull ItemSet<? extends T> set) {
       this.ptrIntegers = 0;
       this.ptrBits = 0;
       this.set = set;
@@ -386,11 +433,10 @@ public class ItemSet<T extends Item> implements Cloneable, Iterable<Class<? exte
 
     @Nonnull
     @Override
-    @SuppressWarnings("unchecked")
-    public Class<? extends T> next() {
+    public ManagedItem next() {
       mask = mask >>> 1;
 
-      return (Class<? extends T>) set.manager.getManagedItem(ptrIntegers, ptrBits++).getItem();
+      return set.manager.getManagedItem(ptrIntegers, ptrBits++);
     }
 
     @Override

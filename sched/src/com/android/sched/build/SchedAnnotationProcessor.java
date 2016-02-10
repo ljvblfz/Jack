@@ -96,6 +96,14 @@ public class SchedAnnotationProcessor extends AbstractProcessor {
     DESCRIPTION("com.android.sched.item.Description"),
     MARKER("com.android.sched.marker.Marker"),
     FEATURE("com.android.sched.item.Feature"),
+    FILTER("com.android.sched.schedulable.ComponentFilter") {
+      @Override
+      @Nonnull
+      public TypeMirror getTypeMirror() throws AbortException {
+        return env.getTypeUtils().getDeclaredType(getTypeElement(),
+               env.getTypeUtils().getWildcardType(null, null));
+      }
+    },
     PRODUCTION("com.android.sched.item.Production"),
     TOMOC("com.android.sched.item.TagOrMarkerOrComponent"),
     SCHEDULABLE("com.android.sched.schedulable.Schedulable"),
@@ -273,7 +281,9 @@ public class SchedAnnotationProcessor extends AbstractProcessor {
       if (type.getKind() == TypeKind.DECLARED) {
         for (Items item : Items.values()) {
           assert env != null;
-          if (env.getTypeUtils().isAssignable(type, item.getTypeMirror())) {
+
+          if (env.getTypeUtils().isAssignable(type,
+              item.getTypeMirror())) {
             item.check(env, element);
             data.add(item.getFQName(), (TypeElement) element);
           } else {

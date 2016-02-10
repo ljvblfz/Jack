@@ -16,6 +16,7 @@
 
 package com.android.sched.scheduler;
 
+import com.android.sched.filter.NoFilter;
 import com.android.sched.item.Component;
 import com.android.sched.schedulable.AdapterSchedulable;
 import com.android.sched.schedulable.RunnableSchedulable;
@@ -23,9 +24,12 @@ import com.android.sched.schedulable.Schedulable;
 import com.android.sched.schedulable.VisitorSchedulable;
 import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.ThreadWithTracer;
 
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -37,6 +41,8 @@ import javax.annotation.Nonnull;
  */
 @ImplementationName(iface = ScheduleInstance.class, name = "single-threaded")
 public class SingleScheduleInstance<T extends Component> extends ScheduleInstance<T> {
+  @Nonnull
+  private static final Logger logger = LoggerFactory.getLogger();
 
   public SingleScheduleInstance(Plan<T> plan) throws Exception {
     super(plan);
@@ -84,31 +90,46 @@ public class SingleScheduleInstance<T extends Component> extends ScheduleInstanc
     @Override
     public void run() {
       try {
-        process(schedule, component);
+        ComponentFilterSet filters = Scheduler.getScheduler().createComponentFilterSet();
+        filters.add(NoFilter.class);
+        process(schedule, component, filters);
       } catch (ProcessException e) {
         exception = e;
       }
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private static <U extends Component> void process(@Nonnull SingleScheduleInstance<U> schedule,
-        @Nonnull U component) throws ProcessException {
-      for (SchedStep step : schedule.steps) {
+        @Nonnull U component, @Nonnull ComponentFilterSet parentFilters) throws ProcessException {
+      ComponentFilterSet currentFilters = schedule.applyFilters(parentFilters, component);
+
+      for (ScheduleInstance<U>.SchedStep<U> step : schedule.steps) {
         Schedulable schedulable = step.getInstance();
+        if (!step.isSkippable(currentFilters)) {
+          if (step instanceof ScheduleInstance.AdapterSchedStep) {
+            ScheduleInstance<? extends Component> subSchedule =
+                ((ScheduleInstance.AdapterSchedStep) step).getSubSchedInstance();
 
-        if (schedulable instanceof AdapterSchedulable) {
-          ScheduleInstance<? extends Component> subSchedule = step.getSubSchedInstance();
-          assert subSchedule != null;
-
-          Iterator<U> componentIter =
-              schedule.adaptWithLog((AdapterSchedulable) schedulable, component);
-          while (componentIter.hasNext()) {
-            process((SingleScheduleInstance<U>) subSchedule, componentIter.next());
+            Iterator<U> componentIter =
+                schedule.adaptWithLog((AdapterSchedulable) schedulable, component);
+            while (componentIter.hasNext()) {
+              process((SingleScheduleInstance<U>) subSchedule, componentIter.next(),
+                  currentFilters);
+            }
+          } else {
+            if (schedulable instanceof RunnableSchedulable) {
+              schedule.runWithLog((RunnableSchedulable) schedulable, component);
+            } else if (schedulable instanceof VisitorSchedulable) {
+              schedule.visitWithLog((VisitorSchedulable) schedulable, component);
+            }
           }
-        } else if (schedulable instanceof RunnableSchedulable) {
-          schedule.runWithLog((RunnableSchedulable) schedulable, component);
-        } else if (schedulable instanceof VisitorSchedulable) {
-          schedule.visitWithLog((VisitorSchedulable) schedulable, component);
+        } else if (logger.isLoggable(Level.FINER)) {
+          logger.log(Level.FINER, "Skiping {0} ''{1}'' because requiring {2} but having {3}",
+              new Object[] {
+                  (step instanceof ScheduleInstance.RunnableSchedStep) ? "runner" : "adapter",
+                  step.getName(),
+                  step.getRequiredFilters(),
+                  currentFilters});
         }
       }
     }

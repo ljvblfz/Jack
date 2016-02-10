@@ -26,17 +26,24 @@ public class ManagedConcreteItem extends ManagedItem {
   //
   // Position in the bitmap of the original item (without @ComposedOf, inheritance or inner)
   //
-  @Nonnegative
-  private final int posInteger;
-  @Nonnegative
-  private final int posBit;
+  private int posInteger = -1;
+  private int posBit = -1;
+
+  public ManagedConcreteItem(@Nonnull Class<? extends Item> item, @Nonnull ItemManager manager) {
+    super(item, manager);
+  }
 
   public ManagedConcreteItem(@Nonnull Class<? extends Item> item, @Nonnull ItemManager manager,
-      @Nonnegative int numIntegers, @Nonnegative int numBits) {
+      @Nonnegative int posInteger, @Nonnegative int posBits) {
     super(item, manager);
 
-    this.posInteger = numIntegers;
-    this.posBit = numBits;
+    this.posInteger = posInteger;
+    this.posBit = posBits;
+  }
+
+  public void setPosition(@Nonnegative int posInteger, @Nonnegative int posBits) {
+    this.posInteger = posInteger;
+    this.posBit = posBits;
   }
 
   @Override
@@ -53,6 +60,8 @@ public class ManagedConcreteItem extends ManagedItem {
    */
   @Nonnegative
   public int getPosInteger() {
+    assert posInteger >= 0;
+
     return posInteger;
   }
 
@@ -61,12 +70,17 @@ public class ManagedConcreteItem extends ManagedItem {
    */
   @Nonnegative
   public int getPosBit() {
+    assert posBit >= 0;
+
     return posBit;
   }
 
   @Nonnull
   @Override
   public String toString() {
+    assert posInteger >= 0;
+    assert posBit >= 0;
+
     StringBuilder sb = new StringBuilder();
 
     sb.append("Item '");

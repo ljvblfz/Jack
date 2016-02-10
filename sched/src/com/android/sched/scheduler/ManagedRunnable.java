@@ -16,13 +16,16 @@
 
 package com.android.sched.scheduler;
 
+import com.android.sched.filter.NoFilter;
 import com.android.sched.item.Component;
 import com.android.sched.item.Feature;
 import com.android.sched.item.MarkerOrComponent;
 import com.android.sched.item.Production;
 import com.android.sched.item.TagOrMarker;
 import com.android.sched.item.TagOrMarkerOrComponent;
+import com.android.sched.schedulable.ComponentFilter;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.Optional;
 import com.android.sched.schedulable.ProcessorSchedulable;
 import com.android.sched.schedulable.Produce;
@@ -94,6 +97,10 @@ public class ManagedRunnable extends ManagedSchedulable {
   @Nonnull
   private final ProductionSet productions;
 
+  // @Filter
+  @Nonnull
+  private final ComponentFilterSet neededFilters;
+
   // @Use
   @Nonnull
   private final List<Class<?>> useTools = new ArrayList<Class<?>>();
@@ -121,6 +128,7 @@ public class ManagedRunnable extends ManagedSchedulable {
     protectModifyingTags = scheduler.createTagOrMarkerOrComponentSet();
     unprotectByAddingTags = scheduler.createTagOrMarkerOrComponentSet();
     unprotectByRemovingTags = scheduler.createTagOrMarkerOrComponentSet();
+    neededFilters = scheduler.createComponentFilterSet();
     supportedFeatures = scheduler.createFeatureSet();
 
     extractUse(runnable);
@@ -130,6 +138,7 @@ public class ManagedRunnable extends ManagedSchedulable {
     extractProduce(runnable);
     extractProtect(runnable);
     extractSupport(runnable);
+    extractFilters(runnable);
 
     for (Class<?> tool : useTools) {
       extractTransform(tool);
@@ -427,6 +436,14 @@ public class ManagedRunnable extends ManagedSchedulable {
   }
 
   /**
+   * @return a copy of the set of filters
+   */
+  @Nonnull
+  public ComponentFilterSet getFilters() {
+    return neededFilters.clone();
+  }
+
+  /**
    * @return true if it represents a visitor, false otherwise
    */
   @Override
@@ -540,6 +557,22 @@ public class ManagedRunnable extends ManagedSchedulable {
           supportedFeatures.add(feature);
         }
       }
+    }
+  }
+
+  private void extractFilters(@Nonnull Class<?> cls) {
+    Filter filters = cls.getAnnotation(Filter.class);
+
+    if (filters != null) {
+      if (filters.value() != null) {
+        for (Class<? extends ComponentFilter<? extends Component>> filter : filters.value()) {
+          neededFilters.add(filter);
+        }
+      } else {
+        neededFilters.add(NoFilter.class);
+      }
+    } else {
+      neededFilters.add(NoFilter.class);
     }
   }
 

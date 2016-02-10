@@ -38,7 +38,7 @@ public class SubPlanBuilder<T extends Component> {
   protected SubPlanBuilder(Class<T> runOn) {
     this.runOn = runOn;
 
-    plan = new Plan<T>();
+    plan = new Plan<T>(runOn);
   }
 
   /**

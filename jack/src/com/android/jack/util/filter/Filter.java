@@ -28,7 +28,6 @@ import javax.annotation.Nonnull;
  */
 @VariableName("filter")
 public interface Filter<T> {
-
   /**
    * Accepts or rejects an instance of type {@code T}.
    *
