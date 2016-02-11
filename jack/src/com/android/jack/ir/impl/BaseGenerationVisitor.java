@@ -267,9 +267,10 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
   public boolean visit(@Nonnull JAssertStatement x) {
     print(CHARS_ASSERT);
     accept(x.getTestExpr());
-    if (x.getArg() != null) {
+    JExpression arg = x.getArg();
+    if (arg != null) {
       print(" : ");
-      accept(x.getArg());
+      accept(arg);
     }
     return false;
   }
