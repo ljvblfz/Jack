@@ -23,14 +23,14 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 /**
- * This {@link Toolchain} uses Jack through v01 API and perform incremental
+ * This {@link Toolchain} uses Jack through v02 API and perform incremental
  * compilation. Compilation are thus performed twice, while touching a source file
  * between the two calls.
  */
-public class JackApiV01IncrementalToolchain
-    extends JackApiV01Toolchain implements IncrementalToolchain {
+public class JackApiV02IncrementalToolchain
+    extends JackApiV02Toolchain implements IncrementalToolchain {
 
-  JackApiV01IncrementalToolchain(@Nonnull File jackPrebuilt) {
+  JackApiV02IncrementalToolchain(@Nonnull File jackPrebuilt) {
     super(jackPrebuilt);
   }
 

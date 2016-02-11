@@ -25,11 +25,11 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * This {@link Toolchain} uses Jack through v01 API and perform two steps
+ * This {@link Toolchain} uses Jack through v02 API and perform two steps
  * compilation. Compilation from sources to to executables are thus
  * performed twice, by using an intermediate library.
  */
-public class JackApiV01TwoStepsToolchain extends JackApiV01Toolchain implements TwoStepsToolchain {
+public class JackApiV02TwoStepsToolchain extends JackApiV02Toolchain implements TwoStepsToolchain {
 
   @Nonnull
   private File jackPrebuilt;
@@ -37,7 +37,7 @@ public class JackApiV01TwoStepsToolchain extends JackApiV01Toolchain implements 
   @CheckForNull
   private Map<String, String> properties;
 
-  JackApiV01TwoStepsToolchain(File jackPrebuilt) {
+  JackApiV02TwoStepsToolchain(File jackPrebuilt) {
     super(jackPrebuilt);
     this.jackPrebuilt = jackPrebuilt;
   }
@@ -48,7 +48,7 @@ public class JackApiV01TwoStepsToolchain extends JackApiV01Toolchain implements 
     File tmpFile = AbstractTestTools.createTempFile("lib", "intermediate");
     srcToLib(tmpFile, true, sources);
 
-    JackApiV01Toolchain secondStep = new JackApiV01Toolchain(jackPrebuilt);
+    JackApiV02Toolchain secondStep = new JackApiV02Toolchain(jackPrebuilt);
     secondStep.setSourceLevel(sourceLevel);
     secondStep.setVerbose(isVerbose);
     secondStep.setOutputStream(outRedirectStream);
@@ -67,7 +67,7 @@ public class JackApiV01TwoStepsToolchain extends JackApiV01Toolchain implements 
 
   @Override
   @Nonnull
-  public JackApiV01Toolchain addProperty(
+  public JackApiV02TwoStepsToolchain addProperty(
       @Nonnull String propertyName, @Nonnull String propertyValue) {
     super.addProperty(propertyName, propertyValue);
     getProperties().put(propertyName, propertyValue);
