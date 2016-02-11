@@ -467,7 +467,7 @@ public class MultiWorkersScheduleInstance<T extends Component>
     @Nonnull
     public String toString() {
       return "a sequential task running " + Items.getName(
-          instances.steps[next - 1].getInstance().getClass()) + " on '" + data + "'";
+          instances.steps[next - 1].getInstance().getClass()) + " on '" + data.toString() + "'";
     }
   }
 

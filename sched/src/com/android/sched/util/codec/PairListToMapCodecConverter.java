@@ -59,7 +59,7 @@ public class PairListToMapCodecConverter<T, U> extends
         map.put(pair.getFirst(), pair.getSecond());
       } else {
         exceptions.appendException(new ListParsingException(index, "Value for '"
-            + pair.getFirst() + "' is already defined"));
+            + pair.getFirst().toString() + "' is already defined"));
       }
       index++;
     }

@@ -32,7 +32,7 @@ public class AdapterProcessException extends ProcessException {
       @CheckForNull ManagedSchedulable managedSchedulable, @Nonnull Object data,
       @Nonnull Throwable cause) {
     super(adapter, managedSchedulable, data, cause);
-    setMessage("Error during '" + getName() + "' adapter on '" + getData() + "'"
+    setMessage("Error during '" + getName() + "' adapter on '" + getData().toString() + "'"
         + getAdditionalCauseMessage());
   }
 }

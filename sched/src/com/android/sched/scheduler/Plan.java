@@ -71,22 +71,22 @@ public class Plan<T extends Component> implements Iterable<PlanStep>  {
 
     completeAndVerifyPlan(request, productions, tags, builder.getRunOn());
 
-    logger.log(Level.FINER, "Final tags: {0}", tags);
-    logger.log(Level.FINER, "Final productions: {0}", productions);
+    logger.log(Level.FINER, "Final tags: {0}", tags.toString());
+    logger.log(Level.FINER, "Final productions: {0}", productions.toString());
 
     if (!tags.containsAll(request.getTargetIncludeTags())) {
-      throw new PlanError("Final state expect to contain " + request.getTargetIncludeTags()
-          + " but contains " + tags);
+      throw new PlanError("Final state expect to contain "
+          + request.getTargetIncludeTags().toString() + " but contains " + tags.toString());
     }
 
     if (tags.containsOne(request.getTargetExcludeTags())) {
       throw new PlanError("Final state expect to not contain "
-          + request.getTargetExcludeTags() + " but contains " + tags);
+          + request.getTargetExcludeTags().toString() + " but contains " + tags.toString());
     }
 
     if (!productions.equals(request.getTargetProductions())) {
-      throw new PlanError("Plan expect to produce " + request.getTargetProductions()
-          + " but produce " + productions);
+      throw new PlanError("Plan expect to produce " + request.getTargetProductions().toString()
+          + " but produce " + productions.toString());
     }
   }
 
@@ -129,23 +129,25 @@ public class Plan<T extends Component> implements Iterable<PlanStep>  {
           missing.removeAll(currentTags);
 
           throw new PlanError("'" + step.getManagedRunner().getName() + "' need "
-              + step.getManagedRunner().getNeededTags(features) + " but does not have "
-              + missing + " in plan " + this);
+              + step.getManagedRunner().getNeededTags(features).toString() + " but does not have "
+              + missing.toString() + " in plan " + this.toString());
         }
 
         if (currentTags.containsOne(step.getManagedRunner().getUnsupportedTags(features))) {
           throw new PlanError("'" + step.getManagedRunner().getName() + "' not support "
               + step.getManagedRunner().getUnsupportedTags(features) + " but has "
               + step.getManagedRunner().getUnsupportedTags(features).getIntersection(currentTags)
-              + " in plan " + this);
+              + " in plan " + this.toString());
         }
 
-        logger.log(Level.FINER, "Runnable ''{0}'' adds {1}",
-            new Object[] {step.getManagedRunner(), step.getManagedRunner().getAddedTags()});
-        logger.log(Level.FINER, "Runnable ''{0}'' removes {1}",
-            new Object[] {step.getManagedRunner(), step.getManagedRunner().getRemovedTags()});
-        logger.log(Level.FINER, "Runnable ''{0}'' produces {1}",
-            new Object[] {step.getManagedRunner(), step.getManagedRunner().getProductions()});
+        logger.log(Level.FINER, "Runnable ''{0}'' adds {1}", new Object[] {
+            step.getManagedRunner().toString(), step.getManagedRunner().getAddedTags().toString()});
+        logger.log(Level.FINER, "Runnable ''{0}'' removes {1}", new Object[] {
+            step.getManagedRunner().toString(),
+            step.getManagedRunner().getRemovedTags().toString()});
+        logger.log(Level.FINER, "Runnable ''{0}'' produces {1}", new Object[] {
+            step.getManagedRunner().toString(),
+            step.getManagedRunner().getProductions().toString()});
 
         currentTags.addAll(step.getManagedRunner().getAddedTags());
         currentTags.removeAll(step.getManagedRunner().getRemovedTags());

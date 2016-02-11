@@ -81,11 +81,13 @@ public abstract class FileOrDirCodec<T> implements StringCodec<T> {
     }
 
     @Override
+    @Nonnull
     public String toString() {
       return sb.toString();
     }
   }
 
+  @Nonnull
   public String getUsageDetails() {
     StringBuilderAppender sb = new StringBuilderAppender(", ");
 

@@ -32,7 +32,8 @@ public enum SubReleaseKind {
   public boolean isMoreStableThan(@Nonnull SubReleaseKind other) throws UncomparableSubReleaseKind {
     if ((this == ENGINEERING && other != ENGINEERING)
         || (this != ENGINEERING && other == ENGINEERING)) {
-      throw new UncomparableSubReleaseKind(this + " is not comparable with " + other);
+      throw new UncomparableSubReleaseKind(
+          this.toString() + " is not comparable with " + other.toString());
     }
     return ordinal() > other.ordinal();
   }

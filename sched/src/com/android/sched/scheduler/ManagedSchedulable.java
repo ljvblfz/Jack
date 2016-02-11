@@ -108,8 +108,8 @@ public abstract class ManagedSchedulable implements HasDescription {
       } catch (IllegalAccessException e) {
         throw new AssertionError(e);
       } catch (InvocationTargetException e) {
-        logger.log(Level.WARNING, "Method '" + dynamicIsSynchronized + "' threw an exception",
-            e.getCause());
+        logger.log(Level.WARNING,
+            "Method '" + dynamicIsSynchronized.toString() + "' threw an exception", e.getCause());
 
         return false;
       }
@@ -155,13 +155,14 @@ public abstract class ManagedSchedulable implements HasDescription {
 
       if (dynamicSynchronizedOnAnnotation != null) {
         if (!method.getReturnType().equals(Boolean.TYPE)) {
-          throw new SchedulableNotConformException("Annotated method '" + method + "' with @"
-              + Synchronized.class.getSimpleName() + " must have a 'boolean' return type");
+          throw new SchedulableNotConformException("Annotated method '" + method.toString()
+              + "' with @" + Synchronized.class.getSimpleName()
+              + " must have a 'boolean' return type");
         }
 
         if (method.getParameterTypes().length != 0) {
-          throw new SchedulableNotConformException("Annotated method '" + method + "' with @"
-              + Synchronized.class.getSimpleName() + " must have no parameter");
+          throw new SchedulableNotConformException("Annotated method '" + method.toString()
+              + "' with @" + Synchronized.class.getSimpleName() + " must have no parameter");
         }
 
         if (isSynchronized) {
@@ -172,8 +173,8 @@ public abstract class ManagedSchedulable implements HasDescription {
 
         if (dynamicIsSynchronized != null) {
           throw new MarkerNotConformException("Schedulable '" + name + "' cannot have two @"
-              + Synchronized.class.getName() + " ('" + method + "' and '" + dynamicIsSynchronized
-              + "')");
+              + Synchronized.class.getName() + " ('" + method.toString() + "' and '"
+              + dynamicIsSynchronized + "')");
         }
 
         dynamicIsSynchronized = method;
