@@ -177,7 +177,8 @@ public class DynamicAssertionTransformer implements RunnableSchedulable<JMethod>
           new JPrefixNotOperation(testExpression.getSourceInfo(), testExpression);
 
       List<JType> ctorDescriptor = new ArrayList<JType>();
-      if (assertSt.getArg() != null) {
+      JExpression arg = assertSt.getArg();
+      if (arg != null) {
         ctorDescriptor.add(jlo);
       }
 
@@ -189,8 +190,8 @@ public class DynamicAssertionTransformer implements RunnableSchedulable<JMethod>
           assertionError.getOrCreateMethodId(NamingTools.INIT_NAME, ctorDescriptor,
               MethodKind.INSTANCE_NON_VIRTUAL));
 
-      if (assertSt.getArg() != null) {
-        newAssertionError.addArg(assertSt.getArg());
+      if (arg != null) {
+        newAssertionError.addArg(arg);
       }
 
       JThrowStatement throwAssertionError =

@@ -194,7 +194,13 @@ public class CloneStatementVisitor extends CloneExpressionVisitor {
 
   @Override
   public boolean visit(@Nonnull JAssertStatement assertStatement) {
-    JExpression clonedArg = cloneExpression(assertStatement.getArg());
+    JExpression arg = assertStatement.getArg();
+    JExpression clonedArg;
+    if (arg != null) {
+      clonedArg = cloneExpression(arg);
+    } else {
+      clonedArg = null;
+    }
     JExpression clonedTestExpr = cloneExpression(assertStatement.getTestExpr());
     statement =
         updateCatchBlockList(new JAssertStatement(assertStatement.getSourceInfo(), clonedTestExpr,

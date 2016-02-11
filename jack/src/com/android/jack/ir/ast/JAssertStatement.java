@@ -21,6 +21,7 @@ import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -28,20 +29,25 @@ import javax.annotation.Nonnull;
  */
 @Description("Java assert statement")
 public class JAssertStatement extends JStatement {
-
+  @CheckForNull
   private JExpression arg;
+
+  @Nonnull
   private JExpression testExpr;
 
-  public JAssertStatement(SourceInfo info, JExpression testExpr, JExpression arg) {
+  public JAssertStatement(
+      @Nonnull SourceInfo info, @Nonnull JExpression testExpr, @CheckForNull JExpression arg) {
     super(info);
     this.testExpr = testExpr;
     this.arg = arg;
   }
 
+  @CheckForNull
   public JExpression getArg() {
     return arg;
   }
 
+  @Nonnull
   public JExpression getTestExpr() {
     return testExpr;
   }
