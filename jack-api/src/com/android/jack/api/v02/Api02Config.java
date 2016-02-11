@@ -21,6 +21,7 @@ import com.android.jack.api.v01.ConfigurationException;
 
 import java.io.File;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -41,6 +42,13 @@ public interface Api02Config extends Api01Config {
    * @throws ConfigurationException if something is wrong in Jack's configuration
    */
   void setVerbosityLevel(@Nonnull VerbosityLevel verbosityLevel) throws ConfigurationException;
+
+  /**
+   * Sets the minimum Android API level compatibility.
+   * @param level the API level
+   * @throws ConfigurationException if something is wrong in Jack's configuration
+   */
+  void setAndroidMinApiLevel(@Nonnegative int level) throws ConfigurationException;
 
   /**
    * Sets the base directory all relative paths will be based on.

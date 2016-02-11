@@ -17,6 +17,7 @@
 package com.android.sched.util.config.id;
 
 import com.android.sched.util.codec.LongCodec;
+import com.android.sched.util.config.category.Category;
 import com.android.sched.util.config.expression.BooleanExpression;
 
 import javax.annotation.Nonnull;
@@ -86,5 +87,13 @@ public class IntegerPropertyId extends LongPropertyId {
 
   private boolean checkRange(long value) {
     return value >= Integer.MIN_VALUE && value <= Integer.MAX_VALUE;
+  }
+
+  @Override
+  @Nonnull
+  public IntegerPropertyId addCategory(@Nonnull Class<? extends Category> category) {
+    super.addCategory(category);
+
+    return this;
   }
 }

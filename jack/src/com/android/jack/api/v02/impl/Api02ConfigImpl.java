@@ -26,6 +26,7 @@ import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
 
 import java.io.File;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -103,5 +104,10 @@ public class Api02ConfigImpl extends Api01ConfigImpl implements Api02Config {
   @Override
   public void setBaseDirectory(@Nonnull File baseDir) {
     options.setWorkingDirectory(baseDir);
+  }
+
+  @Override
+  public void setAndroidMinApiLevel(@Nonnegative int level) {
+    options.addProperty(Options.ANDROID_MIN_API_LEVEL.getName(), Integer.toString(level));
   }
 }

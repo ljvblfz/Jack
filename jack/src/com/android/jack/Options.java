@@ -72,6 +72,7 @@ import com.android.sched.util.config.category.Private;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.EnumPropertyId;
 import com.android.sched.util.config.id.ImplementationPropertyId;
+import com.android.sched.util.config.id.IntegerPropertyId;
 import com.android.sched.util.config.id.ListPropertyId;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.PropertyId;
@@ -593,6 +594,13 @@ public class Options {
   public static final BooleanPropertyId EMIT_SOURCE_FILE_DEBUG_INFO = BooleanPropertyId.create(
       "jack.dex.debug.source", "Emit source file debug info into generated dex")
       .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
+
+  @Nonnull
+  public static final IntegerPropertyId ANDROID_MIN_API_LEVEL = IntegerPropertyId
+      .create("jack.android.min-api-level", "Minimum Android API level compatibility")
+      .withMin(1)
+      .addDefaultValue(1)
+      .addCategory(DumpInLibrary.class);
 
   @Nonnull
   public static final BooleanPropertyId DROP_METHOD_BODY = BooleanPropertyId.create(
