@@ -44,10 +44,10 @@ public class CoverageFilter {
   private final CoverageFilterSet excludes;
 
   public CoverageFilter(@Nonnull CoverageFilterSet includes, @Nonnull CoverageFilterSet excludes) {
-    this.includes = includes;
-    this.excludes = excludes;
+    this.includes = includes.makeCopy();
+    this.excludes = excludes.makeCopy();
     for (String packageName : EXCLUDED_PACKAGES) {
-      excludes.addPattern(new CoveragePattern(packageName));
+      this.excludes.addPattern(new CoveragePattern(packageName));
     }
   }
 

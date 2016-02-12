@@ -24,30 +24,92 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CoverageFilterSetCodecTest {
   private CoverageFilterSetCodec codec;
   private CodecContext codecContext;
+  private List<PatternTest> patternTests;
+
+  static class PatternTest {
+    public PatternTest(String pattern, String[] matchStrings, String[] noMatchStrings) {
+      this.pattern = pattern;
+      this.matchStrings = matchStrings;
+      this.noMatchStrings = noMatchStrings;
+    }
+
+    public String describe() {
+      StringBuilder sb = new StringBuilder();
+      sb.append("Pattern: \"");
+      sb.append(pattern);
+      sb.append("\", ");
+      appendStrings(sb, "matchStrings", matchStrings);
+      sb.append(", ");
+      appendStrings(sb, "noMatchStrings", noMatchStrings);
+      return sb.toString();
+    }
+
+    private static void appendStrings(StringBuilder sb, String name, String[] strings) {
+      sb.append(name);
+      sb.append("={");
+      boolean first = true;
+      for (String s : strings) {
+        if (!first) {
+          sb.append(',');
+        }
+        first = false;
+        sb.append('\"');
+        sb.append(s);
+        sb.append('\"');
+      }
+      sb.append("}");
+    }
+    private final String pattern;
+    private final String[] matchStrings;
+    private final String[] noMatchStrings;
+  }
 
   @Before
   public void setUp() {
     codec = new CoverageFilterSetCodec();
     codecContext = new CodecContext();
+    patternTests = new ArrayList<CoverageFilterSetCodecTest.PatternTest>();
+    // Single pattern testing.
+    addPatternTest("", new String[0], new String[]{"a", "foo", "*", "???"});
+    addPatternTest("*", new String[]{"foo", "bar", "foo.bar"}, new String[0]);
+    addPatternTest("?", new String[]{"", "a"}, new String[]{"foo", "bar"});
+    addPatternTest("???", new String[]{"foo", "bar", "", "a", "aa"}, new String[]{"aaaa"});
+    addPatternTest("foo", new String[]{"foo"}, new String[]{"bar", "*", "???"});
+    addPatternTest("bar", new String[]{"bar"}, new String[]{"foo", "*", "???"});
+    addPatternTest("foo.bar", new String[]{"foo.bar"}, new String[]{"foo", "bar", "*", "???"});
+    // Multiple patterns testing.
+    addPatternTest("foo,bar", new String[]{"foo", "bar"}, new String[]{"foo.bar", "*", "???"});
+    addPatternTest("foo, bar", new String[]{"foo", "bar"}, new String[]{"foo.bar", "*", "???"});
+    addPatternTest(" foo, bar ", new String[]{"foo", "bar"}, new String[]{"foo.bar", "*", "???"});
+    addPatternTest("foo,*,bar", new String[]{"foo", "bar", "foo.bar"}, new String[0]);
+    addPatternTest("*,?", new String[]{"a", "aa"}, new String[0]);
+  }
+
+  private void addPatternTest(String pattern, String[] matchStrings, String[] noMatchStrings) {
+    patternTests.add(new PatternTest(pattern, matchStrings, noMatchStrings));
   }
 
   @Test
   public void testCodec_checkString() throws ParsingException {
-    codec.checkString(codecContext, "foo");
-    codec.checkString(codecContext, "foo.bar");
-    codec.checkString(codecContext, "foo.bar$inner");
-    codec.checkString(codecContext, "foo.bar$8");
-
-    codec.checkString(codecContext, "*");
-    codec.checkString(codecContext, "foo.bar.*");
-    codec.checkString(codecContext, "*foo*");
-
-    codec.checkString(codecContext, "?");
-    codec.checkString(codecContext, "foo.bar.?");
-    codec.checkString(codecContext, "?foo?");
+    for (PatternTest t : patternTests) {
+      CoverageFilterSet cfs = codec.checkString(codecContext, t.pattern);
+      Assert.assertNotNull(cfs);
+      for (CoveragePattern p : cfs.getPatterns()) {
+        Assert.assertNotNull(p);
+      }
+      for (String matchString : t.matchStrings) {
+        Assert.assertTrue(t.describe(), cfs.matchesAny(matchString));
+      }
+      for (String noMatchString : t.noMatchStrings) {
+        Assert.assertFalse(t.describe(), cfs.matchesAny(noMatchString));
+      }
+    }
 
     try {
       codec.checkString(codecContext, "foo/bar");
@@ -64,25 +126,19 @@ public class CoverageFilterSetCodecTest {
 
   @Test
   public void testParse() {
-    CoverageFilterSet filter = codec.parseString(codecContext, "a");
-    Assert.assertTrue(filter.matchesAny("a"));
-    Assert.assertFalse(filter.matchesAny("ab"));
-
-    filter = codec.parseString(codecContext, "ab");
-    Assert.assertFalse(filter.matchesAny("a"));
-    Assert.assertTrue(filter.matchesAny("ab"));
-
-    filter = codec.parseString(codecContext, "?");
-    Assert.assertTrue(filter.matchesAny("a"));
-    Assert.assertFalse(filter.matchesAny("ab"));
-
-    filter = codec.parseString(codecContext, "??");
-    Assert.assertTrue(filter.matchesAny("a"));
-    Assert.assertTrue(filter.matchesAny("ab"));
-
-    filter = codec.parseString(codecContext, "*");
-    Assert.assertTrue(filter.matchesAny("a"));
-    Assert.assertTrue(filter.matchesAny("ab"));
+    for (PatternTest t : patternTests) {
+      CoverageFilterSet cfs = codec.parseString(codecContext, t.pattern);
+      Assert.assertNotNull(cfs);
+      for (CoveragePattern p : cfs.getPatterns()) {
+        Assert.assertNotNull(p);
+      }
+      for (String matchString : t.matchStrings) {
+        Assert.assertTrue(t.describe(), cfs.matchesAny(matchString));
+      }
+      for (String noMatchString : t.noMatchStrings) {
+        Assert.assertFalse(t.describe(), cfs.matchesAny(noMatchString));
+      }
+    }
   }
 
   @Test

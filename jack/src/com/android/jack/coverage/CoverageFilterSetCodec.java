@@ -51,7 +51,11 @@ public class CoverageFilterSetCodec implements StringCodec<CoverageFilterSet> {
   public CoverageFilterSet checkString(@Nonnull CodecContext context, @Nonnull String string)
       throws ParsingException {
     List<CoveragePattern> patterns = parser.checkString(context, string);
-    return createFromPatterns(patterns);
+    if (patterns == null) {
+      return null;
+    } else {
+      return createFromPatterns(patterns);
+    }
   }
 
   private static CoverageFilterSet createFromPatterns(

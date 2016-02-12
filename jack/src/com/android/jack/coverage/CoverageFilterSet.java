@@ -50,7 +50,7 @@ public class CoverageFilterSet {
   }
 
   public boolean isEmpty() {
-    return patterns.size() == 0;
+    return patterns.isEmpty();
   }
 
   /**
@@ -66,5 +66,18 @@ public class CoverageFilterSet {
       }
     }
     return false;
+  }
+
+  /**
+   * Returns a copy of this {@link CoverageFilterSet} with the same patterns.
+   *
+   * @return a {@link CoverageFilterSet}
+   */
+  public CoverageFilterSet makeCopy() {
+    CoverageFilterSet copy = new CoverageFilterSet();
+    for (CoveragePattern cp : getPatterns()) {
+      copy.addPattern(cp);
+    }
+    return copy;
   }
 }
