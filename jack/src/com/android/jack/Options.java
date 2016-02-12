@@ -23,7 +23,6 @@ import com.android.jack.backend.dex.MultiDexLegacy;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.config.id.Arzon;
 import com.android.jack.config.id.JavaVersionPropertyId;
-import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
 import com.android.jack.incremental.InputFilter;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.library.DumpInLibrary;
@@ -207,9 +206,7 @@ public class Options {
           .create("jack.lambda.anonymous", "Enable lambda support with an anonymous class")
           .addDefaultValue(Boolean.TRUE)
           .addCategory(DumpInLibrary.class)
-          .addCategory(PrebuiltCompatibility.class)
-          .requiredIf(JAVA_SOURCE_VERSION.getValue().isGreaterOrEqual(
-              JavaVersionPropertyId.getConstant(JavaVersion.JAVA_8)));
+          .addCategory(PrebuiltCompatibility.class);
 
   @Nonnull
   public static final BooleanPropertyId GENERATE_JACK_LIBRARY = BooleanPropertyId.create(

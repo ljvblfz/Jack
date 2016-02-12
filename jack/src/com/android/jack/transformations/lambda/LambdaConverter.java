@@ -59,7 +59,6 @@ import com.android.jack.ir.sourceinfo.SourceInfoFactory;
 import com.android.jack.load.NopClassOrInterfaceLoader;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JLookup;
-import com.android.jack.scheduling.feature.SourceVersion8;
 import com.android.jack.transformations.request.AppendField;
 import com.android.jack.transformations.request.AppendMethod;
 import com.android.jack.transformations.request.PrependStatement;
@@ -96,7 +95,7 @@ import javax.annotation.Nonnull;
         JThisRef.class})
 // Lambda converter must be synchronized, otherwise several schedulables can add member types to the
 // same class in the same time.
-@Support({SourceVersion8.class, LambdaToAnonymousConverter.class})
+@Support(LambdaToAnonymousConverter.class)
 @Synchronized
 public class LambdaConverter implements RunnableSchedulable<JMethod> {
 
