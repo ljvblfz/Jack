@@ -111,7 +111,6 @@ public abstract class AbstractTestTools {
 
     toolchainBuilders = new HashMap<String, ToolchainBuilder>();
     toolchainBuilders.put("jack-cli", new JackCliToolchainBuilder());
-    toolchainBuilders.put("internal-jack-script", new JackScriptToolchainBuilder());
     toolchainBuilders.put("jack-api-v01", new JackApiV01ToolchainBuilder());
     toolchainBuilders.put("jack-api-v02", new JackApiV02ToolchainBuilder());
     toolchainBuilders.put("jack-api-inc-v02", new JackApiV02IncrementalToolchainBuilder());
@@ -157,15 +156,6 @@ public abstract class AbstractTestTools {
     @Nonnull
     public JackCliToolchain build() {
       return new JackCliToolchain(getPrebuilt("jack"));
-    }
-  }
-
-  private static class JackScriptToolchainBuilder implements ToolchainBuilder {
-
-    @Override
-    @Nonnull
-    public JackScriptToolchain build() {
-      return new JackScriptToolchain(getPrebuilt("jack"));
     }
   }
 
@@ -840,26 +830,92 @@ public abstract class AbstractTestTools {
 
   }
 
+  @Nonnull
   private static String getVersion(@Nonnull String name) {
+
     File prebuilt = getPrebuilt(name);
-    JarFile jarFile = null;
-    try {
-      jarFile = new JarFile(prebuilt);
-      ZipEntry entry = jarFile.getEntry(name + "-version.properties");
-      InputStream is = jarFile.getInputStream(entry);
-      Version version = new Version(is);
 
-      return version.getVerboseVersion();
+    if (prebuilt.getName().endsWith(".jar")) {
+      JarFile jarFile = null;
+      try {
+        jarFile = new JarFile(prebuilt);
+        ZipEntry entry = jarFile.getEntry(name + "-version.properties");
+        InputStream is = jarFile.getInputStream(entry);
+        Version version = new Version(is);
 
-    } catch (IOException e) {
-      throw new TestConfigurationException(e);
-    } finally {
-      if (jarFile != null) {
-        try {
-          jarFile.close();
-        } catch (IOException e) {
+        return version.getVerboseVersion();
+
+      } catch (IOException e) {
+        throw new TestConfigurationException(e);
+      } finally {
+        if (jarFile != null) {
+          try {
+            jarFile.close();
+          } catch (IOException e) {
+          }
         }
       }
+    } else if (name.endsWith("jack")) {
+      return getServerJackVersion(prebuilt);
+    } else {
+      System.err.println("Could not fetch version of prebuilt '" + name + "'");
+      return "<unknown>";
+    }
+
+  }
+
+
+  private static String getServerJackVersion(@Nonnull File jackScript) {
+
+    String[] arguments = new String[2];
+    arguments[0] = jackScript.getAbsolutePath();
+    arguments[1] = "--version";
+
+    ExecuteFile exec = new ExecuteFile(arguments);
+
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    exec.setOut(bos);
+    ByteArrayOutputStream errOs = new ByteArrayOutputStream();
+    exec.setErr(errOs);
+
+    setUpEnvironment(exec);
+
+    try {
+      if (exec.run() != 0) {
+        System.err.println(errOs.toString().trim());
+        throw new RuntimeException("Could not fetch version of Jack");
+      }
+
+      String rawVersionOutput = bos.toString();
+      int index = rawVersionOutput.indexOf("Version: ");
+
+
+      return rawVersionOutput.substring(index + 9).trim();
+
+    } catch (ExecFileException e) {
+      throw new RuntimeException("Could not fetch version of  Jack", e);
+    } finally {
+      try {
+        bos.close();
+      } catch (IOException e) {
+      }
+    }
+  }
+
+  private static void setUpEnvironment(@Nonnull ExecuteFile exec) {
+    String path = System.getenv("PATH");
+    if (path != null) {
+      exec.addEnvVar("PATH", path);
+    }
+
+    String home = System.getenv("HOME");
+    if (home != null) {
+      exec.addEnvVar("HOME", home);
+    }
+
+    String user = System.getenv("USER");
+    if (user != null) {
+      exec.addEnvVar("USER", user);
     }
   }
 
