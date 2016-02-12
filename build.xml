@@ -147,7 +147,7 @@
 
   <target name="dist" depends="jack-dist, jill-dist, tools-dist"/>
 
-   <target name="dist-doc" depends="">
+   <target name="dist-doc" depends="jack,jill,sched-lib">
       <union id="dist-doc.classpath.files">
         <fileset dir="${jack.dir}/libs" />
         <fileset dir="${sched.dir}/libs" />
