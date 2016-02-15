@@ -79,6 +79,10 @@ public class AnnotationTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.annotation.test009"),
     "com.android.jack.annotation.test009.dx.Tests");
 
+  private RuntimeTestInfo TEST018 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.annotation.test018"),
+      "com.android.jack.annotation.test018.dx.Tests");
+
   private static final File ANNOTATION001_PATH =
       AbstractTestTools.getTestRootDir("com.android.jack.annotation.test001.jack");
 
@@ -401,6 +405,13 @@ public class AnnotationTests extends RuntimeTest {
     .srcToExe(dexOutDir, /* zipFile = */ false, testSourceDir);
   }
 
+  @Test
+  @Category(RuntimeRegressionTest.class)
+  public void test018() throws Exception {
+    new RuntimeTestHelper(TEST018).compileAndRunTest();
+  }
+
+
   @Override
   protected void fillRtTestInfos() {
     rtTestInfos.add(TEST001);
@@ -411,5 +422,6 @@ public class AnnotationTests extends RuntimeTest {
     rtTestInfos.add(TEST007);
     rtTestInfos.add(TEST008);
     rtTestInfos.add(TEST009);
+    rtTestInfos.add(TEST018);
   }
 }

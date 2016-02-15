@@ -306,6 +306,17 @@ public class JackIrBuilder {
     @Nonnull
     private final Stack<List<JCaseStatement>> switchCases = new Stack<List<JCaseStatement>>();
 
+    private void addAnnotations(@CheckForNull Annotation[] annotations,
+        @Nonnull Annotable annotable) {
+      if (annotations != null) {
+        List<JExpression> jannotations = pop(annotations);
+        for (JExpression jannotation : jannotations) {
+          annotable.addAnnotation((JAnnotation) jannotation);
+          jannotation.updateParents((JNode) annotable);
+        }
+      }
+    }
+
     @Override
     public void endVisit(AllocationExpression x, BlockScope scope) {
       try {
@@ -326,6 +337,8 @@ public class JackIrBuilder {
 
     @Override
     public void endVisit(AnnotationMethodDeclaration x, ClassScope classScope) {
+      addAnnotations(x.annotations, curMethod.method);
+
       popMethodInfo();
     }
 
@@ -825,6 +838,8 @@ public class JackIrBuilder {
           generateImplicitReturn();
         }
 
+        addAnnotations(x.annotations, curMethod.method);
+
         popMethodInfo();
       } catch (JLookupException e) {
         throw translateException(x, e);
@@ -1005,6 +1020,9 @@ public class JackIrBuilder {
           // will either be init or clinit
           curMethod.body.getBlock().addStmt(decl);
         }
+
+        addAnnotations(x.annotations, getTypeMap().get(x.binding));
+
         popMethodInfo();
       } catch (JTypeLookupException e) {
         throw translateException(x, e);
@@ -1742,6 +1760,12 @@ public class JackIrBuilder {
     }
 
     @Override
+    public void endVisit(Argument argument, BlockScope scope) {
+      JVariable jvar = curMethod.getJVariable(argument.binding);
+      addAnnotations(argument.annotations, jvar);
+    }
+
+    @Override
     public void endVisit(LocalDeclaration x, BlockScope scope) {
       try {
         SourceInfo info = makeSourceInfo(x);
@@ -1749,6 +1773,9 @@ public class JackIrBuilder {
         assert local != null;
         JLocalRef localRef = local.makeRef(info);
         JExpression initialization = pop(x.initialization);
+
+        addAnnotations(x.annotations, local);
+
         if (initialization != null) {
           push(new JAsgOperation(info, localRef, initialization).makeStatement());
         } else {
@@ -1854,6 +1881,9 @@ public class JackIrBuilder {
             generateImplicitReturn();
           }
         }
+
+        addAnnotations(x.annotations, curMethod.method);
+
         popMethodInfo();
       } catch (RuntimeException e) {
         throw translateException(x, e);
@@ -2615,6 +2645,8 @@ public class JackIrBuilder {
                 method.getSourceInfo().getEndLine(), method.getSourceInfo().getEndLine(),
                 method.getSourceInfo().getFileName()), null));
 
+        addAnnotations(x.annotations, curClass.type);
+
         curClass = classStack.pop();
       } catch (JLookupException e) {
         throw translateException(x, e);
@@ -2713,32 +2745,7 @@ public class JackIrBuilder {
       try {
         JAnnotation jAnnotation = (JAnnotation) annotationParser.parseLiteral(annotation,
             annotation.resolvedType, scope);
-
-        Binding recipient = annotation.recipient;
-        Annotable annotable;
-        switch (recipient.kind()) {
-          case Binding.PACKAGE:
-            throw new AssertionError("Not yet supported");
-          case Binding.GENERIC_TYPE:
-          case Binding.TYPE:
-            assert curClass.typeDecl.binding == recipient;
-            annotable = curClass.type;
-            break;
-          case Binding.METHOD:
-            annotable = getTypeMap().get((MethodBinding) recipient);
-            break;
-          case Binding.FIELD:
-            annotable = getTypeMap().get((FieldBinding) recipient);
-            break;
-          case Binding.LOCAL:
-            annotable = curMethod.getJVariable(((LocalVariableBinding) recipient));
-            assert annotable != null;
-            break;
-          default:
-            throw new AssertionError();
-        }
-        annotable.addAnnotation(jAnnotation);
-        jAnnotation.updateParents((JNode) annotable);
+        push(jAnnotation);
         return false;
       } catch (JTypeLookupException e) {
         throw translateException(annotation, e);
