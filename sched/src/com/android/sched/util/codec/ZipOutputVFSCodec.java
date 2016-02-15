@@ -19,6 +19,7 @@ package com.android.sched.util.codec;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.OutputZipFile;
+import com.android.sched.util.file.OutputZipFile.Compression;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.GenericOutputVFS;
 import com.android.sched.vfs.OutputVFS;
@@ -60,8 +61,8 @@ public class ZipOutputVFSCodec extends OutputVFSCodec {
       @Nonnull final String string) throws ParsingException {
     RunnableHooks hooks = context.getRunnableHooks();
     try {
-      WriteZipFS vfs = new WriteZipFS(
-          new OutputZipFile(context.getWorkingDirectory(), string, hooks, existence, change));
+      WriteZipFS vfs = new WriteZipFS(new OutputZipFile(context.getWorkingDirectory(), string,
+          hooks, existence, change, Compression.COMPRESSED));
       return new GenericOutputVFS(vfs);
     } catch (IOException e) {
       throw new ParsingException(e.getMessage(), e);

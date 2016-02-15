@@ -35,6 +35,7 @@ import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.file.OutputZipFile;
+import com.android.sched.util.file.OutputZipFile.Compression;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.DirectoryLocation;
 import com.android.sched.util.location.FileLocation;
@@ -517,8 +518,8 @@ public class VFSTest {
       file = File.createTempFile("vfs", ".zip");
       String path = file.getAbsolutePath();
 
-      WriteZipFS writeZipFS = new WriteZipFS(
-          new OutputZipFile(path, null, Existence.MAY_EXIST, ChangePermission.NOCHANGE));
+      WriteZipFS writeZipFS = new WriteZipFS(new OutputZipFile(path, null, Existence.MAY_EXIST,
+          ChangePermission.NOCHANGE, Compression.COMPRESSED));
 
       ioVFS1 = new GenericInputOutputVFS(new PrefixedFS(writeZipFS, new VPath(prefix, '/')));
 
@@ -673,8 +674,8 @@ public class VFSTest {
     try {
       file = File.createTempFile("vfs", ".zip");
       String path = file.getAbsolutePath();
-      ioVFS1 = new GenericInputOutputVFS(new WriteZipFS(
-          new OutputZipFile(path, null, Existence.MAY_EXIST, ChangePermission.NOCHANGE)));
+      ioVFS1 = new GenericInputOutputVFS(new WriteZipFS(new OutputZipFile(path, null,
+          Existence.MAY_EXIST, ChangePermission.NOCHANGE, Compression.COMPRESSED)));
       testOutputVFS(ioVFS1);
       ioVFS1.close();
       iVFS2 = new GenericInputVFS(new ReadZipFS(
@@ -780,9 +781,10 @@ public class VFSTest {
       String path = file.getAbsolutePath();
       Provider.Service sha1 = getSha1Service();
       zipVFS = new GenericInputOutputVFS(new ReadWriteZipFS(
-          new OutputZipFile(path, null, Existence.MAY_EXIST, ChangePermission.NOCHANGE),
-          /* numGroups = */ 1, /* groupSize = */ 2,
-          new MessageDigestFactory(sha1), /* debug = */ false));
+          new OutputZipFile(path, null, Existence.MAY_EXIST, ChangePermission.NOCHANGE,
+              Compression.COMPRESSED),
+          /* numGroups = */ 1, /* groupSize = */ 2, new MessageDigestFactory(sha1),
+          /* debug = */ false));
       testOutputVFS(zipVFS);
       testDelete(zipVFS);
 //      checkZipLocations(zipVFS);

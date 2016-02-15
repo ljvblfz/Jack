@@ -24,6 +24,7 @@ import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.OutputZipFile;
+import com.android.sched.util.file.OutputZipFile.Compression;
 import com.android.sched.vfs.ReadWriteZipFS;
 import com.android.sched.vfs.VFS;
 
@@ -99,7 +100,8 @@ public class ZipFSCodec extends FileOrDirCodec<VFS> {
     try {
       Service service = messageDigestCodec.checkString(context, "SHA");
       return new ReadWriteZipFS(
-          new OutputZipFile(context.getWorkingDirectory(), string, hooks, existence, change),
+          new OutputZipFile(context.getWorkingDirectory(), string, hooks, existence, change,
+              Compression.COMPRESSED),
           /* numGroups = */ 1, /* groupSize = */ 2,
           new MessageDigestFactory(service), /* debug = */ false);
     } catch (IOException e) {
