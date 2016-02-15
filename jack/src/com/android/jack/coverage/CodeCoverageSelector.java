@@ -80,15 +80,9 @@ public class CodeCoverageSelector implements RunnableSchedulable<JDefinedClassOr
   /**
    * A {@link CoverageFilter} singleton used to cache include and exclude properties.
    */
-  private static CoverageFilter singleton = null;
-
-  private static CoverageFilter getFilterInstance() {
-    if (singleton == null) {
-      singleton = new CoverageFilter(
-          ThreadConfig.get(COVERAGE_JACOCO_INCLUDES), ThreadConfig.get(COVERAGE_JACOCO_EXCLUDES));
-    }
-    return singleton;
-  }
+  @Nonnull
+  private final CoverageFilter filter = new CoverageFilter(
+      ThreadConfig.get(COVERAGE_JACOCO_INCLUDES), ThreadConfig.get(COVERAGE_JACOCO_EXCLUDES));
 
   @Override
   public void run(@Nonnull JDefinedClassOrInterface t) throws Exception {
@@ -98,7 +92,7 @@ public class CodeCoverageSelector implements RunnableSchedulable<JDefinedClassOr
     }
   }
 
-  private static boolean needsCoverage(@Nonnull JDefinedClassOrInterface declaredType) {
+  private boolean needsCoverage(@Nonnull JDefinedClassOrInterface declaredType) {
     if (declaredType.isExternal()) {
       // Do not instrument classes that will no be part of the output.
       return false;
@@ -108,7 +102,6 @@ public class CodeCoverageSelector implements RunnableSchedulable<JDefinedClassOr
       return false;
     }
     // Manage class filtering.
-    CoverageFilter filter = getFilterInstance();
     String typeName = formatter.getName(declaredType);
     return filter.matches(typeName);
   }
