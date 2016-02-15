@@ -23,7 +23,7 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
-import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JMethodNameLiteral;
 import com.android.jack.ir.ast.JNewArray;
 import com.android.jack.ir.ast.JStringLiteral;
@@ -55,7 +55,7 @@ public class GetMethodParameterRefiner extends CommonStringParameterRefiner impl
   private static final String GETMETHOD_METHOD_NAME = "getMethod";
 
   @CheckForNull
-  private JMethodId getMethodMethodId;
+  private JMethodIdWide getMethodMethodId;
 
   @Override
   public boolean isApplicable(@Nonnull JMethodCall call) throws JMethodLookupException {
@@ -63,7 +63,7 @@ public class GetMethodParameterRefiner extends CommonStringParameterRefiner impl
       List<JType> parameterList = new ArrayList<JType>(2);
       parameterList.add(javaLangString);
       parameterList.add(javaLangClassArray);
-      getMethodMethodId = javaLangClass.getMethodId(
+      getMethodMethodId = javaLangClass.getMethodIdWide(
           GETMETHOD_METHOD_NAME, parameterList, MethodKind.INSTANCE_VIRTUAL);
     }
     if (call.getReceiverType().isSameType(javaLangClass)

@@ -20,7 +20,7 @@ import com.android.jack.JackIOException;
 import com.android.jack.ir.ast.HasName;
 import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JFieldId;
-import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.library.DumpInLibrary;
 import com.android.jack.shrob.obfuscation.nameprovider.DictionaryNameProvider;
@@ -131,7 +131,7 @@ public class NameProviderFactory {
   }
 
   @Nonnull
-  public NameProvider getMethodNameProvider(@Nonnull Collection<JMethodId> methodIds)
+  public NameProvider getMethodNameProvider(@Nonnull Collection<JMethodIdWide> methodIds)
       throws JackIOException {
     NameProvider provider;
     if (globalMethodNameProvider != null) {
@@ -157,9 +157,9 @@ public class NameProviderFactory {
   }
 
   public void createGlobalMethodNameProvider(
-      @Nonnull Map<String, String> existingNames, @Nonnull Collection<JMethodId> methodIds)
+      @Nonnull Map<String, String> existingNames, @Nonnull Collection<JMethodIdWide> methodIds)
       throws JackIOException {
-    for (JMethodId mid : methodIds) {
+    for (JMethodIdWide mid : methodIds) {
       if (!Renamer.mustBeRenamed(mid)) {
         existingNames.put(Renamer.getKey(mid), mid.getName());
       }

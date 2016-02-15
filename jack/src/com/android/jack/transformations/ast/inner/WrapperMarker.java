@@ -25,6 +25,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JParameterRef;
@@ -180,12 +181,15 @@ public class WrapperMarker implements Marker {
         wrapperName += IdentifierFormatter.getFormatter().getName(mthCallReceiverType)
             + IdentifierFormatter.getFormatter().getName(method) + isSuper;
         wrapper =
-            new JMethod(sourceInfo, new JMethodId(wrapperName, MethodKind.STATIC), accessorClass,
-                method.getType(), JModifier.SYNTHETIC | JModifier.STATIC);
+            new JMethod(sourceInfo,
+                new JMethodId(new JMethodIdWide(wrapperName, MethodKind.STATIC),
+                    method.getType()),
+                accessorClass,
+                JModifier.SYNTHETIC | JModifier.STATIC);
       }
 
       JExpression instance = null;
-      JMethodId id = wrapper.getMethodId();
+      JMethodIdWide id = wrapper.getMethodIdWide();
       if (isConstructor) {
         JThis jThis = wrapper.getThis();
         assert jThis != null;
@@ -199,7 +203,7 @@ public class WrapperMarker implements Marker {
         instance = thisParam.makeRef(sourceInfo);
       }
 
-      JMethodId calledMethodId = method.getMethodId();
+      JMethodIdWide calledMethodId = method.getMethodIdWide();
       JMethodCall methodCall = new JMethodCall(sourceInfo, instance, mthCallReceiverType,
           calledMethodId,
           method.getType(), calledMethodId.canBeVirtual() && !isSuper /* isVirtualDispatch */);

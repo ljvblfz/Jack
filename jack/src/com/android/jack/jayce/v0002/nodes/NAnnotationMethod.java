@@ -20,6 +20,8 @@ import com.android.jack.ir.ast.JAnnotationMethod;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
+import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.sourceinfo.SourceInfo;
@@ -82,10 +84,13 @@ public class NAnnotationMethod extends NMethod {
     SourceInfo info = sourceInfo.exportAsJast(exportSession);
     JDefinedClassOrInterface enclosingType = exportSession.getCurrentType();
     assert enclosingType != null;
+    JType returnJType = exportSession.getLookup().getType(returnType);
     JAnnotationMethod jAnnotationMethod = new JAnnotationMethod(
-        info, new JMethodId(name, MethodKind.INSTANCE_VIRTUAL), enclosingType,
-        exportSession.getLookup().getType(returnType),
-        modifier, new JayceMethodLoader(this, methodNodeIndex, enclosingLoader));
+        info,
+        new JMethodId(new JMethodIdWide(name, MethodKind.INSTANCE_VIRTUAL), returnJType),
+        enclosingType,
+        modifier,
+        new JayceMethodLoader(this, methodNodeIndex, enclosingLoader));
     exportSession.setCurrentMethod(jAnnotationMethod);
     for (NAnnotation annotationLiteral : annotations) {
       jAnnotationMethod.addAnnotation(annotationLiteral.exportAsJast(exportSession));

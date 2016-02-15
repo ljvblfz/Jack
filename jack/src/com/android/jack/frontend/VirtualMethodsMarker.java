@@ -22,7 +22,7 @@ import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDefinedInterface;
-import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JPhantomClassOrInterface;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
@@ -43,12 +43,12 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * Set of virtual methods visible in the marked type. For this set, 2 {@link JMethodId}s are
+ * Set of virtual methods visible in the marked type. For this set, 2 {@link JMethodIdWide}s are
  * considered equals when their name and argument types are equals.
  */
 @Description("Set of virtual methods visible in the marked type.")
 @ValidOn({JDefinedClassOrInterface.class, JPhantomClassOrInterface.class})
-public class VirtualMethodsMarker implements Marker, Iterable<JMethodId>, Cloneable {
+public class VirtualMethodsMarker implements Marker, Iterable<JMethodIdWide>, Cloneable {
 
   /**
    * A remover for {@link VirtualMethodsMarker}
@@ -125,8 +125,8 @@ public class VirtualMethodsMarker implements Marker, Iterable<JMethodId>, Clonea
   private static class ComparableMethodId {
     private final int hashCode;
     @Nonnull
-    private final JMethodId methodId;
-    private ComparableMethodId(@Nonnull JMethodId methodId) {
+    private final JMethodIdWide methodId;
+    private ComparableMethodId(@Nonnull JMethodIdWide methodId) {
       this.methodId = methodId;
       int code = methodId.getName().hashCode();
       for (JType type : methodId.getParamTypes()) {
@@ -204,13 +204,13 @@ public class VirtualMethodsMarker implements Marker, Iterable<JMethodId>, Clonea
     return this;
   }
 
-  public void add(@Nonnull JMethodId method) {
+  public void add(@Nonnull JMethodIdWide method) {
     ComparableMethodId comparable = new ComparableMethodId(method);
     virtualMethods.put(comparable, comparable);
   }
 
   @CheckForNull
-  public JMethodId get(@Nonnull JMethodId method) {
+  public JMethodIdWide get(@Nonnull JMethodIdWide method) {
     ComparableMethodId searched = new ComparableMethodId(method);
     ComparableMethodId found = virtualMethods.get(searched);
     if (found != null) {
@@ -222,8 +222,8 @@ public class VirtualMethodsMarker implements Marker, Iterable<JMethodId>, Clonea
 
   @Nonnull
   @Override
-  public Iterator<JMethodId> iterator() {
-    return new Iterator<JMethodId>() {
+  public Iterator<JMethodIdWide> iterator() {
+    return new Iterator<JMethodIdWide>() {
 
       @Nonnull
       private final Iterator<ComparableMethodId> iterator = virtualMethods.values().iterator();
@@ -235,7 +235,7 @@ public class VirtualMethodsMarker implements Marker, Iterable<JMethodId>, Clonea
 
       @Nonnull
       @Override
-      public JMethodId next() {
+      public JMethodIdWide next() {
         return iterator.next().methodId;
       }
 

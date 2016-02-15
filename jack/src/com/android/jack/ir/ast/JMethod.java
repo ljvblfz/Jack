@@ -54,8 +54,6 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
 
   @Nonnull
   private final ArrayList<JParameter> params = new ArrayList<JParameter>();
-  @Nonnull
-  private final JType returnType;
 
   @Nonnull
   private final List<JAnnotation> annotations = new ArrayList<JAnnotation>();
@@ -72,22 +70,19 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
   public JMethod(@Nonnull SourceInfo info,
       @Nonnull JMethodId methodId,
       @CheckForNull JDefinedClassOrInterface enclosingType,
-      @Nonnull JType returnType,
       int modifier) {
-    this(info, methodId, enclosingType, returnType, modifier, NopMethodLoader.INSTANCE);
+    this(info, methodId, enclosingType, modifier, NopMethodLoader.INSTANCE);
   }
 
   public JMethod(@Nonnull SourceInfo info,
         @Nonnull JMethodId methodId,
         @CheckForNull JDefinedClassOrInterface enclosingType,
-        @Nonnull JType returnType,
         int modifier,
         @Nonnull MethodLoader loader) {
     super(info);
     assert JModifier.isMethodModifier(modifier) : "Wrong method modifier.";
     assert JModifier.isValidMethodModifier(modifier);
     this.enclosingType = enclosingType;
-    this.returnType = returnType;
     this.modifier = modifier;
     this.methodId = methodId; // FINDBUGS
     this.loader = loader;
@@ -159,7 +154,7 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
   @Nonnull
   @Override
   public String getName() {
-    return methodId.getName();
+    return methodId.getMethodIdWide().getName();
   }
 
   /**
@@ -173,7 +168,7 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
   @Nonnull
   @Override
   public JType getType() {
-    return returnType;
+    return methodId.getType();
   }
 
   @Override
@@ -392,12 +387,17 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
   }
 
   @Nonnull
+  public JMethodIdWide getMethodIdWide() {
+    return methodId.getMethodIdWide();
+  }
+
+  @Nonnull
   public JMethodId getMethodId() {
     return methodId;
   }
 
   public void setMethodId(@Nonnull JMethodId methodId) {
-    assert getExpectedMethodKind() == methodId.getKind();
+    assert getExpectedMethodKind() == methodId.getMethodIdWide().getKind();
     this.methodId = methodId;
     methodId.addMethod(this);
   }

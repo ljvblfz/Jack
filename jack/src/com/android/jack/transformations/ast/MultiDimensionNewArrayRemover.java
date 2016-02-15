@@ -27,7 +27,7 @@ import com.android.jack.ir.ast.JDynamicCastOperation;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
-import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JNewArray;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JType;
@@ -85,7 +85,7 @@ public class MultiDimensionNewArrayRemover implements RunnableSchedulable<JMetho
     @Nonnull
     private final TransformationRequest tr;
     @CheckForNull
-    private JMethodId newInstance;
+    private JMethodIdWide newInstance;
 
     public Visitor(@Nonnull TransformationRequest tr) {
       this.tr = tr;
@@ -100,7 +100,7 @@ public class MultiDimensionNewArrayRemover implements RunnableSchedulable<JMetho
         int nbPresentDimensions = presentDimensions.size();
         if (nbPresentDimensions > 1) {
           SourceInfo sourceInfo = newArray.getSourceInfo();
-          JMethodId newInstanceId = getNewInstanceId(reflectArrayType);
+          JMethodIdWide newInstanceId = getNewInstanceId(reflectArrayType);
           JMethodCall call = new JMethodCall(sourceInfo,
               null,
               reflectArrayType,
@@ -118,12 +118,12 @@ public class MultiDimensionNewArrayRemover implements RunnableSchedulable<JMetho
     }
 
     @Nonnull
-    private JMethodId getNewInstanceId(JClassOrInterface reflectArrayType) {
+    private JMethodIdWide getNewInstanceId(JClassOrInterface reflectArrayType) {
       if (newInstance == null) {
         List<JType> argsType = new ArrayList<JType>(2);
         argsType.add(jlc);
         argsType.add(intArrayType);
-        newInstance = reflectArrayType.getOrCreateMethodId("newInstance", argsType,
+        newInstance = reflectArrayType.getOrCreateMethodIdWide("newInstance", argsType,
             MethodKind.STATIC);
       }
 

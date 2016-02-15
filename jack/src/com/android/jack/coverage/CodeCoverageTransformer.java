@@ -45,6 +45,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JNullLiteral;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
@@ -277,7 +278,7 @@ public class CodeCoverageTransformer implements RunnableSchedulable<JDefinedClas
       // Insert initialization statement as the first statement.
       JLocalRef localRef = local.makeRef(sourceInfo);
       JExpression expr = new JMethodCall(sourceInfo, null, coverageMethod.getEnclosingType(),
-          coverageMethod.getMethodId(), booleanArrayType, false);
+          coverageMethod.getMethodIdWide(), booleanArrayType, false);
       JAsgOperation assign = new JAsgOperation(sourceInfo, localRef, expr);
       transformationRequest.append(
           new PrependStatement(x.getBlock(), new JExpressionStatement(sourceInfo, assign)));
@@ -307,10 +308,12 @@ public class CodeCoverageTransformer implements RunnableSchedulable<JDefinedClas
       @Nonnegative int probeCount, @Nonnull TransformationRequest transformationRequest,
       @Nonnull JField coverageDataField, long classId) {
     SourceInfo sourceInfo = declaredType.getSourceInfo();
-    JMethodId methodId = new JMethodId(COVERAGE_DATA_INIT_METHOD_NAME, MethodKind.STATIC);
     JType returnType = getCoverageDataType();
+    JMethodId methodId = new JMethodId(
+        new JMethodIdWide(COVERAGE_DATA_INIT_METHOD_NAME, MethodKind.STATIC),
+        returnType);
     JMethod coverageInitMethod = new JMethod(
-        sourceInfo, methodId, declaredType, returnType, COVERAGE_DATA_INIT_METHOD_MODIFIERS);
+        sourceInfo, methodId, declaredType, COVERAGE_DATA_INIT_METHOD_MODIFIERS);
     fillCoverageInitMethodBody(coverageInitMethod, declaredType, probeCount, transformationRequest,
         coverageDataField, classId);
     return coverageInitMethod;
@@ -355,7 +358,8 @@ public class CodeCoverageTransformer implements RunnableSchedulable<JDefinedClas
     JType classNameType = lookup.getType(CommonType.STRING);
     JType probeCountType = JPrimitiveTypeEnum.INT.getType();
     List<JType> argsType = Lists.create(classIdType, classNameType, probeCountType);
-    JMethodId jacocoMethodId = jacocoClass.getMethodId("getProbes", argsType, MethodKind.STATIC);
+    JMethodIdWide jacocoMethodId =
+        jacocoClass.getMethodIdWide("getProbes", argsType, MethodKind.STATIC);
 
     // <local#1> = <field>
     // if (<local#1> == null) {

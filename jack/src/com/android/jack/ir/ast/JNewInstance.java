@@ -39,7 +39,7 @@ public class JNewInstance extends JMethodCall {
   }
 
   public JNewInstance(@Nonnull SourceInfo info, @Nonnull JClassOrInterface receiverType,
-      @Nonnull JMethodId ctor) {
+      @Nonnull JMethodIdWide ctor) {
     super(info, null, receiverType, ctor, receiverType, false /* isVirtualDispatch */);
   }
 

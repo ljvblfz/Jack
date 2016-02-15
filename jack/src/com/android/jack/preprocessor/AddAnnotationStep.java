@@ -188,7 +188,7 @@ public class AddAnnotationStep {
       JMethod method = (JMethod) annotable;
 
       element = "method '" + formatter.getName(method.getEnclosingType()) + "."
-          + formatter.getNameWithoutReturnType(method.getMethodId()) + "'";
+          + formatter.getNameWithoutReturnType(method.getMethodIdWide()) + "'";
     } else if (annotable instanceof JPackage) {
       element = "package '" + formatter.getName((JPackage) annotable) + "'";
     } else {

@@ -20,7 +20,7 @@ import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JMethodIdWithReturnType;
+import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.jayce.linker.VariableRefLinker;
@@ -65,10 +65,10 @@ public class NLambda extends NExpression {
   private List<String> boundsIds = Collections.emptyList();
 
   @CheckForNull
-  private NMethodIdWithReturnType mthIdToImplement;
+  private NMethodId mthIdToImplement;
 
   @Nonnull
-  private List<NMethodIdWithReturnType> bridges = Collections.emptyList();
+  private List<NMethodId> bridges = Collections.emptyList();
 
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
@@ -81,8 +81,8 @@ public class NLambda extends NExpression {
     typeSig = ImportHelper.getSignatureName(lambda.getType());
     sourceInfo = loader.load(lambda.getSourceInfo());
     boundsIds = ImportHelper.getSignatureNameList(lambda.getInterfaceBounds());
-    mthIdToImplement = (NMethodIdWithReturnType) loader.load(lambda.getMethodIdToImplement());
-    bridges = loader.load(NMethodIdWithReturnType.class, lambda.getBridgeMethodIds());
+    mthIdToImplement = (NMethodId) loader.load(lambda.getMethodIdToImplement());
+    bridges = loader.load(NMethodId.class, lambda.getBridgeMethodIds());
   }
 
   @Override
@@ -103,14 +103,14 @@ public class NLambda extends NExpression {
       jBounds.add(exportSession.getLookup().getInterface(bound));
     }
 
-    JMethodIdWithReturnType mthIdToImplements =
-        (JMethodIdWithReturnType) mthIdToImplement.exportAsJast(exportSession);
+    JMethodId mthIdToImplements =
+        (JMethodId) mthIdToImplement.exportAsJast(exportSession);
 
     JLambda lambda = new JLambda(sourceInfo.exportAsJast(exportSession), mthIdToImplements,
         lambdaMethod, exportSession.getLookup().getInterface(typeSig), captureInstance, jBounds);
 
-    for (NMethodIdWithReturnType bridge : bridges) {
-      lambda.addBridgeMethodId((JMethodIdWithReturnType) bridge.exportAsJast(exportSession));
+    for (NMethodId bridge : bridges) {
+      lambda.addBridgeMethodId((JMethodId) bridge.exportAsJast(exportSession));
     }
 
     for (String capturedVariableId : capturedVariableIds) {
@@ -139,8 +139,8 @@ public class NLambda extends NExpression {
     method = in.readNode(NMethod.class);
     typeSig = in.readId();
     boundsIds = in.readIds();
-    mthIdToImplement = in.readNode(NMethodIdWithReturnType.class);
-    bridges = in.readNodes(NMethodIdWithReturnType.class);
+    mthIdToImplement = in.readNode(NMethodId.class);
+    bridges = in.readNodes(NMethodId.class);
   }
 
   @Override

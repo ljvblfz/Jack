@@ -22,7 +22,7 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JFieldId;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.shrob.proguard.GrammarActions;
@@ -150,7 +150,7 @@ public class NameKeeper implements RunnableSchedulable<JPackage> {
   }
 
   private void keepName(JMethod method) {
-    JMethodId methodId = method.getMethodId();
+    JMethodIdWide methodId = method.getMethodIdWide();
     markIfNecessary(methodId);
   }
 

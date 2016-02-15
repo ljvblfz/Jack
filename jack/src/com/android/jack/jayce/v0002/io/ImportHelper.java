@@ -23,7 +23,7 @@ import com.android.jack.ir.ast.JLabel;
 import com.android.jack.ir.ast.JLabeledStatement;
 import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.sourceinfo.SourceInfo;
@@ -189,7 +189,7 @@ public class ImportHelper {
   }
 
   @Nonnull
-  public static List<String> getMethodArgsSignature(@Nonnull JMethodId methodId) {
+  public static List<String> getMethodArgsSignature(@Nonnull JMethodIdWide methodId) {
     List<JType> argTypes = methodId.getParamTypes();
     if (argTypes.isEmpty()) {
       return Collections.emptyList();

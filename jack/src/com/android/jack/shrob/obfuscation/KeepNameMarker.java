@@ -18,7 +18,7 @@ package com.android.jack.shrob.obfuscation;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JFieldId;
-import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JPackage;
 import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
@@ -28,7 +28,8 @@ import com.android.sched.marker.ValidOn;
  * Indicates that this class or member should not be renamed when obfuscating.
  */
 @Description("Indicates that this class or member should not be renamed.")
-@ValidOn(value = {JPackage.class, JDefinedClassOrInterface.class, JFieldId.class, JMethodId.class})
+@ValidOn(value = {JPackage.class, JDefinedClassOrInterface.class, JFieldId.class,
+    JMethodIdWide.class})
 public class KeepNameMarker implements Marker {
 
   public KeepNameMarker() {

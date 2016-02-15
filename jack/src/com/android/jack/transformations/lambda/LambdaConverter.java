@@ -37,7 +37,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodId;
-import com.android.jack.ir.ast.JMethodIdWithReturnType;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JNewInstance;
 import com.android.jack.ir.ast.JParameter;
@@ -166,7 +166,7 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
     private final JClass jlo;
 
     @Nonnull
-    private final JMethodId jloInitMethodId;
+    private final JMethodIdWide jloInitMethodId;
 
     @Nonnull
     private final Stack<LambdaCtx> lambdaCtxStack = new Stack<LambdaCtx>();
@@ -190,7 +190,7 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
       this.tr = tr;
       this.currentClass = method.getEnclosingType();
       jlo = lookup.getClass(CommonTypes.JAVA_LANG_OBJECT);
-      jloInitMethodId = jlo.getMethodId(NamingTools.INIT_NAME, Collections.<JType>emptyList(),
+      jloInitMethodId = jlo.getMethodIdWide(NamingTools.INIT_NAME, Collections.<JType>emptyList(),
           MethodKind.INSTANCE_NON_VIRTUAL);
       currentMethod = method;
       lambdaClassNamePrefix = NamingTools.getNonSourceConflictingName(
@@ -213,7 +213,7 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
       if (lambdaImplCons == null) {
         JDefinedClass lambdaImplClass = createLambdaImplClass(lambdaExpr);
 
-        JMethodIdWithReturnType mthIdToImplement = lambdaExpr.getMethodIdToImplement();
+        JMethodId mthIdToImplement = lambdaExpr.getMethodIdToImplement();
         JMethod mthToImplement =
             createMethod(lambdaImplClass, mthIdToImplement, /* isBridge= */ false);
         JThis thisOfLambda = mthToImplement.getThis();
@@ -245,7 +245,7 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
           tr.append(new PrependStatement(blockOfBodytoImplement, stmt));
         }
 
-        for (JMethodIdWithReturnType bridgeMthIdWithReturnType : lambdaExpr.getBridgeMethodIds()) {
+        for (JMethodId bridgeMthIdWithReturnType : lambdaExpr.getBridgeMethodIds()) {
           JMethod bridge =
               createMethod(lambdaImplClass, bridgeMthIdWithReturnType, /* isBridge= */ true);
           delegateImplementation(bridge, mthToImplement);
@@ -295,7 +295,7 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
       // Replace a lambda expression by the following code:
       // new <current class name>$LambdaImpl<class counter>(value of captured variables,...)
       JNewInstance newAnnonymous = new JNewInstance(lambdaExpr.getSourceInfo(),
-          lambdaImplCons.getEnclosingType(), lambdaImplCons.getMethodId());
+          lambdaImplCons.getEnclosingType(), lambdaImplCons.getMethodIdWide());
 
       for (JVariableRef capturedVarRef : lambdaExpr.getCapturedVariables()) {
         JVariable capturedVar = capturedVarRef.getTarget();
@@ -369,7 +369,7 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
       JParameter parameter = new JParameter(SourceInfo.UNKNOWN, capturedVar.getName(),
           capturedVar.getType(), JModifier.SYNTHETIC, constructor);
       constructor.addParam(parameter);
-      constructor.getMethodId().addParam(parameter.getType());
+      constructor.getMethodIdWide().addParam(parameter.getType());
 
       JAsgOperation asg = new JAsgOperation(
           SourceInfo.UNKNOWN, new JFieldRef(SourceInfo.UNKNOWN,
@@ -386,17 +386,16 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
 
     @Nonnull
     private JMethod createMethod(@Nonnull JDefinedClass jClass,
-        @Nonnull JMethodIdWithReturnType methIdWithReturnType, boolean isBridge) {
+        @Nonnull JMethodId methId, boolean isBridge) {
       SourceInfo sourceInfo = SourceInfo.UNKNOWN;
 
       int mthModifier =
           JModifier.PUBLIC | (isBridge ? (JModifier.SYNTHETIC | JModifier.BRIDGE) : 0);
 
-      JMethod mth = new JMethod(sourceInfo, methIdWithReturnType.getMethodId(), jClass,
-          methIdWithReturnType.getReturnType(), mthModifier);
+      JMethod mth = new JMethod(sourceInfo, methId, jClass, mthModifier);
 
       int pIdx = 0;
-      for (JType parameterType : methIdWithReturnType.getParameterTypes()) {
+      for (JType parameterType : methId.getMethodIdWide().getParamTypes()) {
         mth.addParam(
             new JParameter(sourceInfo, "arg" + pIdx++, parameterType, JModifier.DEFAULT, mth));
       }
@@ -416,9 +415,9 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
 
       JMethodCall call =
           new JMethodCall(sourceInfo, jThis.makeRef(sourceInfo), mth.getEnclosingType(),
-              mthToCall.getMethodId(), mthToCall.getType(), true /* isVirtualDispatch */);
+              mthToCall.getMethodIdWide(), mthToCall.getType(), true /* isVirtualDispatch */);
 
-      List<JType> paramType = mthToCall.getMethodId().getParamTypes();
+      List<JType> paramType = mthToCall.getMethodIdWide().getParamTypes();
       int pIndex = 0;
       for (JParameter param : mth.getParams()) {
         call.addArg(new JDynamicCastOperation(sourceInfo, param.makeRef(sourceInfo),

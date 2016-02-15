@@ -16,7 +16,7 @@
 
 package com.android.jack.transformations.ast.inner;
 
-import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
@@ -27,7 +27,7 @@ import javax.annotation.Nonnull;
  * This marker indicates that all calls to method with this id need adjustment because
  * of OptimizedInnerAccessorGenerator work.
  */
-@ValidOn(JMethodId.class)
+@ValidOn(JMethodIdWide.class)
 @Description("This marker indicates that all calls to method with this id need adjustment because"
     + "of OptimizedInnerAccessorGenerator work.")
 public class NeedsDispatchAdjustment implements Marker {

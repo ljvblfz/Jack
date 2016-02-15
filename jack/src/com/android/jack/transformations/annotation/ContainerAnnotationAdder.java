@@ -27,7 +27,7 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JLiteral;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JNameValuePair;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JRetentionPolicy;
@@ -153,7 +153,7 @@ public class ContainerAnnotationAdder {
         JAnnotation containerAnnotation =
             new JAnnotation(SourceInfo.UNKNOWN, retentionPolicy, containerAnnotationType);
 
-        JMethodId methodId = containerAnnotationType.getMethodId("value",
+        JMethodIdWide methodId = containerAnnotationType.getMethodIdWide("value",
             Collections.<JType>emptyList(), MethodKind.INSTANCE_VIRTUAL);
         containerAnnotation.add(new JNameValuePair(SourceInfo.UNKNOWN, methodId,
             new JArrayLiteral(SourceInfo.UNKNOWN, new ArrayList<JLiteral>(annotationsOfSameType))));

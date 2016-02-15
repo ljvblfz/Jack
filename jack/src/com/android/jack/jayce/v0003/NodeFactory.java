@@ -93,7 +93,7 @@ import com.android.jack.ir.ast.JLteOperation;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JMethodCall;
-import com.android.jack.ir.ast.JMethodIdWithReturnType;
+import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JMethodLiteral;
 import com.android.jack.ir.ast.JModOperation;
 import com.android.jack.ir.ast.JMulOperation;
@@ -210,7 +210,7 @@ import com.android.jack.jayce.v0003.nodes.NMarker;
 import com.android.jack.jayce.v0003.nodes.NMethod;
 import com.android.jack.jayce.v0003.nodes.NMethodBody;
 import com.android.jack.jayce.v0003.nodes.NMethodCall;
-import com.android.jack.jayce.v0003.nodes.NMethodIdWithReturnType;
+import com.android.jack.jayce.v0003.nodes.NMethodId;
 import com.android.jack.jayce.v0003.nodes.NMethodLiteral;
 import com.android.jack.jayce.v0003.nodes.NModOperation;
 import com.android.jack.jayce.v0003.nodes.NMulOperation;
@@ -780,8 +780,8 @@ public class NodeFactory {
       }
     } else if (from instanceof Marker) {
       return createMarkerNode((Marker) from);
-    } else if (from instanceof JMethodIdWithReturnType) {
-      return new NMethodIdWithReturnType();
+    } else if (from instanceof JMethodId) {
+      return new NMethodId();
     }
     throw new AssertionError("Not yet implemented (" + from.getClass().getCanonicalName() + ")");
   }

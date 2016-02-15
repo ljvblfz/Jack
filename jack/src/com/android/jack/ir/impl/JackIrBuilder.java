@@ -80,7 +80,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodId;
-import com.android.jack.ir.ast.JMethodIdWithReturnType;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JMultiExpression;
 import com.android.jack.ir.ast.JNameValuePair;
@@ -1349,15 +1349,18 @@ public class JackIrBuilder {
             throws JTypeLookupException {
       assert methodScope != null;
       SourceInfo info = SourceInfo.UNKNOWN;
+      JType returnType = getTypeMap().get(lambdaMethodBinding.returnType);
 
       // MethodId requires kind that is not needed for lambda
-      JMethodId methodId = new JMethodId(ReferenceMapper.intern(lambdaMethodBinding.selector),
-          MethodKind.INSTANCE_VIRTUAL);
+      JMethodId methodId = new JMethodId(
+          new JMethodIdWide(ReferenceMapper.intern(lambdaMethodBinding.selector),
+              MethodKind.INSTANCE_VIRTUAL),
+          returnType);
 
       // JMethod requires an enclosing type that is not required for lambda method,
       // modifier is also useless. Enclosing type is also use to define type of JThis.
       JMethod lambdaMethod = new JMethod(info, methodId, curClass.type,
-          getTypeMap().get(lambdaMethodBinding.returnType), JModifier.DEFAULT);
+          JModifier.DEFAULT);
       int pIndex = 0;
       for (TypeBinding argType : lambdaMethodBinding.parameters) {
         JType type = getTypeMap().get(argType);
@@ -1365,7 +1368,7 @@ public class JackIrBuilder {
             arguments == null ? "arg" + (pIndex++) : new String(arguments[pIndex++].name), type,
             JModifier.SYNTHETIC, lambdaMethod);
         lambdaMethod.addParam(param);
-        lambdaMethod.getMethodId().addParam(type);
+        lambdaMethod.getMethodIdWide().addParam(type);
       }
 
       JMethodBody lambdaMethodBody = new JMethodBody(info, new JBlock(info));
@@ -1395,8 +1398,8 @@ public class JackIrBuilder {
       MethodInfo newMethodInfo =
           createMethodInfoForLambda(referenceExpression.descriptor, /* arguments = */ null,
               /* (MethodScope) referenceExpression.enclosingScope */ curMethod.scope);
-      JMethodIdWithReturnType methodIdToImplement =
-          getJMethodIdWithReturnType(referenceExpression.descriptor.original());
+      JMethodId methodIdToImplement =
+          getJMethodId(referenceExpression.descriptor.original());
       newMethodInfo.method.setThis(null);
       newMethodInfo.method.setModifier(newMethodInfo.method.getModifier() & ~JModifier.STATIC);
       JType returnTypeOfLambdaMethod = newMethodInfo.method.getType();
@@ -1457,10 +1460,14 @@ public class JackIrBuilder {
           assert lhsExpr == null;
         }
 
-        boolean isVirtualDispatch = method.getMethodId().canBeVirtual() && !isSuperRef;
+        boolean isVirtualDispatch = method.getMethodIdWide().canBeVirtual() && !isSuperRef;
 
-        JMethodCall methodCall = new JMethodCall(sourceInfo, instanceExpr,
-            method.getEnclosingType(), method.getMethodId(), method.getType(), isVirtualDispatch);
+        JMethodCall methodCall = new JMethodCall(sourceInfo,
+            instanceExpr,
+            method.getEnclosingType(),
+            method.getMethodIdWide(),
+            method.getType(),
+            isVirtualDispatch);
 
         addArgToMethodCall(referenceExpression, args, method,
             methodCall, method.getParams().size(), firstParameter);
@@ -1518,7 +1525,7 @@ public class JackIrBuilder {
       assert constructor instanceof JConstructor;
 
       JNewInstance newInstance =
-          new JNewInstance(sourceInfo, (JClassOrInterface) type, constructor.getMethodId());
+          new JNewInstance(sourceInfo, (JClassOrInterface) type, constructor.getMethodIdWide());
 
       int paramCountCons = constructor.getParams().size();
       boolean isNestedType = referenceExpression.receiverType.isNestedType();
@@ -1538,7 +1545,7 @@ public class JackIrBuilder {
       }
 
       JLambda lambda = new JLambda(sourceInfo,
-          getJMethodIdWithReturnType(referenceExpression.descriptor.original()),
+          getJMethodId(referenceExpression.descriptor.original()),
           newMethodInfo.method,
           (JDefinedInterface) getTypeMap().get(getLambdaType(referenceExpression, blockScope)),
           shouldCaptureInstance, getInterfaceBounds(referenceExpression, blockScope));
@@ -1674,25 +1681,25 @@ public class JackIrBuilder {
     }
 
     @Nonnull
-    private JMethodIdWithReturnType getJMethodIdWithReturnType(@Nonnull MethodBinding mb) {
-      JMethodId methodId =
-          new JMethodId(ReferenceMapper.intern(mb.selector), MethodKind.INSTANCE_VIRTUAL);
+    private JMethodId getJMethodId(@Nonnull MethodBinding mb) {
+      JMethodIdWide methodIdWide =
+          new JMethodIdWide(ReferenceMapper.intern(mb.selector), MethodKind.INSTANCE_VIRTUAL);
 
       for (TypeBinding parameterType : mb.parameters) {
-        methodId.addParam(getTypeMap().get(parameterType));
+        methodIdWide.addParam(getTypeMap().get(parameterType));
       }
 
-      return new JMethodIdWithReturnType(methodId, getTypeMap().get(mb.returnType));
+      return new JMethodId(methodIdWide, getTypeMap().get(mb.returnType));
     }
 
     @Nonnull
-    private List<JMethodIdWithReturnType> getBridges(@Nonnull FunctionalExpression fe) {
+    private List<JMethodId> getBridges(@Nonnull FunctionalExpression fe) {
       MethodBinding[] bridges = fe.getRequiredBridges();
-      List<JMethodIdWithReturnType> mds = new ArrayList<JMethodIdWithReturnType>();
+      List<JMethodId> mds = new ArrayList<JMethodId>();
 
       if (bridges != null) {
         for (MethodBinding bridge : bridges) {
-          mds.add(getJMethodIdWithReturnType(bridge));
+          mds.add(getJMethodId(bridge));
         }
       }
 
@@ -1734,7 +1741,7 @@ public class JackIrBuilder {
 
       SourceInfo sourceInfo = makeSourceInfo(lambdaExpression);
       JLambda lambda = new JLambda(sourceInfo,
-          getJMethodIdWithReturnType(lambdaExpression.descriptor.original()),
+          getJMethodId(lambdaExpression.descriptor.original()),
           lambdaMethodInfo.method,
           (JDefinedInterface) getTypeMap().get(getLambdaType(lambdaExpression, blockScope)),
           shouldCaptureInstance, getInterfaceBounds(lambdaExpression, blockScope));
@@ -3390,7 +3397,7 @@ public class JackIrBuilder {
       MethodBinding b = x.binding;
       assert b.isConstructor();
       JConstructor ctor = (JConstructor) getTypeMap().get(b);
-      JMethodCall call = new JNewInstance(info, ctor.getEnclosingType(), ctor.getMethodId());
+      JMethodCall call = new JNewInstance(info, ctor.getEnclosingType(), ctor.getMethodIdWide());
       JExpression qualExpr = pop(qualifier);
 
       // Enums: hidden arguments for the name and id.
@@ -3851,7 +3858,7 @@ public class JackIrBuilder {
 
         MemberValuePair[] pairs = annotation.memberValuePairs();
         for (MemberValuePair pair : pairs) {
-          JMethodId methodId = getTypeMap().get(pair.binding).getMethodId();
+          JMethodIdWide methodId = getTypeMap().get(pair.binding).getMethodIdWide();
           jAnnotation.add(new JNameValuePair(makeSourceInfo(pair), methodId,
               parseLiteral(pair.value, pair.binding.returnType, scope)));
         }
@@ -4302,9 +4309,9 @@ public class JackIrBuilder {
     int modifier = JModifier.STATIC | JModifier.STATIC_INIT;
     JMethod method =
         new JMethod(info,
-            new JMethodId(NamingTools.STATIC_INIT_NAME, MethodKind.STATIC),
+            new JMethodId(new JMethodIdWide(NamingTools.STATIC_INIT_NAME, MethodKind.STATIC),
+                JPrimitiveTypeEnum.VOID.getType()),
             enclosingType,
-            JPrimitiveTypeEnum.VOID.getType(),
             modifier);
     method.setBody(new JMethodBody(info, new JBlock(info)));
     enclosingType.addMethod(method);
@@ -4316,8 +4323,10 @@ public class JackIrBuilder {
       JDefinedClassOrInterface enclosingType,
       JType returnType, int modifier) {
     JMethod method =
-        new JMethod(info, new JMethodId(name, ReferenceMapper.getMethodKind(modifier)),
-            enclosingType, returnType, ReferenceMapper.removeSynchronizedOnBridge(modifier
+        new JMethod(info,
+            new JMethodId(new JMethodIdWide(name, ReferenceMapper.getMethodKind(modifier)),
+                returnType),
+            enclosingType, ReferenceMapper.removeSynchronizedOnBridge(modifier
                 | JModifier.SYNTHETIC));
     method.setBody(new JMethodBody(info, new JBlock(info)));
     enclosingType.addMethod(method);
@@ -4379,7 +4388,7 @@ public class JackIrBuilder {
       @CheckForNull JExpression instance,
       @Nonnull JDefinedClassOrInterface receiverType, @Nonnull JMethod targetMethod) {
 
-    JMethodId methodId = targetMethod.getMethodId();
+    JMethodIdWide methodId = targetMethod.getMethodIdWide();
     assert methodId.getKind() == MethodKind.STATIC || instance != null;
     JMethodCall call = new JMethodCall(info, instance,
         receiverType, methodId, targetMethod.getType(), methodId.canBeVirtual());
@@ -4393,7 +4402,7 @@ public class JackIrBuilder {
       @Nonnull JMethod targetMethod) {
 
     JMethodCall call = new JMethodCall(info, instance,
-        receiverType, targetMethod.getMethodId(), targetMethod.getType(),
+        receiverType, targetMethod.getMethodIdWide(), targetMethod.getType(),
         false /* isVirtualDispatch */);
     return call;
   }

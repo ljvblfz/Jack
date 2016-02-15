@@ -19,7 +19,7 @@ package com.android.jack.ir.formatter;
 import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JNullType;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JParameter;
@@ -130,7 +130,7 @@ public class BinarySignatureFormatter extends CharSeparatedPackageFormatter
 
   @Override
   @Nonnull
-  public String getNameWithoutReturnType(@Nonnull JMethodId methodId) {
+  public String getNameWithoutReturnType(@Nonnull JMethodIdWide methodId) {
     return getNameWithoutReturnType(methodId.getName(), methodId.getParamTypes());
   }
 

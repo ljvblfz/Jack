@@ -35,7 +35,7 @@ import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JMethodCall;
-import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JNeqOperation;
 import com.android.jack.ir.ast.JNullLiteral;
@@ -243,17 +243,17 @@ public class TryWithResourcesTransformer implements RunnableSchedulable<JMethod>
             Collections.singletonList(catchBlock),
             finallyBlock);
 
-        JMethodId closeMethodId;
-        JMethodId addSuppressedMethodId;
+        JMethodIdWide closeMethodId;
+        JMethodIdWide addSuppressedMethodId;
         try {
           // Lookup AutoCloseable.close() method
           JInterface autoCloseableInterface =
               Jack.getSession().getPhantomLookup().getInterface(AUTO_CLOSEABLE_SIGNATURE);
-          closeMethodId = autoCloseableInterface.getMethodId(
+          closeMethodId = autoCloseableInterface.getMethodIdWide(
               CLOSE_METHOD_NAME, Collections.<JType>emptyList(), MethodKind.INSTANCE_VIRTUAL);
 
           // Lookup Throwable.addSuppressed(Throwable t) method
-          addSuppressedMethodId = throwableClass.getMethodId(ADD_SUPPRESSED_METHOD_NAME,
+          addSuppressedMethodId = throwableClass.getMethodIdWide(ADD_SUPPRESSED_METHOD_NAME,
               Collections.singletonList(throwableClass), MethodKind.INSTANCE_VIRTUAL);
         } catch (JMethodLookupException e) {
           TransformationException transformationException =

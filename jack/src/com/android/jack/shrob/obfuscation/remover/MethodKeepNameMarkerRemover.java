@@ -33,7 +33,7 @@ public class MethodKeepNameMarkerRemover implements RunnableSchedulable<JMethod>
 
   @Override
   public void run(@Nonnull JMethod method) throws Exception {
-    method.getMethodId().removeMarker(KeepNameMarker.class);
+    method.getMethodIdWide().removeMarker(KeepNameMarker.class);
   }
 
 }

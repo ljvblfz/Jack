@@ -173,7 +173,7 @@ public class MappingPrinter implements RunnableSchedulable<JSession> {
       StringBuilder info = new StringBuilder().append("    ");
       appendOriginalQualifiedName(info, method.getType());
       info.append(' ');
-      appendOriginalName(info, method.getMethodId());
+      appendOriginalName(info, method.getMethodIdWide());
       info.append('(');
       Iterator<JParameter> iterator = method.getParams().iterator();
       while (iterator.hasNext()) {

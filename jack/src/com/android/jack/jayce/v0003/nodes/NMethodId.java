@@ -17,7 +17,7 @@
 package com.android.jack.jayce.v0003.nodes;
 
 import com.android.jack.ir.ast.JMethodId;
-import com.android.jack.ir.ast.JMethodIdWithReturnType;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.MethodKind;
@@ -39,7 +39,7 @@ import javax.annotation.Nonnull;
 /**
  * Node representing a method id with a return type.
  */
-public class NMethodIdWithReturnType extends NNode {
+public class NMethodId extends NNode {
   @Nonnull
   public static final Token TOKEN = Token.METHODID_WITH_RETURN_TYPE;
 
@@ -55,11 +55,12 @@ public class NMethodIdWithReturnType extends NNode {
 
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
-    JMethodIdWithReturnType mthIdToImplement = (JMethodIdWithReturnType) node;
-    name = mthIdToImplement.getName();
-    returnTypeSig = ImportHelper.getSignatureName(mthIdToImplement.getReturnType());
-    paramTypeSigs = ImportHelper.getSignatureNameList(mthIdToImplement.getParameterTypes());
-    methodKind = mthIdToImplement.getMethodId().getKind();
+    JMethodId mthIdToImplement = (JMethodId) node;
+    name = mthIdToImplement.getMethodIdWide().getName();
+    returnTypeSig = ImportHelper.getSignatureName(mthIdToImplement.getType());
+    paramTypeSigs =
+        ImportHelper.getSignatureNameList(mthIdToImplement.getMethodIdWide().getParamTypes());
+    methodKind = mthIdToImplement.getMethodIdWide().getKind();
   }
 
   @Override
@@ -70,11 +71,11 @@ public class NMethodIdWithReturnType extends NNode {
     assert returnTypeSig != null;
     assert methodKind != null;
     JType returnType = exportSession.getLookup().getType(returnTypeSig);
-    JMethodId mthId = new JMethodId(name, methodKind);
+    JMethodIdWide mthId = new JMethodIdWide(name, methodKind);
     for (String paramSig : paramTypeSigs) {
       mthId.addParam(exportSession.getLookup().getType(paramSig));
     }
-    return new JMethodIdWithReturnType(mthId, returnType);
+    return new JMethodId(mthId, returnType);
   }
 
   @Override

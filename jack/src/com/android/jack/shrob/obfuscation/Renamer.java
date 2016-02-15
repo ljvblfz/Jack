@@ -26,7 +26,7 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JFieldId;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JVisitor;
@@ -159,8 +159,8 @@ public class Renamer implements RunnableSchedulable<JSession> {
   static String getKey(@Nonnull HasName namedElement) {
     if (namedElement instanceof JFieldId) {
       return Renamer.getFieldKey((JFieldId) namedElement);
-    } else if (namedElement instanceof JMethodId) {
-      JMethodId mid = (JMethodId) namedElement;
+    } else if (namedElement instanceof JMethodIdWide) {
+      JMethodIdWide mid = (JMethodIdWide) namedElement;
       return GrammarActions.getSignatureFormatter().getNameWithoutReturnType(mid);
     } else {
       return namedElement.getName();
@@ -211,14 +211,14 @@ public class Renamer implements RunnableSchedulable<JSession> {
     }
 
     @Nonnull
-    private Collection<JMethodId> collectAllMethodIdsInHierarchy(
+    private Collection<JMethodIdWide> collectAllMethodIdsInHierarchy(
         @Nonnull JDefinedClassOrInterface referenceType) {
-      Set<JMethodId> collectedMethods = new HashSet<JMethodId>();
+      Set<JMethodIdWide> collectedMethods = new HashSet<JMethodIdWide>();
       assert allTypes != null;
       for (JDefinedClassOrInterface type : allTypes) {
         if (referenceType.canBeSafelyUpcast(type) || type.canBeSafelyUpcast(referenceType)) {
           for (JMethod method : type.getMethods()) {
-            collectedMethods.add(method.getMethodId());
+            collectedMethods.add(method.getMethodIdWide());
           }
         }
       }
@@ -235,11 +235,11 @@ public class Renamer implements RunnableSchedulable<JSession> {
           rename(field.getId(), fieldNameProvider);
         }
 
-        Collection<JMethodId> allMethodsInHierarchy = collectAllMethodIdsInHierarchy(type);
+        Collection<JMethodIdWide> allMethodsInHierarchy = collectAllMethodIdsInHierarchy(type);
         NameProvider methodNameProvider =
             nameProviderFactory.getMethodNameProvider(allMethodsInHierarchy);
         for (JMethod method : type.getMethods()) {
-          rename(method.getMethodId(), methodNameProvider);
+          rename(method.getMethodIdWide(), methodNameProvider);
         }
       }
 
@@ -379,13 +379,13 @@ public class Renamer implements RunnableSchedulable<JSession> {
 
     if (useUniqueClassMemberNames) {
       Set<JFieldId> allFieldIds = new HashSet<JFieldId>();
-      Set<JMethodId> allMethodIds = new HashSet<JMethodId>();
+      Set<JMethodIdWide> allMethodIds = new HashSet<JMethodIdWide>();
       for (JDefinedClassOrInterface type : allTypes) {
         for (JField field : type.getFields()) {
           allFieldIds.add(field.getId());
         }
         for (JMethod method : type.getMethods()) {
-          allMethodIds.add(method.getMethodId());
+          allMethodIds.add(method.getMethodIdWide());
         }
       }
       nameProviderFactory.createGlobalFieldNameProvider(fieldNames, allFieldIds);

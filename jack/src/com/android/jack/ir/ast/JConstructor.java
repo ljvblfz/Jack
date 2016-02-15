@@ -34,8 +34,10 @@ public class JConstructor extends JMethod {
 
   public JConstructor(@Nonnull SourceInfo info, @Nonnull JDefinedClass enclosingType,
       int modifier) {
-    super(info, new JMethodId(NamingTools.INIT_NAME, MethodKind.INSTANCE_NON_VIRTUAL),
-        enclosingType, JPrimitiveTypeEnum.VOID.getType(), modifier);
+    super(info, new JMethodId(
+          new JMethodIdWide(NamingTools.INIT_NAME, MethodKind.INSTANCE_NON_VIRTUAL),
+          JPrimitiveTypeEnum.VOID.getType()),
+        enclosingType, modifier);
     assert JModifier.isMethodModifier(modifier);
     assert JModifier.isValidMethodModifier(modifier);
     assert !JModifier.isAbstract(modifier);
@@ -48,8 +50,10 @@ public class JConstructor extends JMethod {
 
   public JConstructor(@Nonnull SourceInfo info, @Nonnull JDefinedClass enclosingType, int modifier,
       @Nonnull MethodLoader loader) {
-    super(info, new JMethodId(NamingTools.INIT_NAME, MethodKind.INSTANCE_NON_VIRTUAL),
-        enclosingType, JPrimitiveTypeEnum.VOID.getType(), modifier, loader);
+    super(info, new JMethodId(
+          new JMethodIdWide(NamingTools.INIT_NAME, MethodKind.INSTANCE_NON_VIRTUAL),
+          JPrimitiveTypeEnum.VOID.getType()),
+        enclosingType, modifier, loader);
     assert JModifier.isMethodModifier(modifier);
     assert JModifier.isValidMethodModifier(modifier);
     assert !JModifier.isAbstract(modifier);

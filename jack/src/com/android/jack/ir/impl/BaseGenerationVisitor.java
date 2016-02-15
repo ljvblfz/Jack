@@ -78,7 +78,7 @@ import com.android.jack.ir.ast.JLongLiteral;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JMethodCall;
-import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JMultiExpression;
 import com.android.jack.ir.ast.JNameValuePair;
@@ -833,7 +833,7 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
   @Override
   public boolean visit(@Nonnull JMethodCall x) {
     JExpression instance = x.getInstance();
-    JMethodId target = x.getMethodId();
+    JMethodIdWide target = x.getMethodId();
     if (instance == null) {
       // Static call.
       printTypeName(x.getReceiverType());
@@ -908,7 +908,7 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
   @Override
   public boolean visit(@Nonnull JNewInstance x) {
     print(CHARS_NEW);
-    JMethodId target = x.getMethodId();
+    JMethodIdWide target = x.getMethodId();
     printName(target);
     lparen();
     visitCollectionWithCommas(x.getArgs().iterator());

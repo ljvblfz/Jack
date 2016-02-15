@@ -104,7 +104,7 @@ public class EnabledAssertionTransformer implements RunnableSchedulable<JMethod>
 
       JNewInstance newAssertionError = new JNewInstance(assertSt.getSourceInfo(),
           assertionError,
-          assertionError.getOrCreateMethodId(NamingTools.INIT_NAME, ctorDescriptor,
+          assertionError.getOrCreateMethodIdWide(NamingTools.INIT_NAME, ctorDescriptor,
               MethodKind.INSTANCE_NON_VIRTUAL));
 
       if (arg != null) {

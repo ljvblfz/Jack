@@ -66,7 +66,7 @@ public class InnerAccessorAdder implements RunnableSchedulable<JDefinedClassOrIn
       if (getterMarker != null) {
         int index = 0;
         for (JMethod m : methodOrdering.sortedCopy(getterMarker.getAllGetters())) {
-          m.getMethodId().setName(NamingTools.getNonSourceConflictingName("get") + index++);
+          m.getMethodIdWide().setName(NamingTools.getNonSourceConflictingName("get") + index++);
           tr.append(new AppendMethod(type, m));
         }
         type.removeMarker(GetterMarker.class);
@@ -78,7 +78,7 @@ public class InnerAccessorAdder implements RunnableSchedulable<JDefinedClassOrIn
       if (setterMarker != null) {
         int index = 0;
         for (JMethod m : methodOrdering.sortedCopy(setterMarker.getAllSetters())) {
-          m.getMethodId().setName(NamingTools.getNonSourceConflictingName("set") + index++);
+          m.getMethodIdWide().setName(NamingTools.getNonSourceConflictingName("set") + index++);
           tr.append(new AppendMethod(type, m));
         }
         type.removeMarker(SetterMarker.class);
@@ -91,7 +91,7 @@ public class InnerAccessorAdder implements RunnableSchedulable<JDefinedClassOrIn
         int index = 0;
         for (JMethod m : methodOrdering.sortedCopy(wrapperMarker.getAllWrappers())) {
           if (!(m instanceof JConstructor)) {
-            m.getMethodId().setName(NamingTools.getNonSourceConflictingName("wrap") + index++);
+            m.getMethodIdWide().setName(NamingTools.getNonSourceConflictingName("wrap") + index++);
           }
           tr.append(new AppendMethod(type, m));
         }

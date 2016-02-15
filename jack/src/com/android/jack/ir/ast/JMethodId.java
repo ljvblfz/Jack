@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,77 +17,51 @@
 package com.android.jack.ir.ast;
 
 import com.android.jack.Jack;
-import com.android.jack.ir.StringInterner;
-import com.android.jack.util.NamingTools;
+import com.android.jack.ir.HierarchyFilter;
 import com.android.sched.item.Component;
 import com.android.sched.marker.LocalMarkerManager;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * An identifier for methods. A JMethodId instance is shared between JMethods
- * that may share an overriding relation.
+ * An identifier for methods. A {@link JMethodId} instance is shared between {@link JMethod}s
+ * that may share an overriding relation considering their return type.
  */
-public class JMethodId extends LocalMarkerManager implements HasName, CanBeRenamed, Component {
-
-  /**
-   * Method hierarchy filter.
-   */
-  public static enum HierarchyFilter {
-    SUB_AND_SUPER_TYPES,
-    SUPER_TYPES,
-    SUB_TYPES,
-    THIS_TYPE;
-  }
+public class JMethodId extends LocalMarkerManager implements Component, HasType {
 
   @Nonnull
-  private String name;
+  private final JMethodIdWide methodId;
   @Nonnull
-  private final List<JType> paramTypes = new ArrayList<JType>();
+  private final JType returnType;
   @Nonnull
   private final List<JMethod> methods = new ArrayList<JMethod>();
 
-  @Nonnull
-  private MethodKind methodKind;
-
-  public JMethodId(@Nonnull String name, @Nonnull MethodKind kind) {
-    assert !(name.contains("(") || name.contains(")"));
-    assert (!(NamingTools.INIT_NAME.equals(name) || NamingTools.STATIC_INIT_NAME.equals(name)))
-        || (kind != MethodKind.INSTANCE_VIRTUAL);
-    this.name = StringInterner.get().intern(name);
-    this.methodKind = kind;
-  }
-
-  public JMethodId(@Nonnull String name, @Nonnull List<? extends JType> paramTypes,
-      @Nonnull MethodKind methodKind) {
-    this(name, methodKind);
-    this.paramTypes.addAll(paramTypes);
-  }
-
-  /**
-   * Adds a parameter type to this method id.
-   */
-  public void addParam(@Nonnull JType x) {
-    paramTypes.add(x);
+  public JMethodId(@Nonnull JMethodIdWide methodId, @Nonnull JType returnType) {
+    this.methodId = methodId;
+    this.returnType = returnType;
+    methodId.addMethodId(this);
   }
 
   @Nonnull
   @Override
-  public String getName() {
-    return name;
+  public JType getType() {
+    return returnType;
   }
 
-  @Nonnull
-  public Collection<JMethod> getMethods() {
-    return Jack.getUnmodifiableCollections().getUnmodifiableCollection(methods);
+  @Override
+  public final int hashCode() {
+    return super.hashCode();
   }
 
+  @Override
+  public final boolean equals(@CheckForNull Object obj) {
+    return obj == this;
+  }
 
   /**
    * Get methods of this {@link JMethodId} located in the hierarchy of the
@@ -102,6 +76,7 @@ public class JMethodId extends LocalMarkerManager implements HasName, CanBeRenam
   @Nonnull
   public Collection<JMethod> getMethods(
       @Nonnull JReferenceType reference, @Nonnull HierarchyFilter filter) {
+    Collection<JMethod> methods = getMethods();
     List<JMethod> subset = new ArrayList<JMethod>(methods.size());
     switch (filter) {
       case SUPER_TYPES:
@@ -140,61 +115,19 @@ public class JMethodId extends LocalMarkerManager implements HasName, CanBeRenam
     return subset;
   }
 
-  @Nonnull
-  public List<JType> getParamTypes() {
-    return paramTypes;
-  }
-
-  @Override
-  public void setName(@Nonnull String newName) {
-    assert !(newName.contains("(") || newName.contains(")"));
-    this.name = StringInterner.get().intern(newName);
-  }
-
-  boolean equals(@Nonnull String otherName, @Nonnull List<? extends JType> otherParamTypes,
-      @Nonnull MethodKind kind) {
-    if (this.methodKind != kind) {
-      return false;
-    }
-
-    return equals(otherName, otherParamTypes);
-  }
-
-  boolean equals(@Nonnull String otherName, @Nonnull List<? extends JType> otherParamTypes) {
-    if (!(this.name.equals(otherName) && this.paramTypes.size() == otherParamTypes.size())) {
-      return false;
-    }
-
-    Iterator<? extends JType> otherParams = otherParamTypes.iterator();
-    for (JType param : this.paramTypes) {
-      if (!param.isSameType(otherParams.next())) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
   public void addMethod(@Nonnull JMethod method) {
     methods.add(method);
     assert canBeResultId();
   }
 
   @Nonnull
-  public MethodKind getKind() {
-    return methodKind;
+  public JMethodIdWide getMethodIdWide() {
+    return methodId;
   }
 
-  @Deprecated
-  public void setKind(@Nonnull MethodKind methodKind) {
-    assert methods.size() == 1;
-    assert methodKind != MethodKind.INSTANCE_VIRTUAL;
-    assert this.methodKind != MethodKind.INSTANCE_VIRTUAL;
-    this.methodKind = methodKind;
-  }
-
-  public boolean canBeVirtual() {
-    return methodKind == MethodKind.INSTANCE_VIRTUAL;
+  @Nonnull
+  public Collection<JMethod> getMethods() {
+    return Jack.getUnmodifiableCollections().getUnmodifiableCollection(methods);
   }
 
   private boolean canBeResultId() {
@@ -204,15 +137,5 @@ public class JMethodId extends LocalMarkerManager implements HasName, CanBeRenam
       }
     }
     return true;
-  }
-
-  @Override
-  public final int hashCode() {
-    return super.hashCode();
-  }
-
-  @Override
-  public final boolean equals(@CheckForNull Object obj) {
-    return obj == this;
   }
 }

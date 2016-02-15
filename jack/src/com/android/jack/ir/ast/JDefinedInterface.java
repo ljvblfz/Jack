@@ -130,7 +130,7 @@ public class JDefinedInterface extends JDefinedClassOrInterface implements JInte
       }
       try {
         JMethod jloMth = ((JDefinedClass) jlo).getMethod(mth.getName(), mth.getType(),
-            mth.getMethodId().getParamTypes());
+            mth.getMethodIdWide().getParamTypes());
         if (jloMth.isPublic() && !jloMth.isStatic()) {
           // Do not take overriding of jlo public non static methods
           continue;

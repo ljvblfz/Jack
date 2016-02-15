@@ -26,7 +26,7 @@ import com.android.jack.ir.ast.JDefinedAnnotationType;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JLiteral;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JNameValuePair;
 import com.android.jack.ir.ast.JRetentionPolicy;
 import com.android.jack.ir.ast.JType;
@@ -109,7 +109,7 @@ public class DefaultValueAnnotationAdder implements RunnableSchedulable<JMethod>
         JAnnotation defaultAnnotation =
             getDefaultAnnotation((JDefinedAnnotationType) enclosingType, tr);
         tr.append(new AddNameValuePair(defaultAnnotation,
-            new JNameValuePair(sourceInfo, method.getMethodId(), defaultValue)));
+            new JNameValuePair(sourceInfo, method.getMethodIdWide(), defaultValue)));
         tr.commit();
       }
     }
@@ -125,7 +125,7 @@ public class DefaultValueAnnotationAdder implements RunnableSchedulable<JMethod>
     if (defaultAnnotations.isEmpty()) {
       defaultAnnotation = new JAnnotation(SourceInfo.UNKNOWN, JRetentionPolicy.SYSTEM,
           defaultAnnotationType);
-      JMethodId methodId = defaultAnnotationType.getOrCreateMethodId("value",
+      JMethodIdWide methodId = defaultAnnotationType.getOrCreateMethodIdWide("value",
           Collections.<JType>emptyList(), MethodKind.INSTANCE_VIRTUAL);
       defaultAnnotation.add(new JNameValuePair(SourceInfo.UNKNOWN, methodId,
  new JAnnotation(

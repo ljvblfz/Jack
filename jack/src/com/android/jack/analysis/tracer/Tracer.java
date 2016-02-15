@@ -47,7 +47,7 @@ import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JLiteral;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
-import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JMethodNameLiteral;
 import com.android.jack.ir.ast.JNameValuePair;
 import com.android.jack.ir.ast.JNewArray;
@@ -127,7 +127,7 @@ public class Tracer extends JVisitor {
       JDefinedClassOrInterface definedSuperClOrI = (JDefinedClassOrInterface) superClOrI;
       for (JMethod method : definedSuperClOrI.getMethods()) {
         if (brush.startTraceOverridingMethod(method)) {
-          JMethodId methodId = method.getMethodId();
+          JMethodIdWide methodId = method.getMethodIdWide();
           JType returnType = method.getType();
           JMethod implementation =
               findImplementation(methodId, returnType, extendingOrImplementingClass);
@@ -213,7 +213,7 @@ public class Tracer extends JVisitor {
           // To be safe, Jack is conservative when there is partial type hierarchy.
           // It considers all methods of the type as seed.
           if (brush.startTraceSeed(method) || pth != null) {
-            trace(method.getMethodId(), method.getEnclosingType(), method.getType(),
+            trace(method.getMethodIdWide(), method.getEnclosingType(), method.getType(),
                 true /* mustTraceOverridingMethods */);
             brush.endTraceSeed(method);
           }
@@ -242,7 +242,8 @@ public class Tracer extends JVisitor {
   }
 
   @CheckForNull
-  private JMethod findMethod(@Nonnull JMethodId methodId, @Nonnull JClassOrInterface enclosingType,
+  private JMethod findMethod(@Nonnull JMethodIdWide methodId,
+      @Nonnull JClassOrInterface enclosingType,
       @Nonnull JType returnType) {
     for (JMethod m : methodId.getMethods()) {
       if (m.getEnclosingType().isSameType(enclosingType) && m.getType().isSameType(returnType)) {
@@ -261,7 +262,7 @@ public class Tracer extends JVisitor {
    * @param mustTraceOverridingMethods indicates if the overriding methods of the traced method
    * should be traced as well
    */
-  private void trace(@Nonnull JMethodId mid, @Nonnull JClassOrInterface receiverType,
+  private void trace(@Nonnull JMethodIdWide mid, @Nonnull JClassOrInterface receiverType,
       @Nonnull JType returnType, boolean mustTraceOverridingMethods) {
     JMethod foundMethod = findMethod(mid, receiverType, returnType);
     if (foundMethod != null) {
@@ -338,7 +339,7 @@ public class Tracer extends JVisitor {
   public void endVisit(@Nonnull JMethodCall mc) {
     JType returnType = mc.getType();
     trace(returnType);
-    JMethodId methodId = mc.getMethodId();
+    JMethodIdWide methodId = mc.getMethodId();
     JClassOrInterface receiverType = mc.getReceiverType();
     trace(receiverType);
     JMethod implementationOrDefinition = null;
@@ -377,7 +378,7 @@ public class Tracer extends JVisitor {
   public void endVisit(@Nonnull JNewInstance newInstance) {
     JClass returnType = newInstance.getType();
     trace(returnType);
-    JMethodId methodId = newInstance.getMethodId();
+    JMethodIdWide methodId = newInstance.getMethodId();
     trace(methodId, returnType, JPrimitiveTypeEnum.VOID.getType(),
         false /* mustTraceOverridingMethods */);
   }
@@ -392,7 +393,7 @@ public class Tracer extends JVisitor {
    * @return the method was found
    */
   @CheckForNull
-  private JMethod findDefinition(@Nonnull JMethodId methodId,
+  private JMethod findDefinition(@Nonnull JMethodIdWide methodId,
       @Nonnull JType returnType, @Nonnull JDefinedClassOrInterface receiverType) {
     JMethod foundMethod = findMethod(methodId, receiverType, returnType);
     if (foundMethod != null) {
@@ -413,7 +414,8 @@ public class Tracer extends JVisitor {
 
   @CheckForNull
   private JMethod findImplementation(
-      @Nonnull JMethodId methodId, @Nonnull JType returnType, @Nonnull JDefinedClass receiverType) {
+      @Nonnull JMethodIdWide methodId, @Nonnull JType returnType,
+      @Nonnull JDefinedClass receiverType) {
     JClass currentType = receiverType;
     while (currentType instanceof JDefinedClass) {
       JMethod foundMethod = findMethod(methodId, currentType, returnType);
@@ -436,7 +438,8 @@ public class Tracer extends JVisitor {
    */
   @CheckForNull
   private JMethod findImplementationOrDefinition(
-      @Nonnull JMethodId methodId, @Nonnull JType returnType, @Nonnull JDefinedClass receiverType) {
+      @Nonnull JMethodIdWide methodId, @Nonnull JType returnType,
+      @Nonnull JDefinedClass receiverType) {
     JMethod implementation =
         findImplementation(methodId, returnType, receiverType);
     if (implementation != null) {

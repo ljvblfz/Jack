@@ -159,7 +159,7 @@ public class JAnnotation extends JLiteral {
   }
 
   @CheckForNull
-  public JNameValuePair getNameValuePair(@Nonnull JMethodId methodId) {
+  public JNameValuePair getNameValuePair(@Nonnull JMethodIdWide methodId) {
     for (JNameValuePair pair : elements) {
       if (pair.getMethodId().equals(methodId)) {
         return pair;

@@ -17,7 +17,7 @@
 package com.android.jack.jayce.v0002.nodes;
 
 import com.android.jack.ir.ast.JLiteral;
-import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JNameValuePair;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.MethodKind;
@@ -70,7 +70,7 @@ public class NNameValuePair extends NNode implements HasSourceInfo {
     assert name != null;
     JLiteral jValue = value.exportAsJast(exportSession);
     SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
-    JMethodId methodId = new JMethodId(name, MethodKind.INSTANCE_VIRTUAL);
+    JMethodIdWide methodId = new JMethodIdWide(name, MethodKind.INSTANCE_VIRTUAL);
     JNameValuePair jNameValuePair = new JNameValuePair(jSourceInfo, methodId, jValue);
     return jNameValuePair;
   }

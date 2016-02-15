@@ -20,7 +20,7 @@ import com.android.jack.Options;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
-import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JNewInstance;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JParameterRef;
@@ -71,7 +71,7 @@ public class MethodCallDispatchAdjuster implements RunnableSchedulable<JMethod> 
 
     @Override
     public boolean visit(@Nonnull JMethodCall methodCall) {
-      JMethodId id = methodCall.getMethodId();
+      JMethodIdWide id = methodCall.getMethodId();
       if (id.containsMarker(NeedsDispatchAdjustment.class)) {
         JExpression instance = methodCall.getInstance();
         if (instance != null) {

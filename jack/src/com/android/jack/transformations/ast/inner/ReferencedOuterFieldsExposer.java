@@ -21,7 +21,7 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.MethodKind;
@@ -69,7 +69,7 @@ public class ReferencedOuterFieldsExposer implements RunnableSchedulable<JDefine
         tr.append(new RemoveModifiers(method, JModifier.PRIVATE));
         if (!(method instanceof JConstructor)) {
           tr.append(new AddModifiers(method, JModifier.STATIC));
-          JMethodId id = method.getMethodId();
+          JMethodIdWide id = method.getMethodIdWide();
           assert id.getMethods().size() == 1;
           if (id.getKind() != MethodKind.STATIC) {
             id.setKind(MethodKind.STATIC);

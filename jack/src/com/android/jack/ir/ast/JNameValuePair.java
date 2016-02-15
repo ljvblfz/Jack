@@ -32,13 +32,13 @@ import javax.annotation.Nonnull;
 public final class JNameValuePair extends JNode {
 
   @Nonnull
-  private JMethodId methodId;
+  private JMethodIdWide methodId;
 
   @Nonnull
   private JLiteral value;
 
   public JNameValuePair(@Nonnull SourceInfo sourceInfo,
-      @Nonnull JMethodId methodId,
+      @Nonnull JMethodIdWide methodId,
       @Nonnull JLiteral value) {
     super(sourceInfo);
     this.methodId = methodId;
@@ -56,7 +56,7 @@ public final class JNameValuePair extends JNode {
   }
 
   @Nonnull
-  public JMethodId getMethodId() {
+  public JMethodIdWide getMethodId() {
     return methodId;
   }
 
@@ -107,7 +107,7 @@ public final class JNameValuePair extends JNode {
     visitor.visit(this, transformRequest);
   }
 
-  public void resolveMethodId(@Nonnull JMethodId methodId) {
+  public void resolveMethodId(@Nonnull JMethodIdWide methodId) {
     this.methodId = methodId;
   }
 

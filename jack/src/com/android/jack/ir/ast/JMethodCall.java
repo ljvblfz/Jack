@@ -51,7 +51,7 @@ public class JMethodCall extends JExpression {
   private final ArrayList<JExpression> args = new ArrayList<JExpression>();
 
   @Nonnull
-  private JMethodId methodId;
+  private JMethodIdWide methodId;
   @Nonnull
   private final JType returnType;
   @Nonnull
@@ -72,7 +72,7 @@ public class JMethodCall extends JExpression {
   }
 
   public JMethodCall(@Nonnull SourceInfo info, @CheckForNull JExpression instance,
-      @Nonnull JClassOrInterface receiverType, @Nonnull JMethodId methodId,
+      @Nonnull JClassOrInterface receiverType, @Nonnull JMethodIdWide methodId,
       @Nonnull JType returnType, boolean isVirtualDispatch) {
     super(info);
     assert (methodId != null);
@@ -162,7 +162,7 @@ public class JMethodCall extends JExpression {
   }
 
   @Nonnull
-  public JMethodId getMethodId() {
+  public JMethodIdWide getMethodId() {
     return methodId;
   }
 
@@ -172,7 +172,7 @@ public class JMethodCall extends JExpression {
     return returnType;
   }
 
-  public void resolveMethodId(@Nonnull JMethodId methodId) {
+  public void resolveMethodId(@Nonnull JMethodIdWide methodId) {
     this.methodId = methodId;
   }
 

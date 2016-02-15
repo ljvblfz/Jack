@@ -18,7 +18,7 @@ package com.android.jack.shrob.obfuscation;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JFieldId;
-import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JPackage;
 import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
@@ -30,7 +30,8 @@ import javax.annotation.Nonnull;
  * Marker representing the original name of a node
  */
 @Description("Marker representing the original name of a node")
-@ValidOn(value = {JPackage.class, JDefinedClassOrInterface.class, JMethodId.class, JFieldId.class})
+@ValidOn(value = {JPackage.class, JDefinedClassOrInterface.class, JMethodIdWide.class,
+    JFieldId.class})
 public class OriginalNameMarker implements Marker {
 
   @Nonnull

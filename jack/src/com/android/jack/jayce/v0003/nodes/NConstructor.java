@@ -19,7 +19,7 @@ package com.android.jack.jayce.v0003.nodes;
 import com.android.jack.ir.ast.JConstructor;
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.sourceinfo.SourceInfo;
@@ -80,7 +80,7 @@ public class NConstructor extends NMethod {
     for (NParameter parameter : parameters) {
       JParameter jParam = parameter.exportAsJast(exportSession);
       jConstructor.addParam(jParam);
-      JMethodId id = jConstructor.getMethodId();
+      JMethodIdWide id = jConstructor.getMethodIdWide();
       id.addParam(jParam.getType());
     }
     for (NAnnotation annotationLiteral : annotations) {

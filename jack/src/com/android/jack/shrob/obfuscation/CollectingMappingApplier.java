@@ -20,7 +20,7 @@ import com.android.jack.Jack;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JFieldId;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.transformations.request.TransformationRequest;
 
@@ -83,7 +83,7 @@ public class CollectingMappingApplier extends MappingApplier {
   @Override
   protected void renameMethod(
       @Nonnull JMethod method, @Nonnull File mappingFile, int lineNumber, @Nonnull String newName) {
-    JMethodId id = method.getMethodId();
+    JMethodIdWide id = method.getMethodIdWide();
     if (!id.containsMarker(OriginalNameMarker.class)) {
       super.renameMethod(method, mappingFile, lineNumber, newName);
       if (methodNames != null) {

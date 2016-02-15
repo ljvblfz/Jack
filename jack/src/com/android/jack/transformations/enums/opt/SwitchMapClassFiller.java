@@ -23,6 +23,7 @@ import com.android.jack.Jack;
 import com.android.jack.ir.ast.FieldKind;
 import com.android.jack.ir.ast.JArrayLength;
 import com.android.jack.ir.ast.JArrayRef;
+import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JBinaryOperation;
 import com.android.jack.ir.ast.JBinaryOperator;
 import com.android.jack.ir.ast.JBlock;
@@ -44,6 +45,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JNewArray;
 import com.android.jack.ir.ast.JNullLiteral;
@@ -112,6 +114,9 @@ import javax.annotation.Nonnull;
  * </li>
  */
 public class SwitchMapClassFiller {
+  @Nonnull
+  private final JArrayType intArray = JPrimitiveTypeEnum.INT.getType().getArray();
+
   // the enum type for which synthetic class will be created
   @CheckForNull
   private JDefinedEnum enumType;
@@ -194,9 +199,12 @@ public class SwitchMapClassFiller {
       JThisRef thisRef = thisLocal.makeRef(SourceInfo.UNKNOWN);
 
       // create method call to super class default constructor
-      JMethodCall superCall =
-          new JMethodCall(SourceInfo.UNKNOWN, thisRef, objectClass, superConstruct.getMethodId(),
-          JPrimitiveTypeEnum.VOID.getType(), superConstruct.canBePolymorphic());
+      JMethodCall superCall = new JMethodCall(SourceInfo.UNKNOWN,
+          thisRef,
+          objectClass,
+          superConstruct.getMethodIdWide(),
+          JPrimitiveTypeEnum.VOID.getType(),
+          superConstruct.canBePolymorphic());
       transformRequest.append(new AppendStatement(block, superCall.makeStatement()));
 
       transformRequest.append(
@@ -219,12 +227,12 @@ public class SwitchMapClassFiller {
     String methodName = OptimizationUtil.getSyntheticSwitchMapInitializerName(enumType);
     try {
       syntheticSwitchMapInitializer =
-          switchMapClass.getMethod(methodName, JPrimitiveTypeEnum.INT.getType().getArray());
+          switchMapClass.getMethod(methodName, intArray);
 
       String fieldName = OptimizationUtil.getSyntheticSwitchMapFieldName(enumType);
 
       JFieldId syntheticSwitchMapFieldId = switchMapClass.getFieldId(
-          fieldName, JPrimitiveTypeEnum.INT.getType().getArray(), FieldKind.STATIC);
+          fieldName, intArray, FieldKind.STATIC);
 
       assert syntheticSwitchMapFieldId != null;
 
@@ -235,15 +243,15 @@ public class SwitchMapClassFiller {
       String fieldName = OptimizationUtil.getSyntheticSwitchMapFieldName(enumType);
 
       syntheticSwitchMapField = new JField(SourceInfo.UNKNOWN, fieldName, switchMapClass,
-          JPrimitiveTypeEnum.INT.getType().getArray(),
+          intArray,
           JModifier.PRIVATE | JModifier.STATIC | JModifier.SYNTHETIC);
 
       transformRequest.append(new AppendField(switchMapClass, syntheticSwitchMapField));
       // create synthetic switch map initializer
       syntheticSwitchMapInitializer =
-          new JMethod(SourceInfo.UNKNOWN, new JMethodId(methodName, MethodKind.STATIC),
-              switchMapClass, JPrimitiveTypeEnum.INT.getType().getArray(),
-              JModifier.PUBLIC | JModifier.STATIC | JModifier.SYNTHETIC);
+          new JMethod(SourceInfo.UNKNOWN,
+              new JMethodId(new JMethodIdWide(methodName, MethodKind.STATIC), intArray),
+              switchMapClass, JModifier.PUBLIC | JModifier.STATIC | JModifier.SYNTHETIC);
 
       transformRequest.append(new AppendMethod(switchMapClass, syntheticSwitchMapInitializer));
     }
@@ -377,8 +385,13 @@ public class SwitchMapClassFiller {
     JMethod valuesMethod = enumType.getMethod("values", enumType.getArray());
 
     JExpression valuesLength = new JArrayLength(
-        SourceInfo.UNKNOWN, new JMethodCall(SourceInfo.UNKNOWN, null /* instance */, enumType,
-            valuesMethod.getMethodId(), valuesMethod.getType(), valuesMethod.canBePolymorphic()));
+        SourceInfo.UNKNOWN,
+        new JMethodCall(SourceInfo.UNKNOWN,
+            null /* instance */,
+            enumType,
+            valuesMethod.getMethodIdWide(),
+            valuesMethod.getType(),
+            valuesMethod.canBePolymorphic()));
 
     JLocal switchmapLocal = createSwitchmapArrayStatement(
         localVarCreator, transformRequest, initializerMethodBlock, valuesLength);
@@ -446,9 +459,13 @@ public class SwitchMapClassFiller {
       JMethod ordinalMethod = session.getLookup().getClass("Ljava/lang/Enum;").
           getMethod("ordinal", JPrimitiveTypeEnum.INT.getType());
 
-      JExpression invocOrdinalExpr =
-          new JMethodCall(SourceInfo.UNKNOWN, enumFieldExpr, enumType, ordinalMethod.getMethodId(),
-              JPrimitiveTypeEnum.INT.getType(), ordinalMethod.canBePolymorphic());
+      JExpression invocOrdinalExpr = new JMethodCall(
+          SourceInfo.UNKNOWN,
+          enumFieldExpr,
+          enumType,
+          ordinalMethod.getMethodIdWide(),
+          JPrimitiveTypeEnum.INT.getType(),
+          ordinalMethod.canBePolymorphic());
 
       transformRequest.append(new AppendStatement(tryBlock,
           JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.ASG,
@@ -482,10 +499,10 @@ public class SwitchMapClassFiller {
     List<JExpression> dims = Lists.newArrayList(capacityExpr);
 
     JExpression newArrayExpr = JNewArray.createWithDims(
-        SourceInfo.UNKNOWN, JPrimitiveTypeEnum.INT.getType().getArray(), dims);
+        SourceInfo.UNKNOWN, intArray, dims);
 
     JLocal switchMapLocal = localVarCreator.createTempLocal(
-        JPrimitiveTypeEnum.INT.getType().getArray(), SourceInfo.UNKNOWN, transformRequest);
+        intArray, SourceInfo.UNKNOWN, transformRequest);
 
     JStatement newArrayStmt = new JExpressionStatement(
         SourceInfo.UNKNOWN, JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.ASG,

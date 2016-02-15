@@ -30,6 +30,7 @@ import com.android.jack.ir.ast.JEnumField;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
@@ -250,10 +251,10 @@ public class ReferenceMapper {
       method = new JConstructor(info, (JDefinedClass) enclosingType, flags);
       if (declaringClass.isEnum()) {
         // Enums have hidden arguments for name and value
-        method.getMethodId().addParam(getJavaLangString());
+        method.getMethodIdWide().addParam(getJavaLangString());
         method.addParam(new JParameter(info, "enum$name", getJavaLangString(),
             JModifier.FINAL | JModifier.SYNTHETIC, method));
-        method.getMethodId().addParam(JPrimitiveTypeEnum.INT.getType());
+        method.getMethodIdWide().addParam(JPrimitiveTypeEnum.INT.getType());
         method.addParam(new JParameter(info, "enum$ordinal", JPrimitiveTypeEnum.INT.getType(),
             JModifier.FINAL | JModifier.SYNTHETIC, method));
       }
@@ -273,15 +274,21 @@ public class ReferenceMapper {
           }
         }
       }
-    } else if (declaringClass.isAnnotationType()) {
-      method =
-          new JAnnotationMethod(info,
-              new JMethodId(intern(b.selector), MethodKind.INSTANCE_VIRTUAL), enclosingType,
-              get(b.returnType), ReferenceMapper.removeSynchronizedOnBridge(flags));
     } else {
-      method = new JMethod(info, new JMethodId(intern(b.selector),
-          ReferenceMapper.getMethodKind(flags)), enclosingType,
-          get(b.returnType), ReferenceMapper.removeSynchronizedOnBridge(flags));
+      JType returnType = get(b.returnType);
+      if (declaringClass.isAnnotationType()) {
+        method =
+            new JAnnotationMethod(info,
+                new JMethodId(
+                    new JMethodIdWide(intern(b.selector), MethodKind.INSTANCE_VIRTUAL), returnType),
+                enclosingType,
+                ReferenceMapper.removeSynchronizedOnBridge(flags));
+      } else {
+        method = new JMethod(info, new JMethodId(new JMethodIdWide(intern(b.selector),
+              ReferenceMapper.getMethodKind(flags)), returnType),
+            enclosingType,
+            ReferenceMapper.removeSynchronizedOnBridge(flags));
+      }
     }
 
     // User args.
@@ -363,7 +370,7 @@ public class ReferenceMapper {
       }
     }
     method.addParam(param);
-    method.getMethodId().addParam(type);
+    method.getMethodIdWide().addParam(type);
   }
 
   private void createParameters(@Nonnull JMethod method, @Nonnull AbstractMethodDeclaration x,
@@ -426,7 +433,7 @@ public class ReferenceMapper {
     JType type = get(paramType);
     JParameter param = new JParameter(info, name, type, JModifier.FINAL, enclosingMethod);
     enclosingMethod.addParam(param);
-    enclosingMethod.getMethodId().addParam(type);
+    enclosingMethod.getMethodIdWide().addParam(type);
     return param;
   }
 

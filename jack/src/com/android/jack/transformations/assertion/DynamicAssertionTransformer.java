@@ -147,7 +147,7 @@ public class DynamicAssertionTransformer implements RunnableSchedulable<JMethod>
       JFieldRef lhs = new JFieldRef(sourceInfo, null, assertionStatusId, type);
       JExpression rhs = new JPrefixNotOperation(sourceInfo,
           new JMethodCall(sourceInfo, thisClass, javaLangClass,
-              javaLangClass.getOrCreateMethodId("desiredAssertionStatus",
+              javaLangClass.getOrCreateMethodIdWide("desiredAssertionStatus",
                   Collections.<JType>emptyList(), MethodKind.INSTANCE_VIRTUAL),
               JPrimitiveTypeEnum.BOOLEAN.getType(), true /* isVirtualDispatch */));
       JAsgOperation asg = new JAsgOperation(SourceInfo.UNKNOWN, lhs, rhs);
@@ -186,7 +186,7 @@ public class DynamicAssertionTransformer implements RunnableSchedulable<JMethod>
               .getClass(CommonTypes.JAVA_LANG_ASSERTION_ERROR);
       JNewInstance newAssertionError = new JNewInstance(assertSt.getSourceInfo(),
           assertionError,
-          assertionError.getOrCreateMethodId(NamingTools.INIT_NAME, ctorDescriptor,
+          assertionError.getOrCreateMethodIdWide(NamingTools.INIT_NAME, ctorDescriptor,
               MethodKind.INSTANCE_NON_VIRTUAL));
 
       if (arg != null) {

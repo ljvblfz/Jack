@@ -44,6 +44,9 @@ public class JPhantomClassOrInterface extends JReferenceTypeCommon implements JC
   private final List<JFieldId> fields = new ArrayList<JFieldId>();
 
   @Nonnull
+  private final List<JMethodIdWide> methodIdsWide = new ArrayList<JMethodIdWide>();
+
+  @Nonnull
   private final List<JMethodId> methodIds = new ArrayList<JMethodId>();
 
   public JPhantomClassOrInterface(@Nonnull String name, @Nonnull JPackage enclosingPackage) {
@@ -124,15 +127,46 @@ public class JPhantomClassOrInterface extends JReferenceTypeCommon implements JC
 
   @Nonnull
   @Override
-  public JMethodId getMethodId(@Nonnull String name, @Nonnull List<? extends JType> argsType,
+  public JMethodIdWide getMethodIdWide(
+      @Nonnull String name,
+      @Nonnull List<? extends JType> argsType,
       @Nonnull MethodKind kind) {
-    synchronized (methodIds) {
-      for (JMethodId id : methodIds) {
+    synchronized (methodIdsWide) {
+      for (JMethodIdWide id : methodIdsWide) {
         if (id.equals(name, argsType, kind)) {
           return id;
         }
       }
-      JMethodId newMethod = new JMethodId(name, argsType, kind);
+      JMethodIdWide newMethod = new JMethodIdWide(name, argsType, kind);
+      methodIdsWide.add(newMethod);
+      return newMethod;
+    }
+  }
+
+  @Nonnull
+  @Override
+  public JMethodIdWide getOrCreateMethodIdWide(@Nonnull String name,
+      @Nonnull List<? extends JType> argsType,
+      @Nonnull MethodKind kind) {
+    return getMethodIdWide(name, argsType, kind);
+  }
+
+  @Nonnull
+  @Override
+  public JMethodId getMethodId(
+      @Nonnull String name,
+      @Nonnull List<? extends JType> argsType,
+      @Nonnull MethodKind kind,
+      @Nonnull JType returnType) {
+    synchronized (methodIdsWide) {
+      for (JMethodId id : methodIds) {
+        if (id.getType().equals(returnType) && id.getMethodIdWide().equals(name, argsType, kind)) {
+          return id;
+        }
+      }
+
+      JMethodId newMethod =
+          new JMethodId(getOrCreateMethodIdWide(name, argsType, kind), returnType);
       methodIds.add(newMethod);
       return newMethod;
     }
@@ -142,8 +176,9 @@ public class JPhantomClassOrInterface extends JReferenceTypeCommon implements JC
   @Override
   public JMethodId getOrCreateMethodId(@Nonnull String name,
       @Nonnull List<? extends JType> argsType,
-      @Nonnull MethodKind kind) {
-    return getMethodId(name, argsType, kind);
+      @Nonnull MethodKind kind,
+      @Nonnull JType returnType) {
+    return getMethodId(name, argsType, kind, returnType);
   }
 
   @Override

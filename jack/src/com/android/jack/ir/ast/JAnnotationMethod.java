@@ -38,19 +38,17 @@ public class JAnnotationMethod extends JMethod {
       @Nonnull SourceInfo info,
       @Nonnull JMethodId id,
       @CheckForNull JDefinedClassOrInterface enclosingType,
-      @Nonnull JType returnType,
       int modifier) {
-    super(info, id, enclosingType, returnType, modifier);
+    super(info, id, enclosingType, modifier);
   }
 
   public JAnnotationMethod(
       @Nonnull SourceInfo info,
       @Nonnull JMethodId id,
       @CheckForNull JDefinedClassOrInterface enclosingType,
-      @Nonnull JType returnType,
       int modifier,
       @Nonnull MethodLoader loader) {
-    super(info, id, enclosingType, returnType, modifier, loader);
+    super(info, id, enclosingType, modifier, loader);
   }
 
   public void setDefaultValue(@CheckForNull JLiteral defaultValue) {

@@ -26,7 +26,7 @@ import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodId;
-import com.android.jack.ir.ast.JMethodIdWithReturnType;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JNameValuePair;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
@@ -67,14 +67,14 @@ public class MethodIdDuplicateRemover implements RunnableSchedulable<JDefinedCla
     }
 
     @Nonnull
-    private JMethodId getResolvedMethodId(
-        @Nonnull JClassOrInterface receiverType, @Nonnull JMethodId id) {
+    private JMethodIdWide getResolvedMethodIdWide(
+        @Nonnull JClassOrInterface receiverType, @Nonnull JMethodIdWide id) {
       Collection<JMethod> methods = id.getMethods();
       if (!methods.isEmpty()) {
         JMethod method = methods.iterator().next();
-        return method.getMethodId();
+        return method.getMethodIdWide();
       } else {
-        return receiverType.getOrCreateMethodId(id.getName(), id.getParamTypes(), id.getKind());
+        return receiverType.getOrCreateMethodIdWide(id.getName(), id.getParamTypes(), id.getKind());
       }
     }
 
@@ -82,10 +82,12 @@ public class MethodIdDuplicateRemover implements RunnableSchedulable<JDefinedCla
     public boolean visit(@Nonnull JLambda lambda) {
       JInterface lambdaType = lambda.getType();
       try {
-        JMethodIdWithReturnType mthIdWithReturnType = lambda.getMethodIdToImplement();
-        JMethodId newMthId = lambdaType.getMethodId(mthIdWithReturnType.getName(),
-            mthIdWithReturnType.getParameterTypes(), MethodKind.INSTANCE_VIRTUAL);
-        mthIdWithReturnType.setMethodId(newMthId);
+        JMethodId mthIdWithReturnType = lambda.getMethodIdToImplement();
+        lambda.resolveMethodId(lambdaType.getMethodId(
+            mthIdWithReturnType.getMethodIdWide().getName(),
+            mthIdWithReturnType.getMethodIdWide().getParamTypes(),
+            MethodKind.INSTANCE_VIRTUAL,
+            mthIdWithReturnType.getType()));
       } catch (JMethodWithReturnLookupException e) {
         throw new AssertionError();
       }
@@ -94,7 +96,7 @@ public class MethodIdDuplicateRemover implements RunnableSchedulable<JDefinedCla
 
     @Override
     public boolean visit(@Nonnull JMethodCall call) {
-      JMethodId id = getResolvedMethodId(call.getReceiverType(), call.getMethodId());
+      JMethodIdWide id = getResolvedMethodIdWide(call.getReceiverType(), call.getMethodId());
       call.resolveMethodId(id);
       return super.visit(call);
     }
@@ -102,7 +104,7 @@ public class MethodIdDuplicateRemover implements RunnableSchedulable<JDefinedCla
     @Override
     public boolean visit(@Nonnull JAnnotation annotation) {
       for (JNameValuePair pair : annotation.getNameValuePairs()) {
-        JMethodId id = getResolvedMethodId(annotation.getType(), pair.getMethodId());
+        JMethodIdWide id = getResolvedMethodIdWide(annotation.getType(), pair.getMethodId());
         pair.resolveMethodId(id);
       }
       return super.visit(annotation);

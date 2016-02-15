@@ -34,7 +34,7 @@ import javax.annotation.Nonnull;
 public class JLambda extends JExpression {
 
   @Nonnull
-  private final JMethodIdWithReturnType mthIdToImplement;
+  private JMethodId mthIdToImplement;
 
   @Nonnull
   private final JInterface type;
@@ -52,9 +52,9 @@ public class JLambda extends JExpression {
   private final JMethod method;
 
   @Nonnull
-  private final List<JMethodIdWithReturnType> bridges = new ArrayList<JMethodIdWithReturnType>();
+  private final List<JMethodId> bridges = new ArrayList<JMethodId>();
 
-  public JLambda(@Nonnull SourceInfo info, @Nonnull JMethodIdWithReturnType mthToImplement,
+  public JLambda(@Nonnull SourceInfo info, @Nonnull JMethodId mthToImplement,
       @Nonnull JMethod method, @Nonnull JInterface type, boolean captureInstance,
       @Nonnull List<JInterface> interfaceBounds) {
     super(info);
@@ -68,20 +68,20 @@ public class JLambda extends JExpression {
   }
 
   @Nonnull
-  public JMethodIdWithReturnType getMethodIdToImplement() {
+  public JMethodId getMethodIdToImplement() {
     return mthIdToImplement;
   }
 
   @Nonnull
-  public List<JMethodIdWithReturnType> getBridgeMethodIds() {
+  public List<JMethodId> getBridgeMethodIds() {
     return bridges;
   }
 
-  public void addBridgeMethodId(@Nonnull JMethodIdWithReturnType bridgeMethodId) {
+  public void addBridgeMethodId(@Nonnull JMethodId bridgeMethodId) {
     this.bridges.add(bridgeMethodId);
   }
 
-  public void addBridgeMethodIds(@Nonnull List<JMethodIdWithReturnType> bridgeMethodIds) {
+  public void addBridgeMethodIds(@Nonnull List<JMethodId> bridgeMethodIds) {
     this.bridges.addAll(bridgeMethodIds);
   }
 
@@ -155,6 +155,10 @@ public class JLambda extends JExpression {
   @Nonnull
   public List<JInterface> getInterfaceBounds() {
     return interfaceBounds;
+  }
+
+  public void resolveMethodId(@Nonnull JMethodId methodId) {
+    this.mthIdToImplement = methodId;
   }
 
   @Override

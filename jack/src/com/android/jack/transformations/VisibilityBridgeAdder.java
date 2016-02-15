@@ -79,7 +79,7 @@ public class VisibilityBridgeAdder implements RunnableSchedulable<JDefinedClassO
             && !method.isFinal()) {
           try {
             declaredType.getMethod(method.getName(), method.getType(),
-                method.getMethodId().getParamTypes());
+                method.getMethodIdWide().getParamTypes());
           } catch (JMethodLookupException e) {
             // the method is not declared in class, a bridge is required
             synthesizeBridge((JDefinedClass) declaredType, method);
@@ -100,7 +100,7 @@ public class VisibilityBridgeAdder implements RunnableSchedulable<JDefinedClassO
         | JModifier.NATIVE);
     // Add bridge specific flags
     bridgeModifier |= JModifier.SYNTHETIC | JModifier.BRIDGE;
-    JMethod bridge = new JMethod(sourceInfo, methodId, jClass, method.getType(), bridgeModifier);
+    JMethod bridge = new JMethod(sourceInfo, methodId, jClass, bridgeModifier);
     for (JParameter param : method.getParams()) {
       bridge.addParam(new JParameter(sourceInfo, param.getName(), param.getType(),
           param.getModifier(), bridge));
@@ -113,7 +113,7 @@ public class VisibilityBridgeAdder implements RunnableSchedulable<JDefinedClassO
     JThis jThis = bridge.getThis();
     assert jThis != null;
     JMethodCall callToSuper = new JMethodCall(sourceInfo, jThis.makeRef(sourceInfo), superClass,
-        methodId, method.getType(), false /* isVirtualDispatch */);
+        methodId.getMethodIdWide(), method.getType(), false /* isVirtualDispatch */);
     for (JParameter param : bridge.getParams()) {
       callToSuper.addArg(param.makeRef(sourceInfo));
     }

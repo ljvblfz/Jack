@@ -17,7 +17,7 @@
 package com.android.jack.ir.formatter;
 
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JType;
 
 import java.util.List;
@@ -37,7 +37,7 @@ public interface MethodFormatter {
       @Nonnull JType returnType);
 
   @Nonnull
-  public String getNameWithoutReturnType(@Nonnull JMethodId methodId);
+  public String getNameWithoutReturnType(@Nonnull JMethodIdWide methodId);
 
   @Nonnull
   public String getNameWithoutReturnType(

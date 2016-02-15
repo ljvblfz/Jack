@@ -19,7 +19,7 @@ package com.android.jack.transformations.ast.string.parameterrefiners;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JMethodCall;
-import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JStringLiteral;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeStringLiteral;
@@ -49,12 +49,12 @@ public class ForNameParameterRefiner extends CommonStringParameterRefiner implem
   private static final String FORNAME_METHOD_NAME = "forName";
 
   @CheckForNull
-  private JMethodId forNameMethodId;
+  private JMethodIdWide forNameMethodId;
 
   @Override
   public boolean isApplicable(@Nonnull JMethodCall call) throws JMethodLookupException {
     if (forNameMethodId == null) {
-      forNameMethodId = javaLangClass.getMethodId(
+      forNameMethodId = javaLangClass.getMethodIdWide(
           FORNAME_METHOD_NAME, Collections.singletonList((JType) javaLangString),
           MethodKind.STATIC);
     }

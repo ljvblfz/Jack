@@ -19,7 +19,7 @@ package com.android.jack.transformations.ast.string.parameterrefiners;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
-import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.lookup.JMethodLookupException;
@@ -44,7 +44,7 @@ public class GetDeclaredMethodParameterRefiner extends GetMethodParameterRefiner
   private static final String GETDECLAREDMETHOD_METHOD_NAME = "getDeclaredMethod";
 
   @CheckForNull
-  private JMethodId getDeclaredMethodMethodId;
+  private JMethodIdWide getDeclaredMethodMethodId;
 
   @Override
   public boolean isApplicable(@Nonnull JMethodCall call) throws JMethodLookupException {
@@ -52,7 +52,7 @@ public class GetDeclaredMethodParameterRefiner extends GetMethodParameterRefiner
       List<JType> parameterList = new ArrayList<JType>(2);
       parameterList.add(javaLangString);
       parameterList.add(javaLangClassArray);
-      getDeclaredMethodMethodId = javaLangClass.getMethodId(
+      getDeclaredMethodMethodId = javaLangClass.getMethodIdWide(
           GETDECLAREDMETHOD_METHOD_NAME, parameterList, MethodKind.INSTANCE_VIRTUAL);
     }
     if (call.getReceiverType().isSameType(javaLangClass)

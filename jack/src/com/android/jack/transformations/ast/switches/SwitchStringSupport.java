@@ -34,7 +34,7 @@ import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
-import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JStatement;
@@ -81,7 +81,7 @@ public class SwitchStringSupport implements RunnableSchedulable<JMethod> {
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
 
   @Nonnull
-  private final JMethodId equalsMethodId;
+  private final JMethodIdWide equalsMethodId;
 
   {
     JSession session = Jack.getSession();
@@ -89,7 +89,7 @@ public class SwitchStringSupport implements RunnableSchedulable<JMethod> {
     JClass jlo = lookup.getClass(CommonTypes.JAVA_LANG_OBJECT);
     JClass jls = lookup.getClass(CommonTypes.JAVA_LANG_STRING);
     equalsMethodId =
-        jls.getMethodId("equals", Collections.singletonList((JType) jlo),
+        jls.getMethodIdWide("equals", Collections.singletonList((JType) jlo),
             MethodKind.INSTANCE_VIRTUAL);
 
   }

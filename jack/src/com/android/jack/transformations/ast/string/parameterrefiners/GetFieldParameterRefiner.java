@@ -21,7 +21,7 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JFieldNameLiteral;
 import com.android.jack.ir.ast.JMethodCall;
-import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JStringLiteral;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.MethodKind;
@@ -49,12 +49,12 @@ public class GetFieldParameterRefiner extends CommonStringParameterRefiner imple
   private static final String GETFIELD_METHOD_NAME = "getField";
 
   @CheckForNull
-  private JMethodId getFieldMethodId;
+  private JMethodIdWide getFieldMethodId;
 
   @Override
   public boolean isApplicable(@Nonnull JMethodCall call) throws JMethodLookupException {
     if (getFieldMethodId == null) {
-      getFieldMethodId = javaLangClass.getMethodId(
+      getFieldMethodId = javaLangClass.getMethodIdWide(
           GETFIELD_METHOD_NAME, Collections.singletonList((JType) javaLangString),
           MethodKind.INSTANCE_VIRTUAL);
     }

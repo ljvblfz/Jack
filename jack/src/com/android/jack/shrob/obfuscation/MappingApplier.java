@@ -365,7 +365,7 @@ public class MappingApplier {
       logger.log(Level.WARNING, "{0}:{1}: Static initializers cannot be renamed",
           new Object[] {mappingFile.getPath(), Integer.valueOf(lineNumber)});
     } else {
-      rename(method.getMethodId(), newName);
+      rename(method.getMethodIdWide(), newName);
     }
   }
 

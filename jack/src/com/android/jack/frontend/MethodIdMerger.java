@@ -25,8 +25,10 @@ import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.ast.JInterface;
+import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JPhantomClassOrInterface;
 import com.android.jack.ir.ast.JSession;
@@ -83,6 +85,12 @@ public class MethodIdMerger implements RunnableSchedulable<JSession> {
     }
 
     @Override
+    public boolean visit(@Nonnull JLambda lambda) {
+      accept(lambda.getBody());
+      return super.visit(lambda);
+    }
+
+    @Override
     public boolean visit(@Nonnull JPhantomClassOrInterface node) {
       if (node.getMarker(VirtualMethodsMarker.class) != null) {
         return false;
@@ -128,7 +136,7 @@ public class MethodIdMerger implements RunnableSchedulable<JSession> {
 
       for (JMethod method : node.getMethods()) {
         if (((!method.isStatic()) && (!method.isPrivate()) && !(method instanceof JConstructor))) {
-          addId(virtualMethods, method.getMethodId());
+          addId(virtualMethods, method.getMethodIdWide());
         }
       }
 
@@ -138,13 +146,13 @@ public class MethodIdMerger implements RunnableSchedulable<JSession> {
     private void addIds(@Nonnull VirtualMethodsMarker mergeInto, @Nonnull JNode toMerge) {
       VirtualMethodsMarker methodsToMerge = toMerge.getMarker(VirtualMethodsMarker.class);
       assert methodsToMerge != null;
-      for (JMethodId jMethodId : methodsToMerge) {
+      for (JMethodIdWide jMethodId : methodsToMerge) {
         addId(mergeInto, jMethodId);
       }
     }
 
-    private void addId(@Nonnull VirtualMethodsMarker virtualMethods, @Nonnull JMethodId toAdd) {
-      JMethodId existingMethod = virtualMethods.get(toAdd);
+    private void addId(@Nonnull VirtualMethodsMarker virtualMethods, @Nonnull JMethodIdWide toAdd) {
+      JMethodIdWide existingMethod = virtualMethods.get(toAdd);
       if (existingMethod != null) {
         mergeId(existingMethod, toAdd);
       } else {
@@ -152,7 +160,7 @@ public class MethodIdMerger implements RunnableSchedulable<JSession> {
       }
     }
 
-    private void mergeId(@Nonnull JMethodId keep, @Nonnull JMethodId duplicate) {
+    private void mergeId(@Nonnull JMethodIdWide keep, @Nonnull JMethodIdWide duplicate) {
 
       keep = getKeptId(keep);
       duplicate = getKeptId(duplicate);
@@ -161,24 +169,30 @@ public class MethodIdMerger implements RunnableSchedulable<JSession> {
         return;
       }
 
-      for (JMethod method : duplicate.getMethods()) {
-        method.setMethodId(keep);
+      for (JMethodId id : duplicate.getMethodIds()) {
+        JMethodId keptId = keep.getMethodId(id.getType());
+        if (keptId == null) {
+          keptId = new JMethodId(keep, id.getType());
+        }
+        for (JMethod method : duplicate.getMethods()) {
+          method.setMethodId(keptId);
+        }
       }
     }
 
-    /**
-     * During the merge of {@link JMethodId} some are kept and some are dropped and because
-     * {@link VirtualMethodsMarker} are not rewritten during merge, they contain dropped
-     * {@code JMethodId}. This method retrieves the kept id from an id found in a
-     * {@code VirtualMethodsMarker}
-     */
-    @Nonnull
-    private JMethodId getKeptId(@Nonnull JMethodId possiblyDroppedId) {
-      Iterator<JMethod> methods1 = possiblyDroppedId.getMethods().iterator();
-      assert methods1.hasNext() :
-        "Only method id contained in JMethod are considered by this visitor";
-      return methods1.next().getMethodId();
-    }
+      /**
+   * During the merge of {@link JMethodIdWide} some are kept and some are dropped and because
+   * {@link VirtualMethodsMarker} are not rewritten during merge, they contain dropped
+   * {@link JMethodIdWide}. This method retrieves the kept id from an id found in a
+   * {@code VirtualMethodsMarker}
+   */
+  @Nonnull
+  private JMethodIdWide getKeptId(@Nonnull JMethodIdWide possiblyDroppedId) {
+    Iterator<JMethod> methods1 = possiblyDroppedId.getMethods().iterator();
+    assert methods1.hasNext() :
+      "Only method id contained in JMethod are considered by this visitor";
+    return methods1.next().getMethodIdWide();
+  }
 
     @CheckForNull
     private JClass getSuper(@Nonnull JClassOrInterface node) {
@@ -191,7 +205,7 @@ public class MethodIdMerger implements RunnableSchedulable<JSession> {
         return null;
       }
     }
-  }
+    }
 
   @Override
   public void run(JSession session) throws Exception {

@@ -102,7 +102,7 @@ public class LambdaNativeSupportConverter implements RunnableSchedulable<JMethod
       capturedVar2LiberatedVar = new HashMap<JVariable, JLocal>();
 
       JMethod lambdaMethod = lambdaExpr.getMethod();
-      lambdaMethod.getMethodId().setName(lambdaClassNamePrefix + anonymousCountByMeth++);
+      lambdaMethod.getMethodIdWide().setName(lambdaClassNamePrefix + anonymousCountByMeth++);
       lambdaMethod.setModifier(lambdaMethod.getModifier() | JModifier.STATIC);
       JParameter closure = new JParameter(SourceInfo.UNKNOWN, "closure",
           lambdaExpr.getType(), JModifier.DEFAULT, lambdaMethod);

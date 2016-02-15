@@ -25,6 +25,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JParameterRef;
@@ -94,9 +95,9 @@ public class GetterMarker implements Marker {
       // It is a temporary deterministic name that will be replace by an index into
       // InnerAccessorAdder
       getterName += field.getName();
-      JMethodId id = new JMethodId(getterName, MethodKind.STATIC);
-      getter = new JMethod(sourceInfo, id, accessorClass, field.getType(),
-          JModifier.SYNTHETIC | JModifier.STATIC);
+      JMethodId id = new JMethodId(
+          new JMethodIdWide(getterName, MethodKind.STATIC), field.getType());
+      getter = new JMethod(sourceInfo, id, accessorClass, JModifier.SYNTHETIC | JModifier.STATIC);
 
       JExpression instance = null;
       if (!field.isStatic()) {
@@ -104,7 +105,7 @@ public class GetterMarker implements Marker {
             sourceInfo, InnerAccessorGenerator.THIS_PARAM_NAME, accessorClass, JModifier.SYNTHETIC,
             getter);
         getter.addParam(thisParam);
-        id.addParam(accessorClass);
+        id.getMethodIdWide().addParam(accessorClass);
         instance = thisParam.makeRef(sourceInfo);
       }
 

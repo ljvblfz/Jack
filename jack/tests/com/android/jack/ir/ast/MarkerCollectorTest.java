@@ -48,8 +48,11 @@ public class MarkerCollectorTest {
     JDefinedClass classTest = new JDefinedClass(SourceInfo.UNKNOWN, "Test", JModifier.PUBLIC, p,
         NopClassOrInterfaceLoader.INSTANCE);
     JMethod method =
-        new JMethod(SourceInfo.UNKNOWN, new JMethodId("test", MethodKind.STATIC), classTest,
-            JPrimitiveTypeEnum.VOID.getType(), JModifier.PUBLIC | JModifier.STATIC);
+        new JMethod(SourceInfo.UNKNOWN,
+            new JMethodId(new JMethodIdWide("test", MethodKind.STATIC),
+                JPrimitiveTypeEnum.VOID.getType()),
+            classTest,
+            JModifier.PUBLIC | JModifier.STATIC);
     param =
         new JParameter(SourceInfo.UNKNOWN, "p", JPrimitiveTypeEnum.BOOLEAN.getType(), 0, method);
   }

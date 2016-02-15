@@ -83,6 +83,9 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
   private JPackage enclosingPackage;
 
   @Nonnull
+  protected List<JMethodIdWide> phantomMethodsWide = new ArrayList<JMethodIdWide>();
+
+  @Nonnull
   protected List<JMethodId> phantomMethods = new ArrayList<JMethodId>();
 
   @Nonnull
@@ -189,8 +192,8 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
    */
   public void addMethod(JMethod method) {
     assert method.getEnclosingType() == this;
-    assert getPhantomMethod(method.getName(), method.getMethodId().getParamTypes(),
-        method.getMethodId().getKind()) == null;
+    assert getPhantomMethodWide(method.getName(), method.getMethodIdWide().getParamTypes(),
+        method.getMethodIdWide().getKind()) == null;
     methods.add(method);
   }
 
@@ -276,7 +279,7 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
       @Nonnull List<? extends JType> args) throws JMethodLookupException {
     loader.ensureMethod(this, name, args, returnType);
     for (JMethod m : methods) {
-      if (m.getMethodId().equals(name, args) && m.getType().isSameType(returnType)) {
+      if (m.getMethodIdWide().equals(name, args) && m.getType().isSameType(returnType)) {
         // Only one method can be found due to the fact that we also use return type to filter
         return m;
       }
@@ -422,13 +425,15 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
 
   @Nonnull
   @Override
-  public JMethodId getMethodId(@Nonnull String name, @Nonnull List<? extends JType> argsType,
+  public JMethodIdWide getMethodIdWide(
+      @Nonnull String name,
+      @Nonnull List<? extends JType> argsType,
       @Nonnull MethodKind kind)
       throws JMethodLookupException {
     assert !(name.contains("(") || name.contains(")"));
     loader.ensureMethods(this);
     for (JMethod method : methods) {
-      JMethodId id = method.getMethodId();
+      JMethodIdWide id = method.getMethodIdWide();
       if (id.equals(name, argsType, kind)) {
         return id;
       }
@@ -436,7 +441,7 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
 
     for (JInterface jType : getImplements()) {
       try {
-        return jType.getMethodId(name, argsType, kind);
+        return jType.getMethodIdWide(name, argsType, kind);
       } catch (JMethodLookupException e) {
         // search next
       }
@@ -444,7 +449,7 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
     JClass superClass = getSuperClass();
     if (superClass != null) {
       try {
-        return superClass.getMethodId(name, argsType, kind);
+        return superClass.getMethodIdWide(name, argsType, kind);
       } catch (JMethodLookupException e) {
         // let the following exception be thrown
       }
@@ -455,17 +460,75 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
 
   @Nonnull
   @Override
-  public JMethodId getOrCreateMethodId(@Nonnull String name,
+  public JMethodIdWide getOrCreateMethodIdWide(@Nonnull String name,
       @Nonnull List<? extends JType> argsType,
       @Nonnull MethodKind kind) {
     try {
-      return getMethodId(name, argsType, kind);
+      return getMethodIdWide(name, argsType, kind);
     } catch (JMethodLookupException e) {
-      synchronized (phantomMethods) {
-        JMethodId id = getPhantomMethod(name, argsType, kind);
+      synchronized (phantomMethodsWide) {
+        JMethodIdWide id = getPhantomMethodWide(name, argsType, kind);
 
         if (id == null) {
-          id = new JMethodId(name, argsType, kind);
+          id = new JMethodIdWide(name, argsType, kind);
+          phantomMethodsWide.add(id);
+        }
+
+        return id;
+      }
+    }
+  }
+
+  @Nonnull
+  @Override
+  public JMethodId getMethodId(
+      @Nonnull String name,
+      @Nonnull List<? extends JType> argsType,
+      @Nonnull MethodKind kind,
+      @Nonnull JType returnType)
+      throws JMethodLookupException {
+    assert !(name.contains("(") || name.contains(")"));
+    loader.ensureMethods(this);
+    for (JMethod method : methods) {
+      JMethodId id = method.getMethodId();
+      if (id.getType().equals(returnType) && id.getMethodIdWide().equals(name, argsType, kind)) {
+        return id;
+      }
+    }
+
+    for (JInterface jType : getImplements()) {
+      try {
+        return jType.getMethodId(name, argsType, kind, returnType);
+      } catch (JMethodLookupException e) {
+        // search next
+      }
+    }
+    JClass superClass = getSuperClass();
+    if (superClass != null) {
+      try {
+        return superClass.getMethodId(name, argsType, kind, returnType);
+      } catch (JMethodLookupException e) {
+        // let the following exception be thrown
+      }
+    }
+    throw new JMethodWithReturnLookupException(this, name, argsType, returnType);
+  }
+
+  @Nonnull
+  @Override
+  public JMethodId getOrCreateMethodId(
+      @Nonnull String name,
+      @Nonnull List<? extends JType> argsType,
+      @Nonnull MethodKind kind,
+      @Nonnull JType returnType) {
+    try {
+      return getMethodId(name, argsType, kind, returnType);
+    } catch (JMethodLookupException e) {
+      synchronized (phantomMethods) {
+        JMethodId id = getPhantomMethod(name, argsType, kind, returnType);
+
+        if (id == null) {
+          id = new JMethodId(getOrCreateMethodIdWide(name, argsType, kind), returnType);
           phantomMethods.add(id);
         }
 
@@ -525,10 +588,27 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
   }
 
   @CheckForNull
-  private JMethodId getPhantomMethod(@Nonnull String name, @Nonnull List<? extends JType> argsType,
-      @Nonnull MethodKind kind) {
+  private JMethodId getPhantomMethod(
+      @Nonnull String name,
+      @Nonnull List<? extends JType> argsType,
+      @Nonnull MethodKind kind,
+      @Nonnull JType returnType) {
     synchronized (phantomMethods) {
       for (JMethodId id : phantomMethods) {
+        if (id.getType().equals(returnType) && id.getMethodIdWide().equals(name, argsType, kind)) {
+          return id;
+        }
+      }
+    }
+    return null;
+  }
+
+  @CheckForNull
+  private JMethodIdWide getPhantomMethodWide(@Nonnull String name,
+      @Nonnull List<? extends JType> argsType,
+      @Nonnull MethodKind kind) {
+    synchronized (phantomMethodsWide) {
+      for (JMethodIdWide id : phantomMethodsWide) {
         if (id.equals(name, argsType, kind)) {
           return id;
         }

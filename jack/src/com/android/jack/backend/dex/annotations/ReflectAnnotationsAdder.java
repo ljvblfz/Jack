@@ -35,7 +35,7 @@ import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JIntLiteral;
 import com.android.jack.ir.ast.JLiteral;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JMethodLiteral;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JNameValuePair;
@@ -148,8 +148,8 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
     }
 
     @Nonnull
-    private JMethodId getOrCreateMethodId(@Nonnull JAnnotationType type, @Nonnull String name) {
-      return type.getOrCreateMethodId(
+    private JMethodIdWide getOrCreateMethodId(@Nonnull JAnnotationType type, @Nonnull String name) {
+      return type.getOrCreateMethodIdWide(
           name, Collections.<JType>emptyList(), MethodKind.INSTANCE_VIRTUAL);
     }
 
@@ -204,7 +204,7 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
       JAnnotation annotation =
           createAnnotation(annotable, signatureAnnotationType, info);
       JArrayLiteral literal = buildSignatureAnnotationValue(signature, info);
-      JMethodId methodId = getOrCreateMethodId(signatureAnnotationType, ELT_VALUE);
+      JMethodIdWide methodId = getOrCreateMethodId(signatureAnnotationType, ELT_VALUE);
       JNameValuePair valuePair = new JNameValuePair(info, methodId, literal);
       assert annotation.getNameValuePair(methodId) == null
           : "Type can not have more than one generic signature";
@@ -220,7 +220,7 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
           JAnnotation annotation =
               createAnnotation(type, enclosingMethodAnnotationType, info);
           JMethodLiteral newLiteral = new JMethodLiteral(method, info);
-          JMethodId methodId = getOrCreateMethodId(enclosingMethodAnnotationType, ELT_VALUE);
+          JMethodIdWide methodId = getOrCreateMethodId(enclosingMethodAnnotationType, ELT_VALUE);
           JNameValuePair valuePair = new JNameValuePair(info, methodId, newLiteral);
           assert annotation.getNameValuePair(methodId) == null
               : "Type can not have more than one enclosing method";
@@ -239,7 +239,7 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
         for (JClass thrown : throwns) {
           literals.add(new JClassLiteral(info, thrown, javaLangClass));
         }
-        JMethodId methodId = getOrCreateMethodId(throwsAnnotationType, ELT_VALUE);
+        JMethodIdWide methodId = getOrCreateMethodId(throwsAnnotationType, ELT_VALUE);
         JArrayLiteral array = new JArrayLiteral(info, literals);
         JNameValuePair valuePair = new JNameValuePair(info, methodId, array);
         request.append(new PutNameValuePair(annotation, valuePair));
@@ -265,7 +265,7 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
         literals.add(new JClassLiteral(info, member, javaLangClass));
       }
       if (!literals.isEmpty()) {
-        JMethodId methodId = getOrCreateMethodId(memberClassAnnotationType, ELT_VALUE);
+        JMethodIdWide methodId = getOrCreateMethodId(memberClassAnnotationType, ELT_VALUE);
         JAnnotation annotation = getAnnotation(type, memberClassAnnotationType, info);
         JArrayLiteral array = new JArrayLiteral(info, literals);
         JNameValuePair valuePair = new JNameValuePair(info, methodId, array);
@@ -278,7 +278,7 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
       JAnnotation annotation =
           createAnnotation(innerType, enclosingClassAnnotationType, info);
       JLiteral newValue = new JClassLiteral(info, innerType.getEnclosingType(), javaLangClass);
-      JMethodId methodId = getOrCreateMethodId(enclosingClassAnnotationType, ELT_VALUE);
+      JMethodIdWide methodId = getOrCreateMethodId(enclosingClassAnnotationType, ELT_VALUE);
       JNameValuePair valuePair = new JNameValuePair(info, methodId, newValue);
       request.append(new PutNameValuePair(annotation, valuePair));
     }
@@ -295,7 +295,7 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
       } else {
         newValue = new JNullLiteral(info);
       }
-      JMethodId nameMethodId = getOrCreateMethodId(innerAnnotationType, ELT_NAME);
+      JMethodIdWide nameMethodId = getOrCreateMethodId(innerAnnotationType, ELT_NAME);
       JNameValuePair nameValuePair = new JNameValuePair(info, nameMethodId, newValue);
       request.append(new PutNameValuePair(annotation, nameValuePair));
       int accessFlags = innerType.getModifier();
@@ -312,7 +312,7 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
 
       accessFlags &= AccessFlags.INNER_CLASS_FLAGS;
 
-      JMethodId flagsMethodId = getOrCreateMethodId(innerAnnotationType, ELT_ACCESS_FLAGS);
+      JMethodIdWide flagsMethodId = getOrCreateMethodId(innerAnnotationType, ELT_ACCESS_FLAGS);
       JNameValuePair flagsValuePair =
           new JNameValuePair(info, flagsMethodId, new JIntLiteral(info, accessFlags));
       request.append(new PutNameValuePair(annotation, flagsValuePair));

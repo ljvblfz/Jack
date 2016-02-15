@@ -26,6 +26,7 @@ import com.android.jack.ir.ast.JFieldRef;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JParameterRef;
@@ -102,9 +103,9 @@ public class SetterMarker implements Marker {
       // It is a temporary deterministic name that will be replace by an index into
       // InnerAccessorAdder
       setterName += field.getName();
-      JMethodId id = new JMethodId(setterName, MethodKind.STATIC);
+      JMethodIdWide id = new JMethodIdWide(setterName, MethodKind.STATIC);
       JType fieldType = field.getType();
-      setter = new JMethod(sourceInfo, id, accessorClass, fieldType,
+      setter = new JMethod(sourceInfo, new JMethodId(id, fieldType), accessorClass,
           JModifier.SYNTHETIC | JModifier.STATIC);
       JBlock bodyBlock = new JBlock(sourceInfo);
       JMethodBody body = new JMethodBody(sourceInfo, bodyBlock);

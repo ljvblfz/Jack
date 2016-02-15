@@ -31,29 +31,68 @@ import javax.annotation.Nonnull;
 public interface JClassOrInterface extends JReferenceType, HasEnclosingPackage {
 
   /**
-   * Search a corresponding {@code JMethodId} in this {@code JClassOrInterface} or in its super
+   * Search a corresponding {@link JMethodId} in this {@code JClassOrInterface} or in its super
    * classes or interfaces. If none can be found then a corresponding {@link JMethodId} is
-   * created in this {@code JClassOrInterface} and returned.
+   * created in this {@link JClassOrInterface} and returned.
    * @param name name of the method.
    * @param argsType arguments types of the method.
    * @param kind kind of the searched method id.
-   * @return a corresponding {@code JMethodId}.
+   * @param returnType return type of the searched method id.
+   * @return a corresponding {@link JMethodId}.
    */
   @Nonnull
-  JMethodId getOrCreateMethodId(@Nonnull String name, @Nonnull List<? extends JType> argsType,
-      @Nonnull MethodKind kind);
+  JMethodId getOrCreateMethodId(
+      @Nonnull String name,
+      @Nonnull List<? extends JType> argsType,
+      @Nonnull MethodKind kind,
+      @Nonnull JType returnType);
 
   /**
-   * Search a corresponding {@code JMethodId} in this {@code JClassOrInterface} or in its super
+   * Search a corresponding {@link JMethodId} in this {@link JClassOrInterface} or in its super
    * classes or interfaces.
    * @param name name of the method.
    * @param argsType arguments types of the method.
    * @param kind kind of the searched method id.
-   * @return the found {@code JMethodId}.
-   * @throws JMethodLookupException if no corresponding {@code JMethodId} can be found.
+   * @param returnType return type of the searched method id.
+   * @return the found {@link JMethodId}.
+   * @throws JMethodLookupException if no corresponding {@link JMethodId} can be found.
    */
   @Nonnull
-  JMethodId getMethodId(@Nonnull String name, @Nonnull List<? extends JType> argsType,
+  JMethodId getMethodId(
+      @Nonnull String name,
+      @Nonnull List<? extends JType> argsType,
+      @Nonnull MethodKind kind,
+      @Nonnull JType returnType)
+      throws JMethodLookupException;
+
+  /**
+   * Search a corresponding {@link JMethodIdWide} in this {@code JClassOrInterface} or in its super
+   * classes or interfaces. If none can be found then a corresponding {@link JMethodIdWide} is
+   * created in this {@link JClassOrInterface} and returned.
+   * @param name name of the method.
+   * @param argsType arguments types of the method.
+   * @param kind kind of the searched method id.
+   * @return a corresponding {@link JMethodIdWide}.
+   */
+  @Nonnull
+  JMethodIdWide getOrCreateMethodIdWide(
+      @Nonnull String name,
+      @Nonnull List<? extends JType> argsType,
+      @Nonnull MethodKind kind);
+
+  /**
+   * Search a corresponding {@link JMethodIdWide} in this {@code JClassOrInterface} or in its super
+   * classes or interfaces.
+   * @param name name of the method.
+   * @param argsType arguments types of the method.
+   * @param kind kind of the searched method id.
+   * @return the found {@link JMethodIdWide}.
+   * @throws JMethodLookupException if no corresponding {@link JMethodIdWide} can be found.
+   */
+  @Nonnull
+  JMethodIdWide getMethodIdWide(
+      @Nonnull String name,
+      @Nonnull List<? extends JType> argsType,
       @Nonnull MethodKind kind)
       throws JMethodLookupException;
 

@@ -35,6 +35,7 @@ import com.android.jack.ir.ast.JIntLiteral;
 import com.android.jack.ir.ast.JLongLiteral;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JNullLiteral;
@@ -80,8 +81,11 @@ public class ExpressionSimplifierTest {
     JPackage p = new JPackage("test", null);
     classTest = new JDefinedClass(SourceInfo.UNKNOWN, "Test", JModifier.PUBLIC, p,
         NopClassOrInterfaceLoader.INSTANCE);
-    method = new JMethod(SourceInfo.UNKNOWN, new JMethodId("test", MethodKind.STATIC), classTest,
-        JPrimitiveTypeEnum.VOID.getType(), JModifier.PUBLIC | JModifier.STATIC);
+    method = new JMethod(SourceInfo.UNKNOWN,
+        new JMethodId(new JMethodIdWide("test", MethodKind.STATIC),
+            JPrimitiveTypeEnum.VOID.getType()),
+        classTest,
+        JModifier.PUBLIC | JModifier.STATIC);
     param =
         new JParameter(SourceInfo.UNKNOWN, "p", JPrimitiveTypeEnum.BOOLEAN.getType(), 0, method);
     method.addParam(param);

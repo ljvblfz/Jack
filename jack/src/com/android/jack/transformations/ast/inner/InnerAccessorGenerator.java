@@ -36,7 +36,7 @@ import com.android.jack.ir.ast.JFieldRef;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodCall.DispatchKind;
-import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JNewInstance;
 import com.android.jack.ir.ast.JNode;
@@ -210,7 +210,7 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClass
         if (method != null) {
           JDefinedClassOrInterface accessorClass;
           boolean isSuper = x.getDispatchKind() == DispatchKind.DIRECT
-              && method.getMethodId().getKind() == MethodKind.INSTANCE_VIRTUAL;
+              && method.getMethodIdWide().getKind() == MethodKind.INSTANCE_VIRTUAL;
           if (isSuper) {
             accessorClass = getAccessorClassForSuperCall(method.getEnclosingType());
           } else {
@@ -233,7 +233,7 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClass
     @CheckForNull
     private JMethod getMethod(@Nonnull JDefinedClassOrInterface receiverType,
         @Nonnull JDefinedClassOrInterface typeToSearchMth,
-        @Nonnull JType returnType, @Nonnull JMethodId mthId) {
+        @Nonnull JType returnType, @Nonnull JMethodIdWide mthId) {
       try {
         JMethod methodFound =
             typeToSearchMth.getMethod(mthId.getName(), returnType, mthId.getParamTypes());
@@ -294,7 +294,7 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClass
     // this.this$0.field = $value => $set<id>(this.this$0, $value)
     JBinaryOperation binOp = (JBinaryOperation) fieldRef.getParent();
 
-    JMethodId setterId = setter.getMethodId();
+    JMethodIdWide setterId = setter.getMethodIdWide();
     JMethodCall setterCall =
         new JMethodCall(binOp.getSourceInfo(), null, accessorClass, setterId,
             setter.getType(), setterId.canBeVirtual());
@@ -322,7 +322,7 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClass
     JMethod getter = marker.getOrCreateGetter(field, (JDefinedClass) accessorClass);
 
     // this.this$0.field => $get<id>(this.this$0)
-    JMethodId getterId = getter.getMethodId();
+    JMethodIdWide getterId = getter.getMethodIdWide();
     JMethodCall getterCall = new JMethodCall(fieldRef.getSourceInfo(), null, accessorClass,
         getterId, getter.getType(), getterId.canBeVirtual());
 
@@ -354,10 +354,10 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClass
     if (methodCall instanceof JNewInstance) {
       assert wrapper instanceof JConstructor;
       wrapperCall =
-          new JNewInstance(sourceInfo, wrapper.getEnclosingType(), wrapper.getMethodId());
+          new JNewInstance(sourceInfo, wrapper.getEnclosingType(), wrapper.getMethodIdWide());
     } else {
 
-      JMethodId wrapperId = wrapper.getMethodId();
+      JMethodIdWide wrapperId = wrapper.getMethodIdWide();
 
       // this.this$0.method(param) => $wrap<id>(this.this$0, param)
       if (!method.isStatic() && !(wrapper instanceof JConstructor)) {

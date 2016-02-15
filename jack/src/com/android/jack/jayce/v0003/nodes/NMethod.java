@@ -21,8 +21,10 @@ import com.android.jack.ir.ast.JAbstractMethodBody;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JSession;
+import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.ast.NopMethodLoader;
@@ -93,7 +95,7 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
     name = jMethod.getName();
     returnType = ImportHelper.getSignatureName(jMethod.getType());
     parameters = loader.load(NParameter.class, jMethod.getParams());
-    methodKind = jMethod.getMethodId().getKind();
+    methodKind = jMethod.getMethodIdWide().getKind();
     modifier = jMethod.getModifier();
     annotations = loader.load(NAnnotation.class, jMethod.getAnnotations());
     body = (NAbstractMethodBody) loader.load(jMethod.getBody());
@@ -129,10 +131,9 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
     SourceInfo info = sourceInfo.exportAsJast(exportSession);
     JDefinedClassOrInterface enclosingType = exportSession.getCurrentType();
     assert enclosingType != null;
-    JMethodId id = new JMethodId(name, methodKind);
+    JMethodIdWide id = new JMethodIdWide(name, methodKind);
     JMethod jMethod = new JMethod(
-        info, id, enclosingType,
-        exportSession.getLookup().getType(returnType),
+        info, new JMethodId(id, exportSession.getLookup().getType(returnType)), enclosingType,
         modifier, NopMethodLoader.INSTANCE);
 
     ExportSession exportSessionForLambdaMeth = new ExportSession(exportSession);
@@ -170,10 +171,10 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
     SourceInfo info = sourceInfo.exportAsJast(exportSession);
     JDefinedClassOrInterface enclosingType = exportSession.getCurrentType();
     assert enclosingType != null;
-    JMethodId id = new JMethodId(name, methodKind);
+    JMethodIdWide id = new JMethodIdWide(name, methodKind);
+    JType returnJType = exportSession.getLookup().getType(returnType);
     JMethod jMethod = new JMethod(
-        info, id, enclosingType,
-        exportSession.getLookup().getType(returnType),
+        info, new JMethodId(id, returnJType), enclosingType,
         modifier, new JayceMethodLoader(this, methodNodeIndex, enclosingLoader));
     exportSession.setCurrentMethod(jMethod);
     for (NParameter parameter : parameters) {
