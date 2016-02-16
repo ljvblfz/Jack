@@ -47,6 +47,7 @@ import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JLiteral;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
+import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JMethodNameLiteral;
 import com.android.jack.ir.ast.JNameValuePair;
@@ -242,11 +243,15 @@ public class Tracer extends JVisitor {
   }
 
   @CheckForNull
-  private JMethod findMethod(@Nonnull JMethodIdWide methodId,
+  private JMethod findMethod(@Nonnull JMethodIdWide methodIdWide,
       @Nonnull JClassOrInterface enclosingType,
       @Nonnull JType returnType) {
-    for (JMethod m : methodId.getMethods()) {
-      if (m.getEnclosingType().isSameType(enclosingType) && m.getType().isSameType(returnType)) {
+    JMethodId id = methodIdWide.getMethodId(returnType);
+    if (id == null) {
+      return null;
+    }
+    for (JMethod m : id.getMethods()) {
+      if (m.getEnclosingType().isSameType(enclosingType)) {
         return m;
       }
     }
