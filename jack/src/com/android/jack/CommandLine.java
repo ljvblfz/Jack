@@ -47,6 +47,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -57,6 +58,15 @@ public abstract class CommandLine {
   @Nonnull
   protected static final String INTERRUPTED_COMPILATION_WARNING =
     "Warning: This may have produced partial or corrupted output.";
+
+  @Nonnegative
+  private static final int CONSOLE_STACK_OVERFLOW_TOP = 20;
+  @Nonnegative
+  private static final int CONSOLE_STACK_OVERFLOW_BOTTOM = 30;
+  @Nonnegative
+  private static final int LOG_STACK_OVERFLOW_TOP = 100;
+  @Nonnegative
+  private static final int LOG_STACK_OVERFLOW_BOTTOM = 100;
 
   @Nonnull
   private static Logger logger = LoggerFactory.getLogger();
@@ -86,7 +96,6 @@ public abstract class CommandLine {
     } catch (IllegalOptionsException e) {
       err.println(e.getMessage());
       err.println("Try --help for help.");
-
       return (ExitStatus.FAILURE_USAGE);
     } catch (FrontendCompilationException e) {
       // Cause exception has already been logged
@@ -99,25 +108,6 @@ public abstract class CommandLine {
       err.println(e.getMessage());
       logger.log(Level.FINE, "Jack loading exception:", e);
       return (ExitStatus.FAILURE_COMPILATION);
-    } catch (OutOfMemoryError e) {
-      printExceptionMessage(err, e, "Out of memory error.");
-      err.println("Try increasing heap size with java option '-Xmx<size>'");
-      err.println(INTERRUPTED_COMPILATION_WARNING);
-      logger.log(Level.SEVERE, "Out of memory error:", e);
-      return (ExitStatus.FAILURE_VM);
-    } catch (StackOverflowError e) {
-      printExceptionMessage(err, e, "Stack overflow error.");
-      err.println("Try increasing stack size with property '"
-          + ScheduleInstance.DEFAULT_STACK_SIZE.getName() + "'");
-      err.println(INTERRUPTED_COMPILATION_WARNING);
-      logger.log(Level.SEVERE, "Stack overflow error:", e);
-      return (ExitStatus.FAILURE_VM);
-    } catch (VirtualMachineError e) {
-      printExceptionMessage(
-          err, e, "Virtual machine error: " + e.getClass().getCanonicalName() + ".");
-      err.println(INTERRUPTED_COMPILATION_WARNING);
-      logger.log(Level.SEVERE, "Virtual machine error:", e);
-      return (ExitStatus.FAILURE_VM);
     } catch (UnrecoverableException e) {
       err.println("Unrecoverable error: " + e.getMessage());
       err.println(INTERRUPTED_COMPILATION_WARNING);
@@ -127,23 +117,60 @@ public abstract class CommandLine {
       // Exception should already have been reported, do not print message.
       logger.log(Level.FINE, "Jack fatal exception:", e);
       return (ExitStatus.FAILURE_COMPILATION);
-    } catch (Throwable e) {
-      // Internal Compiler Error here
-      // If the exception come from a ProcessException, we want
-      // to report ProcessException instead of the cause
-      if (pe != null) {
-        e = pe;
-      }
-
+    } catch (OutOfMemoryError e) {
       String info =
-          "Internal compiler error (version " + Jack.getVersion().getVerboseVersion() + ")";
-      logger.log(Level.SEVERE, info + ':', e);
-      e.printStackTrace(err);
+          "Out of memory error (version " + Jack.getVersion().getVerboseVersion() + ")";
+      // First, log
+      logger.log(Level.SEVERE, info + ':', (pe != null) ? pe : e);
+      // After, report on err
+      err.println(info + '.');
+      printExceptionMessage(err, e);
+      err.println("Try increasing heap size with java option '-Xmx<size>'.");
+      err.println(INTERRUPTED_COMPILATION_WARNING);
+      return (ExitStatus.FAILURE_VM);
+    } catch (StackOverflowError e) {
+      String info =
+          "Stack overflow error (version " + Jack.getVersion().getVerboseVersion() + ")";
+      // First, log
+      logger.log(Level.SEVERE, info);
+      if (pe != null) {
+        logger.log(Level.SEVERE, pe.getMessage() + ".");
+      }
+      printStackOverflow(logger, e, LOG_STACK_OVERFLOW_TOP, LOG_STACK_OVERFLOW_BOTTOM);
+      // After, report on details err
+      if (pe != null) {
+        err.println(pe.getMessage() + ".");
+      }
+      printExceptionMessage(err, e);
+      printStackOverflow(err, e, CONSOLE_STACK_OVERFLOW_TOP, CONSOLE_STACK_OVERFLOW_BOTTOM);
+      // Report a summary at the end
       err.println();
       err.println(info + '.');
-      if (e.getMessage() != null) {
-        err.println(e.getMessage() + '.');
-      }
+      err.println("Try increasing stack size with property '"
+          + ScheduleInstance.DEFAULT_STACK_SIZE.getName() + "'.");
+      err.println(INTERRUPTED_COMPILATION_WARNING);
+      return (ExitStatus.FAILURE_VM);
+    } catch (VirtualMachineError e) {
+      String info =
+          "Virtual machine error (version " + Jack.getVersion().getVerboseVersion() + ")";
+      // First, log
+      logger.log(Level.SEVERE, info + ':', (pe != null) ? pe : e);
+      // After, report on err
+      err.println(info + '.');
+      printExceptionMessage(err, e);
+      err.println(INTERRUPTED_COMPILATION_WARNING);
+      return (ExitStatus.FAILURE_VM);
+    } catch (Throwable e) {
+      String info =
+          "Internal compiler error (version " + Jack.getVersion().getVerboseVersion() + ")";
+      // First log
+      logger.log(Level.SEVERE, info + ':', (pe != null) ? pe : e);
+      // After, report on err
+      ((pe != null) ? pe : e).printStackTrace(err);
+      // Report a summary at the end
+      err.println();
+      err.println(info + '.');
+      printExceptionMessage(err, e);
       err.println(INTERRUPTED_COMPILATION_WARNING);
       return (ExitStatus.FAILURE_INTERNAL);
     }
@@ -242,12 +269,42 @@ public abstract class CommandLine {
     }
   }
 
-  protected static void printExceptionMessage(@Nonnull PrintStream err, @Nonnull Throwable t,
-      @Nonnull String defaultMessage) {
+  protected static void printExceptionMessage(@Nonnull PrintStream printer, @Nonnull Throwable t) {
     String exceptionMessage = t.getMessage();
-    if (exceptionMessage == null) {
-      exceptionMessage = defaultMessage;
+    if (exceptionMessage != null) {
+      printer.println(exceptionMessage + ".");
     }
-    err.println(exceptionMessage);
+  }
+
+  protected static void printStackOverflow(@Nonnull PrintStream stream,
+      @Nonnull StackOverflowError e, @Nonnegative int topCount, @Nonnegative int bottomCount) {
+    StackTraceElement[] elts = e.getStackTrace();
+    stream.println(elts.length + " calls reported in " + e.getClass().getCanonicalName() + ".");
+    stream.println("(See -XX:MaxJavaStackTraceDepth to report more if necessary).");
+    boolean ellipse = false;
+    for (int idx = 0; idx < elts.length; idx++) {
+      if (idx < topCount || idx > elts.length - 1 - bottomCount) {
+        stream.println("    at "  + elts[idx].toString());
+       } else if (!ellipse) {
+        ellipse = true;
+        stream.println("    ...");
+      }
+    }
+  }
+
+  protected static void printStackOverflow(@Nonnull Logger logger,
+      @Nonnull StackOverflowError e, @Nonnegative int topCount, @Nonnegative int bottomCount) {
+    StackTraceElement[] elts = e.getStackTrace();
+    logger.log(Level.SEVERE,
+        elts.length + " calls reported in " + e.getClass().getCanonicalName() + ".");
+    boolean ellipse = false;
+    for (int idx = 0; idx < elts.length; idx++) {
+      if (idx < topCount || idx > elts.length - 1 - bottomCount) {
+        logger.log(Level.SEVERE, "    at "  + elts[idx].toString());
+       } else if (!ellipse) {
+        ellipse = true;
+        logger.log(Level.SEVERE, "    ...");
+      }
+    }
   }
 }
