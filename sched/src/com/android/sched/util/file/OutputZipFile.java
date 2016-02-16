@@ -27,6 +27,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipOutputStream;
@@ -39,24 +40,36 @@ import javax.annotation.Nonnull;
  */
 public class OutputZipFile extends OutputStreamFile {
 
+  /**
+   * Whether the zip will be compressed.
+   */
+  public enum Compression {
+    COMPRESSED, UNCOMPRESSED
+  }
+
+  @Nonnull
+  private final Compression compression;
+
   public OutputZipFile(@Nonnull String name,
       @CheckForNull RunnableHooks hooks,
       @Nonnull Existence existence,
-      @Nonnull ChangePermission change)
+      @Nonnull ChangePermission change,
+      @Nonnull Compression compression)
       throws FileAlreadyExistsException,
       CannotCreateFileException,
       CannotChangePermissionException,
       WrongPermissionException,
       NoSuchFileException,
       NotFileException {
-    this(new File(name), new FileLocation(name), hooks, existence, change);
+    this(new File(name), new FileLocation(name), hooks, existence, change, compression);
   }
 
   public OutputZipFile(@CheckForNull Directory workingDirectory,
       @Nonnull String name,
       @CheckForNull RunnableHooks hooks,
       @Nonnull Existence existence,
-      @Nonnull ChangePermission change)
+      @Nonnull ChangePermission change,
+      @Nonnull Compression compression)
       throws FileAlreadyExistsException,
       CannotCreateFileException,
       CannotChangePermissionException,
@@ -64,14 +77,15 @@ public class OutputZipFile extends OutputStreamFile {
       NoSuchFileException,
       NotFileException {
     this(getFileFromWorkingDirectory(workingDirectory, name),
-        new FileLocation(name), hooks, existence, change);
+        new FileLocation(name), hooks, existence, change, compression);
   }
 
   private OutputZipFile(@Nonnull File file,
       @Nonnull FileLocation location,
       @CheckForNull RunnableHooks hooks,
       @Nonnull Existence existence,
-      @Nonnull ChangePermission change)
+      @Nonnull ChangePermission change,
+      @Nonnull Compression compression)
       throws FileAlreadyExistsException,
       CannotCreateFileException,
       CannotChangePermissionException,
@@ -79,6 +93,7 @@ public class OutputZipFile extends OutputStreamFile {
       NoSuchFileException,
       NotFileException {
     super(file, location, hooks, existence, change, false);
+    this.compression = compression;
   }
 
   @Override
@@ -87,7 +102,8 @@ public class OutputZipFile extends OutputStreamFile {
     assert file != null;
     clearRemover();
     try {
-      return new CustomZipOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
+      return new CustomZipOutputStream(new BufferedOutputStream(new FileOutputStream(file)),
+          compression);
     } catch (FileNotFoundException e) {
       throw new ConcurrentIOException(e);
     }
@@ -113,8 +129,19 @@ public class OutputZipFile extends OutputStreamFile {
 
     private boolean hasEntries = false;
 
-    public CustomZipOutputStream(@Nonnull OutputStream out) {
+    public CustomZipOutputStream(@Nonnull OutputStream out, @Nonnull Compression compression) {
       super(out);
+      switch (compression) {
+        case COMPRESSED:
+          setMethod(ZipOutputStream.DEFLATED);
+          break;
+        case UNCOMPRESSED:
+          setMethod(ZipOutputStream.DEFLATED);
+          setLevel(Deflater.NO_COMPRESSION);
+          break;
+        default:
+          throw new AssertionError(compression.name());
+      }
     }
 
     @Override
