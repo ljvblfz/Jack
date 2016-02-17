@@ -16,6 +16,8 @@
 
 package com.android.jack.test.toolchain;
 
+import com.android.jack.Options;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,6 +51,7 @@ public class JackApiV02TwoStepsToolchain extends JackApiV02Toolchain implements 
     srcToLib(tmpFile, true, sources);
 
     JackApiV02Toolchain secondStep = new JackApiV02Toolchain(jackPrebuilt);
+    secondStep.addProperty(Options.USE_PREBUILT_FROM_LIBRARY.getName(), "false");
     secondStep.setSourceLevel(sourceLevel);
     secondStep.setVerbose(isVerbose);
     secondStep.setOutputStream(outRedirectStream);
