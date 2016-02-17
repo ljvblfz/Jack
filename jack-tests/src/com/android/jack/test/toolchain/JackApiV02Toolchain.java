@@ -125,6 +125,7 @@ public class JackApiV02Toolchain extends JackApiToolchainBase implements JackApi
   @Override
   @Nonnull
   public JackApiV02Toolchain setWithDebugInfos(boolean withDebugInfos) {
+    super.setWithDebugInfos(withDebugInfos);
     try {
       if (withDebugInfos) {
         apiV02Config.setDebugInfoLevel(DebugInfoLevel.FULL);
