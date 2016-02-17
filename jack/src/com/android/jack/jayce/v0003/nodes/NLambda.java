@@ -25,6 +25,7 @@ import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.jayce.JayceClassOrInterfaceLoader;
 import com.android.jack.jayce.NodeLevel;
+import com.android.jack.jayce.linker.VariableRefLinker;
 import com.android.jack.jayce.v0003.io.ExportSession;
 import com.android.jack.jayce.v0003.io.ImportHelper;
 import com.android.jack.jayce.v0003.io.JayceInternalReaderImpl;
@@ -130,6 +131,11 @@ public class NLambda extends NExpression {
 
     for (NMethodIdWithReturnType bridge : bridges) {
       lambda.addBridgeMethodId((JMethodIdWithReturnType) bridge.exportAsJast(exportSession));
+    }
+
+    for (String capturedVariableId : capturedVariableIds) {
+      exportSession.getVariableResolver().addLink(capturedVariableId,
+          new VariableRefLinker(lambda));
     }
 
     return lambda;
