@@ -710,8 +710,8 @@ public class VFSTest {
 
       // fill up zip
       VFS writeZipVFS = new ReadWriteZipFS(
-          new OutputZipFile(zipFile.getPath(), null, Existence.MAY_EXIST,
-          ChangePermission.NOCHANGE), /* numGroups = */ 1, /* groupSize = */ 2,
+          new OutputZipFile(zipFile.getPath(), null, Existence.MAY_EXIST, ChangePermission.NOCHANGE,
+              Compression.COMPRESSED), /* numGroups = */ 1, /* groupSize = */ 2,
           new MessageDigestFactory(getSha1Service()), /* debug = */ false);
       testOutputVFS(new GenericInputOutputVFS(writeZipVFS));
       writeZipVFS.close();
