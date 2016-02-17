@@ -21,6 +21,7 @@ import com.android.jack.JackAbortException;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.LibraryFormatException;
 import com.android.jack.library.LibraryReadingException;
+import com.android.jack.library.MissingLibraryPropertyException;
 import com.android.jack.reporting.ReportableException;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.sched.util.log.LoggerFactory;
@@ -45,7 +46,13 @@ public abstract class JayceReaderFactory {
   @Nonnull
   public static JayceInternalReader get(@Nonnull InputJackLibrary inputJackLibrary,
       @Nonnull InputStream in) throws LibraryFormatException {
-    String majorVersionStr = inputJackLibrary.getProperty(inputJackLibrary.keyJayceMajorVersion);
+    String majorVersionStr;
+    try {
+      majorVersionStr = inputJackLibrary.getProperty(inputJackLibrary.keyJayceMajorVersion);
+    } catch (MissingLibraryPropertyException e) {
+      logger.log(Level.SEVERE, e.getMessage());
+      throw new LibraryFormatException(inputJackLibrary.getLocation());
+    }
 
     int majorVersion = inputJackLibrary.getJayceMajorVersion();
     int minorVersion = inputJackLibrary.getJayceMinorVersion();

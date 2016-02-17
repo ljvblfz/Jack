@@ -50,7 +50,7 @@ public interface JackLibrary extends Library {
   public static final int NUM_GROUPS_FOR_DIRS = 1;
 
   @Nonnull
-  public String getProperty(@Nonnull String key) throws LibraryFormatException;
+  public String getProperty(@Nonnull String key) throws MissingLibraryPropertyException;
 
   @Nonnull
   public boolean containsProperty(@Nonnull String key);
