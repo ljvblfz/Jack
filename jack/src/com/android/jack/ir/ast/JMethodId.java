@@ -185,6 +185,7 @@ public class JMethodId extends LocalMarkerManager implements HasName, CanBeRenam
     return methodKind;
   }
 
+  @Deprecated
   public void setKind(@Nonnull MethodKind methodKind) {
     assert methods.size() == 1;
     assert methodKind != MethodKind.INSTANCE_VIRTUAL;
