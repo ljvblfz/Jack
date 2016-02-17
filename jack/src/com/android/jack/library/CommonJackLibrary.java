@@ -27,7 +27,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.CheckForNull;
@@ -67,11 +66,9 @@ public abstract class CommonJackLibrary implements JackLibrary {
 
   @Nonnull
   @Override
-  public String getProperty(@Nonnull String key) throws LibraryFormatException {
+  public String getProperty(@Nonnull String key) throws MissingLibraryPropertyException {
     if (!libraryProperties.containsKey(key)) {
-      logger.log(Level.SEVERE, "Property " + key + " from the library "
-          + getLocation().getDescription() + " does not exist");
-      throw new LibraryFormatException(getLocation());
+      throw new MissingLibraryPropertyException(key, getLocation());
     }
     return (String) libraryProperties.get(key);
   }
@@ -109,8 +106,9 @@ public abstract class CommonJackLibrary implements JackLibrary {
         if (containsProperty(propertyName) && Boolean.parseBoolean(getProperty(propertyName))) {
           fileTypes.add(ft);
         }
-      } catch (LibraryFormatException e) {
-        throw new AssertionError();
+      } catch (MissingLibraryPropertyException e) {
+        // should not happen since we checked that the property was contained
+        throw new AssertionError(e);
       }
     }
   }

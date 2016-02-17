@@ -77,6 +77,9 @@ public abstract class InputJackLibrary  extends CommonJackLibrary implements Inp
     };
     try {
       minorVersion = Integer.parseInt(getProperty(KEY_LIB_MINOR_VERSION));
+    } catch (MissingLibraryPropertyException e) {
+      logger.log(Level.SEVERE, e.getMessage());
+      throw new LibraryFormatException(location);
     } catch (NumberFormatException e) {
       logger.log(Level.SEVERE, "Fails to parse the property " + KEY_LIB_MINOR_VERSION
           + " from " + location.getDescription(), e);
@@ -116,9 +119,13 @@ public abstract class InputJackLibrary  extends CommonJackLibrary implements Inp
 
   private final synchronized void ensureJayceLoaded() throws LibraryFormatException {
     if (jayceReaderConstructor == null) {
-      String jayceMajorVersionStr = getProperty(keyJayceMajorVersion);
+      String jayceMajorVersionStr;
       try {
+        jayceMajorVersionStr = getProperty(keyJayceMajorVersion);
         jayceMajorVersion = Integer.parseInt(jayceMajorVersionStr);
+      } catch (MissingLibraryPropertyException e) {
+        logger.log(Level.SEVERE, e.getMessage());
+        throw new LibraryFormatException(location);
       } catch (NumberFormatException e) {
         logger.log(Level.SEVERE, "Failed to parse the property "
             + keyJayceMajorVersion + " from "
@@ -128,6 +135,9 @@ public abstract class InputJackLibrary  extends CommonJackLibrary implements Inp
 
       try {
         jayceMinorVersion = Integer.parseInt(getProperty(keyJayceMinorVersion));
+      } catch (MissingLibraryPropertyException e) {
+        logger.log(Level.SEVERE, e.getMessage());
+        throw new LibraryFormatException(location);
       } catch (NumberFormatException e) {
         logger.log(Level.SEVERE, "Failed to parse the property "
             + keyJayceMinorVersion + " from "
@@ -164,10 +174,15 @@ public abstract class InputJackLibrary  extends CommonJackLibrary implements Inp
   }
 
   protected void check() throws LibraryVersionException, LibraryFormatException {
-    getProperty(JackLibrary.KEY_LIB_EMITTER);
-    getProperty(JackLibrary.KEY_LIB_EMITTER_VERSION);
-    getProperty(JackLibrary.KEY_LIB_MAJOR_VERSION);
-    getProperty(JackLibrary.KEY_LIB_MINOR_VERSION);
+    try {
+      getProperty(JackLibrary.KEY_LIB_EMITTER);
+      getProperty(JackLibrary.KEY_LIB_EMITTER_VERSION);
+      getProperty(JackLibrary.KEY_LIB_MAJOR_VERSION);
+      getProperty(JackLibrary.KEY_LIB_MINOR_VERSION);
+    } catch (MissingLibraryPropertyException e) {
+      logger.log(Level.SEVERE, e.getMessage());
+      throw new LibraryFormatException(location);
+    }
 
     int majorVersion = getMajorVersion();
     int minorVersion = getMinorVersion();

@@ -28,6 +28,7 @@ import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.library.LibraryFormatException;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.LibraryVersionException;
+import com.android.jack.library.MissingLibraryPropertyException;
 import com.android.jack.library.PrebuiltCompatibility;
 import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ThreadConfig;
@@ -319,8 +320,8 @@ public class InputJackLibraryImpl extends InputJackLibrary {
             if (!getProperty("config." + property.getName()).equals(config.getAsString(property))) {
               return false;
             }
-          } catch (LibraryFormatException e) {
-            // Properties does not exists
+          } catch (MissingLibraryPropertyException e) {
+            // Property does not exist
             return false;
           }
         }
