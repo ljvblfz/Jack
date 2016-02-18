@@ -22,6 +22,7 @@ import com.android.jack.resource.ResourceReadingException;
 import com.android.sched.util.codec.DirectoryInputVFSCodec;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.id.ListPropertyId;
+import com.android.sched.util.location.Location;
 import com.android.sched.vfs.InputVFS;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
@@ -60,7 +61,22 @@ public class MetaImporter extends ResourceOrMetaImporter {
   protected void addImportedResource(@Nonnull InputVFile file, @Nonnull JSession session,
       @Nonnull String currentPath) {
     VPath path = new VPath(currentPath, ResourceOrMetaImporter.VPATH_SEPARATOR);
-    Meta newMeta = new Meta(path, file);
+    Meta newMeta = new Meta(path, file, new StandaloneMetaLocation(file));
     session.addMeta(newMeta);
+  }
+
+  private static class StandaloneMetaLocation extends Location {
+    @Nonnull
+    private final InputVFile file;
+
+    public StandaloneMetaLocation(@Nonnull InputVFile file) {
+      this.file = file;
+    }
+
+    @Override
+    @Nonnull
+    public String getDescription() {
+      return "meta " + file.getLocation().getDescription();
+    }
   }
 }

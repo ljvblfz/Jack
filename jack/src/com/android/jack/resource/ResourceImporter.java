@@ -26,6 +26,7 @@ import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.ListPropertyId;
 import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.location.Location;
 import com.android.sched.vfs.InputVFS;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
@@ -68,7 +69,7 @@ public class ResourceImporter extends ResourceOrMetaImporter {
   protected void addImportedResource(@Nonnull InputVFile file, @Nonnull JSession session,
       @Nonnull String currentPath) throws ResourceImportConflictException {
     VPath path = new VPath(currentPath, ResourceOrMetaImporter.VPATH_SEPARATOR);
-    Resource newResource = new Resource(path, file);
+    Resource newResource = new Resource(path, file, new StandaloneResourceLocation(file));
     for (Resource existingResource : session.getResources()) {
       if (existingResource.getPath().equals(path)) {
         if (resourceCollisionPolicy == CollisionPolicy.FAIL) {
@@ -83,5 +84,20 @@ public class ResourceImporter extends ResourceOrMetaImporter {
       }
     }
     session.addResource(newResource);
+  }
+
+  private static class StandaloneResourceLocation extends Location {
+    @Nonnull
+    private final InputVFile file;
+
+    public StandaloneResourceLocation(@Nonnull InputVFile file) {
+      this.file = file;
+    }
+
+    @Override
+    @Nonnull
+    public String getDescription() {
+      return "resource " + file.getLocation().getDescription();
+    }
   }
 }

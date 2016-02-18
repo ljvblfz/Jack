@@ -27,7 +27,9 @@ import com.android.jack.library.FileTypeDoesNotExistException;
 import com.android.jack.library.IgnoringImportMessage;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputLibrary;
+import com.android.jack.library.InputLibraryLocation;
 import com.android.jack.library.LibraryReadingException;
+import com.android.jack.library.ResourceInInputLibraryLocation;
 import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.lookup.JLookup;
 import com.android.jack.lookup.JLookupException;
@@ -153,7 +155,7 @@ public class JayceFileImporter {
         InputVFile rscFile = rscFileIt.next();
         String name = rscFile.getPathFromRoot().getPathAsString('/');
         try {
-          addImportedResource(rscFile, session, name);
+          addImportedResource(rscFile, session, name, jackLibrary.getLocation());
         } catch (ResourceImportConflictException e) {
           if (resourceCollisionPolicy == CollisionPolicy.FAIL) {
             throw new LibraryReadingException(e);
@@ -225,9 +227,12 @@ public class JayceFileImporter {
   }
 
   private void addImportedResource(@Nonnull InputVFile file, @Nonnull JSession session,
-      @Nonnull String currentPath) throws ResourceImportConflictException {
+      @Nonnull String currentPath, @Nonnull InputLibraryLocation inputLibraryLocation)
+          throws ResourceImportConflictException {
     VPath path = new VPath(currentPath, VPATH_SEPARATOR);
-    Resource newResource = new Resource(path, file);
+    ResourceInInputLibraryLocation resourceLocation =
+        new ResourceInInputLibraryLocation(inputLibraryLocation, path);
+    Resource newResource = new Resource(path, file, resourceLocation);
     for (Resource existingResource : session.getResources()) {
       if (existingResource.getPath().equals(path)) {
         throw new ResourceImportConflictException(existingResource, newResource.getLocation());
