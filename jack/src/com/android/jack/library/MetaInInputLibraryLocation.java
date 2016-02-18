@@ -33,6 +33,6 @@ public class MetaInInputLibraryLocation extends ResourceOrMetaInInputLibraryLoca
   @Override
   @Nonnull
   public String getDescription() {
-    return "meta " + path.getPathAsString('/') + " in " + inputLibLoc.getDescription();
+    return inputLibLoc.getDescription() + ", meta '" + path.getPathAsString('/') + '\'';
   }
 }

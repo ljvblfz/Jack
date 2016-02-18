@@ -40,7 +40,7 @@ public class TypeInInputLibraryLocation extends Location {
   @Override
   @Nonnull
   public String getDescription() {
-    return "type " + typeName + " in " + inputLibLoc.getDescription();
+    return inputLibLoc.getDescription() + ", type '" + typeName + '\'';
   }
 
   @Override
