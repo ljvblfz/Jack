@@ -36,7 +36,7 @@ class Wildcard
     public Wildcard(String pattern, String result) {
         if (pattern.equals("**"))
             throw new IllegalArgumentException("'**' is not a valid pattern");
-        if (!checkIdentifierChars(pattern, "/*"))
+        if (!checkIdentifierChars(pattern, "/*-"))
             throw new IllegalArgumentException("Not a valid package pattern: " + pattern);
         if (pattern.indexOf("***") >= 0)
             throw new IllegalArgumentException("The sequence '***' is invalid in a package pattern");
@@ -110,7 +110,7 @@ class Wildcard
 
     private Matcher getMatcher(String value) {
         Matcher matcher = pattern.matcher(value);
-        if (matcher.matches() && checkIdentifierChars(value, "/"))
+        if (matcher.matches() && checkIdentifierChars(value, "/-"))
             return matcher;
         return null;
     }
