@@ -309,7 +309,9 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
   public synchronized void close() throws CannotCreateFileException, WrongPermissionException,
       IOException {
     if (!closed) {
-      printDigest(vfs.getRootDir().createVFile(DIGEST_FILE_NAME).getOutputStream());
+      if (vfs.getCapabilities().contains(Capabilities.WRITE)) {
+        printDigest(vfs.getRootDir().createVFile(DIGEST_FILE_NAME).getOutputStream());
+      }
       vfs.close();
       closed = true;
     }
