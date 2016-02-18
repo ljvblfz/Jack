@@ -1,0 +1,5 @@
+Prebuilt jarjar.jar can be rebuilt by using the following command lines:
+
+ant
+cp dist/jarjar-1.4.jar jarjar.jar
+
