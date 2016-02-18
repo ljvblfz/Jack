@@ -17,7 +17,6 @@
 package com.android.jack.jayce;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.lookup.JMethodLookupException;
@@ -41,7 +40,7 @@ public interface DeclaredTypeNode extends Node {
   String getSignature();
 
   @Nonnull
-  MethodNode getMethodNode(@Nonnull JMethod loaded);
+  MethodNode getMethodNode(@Nonnull int methodNodeIndex);
 
   @Nonnull
   NodeLevel getLevel();
