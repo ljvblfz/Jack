@@ -127,8 +127,9 @@
   <!-- ******************* -->
 
   <property name="jack-top-dist.dir" value="${jack-project.dir}/dist" />
-  <property name="jack-internal-doc.dir" value="${jack-top-dist.dir}/doc/jack-internal" />
-  <property name="jack-external-doc.dir" value="${jack-top-dist.dir}/doc/jack-external" />
+  <property name="jack-doc.dir" value="${jack-top-dist.dir}/doc" />
+  <property name="jack-internal-doc.dir" value="${jack-doc.dir}/jack-internal" />
+  <property name="jack-external-doc.dir" value="${jack-doc.dir}/jack-external" />
 
   <target name="dist-clean">
     <delete dir="${jack-top-dist.dir}"/>
@@ -180,6 +181,14 @@
         <fileset dir="${jack-api.dir}/src" includes="**/*.java" />
         <fileset dir="${jill-api.dir}/src" includes="**/*.java" />
       </javadoc>
+      <java jar="${jack.dist.dir}/${jack.execname}" fork="true" failonerror="true"
+        output="${jack-doc.dir}/cli-usage.txt">
+        <arg value="--help"/>
+      </java>
+      <java jar="${jack.dist.dir}/${jack.execname}" fork="true" failonerror="true"
+        output="${jack-doc.dir}/properties.txt">
+        <arg value="--help-properties"/>
+      </java>
     </target>
 
   <target name="jack-dist"
