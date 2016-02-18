@@ -26,7 +26,6 @@ import com.android.jack.analysis.dependency.library.LibraryDependencies;
 import com.android.jack.analysis.dependency.library.LibraryDependenciesInLibraryWriter;
 import com.android.jack.analysis.dependency.type.TypeDependencies;
 import com.android.jack.analysis.dependency.type.TypeDependenciesInLibraryWriter;
-import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.library.FileType;
 import com.android.jack.library.FileTypeDoesNotExistException;
@@ -62,8 +61,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -167,11 +166,23 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
 
     tracer.getStatistic(IncrementalInputFilter.SOURCE_FILES).incValue(fileNamesOnCmdLine.size());
 
+    importedLibrariesFromCommandLine = config.get(Options.IMPORTED_LIBRARIES);
+
     JSession session = Jack.getSession();
+
     if (incrementalInputLibrary != null) {
+
+      // only merge Jack libraries into incremental library
+      List<InputJackLibrary> inputJackLibraryList =
+          new ArrayList<InputJackLibrary>(importedLibrariesFromCommandLine.size());
+      for (InputLibrary inputLibrary : importedLibrariesFromCommandLine) {
+        if (inputLibrary instanceof InputJackLibrary) {
+          inputJackLibraryList.add((InputJackLibrary) inputLibrary);
+        }
+      }
+      incrementalInputLibrary.mergeInputLibraries(inputJackLibraryList);
+
       try {
-        // Remove all resources, they are always recopied
-        deleteAllResources();
         fillDependencies(incrementalInputLibrary, FileDependencies.vpath, fileDependencies);
         fillDependencies(incrementalInputLibrary, TypeDependencies.vpath, typeDependencies);
         fillDependencies(incrementalInputLibrary, LibraryDependencies.vpath,
@@ -186,19 +197,22 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
             new LibraryFormatException(incrementalInputLibrary.getLocation()));
         session.getReporter().report(Severity.FATAL, reportable);
         throw new JackAbortException(reportable);
-      } catch (CannotDeleteFileException e) {
-        LibraryReadingException reportable = new LibraryReadingException(
-            new LibraryFormatException(incrementalInputLibrary.getLocation()));
-        session.getReporter().report(Severity.FATAL, reportable);
-        throw new JackAbortException(reportable);
       }
 
       fillAddedFileNames(addedFileNames);
       fillModifiedFileNames(modifiedFileNames);
       fillDeletedFileNames(deletedFileNames);
+    } else {
+      List<InputJackLibrary> inputJackLibraryList =
+          new ArrayList<InputJackLibrary>(importedLibrariesFromCommandLine.size());
+      for (InputLibrary inputLibrary : importedLibrariesFromCommandLine) {
+        if (inputLibrary instanceof InputJackLibrary) {
+          inputJackLibraryList.add((InputJackLibrary) inputLibrary);
+        }
+      }
+      session.getJackOutputLibrary().mergeInputLibraries(inputJackLibraryList);
     }
 
-    importedLibrariesFromCommandLine = getImportedLibraries(config.get(Options.IMPORTED_LIBRARIES));
     List<InputLibrary> classpathContent = config.get(Options.CLASSPATH);
     librariesOnClasspathFromCommandLine = getClasspathLibraries(
         classpathContent,
@@ -232,16 +246,6 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
         Jack.getSession().getReporter().report(Severity.FATAL, reportable);
         throw new JackAbortException(reportable);
       }
-    }
-  }
-
-  private void deleteAllResources() throws CannotDeleteFileException,
-      FileTypeDoesNotExistException {
-    assert incrementalInputLibrary != null;
-
-    Iterator<InputVFile> vFileIt = incrementalInputLibrary.iterator(FileType.RSC);
-    while (vFileIt.hasNext()) {
-      incrementalInputLibrary.delete(FileType.RSC, vFileIt.next().getPathFromRoot());
     }
   }
 
@@ -469,15 +473,13 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
 
   @Override
   @Nonnull
-  public List<InputLibrary> getImportedLibrary() {
-    List<InputLibrary> inputLibraries =
-        new ArrayList<InputLibrary>(importedLibrariesFromCommandLine);
+  public List<? extends InputLibrary> getImportedLibrary() {
 
     JSession session = Jack.getSession();
     if (needFullBuild()) {
       session.setFileDependencies(new FileDependencies());
       session.setTypeDependencies(new TypeDependencies());
-      return inputLibraries;
+      return importedLibrariesFromCommandLine;
     }
 
     try {
@@ -487,30 +489,6 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
       throw new JackAbortException(e);
     }
 
-    if (ThreadConfig.get(Options.GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER).booleanValue()) {
-      // Incremental folder already contains dex files of imported libraries, thus import only
-      // incremental folder.
-      // Import resources of Jack libraries that are remove from the imported list
-      List<InputJackLibrary> inputJackLibraries = new ArrayList<InputJackLibrary>();
-      for (InputLibrary library : inputLibraries) {
-        if (library instanceof InputJackLibrary) {
-          inputJackLibraries.add((InputJackLibrary) library);
-        }
-      }
-      try {
-        new JayceFileImporter(inputJackLibraries).doResourceImport(session);
-      } catch (LibraryReadingException e) {
-        session.getReporter().report(Severity.FATAL, e);
-        throw new JackAbortException(e);
-      }
-      inputLibraries.clear();
-      inputLibraries.add(incrementalInputLibrary);
-      return inputLibraries;
-    } else {
-      // Incremental folder does not contains dex files, thus add it into imported libraries
-      inputLibraries.add(0, incrementalInputLibrary);
-    }
-
-    return inputLibraries;
+    return Collections.singletonList(incrementalInputLibrary);
   }
 }

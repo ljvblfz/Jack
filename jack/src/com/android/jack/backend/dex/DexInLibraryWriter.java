@@ -65,6 +65,9 @@ public class DexInLibraryWriter extends DexWriter implements
   private final boolean usePrebuilts =
       ThreadConfig.get(Options.USE_PREBUILT_FROM_LIBRARY).booleanValue();
 
+  private final boolean generateLibFromIncrementalDir =
+      ThreadConfig.get(Options.GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER).booleanValue();
+
   @Override
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
     OutputVFile vFile;
@@ -75,7 +78,7 @@ public class DexInLibraryWriter extends DexWriter implements
         InputVFile in;
         InputLibrary inputLibrary =
             ((TypeInInputLibraryLocation) loc).getInputLibraryLocation().getInputLibrary();
-        if (!inputLibrary.getLocation().equals(outputLibrary.getLocation())) {
+        if (!generateLibFromIncrementalDir) {
           try {
             in = inputLibrary.getFile(FileType.PREBUILT,
                 new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));

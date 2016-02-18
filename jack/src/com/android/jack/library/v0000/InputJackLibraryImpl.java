@@ -63,7 +63,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   public InputJackLibraryImpl(@Nonnull VFS vfs,
       @Nonnull Properties libraryProperties) throws LibraryVersionException,
       LibraryFormatException {
-    super(libraryProperties, vfs.getLocation());
+    super(libraryProperties, vfs);
     inputVFS = new GenericInputVFS(vfs);
 
     check();
@@ -252,5 +252,10 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   @Override
   public boolean hasCompliantPrebuilts() {
     return true;
+  }
+
+  @Override
+  public void mergeInputLibraries(@Nonnull List<? extends InputJackLibrary> inputJackLibraryList) {
+    throw new UnsupportedOperationException();
   }
 }

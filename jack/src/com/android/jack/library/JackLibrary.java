@@ -18,6 +18,8 @@ package com.android.jack.library;
 
 import com.android.sched.vfs.VPath;
 
+import java.util.List;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
@@ -57,5 +59,7 @@ public interface JackLibrary extends Library {
 
   @Nonnull
   public String buildPropertyName(@Nonnull FileType type, @CheckForNull String suffix);
+
+  public void mergeInputLibraries(@Nonnull List<? extends InputJackLibrary> inputLibraries);
 
 }

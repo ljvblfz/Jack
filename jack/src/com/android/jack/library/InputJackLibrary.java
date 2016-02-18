@@ -20,6 +20,7 @@ import com.android.jack.Jack;
 import com.android.sched.util.findbugs.SuppressFBWarnings;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
+import com.android.sched.vfs.VFS;
 
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
@@ -35,7 +36,7 @@ import javax.annotation.Nonnull;
 /**
  * Interface representing an input jack library.
  */
-public abstract class InputJackLibrary  extends CommonJackLibrary implements InputLibrary {
+public abstract class InputJackLibrary extends CommonJackLibrary implements InputLibrary {
 
   @Nonnull
   protected static final Logger logger = LoggerFactory.getLogger();
@@ -54,9 +55,9 @@ public abstract class InputJackLibrary  extends CommonJackLibrary implements Inp
   @Nonnull
   private final InputLibraryLocation location;
 
-  public InputJackLibrary(@Nonnull Properties libraryProperties, final Location vfsLocation)
+  public InputJackLibrary(@Nonnull Properties libraryProperties, @Nonnull final VFS vfs)
       throws LibraryFormatException {
-    super(libraryProperties);
+    super(libraryProperties, vfs);
     this.location = new InputLibraryLocation() {
       @Override
       @Nonnull
@@ -72,7 +73,7 @@ public abstract class InputJackLibrary  extends CommonJackLibrary implements Inp
 
       @Override
       protected Location getVFSLocation() {
-        return vfsLocation;
+        return vfs.getLocation();
       }
     };
     try {

@@ -21,7 +21,11 @@ import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVElement;
 import com.android.sched.vfs.InputVFile;
+import com.android.sched.vfs.ReadWriteZipFS;
+import com.android.sched.vfs.UnionVFS;
+import com.android.sched.vfs.VFS;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
@@ -41,6 +45,9 @@ public abstract class CommonJackLibrary implements JackLibrary {
   private static Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
+  protected VFS vfs;
+
+  @Nonnull
   protected final Properties libraryProperties;
 
   @Nonnull
@@ -54,8 +61,9 @@ public abstract class CommonJackLibrary implements JackLibrary {
   @Nonnull
   public final Set<FileType> fileTypes = EnumSet.noneOf(FileType.class);
 
-  public CommonJackLibrary(@Nonnull Properties libraryProperties) {
+  public CommonJackLibrary(@Nonnull Properties libraryProperties, @Nonnull VFS vfs) {
     this.libraryProperties = libraryProperties;
+    this.vfs = vfs;
   }
 
   @Override
@@ -120,6 +128,31 @@ public abstract class CommonJackLibrary implements JackLibrary {
       } else {
         files.add((InputVFile) subFile);
       }
+    }
+  }
+
+  @Nonnull
+  protected VFS getVfs() {
+    return vfs;
+  }
+
+  @Override
+  public void mergeInputLibraries(@Nonnull List<? extends InputJackLibrary> inputLibraries) {
+    // merge can only be done before the VFSes are accessed
+
+    List<VFS> inputLibVfsList = new ArrayList<VFS>();
+    for (InputLibrary inputLib : inputLibraries) {
+      inputLibVfsList.add(((CommonJackLibrary) inputLib).getVfs());
+    }
+
+    if (vfs instanceof ReadWriteZipFS) {
+      ReadWriteZipFS zipVFS = (ReadWriteZipFS) vfs;
+      VFS previousWorkVfs = zipVFS.getWorkVFS();
+      inputLibVfsList.add(0, previousWorkVfs);
+      zipVFS.setWorkVFS(new UnionVFS(inputLibVfsList));
+    } else {
+      inputLibVfsList.add(0, vfs);
+      vfs = new UnionVFS(inputLibVfsList);
     }
   }
 }

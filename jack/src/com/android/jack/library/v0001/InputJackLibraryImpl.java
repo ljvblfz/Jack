@@ -83,13 +83,10 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   private final Map<FileType, InputVFS> sectionVFS =
       new EnumMap<FileType, InputVFS>(FileType.class);
 
-  @Nonnull
-  private final VFS vfs;
-
   public InputJackLibraryImpl(@Nonnull VFS vfs,
       @Nonnull Properties libraryProperties) throws LibraryVersionException,
       LibraryFormatException {
-    super(libraryProperties, vfs.getLocation());
+    super(libraryProperties, vfs);
     this.vfs = vfs;
 
     check();
