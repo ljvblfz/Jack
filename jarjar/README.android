@@ -1,1 +1,5 @@
-This is jarjar 1.4 using ASM 5.0.4 r1790.
+URL: https://jarjar.googlecode.com/files/jarjar-src-1.4.zip
+Tag: 1.4
+License: Apache 2
+Description: A utility that makes it easy to repackage Java libraries and embed them into your own distribution.
+Local Modifications: None.
