@@ -592,14 +592,12 @@ public abstract class Jack {
           request.addProduction(DexInLibraryProduct.class);
         }
 
-        if (request.getFeatures().contains(SourceVersion8.class)) {
-          if (config.get(Options.LAMBDA_TO_ANONYMOUS_CONVERTER).booleanValue()) {
-            request.addFeature(LambdaToAnonymousConverter.class);
-          }
+        if (config.get(Options.LAMBDA_TO_ANONYMOUS_CONVERTER).booleanValue()) {
+          request.addFeature(LambdaToAnonymousConverter.class);
+        }
 
-          if (config.get(CodeItemBuilder.EXPERIMENTAL_LAMBDA_OPCODES).booleanValue()) {
-            request.addFeature(LambdaUseExperimentalOpcodes.class);
-          }
+        if (config.get(CodeItemBuilder.EXPERIMENTAL_LAMBDA_OPCODES).booleanValue()) {
+          request.addFeature(LambdaUseExperimentalOpcodes.class);
         }
 
         if (config.get(Options.GENERATE_DEX_FILE).booleanValue()) {
@@ -1170,8 +1168,7 @@ public abstract class Jack {
       }
     }
 
-    if (!features.contains(SourceVersion8.class)
-        || !features.contains(LambdaToAnonymousConverter.class)) {
+    if (!features.contains(LambdaToAnonymousConverter.class)) {
       planBuilder.append(InnerAccessorSchedulingSeparator.class);
     }
     planBuilder.append(TryStatementSchedulingSeparator.class);
@@ -1194,8 +1191,7 @@ public abstract class Jack {
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
           planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
-      if (!features.contains(SourceVersion8.class)
-          || !features.contains(LambdaToAnonymousConverter.class)) {
+      if (!features.contains(LambdaToAnonymousConverter.class)) {
         typePlan4.append(InnerAccessorAdder.class);
       }
       typePlan4.append(UsedEnumFieldMarkerRemover.class);
@@ -1241,41 +1237,38 @@ public abstract class Jack {
       }
     }
 
-
-    if (features.contains(SourceVersion8.class)) {
-      if (features.contains(LambdaToAnonymousConverter.class)) {
-        {
-          SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-              planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
-          SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodOnlyAdapter.class);
-          methodPlan.append(LambdaConverter.class);
-        }
-        {
-          SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-              planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
-          if (features.contains(AvoidSynthethicAccessors.class)) {
-            typePlan.append(OptimizedInnerAccessorGenerator.class);
-          } else {
-            typePlan.append(InnerAccessorGenerator.class);
-          }
-        }
-        planBuilder.append(InnerAccessorSchedulingSeparator.class);
-        {
-          SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-              planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
-          if (features.contains(AvoidSynthethicAccessors.class)) {
-            typePlan.append(ReferencedOuterFieldsExposer.class);
-          }
-          typePlan.append(InnerAccessorAdder.class);
-        }
-      }
-
-      if (features.contains(LambdaUseExperimentalOpcodes.class)) {
+    if (features.contains(LambdaToAnonymousConverter.class)) {
+      {
         SubPlanBuilder<JDefinedClassOrInterface> typePlan =
             planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
         SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodOnlyAdapter.class);
-        methodPlan.append(LambdaNativeSupportConverter.class);
+        methodPlan.append(LambdaConverter.class);
       }
+      {
+        SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+            planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
+        if (features.contains(AvoidSynthethicAccessors.class)) {
+          typePlan.append(OptimizedInnerAccessorGenerator.class);
+        } else {
+          typePlan.append(InnerAccessorGenerator.class);
+        }
+      }
+      planBuilder.append(InnerAccessorSchedulingSeparator.class);
+      {
+        SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+            planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
+        if (features.contains(AvoidSynthethicAccessors.class)) {
+          typePlan.append(ReferencedOuterFieldsExposer.class);
+        }
+        typePlan.append(InnerAccessorAdder.class);
+      }
+    }
+
+    if (features.contains(LambdaUseExperimentalOpcodes.class)) {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+          planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
+      SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodOnlyAdapter.class);
+      methodPlan.append(LambdaNativeSupportConverter.class);
     }
 
     {
@@ -1389,9 +1382,7 @@ public abstract class Jack {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
       typePlan.append(ClassDefItemBuilder.class);
-      if (features.contains(SourceVersion8.class)) {
-        typePlan.append(ContainerAnnotationAdder.TypeContainerAnnotationAdder.class);
-      }
+      typePlan.append(ContainerAnnotationAdder.TypeContainerAnnotationAdder.class);
       typePlan.append(ClassAnnotationBuilder.class);
     }
 
@@ -1462,9 +1453,7 @@ public abstract class Jack {
           methodPlan5.append(CodeItemBuilder.class);
           methodPlan5.append(CfgMarkerRemover.class);
           methodPlan5.append(EncodedMethodBuilder.class);
-          if (features.contains(SourceVersion8.class)) {
-            methodPlan5.append(ContainerAnnotationAdder.MethodContainerAnnotationAdder.class);
-          }
+          methodPlan5.append(ContainerAnnotationAdder.MethodContainerAnnotationAdder.class);
           methodPlan5.append(MethodAnnotationBuilder.class);
           if (features.contains(DropMethodBody.class)) {
             methodPlan5.append(MethodBodyRemover.class);
@@ -1473,9 +1462,7 @@ public abstract class Jack {
         {
           SubPlanBuilder<JField> fieldPlan2 =
               typePlan5.appendSubPlan(JFieldAdapter.class);
-          if (features.contains(SourceVersion8.class)) {
-            fieldPlan2.append(ContainerAnnotationAdder.FieldContainerAnnotationAdder.class);
-          }
+          fieldPlan2.append(ContainerAnnotationAdder.FieldContainerAnnotationAdder.class);
           fieldPlan2.append(EncodedFieldBuilder.class);
           fieldPlan2.append(FieldAnnotationBuilder.class);
         }

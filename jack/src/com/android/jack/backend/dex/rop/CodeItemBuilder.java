@@ -26,7 +26,6 @@ import com.android.jack.cfg.PeiBasicBlock;
 import com.android.jack.cfg.ReturnBasicBlock;
 import com.android.jack.cfg.SwitchBasicBlock;
 import com.android.jack.cfg.ThrowBasicBlock;
-import com.android.jack.config.id.JavaVersionPropertyId;
 import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
 import com.android.jack.dx.dex.DexOptions;
 import com.android.jack.dx.dex.code.DalvCode;
@@ -182,8 +181,6 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
           .create("jack.dex.lambda.experimental",
               "Generates experimental opcodes for lambda support")
           .addDefaultValue(Boolean.FALSE)
-          .requiredIf(Options.JAVA_SOURCE_VERSION.getValue()
-              .isGreaterOrEqual(JavaVersionPropertyId.getConstant(JavaVersion.JAVA_8)))
       .addCategory(DumpInLibrary.class)
       .addCategory(PrebuiltCompatibility.class);
 

@@ -34,7 +34,6 @@ import com.android.jack.ir.ast.JRetentionPolicy;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.sourceinfo.SourceInfo;
-import com.android.jack.scheduling.feature.SourceVersion8;
 import com.android.jack.transformations.request.AddAnnotation;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.TransformationRequest;
@@ -42,7 +41,6 @@ import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
-import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
 
@@ -56,7 +54,6 @@ import javax.annotation.Nonnull;
 /**
  * Add a container annotation when same annotations are used several times on an annotable.
  */
-@Support({SourceVersion8.class})
 @Transform(add = {JAnnotation.class, JNameValuePair.class, JArrayLiteral.class})
 public class ContainerAnnotationAdder {
 
