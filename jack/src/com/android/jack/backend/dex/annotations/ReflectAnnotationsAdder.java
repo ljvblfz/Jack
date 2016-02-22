@@ -16,6 +16,8 @@
 
 package com.android.jack.backend.dex.annotations;
 
+import com.google.common.collect.Ordering;
+
 import com.android.jack.Jack;
 import com.android.jack.backend.dex.DexAnnotations;
 import com.android.jack.backend.dex.annotations.tag.ReflectAnnotations;
@@ -46,6 +48,8 @@ import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.ast.marker.GenericSignature;
 import com.android.jack.ir.ast.marker.SimpleName;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
+import com.android.jack.ir.formatter.InternalFormatter;
+import com.android.jack.ir.formatter.TypeFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
@@ -67,6 +71,7 @@ import com.android.sched.schedulable.With;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -113,6 +118,18 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
     private final JAnnotationType innerAnnotationType;
     @Nonnull
     private final JAnnotationType memberClassAnnotationType;
+
+    @Nonnull
+    TypeFormatter orderingFormatter = InternalFormatter.getFormatter();
+
+    @Nonnull
+    private final Ordering<JClassOrInterface> typeOrdering =
+        Ordering.from(new Comparator<JClassOrInterface>() {
+          @Override
+          public int compare(@Nonnull JClassOrInterface t1, @Nonnull JClassOrInterface t2) {
+            return orderingFormatter.getName(t1).compareTo(orderingFormatter.getName(t2));
+          }
+        });
 
     public Visitor(@Nonnull TransformationRequest request, @Nonnull JPhantomLookup lookup) {
       this.request = request;
@@ -232,15 +249,20 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
     private void addMemberClasses(@Nonnull JDefinedClassOrInterface type) {
       List<JLiteral> literals = new ArrayList<JLiteral>();
       SourceInfo info = type.getSourceInfo();
-      for (JClassOrInterface members : type.getMemberTypes()) {
+
+      // sort member classes to be deterministic even with synthetic member classes
+      List<JClassOrInterface> sortedMemberTypes =
+          typeOrdering.immutableSortedCopy(type.getMemberTypes());
+
+      for (JClassOrInterface member : sortedMemberTypes) {
         // The method getMemberTypes returns all classes contained directly by another class
         // without taking into account if the class is declared locally to a method or not.
         // The built annotation requires to contain only classes declared outside a method.
-        if (members instanceof JDefinedClass
-            && ((JDefinedClass) members).getEnclosingMethod() != null) {
+        if (member instanceof JDefinedClass
+            && ((JDefinedClass) member).getEnclosingMethod() != null) {
           continue;
         }
-        literals.add(new JClassLiteral(info, members, javaLangClass));
+        literals.add(new JClassLiteral(info, member, javaLangClass));
       }
       if (!literals.isEmpty()) {
         JMethodId methodId = getOrCreateMethodId(memberClassAnnotationType, ELT_VALUE);
