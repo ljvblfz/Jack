@@ -69,12 +69,13 @@ public class NConstructor extends NMethod {
       @Nonnull JayceClassOrInterfaceLoader enclosingLoader) throws JTypeLookupException,
       JMethodLookupException {
     assert sourceInfo != null;
+    assert methodNodeIndex != INDEX_UNKNOWN;
     exportSession.getVariableResolver().clear();
     SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JDefinedClass enclosingType = (JDefinedClass) exportSession.getCurrentType();
     assert enclosingType != null;
     JConstructor jConstructor = new JConstructor(jSourceInfo,
-        enclosingType, modifier, new JayceMethodLoader(this, enclosingLoader));
+        enclosingType, modifier, new JayceMethodLoader(this, methodNodeIndex, enclosingLoader));
     exportSession.setCurrentMethod(jConstructor);
     for (NParameter parameter : parameters) {
       JParameter jParam = parameter.exportAsJast(exportSession);

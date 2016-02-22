@@ -213,6 +213,7 @@ public class NClassType extends NDeclaredType {
       inners = in.readIds();
       fields = in.readNodes(NField.class);
       methods = in.readNodes(NMethod.class);
+      assert areMethodIndicesValid();
       annotations = in.readNodes(NAnnotation.class);
       markers = in.readNodes(NMarker.class);
     }

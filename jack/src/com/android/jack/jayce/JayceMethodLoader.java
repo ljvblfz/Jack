@@ -50,12 +50,16 @@ public class JayceMethodLoader extends AbstractMethodLoader implements HasInputL
   @Nonnull
   private final SoftReference<MethodNode> nnode;
 
+  @Nonnull
+  private final int methodNodeIndex;
+
   private boolean isLoaded = false;
 
-  public JayceMethodLoader(@Nonnull MethodNode nnode,
+  public JayceMethodLoader(@Nonnull MethodNode nnode, int methodNodeIndex,
       @Nonnull JayceClassOrInterfaceLoader enclosingClassLoader) {
     this.enclosingClassLoader = enclosingClassLoader;
     this.nnode = new SoftReference<MethodNode>(nnode);
+    this.methodNodeIndex = methodNodeIndex;
   }
 
   @Override
@@ -66,7 +70,7 @@ public class JayceMethodLoader extends AbstractMethodLoader implements HasInputL
       }
       MethodNode methodNode;
       try {
-        methodNode = getNNode(loaded);
+        methodNode = getNNode();
       } catch (LibraryException e) {
         throw new JackLoadingException(getLocation(loaded), e);
       }
@@ -91,12 +95,12 @@ public class JayceMethodLoader extends AbstractMethodLoader implements HasInputL
   }
 
   @Nonnull
-  private MethodNode getNNode(@Nonnull JMethod loaded) throws LibraryFormatException,
+  private MethodNode getNNode() throws LibraryFormatException,
       LibraryIOException {
     MethodNode methodNode = nnode.get();
     if (methodNode == null || methodNode.getLevel() != NodeLevel.FULL) {
       DeclaredTypeNode declaredTypeNode = enclosingClassLoader.getNNode(NodeLevel.FULL);
-      methodNode = declaredTypeNode.getMethodNode(loaded);
+      methodNode = declaredTypeNode.getMethodNode(methodNodeIndex);
     }
     return methodNode;
   }

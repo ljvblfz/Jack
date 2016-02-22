@@ -17,10 +17,7 @@
 package com.android.jack.jayce.v0002.nodes;
 
 import com.android.jack.Jack;
-import com.android.jack.ir.ast.JConstructor;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.formatter.TypeAndMethodFormatter;
 import com.android.jack.jayce.DeclaredTypeNode;
 import com.android.jack.jayce.MethodNode;
@@ -29,7 +26,6 @@ import com.android.jack.jayce.v0002.NNode;
 import com.android.jack.jayce.v0002.io.ExportSession;
 
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.CheckForNull;
@@ -61,42 +57,17 @@ public abstract class NDeclaredType extends NNode implements HasSourceInfo, Decl
 
   @Override
   @Nonnull
-  public MethodNode getMethodNode(@Nonnull JMethod jMethod) {
-    if (jMethod instanceof JConstructor) {
-      for (NMethod nMethod : methods) {
-        if (nMethod.name == null
-            && isSameArgTypeList(jMethod, nMethod)) {
-          assert nMethod instanceof NConstructor;
-          return nMethod;
-        }
-      }
-    } else {
-      for (NMethod nMethod : methods) {
-        if (jMethod.getName().equals(nMethod.name)
-            && lookupFormatter.getName(jMethod.getType()).equals(nMethod.returnType)
-            && isSameArgTypeList(jMethod, nMethod)) {
-          return nMethod;
-        }
-      }
-    }
-    throw new IllegalArgumentException("getMethodNode can be called only with JMethod argument" +
-        " created by the receiver DeclaredTypeNode. " + jMethod + " was not created by " + this);
+  public MethodNode getMethodNode(@Nonnull int methodNodeIndex) {
+    return methods.get(methodNodeIndex);
   }
 
-  private boolean isSameArgTypeList(@Nonnull JMethod jMethod, @Nonnull NMethod nMethod) {
-    List<JParameter> jParams = jMethod.getParams();
-    List<NParameter> nParams = nMethod.parameters;
-    if (jParams.size() != nParams.size()) {
-      return false;
+  protected boolean areMethodIndicesValid() {
+    boolean allValid = true;
+    int size = methods.size();
+    for (int i = 0; (i < size) && allValid; i++) {
+      allValid &= (i == methods.get(i).methodNodeIndex);
     }
-    Iterator<JParameter> jParamIterator = jParams.iterator();
-    for (NParameter nParam : nParams) {
-      JParameter jParam = jParamIterator.next();
-      if (!lookupFormatter.getName(jParam.getType()).equals(nParam.type)) {
-        return false;
-      }
-    }
-    return true;
+    return allValid;
   }
 
 }

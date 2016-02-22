@@ -54,6 +54,8 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
   @Nonnull
   public static final Token TOKEN = Token.METHOD;
 
+  protected static final int INDEX_UNKNOWN = -1;
+
   @CheckForNull
   public String name;
   @CheckForNull
@@ -75,6 +77,7 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
 
   @CheckForNull
   protected NodeLevel level;
+  protected int methodNodeIndex = INDEX_UNKNOWN;
 
   @Override
   @Nonnull
@@ -126,6 +129,7 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
     assert returnType != null;
     assert methodKind != null;
     assert sourceInfo != null;
+    assert methodNodeIndex != INDEX_UNKNOWN;
     SourceInfo info = sourceInfo.exportAsJast(exportSession);
     JDefinedClassOrInterface enclosingType = exportSession.getCurrentType();
     assert enclosingType != null;
@@ -133,7 +137,7 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
     JMethod jMethod = new JMethod(
         info, id, enclosingType,
         exportSession.getLookup().getType(returnType),
-        modifier, new JayceMethodLoader(this, enclosingLoader));
+        modifier, new JayceMethodLoader(this, methodNodeIndex, enclosingLoader));
     exportSession.setCurrentMethod(jMethod);
     for (NParameter parameter : parameters) {
       JParameter jParam = parameter.exportAsJast(exportSession);
@@ -239,6 +243,11 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
   @Override
   public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
     this.sourceInfo = sourceInfo;
+  }
+
+  @Override
+  public void setIndex(int index) {
+    this.methodNodeIndex = index;
   }
 
   protected static void clearBodyResolvers(ExportSession exportSession) {

@@ -78,13 +78,14 @@ public class NAnnotationMethod extends NMethod {
     assert returnType != null;
     assert sourceInfo != null;
     assert body == null;
+    assert methodNodeIndex != INDEX_UNKNOWN;
     SourceInfo info = sourceInfo.exportAsJast(exportSession);
     JDefinedClassOrInterface enclosingType = exportSession.getCurrentType();
     assert enclosingType != null;
     JAnnotationMethod jAnnotationMethod = new JAnnotationMethod(
         info, new JMethodId(name, MethodKind.INSTANCE_VIRTUAL), enclosingType,
         exportSession.getLookup().getType(returnType),
-        modifier, new JayceMethodLoader(this, enclosingLoader));
+        modifier, new JayceMethodLoader(this, methodNodeIndex, enclosingLoader));
     exportSession.setCurrentMethod(jAnnotationMethod);
     for (NAnnotation annotationLiteral : annotations) {
       jAnnotationMethod.addAnnotation(annotationLiteral.exportAsJast(exportSession));
