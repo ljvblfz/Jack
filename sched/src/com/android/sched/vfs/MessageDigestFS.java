@@ -116,28 +116,13 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
     @Override
     @Nonnull
     public InputStream getInputStream() throws WrongPermissionException {
-      return wrappedFile.getInputStream();
+      return vfs.openRead(this);
     }
 
     @Override
     @Nonnull
     public OutputStream getOutputStream() throws WrongPermissionException {
-      synchronized (MessageDigestFS.this) {
-        digests.remove(getPath());
-        digest = null;
-      }
-
-      return new DigestOutputStream(wrappedFile.getOutputStream(), mdFactory.create()) {
-        @Override
-        public void close() throws IOException {
-          super.close();
-          // XXX open order instead of close order !
-          synchronized (MessageDigestFS.this) {
-            digests.put(getPath(), getDigestString(getMessageDigest().digest()));
-            digest = null;
-          }
-        }
-      };
+      return vfs.openWrite(this);
     }
 
     @Override
@@ -361,16 +346,29 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
 
   @Override
   @Nonnull
-  InputStream openRead(@Nonnull MessageDigestVFile file) {
-    // should be implemented in MessageDigestVFile
-    throw new UnsupportedOperationException();
+  InputStream openRead(@Nonnull MessageDigestVFile file) throws WrongPermissionException {
+    return vfs.openRead(file.getWrappedFile());
   }
 
   @Override
   @Nonnull
-  OutputStream openWrite(@Nonnull final MessageDigestVFile file) {
-    // should be implemented in MessageDigestVFile
-    throw new UnsupportedOperationException();
+  OutputStream openWrite(@Nonnull final MessageDigestVFile file) throws WrongPermissionException {
+    synchronized (this) {
+      digests.remove(file.getPath());
+      digest = null;
+    }
+
+    return new DigestOutputStream(vfs.openWrite(file.getWrappedFile()), mdFactory.create()) {
+      @Override
+      public void close() throws IOException {
+        super.close();
+        // XXX open order instead of close order !
+        synchronized (MessageDigestFS.this) {
+          digests.put(file.getPath(), getDigestString(getMessageDigest().digest()));
+          digest = null;
+        }
+      }
+    };
   }
 
   @Override
