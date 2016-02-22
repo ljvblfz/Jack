@@ -933,6 +933,62 @@ public class VFSTest {
     }
   }
 
+  @Test
+  public void testDeflateFSWithMessageDigestFS()
+      throws NotDirectoryException,
+      CannotCreateFileException,
+      WrongPermissionException,
+      CannotChangePermissionException,
+      NoSuchFileException,
+      FileAlreadyExistsException,
+      IOException {
+    File file = null;
+    InputOutputVFS ioVFS1 = null;
+    InputVFS ioVFS2 = null;
+    try {
+      file = File.createTempFile("vfs", ".zip");
+
+      Provider.Service sha1 = getSha1Service();
+
+      ioVFS1 = new GenericInputOutputVFS(new DeflateFS(new MessageDigestFS(
+          new ReadWriteZipFS(
+              new OutputZipFile(file.getPath(), null, Existence.MAY_EXIST,
+                  ChangePermission.NOCHANGE, Compression.UNCOMPRESSED),
+              /* numGroups = */ 1, /* groupSize = */ 2, new MessageDigestFactory(sha1),
+              /* debug = */ false),
+          new MessageDigestFactory(sha1))));
+      testOutputVFS(ioVFS1);
+      testDelete(ioVFS1);
+      testInputVFS(ioVFS1);
+      InputVFile fileAAB1 =
+          ioVFS1.getRootInputVDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
+      String fileAAB1digest = ((GenericInputVFile) fileAAB1).getDigest();
+      Assert.assertNotNull(fileAAB1digest);
+      ioVFS1.close();
+
+      ioVFS2 = new GenericInputVFS(new DeflateFS(new MessageDigestFS(new ReadZipFS(
+          new InputZipFile(file.getPath(), null, Existence.MUST_EXIST, ChangePermission.NOCHANGE)),
+          new MessageDigestFactory(sha1))));
+      testInputVFS(ioVFS2);
+
+      InputVFile fileAAB1b =
+          ioVFS2.getRootInputVDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
+      String fileAAB1digest2 = ((GenericInputVFile) fileAAB1b).getDigest();
+      Assert.assertEquals(fileAAB1digest, fileAAB1digest2);
+
+    } finally {
+      if (ioVFS1 != null) {
+        ioVFS1.close();
+      }
+      if (ioVFS2 != null) {
+        ioVFS2.close();
+      }
+      if (file != null) {
+        Assert.assertTrue(file.delete());
+      }
+    }
+  }
+
   private void testDelete(@Nonnull InputOutputVFS ioVFS)
       throws NoSuchFileException,
       CannotDeleteFileException,
