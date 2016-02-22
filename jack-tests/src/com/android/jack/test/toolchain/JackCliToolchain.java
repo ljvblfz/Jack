@@ -256,13 +256,18 @@ public class JackCliToolchain extends JackBasedToolchain {
   }
 
   protected void buildJackCall(@Nonnull List<String> commandLine) {
-    boolean assertEnable = false;
-    assert true == (assertEnable = true);
 
-    commandLine.add("java");
-    commandLine.add(assertEnable ? "-ea" : "-da");
-    commandLine.add("-jar");
+    if (jackPrebuilt.getName().endsWith(".jar")) {
+      boolean assertEnable = false;
+      assert true == (assertEnable = true);
+
+      commandLine.add("java");
+      commandLine.add(assertEnable ? "-ea" : "-da");
+      commandLine.add("-jar");
+    }
+
     commandLine.add(jackPrebuilt.getAbsolutePath());
+
   }
 
   protected void libToImportStaticLibs(@Nonnull List<String> commandLine, @Nonnull File[] in)
@@ -352,6 +357,9 @@ public class JackCliToolchain extends JackBasedToolchain {
 
   protected void run(@Nonnull List<String> commandLine) {
     ExecuteFile exec = new ExecuteFile(commandLine.toArray(new String[commandLine.size()]));
+
+    setUpEnvironment(exec);
+
     exec.setErr(errRedirectStream);
     exec.setOut(outRedirectStream);
     exec.setVerbose(isVerbose);
@@ -365,4 +373,21 @@ public class JackCliToolchain extends JackBasedToolchain {
     }
   }
 
+
+  private static void setUpEnvironment(@Nonnull ExecuteFile exec) {
+    String path = System.getenv("PATH");
+    if (path != null) {
+      exec.addEnvVar("PATH", path);
+    }
+
+    String home = System.getenv("HOME");
+    if (home != null) {
+      exec.addEnvVar("HOME", home);
+    }
+
+    String user = System.getenv("USER");
+    if (user != null) {
+      exec.addEnvVar("USER", user);
+    }
+  }
 }
