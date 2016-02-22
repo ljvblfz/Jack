@@ -57,22 +57,45 @@ public abstract class JillApiToolchainBase extends JillBasedToolchain {
   private String compilerVersion;
 
 
-  protected <T extends JillConfig> JillApiToolchainBase(@Nonnull File jillPrebuilt,
+  protected <T extends JillConfig> JillApiToolchainBase(@CheckForNull File jillPrebuilt,
       @Nonnull File jackPrebuilt, @Nonnull Class<T> jillConfig, @Nonnull File refCompilerPrebuilt,
       @Nonnull File jarjarPrebuilt, @Nonnull File proguardPrebuilt) {
-    super(jillPrebuilt, jackPrebuilt, refCompilerPrebuilt, jarjarPrebuilt, proguardPrebuilt);
+    super(jackPrebuilt, refCompilerPrebuilt, jarjarPrebuilt, proguardPrebuilt);
 
     if (configProvider == null) {
       try {
-        ClassLoader classLoader = URLClassLoader.newInstance(
-            new URL[] {jillPrebuilt.toURI().toURL()}, JillApiToolchainBase.class.getClassLoader());
-        ServiceLoader<JillProvider> serviceLoader =
-            ServiceLoader.load(JillProvider.class, classLoader);
+        ClassLoader classLoader = null;
+
+        ServiceLoader<JillProvider> serviceLoader;
+
+        if (jillPrebuilt != null) {
+          classLoader = URLClassLoader.newInstance(
+              new URL[] {jillPrebuilt.toURI().toURL()},
+              JillApiToolchainBase.class.getClassLoader());
+          serviceLoader = ServiceLoader.load(JillProvider.class, classLoader);
+        } else {
+          serviceLoader = ServiceLoader.load(JillProvider.class);
+        }
+
         configProvider = serviceLoader.iterator().next();
+
+        assert configProvider != null;
+
+        if (jillPrebuilt != null && configProvider.getClass().getClassLoader() != classLoader) {
+          throw new TestConfigurationException("Jill is not loaded from '" + jillPrebuilt
+              + "'. Unset jill prebuilt property in configuration file.");
+        }
+
       } catch (MalformedURLException e1) {
         throw new TestConfigurationException(e1);
       } catch (NoSuchElementException e) {
-        throw new TestConfigurationException(e);
+        if (jillPrebuilt == null) {
+          throw new TestConfigurationException(
+              "JillProvider could not be loaded. Ensure Jill is present on classpath or prebuilt"
+              + " is specified in configuration file", e);
+        } else {
+          throw new TestConfigurationException(e);
+        }
       }
     }
 
