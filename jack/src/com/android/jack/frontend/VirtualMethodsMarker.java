@@ -16,6 +16,7 @@
 
 package com.android.jack.frontend;
 
+import com.android.jack.Jack;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JDefinedClass;
@@ -23,11 +24,16 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JPhantomClassOrInterface;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.lookup.CommonTypes;
 import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
+import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.schedulable.Transform;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -47,62 +53,72 @@ public class VirtualMethodsMarker implements Marker, Iterable<JMethodId>, Clonea
   /**
    * A remover for {@link VirtualMethodsMarker}
    */
-  public static class Remover extends JVisitor {
+  @Description("Removes VirtualMethodsMarker")
+  @Transform(remove = VirtualMethodsMarker.class)
+  @Constraint(need = VirtualMethodsMarker.class)
+  public static class Remover implements RunnableSchedulable<JSession> {
+    private static class Visitor extends JVisitor {
 
-    @Nonnull
-    private final JClass javaLangObject;
+      @Nonnull
+      private final JClass javaLangObject = Jack.getSession().getPhantomLookup()
+      .getClass(CommonTypes.JAVA_LANG_OBJECT);
 
-    public Remover(@Nonnull JClass javaLangObject) {
-      super(false /* needLoading */);
-      this.javaLangObject = javaLangObject;
-    }
-
-    @Override
-    public boolean visit(@Nonnull JDefinedClass definedClass) {
-      if (definedClass.removeMarker(VirtualMethodsMarker.class) != null) {
-        ensureHierarchyVisited(definedClass);
+      private Visitor() {
+        super(false /* needLoading */);
       }
-      return false;
-    }
 
-    @Override
-    public boolean visit(@Nonnull JDefinedInterface defineInterface) {
-      if (defineInterface.removeMarker(VirtualMethodsMarker.class) != null) {
-        ensureHierarchyVisited(defineInterface);
+      @Override
+      public boolean visit(@Nonnull JDefinedClass definedClass) {
+        if (definedClass.removeMarker(VirtualMethodsMarker.class) != null) {
+          ensureHierarchyVisited(definedClass);
+        }
+        return false;
       }
-      return false;
-    }
 
-    @Override
-    public boolean visit(@Nonnull JPhantomClassOrInterface phantomClassOrInterface) {
-      if (phantomClassOrInterface.removeMarker(VirtualMethodsMarker.class) != null) {
-        ensureHierarchyVisited(phantomClassOrInterface);
+      @Override
+      public boolean visit(@Nonnull JDefinedInterface defineInterface) {
+        if (defineInterface.removeMarker(VirtualMethodsMarker.class) != null) {
+          ensureHierarchyVisited(defineInterface);
+        }
+        return false;
       }
-      return false;
-    }
 
-    private void ensureHierarchyVisited(@Nonnull JClassOrInterface node) {
-      JClass zuper = getSuper(node);
-      if (zuper != null) {
-        accept(zuper);
+      @Override
+      public boolean visit(@Nonnull JPhantomClassOrInterface phantomClassOrInterface) {
+        if (phantomClassOrInterface.removeMarker(VirtualMethodsMarker.class) != null) {
+          ensureHierarchyVisited(phantomClassOrInterface);
+        }
+        return false;
       }
-      if (node instanceof JDefinedClassOrInterface) {
-        for (JClassOrInterface interfaze : ((JDefinedClassOrInterface) node).getImplements()) {
-          accept(interfaze);
+
+      private void ensureHierarchyVisited(@Nonnull JClassOrInterface node) {
+        JClass zuper = getSuper(node);
+        if (zuper != null) {
+          accept(zuper);
+        }
+        if (node instanceof JDefinedClassOrInterface) {
+          for (JClassOrInterface interfaze : ((JDefinedClassOrInterface) node).getImplements()) {
+            accept(interfaze);
+          }
+        }
+      }
+
+      @CheckForNull
+      private JClass getSuper(@Nonnull JClassOrInterface node) {
+        if (node instanceof JDefinedClass) {
+          return ((JDefinedClass) node).getSuperClass();
+        }
+        if (!node.isSameType(javaLangObject)) {
+          return javaLangObject;
+        } else {
+          return null;
         }
       }
     }
 
-    @CheckForNull
-    private JClass getSuper(@Nonnull JClassOrInterface node) {
-      if (node instanceof JDefinedClass) {
-        return ((JDefinedClass) node).getSuperClass();
-      }
-      if (!node.isSameType(javaLangObject)) {
-        return javaLangObject;
-      } else {
-        return null;
-      }
+    @Override
+    public void run(JSession session) throws Exception {
+      new Visitor().accept(session.getTypesToEmit());
     }
   }
 

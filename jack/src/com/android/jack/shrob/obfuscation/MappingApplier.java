@@ -20,6 +20,7 @@ import com.google.common.primitives.Chars;
 
 import com.android.jack.Jack;
 import com.android.jack.JackIOException;
+import com.android.jack.frontend.MethodIdDuplicateRemover.UniqMethodIds;
 import com.android.jack.ir.ast.CanBeRenamed;
 import com.android.jack.ir.ast.HasName;
 import com.android.jack.ir.ast.JClassOrInterface;
@@ -39,6 +40,7 @@ import com.android.jack.transformations.request.Rename;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.NamingTools;
 import com.android.sched.marker.MarkerManager;
+import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.log.LoggerFactory;
 
@@ -58,6 +60,7 @@ import javax.annotation.Nonnull;
  * A class that parses a mapping file and rename the remapped nodes.
  */
 @Transform(add = {OriginalNameMarker.class, OriginalPackageMarker.class, KeepNameMarker.class})
+@Constraint(need = UniqMethodIds.class)
 public class MappingApplier {
 
   @Nonnull

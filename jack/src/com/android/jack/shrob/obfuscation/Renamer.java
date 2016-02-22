@@ -18,6 +18,7 @@
 package com.android.jack.shrob.obfuscation;
 
 import com.android.jack.Jack;
+import com.android.jack.frontend.MethodIdDuplicateRemover.UniqMethodIds;
 import com.android.jack.ir.ast.CanBeRenamed;
 import com.android.jack.ir.ast.HasName;
 import com.android.jack.ir.ast.JClassOrInterface;
@@ -65,7 +66,8 @@ import javax.annotation.Nonnull;
  */
 @HasKeyId
 @Description("Visitor that renames JNodes")
-@Constraint(need = {KeepNameMarker.class, OriginalNames.class}, no = FinalNames.class)
+@Constraint(need = {KeepNameMarker.class, OriginalNames.class, UniqMethodIds.class},
+    no = FinalNames.class)
 @Transform(remove = OriginalNames.class,
     add = {OriginalNameMarker.class, OriginalPackageMarker.class, FinalNames.class})
 @Use(MappingApplier.class)

@@ -17,6 +17,7 @@
 package com.android.jack.analysis.tracer;
 
 import com.android.jack.Jack;
+import com.android.jack.frontend.MethodIdDuplicateRemover.UniqMethodIds;
 import com.android.jack.ir.ast.Annotable;
 import com.android.jack.ir.ast.JAbstractMethodBody;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
@@ -65,6 +66,7 @@ import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.shrob.shrink.PartialTypeHierarchy;
 import com.android.sched.item.Description;
 import com.android.sched.marker.LocalMarkerManager;
+import com.android.sched.schedulable.Constraint;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.TracerFactory;
 
@@ -78,6 +80,7 @@ import javax.annotation.Nonnull;
  * A visitor that traces dependencies
  */
 @Description("traces dependencies")
+@Constraint(need = UniqMethodIds.class)
 public class Tracer extends JVisitor {
 
   @Nonnull

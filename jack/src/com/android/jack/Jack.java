@@ -87,14 +87,11 @@ import com.android.jack.incremental.Incremental;
 import com.android.jack.incremental.InputFilter;
 import com.android.jack.ir.JackFormatIr;
 import com.android.jack.ir.JavaSourceIr;
-import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSession;
-import com.android.jack.ir.ast.JType;
-import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.formatter.InternalFormatter;
 import com.android.jack.ir.formatter.TypePackageAndMethodFormatter;
 import com.android.jack.ir.formatter.UserFriendlyFormatter;
@@ -107,7 +104,6 @@ import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.LibraryReadingException;
 import com.android.jack.library.OutputJackLibrary;
-import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.meta.LibraryMetaWriter;
 import com.android.jack.meta.MetaImporter;
@@ -895,27 +891,6 @@ public abstract class Jack {
       session.getReporter().report(Severity.FATAL, e);
       throw new JackAbortException(e);
     }
-
-    if (options.flags != null && (options.flags.shrink() || options.flags.obfuscate())) {
-      Event eventIdMerger = tracer.start(JackEventType.METHOD_ID_MERGER);
-
-      try {
-        JClass javaLangObject = session.getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
-        MethodIdMerger merger = new MethodIdMerger(javaLangObject);
-        for (JType type : session.getTypesToEmit()) {
-          merger.accept(type);
-        }
-        JVisitor remover = new VirtualMethodsMarker.Remover(javaLangObject);
-        for (JType type : session.getTypesToEmit()) {
-          remover.accept(type);
-        }
-      } finally {
-        eventIdMerger.end();
-      }
-
-      MethodIdDuplicateRemover methodIdDupRemover = new MethodIdDuplicateRemover();
-      methodIdDupRemover.accept(session.getTypesToEmit());
-    }
   }
 
   private static void addPackageLoaderForLibrary(JSession session,
@@ -1032,6 +1007,14 @@ public abstract class Jack {
     boolean hasSanityChecks = features.contains(SanityChecks.class);
 
     // Build the plan
+    if (features.contains(Shrinking.class) || features.contains(Obfuscation.class)
+        || features.contains(MultiDexLegacy.class)) {
+      planBuilder.append(MethodIdMerger.class);
+      planBuilder.append(VirtualMethodsMarker.Remover.class);
+      planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
+        .append(MethodIdDuplicateRemover.class);
+    }
+
     if (hasSanityChecks) {
       planBuilder.append(TypeDuplicateRemoverChecker.class);
     }

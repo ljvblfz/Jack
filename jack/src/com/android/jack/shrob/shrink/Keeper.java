@@ -36,7 +36,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Marks all classes and members that will be kept when shrinking.")
 @Constraint(need = {ExtendingOrImplementingClassMarker.class})
-@Use(KeeperBrush.class)
+@Use({Tracer.class, KeeperBrush.class})
 @Optional(@ToSupport(feature = SourceVersion8.class,
     add = @Constraint(need = JAnnotation.RepeatedAnnotation.class)))
 public class Keeper implements RunnableSchedulable<JDefinedClassOrInterface> {

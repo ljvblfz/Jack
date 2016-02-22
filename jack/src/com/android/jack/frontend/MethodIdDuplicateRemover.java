@@ -16,8 +16,11 @@
 
 package com.android.jack.frontend;
 
+import com.android.jack.frontend.MethodIdDuplicateRemover.UniqMethodIds;
+import com.android.jack.frontend.MethodIdMerger.MethodIdMerged;
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JClassOrInterface;
+import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JMethod;
@@ -28,59 +31,86 @@ import com.android.jack.ir.ast.JNameValuePair;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.lookup.JMethodWithReturnLookupException;
+import com.android.sched.item.Description;
+import com.android.sched.item.Name;
+import com.android.sched.item.Tag;
+import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.schedulable.Transform;
 
 import java.util.Collection;
 
 import javax.annotation.Nonnull;
 
 /**
- * Update methodIds of {@link JMethodCall}s and {@link JNameValuePair}s.
+ * Update methodIds of {@link JMethodCall}s and {@link JNameValuePair}s so that they used the merged
+ * uniq ids.
  */
-public class MethodIdDuplicateRemover extends JVisitor {
+@Description("Update methodIds of JMethodCalls and JNameValuePairs so that they used the merged"
+    + " uniq ids")
+@Constraint(need = MethodIdMerged.class)
+@Transform(add = UniqMethodIds.class)
+public class MethodIdDuplicateRemover implements RunnableSchedulable<JDefinedClassOrInterface> {
 
-  public MethodIdDuplicateRemover() {
-    super(false /* needLoading */);
+  /**
+   * This tag means that Jack IR is using uniq JMethodIds.
+   */
+  @Description("Jack IR is using uniq JMethodIds")
+  @Name("UniqMethodIds")
+  public static class UniqMethodIds implements Tag {
   }
 
-  @Nonnull
-  private JMethodId getResolvedMethodId(
-      @Nonnull JClassOrInterface receiverType, @Nonnull JMethodId id) {
-    Collection<JMethod> methods = id.getMethods();
-    if (!methods.isEmpty()) {
-      JMethod method = methods.iterator().next();
-      return method.getMethodId();
-    } else {
-      return receiverType.getOrCreateMethodId(id.getName(), id.getParamTypes(), id.getKind());
+  private static class Visitor extends JVisitor {
+
+    private Visitor() {
+      super(false /* needLoading */);
+    }
+
+    @Nonnull
+    private JMethodId getResolvedMethodId(
+        @Nonnull JClassOrInterface receiverType, @Nonnull JMethodId id) {
+      Collection<JMethod> methods = id.getMethods();
+      if (!methods.isEmpty()) {
+        JMethod method = methods.iterator().next();
+        return method.getMethodId();
+      } else {
+        return receiverType.getOrCreateMethodId(id.getName(), id.getParamTypes(), id.getKind());
+      }
+    }
+
+    @Override
+    public boolean visit(@Nonnull JLambda lambda) {
+      JInterface lambdaType = lambda.getType();
+      try {
+        JMethodIdWithReturnType mthIdWithReturnType = lambda.getMethodIdToImplement();
+        JMethodId newMthId = lambdaType.getMethodId(mthIdWithReturnType.getName(),
+            mthIdWithReturnType.getParameterTypes(), MethodKind.INSTANCE_VIRTUAL);
+        mthIdWithReturnType.setMethodId(newMthId);
+      } catch (JMethodWithReturnLookupException e) {
+        throw new AssertionError();
+      }
+      return super.visit(lambda);
+    }
+
+    @Override
+    public boolean visit(@Nonnull JMethodCall call) {
+      JMethodId id = getResolvedMethodId(call.getReceiverType(), call.getMethodId());
+      call.resolveMethodId(id);
+      return super.visit(call);
+    }
+
+    @Override
+    public boolean visit(@Nonnull JAnnotation annotation) {
+      for (JNameValuePair pair : annotation.getNameValuePairs()) {
+        JMethodId id = getResolvedMethodId(annotation.getType(), pair.getMethodId());
+        pair.resolveMethodId(id);
+      }
+      return super.visit(annotation);
     }
   }
 
   @Override
-  public boolean visit(@Nonnull JLambda lambda) {
-    JInterface lambdaType = lambda.getType();
-    try {
-      JMethodIdWithReturnType mthIdWithReturnType = lambda.getMethodIdToImplement();
-      JMethodId newMthId = lambdaType.getMethodId(mthIdWithReturnType.getName(),
-          mthIdWithReturnType.getParameterTypes(), MethodKind.INSTANCE_VIRTUAL);
-      mthIdWithReturnType.setMethodId(newMthId);
-    } catch (JMethodWithReturnLookupException e) {
-      throw new AssertionError();
-    }
-    return super.visit(lambda);
-  }
-
-  @Override
-  public boolean visit(@Nonnull JMethodCall call) {
-    JMethodId id = getResolvedMethodId(call.getReceiverType(), call.getMethodId());
-    call.resolveMethodId(id);
-    return super.visit(call);
-  }
-
-  @Override
-  public boolean visit(@Nonnull JAnnotation annotation) {
-    for (JNameValuePair pair : annotation.getNameValuePairs()) {
-      JMethodId id = getResolvedMethodId(annotation.getType(), pair.getMethodId());
-      pair.resolveMethodId(id);
-    }
-    return super.visit(annotation);
+  public void run(JDefinedClassOrInterface type) throws Exception {
+    new Visitor().accept(type);
   }
 }

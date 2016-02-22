@@ -38,7 +38,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Trace for shrink and main dex.")
 @Constraint(need = ExtendingOrImplementingClassMarker.class)
-@Use({KeeperBrush.class, MultiDexLegacyTracerBrush.class})
+@Use({Tracer.class, KeeperBrush.class, MultiDexLegacyTracerBrush.class})
 @Optional(@ToSupport(feature = SourceVersion8.class,
     add = @Constraint(need = JAnnotation.RepeatedAnnotation.class)))
 public class ShrinkAndMainDexTracer implements RunnableSchedulable<JDefinedClassOrInterface> {

@@ -35,7 +35,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Trace for main dex.")
 @Constraint(need = ExtendingOrImplementingClassMarker.class)
-@Use(MultiDexLegacyTracerBrush.class)
+@Use({Tracer.class, MultiDexLegacyTracerBrush.class})
 @Optional(@ToSupport(feature = SourceVersion8.class,
     add = @Constraint(need = JAnnotation.RepeatedAnnotation.class)))
 public class MainDexTracer implements RunnableSchedulable<JDefinedClassOrInterface> {
