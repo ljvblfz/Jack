@@ -118,8 +118,7 @@ public class DynamicAssertionTransformer implements RunnableSchedulable<JMethod>
         JFieldId id = currentType.getFieldId(ASSERTION_FIELD_NAME,
             JPrimitiveTypeEnum.BOOLEAN.getType(), FieldKind.STATIC);
         JField field = id.getField();
-        assert field != null;
-        if (field.getEnclosingType().isSameType(currentType)) {
+        if (field != null && field.getEnclosingType().isSameType(currentType)) {
           // return only direct field
           return id;
         }
