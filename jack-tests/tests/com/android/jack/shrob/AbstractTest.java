@@ -606,6 +606,11 @@ public abstract class AbstractTest {
   }
 
   @Test
+  public void test47_001() throws Exception {
+    runTest("047", "001", "");
+  }
+
+  @Test
   public void test52_001() throws Exception {
     runTest("052", "001", "");
   }

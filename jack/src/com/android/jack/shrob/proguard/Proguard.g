@@ -159,6 +159,7 @@ private classModifierAndType[ModifierSpecification modifier] returns [ClassTypeS
   'public' {GrammarActions.addModifier(modifier, JModifier.PUBLIC, hasNegator);} cmat=classModifierAndType[modifier] {cType = $cmat.cType;}
   | 'abstract' {GrammarActions.addModifier(modifier, JModifier.ABSTRACT, hasNegator);} cmat=classModifierAndType[modifier] {cType = $cmat.cType;}
   | 'final' {GrammarActions.addModifier(modifier, JModifier.FINAL, hasNegator);} cmat=classModifierAndType[modifier] {cType = $cmat.cType;}
+  | '@' {GrammarActions.addModifier(modifier, JModifier.ANNOTATION, hasNegator);} cmat=classModifierAndType[modifier] {cType = $cmat.cType;}
   | classType {cType=GrammarActions.classType($classType.type, hasNegator); }
   )
   ;
