@@ -16,7 +16,6 @@
 
 package com.android.jack.transformations.enums;
 
-import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
@@ -35,8 +34,6 @@ public class UsedEnumFieldMarkerRemover implements RunnableSchedulable<JDefinedC
 
   @Override
   public void run(@Nonnull JDefinedClassOrInterface t) throws Exception {
-    if (t instanceof JDefinedClass) {
-      t.removeMarker(SwitchEnumSupport.UsedEnumField.class);
-    }
+    t.removeMarker(SwitchEnumSupport.UsedEnumField.class);
   }
 }

@@ -42,6 +42,10 @@ public class StaticMethodTest {
       AbstractTestTools.getTestRootDir("com.android.jack.java8.staticmethod.test002"),
       "com.android.jack.java8.staticmethod.test002.jack.Tests");
 
+  private RuntimeTestInfo STATICTMETHOD003 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java8.staticmethod.test003"),
+      "com.android.jack.java8.staticmethod.test003.jack.Tests");
+
   @Test
   public void testStaticMethod001() throws Exception {
     run(STATICTMETHOD001);
@@ -50,6 +54,11 @@ public class StaticMethodTest {
   @Test
   public void testStaticMethod002() throws Exception {
     run(STATICTMETHOD002);
+  }
+
+  @Test
+  public void testStaticMethod003() throws Exception {
+    run(STATICTMETHOD003);
   }
 
   private void run(@Nonnull RuntimeTestInfo rti) throws Exception {

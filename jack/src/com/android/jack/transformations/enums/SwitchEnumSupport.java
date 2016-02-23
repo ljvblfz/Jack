@@ -31,6 +31,7 @@ import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDefinedEnum;
+import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.ast.JEnumField;
 import com.android.jack.ir.ast.JEnumLiteral;
 import com.android.jack.ir.ast.JExpression;
@@ -138,7 +139,7 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
    * Enum fields used into switch.
    */
   @Description("Enum fields used into switch")
-  @ValidOn(JDefinedClass.class)
+  @ValidOn({JDefinedClass.class, JDefinedInterface.class})
   public static class UsedEnumField implements Marker {
     @Nonnull
     private final Set<JFieldId> enumFields;
@@ -169,24 +170,21 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
     private final TransformationRequest tr;
 
     @Nonnull
-    private final JDefinedClassOrInterface currentClass;
+    private final JDefinedClassOrInterface currentClOrI;
 
     @CheckForNull
     private Set<JFieldId> usedEnumFields;
 
-    public Visitor(@Nonnull TransformationRequest tr,
-        @Nonnull JDefinedClassOrInterface currentClass) {
+    public Visitor(@Nonnull TransformationRequest tr, @Nonnull JDefinedClassOrInterface clOrI) {
       this.tr = tr;
-      this.currentClass = currentClass;
+      this.currentClOrI = clOrI;
     }
 
     @Override
     public boolean visit(@Nonnull JMethod method) {
-      if (method.getEnclosingType() instanceof JDefinedClass) {
-        UsedEnumField uef = method.getEnclosingType().getMarker(UsedEnumField.class);
-        assert uef != null;
-        usedEnumFields = uef.getEnumFields();
-      }
+      UsedEnumField uef = method.getEnclosingType().getMarker(UsedEnumField.class);
+      assert uef != null;
+      usedEnumFields = uef.getEnumFields();
       return super.visit(method);
     }
 
@@ -258,22 +256,24 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
       JMethod getEnumSwitchValues;
 
       try {
-        getEnumSwitchValues = currentClass.getMethod(methodName, switchValuesArrayType);
+        getEnumSwitchValues = currentClOrI.getMethod(methodName, switchValuesArrayType);
       } catch (JMethodLookupException e) {
-        TransformationRequest localTr = new TransformationRequest(currentClass);
+        TransformationRequest localTr = new TransformationRequest(currentClOrI);
 
         // Create $[EnumName]switchesValues field
+        // STOPSHIP: the field must not be public, uses an inner class to avoid the public field ?
         JField enumSwitchValues =
-            new JField(dbgInfo, fieldName, currentClass, switchValuesArrayType,
-                JModifier.PRIVATE | JModifier.STATIC | JModifier.SYNTHETIC);
-        localTr.append(new AppendField(currentClass, enumSwitchValues));
+            new JField(dbgInfo, fieldName, currentClOrI, switchValuesArrayType,
+                (currentClOrI instanceof JDefinedInterface ? JModifier.PUBLIC : JModifier.PRIVATE)
+                    | JModifier.FINAL | JModifier.STATIC | JModifier.SYNTHETIC);
+        localTr.append(new AppendField(currentClOrI, enumSwitchValues));
 
         // Create method $getEnumSwitchesValues
         getEnumSwitchValues =
             new JMethod(dbgInfo, new JMethodId(methodName, MethodKind.STATIC),
-                currentClass, switchValuesArrayType,
+                currentClOrI, switchValuesArrayType,
                 JModifier.PRIVATE | JModifier.STATIC | JModifier.SYNTHETIC);
-        localTr.append(new AppendMethod(currentClass, getEnumSwitchValues));
+        localTr.append(new AppendMethod(currentClOrI, getEnumSwitchValues));
 
         JBlock bodyBlock = new JBlock(dbgInfo);
         JMethodBody body = new JMethodBody(dbgInfo, bodyBlock);
@@ -284,11 +284,11 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
         JFieldId enumSwitchValuesId = enumSwitchValues.getId();
         JExpression checkNull =
             JBinaryOperation.create(dbgInfo, JBinaryOperator.NEQ, new JFieldRef(dbgInfo,
-                null /* instance */, enumSwitchValuesId, currentClass),
+                null /* instance */, enumSwitchValuesId, currentClOrI),
                 new JNullLiteral(dbgInfo));
         JBlock thenBlock = new JBlock(dbgInfo);
         thenBlock.addStmt(new JReturnStatement(dbgInfo,
-            new JFieldRef(dbgInfo, null /* instance */, enumSwitchValuesId, currentClass)));
+            new JFieldRef(dbgInfo, null /* instance */, enumSwitchValuesId, currentClOrI)));
         bodyBlock.addStmt(new JIfStatement(dbgInfo, checkNull, thenBlock, null /* elseStmt */));
 
         JLocal arrayVar = lvc.createTempLocal(switchValuesArrayType, dbgInfo, localTr);
@@ -379,7 +379,7 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
 
         getEnumSwitchValues.addMarker(emm);
         bodyBlock.addStmt(new JAsgOperation(dbgInfo,
-            new JFieldRef(dbgInfo, null /* instance */, enumSwitchValuesId, currentClass),
+            new JFieldRef(dbgInfo, null /* instance */, enumSwitchValuesId, currentClOrI),
             arrayVar.makeRef(dbgInfo)).makeStatement());
         bodyBlock.addStmt(new JReturnStatement(dbgInfo, arrayVar.makeRef(dbgInfo)));
 

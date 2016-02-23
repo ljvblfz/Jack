@@ -17,7 +17,6 @@
 package com.android.jack.transformations.enums;
 
 import com.android.jack.ir.ast.JCaseStatement;
-import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JEnumLiteral;
 import com.android.jack.ir.ast.JFieldId;
@@ -47,9 +46,9 @@ public class UsedEnumFieldCollector implements RunnableSchedulable<JDefinedClass
     private final Set<JFieldId> usedEnumField = new HashSet<JFieldId>();
 
     @Override
-    public void endVisit(@Nonnull JDefinedClass definedClass) {
-      definedClass.addMarker(new SwitchEnumSupport.UsedEnumField(usedEnumField));
-      super.endVisit(definedClass);
+    public void endVisit(@Nonnull JDefinedClassOrInterface clOrI) {
+      clOrI.addMarker(new SwitchEnumSupport.UsedEnumField(usedEnumField));
+      super.endVisit(clOrI);
     }
 
     @Override
