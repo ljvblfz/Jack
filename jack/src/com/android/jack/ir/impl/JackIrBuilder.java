@@ -1411,7 +1411,7 @@ public class JackIrBuilder {
         boolean shouldCaptureInstance = isSuperRef || isThisRef;
 
         exprRepresentingLambda = new JLambda(sourceInfo, methodIdToImplement, newMethodInfo.method,
-            (JDefinedInterface) getTypeMap().get(referenceExpression.resolvedType),
+            (JDefinedInterface) getTypeMap().get(getLambdaType(referenceExpression, blockScope)),
             shouldCaptureInstance, getInterfaceBounds(referenceExpression, blockScope));
         ((JLambda) exprRepresentingLambda).addBridgeMethodIds(getBridges(referenceExpression));
 
@@ -1477,7 +1477,8 @@ public class JackIrBuilder {
 
         exprRepresentingLambda =
             new JLambda(sourceInfo, methodIdToImplement, newMethodInfo.method,
-                (JDefinedInterface) getTypeMap().get(referenceExpression.resolvedType),
+                (JDefinedInterface) getTypeMap()
+                    .get(getLambdaType(referenceExpression, blockScope)),
                 /* captureInstance= */ false, getInterfaceBounds(referenceExpression, blockScope));
         ((JLambda) exprRepresentingLambda)
             .addBridgeMethodIds(getBridges(referenceExpression));
@@ -1539,7 +1540,7 @@ public class JackIrBuilder {
       JLambda lambda = new JLambda(sourceInfo,
           getJMethodIdWithReturnType(referenceExpression.descriptor.original()),
           newMethodInfo.method,
-          (JDefinedInterface) getTypeMap().get(referenceExpression.resolvedType),
+          (JDefinedInterface) getTypeMap().get(getLambdaType(referenceExpression, blockScope)),
           shouldCaptureInstance, getInterfaceBounds(referenceExpression, blockScope));
       lambda.addBridgeMethodIds(getBridges(referenceExpression));
 
@@ -1733,7 +1734,7 @@ public class JackIrBuilder {
       JLambda lambda = new JLambda(sourceInfo,
           getJMethodIdWithReturnType(lambdaExpression.descriptor.original()),
           lambdaMethodInfo.method,
-          (JDefinedInterface) getTypeMap().get(lambdaExpression.resolvedType),
+          (JDefinedInterface) getTypeMap().get(getLambdaType(lambdaExpression, blockScope)),
           lambdaExpression.shouldCaptureInstance, getInterfaceBounds(lambdaExpression, blockScope));
       lambda.addBridgeMethodIds(getBridges(lambdaExpression));
 
@@ -1752,6 +1753,19 @@ public class JackIrBuilder {
       }
 
       push(lambda);
+    }
+
+    @Nonnull
+    private TypeBinding getLambdaType(@Nonnull FunctionalExpression functionalExpression,
+        @Nonnull BlockScope blockScope) {
+      TypeBinding resolvedType = functionalExpression.resolvedType;
+
+      if (resolvedType instanceof IntersectionTypeBinding18) {
+        resolvedType = ((IntersectionTypeBinding18) resolvedType).getSAMType(blockScope);
+      }
+
+      assert resolvedType != null;
+      return resolvedType;
     }
 
     @Nonnull

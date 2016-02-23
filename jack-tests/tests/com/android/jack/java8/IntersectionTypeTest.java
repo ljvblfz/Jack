@@ -57,6 +57,10 @@ public class IntersectionTypeTest {
       AbstractTestTools.getTestRootDir("com.android.jack.java8.intersectiontype.test005"),
       "com.android.jack.java8.intersectiontype.test005.jack.Tests");
 
+  private RuntimeTestInfo INTERSECTION_TYPE_006 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java8.intersectiontype.test006"),
+      "com.android.jack.java8.intersectiontype.test006.jack.Tests");
+
   @Test
   public void testIntersectionType001() throws Exception {
     new RuntimeTestHelper(INTERSECTION_TYPE_001)
@@ -113,5 +117,15 @@ public class IntersectionTypeTest {
     } catch (FrontendCompilationException e) {
       // Compilation error is ok
     }
+  }
+
+  @Test
+  public void testIntersectionType006() throws Exception {
+    new RuntimeTestHelper(INTERSECTION_TYPE_006)
+    .setSourceLevel(SourceLevel.JAVA_8)
+    .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
+    .addIgnoredCandidateToolchain(JillBasedToolchain.class)
+    .addIgnoredCandidateToolchain(JackApiV01.class)
+    .compileAndRunTest();
   }
 }
