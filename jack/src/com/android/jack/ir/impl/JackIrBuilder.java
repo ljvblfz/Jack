@@ -3154,9 +3154,7 @@ public class JackIrBuilder {
 
     private JExpression maybeCast(JType expected, JExpression expression) {
       if (!expected.isSameType(expression.getType())) {
-        // Must be a generic; insert a cast operation.
-        JReferenceType toType = (JReferenceType) expected;
-        return new JDynamicCastOperation(expression.getSourceInfo(), expression, toType);
+        return new JDynamicCastOperation(expression.getSourceInfo(), expression, expected);
       } else {
         return expression;
       }
