@@ -32,21 +32,28 @@ import org.jacoco.core.internal.analysis.MethodCoverageImpl;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
  * Code coverage report analyzer.
  */
 public class JackCoverageAnalyzer {
-  @Nonnull
-  private final ExecutionDataStore executionDataStore;
+  @Nonnull private static final String CURRENT_VERSION = "1.0";
 
-  @Nonnull
-  private final ICoverageVisitor coverageVisitor;
+  @Nonnull private static final String JSON_VERSION_ATTRIBUTE = "version";
+
+  @Nonnull private static final String JSON_DATA_ATTRIBUTE = "data";
+
+  @Nonnull private final ExecutionDataStore executionDataStore;
+
+  @Nonnull private final ICoverageVisitor coverageVisitor;
 
   public JackCoverageAnalyzer(
       @Nonnull ExecutionDataStore executionDataStore, @Nonnull ICoverageVisitor coverageVisitor) {
@@ -66,13 +73,50 @@ public class JackCoverageAnalyzer {
           "File " + jackCoverageDescriptionFile + " does not exist.");
     }
 
-    JsonReader jsonReader =
-        new JsonReader(new InputStreamReader(new FileInputStream(jackCoverageDescriptionFile)));
+    InputStream is = new FileInputStream(jackCoverageDescriptionFile);
     try {
-      readClasses(jsonReader);
+      analyze(is);
     } finally {
-      jsonReader.close();
+      is.close();
     }
+  }
+
+  private void analyze(@Nonnull InputStream coverageDescriptionInputStream) throws IOException {
+    JsonReader jsonReader = new JsonReader(new InputStreamReader(coverageDescriptionInputStream));
+    readMetadata(jsonReader);
+  }
+
+  private void checkVersion(@CheckForNull String version) {
+    if (version == null) {
+      throw new JsonParseException("Missing 'version' attribute before coverage metadadata");
+    }
+    String[] parts = version.split(Pattern.quote("."));
+    if (parts.length != 2) {
+      throw new JsonParseException("Version number format must be x.y");
+    }
+    if (!version.equals(CURRENT_VERSION)) {
+      throw new JsonParseException("Unknown version " + version);
+    }
+  }
+
+  private void readMetadata(@Nonnull JsonReader jsonReader) throws IOException {
+    jsonReader.beginObject();
+
+    String version = null;
+    while (jsonReader.hasNext()) {
+      String attributeName = jsonReader.nextName();
+      if (attributeName.equals(JSON_VERSION_ATTRIBUTE)) {
+        // Reads the version so we can parse the JSON accordingly.
+        version = jsonReader.nextString();
+      } else if (attributeName.equals(JSON_DATA_ATTRIBUTE)) {
+        checkVersion(version);
+        readClasses(jsonReader);
+      } else {
+        jsonReader.skipValue();
+      }
+    }
+
+    jsonReader.endObject();
   }
 
   private void readClasses(@Nonnull JsonReader jsonReader) throws IOException {
@@ -132,8 +176,9 @@ public class JackCoverageAnalyzer {
 
     // Build the class coverage.
     String[] interfacesArray = interfaces.toArray(new String[0]);
-    ClassCoverageImpl c = new ClassCoverageImpl(
-        className, id, noMatch, classSignature, superClassName, interfacesArray);
+    ClassCoverageImpl c =
+        new ClassCoverageImpl(
+            className, id, noMatch, classSignature, superClassName, interfacesArray);
     c.setSourceFileName(sourceFile);
 
     // Update methods with probes.
@@ -174,8 +219,10 @@ public class JackCoverageAnalyzer {
   }
 
   // Parses probes.
-  private static void readProbes(@Nonnull JsonReader jsonReader,
-      @Nonnull List<ProbeDescription> probes, @Nonnull List<? extends IMethodCoverage> methods)
+  private static void readProbes(
+      @Nonnull JsonReader jsonReader,
+      @Nonnull List<ProbeDescription> probes,
+      @Nonnull List<? extends IMethodCoverage> methods)
       throws IOException {
     jsonReader.beginArray();
     while (jsonReader.hasNext()) {

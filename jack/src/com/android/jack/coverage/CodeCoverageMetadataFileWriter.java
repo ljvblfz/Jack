@@ -61,6 +61,18 @@ import javax.annotation.Nonnull;
 @Produce(CodeCoverageMetadataFile.class)
 public class CodeCoverageMetadataFileWriter implements RunnableSchedulable<JSession> {
 
+  /**
+   * The version of emitted JSON coverage information.
+   */
+  @Nonnull
+  private static final String VERSION = "1.0";
+
+  @Nonnull
+  private static final String JSON_VERSION_ATTRIBUTE = "version";
+
+  @Nonnull
+  private static final String JSON_DATA_ATTRIBUTE = "data";
+
   @Nonnull
   public static final PropertyId<OutputStreamFile> COVERAGE_METADATA_FILE = PropertyId.create(
       "jack.coverage.metadata.file", "File where the coverage metadata will be emitted",
@@ -232,8 +244,7 @@ public class CodeCoverageMetadataFileWriter implements RunnableSchedulable<JSess
 
   @Override
   public void run(@Nonnull JSession session) throws Exception {
-    OutputStreamFile outputFile = ThreadConfig.get(COVERAGE_METADATA_FILE);
-    PrintStream writer = outputFile.getPrintStream();
+    PrintStream writer = ThreadConfig.get(COVERAGE_METADATA_FILE).getPrintStream();
     try {
       writeMetadata(session, writer);
     } finally {
@@ -242,7 +253,13 @@ public class CodeCoverageMetadataFileWriter implements RunnableSchedulable<JSess
   }
 
   private void writeMetadata(@Nonnull JSession session, @Nonnull PrintStream writer) {
-    writer.println('[');
+    writer.print("{ \"");
+    writer.print(JSON_VERSION_ATTRIBUTE);
+    writer.print("\":\"");
+    writer.print(VERSION);
+    writer.print("\", \"");
+    writer.print(JSON_DATA_ATTRIBUTE);
+    writer.println("\":[");
     Iterator<JDefinedClassOrInterface> list = session.getTypesToEmit().iterator();
     boolean first = true;
     while (list.hasNext()) {
@@ -268,6 +285,7 @@ public class CodeCoverageMetadataFileWriter implements RunnableSchedulable<JSess
         writer.println();
       }
     }
-    writer.println(']');
+    writer.println("]}");
+    writer.flush();
   }
 }
