@@ -56,4 +56,7 @@ public abstract class NNode implements Node {
   public static TypeAndMethodFormatter getFormatter() {
     return formatter;
   }
+
+  public void setIndex(@SuppressWarnings("unused") int index) {
+  }
 }

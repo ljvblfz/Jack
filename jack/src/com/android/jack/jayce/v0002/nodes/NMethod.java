@@ -107,6 +107,11 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
   }
 
   @Nonnull
+  @Override
+  public void setIndex(int index) {
+    this.methodNodeIndex = index;
+  }
+
   public JMethod exportAsJast(@Nonnull ExportSession exportSession,
       @Nonnull JayceClassOrInterfaceLoader enclosingLoader) throws JTypeLookupException,
       JMethodLookupException {
