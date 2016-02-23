@@ -18,24 +18,35 @@ package com.android.jack;
 
 import com.android.jack.reporting.ReportableException;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
  * A {@link RuntimeException} that should be fatal and cause Jack to abort. It should not be caught,
- * should have a cause {@link ReportableException} and no message.
+ * and should have no message.
+ * It can have a cause {@link ReportableException}
  */
 public class JackAbortException extends RuntimeException {
 
   private static final long serialVersionUID = 1L;
+
+  public JackAbortException() {
+
+  }
 
   public JackAbortException(@Nonnull ReportableException cause) {
     super(cause);
   }
 
   @Override
-  @Nonnull
+  @CheckForNull
   public String getMessage() {
-    return getCause().getMessage();
+    Throwable cause = getCause();
+    if (cause != null) {
+      return cause.getMessage();
+    } else {
+      return null;
+    }
   }
 
 }
