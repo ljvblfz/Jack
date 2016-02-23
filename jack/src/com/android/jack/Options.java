@@ -20,6 +20,7 @@ import com.google.common.base.Joiner;
 
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.dex.MultiDexLegacy;
+import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.config.id.Arzon;
 import com.android.jack.config.id.JavaVersionPropertyId;
@@ -976,10 +977,12 @@ public class Options {
       configBuilder.setString(DEX_OUTPUT_ZIP, outZip.getPath());
       configBuilder.set(DEX_OUTPUT_CONTAINER_TYPE, Container.ZIP);
       configBuilder.set(GENERATE_DEX_FILE, true);
+      configBuilder.set(AndroidCompatibilityChecker.CHECK_COMPATIBILITY, true);
     } else if (out != null) {
       configBuilder.setString(DEX_OUTPUT_DIR, out.getPath());
       configBuilder.set(DEX_OUTPUT_CONTAINER_TYPE, Container.DIR);
       configBuilder.set(GENERATE_DEX_FILE, true);
+      configBuilder.set(AndroidCompatibilityChecker.CHECK_COMPATIBILITY, true);
     }
 
     // use a variable to keep record of whether incremental compilation is enabled or not,

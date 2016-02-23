@@ -16,22 +16,8 @@
 
 package com.android.jack.java8;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Nonnull;
-
-import org.junit.internal.AssumptionViolatedException;
-import org.junit.runner.Description;
-import org.junit.runner.manipulation.Filter;
-import org.junit.runner.manipulation.NoTestsRemainException;
-
-import com.android.jack.test.eclipse.jdt.core.tests.compiler.regression.LambdaExpressionsTest;
+import com.android.jack.Options;
+import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
 import com.android.jack.test.runner.AbstractRuntimeRunner;
 import com.android.jack.test.runner.RuntimeRunner;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -44,6 +30,21 @@ import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 import junit.framework.Assert;
 import junit.framework.JUnit4TestAdapter;
 import junit.framework.Test;
+
+import org.junit.internal.AssumptionViolatedException;
+import org.junit.runner.Description;
+import org.junit.runner.manipulation.Filter;
+import org.junit.runner.manipulation.NoTestsRemainException;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Nonnull;
 
 public class EcjLambdaTest extends LambdaExpressionsTest {
 
@@ -149,6 +150,9 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
       File[] bootclasspath = jackToolchain.getDefaultBootClasspath();
       jackToolchain.addToClasspath(bootclasspath);
       jackToolchain.setSourceLevel(SourceLevel.JAVA_8);
+      jackToolchain.addProperty(
+          Options.ANDROID_MIN_API_LEVEL.getName(),
+          String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL));
       jackToolchain.srcToExe(dexOutDir, /* zipFile = */ false, sourceFolder);
     } catch (Exception e) {
       e.printStackTrace();
@@ -180,6 +184,9 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
       File[] bootclasspath = jackToolchain.getDefaultBootClasspath();
       jackToolchain.addToClasspath(bootclasspath);
       jackToolchain.setSourceLevel(SourceLevel.JAVA_8);
+      jackToolchain.addProperty(
+          Options.ANDROID_MIN_API_LEVEL.getName(),
+          String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL));
       jackToolchain.srcToExe(dexOutDir, /* zipFile = */ false, sourceFolder);
 
       File dexFile = new File(dexOutDir, "classes.dex");

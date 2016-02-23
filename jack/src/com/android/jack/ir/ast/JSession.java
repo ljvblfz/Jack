@@ -115,7 +115,7 @@ public class JSession extends JNode {
   @CheckForNull
   private RunnableHooks hooks;
 
-  private final boolean mustAbortEventually = false;
+  private boolean mustAbortEventually = false;
 
   public JSession() {
     super(SourceInfo.UNKNOWN);
@@ -160,6 +160,10 @@ public class JSession extends JNode {
   @Nonnull
   public SourceInfoFactory getSourceInfoFactory() {
     return sourceInfoFactory;
+  }
+
+  public void setAbortEventually(boolean value) {
+    mustAbortEventually = value;
   }
 
   public boolean mustAbortEventually() {

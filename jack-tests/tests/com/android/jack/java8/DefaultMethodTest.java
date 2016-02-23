@@ -22,6 +22,8 @@ import org.jf.dexlib.DexFile;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.android.jack.Options;
+import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
 import com.android.jack.test.helper.FileChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.junit.KnownIssue;
@@ -258,9 +260,12 @@ public class DefaultMethodTest {
 
   private void run(@Nonnull RuntimeTestInfo rti) throws Exception {
     new RuntimeTestHelper(rti)
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .addIgnoredCandidateToolchain(JillBasedToolchain.class)
-    .addIgnoredCandidateToolchain(JackApiV01.class)
-    .compileAndRunTest();
+        .addProperty(
+            Options.ANDROID_MIN_API_LEVEL.getName(),
+            String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL))
+        .setSourceLevel(SourceLevel.JAVA_8)
+        .addIgnoredCandidateToolchain(JillBasedToolchain.class)
+        .addIgnoredCandidateToolchain(JackApiV01.class)
+        .compileAndRunTest();
   }
 }

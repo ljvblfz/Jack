@@ -58,6 +58,8 @@ import com.android.jack.backend.dex.MultiDexWritingTool;
 import com.android.jack.backend.dex.annotations.ClassAnnotationSchedulingSeparator;
 import com.android.jack.backend.dex.annotations.DefaultValueAnnotationAdder;
 import com.android.jack.backend.dex.annotations.ReflectAnnotationsAdder;
+import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
+import com.android.jack.backend.dex.compatibility.CheckAndroidCompatibility;
 import com.android.jack.backend.dex.multidex.legacy.AnnotatedFinder;
 import com.android.jack.backend.dex.multidex.legacy.RuntimeAnnotationFinder;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
@@ -602,6 +604,10 @@ public abstract class Jack {
           session.addGeneratedFileType(FileType.PREBUILT);
         }
 
+        if (config.get(AndroidCompatibilityChecker.CHECK_COMPATIBILITY).booleanValue()) {
+          request.addFeature(CheckAndroidCompatibility.class);
+        }
+
         if (config.get(Options.OPTIMIZED_ENUM_SWITCH) == SwitchEnumOptStrategy.FEEDBACK) {
           request.addFeature(OptimizedSwitchEnumFeedbackFeature.class);
         } else if (config.get(Options.OPTIMIZED_ENUM_SWITCH) == SwitchEnumOptStrategy.ALWAYS) {
@@ -1056,10 +1062,17 @@ public abstract class Jack {
       planBuilder.append(AstChecker.class);
     }
 
-    if (features.contains(CodeCoverage.class)) {
+    {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-      typePlan.append(CodeCoverageSelector.class);
+      if (features.contains(CodeCoverage.class)) {
+        typePlan.append(CodeCoverageSelector.class);
+      }
+
+      if (features.contains(CheckAndroidCompatibility.class)) {
+        SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
+        methodPlan.append(AndroidCompatibilityChecker.class);
+      }
     }
 
     {
@@ -1117,6 +1130,7 @@ public abstract class Jack {
           if (hasSanityChecks) {
             methodPlan2.append(ImplicitBlocksChecker.class);
           }
+
           if (hasSanityChecks) {
             methodPlan2.append(UselessIfChecker.class);
           }
