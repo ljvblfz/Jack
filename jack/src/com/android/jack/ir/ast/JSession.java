@@ -143,6 +143,7 @@ public class JSession extends JNode {
     return phantomLookup;
   }
 
+  @Deprecated
   @Nonnull
   public Logger getUserLogger() {
     return userLogger;
