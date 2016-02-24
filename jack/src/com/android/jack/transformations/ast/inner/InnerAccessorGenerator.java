@@ -77,8 +77,7 @@ import javax.annotation.Nonnull;
         InnerAccessorSchedulingSeparator.SeparatorTag.class},
     remove = {ThreeAddressCodeForm.class, NewInstanceRemoved.class})
 @Constraint(no = {SideEffectOperation.class, JAlloc.class,
-    InnerAccessorGeneratorSchedulingSeparator.SeparatorConcatRemoverTag.class,
-    InnerAccessorGeneratorSchedulingSeparator.SeparatorSwitchEnumSupportTag.class})
+    InnerAccessorGeneratorSchedulingSeparator.SeparatorConcatRemoverTag.class})
 public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Nonnull

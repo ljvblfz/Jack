@@ -35,11 +35,9 @@ import javax.annotation.Nonnull;
 @Description("A separation between InnerAccessorGenerator on one side, SwitchEnumSupport "
     + "and ConcatRemover on the other side")
 @Transform(remove = {
-    InnerAccessorGeneratorSchedulingSeparator.SeparatorConcatRemoverTag.class,
-    InnerAccessorGeneratorSchedulingSeparator.SeparatorSwitchEnumSupportTag.class})
+    InnerAccessorGeneratorSchedulingSeparator.SeparatorConcatRemoverTag.class})
 @Constraint(need = {
-    InnerAccessorGeneratorSchedulingSeparator.SeparatorConcatRemoverTag.class,
-    InnerAccessorGeneratorSchedulingSeparator.SeparatorSwitchEnumSupportTag.class})
+    InnerAccessorGeneratorSchedulingSeparator.SeparatorConcatRemoverTag.class})
 public class InnerAccessorGeneratorSchedulingSeparator implements RunnableSchedulable<JSession> {
 
   @Override

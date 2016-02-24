@@ -1,0 +1,5 @@
+-dontobfuscate
+-keep class com.android.jack.inner.test031.jack.Inner031$Inner1
+-keep class com.android.jack.inner.test031.jack.Inner031$Inner2 {
+  <methods>;
+}

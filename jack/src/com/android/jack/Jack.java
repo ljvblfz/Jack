@@ -1059,8 +1059,6 @@ public abstract class Jack {
       }
     }
 
-    appendMultiDexAndShrobStartPlan(planBuilder);
-
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
@@ -1118,18 +1116,6 @@ public abstract class Jack {
       methodPlan.append(SwitchEnumUsageCollector.class);
     }
 
-    {
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan = planBuilder.appendSubPlan(
-          ExcludeTypeFromLibAdapter.class);
-      SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
-      if (features.contains(OptimizedSwitchEnumFeedbackFeature.class)
-          || features.contains(OptimizedSwitchEnumNonFeedbackFeature.class)) {
-        methodPlan.append(OptimizedSwitchEnumSupport.class);
-      } else {
-        methodPlan.append(SwitchEnumSupport.class);
-      }
-    }
-
     if ((features.contains(OptimizedSwitchEnumFeedbackFeature.class)
         || features.contains(OptimizedSwitchEnumNonFeedbackFeature.class))
         && hasSanityChecks) {
@@ -1139,9 +1125,9 @@ public abstract class Jack {
     }
     planBuilder.append(InnerAccessorGeneratorSchedulingSeparator.class);
 
-    if (!features.contains(LambdaToAnonymousConverter.class)) {
       // InnerAccessor visits inner types while running on outer
       // types and therefore should be alone in its plan.
+    {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
       if (features.contains(AvoidSynthethicAccessors.class)) {
@@ -1151,11 +1137,7 @@ public abstract class Jack {
       }
     }
 
-    if (!features.contains(LambdaToAnonymousConverter.class)) {
-      planBuilder.append(InnerAccessorSchedulingSeparator.class);
-    }
-    planBuilder.append(TryStatementSchedulingSeparator.class);
-    planBuilder.append(EnumMappingSchedulingSeparator.class);
+    planBuilder.append(InnerAccessorSchedulingSeparator.class);
 
     if (features.contains(AvoidSynthethicAccessors.class)) {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
@@ -1174,10 +1156,9 @@ public abstract class Jack {
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
           planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
-      if (!features.contains(LambdaToAnonymousConverter.class)) {
-        typePlan4.append(InnerAccessorAdder.class);
-      }
-      typePlan4.append(UsedEnumFieldMarkerRemover.class);
+
+      typePlan4.append(InnerAccessorAdder.class);
+
       {
         SubPlanBuilder<JMethod> methodPlan =
             typePlan4.appendSubPlan(JMethodAdapter.class);
@@ -1185,7 +1166,6 @@ public abstract class Jack {
         if (features.contains(SourceVersion7.class)) {
           methodPlan.append(SwitchStringSupport.class);
         }
-        methodPlan.append(EnumMappingMarkerRemover.class);
       }
 
       typePlan4.append(FlowNormalizerSchedulingSeparator.class);
@@ -1198,6 +1178,34 @@ public abstract class Jack {
         }
       }
       typePlan4.append(FieldInitMethodRemover.class);
+    }
+
+    appendMultiDexAndShrobStartPlan(planBuilder);
+
+    {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan = planBuilder.appendSubPlan(
+          ExcludeTypeFromLibAdapter.class);
+      SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
+      if (features.contains(OptimizedSwitchEnumFeedbackFeature.class)
+          || features.contains(OptimizedSwitchEnumNonFeedbackFeature.class)) {
+        methodPlan.append(OptimizedSwitchEnumSupport.class);
+      } else {
+        methodPlan.append(SwitchEnumSupport.class);
+      }
+
+      typePlan.append(UsedEnumFieldMarkerRemover.class);
+
+    }
+
+    planBuilder.append(EnumMappingSchedulingSeparator.class);
+    planBuilder.append(TryStatementSchedulingSeparator.class);
+
+    {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan = planBuilder.appendSubPlan(
+          ExcludeTypeFromLibAdapter.class);
+      SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
+
+      methodPlan.append(EnumMappingMarkerRemover.class);
     }
 
     if (features.contains(Obfuscation.class)) {
@@ -1227,6 +1235,7 @@ public abstract class Jack {
         SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodOnlyAdapter.class);
         methodPlan.append(LambdaConverter.class);
       }
+    }
       {
         SubPlanBuilder<JDefinedClassOrInterface> typePlan =
             planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
@@ -1245,7 +1254,6 @@ public abstract class Jack {
         }
         typePlan.append(InnerAccessorAdder.class);
       }
-    }
 
     if (features.contains(LambdaUseExperimentalOpcodes.class)) {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
