@@ -79,15 +79,10 @@ public class SingleScheduleInstance<T extends Component> extends ScheduleInstanc
     }
 
     @Override
-    public void run() {
-      process(SingleScheduleInstance.this, t);
-    }
-
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public <U extends Component> void process(@Nonnull ScheduleInstance<U> schedInstance,
-        @Nonnull U data) {
+    public void run() {
       try {
-        for (SchedStep step : schedInstance.steps) {
+        for (SchedStep step : steps) {
           Schedulable instance = step.getInstance();
 
           if (instance instanceof AdapterSchedulable) {
@@ -96,7 +91,7 @@ public class SingleScheduleInstance<T extends Component> extends ScheduleInstanc
 
             Iterator<U> iterData = adaptWithLog((AdapterSchedulable<T, U>) instance, t);
             while (iterData.hasNext()) {
-              process(subSchedInstance, iterData.next());
+              subSchedInstance.process(iterData.next());
             }
           } else if (instance instanceof RunnableSchedulable) {
             runWithLog((RunnableSchedulable) instance, t);
