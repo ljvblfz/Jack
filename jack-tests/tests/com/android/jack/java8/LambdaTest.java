@@ -192,6 +192,10 @@ public class LambdaTest {
       AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test035"),
       "com.android.jack.java8.lambda.test035.jack.Tests");
 
+  private RuntimeTestInfo LAMBDA036 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test036"),
+      "com.android.jack.java8.lambda.test036.jack.Tests");
+
   @Test
   public void testLamba001() throws Exception {
     run(LAMBDA001);
@@ -403,6 +407,11 @@ public class LambdaTest {
   @Test
   public void testLamba035() throws Exception {
     run(LAMBDA035);
+  }
+
+  @Test
+  public void testLamba036() throws Exception {
+    run(LAMBDA036);
   }
 
   private void run(@Nonnull RuntimeTestInfo rti) throws Exception {

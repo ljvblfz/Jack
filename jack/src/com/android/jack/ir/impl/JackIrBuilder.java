@@ -1726,6 +1726,8 @@ public class JackIrBuilder {
         }
       }
 
+      boolean shouldCaptureInstance =
+          lambdaExpression.shouldCaptureInstance | curMethod.forceCaptureOfThis;
       // Do not move before generateImplicitReturn since the method need the method where return
       // must be added
       popMethodInfo();
@@ -1735,7 +1737,7 @@ public class JackIrBuilder {
           getJMethodIdWithReturnType(lambdaExpression.descriptor.original()),
           lambdaMethodInfo.method,
           (JDefinedInterface) getTypeMap().get(getLambdaType(lambdaExpression, blockScope)),
-          lambdaExpression.shouldCaptureInstance, getInterfaceBounds(lambdaExpression, blockScope));
+          shouldCaptureInstance, getInterfaceBounds(lambdaExpression, blockScope));
       lambda.addBridgeMethodIds(getBridges(lambdaExpression));
 
       // Capture all local variable that are not already moved into fields
@@ -3433,6 +3435,7 @@ public class JackIrBuilder {
               JMultiExpression multiExpr = new JMultiExpression(info, exprs);
               call.addArg(multiExpr);
             } else {
+              curMethod.forceCaptureOfThis = true;
               // check supplementary error
               getEmulationPath(scope, argType, false /* onlyExactMatch */,
                   true /* denyEnclosingArgInConstructorCall */, x);
@@ -3695,6 +3698,7 @@ public class JackIrBuilder {
     public final MethodScope scope;
     @Nonnull
     private final AstVisitor ast;
+    private boolean forceCaptureOfThis;
 
     public MethodInfo(@Nonnull AstVisitor ast, @Nonnull JMethod method,
         @CheckForNull JMethodBody methodBody, @CheckForNull MethodScope methodScope) {
