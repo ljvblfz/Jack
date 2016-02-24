@@ -396,13 +396,17 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
   }
 
   public void addMemberType(@Nonnull JClassOrInterface jDeclaredType) {
-    inners.add(jDeclaredType);
+    synchronized (inners) {
+      inners.add(jDeclaredType);
+    }
   }
 
   public void removeMemberType(@Nonnull JClassOrInterface jDeclaredType) {
-    int index = inners.indexOf(jDeclaredType);
-    if (index != -1) {
-      inners.remove(index);
+    synchronized (inners) {
+      int index = inners.indexOf(jDeclaredType);
+      if (index != -1) {
+        inners.remove(index);
+      }
     }
   }
 
