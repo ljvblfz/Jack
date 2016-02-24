@@ -582,6 +582,17 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
     if (parent == null || parent != enclosingPackage) {
       throw new JNodeInternalError(this, "Invalid parent or enclosing package");
     }
+    if (enclosingType instanceof JDefinedClassOrInterface
+        && !((JDefinedClassOrInterface) enclosingType).getMemberTypes().contains(this)) {
+      throw new JNodeInternalError(this,
+          "Enclosing class or interface does not know this member type");
+    }
+    for (JClassOrInterface inner : inners) {
+      if (inner instanceof JDefinedClassOrInterface
+          && ((JDefinedClassOrInterface) inner).getEnclosingType() != this) {
+        throw new JNodeInternalError(inner, "Invalid enclosing class or interface for member type");
+      }
+    }
   }
 
   @Override
