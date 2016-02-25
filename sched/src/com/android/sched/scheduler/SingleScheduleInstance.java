@@ -50,9 +50,9 @@ public class SingleScheduleInstance<T extends Component> extends ScheduleInstanc
    */
   @Override
   @SuppressWarnings({"rawtypes", "unchecked"})
-  public <X extends VisitorSchedulable<T>, U extends Component> void process(@Nonnull T t)
+  public <X extends VisitorSchedulable<T>, U extends Component> void process(@Nonnull T component)
       throws ProcessException {
-    Worker worker = new Worker(t);
+    Worker worker = new Worker(this, component);
     Thread thread =
         new ThreadWithTracer(null, worker, ThreadConfig.getConfig().getName() + "-worker",
             ThreadConfig.get(ScheduleInstance.DEFAULT_STACK_SIZE).longValue());
@@ -68,39 +68,48 @@ public class SingleScheduleInstance<T extends Component> extends ScheduleInstanc
     worker.throwIfNecessary();
   }
 
-  private class Worker<X extends VisitorSchedulable<T>, U extends Component> implements Runnable {
+  private static class Worker<U extends Component> implements Runnable {
     @Nonnull
-    private final T t;
+    private final U component;
+    @Nonnull
+    private final SingleScheduleInstance<U> schedule;
     @CheckForNull
     private ProcessException exception;
 
-    public Worker(@Nonnull T t) {
-      this.t = t;
+    public Worker(@Nonnull SingleScheduleInstance<U> schedule, @Nonnull U component) {
+      this.component = component;
+      this.schedule = schedule;
     }
 
     @Override
-    @SuppressWarnings({"rawtypes", "unchecked"})
     public void run() {
       try {
-        for (SchedStep step : steps) {
-          Schedulable instance = step.getInstance();
-
-          if (instance instanceof AdapterSchedulable) {
-            ScheduleInstance<U> subSchedInstance = (ScheduleInstance<U>) step.getSubSchedInstance();
-            assert subSchedInstance != null;
-
-            Iterator<U> iterData = adaptWithLog((AdapterSchedulable<T, U>) instance, t);
-            while (iterData.hasNext()) {
-              subSchedInstance.process(iterData.next());
-            }
-          } else if (instance instanceof RunnableSchedulable) {
-            runWithLog((RunnableSchedulable) instance, t);
-          } else if (instance instanceof VisitorSchedulable) {
-            visitWithLog((VisitorSchedulable) instance, t);
-          }
-        }
+        process(schedule, component);
       } catch (ProcessException e) {
-       exception = e;
+        exception = e;
+      }
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private static <U extends Component> void process(@Nonnull SingleScheduleInstance<U> schedule,
+        @Nonnull U component) throws ProcessException {
+      for (SchedStep step : schedule.steps) {
+        Schedulable schedulable = step.getInstance();
+
+        if (schedulable instanceof AdapterSchedulable) {
+          ScheduleInstance<? extends Component> subSchedule = step.getSubSchedInstance();
+          assert subSchedule != null;
+
+          Iterator<U> componentIter =
+              schedule.adaptWithLog((AdapterSchedulable) schedulable, component);
+          while (componentIter.hasNext()) {
+            process((SingleScheduleInstance<U>) subSchedule, componentIter.next());
+          }
+        } else if (schedulable instanceof RunnableSchedulable) {
+          schedule.runWithLog((RunnableSchedulable) schedulable, component);
+        } else if (schedulable instanceof VisitorSchedulable) {
+          schedule.visitWithLog((VisitorSchedulable) schedulable, component);
+        }
       }
     }
 
