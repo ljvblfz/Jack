@@ -1,0 +1,9 @@
+-dontobfuscate
+-keep class com.android.jack.shrob.test053.jack.TestInnerAccessThroughDeletedOuter$InnerExtendsSuper {
+  protected int m();
+  ** getBis();
+}
+-keep class com.android.jack.shrob.test053.jack.sub.Super {
+  protected int m();
+  % publicAccess();
+}

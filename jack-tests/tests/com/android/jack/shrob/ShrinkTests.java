@@ -21,7 +21,9 @@ import com.android.jack.ProguardFlags;
 import com.android.jack.shrob.shrink.ShrinkStructurePrinter;
 import com.android.jack.test.category.SlowTests;
 import com.android.jack.test.comparator.ComparatorMapping;
+import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
+import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.DummyToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
@@ -392,6 +394,15 @@ public class ShrinkTests extends AbstractTest {
   public void test40_001() throws Exception {
     checkToolchainIsNotJillBased();
     super.test40_001();
+  }
+
+  @Test
+  public void test053() throws Exception {
+    RuntimeTestInfo runtimeTestInfo = new RuntimeTestInfo(
+        new File(shrobTestsDir, "test053"),
+        "com.android.jack.shrob.test053.dx.Tests");
+    runtimeTestInfo.addProguardFlagsFileName("proguard.flags001");
+    new RuntimeTestHelper(runtimeTestInfo).compileAndRunTest(/* checkStructure = */ false);
   }
 
 }
