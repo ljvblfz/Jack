@@ -586,11 +586,11 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
     if (parent == null || parent != enclosingPackage) {
       throw new JNodeInternalError(this, "Invalid parent or enclosing package");
     }
-    if (enclosingType instanceof JDefinedClassOrInterface
-        && !((JDefinedClassOrInterface) enclosingType).getMemberTypes().contains(this)) {
-      throw new JNodeInternalError(this,
-          "Enclosing class or interface does not know this member type");
-    }
+
+    /* For now it is a valid situation to have an enclosing type defined that is not known as inner.
+     * This happens at least for Local classes defined in initializer.
+     */
+
     for (JClassOrInterface inner : inners) {
       if (inner instanceof JDefinedClassOrInterface
           && ((JDefinedClassOrInterface) inner).getEnclosingType() != this) {
