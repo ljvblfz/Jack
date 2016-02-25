@@ -20,6 +20,7 @@ import com.google.common.base.Joiner;
 
 import com.android.jack.Options;
 import com.android.jack.Options.VerbosityLevel;
+import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 import com.android.jack.test.util.ExecFileException;
 import com.android.jack.test.util.ExecuteFile;
 
@@ -319,8 +320,9 @@ public class JackCliToolchain extends JackBasedToolchain {
     return this;
   }
 
+  @Override
   @Nonnull
-  protected JackBasedToolchain setSourceLevel(@Nonnull List<String> commandLine) {
+  public JackCliToolchain setSourceLevel(@Nonnull SourceLevel sourceLevel) {
     super.setSourceLevel(sourceLevel);
     switch (sourceLevel) {
       case JAVA_6:
