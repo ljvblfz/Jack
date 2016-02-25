@@ -149,16 +149,16 @@ elif [ $CURL_CODE -eq 7 ]; then
   echo "No Jack server running. Try 'jack-admin start-server'" >&2
   abort
 elif [ $CURL_CODE -eq 35 ]; then
-  echo "SSL error when connecting to the Jack server" >&2
+  echo "SSL error when connecting to the Jack server. Try 'jack-diagnose'" >&2
   abort
 elif [ $CURL_CODE -eq 58 ]; then
-  echo "Failed to contact Jack server: Problem reading ${JACK_HOME}/client.pem" >&2
+  echo "Failed to contact Jack server: Problem reading ${JACK_HOME}/client.pem. Try 'jack-diagnose'" >&2
   abort
 elif [ $CURL_CODE -eq 60 ]; then
-  echo "Failed to authenticate Jack server certificate" >&2
+  echo "Failed to authenticate Jack server certificate. Try 'jack-diagnose'" >&2
   abort
  elif [ $CURL_CODE -eq 77 ]; then
-  echo "Failed to contact Jack server: Problem reading ${JACK_HOME}/server.pem" >&2
+  echo "Failed to contact Jack server: Problem reading ${JACK_HOME}/server.pem. Try 'jack-diagnose'" >&2
   abort
 elif  [ $CURL_CODE -eq 22 ]; then
   # Http code not OK, let's decode and abort
@@ -168,10 +168,10 @@ elif  [ $CURL_CODE -eq 22 ]; then
     abort
   else
     # Other
-    echo "Internal unknown error ($HTTP_CODE), try other ports or see Jack server log" >&2
+    echo "Internal unknown error ($HTTP_CODE), try 'jack-diagnose' or see Jack server log" >&2
     abort
   fi
 else
-  echo "Communication error with Jack server ($CURL_CODE)" >&2
+  echo "Communication error with Jack server ($CURL_CODE). Try 'jack-diagnose'" >&2
   abort
 fi

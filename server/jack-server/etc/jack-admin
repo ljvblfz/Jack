@@ -86,16 +86,16 @@ handleHttpErrors() {
     echo "No Jack server running. Try 'jack-admin start-server'" >&2
     abort
   elif [ $1 -eq 35 ]; then
-    echo "SSL error when connecting to the Jack server" >&2
+    echo "SSL error when connecting to the Jack server. Try 'jack-diagnose'" >&2
     abort
   elif [ $1 -eq 58 ]; then
-    echo "Failed to contact Jack server: Problem reading ${JACK_HOME}/client.pem" >&2
+    echo "Failed to contact Jack server: Problem reading ${JACK_HOME}/client.pem. Try 'jack-diagnose'" >&2
     abort
   elif [ $1 -eq 60 ]; then
-    echo "Failed to authenticate Jack server certificate" >&2
+    echo "Failed to authenticate Jack server certificate. Try 'jack-diagnose'" >&2
     abort
    elif [ $1 -eq 77 ]; then
-    echo "Failed to contact Jack server: Problem reading ${JACK_HOME}/server.pem" >&2
+    echo "Failed to contact Jack server: Problem reading ${JACK_HOME}/server.pem. Try 'jack-diagnose'" >&2
     abort
   elif  [ $1 -eq 22 ]; then
     # Http code not OK, let's decode and abort
@@ -105,11 +105,11 @@ handleHttpErrors() {
       abort
     else
       # Other
-      echo "Internal unknown error ($2), try other ports or see Jack server log" >&2
+      echo "Internal unknown error ($2), try 'jack-diagnose' or see Jack server log" >&2
       abort
     fi
   else
-    echo "Communication error with Jack server $1" >&2
+    echo "Communication error with Jack server $1. Try 'jack-diagnose'" >&2
     abort
   fi
 }
@@ -170,13 +170,13 @@ isServerRunning () {
     else
       # In case of partial, timeout, empty response, network error, let's retry
       if [ $RETRY_SESSION -eq 0 ]; then
-        echo "Communication error with Jack server ($CURL_CODE), try other ports or see Jack server log"  >&2
+        echo "Communication error with Jack server ($CURL_CODE), try 'jack-diagnose' or see Jack server log"  >&2
         abort
       else
         if [ $(date +%s) -lt $DATE_TIMEOUT ]; then
           let RETRY_SESSION=RETRY_SESSION-1
         else
-          echo "Communication error with Jack server ($CURL_CODE), try other ports or see Jack server log"  >&2
+          echo "Communication error with Jack server ($CURL_CODE), try 'jack-diagnose' or see Jack server log"  >&2
           abort
         fi
       fi
@@ -201,7 +201,7 @@ waitServerStarted () {
     CURL_CODE=$?
     if [ $CURL_CODE -eq 7 ] || [ $CURL_CODE -eq 35 ] || [ $CURL_CODE -eq 58 ] || [ $CURL_CODE -eq 60 ] || [ $CURL_CODE -eq 77 ]; then
       if [ $(date +%s) -ge $DATE_TIMEOUT ]; then
-        echo "Jack server failed to (re)start, see Jack server log" >&2
+        echo "Jack server failed to (re)start, try 'jack-diagnose' or see Jack server log" >&2
         abort
       else
         sleep 1
