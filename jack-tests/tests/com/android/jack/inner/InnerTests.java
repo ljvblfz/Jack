@@ -185,6 +185,10 @@ public class InnerTests extends RuntimeTest {
       AbstractTestTools.getTestRootDir("com.android.jack.inner.test031"),
       "com.android.jack.inner.test031.dx.Tests").addProguardFlagsFileName("proguard.flags");
 
+  private RuntimeTestInfo TEST032 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.inner.test032"),
+      "com.android.jack.inner.test032.dx.Tests");
+
   @Test
   @Category(RuntimeRegressionTest.class)
   public void test001() throws Exception {
@@ -382,6 +386,12 @@ public class InnerTests extends RuntimeTest {
     new RuntimeTestHelper(TEST030).compileAndRunTest();
   }
 
+  @Test
+  @KnownIssue
+  public void test032() throws Exception {
+    new RuntimeTestHelper(TEST032).compileAndRunTest();
+  }
+
   private void checkStructure(@Nonnull String test) throws Exception {
     SourceToDexComparisonTestHelper helper = new CheckDexStructureTestHelper(
         AbstractTestTools.getTestRootDir("com.android.jack.inner." + test + ".jack"));
@@ -422,5 +432,6 @@ public class InnerTests extends RuntimeTest {
     rtTestInfos.add(TEST027);
     rtTestInfos.add(TEST028);
     rtTestInfos.add(TEST030);
+    rtTestInfos.add(TEST032);
   }
 }
