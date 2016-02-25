@@ -80,9 +80,39 @@ public abstract class JLookup {
     this.topLevelPackage = topLevelPackage;
   }
 
+  /**
+   * Finds the {@link JPackage} denoted by the given <code>packageName</code>. The name of
+   * the package must be of the form a/b/c.
+   *
+   * @param packageName the name of the package to lookup
+   * @return the corresponding {@link JPackage}
+   * @throws JPackageLookupException if the package does not exist
+   */
+  @Nonnull
+  public JPackage getPackage(@Nonnull String packageName) throws JPackageLookupException {
+    assert packageName.indexOf(NamingTools.PACKAGE_SOURCE_SEPARATOR) == -1;
+    JPackage currentPackage = topLevelPackage;
+    if (!packageName.isEmpty()) {
+      for (String name : packageBinaryNameSplitter.split(packageName)) {
+        currentPackage = currentPackage.getSubPackage(name);
+      }
+    }
+    assert Jack.getLookupFormatter().getName(currentPackage).equals(packageName);
+
+    return currentPackage;
+  }
+
+
+  /**
+   * Finds the {@link JPackage} denoted by the given <code>packageName</code> or creates it if
+   * it does not exist. The name of the package must be of the form a/b/c.
+   *
+   * @param packageName the name of the package to lookup or create
+   * @return the corresponding {@link JPackage}
+   */
   @Nonnull
   public JPackage getOrCreatePackage(@Nonnull String packageName) {
-    assert !packageName.contains(".");
+    assert packageName.indexOf(NamingTools.PACKAGE_SOURCE_SEPARATOR) == -1;
     JPackage currentPackage = topLevelPackage;
     if (!packageName.isEmpty()) {
       for (String name : packageBinaryNameSplitter.split(packageName)) {

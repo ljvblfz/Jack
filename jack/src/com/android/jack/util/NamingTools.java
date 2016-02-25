@@ -75,9 +75,16 @@ public class NamingTools {
     return ('L' + getBinaryName(typeName) + ';');
   }
 
+  /**
+   * Return the binary name of the given source symbol name. The symbol can be a package or a type.
+   * For example, calling that method with "foo.bar.MyClass" will return "foo/bar/MyClass".
+   *
+   * @param srcSymbolName the source name of a symbol (package, type, ...)
+   * @return the corresponding binary name
+   */
   @Nonnull
-  public static String getBinaryName(@Nonnull String srcTypeName) {
-    return srcTypeName.replace('.', JLookup.PACKAGE_SEPARATOR);
+  public static String getBinaryName(@Nonnull String srcSymbolName) {
+    return srcSymbolName.replace(PACKAGE_SOURCE_SEPARATOR, JLookup.PACKAGE_SEPARATOR);
   }
 
   @Nonnull

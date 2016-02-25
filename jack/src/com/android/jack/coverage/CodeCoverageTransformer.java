@@ -28,7 +28,7 @@ import com.android.jack.ir.ast.JArrayRef;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JBlock;
 import com.android.jack.ir.ast.JBooleanLiteral;
-import com.android.jack.ir.ast.JClass;
+import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JEqOperation;
 import com.android.jack.ir.ast.JExpression;
@@ -48,22 +48,25 @@ import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JNullLiteral;
+import com.android.jack.ir.ast.JPackage;
+import com.android.jack.ir.ast.JPackageLookupException;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JReturnStatement;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JStringLiteral;
 import com.android.jack.ir.ast.JType;
-import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
+import com.android.jack.ir.ast.MissingJTypeLookupException;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.ir.formatter.TypeFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes.CommonType;
 import com.android.jack.lookup.JLookup;
+import com.android.jack.lookup.JLookupException;
+import com.android.jack.lookup.JNodeLookup;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.transformations.LocalVarCreator;
-import com.android.jack.transformations.TransformationException;
 import com.android.jack.transformations.ast.NoImplicitBlock;
 import com.android.jack.transformations.request.AppendBefore;
 import com.android.jack.transformations.request.AppendField;
@@ -133,6 +136,135 @@ public class CodeCoverageTransformer implements RunnableSchedulable<JDefinedClas
   @Nonnull
   private final TypeFormatter binaryTypeFormatter = BinaryQualifiedNameFormatter.getFormatter();
 
+  /**
+   * The cached Jacoco class <code>org.jacoco.agent.rt.internal[version].Offline</code>.
+   */
+  @CheckForNull
+  private JDefinedClass jacocoProbesClass = null;
+
+  /**
+   * The cached Jacoco method
+   * <pre>public static boolean[] getProbes(long, java.lang.String, int)</pre> of
+   * the Jacoco class <code>org.jacoco.agent.rt.internal[version].Offline</code>.
+   */
+  @CheckForNull
+  private JMethodId jacocoProbesMethod = null;
+
+  @Nonnull
+  private static final String JACOCO_RUNTIME_CLASS_NAME = "Offline";
+
+  /**
+   * An exception thrown when the Jacoco runtime package (containing classes required for
+   * instrumentation) cannot be found.
+   */
+  private static class JacocoPackageNotFoundException extends Exception {
+
+    private static final long serialVersionUID = 1L;
+
+    public JacocoPackageNotFoundException(@Nonnull String msg, @CheckForNull Throwable cause) {
+      super(msg, cause);
+    }
+  }
+
+  /**
+   * Looks up the Jacoco package org.jacoco.agent.rt.internal[<suffix>] for which we don't
+   * know the exact name due to <suffix> changing for each release.
+   *
+   * @param lookup the lookup class to find the package
+   * @return the Jacoco {@link JPackage}
+   * @throws JacocoPackageNotFoundException if the Jacoco package cannot be found
+   */
+  @Nonnull
+  private static JPackage lookupJacocoRuntimePackage(@Nonnull JLookup lookup)
+      throws JacocoPackageNotFoundException {
+    JacocoPackage jacocoPackage = ThreadConfig.get(CodeCoverage.COVERAGE_JACOCO_PACKAGE_NAME);
+    String jacocoPackageName = jacocoPackage.getPackageName();
+    if (!jacocoPackageName.isEmpty()) {
+      // The package name has been provided through property: lookup that package.
+      String packageString = NamingTools.getBinaryName(jacocoPackageName);
+      try {
+        return lookup.getPackage(packageString);
+      } catch (JPackageLookupException e) {
+        throw new JacocoPackageNotFoundException(
+            "Cannot find Jacoco package " + jacocoPackageName, e);
+      }
+    } else {
+      // No package has been provided: lookup for org.jacoco.agent.rt.internal* package.
+      String parentPackageName = NamingTools.getBinaryName("org.jacoco.agent.rt");
+      Throwable lookupFailureCause = null;
+      try {
+        JPackage parentPackage = lookup.getPackage(parentPackageName);
+        for (JPackage p : parentPackage.getSubPackages()) {
+          if (p.getName().startsWith("internal")) {
+            return p;
+          }
+        }
+      } catch (JPackageLookupException e) {
+        // We did not find the parent package. We do not want to throw a JPackageLookupException
+        // so we catch and save it here so we can throw a JacocoPackageNotFoundException and
+        // set this exception as its cause.
+        lookupFailureCause = e;
+      }
+      throw new JacocoPackageNotFoundException(
+          "Cannot find any Jacoco package org.jacoco.agent.rt.internal*", lookupFailureCause);
+    }
+  }
+
+  /**
+   * Looks up and caches the <code>org.jacoco.agent.rt.internal*.Offline</code> class required
+   * for code coverage instrumentation.
+   *
+   * @param lookup the {@link JNodeLookup} used to lookup the class
+   * @return the Jacoco class required for code coverage
+   */
+  @Nonnull
+  private synchronized JDefinedClass lookupJacocoOfflineClass(@Nonnull JLookup lookup) {
+    if (jacocoProbesClass == null) {
+      JPackage jacocoRuntimePackage;
+      try {
+        jacocoRuntimePackage = lookupJacocoRuntimePackage(lookup);
+      } catch (JacocoPackageNotFoundException e) {
+        CodeCoverageLookupException cle = new CodeCoverageLookupException(e.getMessage(), e);
+        Jack.getSession().getReporter().report(Severity.FATAL, cle);
+        throw new JackAbortException(cle);
+      }
+
+      JDefinedClassOrInterface clOrI;
+      try {
+        clOrI = jacocoRuntimePackage.getType(JACOCO_RUNTIME_CLASS_NAME);
+        if (!(clOrI instanceof JDefinedClass)) {
+          throw new MissingJTypeLookupException(jacocoRuntimePackage, JACOCO_RUNTIME_CLASS_NAME);
+        }
+      } catch (JLookupException e) {
+        CodeCoverageLookupException cle = new CodeCoverageLookupException(e.getMessage(), e);
+        Jack.getSession().getReporter().report(Severity.FATAL, cle);
+        throw new JackAbortException(cle);
+      }
+      jacocoProbesClass = (JDefinedClass) clOrI;
+    }
+    return jacocoProbesClass;
+  }
+
+  @Nonnull
+  private synchronized JMethodId lookupJacocoProbesMethod(
+      @Nonnull JLookup lookup,
+      @Nonnull JType classIdType,
+      @Nonnull JType classNameType,
+      @Nonnull JType probeCountType,
+      @Nonnull JType probeArrayType) {
+    if (jacocoProbesMethod == null) {
+      // Look for org.jacoco.agent.rt.internal[version].Offline class.
+      JDefinedClass jacocoClass = lookupJacocoOfflineClass(lookup);
+
+      // Look for method 'public static boolean[] getProbes(long, java.lang.String, int)' in the
+      // JaCoCo agent lib.
+      List<JType> argsTypes = Lists.create(classIdType, classNameType, probeCountType);
+      jacocoProbesMethod =
+          jacocoClass.getMethodId("getProbes", argsTypes, MethodKind.STATIC, probeArrayType);
+    }
+    return jacocoProbesMethod;
+  }
+
   @Override
   public void run(@Nonnull JDefinedClassOrInterface declaredType) throws Exception {
     CodeCoverageMarker marker = declaredType.getMarker(CodeCoverageMarker.class);
@@ -161,6 +293,7 @@ public class CodeCoverageTransformer implements RunnableSchedulable<JDefinedClas
     transformationRequest.commit();
   }
 
+  @Nonnull
   private JField createProbesArrayField(@Nonnull JDefinedClassOrInterface declaredType) {
     JType booleanArrayType = getCoverageDataType();
     SourceInfo sourceInfo = declaredType.getSourceInfo();
@@ -308,6 +441,7 @@ public class CodeCoverageTransformer implements RunnableSchedulable<JDefinedClas
     }
   }
 
+  @Nonnull
   private JMethod createProbesArrayInitMethod(@Nonnull JDefinedClassOrInterface declaredType,
       @Nonnegative int probeCount, @Nonnull TransformationRequest transformationRequest,
       @Nonnull JField coverageDataField, long classId) {
@@ -342,28 +476,16 @@ public class CodeCoverageTransformer implements RunnableSchedulable<JDefinedClas
     JBlock block = new JBlock(coverageInitMethod.getSourceInfo());
     coverageInitMethod.setBody(new JMethodBody(block.getSourceInfo(), block));
 
-    String jacocoPackageName = ThreadConfig.get(CodeCoverage.COVERAGE_JACOCO_PACKAGE_NAME);
-    String jacocoOfflineClassName = jacocoPackageName + ".Offline";
-    String jacocoOfflineClassDesc = "L" + jacocoOfflineClassName.replace('.', '/') + ";";
-
-    // Look for method 'public static boolean[] getProbes(long, java.lang.String, int)' in the
-    // JaCoCo agent lib.
+    // Look for method public static boolean[] getProbes(long, java.lang.String, int)' in the
+    // JaCoCo class org.jacoco.agent.rt.internal[suffix].Offline from the agent lib.
     JLookup lookup = Jack.getSession().getLookup();
-    JClass jacocoClass = null;
-    try {
-      jacocoClass = lookup.getClass(jacocoOfflineClassDesc);
-    } catch (JTypeLookupException e) {
-      TransformationException transformationException = new TransformationException(e);
-      Jack.getSession().getReporter().report(Severity.FATAL, transformationException);
-      throw new JackAbortException(transformationException);
-    }
-
+    JDefinedClass jacocoClass = lookupJacocoOfflineClass(lookup);
     JType classIdType = JPrimitiveTypeEnum.LONG.getType();
     JType classNameType = lookup.getType(CommonType.STRING);
     JType probeCountType = JPrimitiveTypeEnum.INT.getType();
-    List<JType> argsType = Lists.create(classIdType, classNameType, probeCountType);
-    JMethodIdWide jacocoMethodId =
-        jacocoClass.getMethodIdWide("getProbes", argsType, MethodKind.STATIC);
+    JMethodId jacocoMethodId =
+        lookupJacocoProbesMethod(
+            lookup, classIdType, classNameType, probeCountType, coverageDataType);
 
     // <local#1> = <field>
     // if (<local#1> == null) {
@@ -409,7 +531,7 @@ public class CodeCoverageTransformer implements RunnableSchedulable<JDefinedClas
 
       // Add '<local> = org.jacoco...Offline.getProbes(<classId>, <className>, <probeCount>)'
       JMethodCall methodCall = new JMethodCall(ifBlock.getSourceInfo(), null, jacocoClass,
-          jacocoMethodId, JPrimitiveTypeEnum.BOOLEAN.getType().getArray(), false);
+          jacocoMethodId.getMethodIdWide(), JPrimitiveTypeEnum.BOOLEAN.getType().getArray(), false);
       methodCall.addArg(classIdLocal.makeRef(ifBlock.getSourceInfo()));
       methodCall.addArg(classNameLocal.makeRef(ifBlock.getSourceInfo()));
       methodCall.addArg(probeCountLocal.makeRef(ifBlock.getSourceInfo()));

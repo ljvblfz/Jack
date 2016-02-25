@@ -17,7 +17,6 @@
 package com.android.jack.coverage;
 
 import com.android.jack.library.DumpInLibrary;
-import com.android.jack.util.PackageCodec;
 import com.android.sched.item.Description;
 import com.android.sched.item.Feature;
 import com.android.sched.util.codec.OutputStreamCodec;
@@ -48,13 +47,13 @@ public class CodeCoverage implements Feature {
       .requiredIf(CODE_COVERVAGE.getValue().isTrue());
 
   @Nonnull
-  public static final PropertyId<String> COVERAGE_JACOCO_PACKAGE_NAME =
-      PropertyId
-          .create(
+  public static final PropertyId<JacocoPackage> COVERAGE_JACOCO_PACKAGE_NAME =
+      PropertyId.create(
               "jack.coverage.jacoco.package",
               "The name of the JaCoCo package containing the classes that manage instrumentation.",
-              new PackageCodec())
-          .requiredIf(CODE_COVERVAGE.getValue().isTrue());
+              new JacocoPackage.Codec())
+          .requiredIf(CODE_COVERVAGE.getValue().isTrue())
+          .addDefaultValue(new JacocoPackage(""));
 
   @Nonnull
   public static final PropertyId<CoverageFilterSet> COVERAGE_JACOCO_INCLUDES =
