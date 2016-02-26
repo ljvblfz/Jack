@@ -51,6 +51,7 @@
     args4j-lib-clean,
     dx-lib-clean,
     ecj-clean,
+    ecj-tests-clean,
     simple-lib-clean,
     freemarker-lib-clean,
     guava-lib-clean,
@@ -93,6 +94,7 @@
   <property name="ddm-lib.dir" value="${jack-project.dir}/ddmlib"/>
   <property name="dx.dir" value="${jack-project.dir}/dx"/>
   <property name="ecj.dir" value="${jack-project.dir}/ecj"/>
+  <property name="ecj-tests.dir" value="${jack-project.dir}/ecj-tests-lib"/>
   <property name="simple.dir" value="${jack-project.dir}/simple"/>
   <property name="freemarker.dir" value="${jack-project.dir}/freemarker"/>
   <property name="guava.dir" value="${jack-project.dir}/guava"/>
@@ -818,16 +820,9 @@
   <property name="jack-tests.libname" value="jack-tests-lib.jar" />
   <property name="jack-tests.execname" value="jack-tests.jar" />
 
-  <filelist id="ecj-test-libs" dir="${jack-tests.prebuilts.dir}">
-    <file name="org.eclipse.equinox.common_3.8.0.v20150911-2106.jar" />
-    <file name="org.eclipse.jdt.core_3.12.0.v20150913-1717.jar" />
-    <file name="org.eclipse.jdt.core.tests.compiler_3.12.0.v20150913-1717.jar" />
-    <file name="org.eclipse.test.performance_3.11.0.v20150223-0658.jar" />
-  </filelist>
-
   <target name="jack-tests-clean">
     <delete dir="${jack-tests.libs.dir}" />
-    <delete dir="${jack-tests.build.outdir}" />
+    <delete dir="${jack-tests.build.dir}" />
     <delete file="${jack-tests.dist.dir}/${jack-tests.libname}" />
     <delete file="${jack-tests.dist.dir}/${jack-tests.execname}" />
   </target>
@@ -905,10 +900,10 @@
           <file name="${jack-api.dist.dir}/${jack-api.lib.name}"/>
           <file name="${schedtests.dist.dir}/${schedtests.libname}"/>
         </filelist>
-        <filelist refid="ecj-test-libs"/>
         <!-- static libs -->
         <filelist refid="jackunittests.static.libs.fileset" />
         <filelist refid="jack.static.libs.fileset" />
+        <filelist files="${jack-tests.prebuilts.dir}/${ecj-tests.libname}" />
       </sources>
       <targets>
         <fileset file="${jack-tests.dist.dir}/${jack-tests.execname}"/>
@@ -962,25 +957,27 @@
           <file name="${ddm-lib.dist.dir}/${ddm-lib.libname}" />
           <file name="${jack-api.dist.dir}/${jack-api.lib.name}"/>
           <file name="${schedtests.dist.dir}/${schedtests.libname}"/>
+          <file name="${jack-tests.prebuilts.dir}/${ecj-tests.libname}"/>
         </filelist>
-        <filelist refid="ecj-test-libs"/>
       </classpath>
     </javac>
     <!-- package -->
-    <jar destfile="${jack-tests.dist.dir}/${jack-tests.libname}"
-      basedir="${jack-tests.build.outdir}"
-      includes="**"/>
+    <jar destfile="${jack-tests.build.dir}/${jack-tests.libname}"
+      basedir="${jack-tests.build.outdir}" includes="**"/>
     <!-- add sched support -->
     <pathconvert property="jackunittests.static.libs.list" pathsep=" " refid="jackunittests.static.libs.fileset" />
     <pathconvert property="jack.static.libs.list" pathsep=" " refid="jack.static.libs.fileset" />
     <java jar="${jackunittests.tools.dir}/${sched-build.execname}" fork="true" failonerror="true">
-      <arg value="${jack-tests.dist.dir}/${jack-tests.libname}" />
+      <arg value="${jack-tests.build.dir}/${jack-tests.libname}" />
       <arg value="${jackunittests.dist.dir}/${jackunittests.libname}" />
       <arg line="${jackunittests.static.libs.list}" />
       <arg line="${jack.static.libs.list}" />
+      <arg value="${ddm-lib.dist.dir}/${ddm-lib.libname}" />
+      <arg value="${jack-tests.prebuilts.dir}/${ecj-tests.libname}" />
       <arg value="${jack-tests.dist.dir}/${jack-tests.execname}" />
     </java>
-    <jar update="true" destfile="${jack-tests.dist.dir}/${jack-tests.execname}">
+    <jar update="true" destfile="${jack-tests.dist.dir}/${jack-tests.execname}"
+      manifest="${jack-tests.dir}/etc/manifest.txt">
       <metainf dir="${jack.dir}/rsc/META-INF" includes="services/**" />
       <metainf dir="${jill.dir}/rsc/META-INF" includes="services/**" />
     </jar>
@@ -1322,6 +1319,41 @@
   <target name="ecj">
     <mkdir dir="${ecj.dist.dir}"/>
     <copy file="${ecj.dir}/ecj-4.6M4.jar" tofile="${ecj.dist.dir}/${ecj.libname}"/>
+  </target>
+
+
+  <!-- ******************* -->
+  <!-- ecj-tests-lib       -->
+  <!-- ******************* -->
+  <property name="ecj-tests.libname" value="ecj-tests-lib.jar"/>
+  <property name="ecj-test.dist.dir" value="${ecj-tests.dir}/dist"/>
+  <property name="ecj-test.build.dir" value="${ecj-tests.dir}/build"/>
+
+  <target name="ecj-tests-clean">
+    <delete dir="${ecj-test.dist.dir}"/>
+    <delete dir="${ecj-test.build.dir}"/>
+  </target>
+
+  <target name="ecj-tests-lib">
+    <mkdir dir="${ecj-test.dist.dir}"/>
+    <jarjar destfile="${ecj-test.build.dir}/ecj-tests-lib-tmp.jar">
+      <zipfileset src="${ecj-tests.dir}/ecj-4.6M2.jar"/>
+      <zipfileset src="${ecj-tests.dir}/org.eclipse.equinox.common_3.8.0.v20150911-2106.jar"/>
+      <zipfileset src="${ecj-tests.dir}/org.eclipse.jdt.core_3.12.0.v20150913-1717.jar"/>
+      <zipfileset src="${ecj-tests.dir}/org.eclipse.jdt.core.tests.compiler_3.12.0.v20150913-1717.jar"/>
+      <zipfileset src="${ecj-tests.dir}/org.eclipse.test.performance_3.11.0.v20150223-0658.jar"/>
+      <rule pattern="org.eclipse.**" result="com.android.jack.test.eclipse.@1"/>
+    </jarjar>
+    <mkdir dir="${ecj-test.build.dir}/with-empty-directories" />
+    <mkdir dir="${ecj-test.build.dir}/without-empty-directories" />
+    <unzip src="${ecj-test.build.dir}/ecj-tests-lib-tmp.jar" dest="${ecj-test.build.dir}/with-empty-directories"/>
+    <copy includeemptydirs="false" todir="${ecj-test.build.dir}/without-empty-directories">
+      <fileset dir="${ecj-test.build.dir}/with-empty-directories" />
+    </copy>
+    <jar destfile="${ecj-test.dist.dir}/${ecj-tests.libname}">
+      <fileset dir="${ecj-test.build.dir}/without-empty-directories" excludes="META-INF/**"/>
+    </jar>
+    <copy file="${ecj-test.dist.dir}/${ecj-tests.libname}" todir="${jack-tests.prebuilts.dir}" flatten="true"/>
   </target>
 
 
@@ -2308,7 +2340,7 @@
   <!-- ******************* -->
 
   <target name="prebuilts" description="build and deploy prebuilt libraries"
-    depends="core-stubs-mini,junit4-lib,junit4-jack-lib"/>
+    depends="core-stubs-mini,junit4-lib,junit4-jack-lib,ecj-tests-lib"/>
 
 
   <!-- ******************* -->
@@ -2331,7 +2363,6 @@
 
   <filelist id="jack.junit.tests.classpath" dir="/">
     <file name="${jack-tests.dist.dir}/${jack-tests.execname}" />
-    <file name="${ddm-lib.dist.dir}/${ddm-lib.libname}" />
   </filelist>
 
   <target name="test-jack-clean" >
@@ -2357,7 +2388,6 @@
       <jvmarg line="${jack.runtime.version}"/>
       <classpath>
        <filelist refid="jack.junit.tests.classpath" />
-       <filelist refid="ecj-test-libs"/>
       </classpath>
       <arg value="com.android.jack.PreSubmitTests"/>
     </java>
@@ -2373,7 +2403,6 @@
        <jvmarg line="${jack.runtime.version}"/>
        <classpath>
         <filelist refid="jack.junit.tests.classpath"/>
-        <filelist refid="ecj-test-libs"/>
        </classpath>
        <arg value="com.android.jack.LongLastingTests"/>
      </java>
@@ -2390,7 +2419,6 @@
       <jvmarg value="-Dtests.config=${tests.config}"/>
       <classpath>
        <filelist refid="jack.junit.tests.classpath" />
-       <filelist refid="ecj-test-libs"/>
       </classpath>
       <arg value="com.android.jack.java8.Java8AllTestPreN"/>
     </java>
@@ -2407,7 +2435,6 @@
       <jvmarg value="-Dtests.config=${tests.config}"/>
       <classpath>
        <filelist refid="jack.junit.tests.classpath" />
-       <filelist refid="ecj-test-libs"/>
       </classpath>
       <arg value="com.android.jack.java8.Java8AllTestPostM"/>
     </java>
@@ -2445,7 +2472,6 @@
       <jvmarg line="${jack.runtime.version}"/>
       <classpath>
        <filelist refid="jack.junit.tests.classpath" />
-       <filelist refid="ecj-test-libs"/>
       </classpath>
       <arg value="${jack.tests.output}/test-jack-by-name/test-jack-by-name.xml" />
       <arg value="${test.name}" />
@@ -2478,7 +2504,6 @@
       <jvmarg line="${jack.runtime.version}"/>
       <classpath>
        <filelist refid="jack.junit.tests.classpath" />
-       <filelist refid="ecj-test-libs"/>
       </classpath>
       <arg value="${jack.tests.output}/test-jack/test-jack.xml" />
       <arg value="com.android.jack.PreSubmitTests" />
@@ -2511,7 +2536,6 @@
        <jvmarg line="${jack.runtime.version}"/>
        <classpath>
         <filelist refid="jack.junit.tests.classpath" />
-        <filelist refid="ecj-test-libs"/>
        </classpath>
        <arg value="${jack.tests.output}/test-jack-long/test-jack-long.xml" />
        <arg value="com.android.jack.LongLastingTests" />
@@ -2544,7 +2568,6 @@
         <jvmarg line="${jack.runtime.version}"/>
         <classpath>
           <filelist refid="jack.junit.tests.classpath" />
-          <filelist refid="ecj-test-libs"/>
         </classpath>
         <arg value="${jack.tests.output}/test-jack-all/test-jack-all.xml" />
         <arg value="com.android.jack.AllWithJackTests" />

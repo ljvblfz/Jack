@@ -26,12 +26,12 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
-import org.eclipse.jdt.core.tests.compiler.regression.LambdaExpressionsTest;
 import org.junit.internal.AssumptionViolatedException;
 import org.junit.runner.Description;
 import org.junit.runner.manipulation.Filter;
 import org.junit.runner.manipulation.NoTestsRemainException;
 
+import com.android.jack.test.eclipse.jdt.core.tests.compiler.regression.LambdaExpressionsTest;
 import com.android.jack.test.runner.AbstractRuntimeRunner;
 import com.android.jack.test.runner.RuntimeRunner;
 import com.android.jack.test.toolchain.AbstractTestTools;

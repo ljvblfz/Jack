@@ -16,10 +16,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/jack-api"/>
 	<classpathentry kind="lib" path="libs/jsr305-lib.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jill-api"/>
-	<classpathentry kind="lib" path="prebuilts/org.eclipse.equinox.common_3.8.0.v20150911-2106.jar"/>
-	<classpathentry kind="lib" path="prebuilts/org.eclipse.jdt.core_3.12.0.v20150913-1717.jar"/>
-	<classpathentry kind="lib" path="prebuilts/org.eclipse.jdt.core.tests.compiler_3.12.0.v20150913-1717.jar"/>
-	<classpathentry kind="lib" path="prebuilts/org.eclipse.test.performance_3.11.0.v20150223-0658.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Jack"/>
+	<classpathentry kind="lib" path="prebuilts/ecj-tests-lib.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

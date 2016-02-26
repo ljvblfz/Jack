@@ -16,6 +16,7 @@
 
 package com.android.jack.java8;
 
+import com.android.jack.test.eclipse.jdt.core.tests.compiler.regression.InterfaceMethodsTest;
 import com.android.jack.test.runner.AbstractRuntimeRunner;
 import com.android.jack.test.runner.RuntimeRunner;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -29,7 +30,6 @@ import junit.framework.Assert;
 import junit.framework.JUnit4TestAdapter;
 import junit.framework.Test;
 
-import org.eclipse.jdt.core.tests.compiler.regression.InterfaceMethodsTest;
 import org.junit.internal.AssumptionViolatedException;
 import org.junit.runner.Description;
 import org.junit.runner.manipulation.Filter;
