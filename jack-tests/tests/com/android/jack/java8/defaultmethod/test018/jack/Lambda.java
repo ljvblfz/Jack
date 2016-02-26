@@ -14,35 +14,22 @@
  * limitations under the License.
  */
 
-package com.android.jack.java8.lambda.test036.jack;
+package com.android.jack.java8.defaultmethod.test018.jack;
 
-import org.junit.Assert;
-import org.junit.Test;
+interface Foo<T> {
+  default String bar(String s) {
+    return ("default : " + s);
+  }
 
-import java.util.ArrayList;
-import java.util.List;
-
-interface I {
-  int getLength();
+  String bar(T t);
 }
 
-/**
- * Test that trigger a bug where enclosing instance of a lambda expression is not captured.
- */
-public class Tests {
+public class Lambda {
 
-  @Test
-  public void test() {
-    class A<T> {
-      List<T> l;
-
-      public A(List<T> l) {
-        this.l = l;
-      }
-    }
-
-    List<Integer> list = new ArrayList<>();
-    I i = () -> new A<>(list).l.size();
-    Assert.assertEquals(0, i.getLength());
+  public String testLambdaRedefiningADefault() throws Exception {
+    Foo<String> foo = (t) -> {
+      return "lambda : " + t;
+    };
+    return (((Foo) foo).bar("String"));
   }
 }
