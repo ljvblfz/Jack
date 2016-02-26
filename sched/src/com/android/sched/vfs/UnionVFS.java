@@ -124,6 +124,9 @@ public class UnionVFS extends BaseVFS<UnionVDir, UnionVFile> implements VFS {
       return wrappedDirs.get(0).getLocation();
     }
 
+    /**
+     * Iteration on the returned list must be synchronized.
+     */
     @Nonnull
     List<BaseVDir> getWrappedDirs() {
       return wrappedDirs;
@@ -145,23 +148,28 @@ public class UnionVFS extends BaseVFS<UnionVDir, UnionVFile> implements VFS {
         if (parent != null) {
           parent.ensureFullyLoaded();
 
-          for (BaseVDir parentWrappedDir : parent.getWrappedDirs()) {
-            // check if the wrappedDir corresponding to this parentWrappedDir is already contained
-            boolean alreadyContained = false;
-            for (BaseVDir wrappedDir : wrappedDirs) {
-              if (wrappedDir.getVFS() == parentWrappedDir.getVFS()) {
-                alreadyContained = true;
-                break;
+          List<BaseVDir> parentWrappedDirs = parent.getWrappedDirs();
+          synchronized (parentWrappedDirs) { // iteration needs to be synchronized
+            for (BaseVDir parentWrappedDir : parentWrappedDirs) {
+              // check if the wrappedDir corresponding to this parentWrappedDir is already contained
+              boolean alreadyContained = false;
+              synchronized (wrappedDirs) { // iteration needs to be synchronized
+                for (BaseVDir wrappedDir : wrappedDirs) {
+                  if (wrappedDir.getVFS() == parentWrappedDir.getVFS()) {
+                    alreadyContained = true;
+                    break;
+                  }
+                }
               }
-            }
-            if (!alreadyContained) {
-              try {
-                BaseVDir newWrappedDir = parentWrappedDir.getVDir(name);
-                wrappedDirs.add(newWrappedDir);
-              } catch (NotDirectoryException e) {
-                throw new AssertionError(e);
-              } catch (NoSuchFileException e) {
-                // ignore
+              if (!alreadyContained) {
+                try {
+                  BaseVDir newWrappedDir = parentWrappedDir.getVDir(name);
+                  wrappedDirs.add(newWrappedDir);
+                } catch (NotDirectoryException e) {
+                  throw new AssertionError(e);
+                } catch (NoSuchFileException e) {
+                  // ignore
+                }
               }
             }
           }
@@ -173,14 +181,16 @@ public class UnionVFS extends BaseVFS<UnionVDir, UnionVFile> implements VFS {
 
     void internalDelete(@Nonnull String name) throws CannotDeleteFileException {
       ensureFullyLoaded();
-      for (BaseVDir wrappedDir : wrappedDirs) {
-        try {
-          BaseVFile vFile = wrappedDir.getVFile(name);
-          wrappedDir.delete(vFile);
-        } catch (NotFileException e) {
-          // ignore
-        } catch (NoSuchFileException e) {
-          // ignore
+      synchronized (wrappedDirs) { // iteration needs to be synchronized
+        for (BaseVDir wrappedDir : wrappedDirs) {
+          try {
+            BaseVFile vFile = wrappedDir.getVFile(name);
+            wrappedDir.delete(vFile);
+          } catch (NotFileException e) {
+            // ignore
+          } catch (NoSuchFileException e) {
+            // ignore
+          }
         }
       }
     }
@@ -391,13 +401,15 @@ public class UnionVFS extends BaseVFS<UnionVDir, UnionVFile> implements VFS {
     List<BaseVDir> parentWrappedDirs = parent.getWrappedDirs();
     BaseVDir dirToWrap = null;
     boolean writable = parent.isWritable();
-    for (BaseVDir parentWrappedDir : parentWrappedDirs) {
-      try {
-        dirToWrap = parentWrappedDir.getVDir(name);
-        break; // break only if no exception
-      } catch (NoSuchFileException e) {
-        // ignore and try next
-        writable = false; // only the first wrappedDir may be writable
+    synchronized (parentWrappedDirs) { // iteration needs to be synchronized
+      for (BaseVDir parentWrappedDir : parentWrappedDirs) {
+        try {
+          dirToWrap = parentWrappedDir.getVDir(name);
+          break; // break only if no exception
+        } catch (NoSuchFileException e) {
+          // ignore and try next
+          writable = false; // only the first wrappedDir may be writable
+        }
       }
     }
     if (dirToWrap == null) {
@@ -414,13 +426,15 @@ public class UnionVFS extends BaseVFS<UnionVDir, UnionVFile> implements VFS {
     List<BaseVDir> parentWrappedDirs = parent.getWrappedDirs();
     BaseVFile fileToWrap = null;
     boolean writable = parent.isWritable();
-    for (BaseVDir parentWrappedDir : parentWrappedDirs) {
-      try {
-        fileToWrap = parentWrappedDir.getVFile(name);
-        break; // break only if no exception
-      } catch (NoSuchFileException e) {
-        // ignore and try next
-        writable = false; // only the first wrappedFile may be writable
+    synchronized (parentWrappedDirs) { // iteration needs to be synchronized
+      for (BaseVDir parentWrappedDir : parentWrappedDirs) {
+        try {
+          fileToWrap = parentWrappedDir.getVFile(name);
+          break; // break only if no exception
+        } catch (NoSuchFileException e) {
+          // ignore and try next
+          writable = false; // only the first wrappedFile may be writable
+        }
       }
     }
     if (fileToWrap == null) {
@@ -511,32 +525,36 @@ public class UnionVFS extends BaseVFS<UnionVDir, UnionVFile> implements VFS {
   Collection<? extends BaseVElement> list(@Nonnull UnionVDir dir) {
     dir.ensureFullyLoaded();
     List<BaseVElement> unionElements = new ArrayList<BaseVElement>();
-    for (BaseVDir wrappedDir : dir.getWrappedDirs()) {
-      boolean writable = dir.isWritable();
-      for (BaseVElement subWrappedElement : wrappedDir.list()) {
-        String currentName = subWrappedElement.getName();
+    List<BaseVDir> wrappedDirs = dir.getWrappedDirs();
+    synchronized (wrappedDirs) { // iteration needs to be synchronized
+      for (BaseVDir wrappedDir : wrappedDirs) {
+        boolean writable = dir.isWritable();
+        for (BaseVElement subWrappedElement : wrappedDir.list()) {
+          String currentName = subWrappedElement.getName();
 
-        // check if UnionVElement already exists
-        boolean unionVElementExists = false;
-        for (BaseVElement unionVElement : unionElements) {
-          if (unionVElement.getName().equals(currentName)) {
-            unionVElementExists = true;
-            break;
+          // check if UnionVElement already exists
+          boolean unionVElementExists = false;
+          for (BaseVElement unionVElement : unionElements) {
+            if (unionVElement.getName().equals(currentName)) {
+              unionVElementExists = true;
+              break;
+            }
           }
-        }
 
-        if (!unionVElementExists) { // it does not exist, create it
-          BaseVElement unionElement;
-          if (subWrappedElement.isVDir()) {
-            unionElement = new UnionVDir(this, dir,
-                Lists.newArrayList((BaseVDir) subWrappedElement), writable);
-          } else {
-            unionElement = new UnionVFile(this, dir, (BaseVFile) subWrappedElement, writable);
+          if (!unionVElementExists) { // it does not exist, create it
+            BaseVElement unionElement;
+            if (subWrappedElement.isVDir()) {
+              unionElement = new UnionVDir(this, dir,
+                  Lists.newArrayList((BaseVDir) subWrappedElement), writable);
+            } else {
+              unionElement = new UnionVFile(this, dir, (BaseVFile) subWrappedElement, writable);
+            }
+            unionElements.add(unionElement);
           }
-          unionElements.add(unionElement);
+          writable = false; // only the top subWrappedElement can be writable
         }
-        writable = false; // only the top subWrappedElement can be writable
       }
+
     }
 
     return unionElements;
@@ -554,10 +572,13 @@ public class UnionVFS extends BaseVFS<UnionVDir, UnionVFile> implements VFS {
     BaseVFile wrappedFile = file.getWrappedFile();
     VFS fileVFS = wrappedFile.getVFS();
     BaseVDir matchingDir = null;
-    for (BaseVDir parentWrappedDir : parent.getWrappedDirs()) {
-      if (parentWrappedDir.getVFS() == fileVFS) {
-        matchingDir = parentWrappedDir;
-        break;
+    List<BaseVDir> parentWrappedDirs = parent.getWrappedDirs();
+    synchronized (parentWrappedDirs) { // iteration needs to be synchronized
+      for (BaseVDir parentWrappedDir : parentWrappedDirs) {
+        if (parentWrappedDir.getVFS() == fileVFS) {
+          matchingDir = parentWrappedDir;
+          break;
+        }
       }
     }
     assert matchingDir != null;
