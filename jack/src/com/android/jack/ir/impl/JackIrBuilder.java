@@ -1554,9 +1554,9 @@ public class JackIrBuilder {
           for (SyntheticArgumentBinding arg : nestedType.syntheticOuterLocalVariables()) {
             VariableBinding[] paths = blockScope.getEmulationPath(arg.actualOuterLocalVariable);
             JExpression exprPath = generateEmulationPath(sourceInfo, paths);
-            if (exprPath instanceof JLocalRef) {
+            if (exprPath instanceof JLocalRef || exprPath instanceof JParameterRef) {
               lambda.addCapturedVariable(
-                  ((JLocalRef) exprPath).getTarget().makeRef(exprPath.getSourceInfo()));
+                  ((JVariableRef) exprPath).getTarget().makeRef(exprPath.getSourceInfo()));
             }
             newInstance.addArg(exprPath);
           }
