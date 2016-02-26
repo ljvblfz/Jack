@@ -73,6 +73,10 @@ public class MethodRefTest {
       AbstractTestTools.getTestRootDir("com.android.jack.java8.methodref.test010"),
       "com.android.jack.java8.methodref.test010.jack.Tests");
 
+  private RuntimeTestInfo METHODREF011 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java8.methodref.test011"),
+      "com.android.jack.java8.methodref.test011.jack.Tests");
+
   @Test
   public void testMethodRef001() throws Exception {
     run(METHODREF001);
@@ -121,6 +125,11 @@ public class MethodRefTest {
   @Test
   public void testMethodRef010() throws Exception {
     run(METHODREF010);
+  }
+
+  @Test
+  public void testMethodRef011() throws Exception {
+    run(METHODREF011);
   }
 
   private void run(@Nonnull RuntimeTestInfo rti) throws Exception {

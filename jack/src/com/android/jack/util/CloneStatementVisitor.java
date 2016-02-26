@@ -513,12 +513,22 @@ public class CloneStatementVisitor extends CloneExpressionVisitor {
 
     expression = clonedLambda;
 
-    new RewriteThisRefOfLambda().accept(lambda.getMethod());
+    new RewriteVarRefOfLambda().accept(lambda.getMethod());
 
     return false;
   }
 
-  private class RewriteThisRefOfLambda extends JVisitor {
+  private class RewriteVarRefOfLambda extends JVisitor {
+
+    @Override
+    public boolean visit(@Nonnull JVariableRef varRef) {
+      JLocal clonedVar = clonedLocals.get(varRef.getTarget());
+      if (clonedVar != null) {
+        trRequest.append(new Replace(varRef, clonedVar.makeRef(varRef.getSourceInfo())));
+      }
+      return false;
+    }
+
     @Override
     public boolean visit(@Nonnull JThisRef jThisRef) {
       JThis jThis = targetMethod.getThis();
