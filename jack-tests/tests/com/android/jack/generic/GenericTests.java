@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package com.android.jack.generic.basic;
+package com.android.jack.generic;
 
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
 import org.junit.Test;
 
@@ -39,5 +41,20 @@ public class GenericTests {
         AbstractTestTools.createTempDir(),
         /* zipFile = */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.generic.basic.jack"));
+  }
+
+  /**
+   * Check that Jack can correctly resolve a generic usage.
+   */
+  @Test
+  @KnownIssue
+  public void testCompileTest001() throws Exception {
+    IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .setSourceLevel(SourceLevel.JAVA_8)
+    .srcToExe(
+        AbstractTestTools.createTempDir(),
+        /* zipFile = */ false,
+        AbstractTestTools.getTestRootDir("com.android.jack.generic.test001.jack"));
   }
 }
