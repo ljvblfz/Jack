@@ -15,6 +15,7 @@
  */
 package com.android.jack.ir.ast;
 
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
@@ -103,5 +104,13 @@ public class JArrayRef extends JExpression {
   public void visit(@Nonnull JVisitor visitor, @Nonnull TransformRequest transformRequest)
       throws Exception {
     visitor.visit(this, transformRequest);
+  }
+
+  @Override
+  public void checkValidity() {
+    super.checkValidity();
+    if (!(instance.getType() instanceof JArrayType)) {
+      throw new JNodeInternalError(instance, "Invalid array expression");
+    }
   }
 }
