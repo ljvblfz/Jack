@@ -87,7 +87,6 @@
         <file name="${jack-server.dir}/etc/jack" />
         <file name="${jack-server.dir}/etc/jack-admin" />
         <file name="${jack-server.dir}/etc/jack-diagnose" />
-        <file name="${jack-server.dir}/README-jack-server.md" />
       </filelist>
     </copy>
     <replace file="${jack-top-dist.dir}/jack"
@@ -104,15 +103,6 @@
                    token="%%VERSION%%"
                    value="${version}"
                    encoding="UTF-8"/>
-
-    <replace file="${jack-top-dist.dir}/README-jack-server.md"
-                   token="%%VERSION%%"
-                   value="${version}"
-                   encoding="UTF-8"/>
-
-    <exec executable="pandoc" failifexecutionfails="false">
-      <arg line="--from=markdown --to=plain --output=${jack-top-dist.dir}/README-jack-server.txt ${jack-top-dist.dir}/README-jack-server.md"/>
-    </exec>
 
     <!-- <copy> and <replace> do not retain file permissions -->
     <chmod perm="755" file="${jack-top-dist.dir}/jack"/>
