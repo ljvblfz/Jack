@@ -132,7 +132,7 @@ class JAstBuilder extends JavaParser {
           return;
         }
 
-        loadLocalClasses(unit);
+        List<JDefinedClassOrInterface> loadedLocalTypes = loadLocalClasses(unit);
 
         // Generate Jack IR after each compilation of CompilationUnitDeclaration.
         // It could not be done at the end of compile(ICompilationUnit[] sourceUnits) method since
@@ -146,6 +146,14 @@ class JAstBuilder extends JavaParser {
           return;
         } finally {
           jackIrBuilderEvent.end();
+        }
+
+        for (JDefinedClassOrInterface type : loadedLocalTypes) {
+          // A local type was loaded but is declared in dead code and was not processed.
+          // We have to remove it from its enclosing package.
+          if (!types.contains(type)) {
+            type.getEnclosingPackage().remove(type);
+          }
         }
 
         for (JDefinedClassOrInterface type : types) {
@@ -187,7 +195,10 @@ class JAstBuilder extends JavaParser {
     }
   }
 
-  private void loadLocalClasses(@Nonnull CompilationUnitDeclaration unit) {
+  @Nonnull
+  private List<JDefinedClassOrInterface> loadLocalClasses(
+      @Nonnull CompilationUnitDeclaration unit) {
+    List<JDefinedClassOrInterface> types = new ArrayList<JDefinedClassOrInterface>();
     if (unit.localTypes != null) {
       JPackage enclosingPackage;
       if (unit.currentPackage != null) {
@@ -201,11 +212,12 @@ class JAstBuilder extends JavaParser {
         /* binding.constantPoolName() == null means that ecj detected the local type to be dead
          * code and didn't complete processing */
         if (binding != null && binding.constantPoolName() != null) {
-          EcjSourceTypeLoader.createType(refMap, enclosingPackage, binding, null,
-              new FileLocation(new File(new String(unit.getFileName()))));
+          types.add(EcjSourceTypeLoader.createType(refMap, enclosingPackage, binding, null,
+              new FileLocation(new File(new String(unit.getFileName())))));
         }
       }
     }
+    return types;
   }
 
   private void createTypes(@Nonnull JPackage enclosingPackage, @Nonnull ReferenceMapper refMap,
