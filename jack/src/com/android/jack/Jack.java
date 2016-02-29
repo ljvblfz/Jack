@@ -18,6 +18,7 @@ package com.android.jack;
 
 import com.android.jack.Options.AssertionPolicy;
 import com.android.jack.Options.SwitchEnumOptStrategy;
+import com.android.jack.abort.Aborter;
 import com.android.jack.analysis.DefinitionMarkerAdder;
 import com.android.jack.analysis.DefinitionMarkerRemover;
 import com.android.jack.analysis.UsedVariableAdder;
@@ -1485,6 +1486,8 @@ public abstract class Jack {
     if (hasSanityChecks) {
       planBuilder.append(AstChecker.class);
     }
+
+    planBuilder.append(Aborter.class);
   }
 
   private static void appendObfuscationPlan(@Nonnull PlanBuilder<JSession> planBuilder,

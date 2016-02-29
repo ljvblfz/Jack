@@ -115,6 +115,8 @@ public class JSession extends JNode {
   @CheckForNull
   private RunnableHooks hooks;
 
+  private final boolean mustAbortEventually = false;
+
   public JSession() {
     super(SourceInfo.UNKNOWN);
     topLevelPackage = new JPackage("", null);
@@ -158,6 +160,10 @@ public class JSession extends JNode {
   @Nonnull
   public SourceInfoFactory getSourceInfoFactory() {
     return sourceInfoFactory;
+  }
+
+  public boolean mustAbortEventually() {
+    return mustAbortEventually;
   }
 
   public void addTypeToEmit(@Nonnull JDefinedClassOrInterface type) {
