@@ -97,4 +97,10 @@ abstract class BaseVFile extends BaseVElement implements VFile {
   public VPath getPathFromRoot() {
     return vfs.getPathFromRoot(this);
   }
+
+  @Override
+  @Nonnull
+  public String toString() {
+    return getPathFromRoot().getPathAsString('/') + " (" + getLocation().getDescription() + ')';
+  }
 }
