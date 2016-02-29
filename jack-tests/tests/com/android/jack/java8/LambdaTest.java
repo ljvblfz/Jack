@@ -16,7 +16,6 @@
 
 package com.android.jack.java8;
 
-
 import com.android.jack.Options;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
@@ -663,6 +662,103 @@ public class LambdaTest {
             new File(srcDexFolder, DexFileWriter.DEX_FILENAME)});
   }
 
+  /**
+   * Add a test using a lambda that required an inner accessor to be generated and verify that it
+   * works correctly even if a library is missing on its classpath during the workflow lib2dex.
+   */
+  @Test
+  @KnownIssue(candidate = IncrementalToolchain.class)
+  public void testLamba040() throws Exception {
+    List<Class<? extends IToolchain>> excludedToolchains =
+        new ArrayList<Class<? extends IToolchain>>();
+    excludedToolchains.add(JackApiV01.class);
+    excludedToolchains.add(JillBasedToolchain.class);
+
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
+    File[] defaultClasspath = toolchain.getDefaultBootClasspath();
+    File lib = AbstractTestTools.createTempFile("lib", toolchain.getLibraryExtension());
+    File sourceDir = AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test040.lib");
+    toolchain.addToClasspath(defaultClasspath).srcToLib(lib, /* zipFiles = */ true, sourceDir);
+
+    toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
+    File libDexFolder = AbstractTestTools.createTempDir();
+    toolchain.addToClasspath(defaultClasspath).setSourceLevel(SourceLevel.JAVA_8).libToExe(lib,
+        libDexFolder, /* zipFiles = */ false);
+
+    toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
+    File srclib = AbstractTestTools.createTempFile("srclib", toolchain.getLibraryExtension());
+    sourceDir = AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test040.jack");
+    toolchain.addToClasspath(defaultClasspath).addToClasspath(lib)
+        .setSourceLevel(SourceLevel.JAVA_8).srcToLib(srclib, /* zipFiles = */ true, sourceDir);
+
+
+
+    toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
+    toolchain.addProperty(Options.USE_PREBUILT_FROM_LIBRARY.getName(), Boolean.FALSE.toString());
+    File srcDexFolder = AbstractTestTools.createTempDir();
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    toolchain.setErrorStream(baos);
+    toolchain.addToClasspath(defaultClasspath).setSourceLevel(SourceLevel.JAVA_8).libToExe(srclib,
+        srcDexFolder, /* zipFiles = */ false);
+
+    run("com.android.jack.java8.lambda.test040.jack.Tests",
+        new File[] {
+            new File(TestsProperties.getJackRootDir(), "jack-tests/prebuilts/junit4-hostdex.jar"),
+            new File(libDexFolder, DexFileWriter.DEX_FILENAME),
+            new File(srcDexFolder, DexFileWriter.DEX_FILENAME)});
+  }
+
+  /**
+   * The test checks that an inner representing a lambda and implementing an interface that contains
+   * bridges contains also the same number of bridges. The goal of this test is to detect a change
+   * into the ECJ behavior where it does not longer generate bridge into lambda when they already
+   * exists into an interface. Generate a jack library compiled with source 1.8 such as interface
+   * must contains bridges. Thereafter, compile source code with a lambda implementing the interface
+   * that contains bridges.
+   */
+  @Test
+  @KnownIssue(candidate = IncrementalToolchain.class)
+  public void testLamba041() throws Exception {
+    List<Class<? extends IToolchain>> excludedToolchains =
+        new ArrayList<Class<? extends IToolchain>>();
+    excludedToolchains.add(JackApiV01.class);
+    excludedToolchains.add(JillBasedToolchain.class);
+
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
+    File[] defaultClasspath = toolchain.getDefaultBootClasspath();
+    File lib = AbstractTestTools.createTempFile("lib", toolchain.getLibraryExtension());
+    File sourceDir = AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test041.lib");
+    toolchain.addToClasspath(defaultClasspath).setSourceLevel(SourceLevel.JAVA_8).srcToLib(lib,
+        /* zipFiles = */ true, sourceDir);
+
+    toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
+    File libDexFolder = AbstractTestTools.createTempDir();
+    toolchain.addProperty(Options.ANDROID_MIN_API_LEVEL.getName(),
+        String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL));
+    toolchain.addToClasspath(defaultClasspath).setSourceLevel(SourceLevel.JAVA_8).libToExe(lib,
+        libDexFolder, /* zipFiles = */ false);
+
+    toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
+    File srcDexFolder = AbstractTestTools.createTempDir();
+    sourceDir = AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test041.jack");
+    toolchain.addToClasspath(defaultClasspath).addToClasspath(lib)
+        .setSourceLevel(SourceLevel.JAVA_8)
+        .srcToExe(srcDexFolder, /* zipFiles = */ false, sourceDir);
+
+    run("com.android.jack.java8.lambda.test041.jack.Tests",
+        new File[] {
+            new File(TestsProperties.getJackRootDir(), "jack-tests/prebuilts/junit4-hostdex.jar"),
+            new File(libDexFolder, DexFileWriter.DEX_FILENAME),
+            new File(srcDexFolder, DexFileWriter.DEX_FILENAME)});
+  }
+
   private void run(@Nonnull String mainClass, @Nonnull File[] dexFiles) throws Exception {
     List<RuntimeRunner> runnerList = AbstractTestTools.listRuntimeTestRunners(null);
     for (RuntimeRunner runner : runnerList) {
@@ -678,5 +774,4 @@ public class LambdaTest {
         .setWithDebugInfos(true)
         .compileAndRunTest();
   }
-
 }
