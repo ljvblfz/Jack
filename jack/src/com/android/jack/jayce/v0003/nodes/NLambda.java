@@ -23,8 +23,6 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodIdWithReturnType;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.JVariableRef;
-import com.android.jack.jayce.JayceClassOrInterfaceLoader;
-import com.android.jack.jayce.NodeLevel;
 import com.android.jack.jayce.linker.VariableRefLinker;
 import com.android.jack.jayce.v0003.io.ExportSession;
 import com.android.jack.jayce.v0003.io.ImportHelper;
@@ -97,26 +95,8 @@ public class NLambda extends NExpression {
     assert typeSig != null;
     assert mthIdToImplement != null;
 
-    ExportSession exportSessionForLambdaMethStructure = new ExportSession(exportSession.getLookup(),
-        exportSession.getSession(), NodeLevel.STRUCTURE);
-    exportSessionForLambdaMethStructure.setCurrentType(exportSession.getCurrentType());
-
     JMethod lambdaMethod =
-        method.exportLambdaMethodAsJast(exportSessionForLambdaMethStructure,
-            (JayceClassOrInterfaceLoader) exportSessionForLambdaMethStructure.getCurrentType()
-                .getLoader());
-
-    ExportSession exportSessionForLambdaMethod = new ExportSession(exportSession);
-    exportSessionForLambdaMethod.setCurrentType(exportSession.getCurrentType());
-
-    lambdaMethod.setThis(exportSession.getCurrentMethod().getThis());
-
-    method.loadBody(lambdaMethod, exportSessionForLambdaMethod);
-
-    lambdaMethod.setThis(null);
-
-    // Lambda method is already loaded
-    lambdaMethod.removeLoader();
+        method.exportLambdaMethodAsJast(exportSession);
 
     List<JInterface> jBounds = new ArrayList<JInterface>(boundsIds.size());
     for (String bound : boundsIds) {
