@@ -21,6 +21,7 @@ import com.android.jill.JillException;
 import com.android.jill.Options;
 import com.android.jill.backend.jayce.JayceWriter;
 import com.android.jill.utils.FileUtils;
+import com.android.sched.util.stream.UncloseableOutputStream;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
@@ -37,6 +38,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.zip.Deflater;
+import java.util.zip.DeflaterOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -52,7 +55,7 @@ public class JavaTransformer {
   private static final String LIB_MAJOR_VERSION = "3";
 
   @Nonnull
-  private static final String LIB_MINOR_VERSION = "0";
+  private static final String LIB_MINOR_VERSION = "1";
 
   @Nonnull
   private static final String JAYCE_MAJOR_VERSION = "3";
@@ -153,6 +156,7 @@ public class JavaTransformer {
     try {
       if (options.getOutputContainer() == ContainerType.ZIP) {
         zos = new ZipOutputStream(new FileOutputStream(options.getOutput()));
+        zos.setLevel(Deflater.NO_COMPRESSION);
       }
       transformJavaFiles(jarFile, zos);
       dumpJackLibraryProperties(zos);
@@ -276,14 +280,21 @@ public class JavaTransformer {
 
   private void transform(@Nonnull ClassNode cn, @Nonnull OutputStream os) throws IOException {
 
-    JayceWriter writer = createWriter(os);
+    UncloseableOutputStream uos = new UncloseableOutputStream(os);
+    DeflaterOutputStream dos = new DeflaterOutputStream(uos, new Deflater());
+    try {
+      JayceWriter writer = createWriter(dos);
 
-    ClassNodeWriter asm2jayce =
-        new ClassNodeWriter(writer, new SourceInfoWriter(writer), options);
+      ClassNodeWriter asm2jayce =
+          new ClassNodeWriter(writer, new SourceInfoWriter(writer), options);
 
-    asm2jayce.write(cn);
+      asm2jayce.write(cn);
 
-    writer.flush();
+      writer.flush();
+
+    } finally {
+      dos.close();
+    }
   }
 
   private void createParentDirectories(File outputFile) throws IOException {
