@@ -16,6 +16,7 @@ import com.android.jack.comparison.ComparisonTests;
 import com.android.jack.compiletime.CompileTimeTests;
 import com.android.jack.conditional.ConditionalTests;
 import com.android.jack.constant.ConstantTests;
+import com.android.jack.coverage.CoverageTests;
 import com.android.jack.debug.DebugTests;
 import com.android.jack.dextag.DexTagTests;
 import com.android.jack.dx.DxTests;
@@ -92,6 +93,7 @@ import org.junit.runners.Suite.SuiteClasses;
     CompileTimeTests.class,
     ConditionalTests.class,
     ConstantTests.class,
+    CoverageTests.class,
     DebugTests.class,
     DependencyAllTests.class,
     DexTagTests.class,

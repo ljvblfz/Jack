@@ -829,7 +829,7 @@
   </target>
 
   <target name="jack-tests-copy-libs" depends="jack-api-lib,junit4,dx-ref-lib,ddm-lib,ecj,
-    antlr-rt-lib,guava-lib,dex-lib,jsr305-lib,dexcomparator-lib">
+    antlr-rt-lib,guava-lib,dex-lib,jsr305-lib,dexcomparator-lib, gson-lib">
     <copy todir="${jack-tests.libs.dir}" flatten="true">
       <filelist dir="/" >
         <file name="${jack-api.dist.dir}/${jack-api.lib.name}"/>
@@ -842,6 +842,7 @@
         <file name="${dexlib.dist.dir}/${dexlib.libname}"/>
         <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
         <file name="${dexcomparator.dist.dir}/${dexcomparator.libname}"/>
+        <file name="${gson.dist.dir}/${gson.libname}"/>
       </filelist>
     </copy>
   </target>
@@ -901,6 +902,7 @@
           <file name="${ddm-lib.dist.dir}/${ddm-lib.libname}" />
           <file name="${jack-api.dist.dir}/${jack-api.lib.name}"/>
           <file name="${schedtests.dist.dir}/${schedtests.libname}"/>
+          <file name="${gson.dist.dir}/${gson.libname}"/>
         </filelist>
         <!-- static libs -->
         <filelist refid="jackunittests.static.libs.fileset" />
@@ -961,6 +963,7 @@
           <file name="${jack-api.dist.dir}/${jack-api.lib.name}"/>
           <file name="${schedtests.dist.dir}/${schedtests.libname}"/>
           <file name="${jack-tests.prebuilts.dir}/${ecj-tests.libname}"/>
+          <file name="${gson.dist.dir}/${gson.libname}"/>
         </filelist>
       </classpath>
     </javac>

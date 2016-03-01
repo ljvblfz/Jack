@@ -58,13 +58,13 @@ public class CodeCoverageMetadataFileWriter implements RunnableSchedulable<JSess
    * The version of emitted JSON coverage information.
    */
   @Nonnull
-  private static final String VERSION = "1.0";
+  public static final String VERSION = "1.0";
 
   @Nonnull
-  private static final String JSON_VERSION_ATTRIBUTE = "version";
+  public static final String JSON_VERSION_ATTRIBUTE = "version";
 
   @Nonnull
-  private static final String JSON_DATA_ATTRIBUTE = "data";
+  public static final String JSON_DATA_ATTRIBUTE = "data";
 
   private static final TypeAndMethodFormatter binaryFormatter =
       BinarySignatureFormatter.getFormatter();
@@ -140,9 +140,15 @@ public class CodeCoverageMetadataFileWriter implements RunnableSchedulable<JSess
       assert coverageInitMethod != null;
       List<JMethod> methods = new ArrayList<JMethod>(x.getMethods().size());
       for (JMethod m : x.getMethods()) {
-        if (m != coverageInitMethod) {
-          methods.add(m);
+        if (m.isNative() || m.isAbstract()) {
+          // No coverage for such method.
+          continue;
         }
+        if (m == coverageInitMethod) {
+          // Skip the method added by instrumentation.
+          continue;
+        }
+        methods.add(m);
       }
 
       indent();
