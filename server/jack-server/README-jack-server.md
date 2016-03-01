@@ -46,7 +46,8 @@ This file contains script shell variables:
 by default: `SERVER_HOST=127.0.0.1`.
 
 `SERVER_PORT_SERVICE`: Server service TCP port number. Needs to match the service port
-number defined in `$HOME/.jack-server/config.properties` on the server host (See **Server info** below)  
+number defined in `$HOME/.jack-server/config.properties` on the server host
+(See **Server info** below)  
 by default: `SERVER_PORT_SERVICE=8076`.
 
 `SERVER_PORT_ADMIN`: Server admin TCP port number. Needs to match the admin port number
@@ -144,6 +145,33 @@ Print log pattern.
 Produce a report file that can be used to file a bug.
 
 
+## Transitioning from server 1.1 (e.g. Marshmallow) to server 1.3 (e.g. N)
+
+The old Jack server used a `$HOME/.jack` configuration file. It has now replaced by a
+`$HOME/.jack-settings` and a `$HOME/.jack-server/config.properties`.
+If those new files do not exist, run `jack-admin start-server` and they will be created.
+If you had custom settings in your `$HOME/.jack`, here's how to adapt those.
+
+`SERVER_PORT_SERVICE=XXXX`  
+Replace with `SERVER_PORT_SERVICE=XXXX` in `$HOME/.jack-settings` and
+`jack.server.service.port=XXXX` in `$HOME/.jack-server/config.properties`.
+
+`SERVER_PORT_ADMIN=YYYY`  
+Replace with `SERVER_PORT_ADMIN=YYYY` in `$HOME/.jack-settings` and
+`jack.server.admin.port=YYYY` in `$HOME/.jack-server/config.properties`.
+
+`SERVER_NB_COMPILE=N`  
+Replace with `jack.server.max-service=N` in `$HOME/.jack-server/config.properties`.
+
+`SERVER_TIMEOUT=ZZ`  
+You can replace with `jack.server.time-out=ZZ`, but it is recommended to keep the default setting of
+"7200" (2 hours).
+
+Other settings in the `$HOME/.jack` configuration file do not need to be copied.
+You should still keep your `$HOME/.jack` configuration file for the old Jack server because both
+server versions can run simultaneously.
+
+
 ## Troubleshooting
 
 Below you'll find some ways to solve some troubleshooting. If you don't find a solution, file a
@@ -171,7 +199,8 @@ If it doesn't solve the problem, please report and give us additional informatio
   - Attaching the file produced by `jack-admin dump-report`
 
 
-### If your commands fails on `Failed to contact Jack server: Problem reading <your home>/.jack-server/client.pem`
+### If your commands fails on
+`Failed to contact Jack server: Problem reading<your home>/.jack-server/client.pem`
 
 This may mean that your server never managed to start, see
 [If you have trouble starting the server](#if-you-have-trouble-starting-the-server) above.
