@@ -16,7 +16,6 @@
 
 package com.android.jack.coverage;
 
-import com.android.jack.Options;
 import com.android.jack.coverage.ProbeDescription.ProbeLineData;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
@@ -34,12 +33,7 @@ import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
-import com.android.sched.util.codec.OutputStreamCodec;
-import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.config.id.PropertyId;
-import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.util.file.OutputStreamFile;
 
 import java.io.File;
 import java.io.PrintStream;
@@ -54,7 +48,6 @@ import javax.annotation.Nonnull;
 /**
  * Writes Jacoco metadata file.
  */
-@HasKeyId
 @Description("Writes Jacoco metadata file.")
 @Constraint(need = CodeCoverageMarker.Complete.class)
 @Transform(remove = CodeCoverageMarker.class)
@@ -72,12 +65,6 @@ public class CodeCoverageMetadataFileWriter implements RunnableSchedulable<JSess
 
   @Nonnull
   private static final String JSON_DATA_ATTRIBUTE = "data";
-
-  @Nonnull
-  public static final PropertyId<OutputStreamFile> COVERAGE_METADATA_FILE = PropertyId.create(
-      "jack.coverage.metadata.file", "File where the coverage metadata will be emitted",
-      new OutputStreamCodec(Existence.MAY_EXIST).allowStandardOutputOrError())
-      .requiredIf(Options.CODE_COVERVAGE.getValue().isTrue());
 
   private static final TypeAndMethodFormatter binaryFormatter =
       BinarySignatureFormatter.getFormatter();
@@ -244,7 +231,7 @@ public class CodeCoverageMetadataFileWriter implements RunnableSchedulable<JSess
 
   @Override
   public void run(@Nonnull JSession session) throws Exception {
-    PrintStream writer = ThreadConfig.get(COVERAGE_METADATA_FILE).getPrintStream();
+    PrintStream writer = ThreadConfig.get(CodeCoverage.COVERAGE_METADATA_FILE).getPrintStream();
     try {
       writeMetadata(session, writer);
     } finally {

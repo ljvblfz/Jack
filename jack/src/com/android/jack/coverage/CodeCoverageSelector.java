@@ -16,12 +16,10 @@
 
 package com.android.jack.coverage;
 
-import com.android.jack.Options;
 import com.android.jack.digest.OriginDigestMarker;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.formatter.SourceFormatter;
-import com.android.jack.library.DumpInLibrary;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
@@ -29,9 +27,7 @@ import com.android.sched.schedulable.Protect;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
-import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.config.id.PropertyId;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -44,7 +40,6 @@ import javax.annotation.Nonnull;
  * A schedulable that selects classes that needs to be instrumented based on a given filter.
  * All classes selected for code coverage are marked with a {@link CodeCoverageMarker} marker.
  */
-@HasKeyId
 @Description("Filters classes for code coverage")
 @Support(CodeCoverage.class)
 @Constraint(need = OriginalNames.class)
@@ -53,36 +48,16 @@ import javax.annotation.Nonnull;
 public class CodeCoverageSelector implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Nonnull
-  public static final PropertyId<CoverageFilterSet> COVERAGE_JACOCO_INCLUDES =
-      PropertyId
-          .create(
-              "jack.coverage.jacoco.include",
-              "Class names included in the code coverage instrumentation",
-              new CoverageFilterSetCodec())
-          .addDefaultValue(new CoverageFilterSet())
-          .requiredIf(Options.CODE_COVERVAGE.getValue().isTrue())
-          .addCategory(DumpInLibrary.class);
-
-  @Nonnull
-  public static final PropertyId<CoverageFilterSet> COVERAGE_JACOCO_EXCLUDES =
-      PropertyId
-          .create(
-              "jack.coverage.jacoco.exclude",
-              "Class names excluded from the code coverage instrumentation",
-              new CoverageFilterSetCodec())
-          .addDefaultValue(new CoverageFilterSet())
-          .requiredIf(Options.CODE_COVERVAGE.getValue().isTrue())
-          .addCategory(DumpInLibrary.class);
-
-  @Nonnull
   private static final SourceFormatter formatter = SourceFormatter.getFormatter();
 
   /**
    * A {@link CoverageFilter} singleton used to cache include and exclude properties.
    */
   @Nonnull
-  private final CoverageFilter filter = new CoverageFilter(
-      ThreadConfig.get(COVERAGE_JACOCO_INCLUDES), ThreadConfig.get(COVERAGE_JACOCO_EXCLUDES));
+  private final CoverageFilter filter =
+      new CoverageFilter(
+          ThreadConfig.get(CodeCoverage.COVERAGE_JACOCO_INCLUDES),
+          ThreadConfig.get(CodeCoverage.COVERAGE_JACOCO_EXCLUDES));
 
   @Override
   public void run(@Nonnull JDefinedClassOrInterface t) throws Exception {

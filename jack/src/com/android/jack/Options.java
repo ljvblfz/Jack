@@ -180,11 +180,6 @@ public class Options {
       .addDefaultValue(AssertionPolicy.DYNAMIC).ignoreCase().addCategory(DumpInLibrary.class);
 
   @Nonnull
-  public static final BooleanPropertyId CODE_COVERVAGE = BooleanPropertyId
-      .create("jack.coverage", "Enable code coverage")
-      .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
-
-  @Nonnull
   public static final BooleanPropertyId INCREMENTAL_MODE = BooleanPropertyId
       .create("jack.incremental", "Enable incremental mode")
       .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);

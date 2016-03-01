@@ -18,7 +18,6 @@ package com.android.jack.coverage;
 
 import com.android.jack.Jack;
 import com.android.jack.JackAbortException;
-import com.android.jack.Options;
 import com.android.jack.cfg.BasicBlock;
 import com.android.jack.cfg.ConditionalBasicBlock;
 import com.android.jack.cfg.ControlFlowGraph;
@@ -74,16 +73,13 @@ import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.request.TransformationStep;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.jack.util.NamingTools;
-import com.android.jack.util.PackageCodec;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.collect.Lists;
-import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.config.id.PropertyId;
 
 import java.util.List;
 
@@ -94,7 +90,6 @@ import javax.annotation.Nonnull;
 /**
  * Instruments classes for code coverage.
  */
-@HasKeyId
 @Description("Instruments classes for code coverage")
 @Support(CodeCoverage.class)
 @Constraint(need = {CodeCoverageMarker.Analyzed.class, ProbeMarker.class, ControlFlowGraph.class,
@@ -106,14 +101,6 @@ import javax.annotation.Nonnull;
     JNullLiteral.class, JReturnStatement.class},
     remove = ProbeMarker.class)
 public class CodeCoverageTransformer implements RunnableSchedulable<JDefinedClassOrInterface> {
-  @Nonnull
-  public static final PropertyId<String> COVERAGE_JACOCO_PACKAGE_NAME =
-      PropertyId
-          .create(
-              "jack.coverage.jacoco.package",
-              "The name of the JaCoCo package containing the classes that manage instrumentation.",
-              new PackageCodec())
-          .requiredIf(Options.CODE_COVERVAGE.getValue().isTrue());
 
   /**
    * The name of the field containing the array of coverage probes.
@@ -234,12 +221,6 @@ public class CodeCoverageTransformer implements RunnableSchedulable<JDefinedClas
         return false;
       }
 
-      String expectedMethodName = "testDeadlockOnOutgoingCall";
-      String methodName = m.getName();
-      if (methodName.equals(expectedMethodName)) {
-        System.out.println("Gotcha");
-      }
-
       // Create a LocalVarCreator to add synthetic local variables.
       localVarCreator = new LocalVarCreator(m, LOCAL_VAR_NAME_PREFIX);
 
@@ -354,7 +335,7 @@ public class CodeCoverageTransformer implements RunnableSchedulable<JDefinedClas
     JBlock block = new JBlock(coverageInitMethod.getSourceInfo());
     coverageInitMethod.setBody(new JMethodBody(block.getSourceInfo(), block));
 
-    String jacocoPackageName = ThreadConfig.get(COVERAGE_JACOCO_PACKAGE_NAME);
+    String jacocoPackageName = ThreadConfig.get(CodeCoverage.COVERAGE_JACOCO_PACKAGE_NAME);
     String jacocoOfflineClassName = jacocoPackageName + ".Offline";
     String jacocoOfflineClassDesc = "L" + jacocoOfflineClassName.replace('.', '/') + ";";
 

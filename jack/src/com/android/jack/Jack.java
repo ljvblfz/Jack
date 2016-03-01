@@ -642,7 +642,7 @@ public abstract class Jack {
         if (config.get(TypeDefRemover.REMOVE_TYPEDEF).booleanValue()) {
           request.addFeature(TypeDefRemover.RemoveTypeDef.class);
         }
-        if (config.get(Options.CODE_COVERVAGE).booleanValue()) {
+        if (config.get(CodeCoverage.CODE_COVERVAGE).booleanValue()) {
           request.addFeature(CodeCoverage.class);
           request.addProduction(CodeCoverageMetadataFile.class);
         }
