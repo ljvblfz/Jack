@@ -84,4 +84,10 @@ public class GenericInputVFile implements InputVFile {
   public long getLastModified() {
     return file.getLastModified();
   }
+
+  @Override
+  @Nonnull
+  public String toString() {
+    return file.toString();
+  }
 }
