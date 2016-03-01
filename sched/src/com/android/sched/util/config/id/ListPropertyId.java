@@ -77,6 +77,14 @@ public class ListPropertyId<T> extends PropertyId<List<T>> {
 
   @Override
   @Nonnull
+  public ListPropertyId<T> addCategory(@Nonnull Category category) {
+    super.addCategory(category);
+
+    return this;
+  }
+
+  @Override
+  @Nonnull
   public ListCodec<T> getCodec() {
     return (ListCodec<T>) super.getCodec();
   }

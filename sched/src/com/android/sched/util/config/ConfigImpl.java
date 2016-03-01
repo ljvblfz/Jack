@@ -17,6 +17,7 @@
 package com.android.sched.util.config;
 
 import com.android.sched.util.codec.CodecContext;
+import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.config.category.Private;
 import com.android.sched.util.config.id.KeyId;
 import com.android.sched.util.config.id.ObjectId;
@@ -86,6 +87,20 @@ class ConfigImpl implements Config, InternalConfig {
     }
 
     return value.getObject(context);
+  }
+
+  @Override
+  @Nonnull
+  public <T> T parseAs(@Nonnull String string, @Nonnull PropertyId<T> propertyId)
+      throws ParsingException {
+    T value;
+
+    value = propertyId.getCodec().checkString(context, string);
+    if (value == null) {
+      value = propertyId.getCodec().parseString(context, string);
+    }
+
+    return value;
   }
 
   @Override

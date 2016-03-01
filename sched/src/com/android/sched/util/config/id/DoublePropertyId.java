@@ -21,6 +21,7 @@ import com.android.sched.util.codec.DoubleCodec;
 import com.android.sched.util.config.ConfigChecker;
 import com.android.sched.util.config.MissingPropertyException;
 import com.android.sched.util.config.PropertyIdException;
+import com.android.sched.util.config.category.Category;
 import com.android.sched.util.config.expression.BooleanExpression;
 import com.android.sched.util.config.expression.DoubleExpression;
 
@@ -117,5 +118,21 @@ public class DoublePropertyId extends PropertyId<Double> {
         return formatPropertyName(checker, DoublePropertyId.this);
       }
     };
+  }
+
+  @Override
+  @Nonnull
+  public DoublePropertyId addCategory(@Nonnull Class<? extends Category> category) {
+    super.addCategory(category);
+
+    return this;
+  }
+
+  @Override
+  @Nonnull
+  public DoublePropertyId addCategory(@Nonnull Category category) {
+    super.addCategory(category);
+
+    return this;
   }
 }

@@ -30,6 +30,7 @@ import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.LibraryVersionException;
 import com.android.jack.library.MissingLibraryPropertyException;
 import com.android.jack.library.PrebuiltCompatibility;
+import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.PropertyId;
@@ -38,6 +39,7 @@ import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
+import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.GenericInputVFS;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVFS;
@@ -50,12 +52,13 @@ import com.android.sched.vfs.WrongVFSFormatException;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
@@ -65,6 +68,8 @@ import javax.annotation.Nonnull;
  * Jack library used as input.
  */
 public class InputJackLibraryImpl extends InputJackLibrary {
+  @Nonnull
+  private static final Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
   private static final VPath RSC_PREFIX = new VPath("rsc", '/');
@@ -313,24 +318,29 @@ public class InputJackLibraryImpl extends InputJackLibrary {
 
   @Override
   public boolean hasCompliantPrebuilts() {
-    {
-      Config config = ThreadConfig.getConfig();
-      Collection<PropertyId<?>> properties = config.getPropertyIds();
+    Config config = ThreadConfig.getConfig();
 
-      for (PropertyId<?> property : properties) {
-        if (property.hasCategory(PrebuiltCompatibility.class)) {
-          try {
-            if (!getProperty("config." + property.getName()).equals(config.getAsString(property))) {
-              return false;
-            }
-          } catch (MissingLibraryPropertyException e) {
-            // Property does not exist
-            return false;
+    for (PropertyId<?> property : config.getPropertyIds()) {
+      if (property.hasCategory(PrebuiltCompatibility.class)) {
+        try {
+          String value = getProperty("config." + property.getName());
+          PrebuiltCompatibility compatibility = property.getCategory(PrebuiltCompatibility.class);
+          if (compatibility != null) {
+            return compatibility.isCompatible(config, value);
+          } else {
+            return config.parseAs(value, property).equals(config.get(property));
           }
+        } catch (MissingLibraryPropertyException e) {
+          logger.log(Level.FINE, e.getMessage());
+          return false;
+        } catch (ParsingException e) {
+          logger.log(Level.FINE, "Property ''{0}'' is malformed from library {1}: {2}",
+              new Object[] {property.getName(), getLocation().getDescription(), e.getMessage()});
+          return false;
         }
       }
-
-      return true;
     }
+
+    return true;
   }
 }

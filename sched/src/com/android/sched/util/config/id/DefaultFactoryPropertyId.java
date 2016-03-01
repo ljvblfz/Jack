@@ -22,6 +22,7 @@ import com.android.sched.util.config.ConfigChecker;
 import com.android.sched.util.config.DefaultFactory;
 import com.android.sched.util.config.MissingPropertyException;
 import com.android.sched.util.config.PropertyIdException;
+import com.android.sched.util.config.category.Category;
 import com.android.sched.util.config.expression.BooleanExpression;
 import com.android.sched.util.config.expression.ClassExpression;
 
@@ -104,5 +105,21 @@ public class DefaultFactoryPropertyId<T> extends PropertyId<DefaultFactory<T>> {
         return formatPropertyName(checker, DefaultFactoryPropertyId.this);
       }
     };
+  }
+
+  @Override
+  @Nonnull
+  public DefaultFactoryPropertyId<T> addCategory(@Nonnull Class<? extends Category> category) {
+    super.addCategory(category);
+
+    return this;
+  }
+
+  @Override
+  @Nonnull
+  public DefaultFactoryPropertyId<T> addCategory(@Nonnull Category category) {
+    super.addCategory(category);
+
+    return this;
   }
 }

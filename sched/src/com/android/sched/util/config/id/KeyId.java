@@ -17,6 +17,7 @@
 package com.android.sched.util.config.id;
 
 import com.android.sched.util.config.ConfigChecker;
+import com.android.sched.util.config.ConfigurationError;
 import com.android.sched.util.config.PropertyIdException;
 import com.android.sched.util.config.category.Category;
 import com.android.sched.util.config.expression.BooleanExpression;
@@ -24,8 +25,9 @@ import com.android.sched.util.config.expression.PropertyNotRequiredException;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -42,8 +44,8 @@ public abstract class KeyId<T, S> {
   private final String name;
 
   @Nonnull
-  private final Set<Class<? extends Category>> categories =
-      new HashSet<Class<? extends Category>>(2);
+  private final Map<Class<? extends Category>, Category> categories =
+      new HashMap<Class<? extends Category>, Category>(2);
 
   public KeyId(@Nonnull String name) {
     this.name = name;
@@ -56,22 +58,50 @@ public abstract class KeyId<T, S> {
 
   @Nonnull
   public Collection<Class<? extends Category>> getCategories() {
-    return Collections.unmodifiableCollection(categories);
+    return Collections.unmodifiableCollection(categories.keySet());
   }
 
   @Nonnull
   public KeyId<T, S> addCategory(@Nonnull Class<? extends Category> category) {
-    this.categories.add(category);
+    if (!hasCategory(category)) {
+      this.categories.put(category, null);
+    } else {
+      throw new ConfigurationError("Duplicate category " + category.getCanonicalName());
+    }
+
+    return this;
+  }
+
+  @Nonnull
+  public KeyId<T, S> addCategory(@Nonnull Category category) {
+    if (!hasCategory(category.getClass())) {
+      this.categories.put(category.getClass(), category);
+    } else {
+      throw new ConfigurationError("Duplicate category " + category.getClass().getCanonicalName());
+    }
 
     return this;
   }
 
   public boolean hasDirectCategory(@Nonnull Class<? extends Category> target) {
-    if (target == Category.class || categories.contains(target)) {
+    if (target == Category.class || categories.containsKey(target)) {
       return true;
     }
 
     return false;
+  }
+
+  @CheckForNull
+  public Category getDirectCategory(@Nonnull Class<? extends Category> target) {
+    if (target == Category.class) {
+      return null;
+    }
+
+    if (categories.containsKey(target)) {
+      return categories.get(target);
+    }
+
+    throw new NoSuchElementException();
   }
 
   public boolean hasCategory(@Nonnull Class<? extends Category> target) {
@@ -79,7 +109,7 @@ public abstract class KeyId<T, S> {
       return true;
     }
 
-    for (Class<? extends Category> category : categories) {
+    for (Class<? extends Category> category : categories.keySet()) {
       if (target.isAssignableFrom(category)) {
         return true;
       }
@@ -87,6 +117,23 @@ public abstract class KeyId<T, S> {
 
     return false;
   }
+
+  @SuppressWarnings("unchecked")
+  @CheckForNull
+  public <T extends Category> T getCategory(@Nonnull Class<T> target) {
+    if (target == Category.class) {
+      return null;
+    }
+
+    for (Class<? extends Category> category : categories.keySet()) {
+      if (target.isAssignableFrom(category)) {
+        return (T) categories.get(target);
+      }
+    }
+
+    throw new NoSuchElementException();
+  }
+
 
   @CheckForNull
   private BooleanExpression requiredIf;

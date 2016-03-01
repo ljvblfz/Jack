@@ -42,6 +42,12 @@ class UninitializedConfig implements Config, InternalConfig {
 
   @Override
   @Nonnull
+  public <T> T parseAs(@Nonnull String string, @Nonnull PropertyId<T> propertyId) {
+    throw new ConfigurationError("Configuration has not been initialized");
+  }
+
+  @Override
+  @Nonnull
   public <T> String getAsString(@Nonnull PropertyId<T> propertyId) {
     throw new ConfigurationError("Configuration has not been initialized");
   }

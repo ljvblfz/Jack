@@ -138,6 +138,15 @@ public class PropertyId<T> extends KeyId<T, String> implements HasDescription {
     return this;
   }
 
+  @Override
+  @Nonnull
+  public PropertyId<T> addCategory(@Nonnull Category category) {
+    super.addCategory(category);
+
+    return this;
+  }
+
+
   @Nonnull
   public StringCodec<T> getCodec() {
     return codec;

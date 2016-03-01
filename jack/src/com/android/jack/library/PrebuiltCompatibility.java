@@ -16,11 +16,16 @@
 
 package com.android.jack.library;
 
+import com.android.sched.util.codec.ParsingException;
+import com.android.sched.util.config.Config;
 import com.android.sched.util.config.category.Category;
+
+import javax.annotation.Nonnull;
 
 /**
  * Define a category to specify that a property can impact the compatibility of the prebuilts
  * contained by a library with the current compilation configuration.
  */
 public interface PrebuiltCompatibility extends Category {
+  boolean isCompatible(@Nonnull Config config, @Nonnull String value) throws ParsingException;
 }

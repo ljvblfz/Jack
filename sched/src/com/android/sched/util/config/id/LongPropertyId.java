@@ -21,6 +21,7 @@ import com.android.sched.util.codec.LongCodec;
 import com.android.sched.util.config.ConfigChecker;
 import com.android.sched.util.config.MissingPropertyException;
 import com.android.sched.util.config.PropertyIdException;
+import com.android.sched.util.config.category.Category;
 import com.android.sched.util.config.expression.BooleanExpression;
 import com.android.sched.util.config.expression.LongExpression;
 
@@ -117,5 +118,21 @@ public class LongPropertyId extends PropertyId<Long> {
         return formatPropertyName(checker, LongPropertyId.this);
       }
     };
+  }
+
+  @Override
+  @Nonnull
+  public LongPropertyId addCategory(@Nonnull Class<? extends Category> category) {
+    super.addCategory(category);
+
+    return this;
+  }
+
+  @Override
+  @Nonnull
+  public LongPropertyId addCategory(@Nonnull Category category) {
+    super.addCategory(category);
+
+    return this;
   }
 }

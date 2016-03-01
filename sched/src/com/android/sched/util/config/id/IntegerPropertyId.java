@@ -96,4 +96,12 @@ public class IntegerPropertyId extends LongPropertyId {
 
     return this;
   }
+
+  @Override
+  @Nonnull
+  public IntegerPropertyId addCategory(@Nonnull Category category) {
+    super.addCategory(category);
+
+    return this;
+  }
 }

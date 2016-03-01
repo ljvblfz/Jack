@@ -68,6 +68,14 @@ public class JavaVersionPropertyId extends PropertyId<JavaVersion> {
     return this;
   }
 
+  @Override
+  @Nonnull
+  public JavaVersionPropertyId addCategory(@Nonnull Category category) {
+    super.addCategory(category);
+
+    return this;
+  }
+
   static {
     @SuppressWarnings("unchecked")
     Entry<JavaVersion>[] elements =

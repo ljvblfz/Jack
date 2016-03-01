@@ -108,4 +108,12 @@ public class BooleanPropertyId extends PropertyId<Boolean> {
 
     return this;
   }
+
+  @Override
+  @Nonnull
+  public BooleanPropertyId addCategory(@Nonnull Category category) {
+    super.addCategory(category);
+
+    return this;
+  }
 }

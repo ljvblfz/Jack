@@ -94,6 +94,14 @@ public class EnumPropertyId<T extends Enum<T>> extends PropertyId<T> {
     return this;
   }
 
+  @Override
+  @Nonnull
+  public EnumPropertyId<T> addCategory(@Nonnull Category category) {
+    super.addCategory(category);
+
+    return this;
+  }
+
   @Nonnull
   public BooleanExpression is(@Nonnull final T enumValue) {
     return new BooleanExpression() {

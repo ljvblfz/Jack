@@ -58,6 +58,7 @@ import com.android.sched.util.codec.ListCodec;
 import com.android.sched.util.codec.PairCodec;
 import com.android.sched.util.codec.PairCodec.Pair;
 import com.android.sched.util.codec.PairListToMapCodecConverter;
+import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.codec.StringValueCodec;
 import com.android.sched.util.codec.VariableName;
 import com.android.sched.util.codec.ZipFSCodec;
@@ -196,12 +197,11 @@ public class Options {
           .addCategory(PrebuiltCompatibility.class);
 
   @Nonnull
-  public static final BooleanPropertyId LAMBDA_TO_ANONYMOUS_CONVERTER =
-      BooleanPropertyId
-          .create("jack.lambda.anonymous", "Enable lambda support with an anonymous class")
-          .addDefaultValue(Boolean.TRUE)
-          .addCategory(DumpInLibrary.class)
-          .addCategory(PrebuiltCompatibility.class);
+  public static final BooleanPropertyId LAMBDA_TO_ANONYMOUS_CONVERTER = BooleanPropertyId
+      .create("jack.lambda.anonymous", "Enable lambda support with an anonymous class")
+      .addDefaultValue(Boolean.TRUE)
+      .addCategory(DumpInLibrary.class)
+      .addCategory(PrebuiltCompatibility.class);
 
   @Nonnull
   public static final BooleanPropertyId GENERATE_JACK_LIBRARY = BooleanPropertyId.create(
@@ -592,7 +592,15 @@ public class Options {
       .create("jack.android.min-api-level", "Minimum Android API level compatibility")
       .withMin(1)
       .addDefaultValue(1)
-      .addCategory(DumpInLibrary.class);
+      .addCategory(DumpInLibrary.class)
+      .addCategory(new PrebuiltCompatibility() {
+        @Override
+        public boolean isCompatible(@Nonnull Config config, @Nonnull String valueFromLibrary)
+            throws ParsingException {
+          return config.parseAs(valueFromLibrary, ANDROID_MIN_API_LEVEL).longValue()  <=
+              config.get(ANDROID_MIN_API_LEVEL).longValue();
+        }
+      });
 
   @Nonnull
   public static final BooleanPropertyId DROP_METHOD_BODY = BooleanPropertyId.create(

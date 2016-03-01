@@ -88,4 +88,12 @@ public class MessageDigestPropertyId extends PropertyId<MessageDigestFactory> {
 
     return this;
   }
+
+  @Override
+  @Nonnull
+  public MessageDigestPropertyId addCategory(@Nonnull Category category) {
+    super.addCategory(category);
+
+    return this;
+  }
 }

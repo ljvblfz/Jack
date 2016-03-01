@@ -93,6 +93,13 @@ public class InputJackLibraryPropertyId extends PropertyId<InputJackLibrary> imp
     return this;
   }
 
+  @Override
+  @Nonnull
+  public InputJackLibraryPropertyId addCategory(@Nonnull Category category) {
+    super.addCategory(category);
+    return this;
+  }
+
   @Nonnull
   public LongExpression getMajorVersion() {
     return new LongExpression() {

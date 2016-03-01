@@ -60,6 +60,14 @@ public class ImplementationPropertyId<T> extends PropertyId<T> {
     return this;
   }
 
+  @Override
+  @Nonnull
+  public ImplementationPropertyId<T> addCategory(@Nonnull Category category) {
+    super.addCategory(category);
+
+    return this;
+  }
+
   @Nonnull
   public ImplementationPropertyId<T> bypassAccessibility() {
     getCodec().bypassAccessibility();

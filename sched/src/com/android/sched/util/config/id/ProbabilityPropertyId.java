@@ -17,6 +17,7 @@
 package com.android.sched.util.config.id;
 
 import com.android.sched.util.codec.DoubleCodec;
+import com.android.sched.util.config.category.Category;
 import com.android.sched.util.config.expression.BooleanExpression;
 
 import javax.annotation.Nonnull;
@@ -109,5 +110,21 @@ public class ProbabilityPropertyId extends DoublePropertyId {
     public String getVariableName() {
       return "probability";
     }
+  }
+
+  @Override
+  @Nonnull
+  public ProbabilityPropertyId addCategory(@Nonnull Class<? extends Category> category) {
+    super.addCategory(category);
+
+    return this;
+  }
+
+  @Override
+  @Nonnull
+  public ProbabilityPropertyId addCategory(@Nonnull Category category) {
+    super.addCategory(category);
+
+    return this;
   }
 }

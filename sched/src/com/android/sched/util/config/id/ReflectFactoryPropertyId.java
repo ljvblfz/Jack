@@ -22,6 +22,7 @@ import com.android.sched.util.config.ConfigChecker;
 import com.android.sched.util.config.MissingPropertyException;
 import com.android.sched.util.config.PropertyIdException;
 import com.android.sched.util.config.ReflectFactory;
+import com.android.sched.util.config.category.Category;
 import com.android.sched.util.config.expression.BooleanExpression;
 import com.android.sched.util.config.expression.ClassExpression;
 
@@ -111,5 +112,21 @@ public class ReflectFactoryPropertyId<T> extends PropertyId<ReflectFactory<T>> {
         return formatPropertyName(checker, ReflectFactoryPropertyId.this);
       }
     };
+  }
+
+  @Override
+  @Nonnull
+  public ReflectFactoryPropertyId<T> addCategory(@Nonnull Class<? extends Category> category) {
+    super.addCategory(category);
+
+    return this;
+  }
+
+  @Override
+  @Nonnull
+  public ReflectFactoryPropertyId<T> addCategory(@Nonnull Category category) {
+    super.addCategory(category);
+
+    return this;
   }
 }
