@@ -373,9 +373,13 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
 
   @Override
   @Nonnull
-  OutputStream openWrite(@Nonnull MessageDigestVFile file, boolean append) {
-    // should be implemented in MessageDigestVFile
-    throw new UnsupportedOperationException();
+  OutputStream openWrite(@Nonnull MessageDigestVFile file, boolean append)
+      throws WrongPermissionException {
+    if (append) {
+      throw new UnsupportedOperationException();
+    } else {
+      return openWrite(file);
+    }
   }
 
   @Override

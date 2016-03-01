@@ -39,6 +39,7 @@ import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
+import com.android.sched.vfs.DeflateFS;
 import com.android.sched.vfs.GenericInputVFS;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVFS;
@@ -168,9 +169,9 @@ public class InputJackLibraryImpl extends InputJackLibrary {
     if (sectionVFS.containsKey(fileType)) {
       currentSectionVFS = sectionVFS.get(fileType);
     } else {
-      VFS prefixedInputVFS = null;
+      VFS inputVFS = null;
       try {
-        prefixedInputVFS = new PrefixedFS(vfs, getSectionPath(fileType));
+        inputVFS = new PrefixedFS(vfs, getSectionPath(fileType));
       } catch (CannotCreateFileException e) {
         // If library is well formed this exception can not be triggered
         throw new AssertionError(e);
@@ -178,17 +179,23 @@ public class InputJackLibraryImpl extends InputJackLibrary {
         // If library is well formed this exception can not be triggered
         throw new AssertionError(e);
       }
+
       if (fileType == FileType.PREBUILT) {
         try {
-          currentSectionVFS = new GenericInputVFS(new MessageDigestFS(prefixedInputVFS,
-              ThreadConfig.get(JackLibraryFactory.MESSAGE_DIGEST_ALGO)));
+          inputVFS = new MessageDigestFS(inputVFS,
+                  ThreadConfig.get(JackLibraryFactory.MESSAGE_DIGEST_ALGO));
         } catch (WrongVFSFormatException e) {
           // If library is well formed this exception can not be triggered
           throw new AssertionError(e);
         }
-      } else {
-        currentSectionVFS = new GenericInputVFS(prefixedInputVFS);
       }
+
+      if (fileType != FileType.LOG) {
+        inputVFS = new DeflateFS(inputVFS);
+      }
+
+      currentSectionVFS = new GenericInputVFS(inputVFS);
+
       sectionVFS.put(fileType, currentSectionVFS);
     }
     return currentSectionVFS;

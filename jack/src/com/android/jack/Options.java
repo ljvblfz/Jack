@@ -96,6 +96,7 @@ import com.android.sched.util.file.Files;
 import com.android.sched.util.file.InputJarFile;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
+import com.android.sched.util.file.OutputZipFile.Compression;
 import com.android.sched.util.file.WriterFile;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.FileLocation;
@@ -281,11 +282,12 @@ public class Options {
           Container.values()).ignoreCase().requiredIf(GENERATE_JACK_LIBRARY.getValue().isTrue());
 
   @Nonnull
-  public static final PropertyId<VFS> LIBRARY_OUTPUT_ZIP = PropertyId.create(
-      "jack.library.output.zip", "Output zip archive for library",
-      new ZipFSCodec(Existence.MAY_EXIST)).requiredIf(GENERATE_JACK_LIBRARY.getValue().isTrue()
-      .and(LIBRARY_OUTPUT_CONTAINER_TYPE.is(Container.ZIP))
-      .or(GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER.getValue().isTrue()));
+  public static final PropertyId<VFS> LIBRARY_OUTPUT_ZIP = PropertyId
+      .create("jack.library.output.zip", "Output zip archive for library",
+          new ZipFSCodec(Existence.MAY_EXIST, Compression.UNCOMPRESSED))
+      .requiredIf(GENERATE_JACK_LIBRARY.getValue().isTrue()
+          .and(LIBRARY_OUTPUT_CONTAINER_TYPE.is(Container.ZIP))
+          .or(GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER.getValue().isTrue()));
 
   @Nonnull
   public static final PropertyId<VFS> LIBRARY_OUTPUT_DIR = PropertyId.create(
