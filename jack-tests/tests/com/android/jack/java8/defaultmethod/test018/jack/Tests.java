@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-package com.android.jack.java8.lambda.test032.jack;
+package com.android.jack.java8.defaultmethod.test018.jack;
 
-interface Foo<T> {
-  default String bar(String s) {
-    return ("default : " + s);
-  }
+import org.junit.Assert;
+import org.junit.Test;
 
-  String bar(T t);
-}
+/**
+ * Test lambda that redefine a default.
+ */
+public class Tests {
 
-public class Lambda {
-
-  public String testLambdaRedefiningADefault() throws Exception {
-    Foo<String> foo = (t) -> {
-      return "lambda : " + t;
-    };
-    return (((Foo) foo).bar("String"));
+  @Test
+  public void test001() throws Exception {
+    Lambda l = new Lambda();
+    Assert.assertEquals("default : String", l.testLambdaRedefiningADefault());
   }
 }

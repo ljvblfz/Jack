@@ -19,14 +19,30 @@ package com.android.jack.java8.lambda.test032.jack;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
+interface I {
+  int getLength();
+}
+
 /**
- * Test lambda that redefine a default.
+ * Test that trigger a bug where enclosing instance of a lambda expression is not captured.
  */
 public class Tests {
 
   @Test
-  public void test001() throws Exception {
-    Lambda l = new Lambda();
-    Assert.assertEquals("default : String", l.testLambdaRedefiningADefault());
+  public void test() {
+    class A<T> {
+      List<T> l;
+
+      public A(List<T> l) {
+        this.l = l;
+      }
+    }
+
+    List<Integer> list = new ArrayList<>();
+    I i = () -> new A<>(list).l.size();
+    Assert.assertEquals(0, i.getLength());
   }
 }
