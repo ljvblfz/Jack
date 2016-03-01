@@ -130,9 +130,7 @@ import com.android.jack.lookup.JMethodLookupException;
 import com.android.jack.transformations.ast.TypeLegalizer;
 import com.android.jack.util.CloneExpressionVisitor;
 import com.android.jack.util.NamingTools;
-import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.config.id.BooleanPropertyId;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
@@ -263,19 +261,10 @@ import javax.annotation.Nonnull;
  * not associated with any {@link com.android.jack.ir.ast.JSession} and will
  * contain unresolved references.
  */
-@HasKeyId
 public class JackIrBuilder {
-
-  @Nonnull
-  public static final BooleanPropertyId GENERATE_BRIDGE_IN_INTERFACE = BooleanPropertyId.create(
-      "jack.frontend.bridge.interface", "Generate bridge in interface").addDefaultValue(
-      Boolean.FALSE);
 
   private final boolean generateJackLibrary =
       ThreadConfig.get(Options.GENERATE_JACK_LIBRARY).booleanValue();
-
-  private final boolean generateBridgeInInterface =
-      ThreadConfig.get(JackIrBuilder.GENERATE_BRIDGE_IN_INTERFACE).booleanValue();
 
   /**
    * Visit the JDT AST and produce our own AST. By the end of this pass, the
@@ -2906,8 +2895,7 @@ public class JackIrBuilder {
        * JDT adds bridge methods in all the places Jack needs them. Use JDT's
        * bridge methods.
        */
-      if (clazzBinding.syntheticMethods() != null
-          && (generateBridgeInInterface || !clazzBinding.isInterface())) {
+      if (clazzBinding.syntheticMethods() != null) {
         for (SyntheticMethodBinding synthmeth : clazzBinding.syntheticMethods()) {
           if (synthmeth.purpose == SyntheticMethodBinding.BridgeMethod && !synthmeth.isStatic()) {
             createBridgeMethod(synthmeth);

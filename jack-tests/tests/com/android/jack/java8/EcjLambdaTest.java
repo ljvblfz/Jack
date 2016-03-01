@@ -18,6 +18,7 @@ package com.android.jack.java8;
 
 import com.android.jack.Options;
 import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
+import com.android.jack.test.eclipse.jdt.core.tests.compiler.regression.LambdaExpressionsTest;
 import com.android.jack.test.runner.AbstractRuntimeRunner;
 import com.android.jack.test.runner.RuntimeRunner;
 import com.android.jack.test.toolchain.AbstractTestTools;

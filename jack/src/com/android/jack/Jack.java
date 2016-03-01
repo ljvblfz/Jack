@@ -44,6 +44,7 @@ import com.android.jack.backend.dex.DexInLibraryWriter;
 import com.android.jack.backend.dex.DexWritingTool;
 import com.android.jack.backend.dex.EncodedFieldBuilder;
 import com.android.jack.backend.dex.EncodedMethodBuilder;
+import com.android.jack.backend.dex.EnsureAndroidCompatibility;
 import com.android.jack.backend.dex.FieldAnnotationBuilder;
 import com.android.jack.backend.dex.FieldInitializerRemover;
 import com.android.jack.backend.dex.MainDexCollector;
@@ -194,6 +195,7 @@ import com.android.jack.statistics.BinaryOperationWithCst;
 import com.android.jack.statistics.CodeStats;
 import com.android.jack.statistics.FieldStats;
 import com.android.jack.statistics.MethodStats;
+import com.android.jack.transformations.BridgeInInterfaceRemover;
 import com.android.jack.transformations.EmptyClinitRemover;
 import com.android.jack.transformations.FieldInitializer;
 import com.android.jack.transformations.Jarjar;
@@ -601,6 +603,7 @@ public abstract class Jack {
         if (config.get(Options.GENERATE_DEX_FILE).booleanValue()) {
           request.addProduction(DexFileProduct.class);
           session.addGeneratedFileType(FileType.PREBUILT);
+          request.addFeature(EnsureAndroidCompatibility.class);
         }
 
         if (config.get(AndroidCompatibilityChecker.CHECK_COMPATIBILITY).booleanValue()) {
@@ -1062,15 +1065,10 @@ public abstract class Jack {
     }
 
     {
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       if (features.contains(CodeCoverage.class)) {
+        SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+            planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
         typePlan.append(CodeCoverageSelector.class);
-      }
-
-      if (features.contains(CheckAndroidCompatibility.class)) {
-        SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
-        methodPlan.append(AndroidCompatibilityChecker.class);
       }
     }
 
@@ -1259,6 +1257,24 @@ public abstract class Jack {
       }
       if (productions.contains(JayceInLibraryProduct.class)) {
         typePlan.append(JayceInLibraryWriter.class);
+      }
+    }
+
+    {
+      {
+        SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+            planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
+        SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodOnlyAdapter.class);
+        methodPlan.append(BridgeInInterfaceRemover.class);
+      }
+
+      {
+        if (features.contains(CheckAndroidCompatibility.class)) {
+          SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+              planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+          SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
+          methodPlan.append(AndroidCompatibilityChecker.class);
+        }
       }
     }
 
