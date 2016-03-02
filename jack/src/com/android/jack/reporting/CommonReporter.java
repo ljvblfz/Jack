@@ -19,14 +19,12 @@ package com.android.jack.reporting;
 import com.android.jack.Jack;
 import com.android.jack.Options;
 import com.android.jack.Options.VerbosityLevel;
-import com.android.jack.frontend.java.EcjProblem;
+import com.android.jack.ir.HasSourceInfo;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.reporting.Reportable.ProblemLevel;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.OutputStreamFile;
 import com.android.sched.util.log.ThreadWithTracer;
-
-import org.eclipse.jdt.core.compiler.CategorizedProblem;
 
 import java.io.PrintStream;
 import java.util.EnumMap;
@@ -94,28 +92,18 @@ abstract class CommonReporter implements Reporter {
   }
 
   private void handleProblem(@Nonnull Severity severity, @Nonnull Reportable reportable) {
-    if (reportable instanceof EcjProblem) {
-      assert severity == Severity.NON_FATAL;
-      CategorizedProblem problem = ((EcjProblem) reportable).getProblem();
-      SourceInfo sourceInfo;
-
-      if (problem.getOriginatingFileName() == null) {
-        sourceInfo = SourceInfo.UNKNOWN;
-      } else {
-        sourceInfo = Jack.getSession().getSourceInfoFactory().create(problem.getSourceLineNumber(),
-            SourceInfo.UNKNOWN_LINE_NUMBER, String.valueOf(problem.getOriginatingFileName()));
-      }
-
-      printFilteredProblem(reportable.getDefaultProblemLevel(),
-          reportable.getMessage(), sourceInfo);
-
+    ProblemLevel problemLevel;
+    if (severity == Severity.FATAL) {
+      problemLevel = ProblemLevel.ERROR;
     } else {
-      // default behavior
-      if (severity == Severity.FATAL) {
-        printFilteredProblem(ProblemLevel.ERROR, reportable.getMessage());
-      } else {
-        printFilteredProblem(reportable.getDefaultProblemLevel(), reportable.getMessage());
-      }
+      problemLevel = reportable.getDefaultProblemLevel();
+    }
+
+    if (reportable instanceof HasSourceInfo) {
+      printFilteredProblem(problemLevel,
+          reportable.getMessage(), ((HasSourceInfo) reportable).getSourceInfo());
+    } else {
+      printFilteredProblem(problemLevel, reportable.getMessage());
     }
   }
 

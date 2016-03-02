@@ -16,6 +16,9 @@
 
 package com.android.jack.frontend.java;
 
+import com.android.jack.Jack;
+import com.android.jack.ir.HasSourceInfo;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.reporting.Reportable;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
@@ -25,20 +28,36 @@ import javax.annotation.Nonnull;
 /**
  * A {@link Reportable} that contains ECJ {@link CategorizedProblem}s.
  */
-public class EcjProblem implements Reportable {
+public class EcjProblem implements Reportable, HasSourceInfo {
 
   private static final int isClassPathCorrectId = 0x01000000 + 324;
 
   @Nonnull
   private final CategorizedProblem problem;
 
+  @Nonnull
+  private final SourceInfo sourceInfo;
+
   public EcjProblem(@Nonnull CategorizedProblem problem) {
     this.problem = problem;
+
+    if (problem.getOriginatingFileName() == null) {
+      sourceInfo = SourceInfo.UNKNOWN;
+    } else {
+      sourceInfo = Jack.getSession().getSourceInfoFactory().create(problem.getSourceLineNumber(),
+          SourceInfo.UNKNOWN_LINE_NUMBER, String.valueOf(problem.getOriginatingFileName()));
+    }
   }
 
   @Nonnull
   public CategorizedProblem getProblem() {
     return problem;
+  }
+
+  @Override
+  @Nonnull
+  public SourceInfo getSourceInfo() {
+    return sourceInfo;
   }
 
   @Override
