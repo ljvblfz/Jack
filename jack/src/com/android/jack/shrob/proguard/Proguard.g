@@ -48,7 +48,7 @@ public void displayRecognitionError(String[] tokenNames, RecognitionException e)
 }
 }
 
-prog [Flags flags, String baseDirectory]
+prog [Flags flags, String baseDirectory] throws ProguardFileParsingException
   :
   (
     ('-keepclassmembers' keepModifier=keepOptionModifier classSpec=classSpecification {GrammarActions.addKeepClassMembers($flags, $classSpec.classSpec, $keepModifier.modifier);})
