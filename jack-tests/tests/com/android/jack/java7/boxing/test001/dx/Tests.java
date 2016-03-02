@@ -25,21 +25,38 @@ import org.junit.Test;
 public class Tests {
 
   @Test
-  public void testInt() {
+  public void testIntFromObject() {
     try {
-      UnBoxObject.getInt(null);
+      UnBoxObject.getIntFromObject(null);
       Assert.fail();
     } catch (NullPointerException e) {
       // expected
     }
     try {
-      UnBoxObject.getInt(new Object());
+      UnBoxObject.getIntFromObject(new Object());
       Assert.fail();
     } catch (ClassCastException e) {
       // expected
     }
 
-    UnBoxObject.getInt(Integer.valueOf(34));
+    UnBoxObject.getIntFromObject(Integer.valueOf(34));
   }
 
+  @Test
+  public void testIntFromComparable() {
+    try {
+      UnBoxObject.getIntFromComparable(null);
+      Assert.fail();
+    } catch (NullPointerException e) {
+      // expected
+    }
+    try {
+      UnBoxObject.getIntFromComparable(Double.valueOf(34));
+      Assert.fail();
+    } catch (ClassCastException e) {
+      // expected
+    }
+
+    UnBoxObject.getIntFromComparable(Integer.valueOf(34));
+  }
 }

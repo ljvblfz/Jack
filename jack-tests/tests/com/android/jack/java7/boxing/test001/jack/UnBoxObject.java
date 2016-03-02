@@ -23,7 +23,15 @@ public class UnBoxObject {
     return obj;
   }
 
-  public static int getInt(Object obj) {
+  public static Comparable getComparable(Comparable obj) {
+    return obj;
+  }
+
+  public static int getIntFromObject(Object obj) {
     return (int) getObject(obj);
+  }
+
+  public static int getIntFromComparable(Comparable obj) {
+    return (int) getComparable(obj);
   }
 }
