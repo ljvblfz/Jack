@@ -432,6 +432,7 @@ public class InnerTests extends RuntimeTest {
     rtTestInfos.add(TEST027);
     rtTestInfos.add(TEST028);
     rtTestInfos.add(TEST030);
-    rtTestInfos.add(TEST032);
+//    Ignoring TEST032 since it's tagged @KnownIssue
+//    rtTestInfos.add(TEST032);
   }
 }
