@@ -620,4 +620,8 @@ public abstract class AbstractTest {
     excludeList.add(JillBasedToolchain.class);
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain(IToolchain.class, excludeList);
   }
+
+  protected File getShrobTestRootDir(String testNumber) {
+    return AbstractTestTools.getTestRootDir("com.android.jack.shrob.test" + testNumber);
+  }
 }

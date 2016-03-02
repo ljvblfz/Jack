@@ -43,7 +43,7 @@ public class ObfuscationWithAttributesTests extends AbstractTest {
       @Nonnull String flagNumber,
       @Nonnull String mappingNumber)
       throws Exception {
-    File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.shrob.test" + testNumber);
+    File testFolder = getShrobTestRootDir(testNumber);
     JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     File [] proguardFlags = new File [] {
         generateApplyMapping(new File(testFolder,"proguard.flags" + flagNumber + ".mapping" + mappingNumber)),
