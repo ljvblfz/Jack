@@ -29,7 +29,7 @@ import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.findbugs.SuppressFBWarnings;
-import com.android.sched.util.location.LineLocation;
+import com.android.sched.util.location.ColumnAndLineLocation;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.MessageDigestFS.MessageDigestVDir;
@@ -209,7 +209,7 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
           int index = line.indexOf(':');
           if (index < 1) {
             throw new WrongVFSFormatException(this, vfs.getLocation(),
-                new WrongFileFormatException(new LineLocation(digestFile.getLocation(),
+                new WrongFileFormatException(new ColumnAndLineLocation(digestFile.getLocation(),
                     in.getLineNumber())));
           }
 

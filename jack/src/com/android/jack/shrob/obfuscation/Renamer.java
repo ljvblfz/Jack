@@ -52,8 +52,8 @@ import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.location.ColumnAndLineLocation;
 import com.android.sched.util.location.FileLocation;
-import com.android.sched.util.location.LineLocation;
 
 import java.io.File;
 import java.util.Collection;
@@ -245,7 +245,7 @@ public class Renamer implements RunnableSchedulable<JSession> {
                   .report(
                       Severity.NON_FATAL,
                       new ObfuscationContextInfo(
-                          new LineLocation(
+                          new ColumnAndLineLocation(
                               new FileLocation(sourceInfo.getFileName()),
                               sourceInfo.getStartLine()),
                           ProblemLevel.INFO,
@@ -279,7 +279,7 @@ public class Renamer implements RunnableSchedulable<JSession> {
                   .report(
                       Severity.NON_FATAL,
                       new ObfuscationContextInfo(
-                          new LineLocation(
+                          new ColumnAndLineLocation(
                               new FileLocation(sourceInfo.getFileName()),
                               sourceInfo.getStartLine()),
                           ProblemLevel.INFO,

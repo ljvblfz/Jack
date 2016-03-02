@@ -31,10 +31,10 @@ import com.android.sched.util.config.expression.BooleanExpression;
 import com.android.sched.util.config.id.KeyId;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.location.ColumnAndLineLocation;
 import com.android.sched.util.location.ContainerLocation;
 import com.android.sched.util.location.EnvironmentLocation;
 import com.android.sched.util.location.FieldLocation;
-import com.android.sched.util.location.LineLocation;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.NoLocation;
 
@@ -195,14 +195,15 @@ public class AsapConfigBuilder {
         int indexOfEqual = line.indexOf('=');
 
         if (indexOfEqual == -1) {
-          exceptions.appendException(
-              new FormatConfigurationException(new LineLocation(location, br.getLineNumber())));
+          exceptions.appendException(new FormatConfigurationException(
+              new ColumnAndLineLocation(location, br.getLineNumber())));
         } else {
           String propertyName  = line.substring(0, indexOfEqual).trim();
           String propertyValue = line.substring(indexOfEqual + 1, line.length()).trim();
 
           try {
-            set(propertyName, propertyValue, new LineLocation(location, br.getLineNumber()));
+            set(propertyName, propertyValue,
+                new ColumnAndLineLocation(location, br.getLineNumber()));
           } catch (ConfigurationException e) {
             exceptions.appendException(e);
           }

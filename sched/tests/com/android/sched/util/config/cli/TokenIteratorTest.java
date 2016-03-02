@@ -29,8 +29,8 @@ import com.android.sched.util.file.CannotReadException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.file.WrongPermissionException;
+import com.android.sched.util.location.ColumnAndLineLocation;
 import com.android.sched.util.location.FileLocation;
-import com.android.sched.util.location.LineLocation;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.NoLocation;
 import com.android.sched.util.location.StringLocation;
@@ -534,8 +534,8 @@ public class TokenIteratorTest {
       assertEquals(expectedArgs[idx], ti.getToken());
 
       Location loc = ti.getLocation();
-      if (loc instanceof LineLocation) {
-        loc = ((LineLocation) loc).getSubLocation();
+      if (loc instanceof ColumnAndLineLocation) {
+        loc = ((ColumnAndLineLocation) loc).getParentLocation();
       }
       assertNotNull(loc);
       assertEquals(
@@ -576,8 +576,8 @@ public class TokenIteratorTest {
       assertEquals(expectedArgs[idx], ti.getToken());
 
       Location loc = ti.getLocation();
-      if (loc instanceof LineLocation) {
-        loc = ((LineLocation) loc).getSubLocation();
+      if (loc instanceof ColumnAndLineLocation) {
+        loc = ((ColumnAndLineLocation) loc).getParentLocation();
       }
 
       assertNotNull(loc);

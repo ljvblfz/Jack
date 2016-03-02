@@ -20,10 +20,11 @@ import com.android.jack.Jack;
 import com.android.jack.Options;
 import com.android.jack.Options.VerbosityLevel;
 import com.android.jack.ir.HasSourceInfo;
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.reporting.Reportable.ProblemLevel;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.WriterFile;
+import com.android.sched.util.location.HasLocation;
+import com.android.sched.util.location.Location;
 import com.android.sched.util.log.ThreadWithTracer;
 import com.android.sched.util.stream.CustomPrintWriter;
 
@@ -36,6 +37,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 
@@ -102,20 +104,24 @@ abstract class CommonReporter implements Reporter {
       problemLevel = reportable.getDefaultProblemLevel();
     }
 
-    if (reportable instanceof HasSourceInfo) {
-      printFilteredProblem(problemLevel,
-          reportable.getMessage(), ((HasSourceInfo) reportable).getSourceInfo());
+    if (reportable instanceof HasLocation) {
+      assert !(reportable instanceof HasSourceInfo);
+      printFilteredProblem(problemLevel, reportable.getMessage(),
+          ((HasLocation) reportable).getLocation());
+    } else if (reportable instanceof HasSourceInfo) {
+      printFilteredProblem(problemLevel, reportable.getMessage(),
+          ((HasSourceInfo) reportable).getSourceInfo().getLocation());
     } else {
       printFilteredProblem(problemLevel, reportable.getMessage());
     }
   }
 
   private void printFilteredProblem(@Nonnull ProblemLevel problemLevel, @Nonnull String message) {
-    printFilteredProblem(problemLevel, message, SourceInfo.UNKNOWN);
+    printFilteredProblem(problemLevel, message, /* location = */ null);
   }
 
   protected abstract void printFilteredProblem(@Nonnull ProblemLevel problemLevel,
-      @Nonnull String message, @Nonnull SourceInfo sourceInfo);
+      @Nonnull String message, @CheckForNull Location location);
 
   class RunReporter implements Runnable {
 

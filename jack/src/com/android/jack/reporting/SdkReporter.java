@@ -21,10 +21,14 @@ import com.google.common.base.Strings;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.reporting.Reportable.ProblemLevel;
 import com.android.sched.util.codec.ImplementationName;
+import com.android.sched.util.location.ColumnAndLineLocation;
+import com.android.sched.util.location.FileOrDirLocation;
+import com.android.sched.util.location.Location;
 
 import java.io.File;
 import java.io.PrintWriter;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 
@@ -36,7 +40,7 @@ public class SdkReporter extends CommonReporter {
 
   @Override
   protected void printFilteredProblem(@Nonnull ProblemLevel problemLevel,
-      @Nonnull String message, @Nonnull SourceInfo sourceInfo) {
+      @Nonnull String message, @CheckForNull Location location) {
     String escapedMessage = convertString(message);
 
     StringBuffer messageBuffer = new StringBuffer("MESSAGE:{");
@@ -45,31 +49,61 @@ public class SdkReporter extends CommonReporter {
     messageBuffer.append("\"text\":\"").append(escapedMessage).append("\",");
     messageBuffer.append("\"sources\":[{");
 
-    if (sourceInfo != SourceInfo.UNKNOWN) {
-      String fileName = new File(sourceInfo.getFileName()).getAbsolutePath();
-      String escapedFileName = convertString(fileName);
+    if (location != null) {
 
-      messageBuffer.append("\"file\":\"").append(escapedFileName).append("\",");
-      messageBuffer.append("\"position\":{");
+      String filePath = null;
+      int startLine = SourceInfo.UNKNOWN_LINE_NUMBER;
+      int endLine = SourceInfo.UNKNOWN_LINE_NUMBER;
+      int startColumn = SourceInfo.UNKNOWN_LINE_NUMBER;
+      int endColumn = SourceInfo.UNKNOWN_LINE_NUMBER;
 
-      // Convert unknown values to match sdk expectations
-      int startLine = sourceInfo.getStartLine() == SourceInfo.UNKNOWN_LINE_NUMBER ? -1
-          : sourceInfo.getStartLine();
-      int startColumn = sourceInfo.getStartColumn() == SourceInfo.UNKNOWN_COLUMN_NUMBER ? -1
-          : sourceInfo.getStartColumn();
-      int endLine = sourceInfo.getEndLine() == SourceInfo.UNKNOWN_LINE_NUMBER ? startLine
-          : sourceInfo.getEndLine();
-      int endColumn = sourceInfo.getEndColumn() == SourceInfo.UNKNOWN_COLUMN_NUMBER ? startColumn
-          : sourceInfo.getEndColumn();
+      Location currentLocation = location;
 
-      messageBuffer.append("\"startLine\":").append(startLine).append(',');
-      messageBuffer.append("\"startColumn\":").append(startColumn).append(',');
-      messageBuffer.append("\"startOffset\":-1,");
-      messageBuffer.append("\"endLine\":").append(endLine).append(',');
-      messageBuffer.append("\"endColumn\":").append(endColumn).append(',');
-      messageBuffer.append("\"endOffset\":-1");
+      if (currentLocation instanceof ColumnAndLineLocation) {
+        ColumnAndLineLocation call = (ColumnAndLineLocation) currentLocation;
+        if (call.hasStartLine()) {
+          startLine = call.getStartLine();
+        }
+        if (call.hasEndLine()) {
+          endLine = call.getEndLine();
+        }
+        if (call.hasStartColumn()) {
+          startColumn = call.getStartColumn();
+        }
+        if (call.hasEndColumn()) {
+          endColumn = call.getEndColumn();
+        }
+        currentLocation = call.getParentLocation();
+      }
 
-      messageBuffer.append('}');
+      if (currentLocation instanceof FileOrDirLocation) {
+        filePath = ((FileOrDirLocation) currentLocation).getPath();
+      }
+
+      if (filePath != null) {
+
+        String fileName = new File(filePath).getAbsolutePath();
+        String escapedFileName = convertString(fileName);
+
+        messageBuffer.append("\"file\":\"").append(escapedFileName).append("\",");
+        messageBuffer.append("\"position\":{");
+
+        // Convert unknown values to match sdk expectations
+        int sdkStartLine = startLine == SourceInfo.UNKNOWN_LINE_NUMBER ? -1 : startLine;
+        int sdkStartColumn = startColumn == SourceInfo.UNKNOWN_COLUMN_NUMBER ? -1 : startColumn;
+        int sdkEndLine = endLine == SourceInfo.UNKNOWN_LINE_NUMBER ? sdkStartLine : endLine;
+        int sdkEndColumn =
+            endColumn == SourceInfo.UNKNOWN_COLUMN_NUMBER ? sdkStartColumn : endColumn;
+
+        messageBuffer.append("\"startLine\":").append(sdkStartLine).append(',');
+        messageBuffer.append("\"startColumn\":").append(sdkStartColumn).append(',');
+        messageBuffer.append("\"startOffset\":-1,");
+        messageBuffer.append("\"endLine\":").append(sdkEndLine).append(',');
+        messageBuffer.append("\"endColumn\":").append(sdkEndColumn).append(',');
+        messageBuffer.append("\"endOffset\":-1");
+
+        messageBuffer.append('}');
+      }
     }
 
     messageBuffer.append("}]}");

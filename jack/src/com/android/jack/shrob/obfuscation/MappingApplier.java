@@ -54,8 +54,8 @@ import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.location.ColumnAndLineLocation;
 import com.android.sched.util.location.FileLocation;
-import com.android.sched.util.location.LineLocation;
 import com.android.sched.util.log.LoggerFactory;
 
 import java.io.File;
@@ -298,7 +298,7 @@ public class MappingApplier {
           marker.add(newName);
         } else {
           throw new MappingCollisionException(
-              new LineLocation(new FileLocation(mappingFile), lineNumber), field, newName);
+              new ColumnAndLineLocation(new FileLocation(mappingFile), lineNumber), field, newName);
         }
       } else {
         logger.log(Level.WARNING, "{0}:{1}: Field {2} not found in {3}", new Object[] {
@@ -401,7 +401,8 @@ public class MappingApplier {
           // The methodId was already renamed
           if (!previousNewSignature.equals(newSignature)) {
             throw new MappingCollisionException(
-                new LineLocation(new FileLocation(mappingFile), lineNumber), method, newName);
+                new ColumnAndLineLocation(new FileLocation(mappingFile), lineNumber), method,
+                newName);
           }
         } else if (newSignature.equals(
                 Jack.getUserFriendlyFormatter().getNameWithoutReturnType(methodId))
@@ -423,7 +424,8 @@ public class MappingApplier {
           }
         } else {
           throw new MappingCollisionException(
-              new LineLocation(new FileLocation(mappingFile), lineNumber), method, newName);
+              new ColumnAndLineLocation(new FileLocation(mappingFile), lineNumber), method,
+              newName);
         }
       } catch (JMethodLookupException e) {
         logger.log(Level.WARNING, "{0}:{1}: Method {2} not found in {3}", new Object[] {

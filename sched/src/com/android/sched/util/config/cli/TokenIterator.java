@@ -31,7 +31,7 @@ import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.file.WithLocationIOException;
 import com.android.sched.util.file.WrongPermissionException;
-import com.android.sched.util.location.LineLocation;
+import com.android.sched.util.location.ColumnAndLineLocation;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.NoLocation;
 import com.android.sched.util.log.LoggerFactory;
@@ -308,8 +308,8 @@ public class TokenIterator {
               continue;
             } else {
               // If the current tokenizer has a next, return it
-              return new Entry(tokenizer.sval, new LineLocation(sources.getCurrentLocation(),
-                  tokenizer.lineno()));
+              return new Entry(tokenizer.sval,
+                  new ColumnAndLineLocation(sources.getCurrentLocation(), tokenizer.lineno()));
             }
           }
         } catch (IOException e) {

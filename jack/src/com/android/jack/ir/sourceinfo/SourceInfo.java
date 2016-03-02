@@ -15,12 +15,17 @@
  */
 package com.android.jack.ir.sourceinfo;
 
+import com.android.sched.util.location.ColumnAndLineLocation;
+import com.android.sched.util.location.FileLocation;
+import com.android.sched.util.location.HasLocation;
+import com.android.sched.util.location.Location;
+
 import javax.annotation.Nonnull;
 
 /**
  * Tracks file and line information for AST nodes.
  */
-public abstract class SourceInfo {
+public abstract class SourceInfo implements HasLocation {
 
   public static final int UNKNOWN_LINE_NUMBER = 0;
 
@@ -51,5 +56,34 @@ public abstract class SourceInfo {
 
   public int getEndColumn() {
     return UNKNOWN_COLUMN_NUMBER;
+  }
+
+  @Override
+  @Nonnull
+  public Location getLocation() {
+    Location location;
+    FileLocation fileLocation = new FileLocation(getFileName());
+    if (getStartLine() != UNKNOWN_LINE_NUMBER) {
+      int endLine = getEndLine();
+      if (endLine == UNKNOWN_LINE_NUMBER) {
+        endLine = ColumnAndLineLocation.UNKNOWN;
+      }
+
+      int startColumn = getStartColumn();
+      if (startColumn == UNKNOWN_LINE_NUMBER) {
+        startColumn = ColumnAndLineLocation.UNKNOWN;
+      }
+
+      int endColumn = getEndColumn();
+      if (endColumn == UNKNOWN_LINE_NUMBER) {
+        endColumn = ColumnAndLineLocation.UNKNOWN;
+      }
+
+      location =
+          new ColumnAndLineLocation(fileLocation, getStartLine(), endLine, startColumn, endColumn);
+    } else {
+      location = fileLocation;
+    }
+    return location;
   }
 }

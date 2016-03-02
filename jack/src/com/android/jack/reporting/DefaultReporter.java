@@ -19,9 +19,13 @@ package com.android.jack.reporting;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.reporting.Reportable.ProblemLevel;
 import com.android.sched.util.codec.ImplementationName;
+import com.android.sched.util.location.ColumnAndLineLocation;
+import com.android.sched.util.location.FileOrDirLocation;
+import com.android.sched.util.location.Location;
 
 import java.io.PrintWriter;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 
@@ -33,14 +37,35 @@ public class DefaultReporter extends CommonReporter {
 
   @Override
   protected void printFilteredProblem(@Nonnull ProblemLevel problemLevel, @Nonnull String message,
-      @Nonnull SourceInfo sourceInfo) {
+      @CheckForNull Location location) {
     StringBuffer messageBuffer = new StringBuffer(problemLevel.toString());
-    if (sourceInfo != SourceInfo.UNKNOWN) {
-      messageBuffer.append(": ");
-      messageBuffer.append(sourceInfo.getFileName());
-      if (sourceInfo.getStartLine() >= 0) {
-        messageBuffer.append(":");
-        messageBuffer.append(sourceInfo.getStartLine());
+
+    if (location != null) {
+
+      String filePath = null;
+      int startLine = SourceInfo.UNKNOWN_LINE_NUMBER;
+
+      Location currentLocation = location;
+
+      if (currentLocation instanceof ColumnAndLineLocation) {
+        ColumnAndLineLocation call = (ColumnAndLineLocation) currentLocation;
+        currentLocation = call.getParentLocation();
+        if (call.hasStartLine()) {
+          startLine = call.getStartLine();
+        }
+      }
+
+      if (currentLocation instanceof FileOrDirLocation) {
+        filePath = ((FileOrDirLocation) currentLocation).getPath();
+      }
+
+      if (filePath != null) {
+        messageBuffer.append(": ");
+        messageBuffer.append(filePath);
+        if (startLine > 0) {
+          messageBuffer.append(":");
+          messageBuffer.append(startLine);
+        }
       }
     }
 

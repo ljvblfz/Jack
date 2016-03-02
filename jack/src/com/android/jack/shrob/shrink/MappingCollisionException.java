@@ -17,7 +17,7 @@
 package com.android.jack.shrob.shrink;
 
 import com.android.jack.ir.ast.HasName;
-import com.android.sched.util.location.LineLocation;
+import com.android.sched.util.location.ColumnAndLineLocation;
 
 import javax.annotation.Nonnull;
 
@@ -30,7 +30,7 @@ public class MappingCollisionException extends Exception {
   private static final long serialVersionUID = 1L;
 
   @Nonnull
-  private final LineLocation location;
+  private final ColumnAndLineLocation location;
 
   @Nonnull
   private final HasName node;
@@ -39,7 +39,7 @@ public class MappingCollisionException extends Exception {
   private final String newName;
 
   public MappingCollisionException(
-      @Nonnull LineLocation location, @Nonnull HasName node, String newName) {
+      @Nonnull ColumnAndLineLocation location, @Nonnull HasName node, String newName) {
     this.location = location;
     this.node = node;
     this.newName = newName;
