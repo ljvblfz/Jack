@@ -225,7 +225,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
       IncrementalLogWriter incLog;
       try {
         incLog = new IncrementalLogWriter(session.getJackOutputLibrary());
-        incLog.writeString("type: " + (incrementalInputLibrary == null ? "full" : "incremental"));
+        incLog.writeString("type: " + (needFullBuild() ? "full" : "incremental"));
         incLog.writeLibraryDescriptions("classpath", classpathContent);
         incLog.writeStrings("classpath digests (" + (libraryDependencies.hasSameLibraryOnClasspath(
             session.getLibraryDependencies()) ? "identical"
