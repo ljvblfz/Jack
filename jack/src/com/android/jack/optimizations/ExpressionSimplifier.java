@@ -96,6 +96,9 @@ public class ExpressionSimplifier implements RunnableSchedulable<JMethod> {
     @CheckForNull
     private JMethod currentMethod;
 
+    private final boolean enableNullInstanceOf =
+        ThreadConfig.get(Optimizations.ENABLE_NULL_INSTANCEOF).booleanValue();
+
     @Override
     public boolean visit(@Nonnull JMethod method) {
       currentMethod = method;
@@ -135,12 +138,15 @@ public class ExpressionSimplifier implements RunnableSchedulable<JMethod> {
 
     @Override
     public void endVisit(@Nonnull JInstanceOf instanceOf) {
-      JExpression expr = instanceOf.getExpr();
-      if (expr instanceof JNullLiteral || isCastOfNull(expr)) {
-        assert currentMethod != null;
-        TransformationRequest tr = new TransformationRequest(currentMethod);
-        tr.append(new Replace(instanceOf, new JBooleanLiteral(instanceOf.getSourceInfo(), false)));
-        tr.commit();
+      if (enableNullInstanceOf) {
+        JExpression expr = instanceOf.getExpr();
+        if (expr instanceof JNullLiteral || isCastOfNull(expr)) {
+          assert currentMethod != null;
+          TransformationRequest tr = new TransformationRequest(currentMethod);
+          tr.append(
+              new Replace(instanceOf, new JBooleanLiteral(instanceOf.getSourceInfo(), false)));
+          tr.commit();
+        }
       }
     }
 

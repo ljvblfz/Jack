@@ -17,6 +17,7 @@
 package com.android.jack.optimizations;
 
 import com.android.jack.library.DumpInLibrary;
+import com.android.jack.library.PrebuiltCompatibility;
 import com.android.sched.item.Description;
 import com.android.sched.item.Feature;
 import com.android.sched.util.config.HasKeyId;
@@ -28,6 +29,7 @@ import javax.annotation.Nonnull;
 /**
  * {@link Feature} and {@link PropertyId} related to optimizations.
  */
+@HasKeyId
 public class Optimizations {
 
   /**
@@ -91,4 +93,12 @@ public class Optimizations {
         BooleanPropertyId.create("jack.optimization.not-simplifier", "Optimize '!' operator")
             .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
   }
+
+  @Nonnull
+  public static final BooleanPropertyId ENABLE_NULL_INSTANCEOF =
+      BooleanPropertyId.create(
+              "jack.optimization.null-instanceof-simplifier", "Optimize null instanceof")
+          .addDefaultValue(Boolean.FALSE)
+          .addCategory(DumpInLibrary.class)
+          .addCategory(PrebuiltCompatibility.class);
 }
