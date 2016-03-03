@@ -17,13 +17,13 @@
 package com.android.jack.backend.jayce;
 
 import com.android.jack.Jack;
-import com.android.jack.Options;
 import com.android.jack.ir.JackFormatIr;
 import com.android.jack.ir.NonJackFormatIr;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.jayce.JayceWriterFactory;
 import com.android.jack.library.FileType;
+import com.android.jack.library.InputLibrary;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.library.TypeInInputLibraryLocation;
@@ -32,7 +32,6 @@ import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
-import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.location.Location;
 import com.android.sched.vfs.OutputVFile;
 import com.android.sched.vfs.VPath;
@@ -54,9 +53,6 @@ public class JayceInLibraryWriter implements RunnableSchedulable<JDefinedClassOr
   @Nonnull
   private final OutputJackLibrary outputJackLibrary;
 
-  private final boolean generateLibFromIncrementalDir =
-      ThreadConfig.get(Options.GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER).booleanValue();
-
   {
     OutputJackLibrary ojl = Jack.getSession().getJackOutputLibrary();
     assert ojl != null;
@@ -72,8 +68,12 @@ public class JayceInLibraryWriter implements RunnableSchedulable<JDefinedClassOr
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
     Location loc = type.getLocation();
     if (loc instanceof TypeInInputLibraryLocation) {
-      if (generateLibFromIncrementalDir) {
-        return;
+      InputLibrary inputLibrary =
+          ((TypeInInputLibraryLocation) loc).getInputLibraryLocation().getInputLibrary();
+      if (inputLibrary.containsFileType(FileType.JAYCE)) {
+        if (inputLibrary.getLocation().equals(outputJackLibrary.getLocation())) {
+          return;
+        }
       }
     }
 

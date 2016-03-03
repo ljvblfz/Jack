@@ -65,9 +65,6 @@ public class DexInLibraryWriter extends DexWriter implements
   private final boolean usePrebuilts =
       ThreadConfig.get(Options.USE_PREBUILT_FROM_LIBRARY).booleanValue();
 
-  private final boolean generateLibFromIncrementalDir =
-      ThreadConfig.get(Options.GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER).booleanValue();
-
   @Override
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
     OutputVFile vFile;
@@ -78,26 +75,25 @@ public class DexInLibraryWriter extends DexWriter implements
         InputVFile in;
         InputLibrary inputLibrary =
             ((TypeInInputLibraryLocation) loc).getInputLibraryLocation().getInputLibrary();
-        if (!generateLibFromIncrementalDir) {
-          try {
-            in = inputLibrary.getFile(FileType.PREBUILT,
-                new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
-            vFile = outputLibrary.createFile(FileType.PREBUILT,
-                new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
-
-            InputStream is = in.getInputStream();
-            OutputStream os = vFile.getOutputStream();
-            try {
-              new ByteStreamSucker(is, os, true).suck();
-            } finally {
-              is.close(); // is != null or check before
-            }
-            return;
-          } catch (FileTypeDoesNotExistException e) {
-            // Pre-dex is not accessible, thus write dex file from type
-          }
-        } else {
+        if (inputLibrary.getLocation().equals(outputLibrary.getLocation())) {
           return;
+        }
+        try {
+          in = inputLibrary.getFile(FileType.PREBUILT,
+              new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
+          vFile = outputLibrary.createFile(FileType.PREBUILT,
+              new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
+
+          InputStream is = in.getInputStream();
+          OutputStream os = vFile.getOutputStream();
+          try {
+            new ByteStreamSucker(is, os, true).suck();
+          } finally {
+            is.close(); // is != null or check before
+          }
+          return;
+        } catch (FileTypeDoesNotExistException e) {
+          // Pre-dex is not accessible, thus write dex file from type
         }
       }
     }
