@@ -121,7 +121,6 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
    * Test Obfuscation when a whole package is missing from the classpath.
    */
   @Test
-  @KnownIssue
   public void test54() throws Exception {
     File testRootDir = getShrobTestRootDir("054");
 

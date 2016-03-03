@@ -16,6 +16,11 @@
 
 package com.android.jack.shrob.obfuscation;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
+
+import com.android.jack.Jack;
 import com.android.jack.Options;
 import com.android.jack.ir.ast.JConstructor;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
@@ -24,7 +29,10 @@ import com.android.jack.ir.ast.JFieldId;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JPackage;
+import com.android.jack.ir.ast.JPhantomClassOrInterface;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.reporting.Reportable;
+import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.shrob.seed.SeedMarker;
 import com.android.jack.shrob.spec.Flags;
@@ -44,12 +52,49 @@ import javax.annotation.Nonnull;
 @Description("Marks all classes and members that will not be renamed when obfuscating.")
 @Transform(add = KeepNameMarker.class)
 public class NameKeeper implements RunnableSchedulable<JPackage> {
+  @Nonnull
+  private static final Joiner typeNameJoiner = Joiner.on(", ");
+
+  private static class KeepedPackageBecauseOfPhantom implements Reportable {
+    @Nonnull
+    private final JPackage pack;
+
+    public KeepedPackageBecauseOfPhantom(@Nonnull JPackage pack) {
+      this.pack = pack;
+    }
+
+    @Override
+    @Nonnull
+    public String getMessage() {
+      return "Obfuscation: force to keep package name '"
+          + Jack.getUserFriendlyFormatter().getName(pack)
+          + "' due to unknown referenced types "
+          + typeNameJoiner.join(
+              Iterables.transform(pack.getPhantoms(),
+                  new Function<JPhantomClassOrInterface, String>() {
+                @Override
+                public String apply(JPhantomClassOrInterface arg0) {
+                  return Jack.getUserFriendlyFormatter().getName(arg0);
+                }
+              }));
+    }
+
+    @Override
+    @Nonnull
+    public ProblemLevel getDefaultProblemLevel() {
+      return ProblemLevel.WARNING;
+    }
+  }
 
   private class Visitor extends JVisitor {
 
     @Override
     public boolean visit(@Nonnull JPackage pack) {
-      if (flags.getKeepPackageNames() != null) {
+      if (!pack.getPhantoms().isEmpty()) {
+        Jack.getSession().getReporter().report(Severity.NON_FATAL,
+            new KeepedPackageBecauseOfPhantom(pack));
+        keepName(pack);
+      } else if (flags.getKeepPackageNames() != null) {
         if (!isMarked(pack)) {
           if (flags.getKeepPackageNames()
               .matches(GrammarActions.getBinaryNameFormatter().getName(pack))) {

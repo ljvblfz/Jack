@@ -329,6 +329,23 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
     return phantom;
   }
 
+  @Nonnull
+  public synchronized Collection<JPhantomClassOrInterface> getPhantoms() {
+    List<JPhantomClassOrInterface> phantoms = new ArrayList<JPhantomClassOrInterface>(
+          phantomTypes.size()
+        + phantomClasses.size()
+        + phantomInterfaces.size()
+        + phantomEnums.size()
+        + phantomAnnotations.size());
+    phantoms.addAll(phantomTypes);
+    phantoms.addAll(phantomClasses);
+    phantoms.addAll(phantomInterfaces);
+    phantoms.addAll(phantomEnums);
+    phantoms.addAll(phantomAnnotations);
+
+    return phantoms;
+  }
+
   @Override
   public void setName(@Nonnull String name) {
     if (enclosingPackage != null) {
