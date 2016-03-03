@@ -38,6 +38,7 @@ import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JNewArray;
 import com.android.jack.ir.ast.JPrimitiveType;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
+import com.android.jack.ir.ast.JReferenceType;
 import com.android.jack.ir.ast.JReturnStatement;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JType;
@@ -155,7 +156,7 @@ public class TypeLegalizer implements RunnableSchedulable<JMethod> {
     @Override
     public void endVisit(@Nonnull JDynamicCastOperation cast) {
       JExpression expr = cast.getExpr();
-      if (cast.getExpr().getType().isSameType(javaLangObject)
+      if (cast.getExpr().getType() instanceof JReferenceType
           && cast.getType() instanceof JPrimitiveType) {
         assert cast.getType() != JPrimitiveTypeEnum.VOID.getType();
 
