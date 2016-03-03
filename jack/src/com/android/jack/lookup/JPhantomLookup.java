@@ -82,7 +82,7 @@ public class JPhantomLookup extends JLookup {
     @Nonnull
     @Override
     public JReferenceType getType(@Nonnull JPackage pack, @Nonnull String simpleName) {
-      return pack.getPhantomClass(simpleName);
+      return pack.getPhantomClassOrInterface(simpleName);
     }
 
     @Override
