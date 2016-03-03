@@ -39,7 +39,7 @@ public class ObfuscationWithMappingTests extends AbstractTest {
       @Nonnull String mappingNumber)
       throws Exception {
 
-    File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.shrob.test" + testNumber);
+    File testFolder = getShrobTestRootDir(testNumber);
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     File candidateOutputMapping = AbstractTestTools.createTempFile("mapping", ".txt");

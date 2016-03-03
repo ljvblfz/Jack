@@ -19,6 +19,7 @@ package com.android.jack.shrob;
 import com.android.jack.Options;
 import com.android.jack.shrob.obfuscation.NameProviderFactory;
 import com.android.jack.test.comparator.ComparatorMapping;
+import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
 import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -26,13 +27,12 @@ import com.android.jack.test.toolchain.DummyToolchain;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
-import com.android.jack.test.toolchain.LegacyJillToolchain;
+import com.android.jack.test.toolchain.JackBasedToolchain;
 
 import org.junit.Test;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 
 import javax.annotation.Nonnull;
 
@@ -47,8 +47,7 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
       @Nonnull String mappingNumber)
       throws Exception {
 
-    String testPackageName = "com.android.jack.shrob.test" + testNumber;
-    File testFolder = AbstractTestTools.getTestRootDir(testPackageName);
+    File testFolder = getShrobTestRootDir(testNumber);
 
     JackApiToolchainBase toolchain =
         AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
@@ -116,5 +115,70 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
   @KnownIssue(candidate=IncrementalToolchain.class)
   public void test15_001() throws Exception {
     super.test15_001();
+  }
+
+  /**
+   * Test Obfuscation when a whole package is missing from the classpath.
+   */
+  @Test
+  @KnownIssue
+  public void test54() throws Exception {
+    File testRootDir = getShrobTestRootDir("054");
+
+    // Build the lib
+    File libLib = AbstractTestTools.createTempFile("shrob54", "lib.jack");
+    {
+      IToolchain toolchain =
+          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .srcToLib(libLib, /* zipFiles = */ true, new File (testRootDir,"lib"));
+    }
+    File libDex = AbstractTestTools.createTempFile("shrob54", "lib.dex");
+    {
+      IToolchain toolchain =
+          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .libToExe(libLib, libDex, /* zipFile = */ false);
+    }
+
+    // Build the jack as a lib
+    File jackLib = AbstractTestTools.createTempFile("shrob54", "jack.jack");
+    File jackDir = new File(testRootDir, "jack");
+    {
+      IToolchain toolchain =
+          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .addToClasspath(libLib)
+      .srcToLib(
+          jackLib,
+          /* zipFiles = */ true,
+          jackDir);
+    }
+
+    // Build the jack as a dex from the lib but without classpath
+    File jackDex = AbstractTestTools.createTempFile("shrob54", "jack.dex");
+    {
+      IToolchain toolchain =
+          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .addProguardFlags(new File(jackDir, "proguard.flags001"))
+      .libToExe(jackLib, jackDex, /* zipFile = */ false);
+    }
+
+
+    File testDex = AbstractTestTools.createTempFile("shrob54", "test.dex");
+    {
+      IToolchain toolchain =
+          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .addToClasspath(libLib)
+      .addToClasspath(jackLib)
+      .srcToExe(testDex, /* zipFiles = */ true, new File(testRootDir, "dx"));
+    }
+
+    RuntimeTestHelper.runOnRuntimeEnvironments(
+        Collections.singletonList("com.android.jack.shrob.test054.dx.Tests"),
+        RuntimeTestHelper.getJunitDex(), libDex, jackDex, testDex);
+
   }
 }

@@ -48,7 +48,7 @@ public class RepackagingTest extends AbstractTest {
       @Nonnull String flagNumber,
       @Nonnull String mappingNumber)
       throws Exception {
-    File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.shrob.test" + testNumber);
+    File testFolder = getShrobTestRootDir(testNumber);
     File candidateOutputMapping = AbstractTestTools.createTempFile("mapping", ".txt");
     File refFolder = new File(testFolder, "refsRepackageClasses");
     File refOutputMapping = new File(refFolder, "expected-" + flagNumber + ".txt");

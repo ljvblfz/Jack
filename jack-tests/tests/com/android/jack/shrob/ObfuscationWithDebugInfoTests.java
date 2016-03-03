@@ -39,7 +39,7 @@ public class ObfuscationWithDebugInfoTests extends AbstractTest {
       @Nonnull String mappingNumber)
       throws Exception {
 
-    File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.shrob.test" + testNumber);
+    File testFolder = getShrobTestRootDir(testNumber);
 
     SourceToDexComparisonTestHelper env =
         new SourceToDexComparisonTestHelper(new File(testFolder, "jack"));

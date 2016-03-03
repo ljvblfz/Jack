@@ -282,9 +282,8 @@ public class RuntimeTestHelper {
     }
 
     List<File> rtClasspath = new ArrayList<File>();
-    rtClasspath.add(new File(TestsProperties.getJackRootDir(),
-        "jack-tests/prebuilts/junit4-hostdex.jar"));
-   if (refPartBinary != null) {
+    rtClasspath.add(getJunitDex());
+    if (refPartBinary != null) {
       rtClasspath.add(refPartBinary);
     }
     if (linkBinary != null) {
@@ -300,6 +299,12 @@ public class RuntimeTestHelper {
     // Run JUnit on runtime env(s)
     runOnRuntimeEnvironments(jUnitClasses, testProperties,
         rtClasspath.toArray(new File[rtClasspath.size()]));
+  }
+
+  @Nonnull
+  public static File getJunitDex() {
+    return new File(TestsProperties.getJackRootDir(),
+        "jack-tests/prebuilts/junit4-hostdex.jar");
   }
 
   @Nonnull
@@ -334,6 +339,11 @@ public class RuntimeTestHelper {
       }
     }
     return referenceTestTools;
+  }
+
+  public static void runOnRuntimeEnvironments(@Nonnull List<String> jUnitClasses,
+      @Nonnull File... classpathFiles) throws Exception {
+    runOnRuntimeEnvironments(jUnitClasses, new Properties(), classpathFiles);
   }
 
   private static void runOnRuntimeEnvironments(@Nonnull List<String> jUnitClasses,

@@ -39,7 +39,7 @@ public class SeedTests extends AbstractTest {
       @Nonnull String mappingNumber)
       throws Exception {
 
-    File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.shrob.test" + testNumber);
+    File testFolder = getShrobTestRootDir(testNumber);
     File refFolder = new File(testFolder, "refsSeed");
     File candidateOutputSeeds = AbstractTestTools.createTempFile("seeds", ".txt");
     File refOutputSeeds = new File(refFolder, "expected-" + flagNumber + ".txt");
