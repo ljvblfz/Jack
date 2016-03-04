@@ -22,19 +22,19 @@ import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.test.TestsProperties;
 import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.runner.RuntimeRunner;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.sched.util.RunnableHooks;
-import com.android.sched.util.collect.Lists;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.InputZipFile;
 import com.android.sched.vfs.InputVFile;
-import com.android.sched.vfs.ReadWriteZipFS;
 import com.android.sched.vfs.ReadZipFS;
 import com.android.sched.vfs.VFS;
 import com.android.sched.vfs.VPath;
@@ -261,6 +261,177 @@ public class JarjarTests {
       hooks.runHooks();
       ThreadConfig.unsetConfig();
     }
+  }
+
+  /**
+   * Test jarjar operation with 2 libs and a main and one jarjar operation is made with incomplete
+   * classpath
+   */
+  @Test
+  @KnownIssue
+  public void jarjar006_1() throws Exception {
+    File testRootDir = AbstractTestTools.getTestRootDir("com.android.jack.jarjar.test006");
+
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    // Exclude Jill toolchain because libToLib is not supported yet.
+    exclude.add(JillBasedToolchain.class);
+
+    // Build lib1
+    File lib1NoJarjar;
+    {
+      IToolchain toolchain =
+          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
+      lib1NoJarjar = AbstractTestTools.createTempFile("jarjar006",
+          "lib1-nojarjar" + toolchain.getLibraryExtension());
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .srcToLib(lib1NoJarjar, /* zipFiles = */ true, new File (testRootDir,"lib1"));
+    }
+
+    // Repackage lib1
+    File lib1Jarjar;
+    {
+      IToolchain toolchain =
+          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
+      lib1Jarjar = AbstractTestTools.createTempFile("jarjar006",
+          "lib1-jarjar" + toolchain.getLibraryExtension());
+      toolchain.setJarjarRules(
+          Collections.singletonList(new File(testRootDir, "jarjar-rules.txt")))
+      .libToLib(lib1NoJarjar, lib1Jarjar, /* zipFiles */ true);
+    }
+
+    // Build lib2 with lib1NoJarjar in the classpath
+    File lib2NoJarjar;
+    {
+      IToolchain toolchain =
+          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
+      lib2NoJarjar = AbstractTestTools.createTempFile("jarjar006",
+          "lib2-nojarjar" + toolchain.getLibraryExtension());
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .addToClasspath(lib1NoJarjar)
+      .srcToLib(lib2NoJarjar, /* zipFiles = */ true, new File (testRootDir,"lib2"));
+    }
+
+    // Repackage lib2, do not give classpath
+    File lib2Jarjar;
+    {
+      IToolchain toolchain =
+          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
+      lib2Jarjar = AbstractTestTools.createTempFile("jarjar006",
+          "lib2-jarjar"  + toolchain.getLibraryExtension());
+      toolchain.setJarjarRules(
+          Collections.singletonList(new File(testRootDir, "jarjar-rules.txt")))
+      .libToLib(lib2NoJarjar, lib2Jarjar, /* zipFiles */ true);
+    }
+
+    // Build dex files
+    File lib1Dex = AbstractTestTools.createTempFile("jarjar006", "lib1.dex.zip");
+    {
+      AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class)
+      .libToExe(lib1Jarjar, lib1Dex, /* zipFile = */ true);
+    }
+    File lib2Dex = AbstractTestTools.createTempFile("jarjar006", "lib2.dex.zip");
+    {
+      AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class)
+      .libToExe(lib2Jarjar, lib2Dex, /* zipFile = */ true);
+    }
+    File testsDex = AbstractTestTools.createTempFile("jarjar006", "tests.dex.zip");
+    {
+      IToolchain toolchain =
+          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .addToClasspath(lib2Jarjar)
+      .srcToExe(testsDex, /* zipFile = */ true, new File(testRootDir, "dontcompile"));
+    }
+
+    // Run to check everything went as expected
+    RuntimeTestHelper.runOnRuntimeEnvironments(
+        Collections.singletonList("com.android.jack.jarjar.test006.dontcompile.Tests"),
+        RuntimeTestHelper.getJunitDex(), lib1Dex, lib2Dex, testsDex);
+
+  }
+
+  /**
+   * Same as jarjar006_1 but jarjar operation is made with classpath
+   */
+  @Test
+  public void jarjar006_2() throws Exception {
+    File testRootDir = AbstractTestTools.getTestRootDir("com.android.jack.jarjar.test006");
+
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    // Exclude Jill toolchain because libToLib is not supported yet.
+    exclude.add(JillBasedToolchain.class);
+
+    // Build lib1
+    File lib1NoJarjar;
+    {
+      IToolchain toolchain =
+          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
+      lib1NoJarjar = AbstractTestTools.createTempFile("jarjar006",
+          "lib1-nojarjar" + toolchain.getLibraryExtension());
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .srcToLib(lib1NoJarjar, /* zipFiles = */ true, new File (testRootDir,"lib1"));
+    }
+
+    // Repackage lib1
+    File lib1Jarjar;
+    {
+      IToolchain toolchain =
+          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
+      lib1Jarjar = AbstractTestTools.createTempFile("jarjar006",
+          "lib1-jarjar" + toolchain.getLibraryExtension());
+      toolchain.setJarjarRules(
+          Collections.singletonList(new File(testRootDir, "jarjar-rules.txt")));
+      toolchain.libToLib(lib1NoJarjar, lib1Jarjar, /* zipFiles */ true);
+    }
+
+    // Build lib2 with lib1NoJarjar in the classpath
+    File lib2NoJarjar;
+    {
+      IToolchain toolchain =
+          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
+      lib2NoJarjar = AbstractTestTools.createTempFile("jarjar006",
+          "lib2-nojarjar" + toolchain.getLibraryExtension());
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .addToClasspath(lib1NoJarjar)
+      .srcToLib(lib2NoJarjar, /* zipFiles = */ true, new File (testRootDir,"lib2"));
+    }
+    // Give classpath to jarjar operation
+    File lib2Jarjar;
+    {
+      IToolchain toolchain =
+          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
+      lib2Jarjar = AbstractTestTools.createTempFile("jarjar006",
+          "lib2-jarjar" + toolchain.getLibraryExtension());
+      toolchain.setJarjarRules(
+          Collections.singletonList(new File(testRootDir, "jarjar-rules.txt")))
+      .addToClasspath(lib1NoJarjar)
+      .libToLib(lib2NoJarjar, lib2Jarjar, /* zipFiles */ true);
+    }
+
+    // Build dex files
+    File lib1Dex = AbstractTestTools.createTempFile("jarjar006", "lib1.dex.zip");
+    {
+      AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude)
+      .libToExe(lib1Jarjar, lib1Dex, /* zipFile = */ true);
+    }
+    File lib2Dex = AbstractTestTools.createTempFile("jarjar006", "lib2.dex.zip");
+    {
+      AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude)
+      .libToExe(lib2Jarjar, lib2Dex, /* zipFile = */ true);
+    }
+    File testsDex = AbstractTestTools.createTempFile("jarjar006", "tests.dex.zip");
+    {
+      IToolchain toolchain =
+          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .addToClasspath(lib2Jarjar)
+      .srcToExe(testsDex, /* zipFile = */ true, new File(testRootDir, "dontcompile"));
+    }
+
+    // Run to check everything went as expected
+    RuntimeTestHelper.runOnRuntimeEnvironments(
+        Collections.singletonList("com.android.jack.jarjar.test006.dontcompile.Tests"),
+        RuntimeTestHelper.getJunitDex(), lib1Dex, lib2Dex, testsDex);
 
   }
 

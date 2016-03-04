@@ -1,0 +1,1 @@
+rule com.android.jack.jarjar.test006.** com.android.jack.jarjar.test006.a.@1
