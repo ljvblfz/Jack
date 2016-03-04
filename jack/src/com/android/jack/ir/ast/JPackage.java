@@ -136,10 +136,21 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
   }
 
   public void add(@Nonnull HasEnclosingPackage node) {
+    addItemWithName((HasName) node);
     if (node instanceof JDefinedClassOrInterface) {
       addType((JDefinedClassOrInterface) node);
     } else if (node instanceof JPackage) {
       addPackage((JPackage) node);
+    } else if (node instanceof JPhantomEnum) {
+      phantomEnums.add((JPhantomEnum) node);
+    } else if (node instanceof JPhantomAnnotationType) {
+      phantomAnnotations.add((JPhantomAnnotationType) node);
+    } else if (node instanceof JPhantomClass) {
+      phantomClasses.add((JPhantomClass) node);
+    } else if (node instanceof JPhantomInterface) {
+      phantomInterfaces.add((JPhantomInterface) node);
+    } else if (node instanceof JPhantomClassOrInterface){
+      phantomTypes.add((JPhantomClassOrInterface) node);
     } else {
       throw new AssertionError("Not supported");
     }

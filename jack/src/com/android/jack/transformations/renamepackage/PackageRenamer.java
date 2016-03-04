@@ -24,17 +24,19 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JPackage;
+import com.android.jack.ir.ast.JPhantomClassOrInterface;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JStringLiteral;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.Resource;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
-import com.android.jack.ir.formatter.TypeFormatter;
 import com.android.jack.library.DumpInLibrary;
 import com.android.jack.lookup.JLookup;
+import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.transformations.Jarjar;
+import com.android.jack.transformations.request.ChangeEnclosingPackage;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.NamingTools;
@@ -96,8 +98,6 @@ public class PackageRenamer implements RunnableSchedulable<JSession>{
 
     @Nonnull
     private final JLookup lookup;
-    @Nonnull
-    private final TypeFormatter formatter = BinaryQualifiedNameFormatter.getFormatter();
 
     public Visitor(@Nonnull JLookup lookup, @Nonnull PackageRemapper remapper) {
       this.lookup = lookup;
@@ -106,7 +106,8 @@ public class PackageRenamer implements RunnableSchedulable<JSession>{
 
     @Override
     public void endVisit(@Nonnull JDefinedClassOrInterface type) {
-      String binaryName = remapper.mapValue(formatter.getName(type));
+      String binaryName =
+          remapper.mapValue(BinaryQualifiedNameFormatter.getFormatter().getName(type));
       String simpleName = NamingTools.getSimpleClassNameFromBinaryName(binaryName);
       type.setName(simpleName);
       lookup.removeType(type);
@@ -176,22 +177,49 @@ public class PackageRenamer implements RunnableSchedulable<JSession>{
 
     final Collection<JDefinedClassOrInterface> typesToVisit =
         new HashSet<JDefinedClassOrInterface>(typesToEmit);
+    final Collection<JPhantomClassOrInterface> phantomsToRemap =
+        new HashSet<JPhantomClassOrInterface>();
 
     new TypeReferenceCollector() {
       @Override
       protected void collect(@Nonnull JType type) {
         if (type instanceof JDefinedClassOrInterface) {
           typesToVisit.add((JDefinedClassOrInterface) type);
+        } else if (type instanceof JPhantomClassOrInterface) {
+          phantomsToRemap.add((JPhantomClassOrInterface) type);
         }
       }
     }.accept(typesToEmit);
 
     new Visitor(session.getLookup(), remapper).accept(typesToVisit);
 
+    JPhantomLookup phantomLookup = session.getPhantomLookup();
+    TransformationRequest request = new TransformationRequest(session);
+    for (JPhantomClassOrInterface jPhantomClassOrInterface : phantomsToRemap) {
+      remapPhantom(jPhantomClassOrInterface, remapper, phantomLookup, request);
+    }
+    request.commit();
+
     for (Resource res : session.getResources()) {
       String pathToTransform = res.getPath().getPathAsString('/');
       String transformedPath = remapper.mapValue(pathToTransform);
       res.setPath(new VPath(transformedPath, '/'));
     }
+  }
+
+  private void remapPhantom(
+      @Nonnull JPhantomClassOrInterface type,
+      @Nonnull PackageRemapper remapper,
+      @Nonnull JPhantomLookup lookup,
+      @Nonnull TransformationRequest request) {
+    String binaryName = remapper.mapValue(
+        BinaryQualifiedNameFormatter.getFormatter().getName(type));
+    String simpleName = NamingTools.getSimpleClassNameFromBinaryName(binaryName);
+    type.setName(simpleName);
+    lookup.removeType(type);
+    String packageName = NamingTools.getPackageNameFromBinaryName(binaryName);
+    JPackage newPackage = lookup.getOrCreatePackage(packageName);
+    request.append(new ChangeEnclosingPackage(type, newPackage));
+
   }
 }

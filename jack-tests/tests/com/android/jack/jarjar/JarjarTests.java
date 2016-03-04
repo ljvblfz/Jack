@@ -268,7 +268,6 @@ public class JarjarTests {
    * classpath
    */
   @Test
-  @KnownIssue
   public void jarjar006_1() throws Exception {
     File testRootDir = AbstractTestTools.getTestRootDir("com.android.jack.jarjar.test006");
 
