@@ -58,7 +58,7 @@ public class JackApiV01Toolchain extends JackApiToolchainBase implements JackApi
   public void srcToExe(@Nonnull File out, boolean zipFile, @Nonnull File... sources)
       throws Exception {
     srcToCommon(sources);
-    setOutputDex(out);
+    setOutputDex(out, zipFile);
     run();
   }
 
@@ -66,21 +66,21 @@ public class JackApiV01Toolchain extends JackApiToolchainBase implements JackApi
   public void srcToLib(@Nonnull File out, boolean zipFiles, @Nonnull File... sources)
       throws Exception {
     srcToCommon(sources);
-    setOutputJack(out);
+    setOutputJack(out, zipFiles);
     run();
   }
 
   @Override
   public void libToExe(@Nonnull File[] in, @Nonnull File out, boolean zipFile) throws Exception {
     libToCommon(in);
-    setOutputDex(out);
+    setOutputDex(out, zipFile);
     run();
   }
 
   @Override
   public void libToLib(@Nonnull File[] in, @Nonnull File out, boolean zipFiles) throws Exception {
     libToCommon(in);
-    setOutputJack(out);
+    setOutputJack(out, zipFiles);
     run();
   }
 
@@ -250,8 +250,8 @@ public class JackApiV01Toolchain extends JackApiToolchainBase implements JackApi
     }
   }
 
-  private void setOutputDex(@Nonnull File outDex) throws Exception {
-    if (outDex.isDirectory()) {
+  private void setOutputDex(@Nonnull File outDex, boolean zipFiles) throws Exception {
+    if (!zipFiles) {
       apiV01Config.setOutputDexDir(outDex);
     } else {
       apiV01Config.setProperty(Options.DEX_OUTPUT_CONTAINER_TYPE.getName(), Container.ZIP.name());
@@ -260,8 +260,9 @@ public class JackApiV01Toolchain extends JackApiToolchainBase implements JackApi
     }
   }
 
-  private void setOutputJack(@Nonnull File outjack) throws Exception {
-    if (!outjack.isDirectory()) {
+  @Override
+  public void setOutputJack(@Nonnull File outjack, boolean zipFiles) throws Exception {
+    if (zipFiles) {
       apiV01Config.setOutputJackFile(outjack);
     } else {
       apiV01Config.setProperty(Options.LIBRARY_OUTPUT_CONTAINER_TYPE.getName(),
