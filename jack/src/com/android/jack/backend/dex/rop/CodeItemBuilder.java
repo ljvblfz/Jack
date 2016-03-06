@@ -451,7 +451,6 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
     List<JParameter> parameters = method.getParams();
     int indexParam = 0;
     int sz = parameters.size();
-
     InsnList insns;
 
     if (method.isStatic()) {

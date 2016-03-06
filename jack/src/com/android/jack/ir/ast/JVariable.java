@@ -93,6 +93,10 @@ public abstract class JVariable extends JNode implements HasName, CanBeSetFinal,
     return (JModifier.isSynthetic(modifier));
   }
 
+  public boolean isCapturedVariable() {
+    return (JModifier.isCapturedVariable(modifier));
+  }
+
   @Override
   public void setFinal() {
     modifier |= JModifier.FINAL;
@@ -100,6 +104,10 @@ public abstract class JVariable extends JNode implements HasName, CanBeSetFinal,
 
   public void setSynthetic() {
     modifier |= JModifier.SYNTHETIC;
+  }
+
+  public void setCapturedVariable() {
+    modifier |= JModifier.CAPTURED_VARIABLE;
   }
 
   @Override

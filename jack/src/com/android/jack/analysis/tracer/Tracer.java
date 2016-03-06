@@ -37,6 +37,7 @@ import com.android.jack.ir.ast.JDefinedEnum;
 import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.ast.JDynamicCastOperation;
 import com.android.jack.ir.ast.JEnumLiteral;
+import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JFieldId;
 import com.android.jack.ir.ast.JFieldNameLiteral;
@@ -48,6 +49,7 @@ import com.android.jack.ir.ast.JLiteral;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdRef;
 import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JMethodNameLiteral;
 import com.android.jack.ir.ast.JNameValuePair;
@@ -59,7 +61,6 @@ import com.android.jack.ir.ast.JReinterpretCastOperation;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeStringLiteral;
 import com.android.jack.ir.ast.JVariable;
-import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.lookup.JMethodLookupException;
@@ -543,15 +544,23 @@ public class Tracer extends JVisitor {
   @Override
   public void endVisit(@Nonnull JLambda lambdaExpr) {
     trace(lambdaExpr.getType());
+
     for (JInterface interfaze : lambdaExpr.getInterfaceBounds()) {
       trace(interfaze);
     }
-    for (JParameter arg : lambdaExpr.getParameters()) {
-      trace(arg.getType());
+
+    for (JExpression capturedVar : lambdaExpr.getCapturedVariables()) {
+      accept(capturedVar);
     }
-    for (JVariableRef capturedVar : lambdaExpr.getCapturedVariables()) {
-      trace(capturedVar.getType());
-    }
-    accept(lambdaExpr.getBody());
+
+    JMethodIdRef methodIdRef = lambdaExpr.getMethodIdRef();
+    JMethodId methodId = methodIdRef.getMethodId();
+    JMethodIdWide methodIdWide = methodId.getMethodIdWide();
+    JClassOrInterface receiverType = methodIdRef.getEnclosingType();
+
+    trace(receiverType);
+
+    trace(methodIdWide, methodIdRef.getEnclosingType(), methodId.getType(),
+        /*mustTraceOverridingMethods=*/ false);
   }
 }

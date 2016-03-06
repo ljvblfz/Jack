@@ -16,19 +16,23 @@
 
 package com.android.jack.jayce.v0003.nodes;
 
+import com.android.jack.ir.ast.JClass;
+import com.android.jack.ir.ast.JClassOrInterface;
+import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JLambda;
-import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdRef;
 import com.android.jack.ir.ast.JTypeLookupException;
-import com.android.jack.ir.ast.JVariableRef;
-import com.android.jack.jayce.linker.VariableRefLinker;
+import com.android.jack.ir.ast.MethodKind;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0003.io.ExportSession;
 import com.android.jack.jayce.v0003.io.ImportHelper;
 import com.android.jack.jayce.v0003.io.JayceInternalReaderImpl;
 import com.android.jack.jayce.v0003.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0003.io.Token;
+import com.android.jack.jayce.v0003.nodes.NMethodCall.ReceiverKind;
 import com.android.jack.lookup.JMethodLookupException;
 
 import java.io.IOException;
@@ -47,13 +51,20 @@ public class NLambda extends NExpression {
   @Nonnull
   public static final Token TOKEN = Token.LAMBDA;
 
-  boolean captureInstance;
-
   @Nonnull
-  private List<String> capturedVariableIds = new ArrayList<String>();
+  private List<NExpression> capturedVariables = Collections.emptyList();
 
   @CheckForNull
-  private NMethod method;
+  public String methodRefType;
+
+  @CheckForNull
+  public String methodRefName;
+
+  @Nonnull
+  public List<String> methodRefArgsType = Collections.emptyList();
+
+  @CheckForNull
+  public MethodKind methodRefKind;
 
   @CheckForNull
   private String typeSig;
@@ -65,7 +76,16 @@ public class NLambda extends NExpression {
   private List<String> boundsIds = Collections.emptyList();
 
   @CheckForNull
-  private NMethodId mthIdToImplement;
+  private NMethodId mthIdWithErasure;
+
+  @CheckForNull
+  private NMethodId mthIdWithoutErasure;
+
+  @CheckForNull
+  public String enclosingType;
+
+  @CheckForNull
+  public ReceiverKind receiverKind;
 
   @Nonnull
   private List<NMethodId> bridges = Collections.emptyList();
@@ -73,15 +93,23 @@ public class NLambda extends NExpression {
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JLambda lambda = (JLambda) node;
-    captureInstance = lambda.needToCaptureInstance();
-    for (JVariableRef capturedVariableRef : lambda.getCapturedVariables()) {
-      capturedVariableIds.add(loader.getVariableSymbols().getId(capturedVariableRef.getTarget()));
-    }
-    method = (NMethod) loader.load(lambda.getMethod());
+    capturedVariables = loader.load(NExpression.class, lambda.getCapturedVariables());
+
+    JMethodIdRef methodIdRef = lambda.getMethodIdRef();
+    methodRefName = methodIdRef.getMethodId().getMethodIdWide().getName();
+    methodRefArgsType =
+        ImportHelper.getMethodArgsSignature(methodIdRef.getMethodId().getMethodIdWide());
+    methodRefKind = methodIdRef.getMethodId().getMethodIdWide().getKind();
+    methodRefType = ImportHelper.getSignatureName(methodIdRef.getMethodId().getType());
+
+    enclosingType = ImportHelper.getSignatureName(methodIdRef.getEnclosingType());
+    receiverKind = methodIdRef.getEnclosingType() instanceof JClass ? ReceiverKind.CLASS
+        : ReceiverKind.INTERFACE;
     typeSig = ImportHelper.getSignatureName(lambda.getType());
     sourceInfo = loader.load(lambda.getSourceInfo());
     boundsIds = ImportHelper.getSignatureNameList(lambda.getInterfaceBounds());
-    mthIdToImplement = (NMethodId) loader.load(lambda.getMethodIdToImplement());
+    mthIdWithErasure = (NMethodId) loader.load(lambda.getMethodIdWithErasure());
+    mthIdWithoutErasure = (NMethodId) loader.load(lambda.getMethodIdWithoutErasure());
     bridges = loader.load(NMethodId.class, lambda.getBridgeMethodIds());
   }
 
@@ -90,13 +118,27 @@ public class NLambda extends NExpression {
   public JExpression exportAsJast(@Nonnull ExportSession exportSession)
       throws JTypeLookupException, JMethodLookupException {
     assert sourceInfo != null;
-    assert capturedVariableIds != null;
-    assert method != null;
+    assert capturedVariables != null;
+    assert methodRefName != null;
+    assert methodRefKind != null;
+    assert methodRefArgsType != null;
     assert typeSig != null;
-    assert mthIdToImplement != null;
+    assert mthIdWithErasure != null;
+    assert mthIdWithoutErasure != null;
+    assert receiverKind != null;
+    assert enclosingType != null;
+    assert methodRefType != null;
 
-    JMethod lambdaMethod =
-        method.exportLambdaMethodAsJast(exportSession);
+    JClassOrInterface jEnclosingType;
+    if (receiverKind == ReceiverKind.CLASS) {
+      jEnclosingType = exportSession.getLookup().getClass(enclosingType);
+    } else {
+      jEnclosingType = exportSession.getLookup().getInterface(enclosingType);
+    }
+
+    JMethodId methodId = jEnclosingType.getOrCreateMethodId(methodRefName,
+        exportSession.getTypeListFromSignatureList(methodRefArgsType), methodRefKind,
+        exportSession.getLookup().getType(methodRefType));
 
     List<JInterface> jBounds = new ArrayList<JInterface>(boundsIds.size());
     for (String bound : boundsIds) {
@@ -104,18 +146,23 @@ public class NLambda extends NExpression {
     }
 
     JMethodId mthIdToImplements =
-        (JMethodId) mthIdToImplement.exportAsJast(exportSession);
+        (JMethodId) mthIdWithErasure.exportAsJast(exportSession);
 
-    JLambda lambda = new JLambda(sourceInfo.exportAsJast(exportSession), mthIdToImplements,
-        lambdaMethod, exportSession.getLookup().getInterface(typeSig), captureInstance, jBounds);
+    JMethodId jmthIdToEnforce =
+        (JMethodId) mthIdWithoutErasure.exportAsJast(exportSession);
+
+    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    JLambda lambda = new JLambda(jSourceInfo, mthIdToImplements,
+        new JMethodIdRef(jSourceInfo, (JDefinedClassOrInterface) jEnclosingType, methodId),
+        exportSession.getLookup().getInterface(typeSig), jBounds, jmthIdToEnforce);
 
     for (NMethodId bridge : bridges) {
       lambda.addBridgeMethodId((JMethodId) bridge.exportAsJast(exportSession));
     }
 
-    for (String capturedVariableId : capturedVariableIds) {
-      exportSession.getVariableResolver().addLink(capturedVariableId,
-          new VariableRefLinker(lambda));
+    for (NExpression capturedVariable : capturedVariables) {
+      JExpression jcapturedVariable = capturedVariable.exportAsJast(exportSession);
+      lambda.addCapturedVariable(jcapturedVariable);
     }
 
     return lambda;
@@ -123,23 +170,35 @@ public class NLambda extends NExpression {
 
   @Override
   public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    out.writeBoolean(captureInstance);
-    out.writeIds(capturedVariableIds);
-    out.writeNode(method);
+    assert methodRefKind != null;
+    assert receiverKind != null;
+    out.writeNodes(capturedVariables);
+    out.writeReceiverKindEnum(receiverKind);
+    out.writeId(enclosingType);
+    out.writeId(methodRefName);
+    out.writeIds(methodRefArgsType);
+    out.writeMethodKindEnum(methodRefKind);
+    out.writeId(methodRefType);
     out.writeId(typeSig);
     out.writeIds(boundsIds);
-    out.writeNode(mthIdToImplement);
+    out.writeNode(mthIdWithErasure);
+    out.writeNode(mthIdWithoutErasure);
     out.writeNodes(bridges);
   }
 
   @Override
   public void readContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
-    captureInstance = in.readBoolean();
-    capturedVariableIds = in.readIds();
-    method = in.readNode(NMethod.class);
+    capturedVariables = in.readNodes(NExpression.class);
+    receiverKind = in.readReceiverKindEnum();
+    enclosingType = in.readId();
+    methodRefName = in.readId();
+    methodRefArgsType = in.readIds();
+    methodRefKind = in.readMethodKindEnum();
+    methodRefType = in.readId();
     typeSig = in.readId();
     boundsIds = in.readIds();
-    mthIdToImplement = in.readNode(NMethodId.class);
+    mthIdWithErasure = in.readNode(NMethodId.class);
+    mthIdWithoutErasure = in.readNode(NMethodId.class);
     bridges = in.readNodes(NMethodId.class);
   }
 

@@ -112,6 +112,8 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
 
   @Override
   public void setModifier(int modifier) {
+    assert JModifier.isMethodModifier(modifier);
+    assert JModifier.isValidMethodModifier(modifier);
     this.modifier = modifier;
   }
 

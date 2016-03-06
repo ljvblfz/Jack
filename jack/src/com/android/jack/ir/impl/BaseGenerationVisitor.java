@@ -66,6 +66,7 @@ import com.android.jack.ir.ast.JGoto;
 import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JInstanceOf;
 import com.android.jack.ir.ast.JIntLiteral;
+import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JLabel;
 import com.android.jack.ir.ast.JLabeledStatement;
 import com.android.jack.ir.ast.JLambda;
@@ -77,7 +78,9 @@ import com.android.jack.ir.ast.JLongLiteral;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JMethodCall;
+import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JMethodIdWide;
+import com.android.jack.ir.ast.JMethodIdRef;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JMultiExpression;
 import com.android.jack.ir.ast.JNameValuePair;
@@ -754,13 +757,79 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
 
   @Override
   public boolean visit(@Nonnull JLambda x) {
-    lparen();
-    visitCollectionWithCommas(x.getParameters().iterator());
-    rparen();
+    visitCollectionJType(
+        x.getMethodIdWithoutErasure().getMethodIdWide().getParamTypes().iterator());
     print(" -> ");
-    accept(x.getBody());
+    openBlock();
+
+    print("SAM type: ");
+    printType(x);
+    newline();
+
+    print("interface bounds: ");
+    Iterator<JInterface> boundTypeIt = x.getInterfaceBounds().iterator();
+    if (boundTypeIt.hasNext()) {
+      printName(boundTypeIt.next());
+    }
+    while (boundTypeIt.hasNext()) {
+      print(CHARS_COMMA);
+      printName(boundTypeIt.next());
+    }
+    newline();
+
+    print("captured variables: ");
+    visitCollectionWithCommas(x.getCapturedVariables().iterator());
+    newline();
+
+    print("method to implement: ");
+    printJMethodId(x.getMethodIdWithErasure());
+    newline();
+
+    print("method to enforce: ");
+    printJMethodId(x.getMethodIdWithoutErasure());
+    newline();
+
+    print("lambda method: ");
+    accept(x.getMethodIdRef());
+    newline();
+
+    print("bridges: ");
+    visitCollectionJMethodId(x.getBridgeMethodIds().iterator());
+    newline();
+
+    closeBlock();
     return false;
   }
+
+  protected void visitCollectionJMethodId(@Nonnull Iterator<JMethodId> iter) {
+    if (iter.hasNext()) {
+      printJMethodId(iter.next());
+    }
+    while (iter.hasNext()) {
+      print(CHARS_COMMA);
+      printJMethodId(iter.next());
+    }
+  }
+
+  private void printJMethodId(@Nonnull JMethodId methodId) {
+    printType(methodId);
+    space();
+    printName(methodId.getMethodIdWide());
+    visitCollectionJType(methodId.getMethodIdWide().getParamTypes().iterator());
+  }
+
+  private void visitCollectionJType(@Nonnull Iterator<JType> iter) {
+    lparen();
+    if (iter.hasNext()) {
+      printName(iter.next());
+    }
+    while (iter.hasNext()) {
+      print(CHARS_COMMA);
+      printName(iter.next());
+    }
+    rparen();
+  }
+
 
   @Override
   public boolean visit(@Nonnull JLocal x) {
@@ -815,6 +884,15 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
   @Override
   public boolean visit(@Nonnull JMethodBody x) {
     accept(x.getBlock());
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JMethodIdRef x) {
+    printTypeName(x.getEnclosingType());
+    print('.');
+    printName(x.getMethodId().getMethodIdWide());
+    visitCollectionJType(x.getMethodId().getMethodIdWide().getParamTypes().iterator());
     return false;
   }
 
@@ -925,6 +1003,7 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
   @Override
   public boolean visit(@Nonnull JParameter x) {
     printAnnotationLiterals(x.getAnnotations());
+    print(JModifier.getStringVariableModifier(x.getModifier()));
     printType(x);
     space();
     printName(x);

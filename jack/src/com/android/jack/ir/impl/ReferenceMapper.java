@@ -335,7 +335,11 @@ public class ReferenceMapper {
 
   @CheckForNull
   private AbstractMethodDeclaration getDeclaration(@Nonnull MethodBinding b) {
-    if (b instanceof SyntheticMethodBinding) {
+    // Lambda method does not have declaration but they are not SyntheticMethodBinding, thus use
+    // also b.isSynthetic(). isSynthetic method can not always be used because some
+    // SyntheticMethodBinding does not have synthetic modifier, it is the case for valueOf of
+    // enumeration
+    if (b instanceof SyntheticMethodBinding || b.isSynthetic()) {
       return null;
     }
 

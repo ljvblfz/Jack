@@ -343,9 +343,17 @@ public class CloneExpressionVisitor extends JVisitor {
   }
 
   @Override
-  public boolean visit(@Nonnull JLambda x) {
-    expression = new JLambda(x.getSourceInfo(), x.getMethodIdToImplement(), x.getMethod(),
-        x.getType(), x.needToCaptureInstance(), x.getInterfaceBounds());
+  public boolean visit(@Nonnull JLambda lambda) {
+    JLambda clonedLambda =
+        new JLambda(lambda.getSourceInfo(), lambda.getMethodIdWithErasure(), lambda.getMethodIdRef(),
+            lambda.getType(), lambda.getInterfaceBounds(), lambda.getMethodIdWithoutErasure());
+
+    for (JExpression capturedVar : lambda.getCapturedVariables()) {
+      clonedLambda.addCapturedVariable(cloneExpression(capturedVar));
+    }
+
+    expression = clonedLambda;
+
     return false;
   }
 }

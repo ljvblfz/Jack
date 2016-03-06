@@ -81,15 +81,6 @@ public abstract class JNode extends LocalMarkerManager
     }
 
     @Override
-    public boolean visit(@Nonnull JLambda lambda) {
-      boolean visitChild = super.visit(lambda);
-      if (visitChild) {
-        accept(lambda.getMethod());
-      }
-      return visitChild;
-    }
-
-    @Override
     public void endVisit(@Nonnull JNode node) {
       nodes.pop();
       super.endVisit(node);
