@@ -31,7 +31,6 @@ import com.android.jack.ir.ast.JGoto;
 import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JLabel;
 import com.android.jack.ir.ast.JLabeledStatement;
-import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JLiteral;
 import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JLocalRef;
@@ -49,13 +48,9 @@ import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JThrowStatement;
 import com.android.jack.ir.ast.JTryStatement;
 import com.android.jack.ir.ast.JUnlock;
-import com.android.jack.ir.ast.JVariable;
-import com.android.jack.ir.ast.JVariableRef;
-import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.JWhileStatement;
 import com.android.jack.transformations.finallyblock.InlinedFinallyMarker;
 import com.android.jack.transformations.request.AddJLocalInMethodBody;
-import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.marker.Marker;
 import com.android.sched.schedulable.Constraint;
@@ -486,57 +481,6 @@ public class CloneStatementVisitor extends CloneExpressionVisitor {
     assert parameter.getEnclosingMethod() == targetMethod;
     expression = parameter.makeRef(parameterRef.getSourceInfo());
     return false;
-  }
-
-  @Override
-  public boolean visit(@Nonnull JLambda lambda) {
-    JLambda clonedLambda =
-        new JLambda(lambda.getSourceInfo(), lambda.getMethodIdToImplement(), lambda.getMethod(),
-            lambda.getType(), lambda.needToCaptureInstance(), lambda.getInterfaceBounds());
-
-    for (JVariableRef capturedVarRef : lambda.getCapturedVariables()) {
-      JVariable capturedVar = capturedVarRef.getTarget();
-      JVariableRef clonedVarRef = null;
-      if (capturedVar instanceof JLocal) {
-        JLocal clonedVar = clonedLocals.get(capturedVar);
-        if (clonedVar == null) {
-          clonedVar = cloneLocal((JLocal) capturedVar);
-        }
-        clonedVarRef = clonedVar.makeRef(capturedVarRef.getSourceInfo());
-      } else {
-        assert capturedVar instanceof JParameter;
-        clonedVarRef = capturedVar.makeRef(capturedVar.getSourceInfo());
-      }
-      assert clonedVarRef != null;
-      clonedLambda.addCapturedVariable(clonedVarRef);
-    }
-
-    expression = clonedLambda;
-
-    new RewriteVarRefOfLambda().accept(lambda.getMethod());
-
-    return false;
-  }
-
-  private class RewriteVarRefOfLambda extends JVisitor {
-
-    @Override
-    public boolean visit(@Nonnull JVariableRef varRef) {
-      JLocal clonedVar = clonedLocals.get(varRef.getTarget());
-      if (clonedVar != null) {
-        trRequest.append(new Replace(varRef, clonedVar.makeRef(varRef.getSourceInfo())));
-      }
-      return false;
-    }
-
-    @Override
-    public boolean visit(@Nonnull JThisRef jThisRef) {
-      JThis jThis = targetMethod.getThis();
-      assert jThis != null;
-      assert jThis.getType().isSameType(jThisRef.getType());
-      trRequest.append(new Replace(jThisRef, jThis.makeRef(jThisRef.getSourceInfo())));
-      return false;
-    }
   }
 
   @Nonnull

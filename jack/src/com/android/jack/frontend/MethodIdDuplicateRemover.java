@@ -82,12 +82,12 @@ public class MethodIdDuplicateRemover implements RunnableSchedulable<JDefinedCla
     public boolean visit(@Nonnull JLambda lambda) {
       JInterface lambdaType = lambda.getType();
       try {
-        JMethodId mthIdWithReturnType = lambda.getMethodIdToImplement();
+        JMethodId mthIdWithErasure = lambda.getMethodIdWithErasure();
         lambda.resolveMethodId(lambdaType.getMethodId(
-            mthIdWithReturnType.getMethodIdWide().getName(),
-            mthIdWithReturnType.getMethodIdWide().getParamTypes(),
+            mthIdWithErasure.getMethodIdWide().getName(),
+            mthIdWithErasure.getMethodIdWide().getParamTypes(),
             MethodKind.INSTANCE_VIRTUAL,
-            mthIdWithReturnType.getType()));
+            mthIdWithErasure.getType()));
       } catch (JMethodWithReturnLookupException e) {
         throw new AssertionError();
       }

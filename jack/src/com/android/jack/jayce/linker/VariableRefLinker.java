@@ -16,10 +16,8 @@
 
 package com.android.jack.jayce.linker;
 
-import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVariableRef;
-import com.android.jack.ir.sourceinfo.SourceInfo;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -32,26 +30,14 @@ public class VariableRefLinker implements Linker<JVariable> {
   @CheckForNull
   private final JVariableRef varRef;
 
-  @CheckForNull
-  private final JLambda lambda;
-
   public VariableRefLinker(@Nonnull JVariableRef varRef) {
     this.varRef = varRef;
-    lambda = null;
-  }
-
-  public VariableRefLinker(@Nonnull JLambda lambda) {
-    varRef = null;
-    this.lambda = lambda;
   }
 
   @Override
   public void link(@Nonnull JVariable resolvedTarget) {
     if (varRef != null) {
       varRef.setTarget(resolvedTarget);
-    } else {
-      assert lambda != null;
-      lambda.addCapturedVariable(resolvedTarget.makeRef(SourceInfo.UNKNOWN));
     }
   }
 }

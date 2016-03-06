@@ -333,6 +333,10 @@ public class JVisitor {
     endVisit((JExpression) x);
   }
 
+  public void endVisit(@Nonnull JMethodIdRef x) {
+    endVisit((JNode) x);
+  }
+
   public void endVisit(@Nonnull JMethodLiteral x) {
     endVisit((JLiteral) x);
   }
@@ -719,6 +723,10 @@ public class JVisitor {
 
   public boolean visit(@Nonnull JMethodCall x) {
     return visit((JExpression) x);
+  }
+
+  public boolean visit(@Nonnull JMethodIdRef x) {
+    return visit((JNode) x);
   }
 
   public boolean visit(@Nonnull JMethodLiteral x) {
@@ -1162,6 +1170,11 @@ public class JVisitor {
   public void visit(@Nonnull JMethodCall x, @Nonnull TransformRequest transformRequest)
       throws Exception {
     visit((JExpression) x, transformRequest);
+  }
+
+  public void visit(@Nonnull JMethodIdRef x, @Nonnull TransformRequest transformRequest)
+      throws Exception {
+    visit((JNode) x, transformRequest);
   }
 
   public void visit(@Nonnull JMethodLiteral x, @Nonnull TransformRequest transformRequest)

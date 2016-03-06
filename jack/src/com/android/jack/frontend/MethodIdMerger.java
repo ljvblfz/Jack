@@ -25,7 +25,6 @@ import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.ast.JInterface;
-import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JMethodIdWide;
@@ -82,12 +81,6 @@ public class MethodIdMerger implements RunnableSchedulable<JSession> {
       }
       handleDefinedClassOrInterface(node);
       return super.visit(node);
-    }
-
-    @Override
-    public boolean visit(@Nonnull JLambda lambda) {
-      accept(lambda.getBody());
-      return super.visit(lambda);
     }
 
     @Override
