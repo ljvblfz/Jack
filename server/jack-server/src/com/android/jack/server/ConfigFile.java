@@ -47,7 +47,7 @@ class ConfigFile extends Properties {
   @Nonnull
   private static Logger logger = Logger.getLogger(ConfigFile.class.getName());
 
-  static final int CURRENT_CONFIG_VERSION = 1;
+  static final int CURRENT_CONFIG_VERSION = 2;
   @Nonnull
   private static final Charset CONFIG_CHARSET = StandardCharsets.UTF_8;
   private static final long serialVersionUID = 1L;
@@ -64,6 +64,9 @@ class ConfigFile extends Properties {
 
   @Nonnull
   static final String MAX_SERVICE_PROPERTY = "jack.server.max-service";
+
+  @Nonnull
+  static final String MAX_SERVICE_BY_MEM_PROPERTY = "jack.server.max-service.by-mem";
 
   @Nonnull
   static final String TIME_OUT_PROPERTY = "jack.server.time-out";
