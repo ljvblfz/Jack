@@ -301,10 +301,6 @@ public class JVisitor {
     endVisit((JExpression) x);
   }
 
-  public void endVisit(@Nonnull JLiberateVariable x) {
-    endVisit((JExpression) x);
-  }
-
   public void endVisit(@Nonnull JLiteral x) {
     endVisit((JExpression) x);
   }
@@ -690,10 +686,6 @@ public class JVisitor {
   }
 
   public boolean visit(@Nonnull JLambda x) {
-    return visit((JExpression) x);
-  }
-
-  public boolean visit(@Nonnull JLiberateVariable x) {
     return visit((JExpression) x);
   }
 
@@ -1129,11 +1121,6 @@ public class JVisitor {
   }
 
   public void visit(@Nonnull JLambda x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JExpression) x, transformRequest);
-  }
-
-  public void visit(@Nonnull JLiberateVariable x, @Nonnull TransformRequest transformRequest)
       throws Exception {
     visit((JExpression) x, transformRequest);
   }

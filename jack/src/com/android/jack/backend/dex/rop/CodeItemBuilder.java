@@ -26,7 +26,6 @@ import com.android.jack.cfg.PeiBasicBlock;
 import com.android.jack.cfg.ReturnBasicBlock;
 import com.android.jack.cfg.SwitchBasicBlock;
 import com.android.jack.cfg.ThrowBasicBlock;
-import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
 import com.android.jack.dx.dex.DexOptions;
 import com.android.jack.dx.dex.code.DalvCode;
 import com.android.jack.dx.dex.code.PositionList;
@@ -73,8 +72,6 @@ import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JThis;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.library.DumpInLibrary;
-import com.android.jack.library.PrebuiltCompatibility;
-import com.android.jack.scheduling.feature.SourceVersion8;
 import com.android.jack.scheduling.marker.DexCodeMarker;
 import com.android.jack.transformations.EmptyClinit;
 import com.android.jack.transformations.ast.BooleanTestOutsideIf;
@@ -90,17 +87,13 @@ import com.android.jack.transformations.ast.inner.InnerAccessor;
 import com.android.jack.transformations.ast.switches.UselessSwitches;
 import com.android.jack.transformations.booleanoperators.FallThroughMarker;
 import com.android.jack.transformations.cast.SourceCast;
-import com.android.jack.transformations.lambda.CapturedVariable;
-import com.android.jack.transformations.lambda.ForceClosureMarker;
 import com.android.jack.transformations.rop.cast.RopLegalCast;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
-import com.android.sched.schedulable.Optional;
 import com.android.sched.schedulable.RunnableSchedulable;
-import com.android.sched.schedulable.ToSupport;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
 import com.android.sched.util.config.HasKeyId;
@@ -152,8 +145,6 @@ import javax.annotation.Nonnull;
     SourceCast.class,
     JCastOperation.WithIntersectionType.class})
 @Transform(add = DexCodeMarker.class)
-@Optional(@ToSupport(feature = SourceVersion8.class,
-    add = @Constraint(need = CapturedVariable.class)))
 @Use(RopHelper.class)
 public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
 
@@ -176,23 +167,12 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
       .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
 
   @Nonnull
-  public static final BooleanPropertyId EXPERIMENTAL_LAMBDA_OPCODES =
-      BooleanPropertyId
-          .create("jack.dex.lambda.experimental",
-              "Generates experimental opcodes for lambda support")
-          .addDefaultValue(Boolean.FALSE)
-      .addCategory(DumpInLibrary.class)
-      .addCategory(PrebuiltCompatibility.class);
-
-  @Nonnull
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
   private final boolean emitSyntheticLocalDebugInfo =
       ThreadConfig.get(EMIT_SYNTHETIC_LOCAL_DEBUG_INFO).booleanValue();
   private final boolean emitLocalDebugInfo =
       ThreadConfig.get(Options.EMIT_LOCAL_DEBUG_INFO).booleanValue();
-  private final boolean runDxOptimizations = ThreadConfig.get(DEX_OPTIMIZE).booleanValue()
-      && (ThreadConfig.get(Options.JAVA_SOURCE_VERSION).compareTo(JavaVersion.JAVA_8) < 0
-      || !ThreadConfig.get(EXPERIMENTAL_LAMBDA_OPCODES).booleanValue());
+  private final boolean runDxOptimizations = ThreadConfig.get(DEX_OPTIMIZE).booleanValue();
   private final boolean forceJumbo = ThreadConfig.get(FORCE_JUMBO).booleanValue();
   private final boolean emitLineNumberTable =
       ThreadConfig.get(Options.EMIT_LINE_NUMBER_DEBUG_INFO).booleanValue();
@@ -468,15 +448,8 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
 
     List<JParameter> parameters = method.getParams();
     int indexParam = 0;
-    int sz = 0;
-    for (JParameter p : parameters) {
-      // STOPSHIP: Generate captured variables as parameters needs a runtime with the new
-      // create-lambda opcode
-      if (p.getMarker(CapturedVariable.class) != null) {
-        continue;
-      }
-      sz++;
-    }
+    int sz = parameters.size();
+
     InsnList insns;
 
     if (method.isStatic()) {
@@ -494,19 +467,13 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
       insns.set(indexParam++, insn);
     }
 
-    for (Iterator<JParameter> paramIt = parameters.iterator(); paramIt.hasNext();) {
+    for (Iterator<JParameter> paramIt = parameters.iterator(); paramIt.hasNext(); indexParam++) {
       JParameter param = paramIt.next();
-      // STOPSHIP: Generate captured variables as parameters needs a runtime with the new
-      // create-lambda opcode
-      if (param.getMarker(CapturedVariable.class) != null) {
-        continue;
-      }
       RegisterSpec paramReg = ropReg.createRegisterSpec(param);
       Insn insn =
           new PlainCstInsn(Rops.opMoveParam(paramReg.getType()), pos, paramReg,
               RegisterSpecList.EMPTY, CstInteger.make(paramReg.getReg()));
       insns.set(indexParam, insn);
-      indexParam++;
     }
 
     insns.set(indexParam, new PlainInsn(Rops.GOTO, pos, null, RegisterSpecList.EMPTY));
@@ -543,15 +510,7 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
     int wordCount = method.isStatic() ? 0 : Type.OBJECT.getWordCount();
 
     for (JParameter param : method.getParams()) {
-      // STOPSHIP: Generate captured variables as parameters needs a runtime with the new
-      // create-lambda opcode
-      if (param.getMarker(CapturedVariable.class) != null) {
-        continue;
-      }
-      wordCount += RopHelper
-          .convertTypeToDx(param.getType(),
-              /* isForcedClosure= */ param.getMarker(ForceClosureMarker.class) != null)
-          .getWordCount();
+      wordCount += RopHelper.convertTypeToDx(param.getType()).getWordCount();
     }
 
     return wordCount;
