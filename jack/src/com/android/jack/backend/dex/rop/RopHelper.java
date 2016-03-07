@@ -27,14 +27,12 @@ import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.rop.type.TypeList;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JClassOrInterface;
-import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JFieldId;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JNullType;
-import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JPrimitiveType;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
@@ -43,13 +41,6 @@ import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.formatter.InternalFormatter;
 import com.android.jack.ir.formatter.TypeAndMethodFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfo;
-import com.android.jack.scheduling.feature.SourceVersion8;
-import com.android.jack.transformations.lambda.CapturedVariable;
-import com.android.jack.transformations.lambda.ForceClosureMarker;
-import com.android.jack.transformations.lambda.NeedsLambdaMarker;
-import com.android.sched.schedulable.Constraint;
-import com.android.sched.schedulable.Optional;
-import com.android.sched.schedulable.ToSupport;
 
 import java.util.List;
 
@@ -58,15 +49,10 @@ import javax.annotation.Nonnull;
 /**
  * Utilities for dx API uses when building dex structures and rop methods.
  */
-@Optional(@ToSupport(feature = SourceVersion8.class,
-    add = @Constraint(need = {CapturedVariable.class, NeedsLambdaMarker.class})))
 public class RopHelper {
 
   @Nonnull
-  private static TypeAndMethodFormatter formatterWithoutClosure = new RopFormatterWithoutClosure();
-
-  @Nonnull
-  private static RopFormatterWithClosure formatterWithClosure = new RopFormatterWithClosure();
+  private static TypeAndMethodFormatter formatter = new RopFormatter();
 
   /**
    * Builds a {@code CstMethodRef} from a {@code JMethod}.
@@ -162,11 +148,11 @@ public class RopHelper {
     sb.append('(');
 
     for (JType p : call.getMethodId().getParamTypes()) {
-      sb.append(formatterWithClosure.getName(p, /*isForceClosure=*/ false));
+      sb.append(formatter.getName(p));
     }
 
     sb.append(')');
-    sb.append(formatterWithClosure.getName(call.getType(), /*isForceClosure=*/ false));
+    sb.append(formatter.getName(call.getType()));
 
     return sb.toString();
 
@@ -197,11 +183,6 @@ public class RopHelper {
    */
   @Nonnull
   public static Type convertTypeToDx(@Nonnull JType type) {
-    return convertTypeToDx(type, /*isForceClosure=*/ false);
-  }
-
-  @Nonnull
-  public static Type convertTypeToDx(@Nonnull JType type, boolean isForcedClosure) {
     if (JNullType.isNullType(type)) {
       return Type.KNOWN_NULL;
     }
@@ -231,44 +212,9 @@ public class RopHelper {
       }
       throw new AssertionError(jPrimitiveType.toSource() + " not supported.");
     } else {
-      return Type.intern(formatterWithClosure.getName(type, isForcedClosure));
+      return Type.intern(formatter.getName(type));
     }
   }
-
-    @Nonnull
-    public static Type convertTypeToDxWithoutClosure(@Nonnull JType type) {
-      if (JNullType.isNullType(type)) {
-        return Type.KNOWN_NULL;
-      }
-
-      if (type instanceof JPrimitiveType) {
-        JPrimitiveType jPrimitiveType = (JPrimitiveType) type;
-        JPrimitiveTypeEnum primitiveType = jPrimitiveType.getPrimitiveTypeEnum();
-        switch (primitiveType) {
-          case BOOLEAN:
-            return Type.BOOLEAN;
-          case BYTE:
-            return Type.BYTE;
-          case CHAR:
-            return Type.CHAR;
-          case DOUBLE:
-            return Type.DOUBLE;
-          case FLOAT:
-            return Type.FLOAT;
-          case INT:
-            return Type.INT;
-          case LONG:
-            return Type.LONG;
-          case SHORT:
-            return Type.SHORT;
-          case VOID:
-            return Type.VOID;
-        }
-        throw new AssertionError(jPrimitiveType.toSource() + " not supported.");
-      } else {
-        return Type.intern(formatterWithoutClosure.getName(type));
-       }
-     }
 
   /**
    * Builds a constant name and type ({@code CstNat}) from a {@code JMethod}
@@ -279,7 +225,7 @@ public class RopHelper {
   @Nonnull
   private static CstNat createSignature(@Nonnull JMethod method) {
     CstString name = new CstString(method.getName());
-    CstString descriptor = new CstString(formatterWithClosure.getName(method));
+    CstString descriptor = new CstString(formatter.getName(method));
     CstNat signature = new CstNat(name, descriptor);
     return signature;
   }
@@ -298,13 +244,7 @@ public class RopHelper {
   @Nonnull
   public static CstNat createSignature(@Nonnull JFieldId field) {
     String fieldName = field.getName();
-    String fieldSignature =
-        formatterWithClosure.getName(field.getType(), /* isForceClosure= */ false);
-    // STOPSHIP: Do not generate closure for field until field lambda opcode are supported by the
-    // runtime
-    if (fieldSignature.startsWith("\\")) {
-      fieldSignature = "L" + fieldSignature.substring(1);
-    }
+    String fieldSignature = formatter.getName(field.getType());
     CstString name = new CstString(fieldName);
     CstString descriptor = new CstString(fieldSignature);
     CstNat signature = new CstNat(name, descriptor);
@@ -353,7 +293,7 @@ public class RopHelper {
     return cstType;
   }
 
-  private static class RopFormatterWithoutClosure extends InternalFormatter {
+  private static class RopFormatter extends InternalFormatter {
 
     /**
      * Gets method signature without method's name
@@ -365,64 +305,11 @@ public class RopHelper {
       sb.append('(');
 
       for (JParameter p : method.getParams()) {
-        // STOPSHIP: Generate captured variables as parameters needs a runtime with the new
-        // create-lambda opcode
-        if (p.getMarker(CapturedVariable.class) != null) {
-          continue;
-        }
         sb.append(getName(p.getType()));
       }
 
       sb.append(')');
       sb.append(getName(method.getType()));
-
-      return sb.toString();
-    }
-  }
-
-  private static class RopFormatterWithClosure extends RopFormatterWithoutClosure {
-
-    @Nonnull
-    public String getName(@Nonnull JType type, boolean isForcedClosure) {
-      if (type instanceof JClassOrInterface) {
-        if (type instanceof JDefinedInterface
-            && (((JDefinedInterface) type).getMarker(NeedsLambdaMarker.class) != null
-                || isForcedClosure)) {
-          JPackage enclosingPackage = ((JClassOrInterface) type).getEnclosingPackage();
-          assert enclosingPackage != null;
-          StringBuilder sb = new StringBuilder("\\");
-          if (!enclosingPackage.isDefaultPackage()) {
-            sb.append(getNameInternal(enclosingPackage));
-            sb.append(getPackageSeparator());
-          }
-          sb.append(type.getName()).append(";");
-          return sb.toString();
-        }
-      }
-
-      return super.getName(type);
-     }
-
-    /**
-     * Gets method signature without method's name
-     */
-    @Override
-    @Nonnull
-    public String getName(@Nonnull JMethod method) {
-      StringBuilder sb = new StringBuilder();
-      sb.append('(');
-
-      for (JParameter p : method.getParams()) {
-        // STOPSHIP: Generate captured variables as parameters needs a runtime with the new
-        // create-lambda opcode
-        if (p.getMarker(CapturedVariable.class) != null) {
-          continue;
-        }
-        sb.append(getName(p.getType(), p.getMarker(ForceClosureMarker.class) != null));
-      }
-
-      sb.append(')');
-      sb.append(getName(method.getType(), /*isForceClosure*/ false));
 
       return sb.toString();
     }

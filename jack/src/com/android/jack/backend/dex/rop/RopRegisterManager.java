@@ -30,10 +30,8 @@ import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.ir.ast.marker.GenericSignature;
 import com.android.jack.ir.ast.marker.ThisRefTypeInfo;
-import com.android.jack.transformations.lambda.ForceClosureMarker;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -44,14 +42,6 @@ import javax.annotation.Nonnull;
 class RopRegisterManager {
 
   private int nextFreeReg = 0;
-
-  /**
-   * Keep mapping between closure register spec and regular register spec.
-   * It is needed to realize monitor-enter and monitor-exit on the same register.
-   */
-  @Nonnull
-  private final Map<RegisterSpec, RegisterSpec> closureRegToRegularObjectReg =
-      new HashMap<RegisterSpec, RegisterSpec>();
 
   /**
    * Keep a list of temporary register for each dex type.
@@ -145,8 +135,7 @@ class RopRegisterManager {
     assert !variableToRegister.containsKey(var);
 
     JType type = var.getType();
-    Type dexRegType = RopHelper.convertTypeToDx(type,
-        /* isForcedClosure= */ var.getMarker(ForceClosureMarker.class) != null);
+    Type dexRegType = RopHelper.convertTypeToDx(type);
     RegisterSpec reg;
     if (emitDebugInfo && var.getName() != null && (emitSyntheticDebugInfo || !isSynthetic(var))) {
       CstString cstSignature = null;
@@ -197,8 +186,7 @@ class RopRegisterManager {
 
     RegisterSpec register = variableToRegister.get(var);
     assert RopHelper.areTypeCompatible(
-        RopHelper.convertTypeToDx(varRef.getType(),
-            /* isForcedClosure= */ var.getMarker(ForceClosureMarker.class) != null),
+        RopHelper.convertTypeToDx(varRef.getType()),
         register.getType());
 
     return register;
@@ -273,20 +261,5 @@ class RopRegisterManager {
   RegisterSpec getThisReg() {
     assert thisReg != null;
     return thisReg;
-  }
-
-  void addMapppingFromClosureToRegularObject(@Nonnull RegisterSpec closureReg,
-      @Nonnull RegisterSpec regularObjectReg) {
-    assert closureReg.isClosure();
-    assert !regularObjectReg.isClosure();
-    closureRegToRegularObjectReg.put(closureReg, regularObjectReg);
-  }
-
-  @Nonnull
-  RegisterSpec getRegularObjectFromClosure(@Nonnull RegisterSpec closureReg) {
-    assert closureReg.isClosure();
-    RegisterSpec regularObjectReg = closureRegToRegularObjectReg.get(closureReg);
-    assert regularObjectReg != null;
-    return regularObjectReg;
   }
 }

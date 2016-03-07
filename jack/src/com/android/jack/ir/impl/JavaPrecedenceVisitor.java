@@ -36,7 +36,6 @@ import com.android.jack.ir.ast.JFloatLiteral;
 import com.android.jack.ir.ast.JInstanceOf;
 import com.android.jack.ir.ast.JIntLiteral;
 import com.android.jack.ir.ast.JLambda;
-import com.android.jack.ir.ast.JLiberateVariable;
 import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JLongLiteral;
 import com.android.jack.ir.ast.JMethodCall;
@@ -216,12 +215,6 @@ class JavaPrecedenceVisitor extends JVisitor {
   @Override
   public boolean visit(@Nonnull JLambda lambdaExpression) {
     answer = 2;
-    return false;
-  }
-
-  @Override
-  public boolean visit(@Nonnull JLiberateVariable x) {
-    answer = 0;
     return false;
   }
 
