@@ -107,6 +107,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
   public OutputJackLibraryImpl(@Nonnull VFS vfs, @Nonnull String emitterId,
       @Nonnull String emitterVersion) {
     super(new Properties(), vfs);
+    locationList.add(location);
 
     try {
       loadLibraryProperties(new GenericInputVFS(vfs));

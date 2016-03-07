@@ -76,6 +76,8 @@ public abstract class InputJackLibrary extends CommonJackLibrary implements Inpu
         return vfs.getLocation();
       }
     };
+    locationList.add(location);
+
     try {
       minorVersion = Integer.parseInt(getProperty(KEY_LIB_MINOR_VERSION));
     } catch (MissingLibraryPropertyException e) {

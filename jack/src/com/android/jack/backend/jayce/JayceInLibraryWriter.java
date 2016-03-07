@@ -24,6 +24,7 @@ import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.jayce.JayceWriterFactory;
 import com.android.jack.library.FileType;
 import com.android.jack.library.InputLibrary;
+import com.android.jack.library.InputLibraryLocation;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.library.TypeInInputLibraryLocation;
@@ -68,10 +69,11 @@ public class JayceInLibraryWriter implements RunnableSchedulable<JDefinedClassOr
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
     Location loc = type.getLocation();
     if (loc instanceof TypeInInputLibraryLocation) {
-      InputLibrary inputLibrary =
-          ((TypeInInputLibraryLocation) loc).getInputLibraryLocation().getInputLibrary();
+      InputLibraryLocation inputLibraryLocation =
+          ((TypeInInputLibraryLocation) loc).getInputLibraryLocation();
+      InputLibrary inputLibrary = inputLibraryLocation.getInputLibrary();
       if (inputLibrary.containsFileType(FileType.JAYCE)) {
-        if (inputLibrary.getLocation().equals(outputJackLibrary.getLocation())) {
+        if (outputJackLibrary.containsLibraryLocation(inputLibraryLocation)) {
           return;
         }
       }

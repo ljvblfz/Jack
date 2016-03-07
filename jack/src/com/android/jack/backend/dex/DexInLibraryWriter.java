@@ -27,7 +27,8 @@ import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.library.FileType;
 import com.android.jack.library.FileTypeDoesNotExistException;
 import com.android.jack.library.InputLibrary;
-import com.android.jack.library.OutputLibrary;
+import com.android.jack.library.InputLibraryLocation;
+import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.jack.scheduling.marker.DexCodeMarker;
@@ -58,7 +59,7 @@ public class DexInLibraryWriter extends DexWriter implements
     RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Nonnull
-  private final OutputLibrary outputLibrary = Jack.getSession().getJackOutputLibrary();
+  private final OutputJackLibrary outputLibrary = Jack.getSession().getJackOutputLibrary();
 
   private final boolean forceJumbo = ThreadConfig.get(CodeItemBuilder.FORCE_JUMBO).booleanValue();
 
@@ -73,9 +74,11 @@ public class DexInLibraryWriter extends DexWriter implements
       Location loc = type.getLocation();
       if (loc instanceof TypeInInputLibraryLocation) {
         InputVFile in;
+        InputLibraryLocation inputLibraryLocation =
+            ((TypeInInputLibraryLocation) loc).getInputLibraryLocation();
         InputLibrary inputLibrary =
-            ((TypeInInputLibraryLocation) loc).getInputLibraryLocation().getInputLibrary();
-        if (inputLibrary.getLocation().equals(outputLibrary.getLocation())) {
+            inputLibraryLocation.getInputLibrary();
+        if (outputLibrary.containsLibraryLocation(inputLibraryLocation)) {
           return;
         }
         try {

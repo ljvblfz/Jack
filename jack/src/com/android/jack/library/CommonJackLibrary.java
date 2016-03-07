@@ -17,6 +17,7 @@
 package com.android.jack.library;
 
 import com.android.jack.Jack;
+import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVElement;
@@ -56,6 +57,9 @@ public abstract class CommonJackLibrary implements JackLibrary {
   @Nonnull
   public final String keyJayceMinorVersion =
     buildPropertyName(FileType.JAYCE, ".version.minor");
+
+  @Nonnull
+  protected List<Location> locationList = new ArrayList<Location>(1);
 
   // TODO(jack-team): Change it to protected
   @Nonnull
@@ -139,10 +143,12 @@ public abstract class CommonJackLibrary implements JackLibrary {
   @Override
   public void mergeInputLibraries(@Nonnull List<? extends InputJackLibrary> inputLibraries) {
     // merge can only be done before the VFSes are accessed
+    assert locationList.size() == 1;
 
-    List<VFS> inputLibVfsList = new ArrayList<VFS>();
-    for (InputLibrary inputLib : inputLibraries) {
-      inputLibVfsList.add(((CommonJackLibrary) inputLib).getVfs());
+    List<VFS> inputLibVfsList = new ArrayList<VFS>(inputLibraries.size());
+    for (InputJackLibrary inputLib : inputLibraries) {
+      inputLibVfsList.add(inputLib.getVfs());
+      locationList.add(inputLib.getLocation());
     }
 
     if (vfs instanceof ReadWriteZipFS) {
@@ -154,5 +160,9 @@ public abstract class CommonJackLibrary implements JackLibrary {
       inputLibVfsList.add(0, vfs);
       vfs = new UnionVFS(inputLibVfsList);
     }
+  }
+
+  public boolean containsLibraryLocation(@Nonnull Location location) {
+    return locationList.contains(location);
   }
 }
