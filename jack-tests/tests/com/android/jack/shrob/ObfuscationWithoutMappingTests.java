@@ -132,12 +132,12 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
       toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
       .srcToLib(libLib, /* zipFiles = */ true, new File (testRootDir,"lib"));
     }
-    File libDex = AbstractTestTools.createTempFile("shrob54", "lib.dex");
+    File libDex = AbstractTestTools.createTempFile("shrob54", "lib.dex.zip");
     {
       IToolchain toolchain =
           AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
       toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
-      .libToExe(libLib, libDex, /* zipFile = */ false);
+      .libToExe(libLib, libDex, /* zipFile = */ true);
     }
 
     // Build the jack as a lib
@@ -155,17 +155,17 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
     }
 
     // Build the jack as a dex from the lib but without classpath
-    File jackDex = AbstractTestTools.createTempFile("shrob54", "jack.dex");
+    File jackDex = AbstractTestTools.createTempFile("shrob54", "jack.dex.zip");
     {
       IToolchain toolchain =
           AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
       toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
       .addProguardFlags(new File(jackDir, "proguard.flags001"))
-      .libToExe(jackLib, jackDex, /* zipFile = */ false);
+      .libToExe(jackLib, jackDex, /* zipFile = */ true);
     }
 
 
-    File testDex = AbstractTestTools.createTempFile("shrob54", "test.dex");
+    File testDex = AbstractTestTools.createTempFile("shrob54", "test.dex.zip");
     {
       IToolchain toolchain =
           AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
