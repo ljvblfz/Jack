@@ -16,7 +16,6 @@
 
 package com.android.jack.shrob.shrink.remover;
 
-import com.android.jack.analysis.tracer.ExtendingOrImplementingClassMarker;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.shrob.shrink.KeepMarker;
 import com.android.sched.item.Description;
@@ -29,13 +28,12 @@ import javax.annotation.Nonnull;
  * A {@code Schedulable} that removes markers used for shrink support on types.
  */
 @Description("Removes shrink-related markers on types.")
-@Transform(remove = {KeepMarker.class, ExtendingOrImplementingClassMarker.class})
+@Transform(remove = KeepMarker.class)
 public class TypeShrinkMarkerRemover implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Override
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
     type.removeMarker(KeepMarker.class);
-    type.removeMarker(ExtendingOrImplementingClassMarker.class);
   }
 
 }

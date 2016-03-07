@@ -22,6 +22,8 @@ import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JNode;
+import com.android.jack.ir.ast.JPackage;
+import com.android.jack.shrob.obfuscation.SubClassOrInterfaceMarker;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.RunnableSchedulable;
@@ -30,25 +32,24 @@ import com.android.sched.schedulable.Transform;
 import javax.annotation.Nonnull;
 
 /**
- * Fills the marker {@code ExtendingOrImplementingClassMarker} with the list of all classes
- * extending or implementing the marked type
+ * Fills the marker {@code SubClassOrInterfaceMarker} with the list of all classes
+ * and interfaces extending or implementing the marked type
  */
-@Description("Fills the marker ExtendingOrImplementingClassMarker with the list of all classes"
-    + "extending or implementing the marked type")
+@Description("Fills the marker SubClassOrInterfaceMarker with the list of all classes and " +
+    "interfaces extending or implementing the marked type")
 @Synchronized
-@Transform(add = ExtendingOrImplementingClassMarker.class)
-public class ExtendingOrImplementingClassFinder
-implements RunnableSchedulable<JDefinedClassOrInterface> {
+@Transform(add = SubClassOrInterfaceMarker.class)
+public class SubClassOrInterfaceFinder implements RunnableSchedulable<JPackage> {
 
   private void addToSubClass(
-      @Nonnull JDefinedClass subClass, @Nonnull JClassOrInterface superClOrI) {
-    ExtendingOrImplementingClassMarker marker =
-        ((JNode) superClOrI).getMarker(ExtendingOrImplementingClassMarker.class);
+      @Nonnull JDefinedClassOrInterface subClass, @Nonnull JClassOrInterface superClOrI) {
+    SubClassOrInterfaceMarker marker =
+        ((JNode) superClOrI).getMarker(SubClassOrInterfaceMarker.class);
     if (marker == null) {
-      marker = new ExtendingOrImplementingClassMarker();
+      marker = new SubClassOrInterfaceMarker();
       ((JNode) superClOrI).addMarker(marker);
     }
-    marker.addSubClass(subClass);
+    marker.addSubClassOrInterface(subClass);
     if (superClOrI instanceof JDefinedClassOrInterface) {
       if (superClOrI instanceof JDefinedClass) {
         JClass superClass = ((JDefinedClass) superClOrI).getSuperClass();
@@ -63,17 +64,22 @@ implements RunnableSchedulable<JDefinedClassOrInterface> {
   }
 
   @Override
-  public synchronized void run(@Nonnull JDefinedClassOrInterface t) throws Exception {
-    if (t instanceof JDefinedClass) {
-      JDefinedClass definedClass = (JDefinedClass) t;
-      JClass superClass = definedClass.getSuperClass();
+  public synchronized void run(@Nonnull JPackage pack) throws Exception {
+    for (JClassOrInterface type : pack.getTypes()) {
 
-      if (superClass != null) {
-        addToSubClass(definedClass, superClass);
-      }
+      if (type instanceof JDefinedClassOrInterface) {
+        JDefinedClassOrInterface definedType = (JDefinedClassOrInterface) type;
+        if (type instanceof JDefinedClass) {
+          JDefinedClass definedClass = (JDefinedClass) type;
+          JClass superClass = definedClass.getSuperClass();
 
-      for (JInterface i : definedClass.getImplements()) {
-        addToSubClass(definedClass, i);
+          if (superClass != null) {
+            addToSubClass(definedClass, superClass);
+          }
+        }
+        for (JInterface i : definedType.getImplements()) {
+          addToSubClass(definedType, i);
+        }
       }
     }
   }
