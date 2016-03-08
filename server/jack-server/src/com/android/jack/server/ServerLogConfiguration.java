@@ -103,7 +103,7 @@ public class ServerLogConfiguration implements Cloneable {
   @Nonnegative
   private static final int DEFAULT_MAX_LOG_FILE_SIZE = 1 * 1024 * 1024;
   @Nonnegative
-  private static final int DEFAULT_LOG_FILE_COUNT = 2;
+  private static final int DEFAULT_LOG_FILE_COUNT = 5;
 
   private static class FileHandlerLogConfiguration implements LoggerConfiguration {
     @Nonnull
