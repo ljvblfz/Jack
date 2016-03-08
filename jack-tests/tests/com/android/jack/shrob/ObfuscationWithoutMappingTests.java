@@ -125,10 +125,11 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
     File testRootDir = getShrobTestRootDir("054");
 
     // Build the lib
-    File libLib = AbstractTestTools.createTempFile("shrob54", "lib.jack");
+    File libLib;
     {
       IToolchain toolchain =
           AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+      libLib = AbstractTestTools.createTempFile("shrob54", "lib" + toolchain.getLibraryExtension());
       toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
       .srcToLib(libLib, /* zipFiles = */ true, new File (testRootDir,"lib"));
     }
@@ -141,11 +142,13 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
     }
 
     // Build the jack as a lib
-    File jackLib = AbstractTestTools.createTempFile("shrob54", "jack.jack");
+    File jackLib;
     File jackDir = new File(testRootDir, "jack");
     {
       IToolchain toolchain =
           AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+      jackLib =
+          AbstractTestTools.createTempFile("shrob54", "jack" + toolchain.getLibraryExtension());
       toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
       .addToClasspath(libLib)
       .srcToLib(
