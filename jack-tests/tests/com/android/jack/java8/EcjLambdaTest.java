@@ -61,7 +61,8 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
           public boolean shouldRun(Description description) {
             if (testWithApiUsage.contains(description.getMethodName())
                 || testWithOtherErrorMsg.contains(description.getMethodName())
-                || EcjLambdaTestPostM.testForNewRuntime.contains(description.getMethodName())) {
+                || EcjLambdaTestPostM.testForNewRuntime.contains(description.getMethodName())
+                || testBugECJ.contains(description.getMethodName())) {
               return false;
             }
             return true;
@@ -77,6 +78,10 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
       }
     }
   }
+
+  @Nonnull
+  private static final List<String> testBugECJ =
+      Arrays.asList("test055");
 
   @Nonnull
   private static final List<String> testWithOtherErrorMsg =

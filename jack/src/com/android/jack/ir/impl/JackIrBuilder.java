@@ -1421,25 +1421,25 @@ public class JackIrBuilder {
         if (!(referenceExpression.lhs instanceof TypeReference)) {
           if (lhsExpr != null && !shouldCaptureInstance) {
 
-            if (lhsExpr instanceof JLocalRef || lhsExpr instanceof JParameterRef) {
-              ((JLambda) exprRepresentingLambda).addCapturedVariable(
-                  ((JVariableRef) lhsExpr).getTarget().makeRef(lhsExpr.getSourceInfo()));
-            } else {
-              List<JExpression> exprs = new ArrayList<JExpression>();
+            List<JExpression> exprs = new ArrayList<JExpression>();
 
-              JLocal tmp = new JLocal(sourceInfo, "-lambdaCtx", lhsExpr.getType(),
-                  JModifier.FINAL | JModifier.SYNTHETIC, curMethod.body);
-              JAsgOperation asg =
-                  new JAsgOperation(sourceInfo, tmp.makeRef(sourceInfo), lhsExpr);
-              exprs.add(asg);
-              curMethod.body.addLocal(tmp);
-              exprs.add(exprRepresentingLambda);
-              ((JLambda) exprRepresentingLambda)
-                  .addCapturedVariable(tmp.makeRef(sourceInfo));
+            JLocal tmp = new JLocal(sourceInfo, "-lambdaCtx", lhsExpr.getType(),
+                JModifier.FINAL | JModifier.SYNTHETIC, curMethod.body);
+            JAsgOperation asg =
+                new JAsgOperation(sourceInfo, tmp.makeRef(sourceInfo), lhsExpr);
+            exprs.add(asg);
+            curMethod.body.addLocal(tmp);
 
-              exprRepresentingLambda = new JMultiExpression(sourceInfo, exprs);
-              lhsExpr = tmp.makeRef(sourceInfo);
-            }
+            JMethodCall getClassCall = makeMethodCall(sourceInfo, tmp.makeRef(sourceInfo),
+                javaLangObject, getGetClassMethod());
+            exprs.add(getClassCall);
+
+            exprs.add(exprRepresentingLambda);
+            ((JLambda) exprRepresentingLambda)
+            .addCapturedVariable(tmp.makeRef(sourceInfo));
+
+            exprRepresentingLambda = new JMultiExpression(sourceInfo, exprs);
+            lhsExpr = tmp.makeRef(sourceInfo);
           }
         }
 
