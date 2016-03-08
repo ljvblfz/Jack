@@ -819,6 +819,7 @@
   <property name="jack-tests.dist.dir" value="${jack-tests.dir}/dist" />
   <property name="jack-tests.libname" value="jack-tests-lib.jar" />
   <property name="jack-tests.execname" value="jack-tests.jar" />
+  <property name="jack-tests-for-sched.execname" value="jack-tests-for-sched.jar" />
 
   <target name="jack-tests-clean">
     <delete dir="${jack-tests.libs.dir}" />
@@ -980,6 +981,22 @@
       manifest="${jack-tests.dir}/etc/manifest.txt">
       <metainf dir="${jack.dir}/rsc/META-INF" includes="services/**" />
       <metainf dir="${jill.dir}/rsc/META-INF" includes="services/**" />
+    </jar>
+
+    <!-- build lib for sched tests -->
+    <java jar="${jackunittests.tools.dir}/${sched-build.execname}" fork="true" failonerror="true">
+      <arg value="${jack-tests.build.dir}/${jack-tests.libname}" />
+      <arg value="${junit4.dist.dir}/${junit4.execname}" />
+      <arg value="${schedtests.dist.dir}/${schedtests.libname}" />
+      <arg value="${schedlib.dist.dir}/${schedlib.libname}" />
+      <arg value="${guava.dist.dir}/${guava.libname}" />
+      <arg value="${freemarker.dist.dir}/${freemarker.libname}" />
+      <arg value="${maths.dist.dir}/${maths.libname}" />
+      <arg value="${watchmaker.dist.dir}/${watchmaker.libname}" />
+      <arg value="${jack-tests.dist.dir}/${jack-tests-for-sched.execname}" />
+    </java>
+    <jar update="true" destfile="${jack-tests.dist.dir}/${jack-tests-for-sched.execname}"
+      manifest="${jack-tests.dir}/etc/manifest.txt">
     </jar>
 
   </target>

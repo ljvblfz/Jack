@@ -20,13 +20,5 @@ then
   exit 1
 fi
 CURRENT_DIR=$(dirname $0)
-java -Dtests.config=$1 -cp ${CURRENT_DIR}/../sched/libs/junit4.jar:\
-${CURRENT_DIR}/../sched/dist/schedtests-lib.jar:\
-${CURRENT_DIR}/../sched/dist/sched-lib.jar:\
-${CURRENT_DIR}/../sched/libs/guava-lib.jar:\
-${CURRENT_DIR}/../sched/libs/freemarker-lib.jar:\
-${CURRENT_DIR}/../sched/libs/maths-lib.jar:\
-${CURRENT_DIR}/../sched/libs/watchmaker-lib.jar:\
-$CURRENT_DIR/dist/jack-tests-lib.jar \
-com.android.jack.test.junit.JackJUnitLauncher $2
+java -Dtests.config=$1 -jar $CURRENT_DIR/dist/jack-tests-for-sched.jar $2
 
