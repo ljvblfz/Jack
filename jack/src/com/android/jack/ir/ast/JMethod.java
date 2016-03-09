@@ -398,6 +398,7 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
 
   public void setMethodId(@Nonnull JMethodId methodId) {
     assert getExpectedMethodKind() == methodId.getMethodIdWide().getKind();
+    assert methodId.getType().equals(this.methodId.getType());
     this.methodId = methodId;
     methodId.addMethod(this);
   }

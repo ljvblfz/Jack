@@ -169,12 +169,12 @@ public class MethodIdMerger implements RunnableSchedulable<JSession> {
         return;
       }
 
-      for (JMethodId id : duplicate.getMethodIds()) {
-        JMethodId keptId = keep.getMethodId(id.getType());
+      for (JMethodId duplicateId : duplicate.getMethodIds()) {
+        JMethodId keptId = keep.getMethodId(duplicateId.getType());
         if (keptId == null) {
-          keptId = new JMethodId(keep, id.getType());
+          keptId = new JMethodId(keep, duplicateId.getType());
         }
-        for (JMethod method : duplicate.getMethods()) {
+        for (JMethod method : duplicateId.getMethods()) {
           method.setMethodId(keptId);
         }
       }
