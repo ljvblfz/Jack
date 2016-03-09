@@ -142,4 +142,6 @@ public abstract class JackBasedToolchain extends AndroidToolchain {
     return ".jayce";
   }
 
+  public abstract void setOutputJack(@Nonnull File outputJack, boolean zipFiles) throws Exception;
+
 }

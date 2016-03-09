@@ -53,6 +53,11 @@ public class JackCliToolchain extends JackBasedToolchain {
 
   protected boolean sanityChecks = true;
 
+  @CheckForNull
+  protected File outputJack;
+
+  boolean zipOutputJackFiles;
+
   JackCliToolchain(@Nonnull File prebuilt) {
     this.jackPrebuilt = prebuilt;
     addProperty(Options.USE_DEFAULT_LIBRARIES.getName(), "false");
@@ -99,14 +104,9 @@ public class JackCliToolchain extends JackBasedToolchain {
 
     List<String> commandLine = new ArrayList<String>();
 
-    srcToCommon(commandLine, sources);
+    setOutputJack(out, zipFiles);
 
-    if (zipFiles) {
-      commandLine.add("--output-jack");
-    } else {
-      commandLine.add("--output-jack-dir");
-    }
-    commandLine.add(out.getAbsolutePath());
+    srcToCommon(commandLine, sources);
 
     AbstractTestTools.addFile(commandLine, /* mustExist = */ false, sources);
 
@@ -144,6 +144,15 @@ public class JackCliToolchain extends JackBasedToolchain {
     for (File meta : metaImport) {
       commandLine.add("--import-meta");
       commandLine.add(meta.getPath());
+    }
+
+    if (outputJack != null) {
+      if (zipOutputJackFiles) {
+        commandLine.add("--output-jack");
+      } else {
+        commandLine.add("--output-jack-dir");
+      }
+      commandLine.add(outputJack.getAbsolutePath());
     }
 
     commandLine.addAll(extraJackArgs);
@@ -192,14 +201,9 @@ public class JackCliToolchain extends JackBasedToolchain {
   public void libToLib(@Nonnull File[] in, @Nonnull File out, boolean zipFiles) throws Exception {
     List<String> commandLine = new ArrayList<String>();
 
-    libToCommon(commandLine, getClasspathAsString(), in);
+    setOutputJack(out, zipFiles);
 
-    if (zipFiles) {
-      commandLine.add("--output-jack");
-    } else {
-      commandLine.add("--output-jack-dir");
-    }
-    commandLine.add(out.getAbsolutePath());
+    libToCommon(commandLine, getClasspathAsString(), in);
 
     run(commandLine);
 
@@ -229,6 +233,15 @@ public class JackCliToolchain extends JackBasedToolchain {
     for (File meta : metaImport) {
       commandLine.add("--import-meta");
       commandLine.add(meta.getPath());
+    }
+
+    if (outputJack != null) {
+      if (zipOutputJackFiles) {
+        commandLine.add("--output-jack");
+      } else {
+        commandLine.add("--output-jack-dir");
+      }
+      commandLine.add(outputJack.getAbsolutePath());
     }
 
     addProperties(properties, commandLine);
@@ -356,6 +369,13 @@ public class JackCliToolchain extends JackBasedToolchain {
         commandLine.add(processorPath);
     }
   }
+
+  @Override
+  public void setOutputJack(@Nonnull File outputJack, boolean zipFiles) throws Exception {
+    this.outputJack = outputJack;
+    this.zipOutputJackFiles = zipFiles;
+  }
+
 
   protected void run(@Nonnull List<String> commandLine) {
     ExecuteFile exec = new ExecuteFile(commandLine.toArray(new String[commandLine.size()]));
