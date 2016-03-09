@@ -169,18 +169,23 @@ public class MethodIdMerger implements RunnableSchedulable<JSession> {
         return;
       }
 
+      // To drop 'duplicate' we need to change the JMethodId of all methods referencing 'duplicate'.
       for (JMethodId duplicateId : duplicate.getMethodIds()) {
+
+        // Find or create the JMethodId that will replace duplicateId
         JMethodId keptId = keep.getMethodId(duplicateId.getType());
         if (keptId == null) {
           keptId = new JMethodId(keep, duplicateId.getType());
         }
+
+        // Browse methods of duplicateId and assign 'keptId' as their id.
         for (JMethod method : duplicateId.getMethods()) {
           method.setMethodId(keptId);
         }
       }
     }
 
-      /**
+  /**
    * During the merge of {@link JMethodIdWide} some are kept and some are dropped and because
    * {@link VirtualMethodsMarker} are not rewritten during merge, they contain dropped
    * {@link JMethodIdWide}. This method retrieves the kept id from an id found in a
