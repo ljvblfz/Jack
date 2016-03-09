@@ -476,7 +476,7 @@ case $COMMAND in
       COUNT=$4
     elif [ $# -eq 2 ]
     then
-      COUNT=2
+      COUNT=5
       if [ \( "$2" = "ERROR" \) -o \( "$2" = "WARNING" \) ]
       then
         LIMIT=1048576
