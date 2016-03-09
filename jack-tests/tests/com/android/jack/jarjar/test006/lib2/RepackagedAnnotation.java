@@ -14,20 +14,8 @@
  * limitations under the License.
  */
 
-package com.android.jack.jarjar.test006.lib1;
+package com.android.jack.jarjar.test006.lib2;
 
-import com.android.jack.jarjar.test006.lib2.RepackagedAnnotation;
-import com.android.jack.jarjar.test006.lib2.RepackagedEnum;
-import com.android.jack.jarjar.test006.lib2.RepackagedInterface;
+public @interface RepackagedAnnotation {
 
-@RepackagedAnnotation
-public class Repackaged implements RepackagedInterface {
-
-  public static int get() {
-    return 1;
-  }
-
-  public RepackagedEnum getEnum() {
-    return null;
-  }
 }

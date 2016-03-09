@@ -405,7 +405,7 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
               transform(this.phantomInterfaces, existingNode, (JPhantomInterface) newNode,
                   transformation);
           if (!found) {
-            if (newNode instanceof JPhantomAnnotationType) {
+            if (existingNode instanceof JPhantomAnnotationType) {
               found =
                   transform(this.phantomAnnotations, existingNode, (JPhantomAnnotationType) newNode,
                       transformation);
