@@ -141,13 +141,35 @@ public abstract class CommonJackLibrary implements JackLibrary {
   }
 
   @Override
-  public void mergeInputLibraries(@Nonnull List<? extends InputJackLibrary> inputLibraries) {
+  public boolean canBeMerged(@Nonnull List<? extends InputLibrary> inputLibraries) {
+
+    if (this instanceof InputJackLibrary && !((InputJackLibrary) this).hasCompliantPrebuilts()) {
+      return false;
+    }
+
+    int currentMajorVersion = getMajorVersion();
+    for (InputLibrary inputLib : inputLibraries) {
+      if (!(inputLib instanceof InputJackLibrary)
+          || !(inputLib.getMajorVersion() == currentMajorVersion)
+          || !((InputJackLibrary) inputLib).hasCompliantPrebuilts()) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  @Override
+  public void mergeInputLibraries(
+      @Nonnull List<? extends InputLibrary> inputLibraries) {
     // merge can only be done before the VFSes are accessed
     assert locationList.size() == 1;
 
+    assert canBeMerged(inputLibraries);
+
     List<VFS> inputLibVfsList = new ArrayList<VFS>(inputLibraries.size());
-    for (InputJackLibrary inputLib : inputLibraries) {
-      inputLibVfsList.add(inputLib.getVfs());
+    for (InputLibrary inputLib : inputLibraries) {
+      inputLibVfsList.add(((InputJackLibrary) inputLib).getVfs());
       locationList.add(inputLib.getLocation());
     }
 

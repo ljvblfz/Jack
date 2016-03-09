@@ -60,6 +60,8 @@ public interface JackLibrary extends Library {
   @Nonnull
   public String buildPropertyName(@Nonnull FileType type, @CheckForNull String suffix);
 
-  public void mergeInputLibraries(@Nonnull List<? extends InputJackLibrary> inputLibraries);
+  public boolean canBeMerged(@Nonnull List<? extends InputLibrary> inputLibraries);
+
+  public void mergeInputLibraries(@Nonnull List<? extends InputLibrary> inputLibraries);
 
 }

@@ -148,6 +148,9 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   @Nonnull
   private final List<? extends InputLibrary> importedLibrariesFromCommandLine;
 
+  @CheckForNull
+  private List<InputLibrary> importedLibraries;
+
   @Nonnull
   private final List<? extends InputLibrary> librariesOnClasspathFromCommandLine;
 
@@ -172,15 +175,15 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
 
     if (incrementalInputLibrary != null) {
 
-      // only merge Jack libraries into incremental library
-      List<InputJackLibrary> inputJackLibraryList =
-          new ArrayList<InputJackLibrary>(importedLibrariesFromCommandLine.size());
-      for (InputLibrary inputLibrary : importedLibrariesFromCommandLine) {
-        if (inputLibrary instanceof InputJackLibrary) {
-          inputJackLibraryList.add((InputJackLibrary) inputLibrary);
-        }
+      if (incrementalInputLibrary.canBeMerged(importedLibrariesFromCommandLine)) {
+        incrementalInputLibrary.mergeInputLibraries(importedLibrariesFromCommandLine);
+        importedLibraries = Collections.<InputLibrary>singletonList(incrementalInputLibrary);
+      } else {
+        importedLibraries =
+            new ArrayList<InputLibrary>(importedLibrariesFromCommandLine.size() + 1);
+        importedLibraries.add(incrementalInputLibrary);
+        importedLibraries.addAll(importedLibrariesFromCommandLine);
       }
-      incrementalInputLibrary.mergeInputLibraries(inputJackLibraryList);
 
       try {
         fillDependencies(incrementalInputLibrary, FileDependencies.vpath, fileDependencies);
@@ -203,14 +206,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
       fillModifiedFileNames(modifiedFileNames);
       fillDeletedFileNames(deletedFileNames);
     } else {
-      List<InputJackLibrary> inputJackLibraryList =
-          new ArrayList<InputJackLibrary>(importedLibrariesFromCommandLine.size());
-      for (InputLibrary inputLibrary : importedLibrariesFromCommandLine) {
-        if (inputLibrary instanceof InputJackLibrary) {
-          inputJackLibraryList.add((InputJackLibrary) inputLibrary);
-        }
-      }
-      session.getJackOutputLibrary().mergeInputLibraries(inputJackLibraryList);
+      session.getJackOutputLibrary().mergeInputLibraries(importedLibrariesFromCommandLine);
     }
 
     List<InputLibrary> classpathContent = config.get(Options.CLASSPATH);
@@ -489,6 +485,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
       throw new JackAbortException(e);
     }
 
-    return Collections.singletonList(incrementalInputLibrary);
+    assert importedLibraries != null;
+    return importedLibraries;
   }
 }
