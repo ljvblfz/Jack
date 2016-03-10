@@ -137,8 +137,9 @@ public abstract class FileOrDirectory implements HasLocation {
           logger.log(Level.FINE, "Clear readable permission to {0} (''{1}'')",
               new Object[] {location.getDescription(), file.getAbsoluteFile()});
         } else {
-          throw new CannotChangePermissionException(location, Permission.READ,
-              change, SetOrClearPermission.CLEAR);
+          // do not throw because this is not supported on Windows filesystems
+          logger.log(Level.FINE, "Unable to clear readable permission to {0} (''{1}'')",
+              new Object[] {location.getDescription(), file.getAbsoluteFile()});
         }
       }
 
@@ -157,8 +158,9 @@ public abstract class FileOrDirectory implements HasLocation {
           logger.log(Level.FINE, "Clear executable permission to {0} (''{1}'')",
               new Object[] {location.getDescription(), file.getAbsoluteFile()});
         } else {
-          throw new CannotChangePermissionException(location, Permission.EXECUTE,
-              change, SetOrClearPermission.CLEAR);
+          // do not throw because this is not supported on Windows filesystems
+          logger.log(Level.FINE, "Unable to clear executable permission to {0} (''{1}'')",
+              new Object[] {location.getDescription(), file.getAbsoluteFile()});
         }
       }
     }
