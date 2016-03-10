@@ -16,18 +16,9 @@
 
 package com.android.jack.jarjar.test006.lib1;
 
-import com.android.jack.jarjar.test006.lib2.RepackagedAnnotation;
-import com.android.jack.jarjar.test006.lib2.RepackagedEnum;
-import com.android.jack.jarjar.test006.lib2.RepackagedInterface;
-
-@RepackagedAnnotation
-public class Repackaged implements RepackagedInterface {
+public class Repackaged {
 
   public static int get() {
     return 1;
-  }
-
-  public RepackagedEnum getEnum() {
-    return null;
   }
 }

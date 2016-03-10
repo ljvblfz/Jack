@@ -17,11 +17,19 @@
 package com.android.jack.jarjar.test006.lib2;
 
 import com.android.jack.jarjar.test006.lib1.Repackaged;
+import com.android.jack.jarjar.test006.lib1.RepackagedAnnotation;
+import com.android.jack.jarjar.test006.lib1.RepackagedEnum;
+import com.android.jack.jarjar.test006.lib1.RepackagedInterface;
 
-public class Repackaged2 {
+@RepackagedAnnotation
+public class Repackaged2 implements RepackagedInterface {
 
   public int get() {
     return Repackaged.get();
+  }
+
+  public RepackagedEnum getEnum() {
+    return null;
   }
 
 }

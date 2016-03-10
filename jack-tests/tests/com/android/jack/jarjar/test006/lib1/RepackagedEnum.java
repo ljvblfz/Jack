@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.jack.jarjar.test006.lib2;
+package com.android.jack.jarjar.test006.lib1;
 
 public class RepackagedEnum {
 
