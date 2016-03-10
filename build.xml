@@ -979,6 +979,7 @@
       <arg line="${jackunittests.static.libs.list}" />
       <arg line="${jack.static.libs.list}" />
       <arg value="${ddm-lib.dist.dir}/${ddm-lib.libname}" />
+      <arg value="${gson.dist.dir}/${gson.libname}"/>
       <arg value="${jack-tests.prebuilts.dir}/${ecj-tests.libname}" />
       <arg value="${jack-tests.dist.dir}/${jack-tests.execname}" />
     </java>
