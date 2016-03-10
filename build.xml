@@ -2418,6 +2418,8 @@
   </target>
 
   <target name="test-jack-long-dump" depends="tests-check-config">
+   <mkdir dir="${jack-tests.dir}/dump"/>
+
     <java fork="true" failonerror="true"
       output="${jack-tests.dir}/dump/LongLastingTests.js"
       classname="com.android.jack.test.junit.JackJUnitLauncher">
