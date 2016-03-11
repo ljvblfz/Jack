@@ -16,6 +16,10 @@
 
 package com.android.jack.jarjar.test006.lib1;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+@Retention(RetentionPolicy.RUNTIME)
 public @interface RepackagedAnnotation {
 
 }

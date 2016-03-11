@@ -28,8 +28,28 @@ public class Repackaged2 implements RepackagedInterface {
     return Repackaged.get();
   }
 
-  public RepackagedEnum getEnum() {
-    return null;
+  @Override
+  public int getInterface() {
+    switch (Repackaged.getEnum()) {
+      case A:
+        return 2;
+      case B:
+        return 1;
+      default:
+        throw new AssertionError();
+    }
+  }
+
+  public void checkInterface() {
+    if (!RepackagedInterface.class.isAssignableFrom(getClass())) {
+      throw new AssertionError();
+    }
+  }
+
+  public void checkAnnotation() {
+    if (getClass().getAnnotation(RepackagedAnnotation.class) == null) {
+      throw new AssertionError();
+    }
   }
 
 }

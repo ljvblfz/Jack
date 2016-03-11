@@ -16,6 +16,8 @@
 
 package com.android.jack.jarjar.test006.lib1;
 
-public class RepackagedEnum {
+public enum RepackagedEnum {
+  A,
+  B;
 
 }

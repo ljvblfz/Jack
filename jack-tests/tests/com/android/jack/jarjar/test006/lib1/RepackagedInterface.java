@@ -18,4 +18,5 @@ package com.android.jack.jarjar.test006.lib1;
 
 public interface RepackagedInterface {
 
+  int getInterface();
 }
