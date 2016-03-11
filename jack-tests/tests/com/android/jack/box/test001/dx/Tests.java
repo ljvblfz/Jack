@@ -283,4 +283,14 @@ public class Tests {
       // expected
     }
   }
+
+  @Test
+  public void test49() {
+    Assert.assertEquals(7, Box001.get49());
+  }
+
+  @Test
+  public void test50() {
+    Assert.assertEquals(14, Box001.get50());
+  }
 }

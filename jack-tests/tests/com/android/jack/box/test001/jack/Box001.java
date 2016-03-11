@@ -335,4 +335,37 @@ public class Box001 {
     Integer integer = null;
     return integer;
   }
+
+  @SuppressWarnings("boxing")
+  public static long get49() {
+    Integer i1 = new Integer(3);
+    Integer i2 = new Integer(4);
+
+    return get49m(i1 + (long)i2);
+  }
+
+  @SuppressWarnings("boxing")
+  private static long get49m(Long l) {
+    return l;
+  }
+
+  private static class O<T> {
+    private T t;
+
+    public O(T t) {
+      this.t = t;
+    }
+
+    public T get() {
+      return t;
+    }
+  }
+
+  @SuppressWarnings("boxing")
+  public static long get50() {
+    O<Integer> i1 = new O<Integer>(new Integer(10));
+    O<Integer> i2 = new O<Integer>(new Integer(4));
+
+    return get49m(i1.get() + (long)i2.get());
+  }
 }

@@ -34,7 +34,6 @@ import com.android.jack.ir.ast.JForStatement;
 import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
-import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JNewArray;
 import com.android.jack.ir.ast.JPrimitiveType;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
@@ -156,8 +155,7 @@ public class TypeLegalizer implements RunnableSchedulable<JMethod> {
     @Override
     public void endVisit(@Nonnull JDynamicCastOperation cast) {
       JExpression expr = cast.getExpr();
-      if (cast.getExpr().getType() instanceof JReferenceType
-          && cast.getType() instanceof JPrimitiveType) {
+      if (needNarrowing(cast.getExpr().getType()) && cast.getType() instanceof JPrimitiveType) {
         assert cast.getType() != JPrimitiveTypeEnum.VOID.getType();
 
         JDynamicCastOperation castToWrapperType = new JDynamicCastOperation(expr.getSourceInfo(),
@@ -167,6 +165,18 @@ public class TypeLegalizer implements RunnableSchedulable<JMethod> {
       }
       maybeBoxOrUnbox(expr, cast.getType());
       super.endVisit(cast);
+    }
+
+    private boolean needNarrowing(@Nonnull JType type) {
+      return type instanceof JReferenceType
+         && !type.isSameType(JPrimitiveTypeEnum.BOOLEAN.getType().getWrapperType())
+         && !type.isSameType(JPrimitiveTypeEnum.BYTE.getType().getWrapperType())
+         && !type.isSameType(JPrimitiveTypeEnum.CHAR.getType().getWrapperType())
+         && !type.isSameType(JPrimitiveTypeEnum.DOUBLE.getType().getWrapperType())
+         && !type.isSameType(JPrimitiveTypeEnum.FLOAT.getType().getWrapperType())
+         && !type.isSameType(JPrimitiveTypeEnum.INT.getType().getWrapperType())
+         && !type.isSameType(JPrimitiveTypeEnum.LONG.getType().getWrapperType())
+         && !type.isSameType(JPrimitiveTypeEnum.SHORT.getType().getWrapperType());
     }
 
     @Override
