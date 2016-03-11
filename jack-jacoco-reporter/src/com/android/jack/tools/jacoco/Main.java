@@ -107,17 +107,20 @@ public class Main {
   }
 
   private static void createReport(@Nonnull Options options) throws IOException {
-    File coverageDescriptionFile = options.getCoverageDescriptionFile();
-    assert coverageDescriptionFile != null;
-    checkFileExists(coverageDescriptionFile);
-    checkCanReadFromFile(coverageDescriptionFile);
+    List<File> coverageDescriptionFiles = options.getCoverageDescriptionFiles();
+    for (File coverageDescriptionFile : coverageDescriptionFiles) {
+      checkFileExists(coverageDescriptionFile);
+      checkCanReadFromFile(coverageDescriptionFile);
+    }
 
-    File coverageExecutionDataFile = options.getCoverageExecutionFile();
-    assert coverageExecutionDataFile != null;
-    checkFileExists(coverageExecutionDataFile);
-    checkCanReadFromFile(coverageExecutionDataFile);
+    List<File> coverageExecutionDataFiles = options.getCoverageExecutionFiles();
+    for (File coverageExecutionDataFile : coverageExecutionDataFiles) {
+      checkFileExists(coverageExecutionDataFile);
+      checkCanReadFromFile(coverageExecutionDataFile);
+    }
 
     File reportOutputFile = options.getReportOutputDirectory();
+    assert reportOutputFile != null;
     checkDirectoryExists(reportOutputFile);
     checkCanWriteToFile(reportOutputFile);
 
@@ -131,15 +134,19 @@ public class Main {
     ReportType reportType = options.getReportType();
     String outputEncoding = options.getOutputReportEncoding();
 
-    // Load coverage execution file.
+    // Load coverage execution files.
     ExecFileLoader loader = new ExecFileLoader();
-    loader.load(coverageExecutionDataFile);
+    for (File coverageExecutionDataFile : coverageExecutionDataFiles) {
+      loader.load(coverageExecutionDataFile);
+    }
 
     // Analyze coverage.
     CoverageBuilder coverageBuilder = new CoverageBuilder();
     JackCoverageAnalyzer analyzer =
         new JackCoverageAnalyzer(loader.getExecutionDataStore(), coverageBuilder);
-    analyzer.analyze(coverageDescriptionFile);
+    for (File coverageDescriptionFile : coverageDescriptionFiles) {
+      analyzer.analyze(coverageDescriptionFile);
+    }
     IBundleCoverage bundleCoverage = coverageBuilder.getBundle(reportName);
 
     // Create report.
