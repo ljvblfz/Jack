@@ -148,8 +148,9 @@ public abstract class FileOrDirectory implements HasLocation {
           logger.log(Level.FINE, "Clear writable permission to {0} (''{1}'')",
               new Object[] {location.getDescription(), file.getAbsoluteFile()});
         } else {
-          throw new CannotChangePermissionException(location, Permission.WRITE,
-              change, SetOrClearPermission.CLEAR);
+          // do not throw because this is not supported on Windows filesystems (for dirs)
+          logger.log(Level.FINE, "Unable to clear writable permission to {0} (''{1}'')",
+              new Object[] {location.getDescription(), file.getAbsoluteFile()});
         }
       }
 
