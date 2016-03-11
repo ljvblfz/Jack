@@ -34,6 +34,7 @@ import com.android.jack.ir.ast.JForStatement;
 import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JNewArray;
 import com.android.jack.ir.ast.JPrimitiveType;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
