@@ -17,7 +17,6 @@
 package com.android.sched.util.file;
 
 import com.android.sched.util.RunnableHooks;
-import com.android.sched.util.file.CannotChangePermissionException.SetOrClearPermission;
 import com.android.sched.util.location.HasLocation;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.NoLocation;
@@ -90,8 +89,7 @@ public abstract class FileOrDirectory implements HasLocation {
   public abstract String getPath();
 
   public static void setPermissions(@Nonnull File file, @Nonnull Location location,
-      int permissions, @Nonnull FileOrDirectory.ChangePermission change)
-      throws CannotChangePermissionException {
+      int permissions, @Nonnull FileOrDirectory.ChangePermission change) {
     if (change != ChangePermission.NOCHANGE) {
       // Set access
       if ((permissions & Permission.READ) != 0) {
@@ -99,8 +97,9 @@ public abstract class FileOrDirectory implements HasLocation {
           logger.log(Level.FINE, "Set readable permission to {0} (''{1}'')",
               new Object[] {location.getDescription(), file.getAbsoluteFile()});
         } else {
-          throw new CannotChangePermissionException(location, Permission.READ,
-              change, SetOrClearPermission.SET);
+          // do not throw because this is not supported on Windows filesystems
+          logger.log(Level.FINE, "Unable to set readable permission to {0} (''{1}'')",
+              new Object[] {location.getDescription(), file.getAbsoluteFile()});
         }
       }
 
@@ -109,8 +108,9 @@ public abstract class FileOrDirectory implements HasLocation {
           logger.log(Level.FINE, "Set writable permission to {0} (''{1}'')",
               new Object[] {location.getDescription(), file.getAbsoluteFile()});
         } else {
-          throw new CannotChangePermissionException(location, Permission.WRITE,
-              change, SetOrClearPermission.SET);
+          // do not throw because this is not supported on Windows filesystems
+          logger.log(Level.FINE, "Unable to set writable permission to {0} (''{1}'')",
+              new Object[] {location.getDescription(), file.getAbsoluteFile()});
         }
       }
 
@@ -119,8 +119,9 @@ public abstract class FileOrDirectory implements HasLocation {
           logger.log(Level.FINE, "Set executable permission to {0} (''{1}'')",
               new Object[] {location.getDescription(), file.getAbsoluteFile()});
         } else {
-          throw new CannotChangePermissionException(location, Permission.EXECUTE,
-              change, SetOrClearPermission.SET);
+          // do not throw because this is not supported on Windows filesystems
+          logger.log(Level.FINE, "Unable to set executable permission to {0} (''{1}'')",
+              new Object[] {location.getDescription(), file.getAbsoluteFile()});
         }
       }
     }
