@@ -188,6 +188,7 @@ import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.NameReference;
+import org.eclipse.jdt.internal.compiler.ast.NameReferenceCaller;
 import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.NullLiteral;
 import org.eclipse.jdt.internal.compiler.ast.OR_OR_Expression;
@@ -239,6 +240,7 @@ import org.eclipse.jdt.internal.compiler.lookup.SyntheticMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
+import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 import java.lang.reflect.Field;
@@ -3557,6 +3559,14 @@ public class JackIrBuilder {
       JExpression result = null;
       if (binding instanceof LocalVariableBinding) {
         LocalVariableBinding b = (LocalVariableBinding) binding;
+
+        // Check for one front end compilation error that was not reported during parsing
+        try {
+          NameReferenceCaller.checkEffectiveFinality(x, b, scope);
+        } catch (AbortMethod e) {
+          throw new FrontendCompilationError();
+        }
+
         if ((x.bits & ASTNode.DepthMASK) != 0) {
           VariableBinding[] path = getEmulationPath(scope, b, x);
           result = generateEmulationPath(info, path);
