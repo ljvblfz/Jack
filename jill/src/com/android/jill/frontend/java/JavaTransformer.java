@@ -238,7 +238,7 @@ public class JavaTransformer {
   private void transformToZip(@Nonnull InputStream is, @Nonnull ZipOutputStream zipOutputStream,
       @CheckForNull JarFile jarFile) throws IOException {
     ClassNode cn = getClassNode(is);
-    String filePath = getFilePath(cn.name);
+    String filePath = getZipFilePath(cn.name);
     assert (jarFile == null || jarFile.getEntry(filePath) == null);
     try {
       ZipEntry entry = new ZipEntry(filePath);
@@ -303,6 +303,12 @@ public class JavaTransformer {
   private static String getFilePath(@Nonnull String typeBinaryName) {
     return JAYCE_PREFIX_INTO_LIB + File.separatorChar
         + typeBinaryName.replace(TYPE_NAME_SEPARATOR, File.separatorChar) + JAYCE_FILE_EXTENSION;
+  }
+
+  @Nonnull
+  private static String getZipFilePath(@Nonnull String typeBinaryName) {
+    return JAYCE_PREFIX_INTO_LIB + '/'
+        + typeBinaryName.replace(TYPE_NAME_SEPARATOR, '/') + JAYCE_FILE_EXTENSION;
   }
 
   @Nonnull
