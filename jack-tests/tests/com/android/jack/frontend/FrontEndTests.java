@@ -395,5 +395,4 @@ public class FrontEndTests {
       Assert.assertTrue(errString.contains("InvalidQualification"));
    }
   }
-
 }
