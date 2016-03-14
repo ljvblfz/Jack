@@ -1627,9 +1627,10 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         break;
       }
       case SWAP: {
-        // frame and nextFrame have the same height, thus frame can always be used to compute stack
-        // variables.
-        Variable tmpVar = getTempVarFromTopOfStack(frame);
+        // frame and nextFrame have the same height, but they have different types, thus frame must
+        // be use to known the type of variable to read and nextFrame must be use to known the type
+        // of variable to write.
+        Variable tmpVar = getTempVarFromTopOfStackMinus1(frame);
 
         // tmpVar = frame.stack[frame.stack.size() + TOP_OF_STACK - 1]
         sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
@@ -1646,11 +1647,11 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
         writer.writeClose();
 
-        // frame.stack[frame.stack.size() + TOP_OF_STACK - 1] =
+        // nexFrame.stack[nexFrame.stack.size() + TOP_OF_STACK - 1] =
         // frame.stack[frame.stack.size() + TOP_OF_STACK]
-        writeAssign(frame, TOP_OF_STACK, frame, TOP_OF_STACK - 1);
+        writeAssign(frame, TOP_OF_STACK, nextFrame, TOP_OF_STACK - 1);
 
-        // frame.stack[frame.stack.size() + TOP_OF_STACK] = tmpVar
+        // nextFrame.stack[nextFrame.stack.size() + TOP_OF_STACK] = tmpVar
         sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
         writer.writeCatchBlockIds(currentCatchList);
         writer.writeKeyword(Token.EXPRESSION_STATEMENT);
@@ -1658,7 +1659,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.ASG_OPERATION);
         writer.writeOpen();
-        writeStackAccess(frame, TOP_OF_STACK);
+        writeStackAccess(nextFrame, TOP_OF_STACK);
         writeLocalRef(tmpVar);
         sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
         writer.writeClose();
@@ -2340,7 +2341,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     for (int insnIdx = 0; insnIdx < currentMethod.instructions.size(); insnIdx++) {
       AbstractInsnNode insn = currentMethod.instructions.get(insnIdx);
       if (insn.getOpcode() == SWAP) {
-        locals.add(getTempVarFromTopOfStack(frames[insnIdx]));
+        locals.add(getTempVarFromTopOfStackMinus1(frames[insnIdx]));
       }
     }
 
@@ -2348,8 +2349,8 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
   }
 
   @Nonnull
-  private Variable getTempVarFromTopOfStack(@Nonnull Frame<BasicValue> frame) {
-    Variable topOfStackBeforeInst = getStackVariable(frame, TOP_OF_STACK);
+  private Variable getTempVarFromTopOfStackMinus1(@Nonnull Frame<BasicValue> frame) {
+    Variable topOfStackBeforeInst = getStackVariable(frame, TOP_OF_STACK - 1);
     String tmpVarId = "-swap_tmp_" + typeToUntypedDesc(topOfStackBeforeInst.getType());
     Variable tmpVariable =
         getVariable(tmpVarId, tmpVarId, topOfStackBeforeInst.getType(), null);
