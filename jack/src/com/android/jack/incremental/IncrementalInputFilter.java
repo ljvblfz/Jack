@@ -473,7 +473,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
 
   @Override
   @Nonnull
-  public List<? extends InputLibrary> getImportedLibrary() {
+  public List<? extends InputLibrary> getImportedLibraries() {
 
     JSession session = Jack.getSession();
     if (needFullBuild()) {

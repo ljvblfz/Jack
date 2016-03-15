@@ -37,5 +37,5 @@ public interface InputFilter {
   public List<? extends InputLibrary> getClasspath();
 
   @Nonnull
-  public List<? extends InputLibrary> getImportedLibrary();
+  public List<? extends InputLibrary> getImportedLibraries();
 }

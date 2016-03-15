@@ -834,7 +834,7 @@ public abstract class Jack {
     new MetaImporter(config.get(MetaImporter.IMPORTED_META)).doImport(session);
 
     List<InputJackLibrary> inputJackLibraries = new ArrayList<InputJackLibrary>();
-    for (InputLibrary library : inputFilter.getImportedLibrary()) {
+    for (InputLibrary library : inputFilter.getImportedLibraries()) {
       if (library instanceof InputJackLibrary) {
         addPackageLoaderForLibrary(session, config.get(IMPORT_POLICY),
             (InputJackLibrary) library);
