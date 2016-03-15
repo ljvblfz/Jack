@@ -34,6 +34,7 @@ import java.util.zip.DeflaterOutputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -220,5 +221,11 @@ public class DeflateFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS{
   @Nonnull
   VPath getPathFromRoot(@Nonnull BaseVFile file) {
     return vfs.getPathFromRoot(file);
+  }
+
+  @Override
+  @CheckForNull
+  public String getDigest() {
+    return vfs.getDigest();
   }
 }

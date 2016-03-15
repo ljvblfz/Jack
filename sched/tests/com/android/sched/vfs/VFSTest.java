@@ -964,6 +964,8 @@ public class VFSTest {
           ioVFS1.getRootInputVDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
       String fileAAB1digest = ((GenericInputVFile) fileAAB1).getDigest();
       Assert.assertNotNull(fileAAB1digest);
+      String vfsDigest = ioVFS1.getDigest();
+      Assert.assertNotNull(vfsDigest);
       ioVFS1.close();
 
       ioVFS2 = new GenericInputVFS(new DeflateFS(new MessageDigestFS(new ReadZipFS(
@@ -975,6 +977,8 @@ public class VFSTest {
           ioVFS2.getRootInputVDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
       String fileAAB1digest2 = ((GenericInputVFile) fileAAB1b).getDigest();
       Assert.assertEquals(fileAAB1digest, fileAAB1digest2);
+      String vfsDigest2 = ioVFS2.getDigest();
+      Assert.assertEquals(vfsDigest, vfsDigest2);
 
     } finally {
       if (ioVFS1 != null) {
