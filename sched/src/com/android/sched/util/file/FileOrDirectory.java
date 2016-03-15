@@ -88,8 +88,9 @@ public abstract class FileOrDirectory implements HasLocation {
   @Nonnull
   public abstract String getPath();
 
-  public static void setPermissions(@Nonnull File file, @Nonnull Location location,
-      int permissions, @Nonnull FileOrDirectory.ChangePermission change) {
+  @SuppressWarnings("unused")
+  public static void setPermissions(@Nonnull File file, @Nonnull Location location, int permissions,
+      @Nonnull FileOrDirectory.ChangePermission change) throws CannotChangePermissionException {
     if (change != ChangePermission.NOCHANGE) {
       // Set access
       if ((permissions & Permission.READ) != 0) {
@@ -128,6 +129,7 @@ public abstract class FileOrDirectory implements HasLocation {
   }
 
 
+  @SuppressWarnings("unused")
   public static void unsetPermissions(@Nonnull File file, @Nonnull Location location,
       int permissions, @Nonnull FileOrDirectory.ChangePermission change)
       throws CannotChangePermissionException {
