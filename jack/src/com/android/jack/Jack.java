@@ -737,6 +737,25 @@ public abstract class Jack {
               && config.get(Options.DEX_OUTPUT_CONTAINER_TYPE) == Container.ZIP) {
             config.get(Options.DEX_OUTPUT_ZIP).close();
           }
+
+          for (InputLibrary importedLibrary : session.getImportedLibraries()) {
+            try {
+              importedLibrary.close();
+            } catch (LibraryIOException e) {
+              // ignore and log I/O errors when closing
+              logger.log(Level.FINE, "Cannot close input jack library "
+                  + importedLibrary.getLocation().getDescription());
+            }
+          }
+          for (InputLibrary classpathLibrary : session.getLibraryOnClasspath()) {
+            try {
+              classpathLibrary.close();
+            } catch (LibraryIOException e) {
+              // ignore and log I/O errors when closing
+              logger.log(Level.FINE, "Cannot close input jack library "
+                  + classpathLibrary.getLocation().getDescription());
+            }
+          }
         } catch (LibraryIOException e) {
           throw new AssertionError(e);
         } catch (IOException e) {
