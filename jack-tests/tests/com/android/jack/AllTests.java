@@ -49,9 +49,11 @@ import com.android.jack.multidex.MultiDexAllTests;
 import com.android.jack.newarray.NewarrayTests;
 import com.android.jack.nopackage.NoPackageTests;
 import com.android.jack.opcodes.OpcodesTests;
+import com.android.jack.optimizations.defuse.test001.DefUseTests;
 import com.android.jack.optimizations.exprsimplifier.ExprsimplifierTests;
 import com.android.jack.optimizations.notsimplifier.NotsimplifierTests;
 import com.android.jack.optimizations.unuseddef.UnusedDefTest;
+import com.android.jack.optimizations.usedef.UseDefTests;
 import com.android.jack.optimizations.uselesscopy.UselessVariableCopyTest;
 import com.android.jack.order.OrderTests;
 import com.android.jack.preprocessor.PreProcessorTests;
@@ -95,6 +97,7 @@ import org.junit.runners.Suite.SuiteClasses;
     ConstantTests.class,
     CoverageTests.class,
     DebugTests.class,
+    DefUseTests.class,
     DependencyAllTests.class,
     DexTagTests.class,
     DuplicateSourceTest.class,
@@ -144,6 +147,7 @@ import org.junit.runners.Suite.SuiteClasses;
     TypeTests.class,
     UnaryTests.class,
     UnusedDefTest.class,
+    UseDefTests.class,
     UselessVariableCopyTest.class,
     VerifyTests.class,
     WithPhantomTests.class,

@@ -19,6 +19,7 @@ package com.android.jack.optimizations;
 import com.android.jack.Options;
 import com.android.jack.analysis.DefinitionMarker;
 import com.android.jack.analysis.UseDefsMarker;
+import com.android.jack.analysis.dfa.reachingdefs.ReachingDefsMarker;
 import com.android.jack.cfg.BasicBlock;
 import com.android.jack.cfg.ControlFlowGraph;
 import com.android.jack.ir.ast.JAsgOperation;
@@ -42,6 +43,7 @@ import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
+import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
@@ -87,6 +89,8 @@ import javax.annotation.Nonnull;
 @Description("Simplify definition uses chains.")
 @Constraint(need = {DefinitionMarker.class, UseDefsMarker.class, ThreeAddressCodeForm.class,
     ControlFlowGraph.class})
+// ReachingDefsMarker is no longer valid after this optimization, thus remove it directly
+@Transform(remove = {ReachingDefsMarker.class})
 @Support(Optimizations.DefUseSimplifier.class)
 public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
     implements RunnableSchedulable<JMethod> {
@@ -247,5 +251,7 @@ public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
         visitor.accept(stmt);
       }
     }
+
+    method.removeMarker(ReachingDefsMarker.class);
   }
 }

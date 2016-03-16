@@ -54,12 +54,23 @@ public class DefinitionMarker implements Marker {
   @Nonnull
   final List<JVariableRef> uses;
 
+  @Nonnull
+  private final JVariable definedVariable;
+
   @Nonnegative
   private int bitSetIdx;
 
   public DefinitionMarker(@Nonnull JNode definition) {
     this.definition = definition;
     uses = new ArrayList<JVariableRef>();
+    if (definition instanceof JAsgOperation) {
+      JExpression lhsExpr = ((JAsgOperation) definition).getLhs();
+      assert lhsExpr instanceof JVariableRef;
+      definedVariable = ((JVariableRef) lhsExpr).getTarget();
+    } else {
+      assert definition instanceof JParameter || definition instanceof JThis;
+      definedVariable = (JVariable) definition;
+    }
   }
 
   @Override
@@ -148,14 +159,7 @@ public class DefinitionMarker implements Marker {
 
   @Nonnull
   public JVariable getDefinedVariable() {
-    if (definition instanceof JAsgOperation) {
-      JExpression lhsExpr = ((JAsgOperation) definition).getLhs();
-      assert lhsExpr instanceof JVariableRef;
-      return ((JVariableRef) lhsExpr).getTarget();
-    }
-
-    assert definition instanceof JParameter || definition instanceof JThis;
-    return (JVariable) definition;
+    return definedVariable;
   }
 
   @Nonnull

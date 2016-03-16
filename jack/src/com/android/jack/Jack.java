@@ -33,7 +33,6 @@ import com.android.jack.analysis.dependency.library.LibraryDependenciesInLibrary
 import com.android.jack.analysis.dependency.type.TypeDependenciesCollector;
 import com.android.jack.analysis.dependency.type.TypeDependenciesInLibraryWriter;
 import com.android.jack.analysis.dfa.reachingdefs.ReachingDefinitions;
-import com.android.jack.analysis.dfa.reachingdefs.ReachingDefinitionsRemover;
 import com.android.jack.analysis.tracer.ExtendingOrImplementingClassFinder;
 import com.android.jack.backend.ResourceWriter;
 import com.android.jack.backend.dex.ClassAnnotationBuilder;
@@ -1449,7 +1448,6 @@ public abstract class Jack {
           methodPlan4.append(DefUsesAndUseDefsChainRemover.class);
           methodPlan4.append(DefinitionMarkerRemover.class);
           methodPlan4.append(UsedVariableRemover.class);
-          methodPlan4.append(ReachingDefinitionsRemover.class);
           if (features.contains(Optimizations.ExpressionSimplifier.class)) {
             methodPlan4.append(ExpressionSimplifier.class);
           }
