@@ -75,6 +75,11 @@ public class InstallJack extends SynchronousAdministrativeTask {
     File jackDir = new File(jackServer.getServerDir(), programName);
     try {
       boolean force = "true".equals(forcePart.getContent());
+      if (force) {
+        logger.log(Level.WARNING, "Forced update is not supported when updating 'jack'");
+        response.setStatus(Status.BAD_REQUEST);
+        return;
+      }
       jarIn = jarPart.getInputStream();
       tmpJack = File.createTempFile("jack.jar", ".tmp", jackDir);
       out = new FileOutputStream(tmpJack);
@@ -92,26 +97,15 @@ public class InstallJack extends SynchronousAdministrativeTask {
       }
 
       Version version = new Version("jack", tmpLoader);
-      if ((version.getSubReleaseCode() < 0
-            || version.getSubReleaseKind() == SubReleaseKind.ENGINEERING)
-          && !force) {
-        logger.log(Level.WARNING, "Refused to install jack version '" + version.getVerboseVersion()
-            + "' without force request");
-        response.setStatus(Status.BAD_REQUEST);
-        return;
-      }
       try {
-        Program<JackProvider> alreadyInstalled = jackServer.selectJack(
-            new ExactCodeVersionFinder(version.getReleaseCode(), version.getSubReleaseCode(),
-                SubReleaseKind.ENGINEERING));
-        if (alreadyInstalled.getVersion().getSubReleaseKind() != SubReleaseKind.ENGINEERING) {
+        if (version.getSubReleaseKind() != SubReleaseKind.ENGINEERING) {
+          jackServer.selectJack(
+              new ExactCodeVersionFinder(version.getReleaseCode(), version.getSubReleaseCode(),
+                  SubReleaseKind.ENGINEERING));
           logger.log(Level.INFO,
               "Jack version " + version.getVerboseVersion() + " was already installed");
           response.setStatus(Status.OK);
           return;
-        } else {
-          logger.log(Level.INFO, "Overriding Jack " + version.getVerboseVersion()
-              + " with newly uploaded jar of the same version");
         }
       } catch (NoSuchVersionException e) {
         // expected

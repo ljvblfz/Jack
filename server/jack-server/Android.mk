@@ -69,7 +69,7 @@ else
 	$(hide) JACK_SERVER_VM_ARGUMENTS="$(jack_vm_args)" $(jack_admin_script) start-server 2>&1 || exit 0
 endif
 	$(hide) $(jack_admin_script) force-update server $(HOST_OUT_JAVA_LIBRARIES)/jack-server.jar
-	$(hide) $(jack_admin_script) force-update jack $(JACK_JAR) || exit 47
+	$(hide) $(jack_admin_script) update jack $(JACK_JAR) || exit 47
 	$(copy-file-to-target)
 
 
