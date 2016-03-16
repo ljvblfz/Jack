@@ -128,12 +128,19 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
   // Only compile source file
   @Override
   public void runConformTest(String[] srcDescription) {
+    List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
+    // These tests must be exclude from the Jill tool-chain because they do not compile with it
+    if (getName().equals("testReferenceExpressionInference3a")) {
+      excludeList.add(JillBasedToolchain.class);
+    }
+    excludeList.add(JackApiV01.class);
+
     try {
       File sourceFolder = buildSourceFolder(srcDescription);
       File dexOutDir = AbstractTestTools.createTempDir();
 
       // Build dex file
-      JackBasedToolchain jackToolchain = createToolchain();
+      JackBasedToolchain jackToolchain = createToolchain(excludeList);
       jackToolchain.srcToExe(dexOutDir, /* zipFile = */ false, sourceFolder);
     } catch (AssumptionViolatedException e) {
       // Handle JUnit4 feature in JUnit3 tests.
@@ -147,12 +154,27 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
   //Compile and run source file
   @Override
   public void runConformTest(String[] srcDescription, String expectedResult) {
+    List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
+    // These tests must be exclude from the Jill tool-chain because they do not compile with it
+    if (getName().equals("test430035d") ||
+        getName().equals("test430035e") ||
+        getName().equals("test428261a") ||
+        getName().equals("test044")) {
+      excludeList.add(JillBasedToolchain.class);
+    }
+    // This tests must be exclude from Jill tool-chain because it raised an illegal access error at
+    // runtime, but is it not the case with Jack
+    if (getName().equals("test051")) {
+      excludeList.add(JillBasedToolchain.class);
+    }
+    excludeList.add(JackApiV01.class);
+
     try {
       File dexOutDir = AbstractTestTools.createTempDir();
       File sourceFolder = buildSourceFolder(srcDescription);
 
       // Build dex file
-      JackBasedToolchain jackToolchain = createToolchain();
+      JackBasedToolchain jackToolchain = createToolchain(excludeList);
       jackToolchain.srcToExe(dexOutDir, /* zipFile = */ false, sourceFolder);
 
       File dexFile = new File(dexOutDir, "classes.dex");
@@ -201,10 +223,8 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
     return sourceFolder;
   }
 
-  protected JackBasedToolchain createToolchain() throws AssumptionViolatedException {
-    List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
-    excludeList.add(JillBasedToolchain.class);
-    excludeList.add(JackApiV01.class);
+  protected JackBasedToolchain createToolchain(
+      @Nonnull List<Class<? extends IToolchain>> excludeList) throws AssumptionViolatedException {
 
     JackBasedToolchain jackToolchain = null;
     jackToolchain =

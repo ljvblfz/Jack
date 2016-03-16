@@ -1261,7 +1261,7 @@ public abstract class Jack {
     {
       {
         SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-            planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
+            planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
         SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
         methodPlan.append(BridgeInInterfaceRemover.class);
       }

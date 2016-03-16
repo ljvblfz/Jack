@@ -25,7 +25,6 @@ import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackApiV01;
 import com.android.jack.test.toolchain.JackBasedToolchain;
-import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
 import junit.framework.Assert;
@@ -138,7 +137,6 @@ public class EcjInterfaceMethodsTest extends InterfaceMethodsTest {
   @Override
   public void runConformTest(String[] srcDescription) {
     List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
-    excludeList.add(JillBasedToolchain.class);
     excludeList.add(JackApiV01.class);
     JackBasedToolchain jackToolchain = null;
     try {
@@ -172,7 +170,6 @@ public class EcjInterfaceMethodsTest extends InterfaceMethodsTest {
 
       // Build dex file
       List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
-      excludeList.add(JillBasedToolchain.class);
       excludeList.add(JackApiV01.class);
 
       JackBasedToolchain jackToolchain = null;
