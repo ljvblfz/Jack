@@ -140,20 +140,21 @@
     <delete dir="${jack-top-dist.dir}"/>
   </target>
 
-  <target name="dist-check">
-    <condition property="dist-check-only-one-defined">
-      <xor>
-       <isset property="dist.sha"/>
-       <isset property="dist.build-id"/>
-      </xor>
-    </condition>
-    <fail if:true="${dist-check-only-one-defined}"
-      message="Only one of dist.sha and dist.build-id properties has been set"/>
-  </target>
-
   <target name="dist" depends="jack-dist, jill-dist, tools-dist"/>
 
-   <target name="dist-doc" depends="jack,jill,sched-lib">
+  <target name="dist-check-version-files">
+    <condition property="dist.version.file" value="${version.file}" else="${jack-project.dir}/version.properties">
+      <isset property="version.file"/>
+    </condition>
+  </target>
+
+  <target name="server-dist-check-version-files">
+    <condition property="server.dist.version.file" value="${server.version.file}" else="${server-project.dir}/version.properties">
+      <isset property="server.version.file"/>
+    </condition>
+  </target>
+
+   <target name="dist-doc" depends="server-dist-check-version-files,jack,jill,sched-lib">
       <union id="dist-doc.classpath.files">
         <fileset dir="${jack.dir}/libs" />
         <fileset dir="${sched.dir}/libs" />
@@ -206,7 +207,7 @@
       <mkdir dir="${jack-server.doc.dir}" />
       <copy file="${jack-project.dir}/server/jack-server/README-jack-server.md"
             todir="${jack-server.doc.dir}" />
-       <property file="${jack-project.dir}/server/version.properties" prefix="jack-server"/>
+      <property file="${server.dist.version.file}" prefix="jack-server"/>
       <replace file="${jack-server.doc.dir}/README-jack-server.md"
                        token="%%VERSION%%"
                        value="${jack-server.version}"
@@ -225,132 +226,114 @@
 
   <target name="jack-dist"
     description="package a Jack distribution"
-    depends="dist-check,
-    jack,
-    jack-api,
-    jack-api-src,
-    jack-annotations-lib">
+    depends="dist-check-version-files,
+             jack,
+             jack-api,
+             jack-api-src,
+             jack-annotations-lib">
+
     <mkdir dir="${jack-top-dist.dir}"/>
-    <copy todir="${jack-top-dist.dir}" flatten="true">
-      <filelist dir="/" >
-        <file name="${jack-api.dist.dir}/${jack-api-src.name}" />
-      </filelist>
-    </copy>
 
-    <tempfile property="jack-dist.tmp" prefix="ant-jack-dist" destdir="${java.io.tmpdir}" deleteonexit="true"/>
-    <mkdir dir="${jack-dist.tmp}"/>
+    <tempfile property="jack-sign.tmp" prefix="ant-jack-sign" destdir="${java.io.tmpdir}" deleteonexit="true"/>
+    <mkdir dir="${jack-sign.tmp}"/>
 
-    <copy file="${jack-project.dir}/version.properties" tofile="${jack-dist.tmp}/version.properties"/>
-    <propertyfile file="${jack-dist.tmp}/version.properties">
-      <entry if:set="dist.sha" key="version.sha" value="${dist.sha}"/>
-      <entry if:set="dist.build-id" key="version.buildid" value="${dist.build-id}"/>
-    </propertyfile>
+    <copy file="${jack-api.dist.dir}/${jack-api-src.name}" tofile="${jack-top-dist.dir}/${jack-api-src.name}" />
 
-    <copy file="${jack-dist.tmp}/version.properties" tofile="${jack-dist.tmp}/jack-version.properties"/>
     <jar destfile="${jack-top-dist.dir}/${jack.execname}" filesetmanifest="merge">
       <zipfileset src="${jack.dist.dir}/${jack.execname}"
       excludes="jack-version.properties"/>
     </jar>
+    <copy file="${dist.version.file}" tofile="${jack-sign.tmp}/jack-version.properties"/>
     <jar destfile="${jack-top-dist.dir}/${jack.execname}" update="true"
-      basedir="${jack-dist.tmp}"
+      basedir="${jack-sign.tmp}"
       includes="jack-version.properties"/>
 
-    <copy file="${jack-dist.tmp}/version.properties" tofile="${jack-dist.tmp}/jack-api-version.properties"/>
     <jar destfile="${jack-top-dist.dir}/${jack-api.name}" filesetmanifest="merge">
       <zipfileset src="${jack-api.dist.dir}/${jack-api.name}"
       excludes="jack-api-version.properties"/>
     </jar>
+    <copy file="${dist.version.file}" tofile="${jack-sign.tmp}/jack-api-version.properties"/>
     <jar destfile="${jack-top-dist.dir}/${jack-api.name}" update="true"
-      basedir="${jack-dist.tmp}"
+      basedir="${jack-sign.tmp}"
       includes="jack-api-version.properties"/>
 
-    <copy file="${jack-dist.tmp}/version.properties" tofile="${jack-dist.tmp}/jack-annotations-version.properties"/>
     <jar destfile="${jack-top-dist.dir}/${jack-annotations.libname}" filesetmanifest="merge">
       <zipfileset src="${jack.dist.dir}/${jack-annotations.libname}"
       excludes="jack-annotations-version.properties"/>
     </jar>
+    <copy file="${dist.version.file}" tofile="${jack-sign.tmp}/jack-annotations-version.properties"/>
     <jar destfile="${jack-top-dist.dir}/${jack-annotations.libname}" update="true"
-      basedir="${jack-dist.tmp}"
+      basedir="${jack-sign.tmp}"
       includes="jack-annotations-version.properties"/>
 
-    <delete dir="${jack-dist.tmp}"/>
+    <delete dir="${jack-sign.tmp}"/>
 
   </target>
 
-  <target name="jill-dist" description="package a Jill distribution" depends="
-    dist-check,
-    jill,
-    jill-api,
-    jill-api-src">
+
+  <target name="jill-dist"
+    description="package a Jill distribution"
+    depends="dist-check-version-files,
+             jill,
+             jill-api,
+             jill-api-src">
+
     <mkdir dir="${jack-top-dist.dir}"/>
-    <copy todir="${jack-top-dist.dir}" flatten="true">
-      <filelist dir="/" >
-        <file name="${jill-api.dist.dir}/${jill-api-src.name}" />
-      </filelist>
-    </copy>
 
-    <tempfile property="jill-dist.tmp" prefix="ant-jill-dist" destdir="${java.io.tmpdir}" deleteonexit="true"/>
-    <mkdir dir="${jill-dist.tmp}"/>
-
-    <copy file="${jack-project.dir}/version.properties" tofile="${jill-dist.tmp}/version.properties"/>
-    <propertyfile file="${jill-dist.tmp}/version.properties">
-      <entry if:set="dist.sha" key="version.sha" value="${dist.sha}"/>
-      <entry if:set="dist.build-id" key="version.buildid" value="${dist.build-id}"/>
-    </propertyfile>
-
-    <copy file="${jill-dist.tmp}/version.properties" tofile="${jill-dist.tmp}/jill-version.properties"/>
     <jar destfile="${jack-top-dist.dir}/${jill.execname}" filesetmanifest="merge">
       <zipfileset src="${jill.dist.dir}/${jill.execname}"
       excludes="jill-version.properties"/>
     </jar>
-    <jar destfile="${jack-top-dist.dir}/${jill.execname}" update="true"
-      basedir="${jill-dist.tmp}"
-      includes="jill-version.properties"/>
-
-    <copy file="${jill-dist.tmp}/version.properties" tofile="${jill-dist.tmp}/jill-api-version.properties"/>
     <jar destfile="${jack-top-dist.dir}/${jill-api.name}" filesetmanifest="merge">
       <zipfileset src="${jill-api.dist.dir}/${jill-api.name}"
       excludes="jill-api-version.properties"/>
     </jar>
-    <jar destfile="${jack-top-dist.dir}/${jill-api.name}" update="true"
-      basedir="${jill-dist.tmp}"
-      includes="jill-api-version.properties"/>
 
-    <delete dir="${jill-dist.tmp}"/>
+    <tempfile property="jill-sign.tmp" prefix="ant-jill-sign" destdir="${java.io.tmpdir}" deleteonexit="true"/>
+    <mkdir dir="${jill-sign.tmp}"/>
+
+    <copy file="${dist.version.file}" tofile="${jill-sign.tmp}/jill-version.properties"/>
+    <jar destfile="${jack-top-dist.dir}/${jill.execname}" update="true"
+         basedir="${jill-sign.tmp}"
+         includes="jill-version.properties"/>
+
+    <copy file="${dist.version.file}" tofile="${jill-sign.tmp}/jill-api-version.properties"/>
+    <jar destfile="${jack-top-dist.dir}/${jill-api.name}" update="true"
+         basedir="${jill-sign.tmp}"
+         includes="jill-api-version.properties"/>
+
+    <delete dir="${jill-sign.tmp}"/>
 
   </target>
 
-  <target name="tools-dist" description="package tools distribution" depends="
-    dist-check,
-    jack-jar-tools,
-    jack-jacoco-reporter">
+  <target name="tools-dist"
+    description="package a tools distribution"
+    depends="dist-check-version-files,
+             jack-jar-tools,
+             jack-jacoco-reporter">
+
     <mkdir dir="${jack-top-dist.dir}"/>
 
-    <tempfile property="tools-dist.tmp" prefix="ant-tools-dist" destdir="${java.io.tmpdir}" deleteonexit="true"/>
-    <mkdir dir="${tools-dist.tmp}"/>
+    <tempfile property="tools-sign.tmp" prefix="ant-tools-sign" destdir="${java.io.tmpdir}" deleteonexit="true"/>
+    <mkdir dir="${tools-sign.tmp}"/>
 
-    <copy file="${jack-project.dir}/version.properties" tofile="${tools-dist.tmp}/version.properties"/>
-    <propertyfile file="${tools-dist.tmp}/version.properties">
-      <entry if:set="dist.sha" key="version.sha" value="${dist.sha}"/>
-      <entry if:set="dist.build-id" key="version.buildid" value="${dist.build-id}"/>
-    </propertyfile>
-
-    <copy file="${tools-dist.tmp}/version.properties" tofile="${tools-dist.tmp}/jack-jar-tools-version.properties"/>
     <jar destfile="${jack-top-dist.dir}/${jack-jar-tools.name}" filesetmanifest="merge">
       <zipfileset src="${jack-jar-tools.dist.dir}/${jack-jar-tools.name}"
       excludes="jack-jar-tools-version.properties"/>
     </jar>
+    <copy file="${dist.version.file}" tofile="${tools-sign.tmp}/jack-jar-tools-version.properties"/>
     <jar destfile="${jack-top-dist.dir}/${jack-jar-tools.name}" update="true"
-      basedir="${tools-dist.tmp}"
-      includes="jack-jar-tools-version.properties"/>
+        basedir="${tools-sign.tmp}"
+        includes="jack-jar-tools-version.properties"/>
 
     <jar destfile="${jack-top-dist.dir}/${jack-jacoco-reporter.name}" filesetmanifest="merge">
       <zipfileset src="${jack-jacoco-reporter.dist.dir}/${jack-jacoco-reporter.name}"/>
     </jar>
 
-    <delete dir="${tools-dist.tmp}"/>
+    <delete dir="${tools-sign.tmp}"/>
 
   </target>
+
 
   <!-- ******************* -->
   <!-- Jack-lib            -->
