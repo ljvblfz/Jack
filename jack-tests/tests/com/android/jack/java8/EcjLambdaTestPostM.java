@@ -18,6 +18,7 @@ package com.android.jack.java8;
 
 import com.android.jack.Options;
 import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
+import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 
 import junit.framework.Assert;
@@ -50,7 +51,8 @@ public class EcjLambdaTestPostM extends EcjLambdaTest {
           "test431514a",
           "test421712",
           "test406744d",
-          "test027");
+          "test027",
+          "test430035c");
 
   public static class MyAdapter extends JUnit4TestAdapter {
 
@@ -79,8 +81,9 @@ public class EcjLambdaTestPostM extends EcjLambdaTest {
    }
 
   @Override
-  protected JackBasedToolchain createToolchain() throws AssumptionViolatedException {
-    JackBasedToolchain jackToolchain = super.createToolchain();
+  protected JackBasedToolchain createToolchain(
+      @Nonnull List<Class<? extends IToolchain>> excludeList) throws AssumptionViolatedException {
+    JackBasedToolchain jackToolchain = super.createToolchain(excludeList);
     jackToolchain.addProperty(
         Options.ANDROID_MIN_API_LEVEL.getName(),
         String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL));

@@ -266,7 +266,6 @@ public class DefaultMethodTest {
   public void testDefaultMethod001_3() throws Exception {
     List<Class<? extends IToolchain>> excludeClazz = new ArrayList<Class<? extends IToolchain>>(2);
     excludeClazz.add(JackApiV01.class);
-    excludeClazz.add(JillBasedToolchain.class);
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeClazz);
     File lib23 =
@@ -302,7 +301,6 @@ public class DefaultMethodTest {
   public void testDefaultMethod001_4() throws Exception {
     List<Class<? extends IToolchain>> excludeClazz = new ArrayList<Class<? extends IToolchain>>(2);
     excludeClazz.add(JackApiV01.class);
-    excludeClazz.add(JillBasedToolchain.class);
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeClazz);
     File lib24 =
@@ -411,7 +409,15 @@ public class DefaultMethodTest {
 
   @Test
   public void testDefaultMethod018() throws Exception {
-    run(DEFAULTMETHOD018);
+    new RuntimeTestHelper(DEFAULTMETHOD018)
+    .addProperty(
+        Options.ANDROID_MIN_API_LEVEL.getName(),
+        String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL))
+    .setSourceLevel(SourceLevel.JAVA_8)
+    .addIgnoredCandidateToolchain(JackApiV01.class)
+    // This test must be exclude from the Jill tool-chain because, there is a different behavior than with Jack
+    .addIgnoredCandidateToolchain(JillBasedToolchain.class)
+    .compileAndRunTest();
   }
 
   @Test
@@ -425,7 +431,6 @@ public class DefaultMethodTest {
             Options.ANDROID_MIN_API_LEVEL.getName(),
             String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL))
         .setSourceLevel(SourceLevel.JAVA_8)
-        .addIgnoredCandidateToolchain(JillBasedToolchain.class)
         .addIgnoredCandidateToolchain(JackApiV01.class)
         .compileAndRunTest();
   }

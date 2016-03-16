@@ -22,7 +22,6 @@ import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
-import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
 import org.junit.Test;
@@ -212,7 +211,7 @@ public class GwtTestPostM {
     new RuntimeTestHelper(rti).setSourceLevel(SourceLevel.JAVA_8)
         .addProperty(Options.ANDROID_MIN_API_LEVEL.getName(),
             String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL))
-        .addIgnoredCandidateToolchain(JillBasedToolchain.class).compileAndRunTest();
+        .compileAndRunTest();
   }
 
 }

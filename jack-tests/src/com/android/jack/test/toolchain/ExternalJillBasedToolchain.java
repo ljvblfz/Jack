@@ -250,9 +250,6 @@ public abstract class ExternalJillBasedToolchain
       commandLine.add(Joiner.on(',').join(annotationProcessorClasses));
     }
 
-    commandLine.add("-bootclasspath");
-    commandLine.add("no-bootclasspath.jar");
-
     if (classpath != null) {
       commandLine.add("-classpath");
       commandLine.add(classpath);

@@ -234,9 +234,6 @@ public class EmbeddedJillBasedToolchain extends JackCliToolchain implements Jill
       commandLine.add(Joiner.on(',').join(annotationProcessorClasses));
     }
 
-    commandLine.add("-bootclasspath");
-    commandLine.add("no-bootclasspath.jar");
-
     if (classpath != null) {
       commandLine.add("-classpath");
       commandLine.add(classpath);

@@ -17,7 +17,6 @@
 package com.android.jack.java8;
 
 import com.android.jack.JackAbortException;
-import com.android.jack.Options;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -43,11 +42,15 @@ public class BridgeTestPreN {
       AbstractTestTools.getTestRootDir("com.android.jack.java8.bridges.test001"),
       "com.android.jack.java8.bridges.test001.jack.Tests");
 
+  private RuntimeTestInfo BRIDGE003 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java8.bridges.test003"),
+      "com.android.jack.java8.bridges.test003.jack.Tests");
+
   @Test
   public void testBridge001() throws Exception {
     new RuntimeTestHelper(BRIDGE001).setSourceLevel(SourceLevel.JAVA_8)
         .addIgnoredCandidateToolchain(JackApiV01.class)
-        .addIgnoredCandidateToolchain(JillBasedToolchain.class).compileAndRunTest();
+        .compileAndRunTest();
   }
 
   /**
@@ -87,4 +90,14 @@ public class BridgeTestPreN {
     }
   }
 
+  @Test
+  public void testBridge003() throws Exception {
+    new RuntimeTestHelper(BRIDGE003).setSourceLevel(SourceLevel.JAVA_8)
+        .addIgnoredCandidateToolchain(JackApiV01.class)
+        // Known issue with JillBasedToolchain because when Jill is used, it does not provide
+        // information needed to generate bridges, instead it uses default bridge methods into
+        // interfaces.
+        .addIgnoredCandidateToolchain(JillBasedToolchain.class)
+        .compileAndRunTest();
+  }
 }
