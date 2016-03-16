@@ -20,11 +20,12 @@ import com.google.common.base.Joiner;
 
 import com.android.jack.Options;
 import com.android.jack.Options.VerbosityLevel;
-import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 import com.android.jack.test.util.ExecFileException;
 import com.android.jack.test.util.ExecuteFile;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -92,7 +93,7 @@ public class JackCliToolchain extends JackBasedToolchain {
       commandLine.add("-g");
     }
 
-    AbstractTestTools.addFile(commandLine, /* mustExist = */ false, sources);
+    addSourceList(commandLine, sources);
 
     run(commandLine);
 
@@ -108,7 +109,7 @@ public class JackCliToolchain extends JackBasedToolchain {
 
     srcToCommon(commandLine, sources);
 
-    AbstractTestTools.addFile(commandLine, /* mustExist = */ false, sources);
+    addSourceList(commandLine, sources);
 
     run(commandLine);
 
@@ -411,5 +412,19 @@ public class JackCliToolchain extends JackBasedToolchain {
     if (user != null) {
       exec.addEnvVar("USER", user);
     }
+  }
+
+  protected void addSourceList(@Nonnull List<String> commandLine, @Nonnull File... sources)
+      throws Exception {
+    List<String> files = new ArrayList<String>(sources.length);
+    AbstractTestTools.addFile(files, /* mustExist = */ false, sources);
+    File sourceList = AbstractTestTools.createTempFile("source-list", ".txt");
+    BufferedWriter writer = new BufferedWriter(new FileWriter(sourceList.getAbsolutePath()));
+    for (String f : files) {
+      writer.write(f);
+      writer.write('\n');
+    }
+    writer.close();
+    commandLine.add('@' + sourceList.getAbsolutePath());
   }
 }
