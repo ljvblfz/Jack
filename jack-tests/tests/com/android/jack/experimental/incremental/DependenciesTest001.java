@@ -87,11 +87,14 @@ public class DependenciesTest001 {
 
     ite.deleteJavaFile(f);
 
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
     try {
+      ite.setErr(err);
       ite.incrementalBuildFromFolder();
       Assert.fail();
-    } catch (FrontendCompilationException e)  {
+    } catch (FrontendCompilationException e) {
       // Error is ok
+      Assert.assertTrue(err.toString().contains("I cannot be resolved to a type"));
     }
   }
 
@@ -283,11 +286,15 @@ public class DependenciesTest001 {
         "package jack.incremental; \n"+
         "public class B { public void m(int i){} } \n");
 
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
     try {
+      ite.setErr(err);
       ite.incrementalBuildFromFolder();
       Assert.fail();
-    } catch (FrontendCompilationException e)  {
+    } catch (FrontendCompilationException e) {
       // Error is ok
+      Assert.assertTrue(err.toString()
+          .contains("The method m(int) in the type B is not applicable for the arguments ()"));
     }
   }
 
@@ -378,11 +385,14 @@ public class DependenciesTest001 {
 
     ite.deleteJavaFile(f);
 
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
     try {
+      ite.setErr(err);
       ite.incrementalBuildFromFolder();
       Assert.fail();
     } catch (FrontendCompilationException e)  {
       // Error is ok
+      Assert.assertTrue(err.toString().contains("B cannot be resolved to a type"));
     }
   }
 
