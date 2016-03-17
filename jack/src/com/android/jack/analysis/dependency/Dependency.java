@@ -47,8 +47,6 @@ public abstract class Dependency {
 
   private static final char MAP_VALUE_SEPARATOR = ',';
 
-  private static final char MAP_KEY_VALUE_SEPARATOR = ':';
-
   @Nonnull
   private static final Joiner mapValueJoiner = Joiner.on(MAP_VALUE_SEPARATOR);
 
@@ -103,8 +101,10 @@ public abstract class Dependency {
 
     while ((line = lr.readLine()) != null && !line.equals(END_OF_MAP)) {
       Set<String> values = new HashSet<String>();
+      String key = line;
+      line = lr.readLine();
+      assert line != null;
       LineParser lp = new LineParser(line);
-      String key = lp.nextToken(MAP_KEY_VALUE_SEPARATOR);
       while (lp.hasNextToken()) {
         values.add(lp.nextToken(MAP_VALUE_SEPARATOR));
       }
@@ -114,12 +114,26 @@ public abstract class Dependency {
     return one2many;
   }
 
+  /**
+   * Maps are written as below into dependency files:
+   * key1
+   * value1, ...
+   * key2
+   * value1, ...
+   * key3
+   * blank line if no value
+   * #
+   *
+   * We do not longer generate key and values on the same line, because one map contains file path
+   * as key and it allows to avoid conflict between the key/values separator and character allowed
+   * into file path.
+   */
   protected void writeMapOne2Many(@Nonnull PrintStream ps,
       @Nonnull Map<String, Set<String>> one2many) {
     for (Map.Entry<String, Set<String>> entry : one2many.entrySet()) {
+      ps.print(entry.getKey());
+      ps.println();
       StringBuffer sb = new StringBuffer();
-      sb.append(entry.getKey());
-      sb.append(MAP_KEY_VALUE_SEPARATOR);
       sb.append(mapValueJoiner.join(entry.getValue().iterator()));
       ps.print(sb.toString());
       ps.println();
