@@ -353,8 +353,8 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
 
       if (!outputToString.getOutput().contains("uid=0(root)")) {
         ExecuteFile ef;
-
         ef = new ExecuteFile("adb -s " + device.getSerialNumber() + " root");
+        ef.inheritEnvironment();
         ef.setOut(System.out);
         ef.setErr(System.err);
         ef.setVerbose(isVerbose);
