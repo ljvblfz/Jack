@@ -23,7 +23,10 @@ import junit.framework.Assert;
 public class Tests {
   @org.junit.Test
   public void testName() throws Exception {
-    Assert.assertEquals(1,
-        new Repackaged2().get());
+    Repackaged2 repackaged2 = new Repackaged2();
+    Assert.assertEquals(1, repackaged2.get());
+    Assert.assertEquals(2, repackaged2.getInterface());
+    repackaged2.checkInterface();
+    repackaged2.checkAnnotation();
   }
 }

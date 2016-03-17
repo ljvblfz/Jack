@@ -21,4 +21,8 @@ public class Repackaged {
   public static int get() {
     return 1;
   }
+
+  public static RepackagedEnum getEnum() {
+    return RepackagedEnum.A;
+  }
 }
