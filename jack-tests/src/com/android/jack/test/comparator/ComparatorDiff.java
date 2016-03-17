@@ -39,6 +39,7 @@ public class ComparatorDiff extends ComparatorFile {
     try {
       ExecuteFile ef = new ExecuteFile(
           "diff " + candidate.getAbsolutePath() + " " + reference.getAbsolutePath());
+      ef.inheritEnvironment();
       ef.setOut(System.out);
       ef.setErr(System.err);
 

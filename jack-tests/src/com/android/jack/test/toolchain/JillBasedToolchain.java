@@ -171,6 +171,7 @@ public abstract class JillBasedToolchain extends JackCliToolchain {
     commandLine.add(out.getAbsolutePath());
 
     ExecuteFile exec = new ExecuteFile(commandLine.toArray(new String[commandLine.size()]));
+    exec.inheritEnvironment();
     exec.setErr(errRedirectStream);
     exec.setOut(outRedirectStream);
     exec.setVerbose(isVerbose);
@@ -266,6 +267,7 @@ public abstract class JillBasedToolchain extends JackCliToolchain {
     commandLine.add(out.getAbsolutePath());
 
     ExecuteFile execFile = new ExecuteFile(commandLine.toArray(new String[commandLine.size()]));
+    execFile.inheritEnvironment();
     execFile.setErr(errRedirectStream);
     execFile.setOut(outRedirectStream);
     execFile.setVerbose(isVerbose);
@@ -289,6 +291,7 @@ public abstract class JillBasedToolchain extends JackCliToolchain {
         outJar.getAbsolutePath()};
 
     ExecuteFile execFile = new ExecuteFile(commandLine);
+    execFile.inheritEnvironment();
     execFile.setOut(outRedirectStream);
     execFile.setErr(errRedirectStream);
     execFile.setVerbose(isVerbose);
@@ -327,6 +330,7 @@ public abstract class JillBasedToolchain extends JackCliToolchain {
     }
 
     ExecuteFile execFile = new ExecuteFile(commandLine.toArray(new String[commandLine.size()]));
+    execFile.inheritEnvironment();
     execFile.setOut(outRedirectStream);
     execFile.setErr(errRedirectStream);
     execFile.setVerbose(isVerbose);
@@ -445,6 +449,7 @@ public abstract class JillBasedToolchain extends JackCliToolchain {
     commandLine.add(out.getAbsolutePath());
 
     ExecuteFile exec = new ExecuteFile(commandLine.toArray(new String[commandLine.size()]));
+    exec.inheritEnvironment();
     exec.setErr(errRedirectStream);
     exec.setOut(outRedirectStream);
     exec.setVerbose(isVerbose);

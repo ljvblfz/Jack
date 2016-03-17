@@ -380,9 +380,7 @@ public class JackCliToolchain extends JackBasedToolchain {
 
   protected void run(@Nonnull List<String> commandLine) {
     ExecuteFile exec = new ExecuteFile(commandLine.toArray(new String[commandLine.size()]));
-
-    setUpEnvironment(exec);
-
+    exec.inheritEnvironment();
     exec.setErr(errRedirectStream);
     exec.setOut(outRedirectStream);
     exec.setVerbose(isVerbose);
@@ -393,24 +391,6 @@ public class JackCliToolchain extends JackBasedToolchain {
       }
     } catch (ExecFileException e) {
       throw new RuntimeException("An error occurred while running Jack", e);
-    }
-  }
-
-
-  private static void setUpEnvironment(@Nonnull ExecuteFile exec) {
-    String path = System.getenv("PATH");
-    if (path != null) {
-      exec.addEnvVar("PATH", path);
-    }
-
-    String home = System.getenv("HOME");
-    if (home != null) {
-      exec.addEnvVar("HOME", home);
-    }
-
-    String user = System.getenv("USER");
-    if (user != null) {
-      exec.addEnvVar("USER", user);
     }
   }
 

@@ -600,6 +600,7 @@ public abstract class AbstractTestTools {
         outputFolder.getAbsolutePath()};
 
     ExecuteFile execFile = new ExecuteFile(commandLine);
+    execFile.inheritEnvironment();
     execFile.setVerbose(verbose);
     execFile.setErr(System.err);
     execFile.setOut(System.out);
@@ -622,6 +623,7 @@ public abstract class AbstractTestTools {
     commandLine = new String[] {"zip", options, outputFile.getAbsolutePath(), "."};
 
     ExecuteFile execFile = new ExecuteFile(commandLine);
+    execFile.inheritEnvironment();
     execFile.setVerbose(verbose);
     execFile.setWorkingDir(directory, /* create = */ false);
     execFile.setErr(System.err);
@@ -648,6 +650,7 @@ public abstract class AbstractTestTools {
         "."};
 
     ExecuteFile execFile = new ExecuteFile(commandLine);
+    execFile.inheritEnvironment();
     execFile.setVerbose(verbose);
     execFile.setErr(System.err);
     execFile.setOut(System.out);
@@ -814,14 +817,10 @@ public abstract class AbstractTestTools {
     arguments[1] = "-version";
 
     ExecuteFile exec = new ExecuteFile(arguments);
+    exec.inheritEnvironment();
 
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     exec.setErr(bos);
-
-    String path = System.getenv("PATH");
-    if (path != null) {
-      exec.addEnvVar("PATH", path);
-    }
 
     try {
       if (exec.run() != 0) {
@@ -905,13 +904,12 @@ public abstract class AbstractTestTools {
     arguments[1] = "--version";
 
     ExecuteFile exec = new ExecuteFile(arguments);
+    exec.inheritEnvironment();
 
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     exec.setOut(bos);
     ByteArrayOutputStream errOs = new ByteArrayOutputStream();
     exec.setErr(errOs);
-
-    setUpEnvironment(exec);
 
     try {
       if (exec.run() != 0) {
@@ -932,23 +930,6 @@ public abstract class AbstractTestTools {
         bos.close();
       } catch (IOException e) {
       }
-    }
-  }
-
-  private static void setUpEnvironment(@Nonnull ExecuteFile exec) {
-    String path = System.getenv("PATH");
-    if (path != null) {
-      exec.addEnvVar("PATH", path);
-    }
-
-    String home = System.getenv("HOME");
-    if (home != null) {
-      exec.addEnvVar("HOME", home);
-    }
-
-    String user = System.getenv("USER");
-    if (user != null) {
-      exec.addEnvVar("USER", user);
     }
   }
 
