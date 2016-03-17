@@ -30,6 +30,7 @@ import com.android.jack.server.TypeNotSupportedException;
 import com.android.jack.server.UnsupportedProgramException;
 import com.android.jack.server.VersionFinder;
 import com.android.jack.server.type.CommandOut;
+import com.android.sched.util.Version;
 import com.android.sched.util.codec.ParsingException;
 
 import org.simpleframework.http.ContentType;
@@ -136,7 +137,8 @@ public class JackTask extends SynchronousServiceTask {
     String[] command = Splitter.on(" ").trimResults().omitEmptyStrings().splitToList(cli)
         .toArray(new String[0]);
 
-    logger.log(Level.INFO, "Read command '" + cli + "', pwd: '" + pwd.getPath() + "'");
+    logger.log(Level.INFO, "Compilation #" + taskId + ", command '" + cli
+        + "', pwd: '" + pwd.getPath() + "', required Jack: " + versionFinder.getDescription());
 
     response.setContentType(CommandOut.JACK_COMMAND_OUT_CONTENT_TYPE + "; version=1");
     int commandStatus = JACK_STATUS_ERROR;
@@ -155,7 +157,10 @@ public class JackTask extends SynchronousServiceTask {
       long start = System.currentTimeMillis();
 
       try {
-        logger.log(Level.INFO, "Run Compilation #" + taskId);
+        Version version = program.getVersion();
+        logger.log(Level.INFO, "Run Compilation #" + taskId + " with Jack "
+            + version.getVerboseVersion()
+            + " (" + version.getReleaseCode() + "." + version.getSubReleaseCode() + ")");
         jack.setStandardError(err);
         jack.setStandardOutput(commandOut.getOut());
         jack.setWorkingDirectory(pwd);

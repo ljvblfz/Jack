@@ -28,4 +28,7 @@ public interface VersionFinder {
 
   @CheckForNull
   <T extends HasVersion> T select(@Nonnull Collection<T> collection);
+
+  @Nonnull
+  String getDescription();
 }
