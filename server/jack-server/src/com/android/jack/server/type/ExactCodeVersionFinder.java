@@ -87,4 +87,10 @@ public class ExactCodeVersionFinder implements VersionFinder {
     }
     return null;
   }
+
+  @Override
+  @Nonnull
+  public String getDescription() {
+    return "Exact version " + release + "." + subRelease + "." + minKind.name();
+  }
 }
