@@ -92,6 +92,9 @@ public class ArtRunnerHost extends HostRunner {
       commandLine.add("-d");
     }
 
+    commandLine.add("-Xcompiler-option");
+    commandLine.add("--abort-on-hard-verifier-error");
+
     for (String option : options) {
       commandLine.add(option);
     }
