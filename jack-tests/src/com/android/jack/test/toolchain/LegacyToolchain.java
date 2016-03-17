@@ -23,7 +23,9 @@ import com.android.jack.test.TestsProperties;
 import com.android.jack.test.util.ExecFileException;
 import com.android.jack.test.util.ExecuteFile;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -224,7 +226,7 @@ public class LegacyToolchain extends AndroidToolchain {
   }
 
   private void compileWithEcj(@Nonnull File[] sources, @CheckForNull String classpath,
-      @Nonnull File out) {
+      @Nonnull File out) throws Exception {
     List<String> commandLine = new ArrayList<String>(4 + sources.length);
 
     commandLine.add("-bootclasspath");
@@ -255,7 +257,7 @@ public class LegacyToolchain extends AndroidToolchain {
     commandLine.add("-preserveAllLocals");
     commandLine.add("-d");
     commandLine.add(out.getAbsolutePath());
-    AbstractTestTools.addFile(commandLine, false, sources);
+    addSourceList(commandLine, sources);
     org.eclipse.jdt.internal.compiler.batch.Main.main(
         commandLine.toArray(new String[commandLine.size()]));
   }
@@ -293,7 +295,7 @@ public class LegacyToolchain extends AndroidToolchain {
   }
 
   private void compileWithExternalRefCompiler(@Nonnull File[] sources,
-      @CheckForNull String classpath, @Nonnull File out) {
+      @CheckForNull String classpath, @Nonnull File out) throws Exception {
 
     List<String> commandLine = new ArrayList<String>();
 
@@ -324,7 +326,7 @@ public class LegacyToolchain extends AndroidToolchain {
       commandLine.add(classpath);
     }
 
-    AbstractTestTools.addFile(commandLine, false, sources);
+    addSourceList(commandLine, sources);
 
     commandLine.add("-d");
     commandLine.add(out.getAbsolutePath());
@@ -368,5 +370,20 @@ public class LegacyToolchain extends AndroidToolchain {
       System.setOut(stdOut);
       System.setErr(stdErr);
     }
+  }
+
+
+  protected void addSourceList(@Nonnull List<String> commandLine, @Nonnull File... sources)
+      throws Exception {
+    List<String> files = new ArrayList<String>(sources.length);
+    AbstractTestTools.addFile(files, /* mustExist = */ false, sources);
+    File sourceList = AbstractTestTools.createTempFile("source-list", ".txt");
+    BufferedWriter writer = new BufferedWriter(new FileWriter(sourceList.getAbsolutePath()));
+    for (String f : files) {
+      writer.write(f);
+      writer.write('\n');
+    }
+    writer.close();
+    commandLine.add('@' + sourceList.getAbsolutePath());
   }
 }
