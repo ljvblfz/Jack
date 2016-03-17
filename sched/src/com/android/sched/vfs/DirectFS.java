@@ -133,7 +133,6 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
   @Nonnull
   OutputStream openWrite(@Nonnull ParentVFile file, boolean append)
       throws WrongPermissionException {
-    assert !isClosed();
     assert capabilities.contains(Capabilities.WRITE);
 
     File path = getNativeFile(file.getPath());
