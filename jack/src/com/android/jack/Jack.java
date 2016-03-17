@@ -649,15 +649,16 @@ public abstract class Jack {
         }
 
         // TODO(jack-team): Remove this hack
-        boolean preDexing = !getSession().getImportedLibraries().isEmpty();
-        for (InputLibrary il : getSession().getImportedLibraries()) {
+        List<InputLibrary> importedLibraries = session.getImportedLibraries();
+        boolean preDexing = !importedLibraries.isEmpty();
+        for (InputLibrary il : importedLibraries) {
           if (!il.containsFileType(FileType.PREBUILT)) {
             preDexing = false;
           }
         }
         logger.log(Level.INFO, "Jack pre-dexing is " + (preDexing ? "enabled" : "disabled"));
 
-        for (InputLibrary il : getSession().getImportedLibraries()) {
+        for (InputLibrary il : importedLibraries) {
           if (!config.get(Options.USE_PREBUILT_FROM_LIBRARY).booleanValue()
               || !((InputJackLibrary) il).hasCompliantPrebuilts()) {
             ((InputJackLibrary) il).fileTypes.remove(FileType.PREBUILT);
