@@ -26,8 +26,6 @@ import com.android.jack.library.LibraryReadingException;
 import com.android.jack.test.helper.ErrorTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
-import com.android.sched.util.codec.ListParsingException;
-import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.config.PropertyIdException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.FileLocation;
@@ -35,6 +33,7 @@ import com.android.sched.vfs.InputVFile;
 
 import junit.framework.Assert;
 
+import org.junit.Assume;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -59,9 +58,7 @@ public class FileAccessErrorTest {
 
     File jackOutputFile = AbstractTestTools.createTempDir();
     try {
-      if (!jackOutputFile.setReadable(false)) {
-        Assert.fail("Fails to change file permissions of " + jackOutputFile.getAbsolutePath());
-      }
+      Assume.assumeTrue(jackOutputFile.setReadable(false));
       JackApiToolchainBase jackApiToolchain =
           AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
 
@@ -101,9 +98,7 @@ public class FileAccessErrorTest {
         "package jack.incremental; \n" + "public class B extends A {} \n");
 
     // Modify read permission of folder containing jack files
-    if (!helper.getJackFolder().setReadable(false)) {
-      Assert.fail("Fails to change file permissions of " + helper.getJackFolder().getAbsolutePath());
-    }
+    Assume.assumeTrue(helper.getJackFolder().setReadable(false));
 
     jackApiToolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
 
@@ -139,9 +134,7 @@ public class FileAccessErrorTest {
     File a = AbstractTestTools.createFile(te.getSourceFolder(), "jack.incremental", "A.java",
         "package jack.incremental; \n"+
         "public class A {} \n");
-    if (!a.setReadable(false)) {
-      Assert.fail("Fails to change file permissions of " + a.getAbsolutePath());
-    }
+    Assume.assumeTrue(a.setReadable(false));
 
     JackApiToolchainBase jackApiToolchain =
         AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
@@ -194,9 +187,7 @@ public class FileAccessErrorTest {
       while (jackFileIter.hasNext()) {
         InputVFile vFile = jackFileIter.next();
         File file = new File(((FileLocation) vFile.getLocation()).getPath());
-        if (!file.setReadable(false)) {
-          Assert.fail("Fails to change file permissions of " + file.getAbsolutePath());
-        }
+        Assume.assumeTrue(file.setReadable(false));
       }
 
       jackApiToolchain.setErrorStream(errOut);
@@ -247,4 +238,5 @@ public class FileAccessErrorTest {
       Assert.assertTrue(e.getMessage().contains("does not exist"));
     }
   }
+
 }
