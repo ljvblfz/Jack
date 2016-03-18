@@ -85,10 +85,14 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   private final Map<FileType, InputVFS> sectionVFS =
       new EnumMap<FileType, InputVFS>(FileType.class);
 
+  @Nonnull
+  private final VFS originalVFS;
+
   public InputJackLibraryImpl(@Nonnull VFS vfs,
       @Nonnull Properties libraryProperties) throws LibraryVersionException,
       LibraryFormatException {
     super(libraryProperties, vfs);
+    originalVFS = vfs;
 
     check();
     fillFileTypes();
@@ -175,13 +179,16 @@ public class InputJackLibraryImpl extends InputJackLibrary {
 
   @Override
   public synchronized void close() throws LibraryIOException {
-    try {
-      for (InputVFS currentSectionVFS : sectionVFS.values()) {
-        currentSectionVFS.close();
+    if (!originalVFS.isClosed()) {
+      try {
+
+        for (InputVFS currentSectionVFS : sectionVFS.values()) {
+          currentSectionVFS.close();
+        }
+        vfs.close();
+      } catch (IOException e) {
+        throw new LibraryIOException(getLocation(), e);
       }
-      vfs.close();
-    } catch (IOException e) {
-      throw new LibraryIOException(getLocation(), e);
     }
   }
 

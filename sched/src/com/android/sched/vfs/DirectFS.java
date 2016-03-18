@@ -259,11 +259,6 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
   }
 
   @Override
-  synchronized boolean isClosed() {
-    return closed;
-  }
-
-  @Override
   public long getLastModified(@Nonnull ParentVFile file) {
     return getNativeFile(file.getPath()).lastModified();
   }

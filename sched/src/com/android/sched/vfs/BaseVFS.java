@@ -116,8 +116,8 @@ abstract class BaseVFS<DIR extends BaseVDir, FILE extends BaseVFile> implements 
   //
   // Misc
   //
-
-  synchronized boolean isClosed() {
+  @Override
+  public synchronized boolean isClosed() {
     return closed;
   }
 
