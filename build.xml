@@ -383,9 +383,11 @@
   </target>
 
   <target name="jack-create-version-file">
-    <!-- create symlink to ensure consistency between version.properties and jack-version.properties -->
-    <symlink link="${jack.dir}/rsc/jack-version.properties"
-      resource="${jack-project.dir}/version.properties" overwrite="true"/>
+    <!-- force replacement -->
+    <delete file="${jack.dir}/rsc/jack-version.properties"/>
+    <copy file="${jack-project.dir}/version.properties" tofile="${jack.dir}/rsc/jack-version.properties"/>
+    <chmod file="${jack.dir}/rsc/jack-version.properties" perm="a-w"/>
+    <attrib file="${jack.dir}/rsc/jack-version.properties" readonly="true"/>
   </target>
 
   <target name="jack-lib-compile-step1"
@@ -1054,9 +1056,11 @@
   </target>
 
   <target name="jill-create-version-file">
-    <!-- create symlink to ensure consistency between version.properties and jill-version.properties -->
-    <symlink link="${jill.dir}/rsc/jill-version.properties"
-      resource="${jack-project.dir}/version.properties" overwrite="true"/>
+    <!-- force replacement -->
+    <delete file="${jill.dir}/rsc/jill-version.properties"/>
+    <copy file="${jack-project.dir}/version.properties" tofile="${jill.dir}/rsc/jill-version.properties"/>
+    <chmod file="${jill.dir}/rsc/jill-version.properties" perm="a-w"/>
+    <attrib file="${jill.dir}/rsc/jill-version.properties" readonly="true"/>
   </target>
 
   <target name="jill-compile" depends="jill-copy-libs, jill-check, jill-create-version-file" unless="jill.uptodate">
