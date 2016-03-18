@@ -198,14 +198,14 @@ public class FileAccessErrorTest {
     } catch (JackAbortException e) {
       Assert.assertTrue(e.getCause() instanceof LibraryReadingException);
       Assert.assertTrue(e.getCause().getCause() instanceof LibraryIOException);
-    } finally {
-      if (jackLib != null) {
-        jackLib.close();
-      }
       String errOutput = errOut.toString();
       Assert.assertTrue(errOutput.contains(
           "Library reading phase: I/O error when accessing ")); // user reporting
       Assert.assertTrue(errOutput.contains("is not readable")); // user reporting too
+    } finally {
+      if (jackLib != null) {
+        jackLib.close();
+      }
       for (File jackFile : AbstractTestTools.getFiles(te.getJackFolder(), JayceFileImporter.JAYCE_FILE_EXTENSION)) {
         if (!jackFile.setReadable(true)) {
           Assert.fail("Fails to change file permissions of " + jackFile.getAbsolutePath());
