@@ -151,6 +151,7 @@ public abstract class CommonJackLibrary implements JackLibrary {
     for (InputLibrary inputLib : inputLibraries) {
       if (!(inputLib instanceof InputJackLibrary)
           || !(inputLib.getMajorVersion() == currentMajorVersion)
+          || !((InputJackLibrary) inputLib).containsFileType(FileType.PREBUILT)
           || !((InputJackLibrary) inputLib).hasCompliantPrebuilts()) {
         return false;
       }
