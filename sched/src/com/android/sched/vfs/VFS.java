@@ -42,4 +42,6 @@ public interface VFS extends HasLocation, Closeable, HasDescription {
 
   @CheckForNull
   String getDigest();
+
+  boolean isClosed();
 }

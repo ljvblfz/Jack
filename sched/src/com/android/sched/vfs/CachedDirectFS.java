@@ -371,11 +371,6 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
   }
 
   @Override
-  synchronized boolean isClosed() {
-    return closed;
-  }
-
-  @Override
   public long getLastModified(@Nonnull CachedParentVFile file) {
     return getNativeFile(file.getPath()).lastModified();
   }
