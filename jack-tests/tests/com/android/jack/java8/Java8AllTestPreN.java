@@ -28,7 +28,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(JackTestRunner.class)
 @SuiteClasses(value = {
     AnnotationTest.class,
-    BridgeTest.class,
+    BridgeTestPreN.class,
     EcjLambdaTest.class,
     GwtTest.class,
     IntersectionTypeTest.class,
