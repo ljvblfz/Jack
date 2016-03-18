@@ -23,6 +23,7 @@ import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.library.FileType;
 import com.android.jack.library.FileTypeDoesNotExistException;
 import com.android.jack.library.InputJackLibrary;
+import com.android.jack.library.InputLibrary;
 import com.android.jack.library.JackLibrary;
 import com.android.jack.library.LibraryFormatException;
 import com.android.jack.library.LibraryIOException;
@@ -255,7 +256,9 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   }
 
   @Override
-  public void mergeInputLibraries(@Nonnull List<? extends InputJackLibrary> inputJackLibraryList) {
+  @Nonnull
+  public void mergeInputLibraries(
+      @Nonnull List<? extends InputLibrary> importedLibrariesFromCommandLine) {
     throw new UnsupportedOperationException();
   }
 }
