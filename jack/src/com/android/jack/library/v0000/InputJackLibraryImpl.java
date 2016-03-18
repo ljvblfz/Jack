@@ -258,7 +258,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   @Override
   @Nonnull
   public void mergeInputLibraries(
-      @Nonnull List<? extends InputLibrary> importedLibrariesFromCommandLine) {
+      @Nonnull List<? extends InputLibrary> inputLibraries) {
     throw new UnsupportedOperationException();
   }
 }
