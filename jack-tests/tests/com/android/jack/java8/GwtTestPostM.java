@@ -16,6 +16,8 @@
 
 package com.android.jack.java8;
 
+import com.android.jack.Options;
+import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.runtime.RuntimeTestInfo;
@@ -207,10 +209,10 @@ public class GwtTestPostM {
   }
 
   private void run(@Nonnull RuntimeTestInfo rti) throws Exception {
-    new RuntimeTestHelper(rti)
-        .setSourceLevel(SourceLevel.JAVA_8)
-        .addIgnoredCandidateToolchain(JillBasedToolchain.class)
-        .compileAndRunTest();
+    new RuntimeTestHelper(rti).setSourceLevel(SourceLevel.JAVA_8)
+        .addProperty(Options.ANDROID_MIN_API_LEVEL.getName(),
+            String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL))
+        .addIgnoredCandidateToolchain(JillBasedToolchain.class).compileAndRunTest();
   }
 
 }
