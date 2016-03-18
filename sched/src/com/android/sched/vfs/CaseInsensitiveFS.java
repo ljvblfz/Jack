@@ -457,6 +457,7 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
   @Nonnull
   synchronized CaseInsensitiveVFile createVFile(@Nonnull CaseInsensitiveVDir parent,
       @Nonnull String name) throws CannotCreateFileException {
+    assert !isClosed();
 
     try {
       return getVFile(parent, name);
