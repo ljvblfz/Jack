@@ -58,7 +58,10 @@ import com.android.jack.server.type.TextPlain;
 import com.android.sched.util.FinalizerRunner;
 import com.android.sched.util.Version;
 import com.android.sched.util.codec.IntCodec;
+import com.android.sched.util.codec.ListCodec;
 import com.android.sched.util.codec.LongCodec;
+import com.android.sched.util.codec.PairCodec;
+import com.android.sched.util.codec.PairCodec.Pair;
 import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
@@ -105,6 +108,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.ServiceConfigurationError;
@@ -285,6 +289,17 @@ public class JackHttpServer implements HasVersion {
 
   @Nonnull
   private static Logger logger = Logger.getLogger(JackHttpServer.class.getName());
+
+  private static final List<Pair<Integer, Long>> DEFAULT_MAX_SERVICES_BY_MEM = new ArrayList<>();
+  static {
+    DEFAULT_MAX_SERVICES_BY_MEM
+    .add(new Pair<Integer, Long>(Integer.valueOf(1), Long.valueOf(2L * 1024 * 1024 * 1024)));
+    DEFAULT_MAX_SERVICES_BY_MEM
+    .add(new Pair<Integer, Long>(Integer.valueOf(2), Long.valueOf(3L * 1024 * 1024 * 1024)));
+    DEFAULT_MAX_SERVICES_BY_MEM
+    .add(new Pair<Integer, Long>(Integer.valueOf(3), Long.valueOf(4L * 1024 * 1024 * 1024)));
+  }
+
 
   private int portService;
 
@@ -535,8 +550,22 @@ public class JackHttpServer implements HasVersion {
           "Invalid config value for " + ConfigFile.MAX_JAR_SIZE_PROPERTY + ": " + maxJarSize);
       maxJarSize = -1;
     }
+
     maxServices = config.getProperty(ConfigFile.MAX_SERVICE_PROPERTY, Integer.valueOf(4),
         new IntCodec()).intValue();
+    List<Pair<Integer, Long>> maxServicesByMem = config.getProperty(
+        ConfigFile.MAX_SERVICE_BY_MEM_PROPERTY, DEFAULT_MAX_SERVICES_BY_MEM,
+        new ListCodec<>(
+            new PairCodec<>(new IntCodec(1, Integer.MAX_VALUE), new LongCodec()).on("="))
+        .setSeparator(":"));
+    if (!maxServicesByMem.isEmpty()) {
+      long maxMemory = Runtime.getRuntime().maxMemory();
+      for (Pair<Integer, Long> pair : maxServicesByMem) {
+        if (maxMemory < pair.getSecond().longValue()) {
+          maxServices = Math.min(pair.getFirst().intValue(), maxServices);
+        }
+      }
+    }
 
     if (config.isModified() && config.getProperty(ConfigFile.CONFIG_VERSION_PROPERTY,
         Long.valueOf(-1), new LongCodec()).longValue() < ConfigFile.CURRENT_CONFIG_VERSION) {
