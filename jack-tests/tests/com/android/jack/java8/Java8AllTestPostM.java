@@ -29,6 +29,7 @@ import org.junit.runners.Suite.SuiteClasses;
  */
 @RunWith(JackTestRunner.class)
 @SuiteClasses(value = {
+    BridgeTestPostM.class,
     DefaultMethodTest.class,
     EcjInterfaceMethodsTest.class,
     EcjLambdaTestPostM.class,

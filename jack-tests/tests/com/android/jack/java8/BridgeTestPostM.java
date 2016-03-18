@@ -16,33 +16,21 @@
 
 package com.android.jack.java8;
 
-import org.junit.Test;
-
 import com.android.jack.Options;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackApiV01;
-import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 import com.android.jack.transformations.BridgeInInterfaceRemover;
 
-public class BridgeTest {
+import org.junit.Test;
 
-  private RuntimeTestInfo BRIDGE001 = new RuntimeTestInfo(
-      AbstractTestTools.getTestRootDir("com.android.jack.java8.bridges.test001"),
-      "com.android.jack.java8.bridges.test001.jack.Tests");
+public class BridgeTestPostM {
 
   private RuntimeTestInfo BRIDGE002 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.java8.bridges.test002"),
       "com.android.jack.java8.bridges.test002.jack.Tests");
-
-  @Test
-  public void testBridge001() throws Exception {
-    new RuntimeTestHelper(BRIDGE001).setSourceLevel(SourceLevel.JAVA_8)
-        .addIgnoredCandidateToolchain(JackApiV01.class)
-        .addIgnoredCandidateToolchain(JillBasedToolchain.class).compileAndRunTest();
-  }
 
   @Test
   public void testBridge002() throws Exception {
