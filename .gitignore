@@ -1,0 +1,21 @@
+# ANTLR generated files
+jack/src/com/android/jack/preprocessor/Java.tokens
+jack/src/com/android/jack/preprocessor/PreProcessor.tokens
+jack/src/com/android/jack/preprocessor/PreProcessorLexer.java
+jack/src/com/android/jack/preprocessor/PreProcessorParser.java
+jack/src/com/android/jack/preprocessor/PreProcessor_Java.java
+jack/src/com/android/jack/shrob/proguard/Proguard.tokens
+jack/src/com/android/jack/shrob/proguard/ProguardLexer.java
+jack/src/com/android/jack/shrob/proguard/ProguardParser.java
+
+# Generated output / temp files
+**/bin/
+**/build/
+**/dist/
+**/libs/
+**/tools/
+jack-tests/intermediates/
+
+# Version propertie files
+jack/rsc/jack-version.properties
+jill/rsc/jill-version.properties
