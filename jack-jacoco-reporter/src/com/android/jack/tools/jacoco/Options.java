@@ -22,76 +22,96 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+
 /**
  * Jack coverage report tool command-line options.
  */
 public class Options {
   @Option(name = "--metadata-file", metaVar = "<file>",
-      usage = "coverage description file generated at compilation-time", required = true)
-  private File coverageDescriptionFile;
+      usage = "coverage description file generated at compilation-time (repeatable)",
+      required = true)
+  @Nonnull
+  private List<File> coverageDescriptionFiles = new ArrayList<File>();
 
   @Option(name = "--coverage-file", metaVar = "<file>",
-      usage = "coverage execution file generated at run-time", required = true)
-  private File coverageExecutionFile;
+      usage = "coverage execution file generated at run-time (repeatable)", required = true)
+  @Nonnull
+  private List<File> coverageExecutionFiles = new ArrayList<File>();
 
   @Option(name = "--report-dir", metaVar = "<dir>",
       usage = "the directory where the report must be generated.", required = true)
+  @CheckForNull
   private File reportOutputDirectory;
 
   @Option(name = "-h", aliases = "--help", usage = "show help", help = true)
   private boolean showHelp;
 
   @Option(name = "--source-dir", metaVar = "<dir>",
-      usage = "a directory containing Java source files")
+      usage = "a directory containing Java source files (repeatable)")
+  @Nonnull
   private List<File> sourceFilesDirectories = new ArrayList<File>();
 
   @Option(name = "--report-name", metaVar = "<name>", usage = "the name of the report")
+  @Nonnull
   private String reportName = "Report";
 
   @Option(name = "--report-type", metaVar = "<type>",
       usage = "the type of the report (default is HTML)")
+  @Nonnull
   private ReportType reportType = ReportType.HTML;
 
   @Option(name = "--output-encoding", metaVar = "<encoding>",
       usage = "the encoding for output report files (default is UTF-8)")
+  @Nonnull
   private String outputReportEncoding = "UTF-8";
 
   @Option(name = "--input-encoding", metaVar = "<encoding>",
       usage = "the encoding for input source files (default is UTF-8)")
+  @Nonnull
   private String inputSourceFilesEncoding = "UTF-8";
 
   @Option(name = "--tab-width", metaVar = "<value>",
       usage = "the width of tabs in source code (default is 4)")
   private int tabWidth = 4;
 
-  public File getCoverageDescriptionFile() {
-    return coverageDescriptionFile;
+  @Nonnull
+  public List<File> getCoverageDescriptionFiles() {
+    return coverageDescriptionFiles;
   }
 
-  public File getCoverageExecutionFile() {
-    return coverageExecutionFile;
+  @Nonnull
+  public List<File> getCoverageExecutionFiles() {
+    return coverageExecutionFiles;
   }
 
+  @Nonnull
   public List<File> getSourceFilesDirectories() {
     return sourceFilesDirectories;
   }
 
+  @CheckForNull
   public File getReportOutputDirectory() {
     return reportOutputDirectory;
   }
 
+  @Nonnull
   public String getReportName() {
     return reportName;
   }
 
+  @Nonnull
   public ReportType getReportType() {
     return reportType;
   }
 
+  @Nonnull
   public String getOutputReportEncoding() {
     return outputReportEncoding;
   }
 
+  @Nonnull
   public String getInputSourceFilesEncoding() {
     return inputSourceFilesEncoding;
   }
