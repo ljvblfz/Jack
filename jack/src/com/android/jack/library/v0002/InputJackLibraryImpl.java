@@ -39,7 +39,6 @@ import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
-import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.GenericInputVFS;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVFS;
@@ -58,7 +57,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
@@ -68,9 +66,6 @@ import javax.annotation.Nonnull;
  * Jack library used as input.
  */
 public class InputJackLibraryImpl extends InputJackLibrary {
-  @Nonnull
-  private static final Logger logger = LoggerFactory.getLogger();
-
   @Nonnull
   private static final VPath RSC_PREFIX = new VPath("rsc", '/');
 

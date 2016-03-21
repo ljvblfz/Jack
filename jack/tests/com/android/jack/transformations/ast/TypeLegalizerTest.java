@@ -26,6 +26,7 @@ import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JNewArray;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.transformations.ast.TypeLegalizer.TypeLegalizerVisitor;
 import com.android.jack.transformations.request.TransformationRequest;
 
 import org.junit.Test;
@@ -53,7 +54,7 @@ public class TypeLegalizerTest {
     parentSetter.accept(methodBody);
 
     TransformationRequest tr = new TransformationRequest(methodBody);
-    TypeLegalizer.TypeLegalizerVisitor visitor = new TypeLegalizer().new TypeLegalizerVisitor(tr);
+    TypeLegalizer.TypeLegalizerVisitor visitor = new TypeLegalizerVisitor(tr);
     visitor.accept(methodBody);
     tr.commit();
 
