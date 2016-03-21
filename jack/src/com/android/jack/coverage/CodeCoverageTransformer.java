@@ -56,7 +56,8 @@ import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
-import com.android.jack.ir.formatter.SourceFormatter;
+import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
+import com.android.jack.ir.formatter.TypeFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes.CommonType;
 import com.android.jack.lookup.JLookup;
@@ -128,6 +129,9 @@ public class CodeCoverageTransformer implements RunnableSchedulable<JDefinedClas
       JModifier.PRIVATE | JModifier.STATIC;
 
   private static final String LOCAL_VAR_NAME_PREFIX = "cov";
+
+  @Nonnull
+  private final TypeFormatter binaryTypeFormatter = BinaryQualifiedNameFormatter.getFormatter();
 
   @Override
   public void run(@Nonnull JDefinedClassOrInterface declaredType) throws Exception {
@@ -326,7 +330,7 @@ public class CodeCoverageTransformer implements RunnableSchedulable<JDefinedClas
    * @param transformationRequest
    * @param classId
    */
-  private static void fillCoverageInitMethodBody(@Nonnull JMethod coverageInitMethod,
+  private void fillCoverageInitMethodBody(@Nonnull JMethod coverageInitMethod,
       @Nonnull JDefinedClassOrInterface declaredType, @Nonnegative int probeCount,
       @Nonnull TransformationRequest transformationRequest, @Nonnull JField coverageDataField,
       long classId) {
@@ -390,11 +394,11 @@ public class CodeCoverageTransformer implements RunnableSchedulable<JDefinedClas
           classNameType, ifBlock.getSourceInfo(), transformationRequest);
       JLocal probeCountLocal = localVarCreator.createTempLocal(
           probeCountType, ifBlock.getSourceInfo(), transformationRequest);
+
       // Init locals.
       JStatement classIdInit = createLocalAssignStatement(
           classIdLocal, new JLongLiteral(classIdLocal.getSourceInfo(), classId));
-      String fullyQualifiedClassName = SourceFormatter.getFormatter().getName(declaredType);
-      String className = NamingTools.getTypeSignatureName(fullyQualifiedClassName);
+      String className = binaryTypeFormatter.getName(declaredType);
       JStatement classNameInit = createLocalAssignStatement(
           classNameLocal, new JStringLiteral(classNameLocal.getSourceInfo(), className));
       JStatement probeCountInit = createLocalAssignStatement(
@@ -402,6 +406,7 @@ public class CodeCoverageTransformer implements RunnableSchedulable<JDefinedClas
       transformationRequest.append(new AppendStatement(ifBlock, classIdInit));
       transformationRequest.append(new AppendStatement(ifBlock, classNameInit));
       transformationRequest.append(new AppendStatement(ifBlock, probeCountInit));
+
       // Add '<local> = org.jacoco...Offline.getProbes(<classId>, <className>, <probeCount>)'
       JMethodCall methodCall = new JMethodCall(ifBlock.getSourceInfo(), null, jacocoClass,
           jacocoMethodId, JPrimitiveTypeEnum.BOOLEAN.getType().getArray(), false);

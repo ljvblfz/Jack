@@ -21,12 +21,12 @@ import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.ir.formatter.BinarySignatureFormatter;
-import com.android.jack.ir.formatter.SourceFormatter;
 import com.android.jack.ir.formatter.TypeAndMethodFormatter;
+import com.android.jack.ir.formatter.TypeFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
@@ -66,9 +66,18 @@ public class CodeCoverageMetadataFileWriter implements RunnableSchedulable<JSess
   @Nonnull
   public static final String JSON_DATA_ATTRIBUTE = "data";
 
-  private static final TypeAndMethodFormatter binaryFormatter =
+  /**
+   * Formatter used to get the binary name of a type.
+   */
+  @Nonnull
+  private static final TypeFormatter typeFormatter = BinaryQualifiedNameFormatter.getFormatter();
+
+  /**
+   * Formatter used to get the binary signature of a method.
+   */
+  @Nonnull
+  private static final TypeAndMethodFormatter methodFormatter =
       BinarySignatureFormatter.getFormatter();
-  private static final TypeAndMethodFormatter sourceFormatter = SourceFormatter.getFormatter();
 
   private static class Visitor extends JVisitor {
     private static final String ONE_TAB = "  ";
@@ -86,17 +95,6 @@ public class CodeCoverageMetadataFileWriter implements RunnableSchedulable<JSess
     public Visitor(@Nonnull PrintStream writer, @Nonnull CodeCoverageMarker marker) {
       this.writer = writer;
       this.marker = marker;
-    }
-
-    private static String getMethodDesc(@Nonnull JMethod method) {
-      StringBuilder sb = new StringBuilder();
-      sb.append('(');
-      for (JParameter p : method.getParams()) {
-        sb.append(binaryFormatter.getName(p.getType()));
-      }
-      sb.append(')');
-      sb.append(binaryFormatter.getName(method.getType()));
-      return sb.toString();
     }
 
     private void indent() {
@@ -129,8 +127,9 @@ public class CodeCoverageMetadataFileWriter implements RunnableSchedulable<JSess
 
     @Override
     public boolean visit(@Nonnull JDefinedClassOrInterface x) {
+      String className = typeFormatter.getName(x);
       JClass superClass = x.getSuperClass();
-      String superClassName = (superClass != null) ? sourceFormatter.getName(superClass) : "";
+      String superClassName = (superClass != null) ? typeFormatter.getName(superClass) : "";
       String sourceFilename = getSourceFileNameWithoutPath(x);
       List<ProbeDescription> probes = marker.getProbes();
 
@@ -153,7 +152,7 @@ public class CodeCoverageMetadataFileWriter implements RunnableSchedulable<JSess
 
       indent();
       println("\"id\": " + marker.getClassId() + ",");
-      println("\"name\": \"" + binaryFormatter.getName(x) + "\",");
+      println("\"name\": \"" + className + "\",");
       println("\"superClassName\": \"" + superClassName + "\",");
       println("\"sourceFile\": \"" + sourceFilename + "\",");
       println("\"interfaces\": [");
@@ -162,7 +161,7 @@ public class CodeCoverageMetadataFileWriter implements RunnableSchedulable<JSess
       for (int i = 0, e = interfaces.size(); i < e; ++i) {
         JInterface inf = interfaces.get(i);
         String commaSuffix = (i < e - 1 ? "," : "");
-        println("\"" + binaryFormatter.getName(inf) + "\"" + commaSuffix);
+        println("\"" + typeFormatter.getName(inf) + "\"" + commaSuffix);
       }
       unindent();
       println("],");
@@ -171,11 +170,16 @@ public class CodeCoverageMetadataFileWriter implements RunnableSchedulable<JSess
       indent();
       for (int i = 0, e = methods.size(); i < e; ++i) {
         JMethod m = methods.get(i);
+        String methodSignature = methodFormatter.getName(m);
+        int nameEndPos = methodSignature.indexOf('(');
+        assert nameEndPos > 0;
+        String methodName = methodSignature.substring(0, nameEndPos);
+        String methodDesc = methodSignature.substring(nameEndPos);
         println("{");
         indent();
         println("\"id\": " + i + ",");
-        println("\"name\": \"" + m.getName() + "\",");
-        println("\"desc\": \"" + getMethodDesc(m) + "\"");
+        println("\"name\": \"" + methodName + "\",");
+        println("\"desc\": \"" + methodDesc + "\"");
         unindent();
         if (i == e - 1) {
           println("}");

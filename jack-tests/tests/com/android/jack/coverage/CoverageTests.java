@@ -61,7 +61,7 @@ public class CoverageTests {
     JsonObject testClass = classes.get(0).getAsJsonObject();
     Assert.assertNotNull(testClass);
     Assert.assertEquals(
-        NamingTools.getTypeSignatureName(testPackageName + ".AbstractClass"),
+        getClassNameForJson(testPackageName + ".AbstractClass"),
         getClassName(testClass));
 
     // Check its methods.
@@ -213,7 +213,7 @@ public class CoverageTests {
 
   @Nonnull
   private static String getClassNameForJson(@Nonnull String className) {
-    return NamingTools.getTypeSignatureName(className);
+    return NamingTools.getBinaryName(className);
   }
 
   @Nonnull

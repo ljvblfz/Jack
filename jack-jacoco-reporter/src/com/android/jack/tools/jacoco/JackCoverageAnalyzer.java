@@ -131,7 +131,7 @@ public class JackCoverageAnalyzer {
   @Nonnull
   private IClassCoverage readClass(@Nonnull JsonReader jsonReader) throws IOException {
     long id = 0;
-    String classSignature = null;
+    String className = null;
     String sourceFile = null;
     String superClassName = null;
     List<IMethodCoverage> methods = new ArrayList<IMethodCoverage>();
@@ -144,7 +144,7 @@ public class JackCoverageAnalyzer {
       if ("id".equals(attributeName)) {
         id = jsonReader.nextLong();
       } else if ("name".equals(attributeName)) {
-        classSignature = jsonReader.nextString();
+        className = jsonReader.nextString();
       } else if ("sourceFile".equals(attributeName)) {
         sourceFile = jsonReader.nextString();
       } else if ("superClassName".equals(attributeName)) {
@@ -166,19 +166,16 @@ public class JackCoverageAnalyzer {
     if (executionData != null) {
       noMatch = false;
       // Check there is no id collision.
-      executionData.assertCompatibility(id, classSignature, probes.size());
+      executionData.assertCompatibility(id, className, probes.size());
     } else {
-      noMatch = executionDataStore.contains(classSignature);
+      noMatch = executionDataStore.contains(className);
     }
-
-    // Convert class signature to fully-qualified class name.
-    String className = classSignature.substring(1, classSignature.length() - 1);
 
     // Build the class coverage.
     String[] interfacesArray = interfaces.toArray(new String[0]);
     ClassCoverageImpl c =
         new ClassCoverageImpl(
-            className, id, noMatch, classSignature, superClassName, interfacesArray);
+            className, id, noMatch, "L" + className + ";", superClassName, interfacesArray);
     c.setSourceFileName(sourceFile);
 
     // Update methods with probes.
