@@ -2571,6 +2571,6 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
   @Nonnull
   private String stringLegalizer(@Nonnull String str) {
     return str.replace('/', '_').replace(';', '_').replace('<', '_').replace('>', '_')
-        .replace(':', '_');
+        .replace(':', '_').replace('[', '_');
   }
 }
