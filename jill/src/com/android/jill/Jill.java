@@ -19,6 +19,7 @@ package com.android.jill;
 import com.android.jill.frontend.java.JavaTransformer;
 import com.android.jill.utils.FileUtils;
 import com.android.sched.util.Version;
+import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.ListDirException;
 
 import java.io.File;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.JarFile;
+import java.util.logging.Level;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -47,10 +49,21 @@ public class Jill {
         javaBinaryFiles.add(binaryFile);
         jt.transform(javaBinaryFiles);
       } else if (FileUtils.isJarFile(binaryFile)) {
+        JarFile jarFile = null;
         try {
-          jt.transform(new JarFile(binaryFile));
+          jarFile = new JarFile(binaryFile);
+          jt.transform(jarFile);
         } catch (IOException e) {
           throw new JillException("Failed to create jar file " + binaryFile.getName(), e);
+        } finally {
+          if (jarFile != null) {
+            try {
+              jarFile.close();
+            } catch (IOException e) {
+              LoggerFactory.getLogger()
+                  .log(Level.WARNING, "Failed to close jar file " + binaryFile.getName());
+            }
+          }
         }
       } else {
         throw new JillException("Unsupported file type: " + binaryFile.getName());
