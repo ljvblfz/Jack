@@ -24,6 +24,7 @@ import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
+import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.ThreadConfig;
@@ -37,6 +38,10 @@ import javax.annotation.Nonnull;
  */
 @Description("Remove bridges from interfaces based on the value of the minumun Android API level")
 @Support(EnsureAndroidCompatibility.class)
+// This schedulable can be run in parallel on methods belonging to the same type that can lead to
+// remove several methods in the same time on the same type and it is not supported, thus this
+// schedulable must be synchronized
+@Synchronized
 public class BridgeInInterfaceRemover implements RunnableSchedulable<JMethod> {
 
   @Nonnegative
