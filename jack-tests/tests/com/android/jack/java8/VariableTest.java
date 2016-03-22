@@ -42,7 +42,8 @@ public class VariableTest {
    */
   @Test
   public void test001() throws Exception {
-    File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.java8.variable.test001.jack");
+    File testFolder =
+        AbstractTestTools.getTestRootDir("com.android.jack.java8.variable.test001.jack");
     File out = AbstractTestTools.createTempDir();
 
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
@@ -61,7 +62,6 @@ public class VariableTest {
       Assert.assertTrue(errOut.toString().contains(
           "Local variable value defined in an enclosing scope must be final or effectively final"));
     }
-
   }
 
   /**
@@ -70,7 +70,8 @@ public class VariableTest {
    */
   @Test
   public void test002() throws Exception {
-    File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.java8.variable.test002.jack");
+    File testFolder =
+        AbstractTestTools.getTestRootDir("com.android.jack.java8.variable.test002.jack");
     File out = AbstractTestTools.createTempDir();
 
     List<Class<? extends IToolchain>> excludeClazz = new ArrayList<Class<? extends IToolchain>>(2);
@@ -83,6 +84,75 @@ public class VariableTest {
     .setSourceLevel(SourceLevel.JAVA_8)
     .srcToExe(out, /* zipFile = */ false, testFolder);
 
+  }
+
+  /**
+   * Test that we report a compilation error when a local class attempt to access an effectively not
+   * final local variable.
+   */
+  @Test
+  public void test003() throws Exception {
+    File testFolder =
+        AbstractTestTools.getTestRootDir("com.android.jack.java8.variable.test003.jack");
+    File out = AbstractTestTools.createTempDir();
+
+    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+    IToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .setErrorStream(errOut);
+    try {
+      toolchain.srcToExe(out, /* zipFile = */ false, testFolder);
+      Assert.fail();
+    } catch (FrontendCompilationException e) {
+      Assert.assertTrue(errOut.toString().contains("notFinal"));
+    }
+  }
+
+  /**
+   * Test that we compile correctly when a local class access an effectively final local variable
+   * even when not declared final and source level is java 8.
+   */
+  @Test
+  public void test004_1() throws Exception {
+    File testFolder =
+        AbstractTestTools.getTestRootDir("com.android.jack.java8.variable.test004.jack");
+    File out = AbstractTestTools.createTempDir();
+
+    List<Class<? extends IToolchain>> excludeClazz = new ArrayList<Class<? extends IToolchain>>(2);
+    excludeClazz.add(JackApiV01.class);
+    excludeClazz.add(JillBasedToolchain.class);
+    IToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeClazz);
+
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .setSourceLevel(SourceLevel.JAVA_8)
+    .srcToExe(out, /* zipFile = */ false, testFolder);
+
+  }
+
+  /**
+   * Test that we report a compilation problem when a local class access an effectively final local
+   * variable but not declared final and source level is java 7.
+   */
+  @Test
+  public void test004_2() throws Exception {
+    File testFolder =
+        AbstractTestTools.getTestRootDir("com.android.jack.java8.variable.test004.jack");
+    File out = AbstractTestTools.createTempDir();
+
+    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+    IToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .setSourceLevel(SourceLevel.JAVA_7)
+    .setErrorStream(errOut);
+    try {
+      toolchain.srcToExe(out, /* zipFile = */ false, testFolder);
+      Assert.fail();
+    } catch (FrontendCompilationException e) {
+      Assert.assertTrue(errOut.toString().contains("effectivelyFinal"));
+    }
   }
 
 }
