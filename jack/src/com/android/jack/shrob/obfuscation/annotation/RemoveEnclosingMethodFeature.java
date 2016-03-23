@@ -23,6 +23,6 @@ import com.android.sched.item.Feature;
  * A {@link Feature} that represents the removal of the enclosing method of a type.
  */
 @Description("The removal of the enclosing method of a type.")
-public class RemoveEnclosingMethod implements Feature {
+public class RemoveEnclosingMethodFeature implements Feature {
 
 }
