@@ -47,6 +47,7 @@ import com.android.sched.vfs.VPath;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,6 +55,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
@@ -103,10 +105,21 @@ public abstract class DexWritingTool {
 
   protected void mergeDex(@Nonnull JackMerger merger, InputVFile inputDex)
       throws MergingOverflowException, DexWritingException {
+    InputStream inputStream = null;
     try {
-      merger.addDexFile(new DexBuffer(inputDex.getInputStream()));
+      inputStream = inputDex.getInputStream();
+      merger.addDexFile(new DexBuffer(inputStream));
     } catch (IOException e) {
       throw new DexWritingException(new CannotReadException(inputDex, e));
+    } finally {
+      if (inputStream != null) {
+        try {
+          inputStream.close();
+        } catch (IOException e) {
+          logger.log(
+              Level.WARNING, "Failed to close ''{0}''", inputDex.getLocation().getDescription());
+        }
+      }
     }
   }
 
