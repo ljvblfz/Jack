@@ -16,11 +16,14 @@
 
 package com.android.jack.util.collect;
 
+import com.android.jack.Jack;
+import com.android.sched.util.SubReleaseKind;
 import com.android.sched.util.codec.DefaultFactorySelector;
 import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.codec.VariableName;
 import com.android.sched.util.config.DefaultFactory;
 import com.android.sched.util.config.HasKeyId;
+import com.android.sched.util.config.category.Private;
 import com.android.sched.util.config.id.PropertyId;
 
 import java.util.Collection;
@@ -40,7 +43,7 @@ public interface UnmodifiableCollections {
   /**
    * {@link UnmodifiableCollections} with checks enabled.
    */
-  @ImplementationName(iface = UnmodifiableCollections.class, name = "checks-enabled")
+  @ImplementationName(iface = UnmodifiableCollections.class, name = "always-check")
   public class ChecksEnabledUnmodifiableCollection implements UnmodifiableCollections {
     /**
      * @see Collections#unmodifiableList(List)
@@ -73,7 +76,7 @@ public interface UnmodifiableCollections {
   /**
    * {@link UnmodifiableCollections} with checks disabled.
    */
-  @ImplementationName(iface = UnmodifiableCollections.class, name = "checks-disabled")
+  @ImplementationName(iface = UnmodifiableCollections.class, name = "never-check")
   public class ChecksdisabledUnmodifiableCollection implements UnmodifiableCollections {
     @Override
     @Nonnull
@@ -97,9 +100,11 @@ public interface UnmodifiableCollections {
   @Nonnull
   public static final PropertyId<DefaultFactory<UnmodifiableCollections>> UNMODIFIABLE_COLLECTION =
       PropertyId.create("jack.collections.unmodifiable",
-          "Define which checks are activated when using an unmodifiable collection",
+          "Policy when using an unmodifiable collection",
           new DefaultFactorySelector<UnmodifiableCollections>(UnmodifiableCollections.class))
-          .addDefaultValue("checks-enabled");
+      .addDefaultValue((Jack.getVersion().getSubReleaseKind() == SubReleaseKind.ENGINEERING)
+          ? "always-check" : "never-check")
+      .addCategory(Private.class);
 
   /**
    * @see Collections#unmodifiableList(List)
