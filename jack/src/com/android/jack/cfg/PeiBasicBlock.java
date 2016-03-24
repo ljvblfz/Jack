@@ -31,14 +31,21 @@ import javax.annotation.Nonnull;
 public class PeiBasicBlock extends NormalBasicBlock {
 
   @Nonnegative
-  private static final int EXCEPTION_BLOCKS_START_INDEX = 1;
+  protected static final int UNCAUGHT_PEI_EXIT_BLOCK_INDEX = 1;
+
+  @Nonnegative
+  private static final int EXCEPTION_BLOCKS_START_INDEX = 2;
 
   public PeiBasicBlock(@Nonnegative int id, @Nonnull List<JStatement> statements) {
-    super(id, statements, NORMAL_BLOCK_FIXED_BLOCK_COUNT);
+    super(id, statements, NORMAL_BLOCK_FIXED_BLOCK_COUNT + 1 /*exit node if no catch block*/);
   }
 
   public void addExceptionBlock(@Nonnull CatchBasicBlock exceptionBb) {
     addSuccessor(EXCEPTION_BLOCKS_START_INDEX, exceptionBb);
+  }
+
+  public void setExitBlockWhenUncaught(@Nonnull ExitBlock exitBlock) {
+    setSuccessor(UNCAUGHT_PEI_EXIT_BLOCK_INDEX, exitBlock);
   }
 
   @SuppressWarnings("unchecked")

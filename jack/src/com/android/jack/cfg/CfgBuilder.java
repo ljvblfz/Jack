@@ -377,6 +377,8 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
       forwardBranchResolver.addPeiBasicBlock(throwBlock, null /* targetStatement */,
           throwStmt.getJCatchBlocks());
 
+      throwBlock.setExitBlockWhenUncaught(exitBlock);
+
       return false;
     }
 
@@ -465,6 +467,8 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
 
       JStatement nextStatement = ControlFlowHelper.getNextStatement(peiInst);
       forwardBranchResolver.addPeiBasicBlock(peiBlock, nextStatement, peiInst.getJCatchBlocks());
+
+      peiBlock.setExitBlockWhenUncaught(exitBlock);
     }
   }
 
