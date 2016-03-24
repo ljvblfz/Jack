@@ -89,7 +89,7 @@ public class TypeLegalizer implements RunnableSchedulable<JMethod> {
   @Nonnull
   private final JPhantomLookup lookup = Jack.getSession().getPhantomLookup();
 
-  class TypeLegalizerVisitor extends JVisitor {
+  static class TypeLegalizerVisitor extends JVisitor {
 
     @Nonnull
     private final TransformationRequest tr;
