@@ -162,7 +162,7 @@ import com.android.jack.shrob.obfuscation.annotation.MethodGenericSignatureRemov
 import com.android.jack.shrob.obfuscation.annotation.ParameterAnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.ParameterNameRemover;
 import com.android.jack.shrob.obfuscation.annotation.RemoveAnnotationDefaultValue;
-import com.android.jack.shrob.obfuscation.annotation.RemoveEnclosingMethod;
+import com.android.jack.shrob.obfuscation.annotation.RemoveEnclosingMethodFeature;
 import com.android.jack.shrob.obfuscation.annotation.RemoveEnclosingType;
 import com.android.jack.shrob.obfuscation.annotation.RemoveGenericSignature;
 import com.android.jack.shrob.obfuscation.annotation.RemoveLineNumber;
@@ -517,7 +517,7 @@ public abstract class Jack {
             request.addFeature(Obfuscation.class);
 
             if (!options.flags.keepAttribute("EnclosingMethod")) {
-              request.addFeature(RemoveEnclosingMethod.class);
+              request.addFeature(RemoveEnclosingMethodFeature.class);
             }
             if (!options.flags.keepAttribute("InnerClasses")) {
               request.addFeature(RemoveEnclosingType.class);
@@ -1556,7 +1556,7 @@ public abstract class Jack {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       typePlan.append(TypeAnnotationRemover.class);
-      if (features.contains(RemoveEnclosingMethod.class)) {
+      if (features.contains(RemoveEnclosingMethodFeature.class)) {
         typePlan.append(TypeEnclosingMethodRemover.class);
       }
       if (features.contains(RemoveEnclosingType.class)) {
