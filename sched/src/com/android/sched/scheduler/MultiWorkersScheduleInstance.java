@@ -98,7 +98,7 @@ public class MultiWorkersScheduleInstance<T extends Component>
     if (isSynchronizedManaged) {
       int idx = 0;
       for (PlanStep step : plan) {
-        if (step.getManagedSchedulable().isSynchronized(steps[idx].instance)) {
+        if (step.getManagedSchedulable().isSynchronized(steps[idx].getInstance())) {
           syncs[idx] = new Synchronized();
         }
         ++idx;
@@ -393,28 +393,48 @@ public class MultiWorkersScheduleInstance<T extends Component>
 
   private static class SequentialTask<U extends Component> extends Task {
     @Nonnull
-    private final U data;
+    private static final Logger logger = LoggerFactory.getLogger();
+
+    @Nonnull
+    private final U component;
     private int next = 0;
     @Nonnull
-    private final MultiWorkersScheduleInstance<U> instances;
+    private final MultiWorkersScheduleInstance<U> schedule;
+    @Nonnull
+    private final ComponentFilterSet currentFilters;
 
     public SequentialTask(@Nonnull Deque<Task> queue,
-        @Nonnull MultiWorkersScheduleInstance<U> instances, @Nonnull U data,
-        @Nonnull Task blocking) {
+        @Nonnull MultiWorkersScheduleInstance<U> schedule, @Nonnull U component,
+        @Nonnull ComponentFilterSet parentFilters, @Nonnull Task blocking) {
       super(queue, blocking);
 
-      this.data = data;
-      this.instances = instances;
+      this.component = component;
+      this.schedule = schedule;
+      this.currentFilters = schedule.applyFilters(parentFilters, component);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public boolean process() {
       while (true) {
-        if (next < instances.steps.length) {
-          SchedStep step = instances.steps[next];
-          Synchronized sync = instances.syncs[next];
+        if (next < schedule.steps.length) {
+          ScheduleInstance<U>.SchedStep<U> step = schedule.steps[next];
+          Synchronized sync = schedule.syncs[next];
           Schedulable instance = step.getInstance();
+
+          if (step.isSkippable(currentFilters)) {
+            if (logger.isLoggable(Level.FINER)) {
+              logger.log(Level.FINER, "Skiping {0} ''{1}'' because requiring {2} but having {3}",
+                  new Object[] {
+                      (step instanceof ScheduleInstance.RunnableSchedStep) ? "runner" : "adapter",
+                      step.getName(),
+                      step.getRequiredFilters(),
+                      currentFilters});
+            }
+
+            next++;
+            continue;
+          }
 
           if (sync != null && !sync.tryLock(this)) {
             break;
@@ -423,15 +443,18 @@ public class MultiWorkersScheduleInstance<T extends Component>
           next++;
           try {
             if (instance instanceof AdapterSchedulable) {
-              Iterator<U> dataIter = instances.adaptWithLog((AdapterSchedulable) instance, data);
+              Iterator<U> dataIter =
+                  schedule.adaptWithLog((AdapterSchedulable) instance, component);
               if (dataIter.hasNext()) {
                 MultiWorkersScheduleInstance<?> subSchedInstance =
-                    (MultiWorkersScheduleInstance<?>) step.getSubSchedInstance();
+                    (MultiWorkersScheduleInstance<?>) ((ScheduleInstance.AdapterSchedStep) step)
+                        .getSubSchedInstance();
                 assert subSchedInstance != null;
 
                 prepare();
                 do {
-                  new SequentialTask(queue, subSchedInstance, dataIter.next(), this).commit();
+                  new SequentialTask(queue, subSchedInstance, dataIter.next(), currentFilters, this)
+                      .commit();
                 } while (dataIter.hasNext());
                 commit();
                 break;
@@ -439,9 +462,9 @@ public class MultiWorkersScheduleInstance<T extends Component>
 
               // No data, next in SequentialTask.
             } else if (instance instanceof RunnableSchedulable) {
-              instances.runWithLog((RunnableSchedulable) instance, data);
+              schedule.runWithLog((RunnableSchedulable) instance, component);
             } else if (instance instanceof VisitorSchedulable) {
-              instances.visitWithLog((VisitorSchedulable) instance, data);
+              schedule.visitWithLog((VisitorSchedulable) instance, component);
             } else {
               throw new AssertionError();
             }
@@ -467,7 +490,7 @@ public class MultiWorkersScheduleInstance<T extends Component>
     @Nonnull
     public String toString() {
       return "a sequential task running " + Items.getName(
-          instances.steps[next - 1].getInstance().getClass()) + " on '" + data.toString() + "'";
+          schedule.steps[next - 1].getInstance().getClass()) + " on '" + component.toString() + "'";
     }
   }
 
@@ -478,7 +501,8 @@ public class MultiWorkersScheduleInstance<T extends Component>
 
     // Initialize queue with the initial plan, and block a shutdown Task on it
     Task shutdown = new ShutdownTask(queue);
-    new SequentialTask<T>(queue, this, data, shutdown).commit();
+    new SequentialTask<T>(queue, this, data, Scheduler.getScheduler().createComponentFilterSet(),
+        shutdown).commit();
     shutdown.commit();
 
     // Create threads

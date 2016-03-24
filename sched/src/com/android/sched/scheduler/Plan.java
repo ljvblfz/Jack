@@ -43,6 +43,8 @@ public class Plan<T extends Component> implements Iterable<PlanStep>  {
   private final Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
+  private final Class<? extends Component> runOn;
+  @Nonnull
   private final List<PlanStep> plan = new ArrayList<PlanStep>();
   @Nonnull
   private final Map<PlanStep, TagOrMarkerOrComponentSet> minimalMarkers =
@@ -51,9 +53,18 @@ public class Plan<T extends Component> implements Iterable<PlanStep>  {
   @CheckForNull
   private FeatureSet features;
 
+  public Plan(@Nonnull Class<? extends Component> runOn) {
+    this.runOn = runOn;
+  }
+
   @Nonnull
   public ScheduleInstance<T> getScheduleInstance() {
     return ScheduleInstance.<T> createScheduleInstance(this);
+  }
+
+  @Nonnull
+  public Class<? extends Component> getRunOn() {
+    return runOn;
   }
 
   void initPlan(@Nonnull PlanBuilder<T> builder) throws PlanError {

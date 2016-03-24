@@ -16,6 +16,7 @@
 
 package com.android.sched.scheduler;
 
+import com.android.sched.filter.ComponentFilterManager;
 import com.android.sched.item.Feature;
 import com.android.sched.item.ItemManager;
 import com.android.sched.item.Production;
@@ -44,16 +45,21 @@ public class Scheduler {
   @Nonnull
   private final ItemManager featureManager;
   @Nonnull
-  private final ItemManager tagOrMarkerOrCompnentManager;
+  private final ItemManager tagOrMarkerOrComponentManager;
   @Nonnull
   private final ItemManager productionManager;
   @Nonnull
-  private final SchedulableManager schedulableManager = SchedulableManager.getSchedulableManager();
+  private final ComponentFilterManager filterManager;
+  @Nonnull
+  private final SchedulableManager schedulableManager;
 
   private Scheduler() {
     this.featureManager = ItemManager.createItemManager(Feature.class);
-    this.tagOrMarkerOrCompnentManager = ItemManager.createItemManager(TagOrMarkerOrComponent.class);
+    this.tagOrMarkerOrComponentManager =
+        ItemManager.createItemManager(TagOrMarkerOrComponent.class);
     this.productionManager = ItemManager.createItemManager(Production.class);
+    this.filterManager = ComponentFilterManager.createComponentFilterManager();
+    this.schedulableManager = SchedulableManager.getSchedulableManager();
 
     ManagedDataListenerFactory.getManagedDataListener().notifyNoMoreItemManager();
   }
@@ -90,11 +96,41 @@ public class Scheduler {
 
   @Nonnull
   public TagOrMarkerOrComponentSet createTagOrMarkerOrComponentSet() {
-    return new TagOrMarkerOrComponentSet(tagOrMarkerOrCompnentManager);
+    return new TagOrMarkerOrComponentSet(tagOrMarkerOrComponentManager);
   }
 
   @Nonnull
   public ProductionSet createProductionSet() {
     return new ProductionSet(productionManager);
+  }
+
+  @Nonnull
+  public ComponentFilterSet createComponentFilterSet() {
+    return new ComponentFilterSet(filterManager);
+  }
+
+  @Nonnull
+  public ItemManager getFeatureManager() {
+    return featureManager;
+  }
+
+  @Nonnull
+  public ItemManager getTagOrMarkerOrComponentManager() {
+    return tagOrMarkerOrComponentManager;
+  }
+
+  @Nonnull
+  public ItemManager getProductionManager() {
+    return productionManager;
+  }
+
+  @Nonnull
+  public ComponentFilterManager getFilterManager() {
+    return filterManager;
+  }
+
+  @Nonnull
+  public SchedulableManager getSchedulableManager() {
+    return schedulableManager;
   }
 }

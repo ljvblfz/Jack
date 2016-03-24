@@ -26,9 +26,9 @@ import com.android.sched.util.sched.ManagedDataListenerFactory;
 
 import java.lang.reflect.Modifier;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -55,7 +55,7 @@ public abstract class ItemManager {
 
   @Nonnull
   protected Map<Class<? extends Item>, ManagedItem> map =
-      new HashMap<Class<? extends Item>, ManagedItem>();
+      new ConcurrentHashMap<Class<? extends Item>, ManagedItem>();
 
   @Nonnegative
   private int currentNumIntegers = 0;
@@ -115,12 +115,13 @@ public abstract class ItemManager {
   }
 
   @Nonnull
-  Collection<ManagedItem> getManagedItems() {
+  protected Collection<ManagedItem> getManagedItems() {
     return map.values();
   }
 
   @Nonnull
   protected ManagedItem registerItem (@Nonnull Class<? extends Item> item) {
+    ManagedItem mi;
     int posNumIntegers;
     int posNumBits;
 
@@ -138,9 +139,37 @@ public abstract class ItemManager {
         }
       }
 
-      return new ManagedConcreteItem(item, this, posNumIntegers, posNumBits);
+      mi = new ManagedConcreteItem(item, this, posNumIntegers, posNumBits);
     } else {
-      return new ManagedItem(item, this);
+      mi = new ManagedItem(item, this);
     }
+
+    map.put(item, mi);
+
+    return mi;
+  }
+
+  @Nonnull
+  protected void registerManagedItem (@Nonnull ManagedItem mi) {
+    int posNumIntegers;
+    int posNumBits;
+
+    if (mi instanceof ManagedConcreteItem) {
+      // Not a ComposedOf, neither a abstract class affect position in bitmap
+      synchronized (this) {
+        itemsCount++;
+        posNumIntegers = currentNumIntegers;
+        posNumBits = currentNumBits++;
+
+        if (currentNumBits == Long.SIZE) {
+          currentNumBits = 0;
+          currentNumIntegers++;
+        }
+
+        ((ManagedConcreteItem) mi).setPosition(posNumIntegers, posNumBits);
+      }
+    }
+
+    map.put(mi.getItem(), mi);
   }
 }

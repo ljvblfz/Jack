@@ -122,4 +122,23 @@ public class ManagedItem implements HasDescription {
 
     return new String(sb);
   }
+
+  @Override
+  public final int hashCode() {
+    return item.hashCode() ^ manager.hashCode();
+  }
+
+  @Override
+  public final boolean equals(@CheckForNull Object obj) {
+    if (this == obj) {
+      return true;
+    }
+
+    if  (!(obj instanceof ManagedItem)) {
+      return false;
+    }
+
+    ManagedItem other = (ManagedItem) obj;
+    return item.equals(other.item) && manager.equals(other.manager);
+  }
 }

@@ -18,6 +18,7 @@ package com.android.sched.util.sched;
 
 import com.google.common.collect.Iterators;
 
+import com.android.sched.filter.ManagedComponentFilter;
 import com.android.sched.item.AbstractComponent;
 import com.android.sched.item.Component;
 import com.android.sched.item.Feature;
@@ -33,6 +34,7 @@ import com.android.sched.marker.ManagedMarker.InternalDynamicValidOn;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.MarkerNotConformException;
 import com.android.sched.schedulable.AdapterSchedulable;
+import com.android.sched.schedulable.ComponentFilter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.scheduler.FeatureSet;
 import com.android.sched.scheduler.ManagedRunnable;
@@ -132,6 +134,8 @@ public class ManagedDataAsReport implements ManagedDataListener {
       addManagedProduction(item);
     } else if (Feature.class.isAssignableFrom(item.getItem())) {
       addManagedFeature(item);
+    } else if (ComponentFilter.class.isAssignableFrom(item.getItem())) {
+      addManagedComponentFilter(item);
     }
   }
 
@@ -189,6 +193,7 @@ public class ManagedDataAsReport implements ManagedDataListener {
         public DataModel apply(final Class<? extends Item> data) {
           return new DataModel() {
             @Override
+            @Nonnull
             public Iterator<Object> iterator() {
               return Iterators.<Object>forArray(getId(data, category));
             }
@@ -233,6 +238,7 @@ public class ManagedDataAsReport implements ManagedDataListener {
 
     @SuppressWarnings("unchecked")
     @Override
+    @Nonnull
     public Iterator<Object> iterator() {
       return Iterators.forArray(
           // name
@@ -251,6 +257,7 @@ public class ManagedDataAsReport implements ManagedDataListener {
                 public DataModel apply(final InternalDynamicValidOn data) {
                   return new DataModel() {
                     @Override
+                    @Nonnull
                     public Iterator<Object> iterator() {
                       return Iterators.<Object>forArray(getId(data.getValidOn(), Marker.class),
                           data.getMethod().getDeclaringClass().getCanonicalName() + "#"
@@ -283,6 +290,54 @@ public class ManagedDataAsReport implements ManagedDataListener {
   }
 
   /*
+   * ComponentFilters
+   */
+
+  private static class ManagedComponentFilterModel implements DataModel {
+    @Nonnull
+    private static final DataView FILTER_VIEW = DataViewBuilder.getStructure()
+        .addField("name", DataType.STRING)
+        .addField("id", DataType.STRING)
+        .addField("description", DataType.STRING)
+        .addField("filterOnId", DataType.STRING)
+        .build();
+
+    @Nonnull
+    private final ManagedComponentFilter filter;
+
+    public ManagedComponentFilterModel(@Nonnull ManagedComponentFilter filter) {
+      this.filter = filter;
+    }
+
+    @Override
+    @Nonnull
+    public Iterator<Object> iterator() {
+      return  Iterators.<Object> forArray(
+          // name
+          filter.getName(),
+          // id
+          getId(filter.getComponentFilter(), ComponentFilter.class),
+          // description
+          filter.getDescription(),
+          // filterOn
+          getId(filter.getFilterOn(), Component.class));
+    }
+
+    @Override
+    @Nonnull
+    public DataView getDataView() {
+      return FILTER_VIEW;
+    }
+  }
+
+  @Nonnull
+  private final DataModelList filters = new DataModelList();
+
+  private void addManagedComponentFilter(@Nonnull final ManagedItem filter) {
+    filters.add(new ManagedComponentFilterModel((ManagedComponentFilter) filter));
+  }
+
+  /*
    * ToCoPoF
    */
 
@@ -304,6 +359,7 @@ public class ManagedDataAsReport implements ManagedDataListener {
     }
 
     @Override
+    @Nonnull
     public Iterator<Object> iterator() {
       return Iterators.forArray(
           // name
@@ -378,6 +434,7 @@ public class ManagedDataAsReport implements ManagedDataListener {
     }
 
     @Override
+    @Nonnull
     public Iterator<Object> iterator() {
       String dynamic = null;
       Method method = schedulable.getDynamicallySynchronizedMethod();
@@ -424,6 +481,7 @@ public class ManagedDataAsReport implements ManagedDataListener {
 
     @SuppressWarnings("unchecked")
     @Override
+    @Nonnull
     public Iterator<Object> iterator() {
         return Iterators.<Object> forArray(
             // need
@@ -461,6 +519,7 @@ public class ManagedDataAsReport implements ManagedDataListener {
 
     @SuppressWarnings("unchecked")
     @Override
+    @Nonnull
     public Iterator<Object> iterator() {
         return Iterators.<Object> forArray(
             // add
@@ -498,9 +557,9 @@ public class ManagedDataAsReport implements ManagedDataListener {
     }
 
     @Override
+    @Nonnull
     public Iterator<Object> iterator() {
-
-      return Iterators.<Object>forArray(
+      return Iterators.<Object> forArray(
           new DataModelListAdapter<Class<? extends Feature>>(
             new DataModelListAdapter.Converter<Class<? extends Feature>>() {
               @Override
@@ -509,7 +568,7 @@ public class ManagedDataAsReport implements ManagedDataListener {
                 return new DataModel() {
                   @Override
                   public Iterator<Object> iterator() {
-                    return Iterators.<Object>forArray(getId(data, Feature.class));
+                    return Iterators.<Object> forArray(getId(data, Feature.class));
                   }
 
                   @Override
@@ -553,6 +612,7 @@ public class ManagedDataAsReport implements ManagedDataListener {
 
     @SuppressWarnings({"unchecked"})
     @Override
+    @Nonnull
     public Iterator<Object> iterator() {
       return Iterators.forArray(
           // name
@@ -629,6 +689,7 @@ public class ManagedDataAsReport implements ManagedDataListener {
     }
 
     @Override
+    @Nonnull
     public Iterator<Object> iterator() {
       return Iterators.<Object> forArray(
           // name
@@ -673,6 +734,7 @@ public class ManagedDataAsReport implements ManagedDataListener {
       .addField("components", DataType.LIST)
       .addField("adapters", DataType.LIST)
       .addField("runners", DataType.LIST)
+      .addField("filters", DataType.LIST)
       .build();
 
   private void close() {
@@ -684,6 +746,7 @@ public class ManagedDataAsReport implements ManagedDataListener {
       stream.print("ctx=");
       provider.print(new DataModel() {
             @Override
+            @Nonnull
             public Iterator<Object> iterator() {
               return Iterators.<Object>forArray(
                   markers,
@@ -692,7 +755,8 @@ public class ManagedDataAsReport implements ManagedDataListener {
                   features,
                   components,
                   adapters,
-                  runners);
+                  runners,
+                  filters);
             }
 
             @Override
@@ -720,6 +784,8 @@ public class ManagedDataAsReport implements ManagedDataListener {
       return "a-" + id;
     } else if (Production.class.isAssignableFrom(category)) {
       return "p-" + id;
+    } else if (ComponentFilter.class.isAssignableFrom(category)) {
+      return "cf-" + id;
     }
 
     throw new AssertionError("No 'id' for '" + id + "'");

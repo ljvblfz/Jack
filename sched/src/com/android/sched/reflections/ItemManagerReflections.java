@@ -64,8 +64,6 @@ public class ItemManagerReflections extends ItemManager {
   }
 
   private void scan() {
-
-
     ReflectionManager reflectionManager = ReflectionFactory.getManager();
 
     // Discover all items
@@ -74,7 +72,6 @@ public class ItemManagerReflections extends ItemManager {
       if (!isToIgnore(item)) {
         ManagedItem ii = registerItem(item);
         logger.log(Level.INFO, "Register {0} ({1})", new Object[] {ii, item.getCanonicalName()});
-        map.put(item, ii);
       } else {
         logger.log(Level.INFO, "Item ''{0}'' ({1}) is ignored because only for {2}",
             new Object[] {Items.getName(item), item.getCanonicalName(), onlyFor.getSimpleName()});
