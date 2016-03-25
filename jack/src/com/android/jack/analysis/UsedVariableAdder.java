@@ -29,10 +29,11 @@ import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JTryStatement;
 import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.Protect;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
@@ -48,10 +49,12 @@ import javax.annotation.Nonnull;
     no = {JLoop.class, JTryStatement.class})
 @Transform(add = UsedVariableMarker.class)
 @Protect(add = {JMethod.class, JStatement.class}, modify = {JMethod.class, JStatement.class})
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class UsedVariableAdder implements RunnableSchedulable<JMethod> {
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   private static class ComputeReadVariables extends JVisitor {
 

@@ -19,8 +19,9 @@ package com.android.jack.statistics;
 import com.android.jack.Options;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.scheduling.feature.CompiledTypeStats;
-import com.android.jack.util.filter.Filter;
+import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.sched.item.Description;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.ThreadConfig;
@@ -41,10 +42,12 @@ import javax.annotation.Nonnull;
  */
 @Description("Computes some statistics about compiled methods.")
 @Support(CompiledTypeStats.class)
+@Filter(SourceTypeFilter.class)
 public class MethodStats implements RunnableSchedulable<JMethod> {
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   @Nonnull
   public static final StatisticId<Percent> CONCRETE_METHODS_PERCENT = new StatisticId<Percent>(

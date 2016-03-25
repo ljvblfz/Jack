@@ -51,15 +51,16 @@ import com.android.jack.ir.sourceinfo.SourceInfoFactory;
 import com.android.jack.lookup.JMethodLookupException;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.scheduling.feature.SourceVersion7;
+import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.jack.transformations.LocalVarCreator;
 import com.android.jack.transformations.TransformationException;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.NamingTools;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
@@ -146,10 +147,12 @@ import javax.annotation.Nonnull;
     remove = JTryStatement.TryWithResourcesForm.class)
 @Use({LocalVarCreator.class, SourceInfoFactory.class})
 @Support(SourceVersion7.class)
+@Filter(SourceTypeFilter.class)
 public class TryWithResourcesTransformer implements RunnableSchedulable<JMethod> {
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   private static class Visitor extends JVisitor {
 

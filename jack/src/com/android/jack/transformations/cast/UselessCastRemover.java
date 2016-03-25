@@ -25,12 +25,13 @@ import com.android.jack.ir.ast.JNullLiteral;
 import com.android.jack.ir.ast.JReferenceType;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
@@ -43,10 +44,12 @@ import javax.annotation.Nonnull;
 @Name("UselessCastRemover")
 @Constraint(need = JDynamicCastOperation.class, no = JCastOperation.WithIntersectionType.class)
 @Transform(remove = SourceCast.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class UselessCastRemover implements RunnableSchedulable<JMethod> {
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   private static class Visitor extends JVisitor {
 

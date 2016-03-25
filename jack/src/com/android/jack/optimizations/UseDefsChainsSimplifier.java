@@ -30,14 +30,15 @@ import com.android.jack.ir.ast.JUnlock;
 import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.jack.util.ControlFlowHelper;
 import com.android.jack.util.OptimizationTools;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Use;
@@ -80,6 +81,7 @@ import javax.annotation.Nonnull;
 @Constraint(need = {UseDefsMarker.class, ThreeAddressCodeForm.class, ControlFlowGraph.class})
 @Use(OptimizationTools.class)
 @Support(Optimizations.UseDefSimplifier.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class UseDefsChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
     implements RunnableSchedulable<JMethod> {
 
@@ -94,7 +96,8 @@ public class UseDefsChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
       CounterImpl.class, Counter.class);
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   @Nonnull
   private final Tracer tracer = TracerFactory.getTracer();

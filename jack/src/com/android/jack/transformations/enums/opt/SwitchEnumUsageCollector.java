@@ -26,11 +26,13 @@ import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.jack.transformations.enums.SwitchEnumSupport;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.log.Tracer;
@@ -52,6 +54,7 @@ import javax.annotation.Nonnull;
 @Name("SwitchEnumUsageCollector")
 @Synchronized
 @Constraint(need = {JSwitchStatement.class, JDefinedClass.class, JDefinedEnum.class})
+@Filter(SourceTypeFilter.class)
 @Transform(add = {SwitchEnumUsageMarker.class, EnumFieldMarker.class})
 
 public class SwitchEnumUsageCollector implements RunnableSchedulable<JMethod> {

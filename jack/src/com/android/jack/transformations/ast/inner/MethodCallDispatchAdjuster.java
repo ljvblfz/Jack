@@ -26,13 +26,14 @@ import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JParameterRef;
 import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.jack.transformations.request.AppendArgument;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
@@ -50,10 +51,12 @@ import javax.annotation.Nonnull;
     remove = {NeedsRethising.class})
 @Constraint(need = {NeedsDispatchAdjustment.class, NeedsRethising.class},
     no = {OptimizedInnerAccessorSchedulingSeparator.SeparatorTag.class})
+@Filter(SourceTypeFilter.class)
 public class MethodCallDispatchAdjuster implements RunnableSchedulable<JMethod> {
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   static class Adjuster extends JVisitor {
 

@@ -72,6 +72,7 @@ import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JThis;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.library.DumpInLibrary;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.scheduling.marker.DexCodeMarker;
 import com.android.jack.transformations.EmptyClinit;
 import com.android.jack.transformations.ast.BooleanTestOutsideIf;
@@ -89,10 +90,10 @@ import com.android.jack.transformations.booleanoperators.FallThroughMarker;
 import com.android.jack.transformations.cast.SourceCast;
 import com.android.jack.transformations.rop.cast.RopLegalCast;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
@@ -146,6 +147,7 @@ import javax.annotation.Nonnull;
     JCastOperation.WithIntersectionType.class})
 @Transform(add = DexCodeMarker.class)
 @Use(RopHelper.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
 
   @Nonnull
@@ -167,7 +169,8 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
       .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
   private final boolean emitSyntheticLocalDebugInfo =
       ThreadConfig.get(EMIT_SYNTHETIC_LOCAL_DEBUG_INFO).booleanValue();
   private final boolean emitLocalDebugInfo =

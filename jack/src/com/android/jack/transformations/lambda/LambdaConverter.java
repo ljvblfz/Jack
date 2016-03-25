@@ -57,6 +57,7 @@ import com.android.jack.ir.sourceinfo.SourceInfoFactory;
 import com.android.jack.load.NopClassOrInterfaceLoader;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JLookup;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.request.AppendField;
 import com.android.jack.transformations.request.AppendMethod;
 import com.android.jack.transformations.request.Replace;
@@ -65,6 +66,7 @@ import com.android.jack.util.NamingTools;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
@@ -93,6 +95,7 @@ import javax.annotation.Nonnull;
 // same class in the same time.
 @Support(LambdaToAnonymousConverter.class)
 @Synchronized
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class LambdaConverter implements RunnableSchedulable<JMethod> {
 
   @Nonnull

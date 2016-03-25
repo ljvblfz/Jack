@@ -23,12 +23,13 @@ import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JStatementList;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.ControlFlowHelper;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
@@ -42,10 +43,12 @@ import javax.annotation.Nonnull;
 @Description("Removes useless cases from switch statements.")
 @Constraint(need = {JSwitchStatement.class})
 @Transform(add = UselessSwitches.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class UselessCaseRemover implements RunnableSchedulable<JMethod> {
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   private static class Remover extends JVisitor {
 

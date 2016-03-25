@@ -51,6 +51,7 @@ import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.scheduling.marker.collector.SubTreeMarkersCollector;
 import com.android.jack.transformations.LocalVarCreator;
 import com.android.jack.transformations.ast.BooleanTestOutsideIf;
@@ -64,10 +65,10 @@ import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.AnnotationSkipperVisitor;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
@@ -96,10 +97,12 @@ import javax.annotation.Nonnull;
     JIfStatement.class,
     JExpressionStatement.class}, remove = {JConditionalExpression.class, JMultiExpression.class})
 @Use(LocalVarCreator.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class ThreeAddressCodeBuilder implements RunnableSchedulable<JMethod> {
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   /**
    * {@code ThreeAddressCode} is the visitor building the three address form.

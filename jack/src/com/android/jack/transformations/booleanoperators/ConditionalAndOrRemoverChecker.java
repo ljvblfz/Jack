@@ -22,10 +22,11 @@ import com.android.jack.ir.ast.JBinaryOperator;
 import com.android.jack.ir.ast.JConditionalOperation;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.SanityChecks;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.ThreadConfig;
@@ -39,10 +40,12 @@ import javax.annotation.Nonnull;
 @Description("Checks that conditional boolean operators && and || have been removed")
 @Constraint(no = {JConditionalOperation.class})
 @Support(SanityChecks.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class ConditionalAndOrRemoverChecker implements RunnableSchedulable<JMethod> {
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   private static class ConditionalAndOrRemoverCheckerVisitor extends JVisitor{
 

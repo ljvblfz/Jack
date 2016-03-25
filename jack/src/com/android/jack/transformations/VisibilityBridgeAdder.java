@@ -37,11 +37,13 @@ import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.library.DumpInLibrary;
 import com.android.jack.lookup.JMethodLookupException;
 import com.android.jack.scheduling.feature.VisibilityBridge;
+import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.jack.transformations.request.AppendMethod;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
@@ -60,6 +62,7 @@ import javax.annotation.Nonnull;
     JParameterRef.class, JBlock.class}, remove = ThreeAddressCodeForm.class)
 @Support(VisibilityBridge.class)
 @HasKeyId
+@Filter(SourceTypeFilter.class)
 public class VisibilityBridgeAdder implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Nonnull

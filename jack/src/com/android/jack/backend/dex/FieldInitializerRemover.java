@@ -34,6 +34,7 @@ import com.android.jack.ir.ast.JReferenceType;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.library.DumpInLibrary;
 import com.android.jack.lookup.CommonTypes;
+import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
@@ -41,6 +42,7 @@ import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.HasKeyId;
@@ -58,6 +60,7 @@ import javax.annotation.Nonnull;
 @Constraint(need = JFieldInitializer.class)
 @Transform(add = {JAsgOperation.NonReusedAsg.class, JExpressionStatement.class},
     remove = {JFieldInitializer.class, ThreeAddressCodeForm.class})
+@Filter(SourceTypeFilter.class)
 public class FieldInitializerRemover implements RunnableSchedulable<JField> {
 
   @Nonnull

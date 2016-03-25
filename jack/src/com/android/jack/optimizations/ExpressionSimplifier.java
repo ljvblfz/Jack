@@ -45,14 +45,15 @@ import com.android.jack.ir.ast.JValueLiteral;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.Number;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.ast.ImplicitCast;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Tag;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
@@ -79,6 +80,7 @@ import javax.annotation.Nonnull;
     JShortLiteral.class,
     JCharLiteral.class})
 @Support(Optimizations.ExpressionSimplifier.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class ExpressionSimplifier implements RunnableSchedulable<JMethod> {
 
   /**
@@ -89,7 +91,8 @@ public class ExpressionSimplifier implements RunnableSchedulable<JMethod> {
   }
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   static class Simplifier extends JVisitor {
 

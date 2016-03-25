@@ -38,6 +38,7 @@ import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.JWhileStatement;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.jack.transformations.ast.NoImplicitBlock;
 import com.android.jack.transformations.request.AppendBefore;
 import com.android.jack.transformations.request.PrependAfter;
@@ -45,10 +46,10 @@ import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
@@ -74,10 +75,12 @@ import javax.annotation.Nonnull;
         FlowNormalizerSchedulingSeparator.SeparatorTag.class},
     remove = {
         JLoop.class, JBreakStatement.class, JContinueStatement.class, ThreeAddressCodeForm.class})
+@Filter(SourceTypeFilter.class)
 public class FlowNormalizer implements RunnableSchedulable<JMethod> {
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   private static class Visitor extends JVisitor {
 

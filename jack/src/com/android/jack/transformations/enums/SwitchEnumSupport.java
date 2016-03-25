@@ -66,6 +66,7 @@ import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.library.DumpInLibrary;
 import com.android.jack.lookup.JLookup;
 import com.android.jack.lookup.JMethodLookupException;
+import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.transformations.LocalVarCreator;
 import com.android.jack.transformations.ast.inner.InnerAccessorGeneratorSchedulingSeparator;
@@ -76,13 +77,13 @@ import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.jack.util.NamingTools;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.item.Synchronized;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
@@ -119,6 +120,7 @@ import javax.annotation.Nonnull;
     remove = {JSwitchStatement.SwitchWithEnum.class, ThreeAddressCodeForm.class})
 @Use(value = {LocalVarCreator.class})
 @HasKeyId
+@Filter(SourceTypeFilter.class)
 public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
 
   @Nonnull
@@ -161,7 +163,8 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
   }
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   private class Visitor extends JVisitor {
 

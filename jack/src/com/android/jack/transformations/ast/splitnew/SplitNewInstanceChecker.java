@@ -20,12 +20,13 @@ import com.android.jack.Options;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNewInstance;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.SanityChecks;
 import com.android.jack.transformations.ast.NewInstanceRemoved;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.ThreadConfig;
@@ -40,10 +41,12 @@ import javax.annotation.Nonnull;
 @Name("SplitNewInstanceChecker")
 @Constraint(no = {JNewInstance.class}, need = {NewInstanceRemoved.class})
 @Support(SanityChecks.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class SplitNewInstanceChecker implements RunnableSchedulable<JMethod> {
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   private static class Visitor extends JVisitor {
 

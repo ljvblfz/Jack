@@ -21,12 +21,14 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.lookup.JLookupException;
+import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 
@@ -39,6 +41,7 @@ import javax.annotation.Nonnull;
 @Name("FieldInitMethodRemover")
 @Constraint(need = {FieldInitMethod.class, OriginalNames.class}, no = FieldInitMethodCall.class)
 @Transform(modify = JDefinedClass.class, remove = FieldInitMethod.class)
+@Filter(SourceTypeFilter.class)
 public class FieldInitMethodRemover implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Nonnull

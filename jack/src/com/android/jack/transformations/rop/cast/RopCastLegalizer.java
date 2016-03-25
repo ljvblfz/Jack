@@ -25,15 +25,16 @@ import com.android.jack.ir.ast.JPrimitiveType;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.ast.ImplicitBoxingAndUnboxing;
 import com.android.jack.transformations.ast.ImplicitCast;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.Protect;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
@@ -55,10 +56,12 @@ import javax.annotation.Nonnull;
 @Transform(
     add = {RopLegalCast.class, JDynamicCastOperation.class}, remove = ThreeAddressCodeForm.class)
 @Protect(add = JDynamicCastOperation.class, unprotect = @With(remove = RopLegalCast.class))
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class RopCastLegalizer implements RunnableSchedulable<JMethod> {
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   private static class Visitor extends JVisitor {
 

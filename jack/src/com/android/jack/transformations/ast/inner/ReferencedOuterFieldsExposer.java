@@ -25,12 +25,14 @@ import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.MethodKind;
+import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.jack.transformations.request.AddModifiers;
 import com.android.jack.transformations.request.AppendMethodParam;
 import com.android.jack.transformations.request.RemoveModifiers;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 
@@ -49,6 +51,7 @@ import javax.annotation.Nonnull;
     remove = {ReferencedFromInnerClassMarker.class})
 @Constraint(need = {ReferencedFromInnerClassMarker.class},
     no = {InnerAccessorSchedulingSeparator.SeparatorTag.class})
+@Filter(SourceTypeFilter.class)
 public class ReferencedOuterFieldsExposer implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Override

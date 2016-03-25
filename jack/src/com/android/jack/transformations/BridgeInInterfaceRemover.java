@@ -20,11 +20,12 @@ import com.android.jack.Options;
 import com.android.jack.backend.dex.EnsureAndroidCompatibility;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.TransformationRequest;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.ThreadConfig;
@@ -42,6 +43,7 @@ import javax.annotation.Nonnull;
 // remove several methods in the same time on the same type and it is not supported, thus this
 // schedulable must be synchronized
 @Synchronized
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class BridgeInInterfaceRemover implements RunnableSchedulable<JMethod> {
 
   @Nonnegative
@@ -51,7 +53,8 @@ public class BridgeInInterfaceRemover implements RunnableSchedulable<JMethod> {
       ThreadConfig.get(Options.ANDROID_MIN_API_LEVEL).longValue();
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   @Override
   public void run(@Nonnull JMethod method) throws Exception {

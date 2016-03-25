@@ -27,15 +27,16 @@ import com.android.jack.ir.ast.JConstructor;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JModifier;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.jack.scheduling.marker.DexCodeMarker;
 import com.android.jack.transformations.EmptyClinit;
 import com.android.jack.transformations.ast.removeinit.FieldInitMethod;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.Protect;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
@@ -55,10 +56,12 @@ import javax.annotation.Nonnull;
 @Transform(add = ClassDefItemMarker.Method.class,
     modify = ClassDefItemMarker.class)
 @Protect(add = JMethod.class, modify = JMethod.class, remove = JMethod.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class EncodedMethodBuilder implements RunnableSchedulable<JMethod> {
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   /**
    * Creates an {@code EncodedMethod} for the given {@code JMethod} and adds it

@@ -28,11 +28,12 @@ import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.JWhileStatement;
+import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.jack.transformations.SanityChecks;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.ThreadConfig;
@@ -48,10 +49,12 @@ import javax.annotation.Nonnull;
 @Name("ImplicitBlocksChecker")
 @Constraint(need = NoImplicitBlock.class)
 @Support(SanityChecks.class)
+@Filter(SourceTypeFilter.class)
 public class ImplicitBlocksChecker implements RunnableSchedulable<JMethod> {
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   private static class BlockStatisticsVisitor extends JVisitor {
 

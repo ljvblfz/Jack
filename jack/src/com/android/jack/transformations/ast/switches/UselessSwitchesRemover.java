@@ -30,16 +30,17 @@ import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JValueLiteral;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.JWhileStatement;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.ast.NoImplicitBlock;
 import com.android.jack.transformations.ast.UnassignedValues;
 import com.android.jack.transformations.request.AppendBefore;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.Protect;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
@@ -66,6 +67,7 @@ import javax.annotation.Nonnull;
     UselessSwitches.class})
 @Protect(add = {JSwitchStatement.class, JExpressionStatement.class, JExpressionStatement.class},
     unprotect = @With(add = UselessSwitches.class))
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class UselessSwitchesRemover implements RunnableSchedulable<JMethod> {
 
   public static final StatisticId<Percent> SWITCH_WITH_CST = new StatisticId<Percent>(
@@ -77,7 +79,8 @@ public class UselessSwitchesRemover implements RunnableSchedulable<JMethod> {
       PercentImpl.class, Percent.class);
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   @Nonnull
   private final Tracer tracer = TracerFactory.getTracer();

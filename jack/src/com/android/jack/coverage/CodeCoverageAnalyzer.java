@@ -29,8 +29,10 @@ import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
@@ -50,6 +52,7 @@ import javax.annotation.Nonnull;
 @Constraint(need = {CodeCoverageMarker.Initialized.class, ControlFlowGraph.class})
 @Transform(
     add = {CodeCoverageMarker.Analyzed.class, ProbeMarker.class}, modify = CodeCoverageMarker.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class CodeCoverageAnalyzer implements RunnableSchedulable<JMethod> {
   @Override
   public void run(@Nonnull JMethod m) throws Exception {

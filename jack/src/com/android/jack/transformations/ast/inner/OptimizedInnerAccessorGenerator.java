@@ -29,6 +29,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JNewInstance;
 import com.android.jack.ir.ast.JNullLiteral;
+import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.jack.transformations.ast.NewInstanceRemoved;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
@@ -36,6 +37,7 @@ import com.android.jack.util.NamingTools;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.Transform;
 
 import javax.annotation.Nonnull;
@@ -59,6 +61,7 @@ import javax.annotation.Nonnull;
     InnerAccessorSchedulingSeparator.SeparatorTag.class},
     remove = {ThreeAddressCodeForm.class, NewInstanceRemoved.class})
 @Constraint(no = {SideEffectOperation.class, JAlloc.class})
+@Filter(SourceTypeFilter.class)
 public class OptimizedInnerAccessorGenerator extends InnerAccessorGenerator {
 
   @Nonnull

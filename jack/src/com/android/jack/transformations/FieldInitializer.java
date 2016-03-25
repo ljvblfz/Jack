@@ -21,6 +21,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JStatement;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.assertion.AssertionTransformerSchedulingSeparator;
 import com.android.jack.transformations.assertion.DynamicAssertionFeature;
 import com.android.jack.transformations.request.PrependStatement;
@@ -29,6 +30,7 @@ import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.jack.util.NamingTools;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
@@ -44,6 +46,7 @@ import javax.annotation.Nonnull;
     no = AssertionTransformerSchedulingSeparator.SeparatorTag.class)
 @Transform(remove = {InitializationExpression.class, ThreeAddressCodeForm.class})
 @Support(DynamicAssertionFeature.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class FieldInitializer implements RunnableSchedulable<JField> {
 
   @Override

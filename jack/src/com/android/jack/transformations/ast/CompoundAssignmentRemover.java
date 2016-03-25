@@ -43,15 +43,16 @@ import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
+import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.transformations.LocalVarCreator;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
@@ -72,10 +73,12 @@ import javax.annotation.Nonnull;
     remove = {CompoundAssignment.class, ThreeAddressCodeForm.class})
 @Constraint(need = OriginalNames.class)
 @Use(SideEffectExtractor.class)
+@Filter(SourceTypeFilter.class)
 public class CompoundAssignmentRemover implements RunnableSchedulable<JMethod> {
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   @Nonnull
   private final JPhantomLookup phantomLookup = Jack.getSession().getPhantomLookup();

@@ -19,9 +19,11 @@ package com.android.jack.analysis.dependency.file;
 import com.android.jack.Jack;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.item.Synchronized;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 
@@ -32,6 +34,7 @@ import com.android.sched.schedulable.Transform;
 @Name("FileDependenciesCollector")
 @Transform(add = FileDependencies.Collected.class)
 @Synchronized
+@Filter(SourceTypeFilter.class)
 public class FileDependenciesCollector implements
     RunnableSchedulable<JDefinedClassOrInterface> {
 

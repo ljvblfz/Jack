@@ -28,6 +28,7 @@ import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.lookup.JMethodLookupException;
+import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.transformations.flow.FlowNormalizerSchedulingSeparator;
 import com.android.jack.transformations.request.Remove;
@@ -38,6 +39,7 @@ import com.android.jack.util.CloneStatementVisitor;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
@@ -53,6 +55,7 @@ import javax.annotation.Nonnull;
 no = {JFieldInitializer.class, FlowNormalizerSchedulingSeparator.SeparatorTag.class})
 @Transform(remove = {FieldInitMethodCall.class, ThreeAddressCodeForm.class})
 @Use(CloneStatementVisitor.class)
+@Filter(SourceTypeFilter.class)
 public class FieldInitMethodCallRemover implements RunnableSchedulable<JMethod> {
 
   private static class Visitor extends JVisitor {

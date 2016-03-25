@@ -27,12 +27,13 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JTryStatement;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.request.PrependStatement;
 import com.android.jack.transformations.request.TransformationRequest;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
@@ -47,10 +48,12 @@ import javax.annotation.Nonnull;
 @Constraint(need = {JCatchBlock.class}, no = {JTryStatement.FinallyBlock.class})
 @Transform(
     add = {JExceptionRuntimeValue.class, JLocalRef.class, NonReusedAsg.class})
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class ExceptionRuntimeValueAdder implements RunnableSchedulable<JMethod> {
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   private static class Visitor extends JVisitor {
 

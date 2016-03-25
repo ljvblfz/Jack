@@ -31,11 +31,13 @@ import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.request.AddAnnotation;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
@@ -59,6 +61,7 @@ public class ContainerAnnotationAdder {
   @Constraint(need = ContainerAnnotationMarker.class)
   @Transform(remove = {JAnnotation.RepeatedAnnotationOnType.class})
   @Use(ContainerAnnotationAdder.class)
+  @Filter(TypeWithoutPrebuiltFilter.class)
   public static class TypeContainerAnnotationAdder extends ContainerAnnotationAdder
       implements RunnableSchedulable<JDefinedClassOrInterface> {
     @Override
@@ -78,6 +81,7 @@ public class ContainerAnnotationAdder {
   @Constraint(need = ContainerAnnotationMarker.class)
   @Transform(remove = {JAnnotation.RepeatedAnnotationOnField.class})
   @Use(ContainerAnnotationAdder.class)
+  @Filter(TypeWithoutPrebuiltFilter.class)
   public static class FieldContainerAnnotationAdder extends ContainerAnnotationAdder
       implements RunnableSchedulable<JField> {
     @Override
@@ -97,6 +101,7 @@ public class ContainerAnnotationAdder {
   @Constraint(need = ContainerAnnotationMarker.class)
   @Transform(remove = {JAnnotation.RepeatedAnnotationOnMethod.class})
   @Use(ContainerAnnotationAdder.class)
+  @Filter(TypeWithoutPrebuiltFilter.class)
   public static class MethodContainerAnnotationAdder extends ContainerAnnotationAdder
       implements RunnableSchedulable<JMethod> {
     @Override

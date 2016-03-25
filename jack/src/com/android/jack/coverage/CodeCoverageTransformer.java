@@ -66,6 +66,7 @@ import com.android.jack.lookup.JLookup;
 import com.android.jack.lookup.JLookupException;
 import com.android.jack.lookup.JNodeLookup;
 import com.android.jack.reporting.Reporter.Severity;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.LocalVarCreator;
 import com.android.jack.transformations.ast.NoImplicitBlock;
 import com.android.jack.transformations.request.AppendBefore;
@@ -80,6 +81,7 @@ import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.jack.util.NamingTools;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
@@ -105,6 +107,7 @@ import javax.annotation.Nonnull;
     JLongLiteral.class, JStringLiteral.class, JIfStatement.class, JEqOperation.class,
     JNullLiteral.class, JReturnStatement.class},
     remove = ProbeMarker.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class CodeCoverageTransformer implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   /**

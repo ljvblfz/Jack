@@ -27,10 +27,11 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVariableRef;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.util.ThreeAddressCodeFormUtils;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.Protect;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
@@ -51,10 +52,12 @@ import javax.annotation.Nonnull;
 @Transform(add = {UseDefsMarker.class})
 @Protect(add = {JMethod.class, JStatement.class}, modify = {JMethod.class, JStatement.class})
 @Use(ThreeAddressCodeFormUtils.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class DefUsesAndUseDefsChainComputation implements RunnableSchedulable<JMethod> {
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   @Override
   public void run(@Nonnull JMethod method) throws Exception {

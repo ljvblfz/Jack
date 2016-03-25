@@ -17,8 +17,10 @@
 package com.android.jack.transformations.enums;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
+import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 
@@ -30,6 +32,7 @@ import javax.annotation.Nonnull;
 @Description("Remove UsedEnumField marker")
 @Constraint(need = {SwitchEnumSupport.UsedEnumField.class})
 @Transform(remove = {SwitchEnumSupport.UsedEnumField.class})
+@Filter(SourceTypeFilter.class)
 public class UsedEnumFieldMarkerRemover implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Override

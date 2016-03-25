@@ -25,14 +25,15 @@ import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.booleanoperators.FallThroughMarker.FallThroughEnum;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
@@ -50,10 +51,12 @@ import javax.annotation.Nonnull;
 @Constraint(need = {JConditionalOperation.class})
 @Transform(add = {JConditionalExpression.class, JBooleanLiteral.class, FallThroughMarker.class},
     remove = {JConditionalOperation.class, ThreeAddressCodeForm.class})
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class ConditionalAndOrRemover implements RunnableSchedulable<JMethod> {
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   private static class BooleanExpressionSimplifierVisitor extends JVisitor {
 

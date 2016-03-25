@@ -42,6 +42,7 @@ import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JTryStatement;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.jack.transformations.request.AddJLocalInMethodBody;
 import com.android.jack.transformations.request.AppendStatement;
 import com.android.jack.transformations.request.PrependStatement;
@@ -49,9 +50,9 @@ import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.jack.util.NamingTools;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
@@ -82,6 +83,7 @@ import javax.annotation.Nonnull;
     JParameterRef.class,
     JExpressionStatement.class,
     JGoto.class})
+@Filter(SourceTypeFilter.class)
 public class TailRecursionOptimizer implements RunnableSchedulable<JMethod> {
   /*
    This schedulable transforms detected tail recursive calls to a series of
@@ -117,7 +119,8 @@ public class TailRecursionOptimizer implements RunnableSchedulable<JMethod> {
     it's difficult to check if a recursive call is the last instruction.
   */
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   @Nonnull
   private final Tracer tracer = TracerFactory.getTracer();

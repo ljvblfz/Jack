@@ -19,7 +19,9 @@ package com.android.jack.digest;
 import com.android.jack.Jack;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.impl.SourceGenerationVisitor;
+import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.sched.item.Description;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.MessageDigestFactory;
@@ -35,6 +37,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Add digest on the origin of the type")
 @Transform(add = OriginDigestMarker.class)
+@Filter(SourceTypeFilter.class)
 public class OriginDigestAdder implements RunnableSchedulable<JDefinedClassOrInterface> {
   @Nonnull
   public MessageDigestFactory digestFactory =

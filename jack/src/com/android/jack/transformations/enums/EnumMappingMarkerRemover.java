@@ -17,9 +17,11 @@
 package com.android.jack.transformations.enums;
 
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 
@@ -32,6 +34,7 @@ import javax.annotation.Nonnull;
 @Name("EnumMappingMarkerRemover")
 @Constraint(no = EnumMappingSchedulingSeparator.SeparatorTag.class)
 @Transform(remove = {EnumMappingMarker.class})
+@Filter(SourceTypeFilter.class)
 public class EnumMappingMarkerRemover implements RunnableSchedulable<JMethod> {
 
   @Override

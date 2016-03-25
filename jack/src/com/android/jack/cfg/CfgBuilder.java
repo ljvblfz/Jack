@@ -51,14 +51,15 @@ import com.android.jack.ir.ast.JUnlock;
 import com.android.jack.ir.ast.JValueLiteral;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfoFactory;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.ast.RefAsStatement;
 import com.android.jack.transformations.ast.switches.UselessSwitches;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.jack.util.ControlFlowHelper;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.Protect;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
@@ -96,10 +97,12 @@ import javax.annotation.Nonnull;
     add = JNode.class, remove = JNode.class, unprotect = @With(remove = ControlFlowGraph.class))
 @Transform(add = {ControlFlowGraph.class, JReturnStatement.class, BasicBlockMarker.class})
 @Use(SourceInfoFactory.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class CfgBuilder implements RunnableSchedulable<JMethod> {
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   @Nonnull
   private final Tracer tracer = TracerFactory.getTracer();

@@ -21,11 +21,12 @@ import com.android.jack.ir.ast.JBooleanLiteral;
 import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.jack.transformations.SanityChecks;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.ThreadConfig;
@@ -39,10 +40,12 @@ import javax.annotation.Nonnull;
 @Name("UselessIfChecker")
 @Constraint(need = {JIfStatement.class})
 @Support(SanityChecks.class)
+@Filter(SourceTypeFilter.class)
 public class UselessIfChecker implements RunnableSchedulable<JMethod> {
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   private static class UselessIfCheckerVisitor extends JVisitor {
 

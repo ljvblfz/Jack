@@ -25,9 +25,10 @@ import com.android.jack.cfg.ControlFlowGraph;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JVariableRef;
-import com.android.jack.util.filter.Filter;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
@@ -40,10 +41,12 @@ import javax.annotation.Nonnull;
 @Description("Remove def-uses and use-defs chains.")
 @Constraint(need = {UseDefsMarker.class, UsedVariableMarker.class, ControlFlowGraph.class})
 @Transform(remove = {UseDefsMarker.class}, modify = {DefinitionMarker.class})
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class DefUsesAndUseDefsChainRemover implements RunnableSchedulable<JMethod> {
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   @Override
   public void run(@Nonnull JMethod method) throws Exception {

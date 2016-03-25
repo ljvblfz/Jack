@@ -40,7 +40,8 @@ import com.android.jack.backend.dex.ClassDefItemBuilder;
 import com.android.jack.backend.dex.DexFileProduct;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.dex.DexInLibraryProduct;
-import com.android.jack.backend.dex.DexInLibraryWriter;
+import com.android.jack.backend.dex.DexInLibraryWriterAll;
+import com.android.jack.backend.dex.DexInLibraryWriterNoPrebuilt;
 import com.android.jack.backend.dex.DexWritingTool;
 import com.android.jack.backend.dex.EncodedFieldBuilder;
 import com.android.jack.backend.dex.EncodedMethodBuilder;
@@ -65,7 +66,8 @@ import com.android.jack.backend.dex.multidex.legacy.RuntimeAnnotationFinder;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.backend.jayce.JayceInLibraryProduct;
-import com.android.jack.backend.jayce.JayceInLibraryWriter;
+import com.android.jack.backend.jayce.JayceInLibraryWriterAll;
+import com.android.jack.backend.jayce.JayceInLibraryWriterNoPrebuilt;
 import com.android.jack.cfg.CfgBuilder;
 import com.android.jack.cfg.CfgMarkerRemover;
 import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
@@ -128,8 +130,6 @@ import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.resource.LibraryResourceWriter;
 import com.android.jack.resource.ResourceImporter;
 import com.android.jack.resource.ResourceReadingException;
-import com.android.jack.scheduling.adapter.ExcludeTypeFromLibAdapter;
-import com.android.jack.scheduling.adapter.ExcludeTypeFromLibWithBinaryAdapter;
 import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdapter;
 import com.android.jack.scheduling.adapter.JFieldAdapter;
 import com.android.jack.scheduling.adapter.JMethodAdapter;
@@ -680,7 +680,7 @@ public abstract class Jack {
 
         if (features.contains(OriginDigestFeature.class)) {
           SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-              planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
+              planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
           typePlan.append(OriginDigestAdder.class);
         }
 
@@ -1074,7 +1074,7 @@ public abstract class Jack {
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       {
         if (features.contains(CompiledTypeStats.class)) {
           SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
@@ -1093,12 +1093,12 @@ public abstract class Jack {
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       typePlan.append(UsedEnumFieldCollector.class);
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan2 =
-          planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       {
         if (features.contains(VisibilityBridge.class)) {
           typePlan2.append(VisibilityBridgeAdder.class);
@@ -1118,7 +1118,7 @@ public abstract class Jack {
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan3 =
-          planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
 
       {
         {
@@ -1144,7 +1144,7 @@ public abstract class Jack {
       // figure out how many classes use enum in switch statement.
       // this step is enabled only when feedback-based optimization is enabled
       SubPlanBuilder<JDefinedClassOrInterface> typePlan = planBuilder.appendSubPlan(
-          ExcludeTypeFromLibAdapter.class);
+          JDefinedClassOrInterfaceAdapter.class);
       SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
       methodPlan.append(SwitchEnumUsageCollector.class);
     }
@@ -1162,7 +1162,7 @@ public abstract class Jack {
       // types and therefore should be alone in its plan.
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       if (features.contains(AvoidSynthethicAccessors.class)) {
         typePlan.append(OptimizedInnerAccessorGenerator.class);
       } else {
@@ -1174,13 +1174,13 @@ public abstract class Jack {
 
     if (features.contains(AvoidSynthethicAccessors.class)) {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       typePlan.append(ReferencedOuterFieldsExposer.class);
 
       planBuilder.append(OptimizedInnerAccessorSchedulingSeparator.class);
 
       SubPlanBuilder<JDefinedClassOrInterface> typePlan2 =
-          planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       SubPlanBuilder<JMethod> methodPlan =
           typePlan2.appendSubPlan(JMethodAdapter.class);
       methodPlan.append(MethodCallDispatchAdjuster.class);
@@ -1188,7 +1188,7 @@ public abstract class Jack {
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
-          planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
 
       typePlan4.append(InnerAccessorAdder.class);
 
@@ -1219,7 +1219,7 @@ public abstract class Jack {
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan = planBuilder.appendSubPlan(
-          ExcludeTypeFromLibAdapter.class);
+          JDefinedClassOrInterfaceAdapter.class);
       SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
       if (features.contains(OptimizedSwitchEnumFeedbackFeature.class)
           || features.contains(OptimizedSwitchEnumNonFeedbackFeature.class)) {
@@ -1238,7 +1238,7 @@ public abstract class Jack {
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan = planBuilder.appendSubPlan(
-          ExcludeTypeFromLibAdapter.class);
+          JDefinedClassOrInterfaceAdapter.class);
       SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
 
       methodPlan.append(EnumMappingMarkerRemover.class);
@@ -1249,25 +1249,24 @@ public abstract class Jack {
     } else {
       planBuilder.append(NameFinalizer.class);
     }
-    {
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan;
+
+    if (productions.contains(JayceInLibraryProduct.class)) {
       // Jayce files must be copied into output library in incremental library mode or in non
       // incremental mode
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       if (features.contains(GenerateLibraryFromIncrementalFolder.class)
           || !features.contains(Incremental.class)) {
-        typePlan = planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+        typePlan.append(JayceInLibraryWriterAll.class);
       } else {
-        typePlan = planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
-      }
-      if (productions.contains(JayceInLibraryProduct.class)) {
-        typePlan.append(JayceInLibraryWriter.class);
+        typePlan.append(JayceInLibraryWriterNoPrebuilt.class);
       }
     }
 
     {
       {
         SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-            planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
+            planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
         SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
         methodPlan.append(BridgeInInterfaceRemover.class);
       }
@@ -1284,14 +1283,14 @@ public abstract class Jack {
 
     if (features.contains(LambdaToAnonymousConverter.class)) {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
       methodPlan.append(LambdaConverter.class);
     }
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(ExcludeTypeFromLibAdapter.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       if (productions.contains(DependencyInLibraryProduct.class)) {
         typePlan.append(TypeDependenciesCollector.class);
         typePlan.append(FileDependenciesCollector.class);
@@ -1304,7 +1303,7 @@ public abstract class Jack {
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
       if (features.contains(DynamicAssertionFeature.class)) {
         methodPlan.append(DynamicAssertionTransformer.class);
@@ -1323,7 +1322,7 @@ public abstract class Jack {
       // After this point {@link JDcoiExcludeJackFileAdapter} must not be used since
       // schedulables are not executed into the Java to Jayce plan.
       SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
-          planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       if (features.contains(DynamicAssertionFeature.class)) {
         SubPlanBuilder<JField> fieldPlan =
             typePlan4.appendSubPlan(JFieldAdapter.class);
@@ -1388,7 +1387,7 @@ public abstract class Jack {
     }
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       typePlan.append(ReflectAnnotationsAdder.class);
       {
         SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
@@ -1398,7 +1397,7 @@ public abstract class Jack {
     planBuilder.append(ClassAnnotationSchedulingSeparator.class);
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       typePlan.append(ClassDefItemBuilder.class);
       typePlan.append(ContainerAnnotationAdder.TypeContainerAnnotationAdder.class);
       typePlan.append(ClassAnnotationBuilder.class);
@@ -1406,7 +1405,7 @@ public abstract class Jack {
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan5 =
-          planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       {
         {
           SubPlanBuilder<JMethod> methodPlan4 =
@@ -1493,18 +1492,16 @@ public abstract class Jack {
       planBuilder.append(CodeCoverageMetadataFileWriter.class);
     }
 
-    {
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan;
+    if (productions.contains(DexInLibraryProduct.class)) {
       // Jayce files must be copied into output library in incremental library mode or in non
       // incremental mode
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       if (features.contains(GenerateLibraryFromIncrementalFolder.class)
           || !features.contains(Incremental.class)) {
-        typePlan = planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+        typePlan.append(DexInLibraryWriterAll.class);
       } else {
-        typePlan = planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
-      }
-      if (productions.contains(DexInLibraryProduct.class)) {
-        typePlan.append(DexInLibraryWriter.class);
+        typePlan.append(DexInLibraryWriterNoPrebuilt.class);
       }
     }
 

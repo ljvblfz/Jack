@@ -22,12 +22,13 @@ import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.log.Tracer;
@@ -43,6 +44,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Removes useless if statement")
 @Constraint(need = {JIfStatement.class})
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class UselessIfRemover implements RunnableSchedulable<JMethod> {
 
   @Nonnull
@@ -51,7 +53,8 @@ public class UselessIfRemover implements RunnableSchedulable<JMethod> {
       CounterImpl.class, Counter.class);
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   @Nonnull
   private final Tracer tracer = TracerFactory.getTracer();

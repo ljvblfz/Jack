@@ -22,11 +22,13 @@ import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 
@@ -40,6 +42,7 @@ import javax.annotation.Nonnull;
 @Name("IntersectionTypeRemover")
 @Constraint(need = JDynamicCastOperation.class)
 @Transform(add = JDynamicCastOperation.class, remove = JCastOperation.WithIntersectionType.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class IntersectionTypeRemover implements RunnableSchedulable<JMethod> {
 
   private static class Visitor extends JVisitor {

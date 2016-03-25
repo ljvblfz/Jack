@@ -23,8 +23,10 @@ import com.android.jack.ir.ast.JFieldId;
 import com.android.jack.ir.ast.JLiteral;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 
@@ -39,6 +41,7 @@ import javax.annotation.Nonnull;
 @Description("Collect all enum fields used into a switch")
 @Constraint(need = {JSwitchStatement.SwitchWithEnum.class})
 @Transform(add = {SwitchEnumSupport.UsedEnumField.class})
+@Filter(SourceTypeFilter.class)
 public class UsedEnumFieldCollector implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   private static class Collector extends JVisitor {

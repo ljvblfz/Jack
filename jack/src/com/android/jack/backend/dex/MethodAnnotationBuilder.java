@@ -26,11 +26,12 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.scheduling.feature.SourceVersion8;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.Optional;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.ToSupport;
@@ -52,10 +53,12 @@ import javax.annotation.Nonnull;
 @Use(AnnotationBuilder.class)
 @Optional(@ToSupport(feature = SourceVersion8.class,
     add = @Constraint(no = JAnnotation.RepeatedAnnotation.class)))
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class MethodAnnotationBuilder implements RunnableSchedulable<JMethod> {
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   @Override
   public synchronized void run(@Nonnull JMethod method) throws Exception {

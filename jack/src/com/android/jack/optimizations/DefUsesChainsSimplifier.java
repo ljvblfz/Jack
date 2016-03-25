@@ -34,6 +34,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVariableRef;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
@@ -41,9 +42,9 @@ import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.jack.util.ControlFlowHelper;
 import com.android.jack.util.OptimizationTools;
 import com.android.jack.util.ThreeAddressCodeFormUtils;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
@@ -98,6 +99,7 @@ import javax.annotation.Nonnull;
 // ReachingDefsMarker is no longer valid after this optimization, thus remove it directly
 @Transform(remove = { ReachingDefsMarker.class })
 @Support(Optimizations.DefUseSimplifier.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
     implements RunnableSchedulable<JMethod> {
 
@@ -107,7 +109,8 @@ public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
       CounterImpl.class, Counter.class);
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   @Nonnull
   private final Tracer tracer = TracerFactory.getTracer();

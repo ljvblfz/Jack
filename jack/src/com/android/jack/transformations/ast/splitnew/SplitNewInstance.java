@@ -31,14 +31,15 @@ import com.android.jack.ir.ast.JNewInstance;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.LocalVarCreator;
 import com.android.jack.transformations.ast.NewInstanceRemoved;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
@@ -59,10 +60,12 @@ import javax.annotation.Nonnull;
     JAlloc.class, JAsgOperation.NonReusedAsg.class, JLocalRef.class, JMultiExpression.class,
     NewInstanceRemoved.class}, remove = {JNewInstance.class, ThreeAddressCodeForm.class})
 @Use(LocalVarCreator.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class SplitNewInstance implements RunnableSchedulable<JMethod> {
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
   @Nonnull
   private static final String LOCAL_VAR_PREFIX = "sni";
 

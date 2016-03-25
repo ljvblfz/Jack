@@ -18,7 +18,9 @@ package com.android.jack.statistics;
 
 import com.android.jack.ir.ast.JField;
 import com.android.jack.scheduling.feature.CompiledTypeStats;
+import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.sched.item.Description;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.util.log.Tracer;
@@ -36,6 +38,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Computes some statistics about compiled fields.")
 @Support(CompiledTypeStats.class)
+@Filter(SourceTypeFilter.class)
 public class FieldStats implements RunnableSchedulable<JField> {
 
   @Nonnull

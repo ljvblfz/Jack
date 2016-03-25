@@ -33,6 +33,7 @@ import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.ast.NoImplicitBlock;
 import com.android.jack.transformations.finallyblock.InlinedFinallyMarker;
 import com.android.jack.transformations.request.AppendStatement;
@@ -40,10 +41,10 @@ import com.android.jack.transformations.request.PrependAfter;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.ControlFlowHelper;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
@@ -66,10 +67,12 @@ import javax.annotation.Nonnull;
 @Transform(
     add = {JLabel.class, JBlock.class, JLabeledStatement.class, JGoto.class},
     remove = {JTryStatement.class})
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class TryCatchRemover implements RunnableSchedulable<JMethod> {
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   @Nonnull
   private final JClass jlo =

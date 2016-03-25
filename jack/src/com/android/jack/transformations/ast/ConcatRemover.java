@@ -38,15 +38,16 @@ import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
+import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.transformations.ast.inner.InnerAccessorGeneratorSchedulingSeparator;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.jack.util.NamingTools;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.collect.Lists;
@@ -66,6 +67,7 @@ import javax.annotation.Nonnull;
     remove = {JConcatOperation.class, ThreeAddressCodeForm.class, NewInstanceRemoved.class},
     add = {JNewInstance.class, JMethodCall.class, JDynamicCastOperation.class,
         InnerAccessorGeneratorSchedulingSeparator.SeparatorConcatRemoverTag.class})
+@Filter(SourceTypeFilter.class)
 public class ConcatRemover implements RunnableSchedulable<JMethod> {
 
   @Nonnull
@@ -92,7 +94,8 @@ public class ConcatRemover implements RunnableSchedulable<JMethod> {
       Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_STRING);
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
   @CheckForNull
   private final JSession session = Jack.getSession();
   @CheckForNull

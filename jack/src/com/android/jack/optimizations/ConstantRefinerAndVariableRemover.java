@@ -46,14 +46,15 @@ import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.Number;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.ast.ImplicitCast;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.CloneExpressionVisitor;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
@@ -76,6 +77,7 @@ import javax.annotation.Nonnull;
     JLongLiteral.class,
     JFloatLiteral.class,
     JDoubleLiteral.class})
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class ConstantRefinerAndVariableRemover implements RunnableSchedulable<JMethod> {
 
   @Nonnull
@@ -94,7 +96,8 @@ public class ConstantRefinerAndVariableRemover implements RunnableSchedulable<JM
       CounterImpl.class, Counter.class);
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   @Nonnull
   private final Tracer tracer = TracerFactory.getTracer();

@@ -41,12 +41,13 @@ import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.UnsupportedOperatorException;
 import com.android.jack.ir.types.JFloatingPointType;
 import com.android.jack.lookup.CommonTypes;
+import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
@@ -62,10 +63,12 @@ import javax.annotation.Nonnull;
 @Transform(add = {JPrefixNotOperation.class, JGteOperation.class, JGtOperation.class,
     JLteOperation.class, JLtOperation.class, JEqOperation.class, JNeqOperation.class,
     JAndOperation.class, JOrOperation.class, JBitAndOperation.class, JBitOrOperation.class})
+@Filter(SourceTypeFilter.class)
 public class NotSimplifier implements RunnableSchedulable<JMethod> {
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   /**
    * Count number of operators before and after that the transformation will be apply to check if it

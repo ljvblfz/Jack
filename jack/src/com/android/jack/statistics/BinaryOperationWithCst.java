@@ -28,12 +28,13 @@ import com.android.jack.ir.ast.JShiftOperation;
 import com.android.jack.ir.ast.JValueLiteral;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.types.JIntegralType32;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.ast.ImplicitBoxingAndUnboxing;
 import com.android.jack.transformations.ast.ImplicitCast;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.ThreadConfig;
@@ -52,10 +53,12 @@ import javax.annotation.Nonnull;
 @Constraint(no = {JConcatOperation.class, ImplicitCast.class, ImplicitBoxingAndUnboxing.class,
     ThreeAddressCodeForm.class, CompoundAssignment.class})
 @Support(CodeStats.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class BinaryOperationWithCst implements RunnableSchedulable<JMethod> {
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
   @Nonnull
   private static final CounterVisitor visitor = new CounterVisitor(TracerFactory.getTracer());
 

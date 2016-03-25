@@ -50,13 +50,14 @@ import com.android.jack.ir.types.JIntegralType32;
 import com.android.jack.ir.types.JNumericType;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.collect.Lists;
@@ -77,6 +78,7 @@ no = {SideEffectOperation.class, InitInNewArray.class,
     JSwitchStatement.SwitchWithEnum.class, JCastOperation.WithIntersectionType.class})
 @Transform(add = {JMethodCall.class, JDynamicCastOperation.class},
     remove = {ImplicitCast.class, ImplicitBoxingAndUnboxing.class, ThreeAddressCodeForm.class})
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class TypeLegalizer implements RunnableSchedulable<JMethod> {
 
   @Nonnull
@@ -84,7 +86,8 @@ public class TypeLegalizer implements RunnableSchedulable<JMethod> {
       Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   @Nonnull
   private final JPhantomLookup lookup = Jack.getSession().getPhantomLookup();

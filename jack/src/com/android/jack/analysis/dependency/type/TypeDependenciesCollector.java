@@ -25,9 +25,11 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JPrimitiveType;
 import com.android.jack.ir.ast.JType;
+import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.item.Synchronized;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 
@@ -40,6 +42,7 @@ import javax.annotation.Nonnull;
 @Name("TypeDependenciesCollector")
 @Transform(add = TypeDependencies.Collected.class)
 @Synchronized
+@Filter(SourceTypeFilter.class)
 public class TypeDependenciesCollector implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Nonnull

@@ -25,10 +25,11 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JThis;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.util.ThreeAddressCodeFormUtils;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.Protect;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
@@ -55,6 +56,7 @@ import javax.annotation.Nonnull;
 @Protect(add = {JMethod.class, JStatement.class}, modify = {JMethod.class, JStatement.class})
 @Use(ThreeAddressCodeFormUtils.class)
 @HasKeyId
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class ReachingDefinitions implements RunnableSchedulable<JMethod> {
 
   @Nonnull
@@ -66,7 +68,8 @@ public class ReachingDefinitions implements RunnableSchedulable<JMethod> {
           .addCategory(Private.class);
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   private final ReachingDefinitionsChecker checker =  ThreadConfig.get(REACHING_DEFS_CHECKER);
 

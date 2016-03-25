@@ -31,10 +31,6 @@ import com.android.jack.library.InputLibraryLocation;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
-import com.android.jack.scheduling.marker.DexCodeMarker;
-import com.android.sched.item.Description;
-import com.android.sched.schedulable.Constraint;
-import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.location.Location;
@@ -50,12 +46,9 @@ import java.io.OutputStream;
 import javax.annotation.Nonnull;
 
 /**
- * Write dex files in library.
+ * Abstract class to write dex files into library.
  */
-@Description("Write dex files in library")
-@Constraint(need = {DexCodeMarker.class, ClassDefItemMarker.Complete.class})
-@Produce(DexInLibraryProduct.class)
-public class DexInLibraryWriter extends DexWriter implements
+public abstract class DexInLibraryWriter extends DexWriter implements
     RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Nonnull

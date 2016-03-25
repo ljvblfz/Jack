@@ -48,15 +48,16 @@ import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.formatter.TypePackageAndMethodFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.JMethodWithReturnLookupException;
+import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.jack.transformations.ast.NewInstanceRemoved;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.jack.util.NamingTools;
-import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
@@ -78,6 +79,7 @@ import javax.annotation.Nonnull;
     remove = {ThreeAddressCodeForm.class, NewInstanceRemoved.class})
 @Constraint(no = {SideEffectOperation.class, JAlloc.class,
     InnerAccessorGeneratorSchedulingSeparator.SeparatorConcatRemoverTag.class})
+@Filter(SourceTypeFilter.class)
 public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Nonnull
@@ -86,7 +88,8 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClass
   class Visitor extends JVisitor {
 
     @Nonnull
-    protected final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+    protected final com.android.jack.util.filter.Filter<JMethod> filter =
+        ThreadConfig.get(Options.METHOD_FILTER);
 
     @CheckForNull
     protected TransformationRequest tr;

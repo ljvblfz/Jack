@@ -49,6 +49,7 @@ import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JTryStatement;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.transformations.LocalVarCreator;
 import com.android.jack.transformations.ast.inner.InnerAccessorGeneratorSchedulingSeparator;
@@ -63,6 +64,7 @@ import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
@@ -98,7 +100,7 @@ import javax.annotation.Nonnull;
      InnerAccessorGeneratorSchedulingSeparator.SeparatorSwitchEnumSupportTag.class},
  remove = {JSwitchStatement.SwitchWithEnum.class, ThreeAddressCodeForm.class})
 @Use(value = {LocalVarCreator.class})
-
+@Filter(SourceTypeFilter.class)
 public class OptimizedSwitchEnumSupport implements RunnableSchedulable<JMethod> {
   // switch map filler which will fills synthetic switch map field and initializer
   @Nonnull

@@ -22,12 +22,14 @@ import com.android.jack.ir.ast.JConstructor;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.jack.transformations.request.AppendMethod;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.jack.util.NamingTools;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 
@@ -44,6 +46,7 @@ import javax.annotation.Nonnull;
     GetterMarker.class, SetterMarker.class, WrapperMarker.class, ThreeAddressCodeForm.class})
 @Constraint(need = {GetterMarker.class, SetterMarker.class, WrapperMarker.class},
     no = InnerAccessorSchedulingSeparator.SeparatorTag.class)
+@Filter(SourceTypeFilter.class)
 public class InnerAccessorAdder implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Override

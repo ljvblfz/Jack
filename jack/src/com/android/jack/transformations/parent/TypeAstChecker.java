@@ -20,8 +20,10 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.SanityChecks;
 import com.android.sched.item.Description;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 
@@ -35,6 +37,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Check that AST of JNodes is correct, running on JDefinedClassOrInterfaces.")
 @Support(SanityChecks.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class TypeAstChecker implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   private static class Visitor extends JVisitor {
