@@ -28,7 +28,6 @@ import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.DummyToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
-import com.android.jack.util.TextUtils;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -142,47 +141,32 @@ public class ShrinkTests extends AbstractTest {
     File testOut = null;
     File shrinkOut = null;
 
-    try {
-      JackApiToolchainBase toolchain =
-          AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
-      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
-      .srcToLib(
-          libOut,
-          /* zipFiles = */ false,
-          new File(shrobTestsDir, "test020/lib"));
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToLib(
+        libOut,
+        /* zipFiles = */ false,
+        new File(shrobTestsDir, "test020/lib"));
 
-      toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
-      testOut = AbstractTestTools.createTempDir();
-      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
-      .addToClasspath(libOut)
-      .srcToLib(testOut,
-          /* zipFiles = */ false,
-          new File(shrobTestsDir, "test020/jack"));
+    toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    testOut = AbstractTestTools.createTempDir();
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .addToClasspath(libOut)
+    .srcToLib(testOut,
+        /* zipFiles = */ false,
+        new File(shrobTestsDir, "test020/jack"));
 
-      shrinkOut = AbstractTestTools.createTempDir();
-      toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
-      toolchain.addProguardFlags(
-          dontObfuscateFlagFile,
-          new ProguardFlags(new File(shrobTestsDir, "test020"),"proguard.flags"));
-      toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
-      toolchain.libToLib(
-          testOut,
-          shrinkOut,
-          /* zipFile = */ false);
-    } catch (Exception e) {
-      String message = "Not deleting temp files of failed test ShrinkTest.test20 in:" +
-          TextUtils.LINE_SEPARATOR +
-          "- " + libOut.getAbsolutePath();
-      if (testOut != null) {
-        message += TextUtils.LINE_SEPARATOR + "- " + testOut.getAbsolutePath();
-      }
-      if (shrinkOut != null) {
-        message += TextUtils.LINE_SEPARATOR + "- " + shrinkOut.getAbsolutePath();
-      }
-      System.err.println();
-      System.err.println(message);
-      throw e;
-    }
+    shrinkOut = AbstractTestTools.createTempDir();
+    toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    toolchain.addProguardFlags(
+        dontObfuscateFlagFile,
+        new ProguardFlags(new File(shrobTestsDir, "test020"),"proguard.flags"));
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
+    toolchain.libToLib(
+        testOut,
+        shrinkOut,
+        /* zipFile = */ false);
   }
 
   @Test
@@ -191,56 +175,41 @@ public class ShrinkTests extends AbstractTest {
     File shrinkOut = null;
     File dexOut = null;
 
-    try {
-      JackApiToolchainBase toolchain =
-          AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
-      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
-      .srcToLib(
-          jackOut,
-          /* zipFiles = */ false,
-          new File(shrobTestsDir, "test021/jack"));
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToLib(
+        jackOut,
+        /* zipFiles = */ false,
+        new File(shrobTestsDir, "test021/jack"));
 
-      toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
 
-      File candidateNodeListing = AbstractTestTools.createTempFile("nodeListing", ".txt");
-      toolchain.addProperty(ShrinkStructurePrinter.STRUCTURE_PRINTING.getName(), "true");
-      toolchain.addProperty(ShrinkStructurePrinter.STRUCTURE_PRINTING_FILE.getName(),
-          candidateNodeListing.getPath());
-      toolchain.addProperty(Options.METHOD_FILTER.getName(), "supported-methods");
-      toolchain.disableDxOptimizations();
+    File candidateNodeListing = AbstractTestTools.createTempFile("nodeListing", ".txt");
+    toolchain.addProperty(ShrinkStructurePrinter.STRUCTURE_PRINTING.getName(), "true");
+    toolchain.addProperty(ShrinkStructurePrinter.STRUCTURE_PRINTING_FILE.getName(),
+        candidateNodeListing.getPath());
+    toolchain.addProperty(Options.METHOD_FILTER.getName(), "supported-methods");
+    toolchain.disableDxOptimizations();
 
 
-      toolchain.addProguardFlags(
-          dontObfuscateFlagFile,
-          new ProguardFlags(new File( shrobTestsDir, "test021"),"proguard.flags001"));
-      shrinkOut = AbstractTestTools.createTempDir();
-      toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
-      // This test does not use the SourceToDexComparisonTestHelper since it
-      // calls libToLib instead of srcToExe.
-      toolchain.libToLib(jackOut, shrinkOut, /* zipFiles = */ false);
+    toolchain.addProguardFlags(
+        dontObfuscateFlagFile,
+        new ProguardFlags(new File( shrobTestsDir, "test021"),"proguard.flags001"));
+    shrinkOut = AbstractTestTools.createTempDir();
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
+    // This test does not use the SourceToDexComparisonTestHelper since it
+    // calls libToLib instead of srcToExe.
+    toolchain.libToLib(jackOut, shrinkOut, /* zipFiles = */ false);
 
-      new ComparatorMapping(candidateNodeListing,
-          new File(shrobTestsDir, "test021/refsShrinking/expected-001.txt")).compare();
+    new ComparatorMapping(candidateNodeListing,
+        new File(shrobTestsDir, "test021/refsShrinking/expected-001.txt")).compare();
 
-      dexOut = AbstractTestTools.createTempDir();
-      toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
-      toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
-      toolchain.libToExe(shrinkOut, dexOut, /* zipFile = */ false);
+    dexOut = AbstractTestTools.createTempDir();
+    toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
+    toolchain.libToExe(shrinkOut, dexOut, /* zipFile = */ false);
 
-    } catch (Exception e) {
-      String message =
-          "Not deleting temp files of failed ShrinkTest.test21 in:" + TextUtils.LINE_SEPARATOR
-          + "- " + jackOut.getAbsolutePath();
-      if (shrinkOut != null) {
-        message += TextUtils.LINE_SEPARATOR + "- " + shrinkOut.getAbsolutePath();
-      }
-      if (dexOut != null) {
-        message += TextUtils.LINE_SEPARATOR + "- " + dexOut.getAbsolutePath();
-      }
-      System.err.println();
-      System.err.println(message);
-      throw e;
-    }
   }
 
   /**
