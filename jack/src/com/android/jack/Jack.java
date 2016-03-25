@@ -271,9 +271,7 @@ import com.android.jack.transformations.finallyblock.FinallyRemover;
 import com.android.jack.transformations.flow.FlowNormalizer;
 import com.android.jack.transformations.flow.FlowNormalizerSchedulingSeparator;
 import com.android.jack.transformations.lambda.LambdaConverter;
-import com.android.jack.transformations.lambda.LambdaNativeSupportConverter;
 import com.android.jack.transformations.lambda.LambdaToAnonymousConverter;
-import com.android.jack.transformations.lambda.LambdaUseExperimentalOpcodes;
 import com.android.jack.transformations.parent.AstChecker;
 import com.android.jack.transformations.parent.TypeAstChecker;
 import com.android.jack.transformations.renamepackage.PackageRenamer;
@@ -594,10 +592,6 @@ public abstract class Jack {
 
         if (config.get(Options.LAMBDA_TO_ANONYMOUS_CONVERTER).booleanValue()) {
           request.addFeature(LambdaToAnonymousConverter.class);
-        }
-
-        if (config.get(CodeItemBuilder.EXPERIMENTAL_LAMBDA_OPCODES).booleanValue()) {
-          request.addFeature(LambdaUseExperimentalOpcodes.class);
         }
 
         if (config.get(Options.GENERATE_DEX_FILE).booleanValue()) {
@@ -1304,13 +1298,6 @@ public abstract class Jack {
         }
         typePlan.append(InnerAccessorAdder.class);
       }
-
-    if (features.contains(LambdaUseExperimentalOpcodes.class)) {
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
-      SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodOnlyAdapter.class);
-      methodPlan.append(LambdaNativeSupportConverter.class);
-    }
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
