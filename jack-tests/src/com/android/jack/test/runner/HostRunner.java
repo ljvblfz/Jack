@@ -37,6 +37,7 @@ public abstract class HostRunner extends AbstractRuntimeRunner {
       throws RuntimeRunnerException {
 
     ExecuteFile exec = new ExecuteFile(commandLine.toArray(new String[commandLine.size()]));
+    exec.inheritEnvironment();
     exec.addEnvVar(rtEnvRootDirVarName, rtEnvironmentRootDir.getAbsolutePath());
     exec.setOut(outRedirectStream);
     exec.setErr(errRedirectStream);

@@ -58,6 +58,7 @@ public class LegacyJillToolchain extends JillBasedToolchain {
     commandLine.add(out.getAbsolutePath());
 
     ExecuteFile execFile = new ExecuteFile(commandLine.toArray(new String[commandLine.size()]));
+    execFile.inheritEnvironment();
     execFile.setOut(outRedirectStream);
     execFile.setErr(errRedirectStream);
     execFile.setVerbose(isVerbose);

@@ -32,7 +32,9 @@ import java.io.PrintStream;
 import java.io.StreamTokenizer;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -47,7 +49,7 @@ public class ExecuteFile {
   private final String[] cmdLine;
 
   @Nonnull
-  List<String> env = new ArrayList<String>(0);
+  private Map<String, String> env = new HashMap<String, String>();
 
   @CheckForNull
   private File workDir;
@@ -114,7 +116,7 @@ public class ExecuteFile {
   }
 
   public void addEnvVar(@Nonnull String key, @Nonnull String value) {
-    env.add(key + "=" + value);
+    env.put(key, value);
   }
 
   public ExecuteFile(@Nonnull File exec, @Nonnull String[] args) {
@@ -176,8 +178,15 @@ public class ExecuteFile {
     Thread suckIn = null;
 
     try {
+
+      String[] cmdLineEnv = new String[env.size()];
+      int idx = 0;
+      for (Entry<String, String> envElt : env.entrySet()) {
+        cmdLineEnv[idx++] = envElt.getKey() + '=' + envElt.getValue();
+      }
+
       StringBuilder cmdLineBuilder = new StringBuilder();
-      for (String envElt : env) {
+      for (String envElt : cmdLineEnv) {
         cmdLineBuilder.append(envElt).append(' ');
       }
       for (String arg : cmdLine) {
@@ -198,7 +207,7 @@ public class ExecuteFile {
         logger.log(Level.INFO, "Execute: {0}", cmdLineBuilder);
       }
 
-      proc = Runtime.getRuntime().exec(cmdLine, env.toArray(new String[env.size()]), workDir);
+      proc = Runtime.getRuntime().exec(cmdLine, cmdLineEnv, workDir);
 
       InputStream localInStream = inStream;
       if (localInStream != null) {
@@ -294,4 +303,13 @@ public class ExecuteFile {
       }
     }
   }
+
+  @Nonnull
+  public ExecuteFile inheritEnvironment() {
+    for (Entry<String, String> envVarEntry : System.getenv().entrySet()) {
+      addEnvVar(envVarEntry.getKey(), envVarEntry.getValue());
+    }
+    return this;
+  }
+
 }
