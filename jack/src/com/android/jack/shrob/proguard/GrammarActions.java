@@ -34,6 +34,10 @@ import com.android.jack.shrob.spec.MethodSpecification;
 import com.android.jack.shrob.spec.ModifierSpecification;
 import com.android.jack.shrob.spec.NameSpecification;
 import com.android.jack.util.NamingTools;
+import com.android.sched.util.file.AbstractStreamFile;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotFileException;
+import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.log.LoggerFactory;
 
 import org.antlr.runtime.ANTLRFileStream;
@@ -312,14 +316,19 @@ public class GrammarActions {
   }
 
   @CheckForNull
-  private static ProguardParser createParserFromFile(@Nonnull File file) {
+  private static ProguardParser createParserFromFile(@Nonnull File file)
+      throws ProguardFileParsingException {
     try {
+      AbstractStreamFile.check(file, new FileLocation(file.getPath()));
       ProguardParser parser = createParserCommon(new ANTLRFileStream(file.getPath()));
       return parser;
+    } catch (NoSuchFileException e) {
+      throw new ProguardFileParsingException(e);
+    } catch (NotFileException e) {
+      throw new ProguardFileParsingException(e);
     } catch (IOException e) {
-      logger.log(Level.SEVERE, "Error while creating parser for file {0}", file.getPath());
+      throw new ProguardFileParsingException(e);
     }
-    return null;
   }
 
   @Nonnull
@@ -331,7 +340,8 @@ public class GrammarActions {
   }
 
   public static void parse(/*@Nonnull*/ String proguardFileName,
-      /*@Nonnull*/ String baseDir, @Nonnull Flags flags) throws RecognitionException {
+      /*@Nonnull*/ String baseDir, @Nonnull Flags flags) throws RecognitionException,
+  ProguardFileParsingException {
     assert proguardFileName != null;
     assert baseDir != null;
     File proguardFile = getFileFromBaseDir(baseDir, proguardFileName);
