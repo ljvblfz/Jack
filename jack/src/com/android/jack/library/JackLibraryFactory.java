@@ -28,6 +28,7 @@ import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VFS;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
@@ -108,7 +109,20 @@ public abstract class JackLibraryFactory {
     try {
       InputVFile libProp =
           vfs.getRootInputVDir().getInputVFile(JackLibrary.LIBRARY_PROPERTIES_VPATH);
-      libraryProperties.load(libProp.getInputStream());
+      InputStream inputStream = null;
+      try {
+        inputStream = libProp.getInputStream();
+        libraryProperties.load(inputStream);
+      } finally {
+        if (inputStream != null) {
+          try {
+            inputStream.close();
+          } catch (IOException e) {
+            logger.log(
+                Level.WARNING, "Failed to close ''{0}''", libProp.getLocation().getDescription());
+          }
+        }
+      }
     } catch (IOException e) {
       throw new NotJackLibraryException(vfs.getLocation());
     }
