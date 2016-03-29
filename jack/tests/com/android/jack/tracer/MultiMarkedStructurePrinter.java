@@ -19,7 +19,7 @@ package com.android.jack.tracer;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.util.StructurePrinter;
 
-import java.io.PrintStream;
+import java.io.PrintWriter;
 
 import javax.annotation.Nonnull;
 
@@ -27,7 +27,7 @@ public class MultiMarkedStructurePrinter extends StructurePrinter {
 
   private final int id;
 
-  public MultiMarkedStructurePrinter(@Nonnull PrintStream out, int id) {
+  public MultiMarkedStructurePrinter(@Nonnull PrintWriter out, int id) {
     super(out);
     this.id = id;
   }

@@ -24,7 +24,7 @@ import javax.annotation.Nonnull;
 
 
 /**
- * OutputStream which silently ignore close
+ * {@link OutputStream} which silently ignore close
  */
 public class UncloseableOutputStream extends FilterOutputStream {
   public UncloseableOutputStream(@Nonnull OutputStream stream) {
@@ -32,7 +32,8 @@ public class UncloseableOutputStream extends FilterOutputStream {
   }
 
   @Override
-  public void close() {
+  public void close() throws IOException {
+    out.flush();
   }
 
   @Override

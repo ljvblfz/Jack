@@ -45,24 +45,28 @@ import com.android.sched.item.Name;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
-import com.android.sched.util.codec.InputStreamCodec;
+import com.android.sched.util.codec.ReaderFileCodec;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.ListPropertyId;
-import com.android.sched.util.file.InputStreamFile;
+import com.android.sched.util.file.ReaderFile;
 import com.android.sched.util.location.FileLocation;
+import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.VPath;
 import com.tonicsystems.jarjar.PackageRemapper;
 import com.tonicsystems.jarjar.PatternElement;
 import com.tonicsystems.jarjar.RulesFileParser;
 import com.tonicsystems.jarjar.Wildcard;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Stack;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
@@ -75,6 +79,8 @@ import javax.annotation.Nonnull;
 @Support(Jarjar.class)
 @Transform(add = {JStringLiteral.class, JPackage.class}, modify = JDefinedClassOrInterface.class)
 public class PackageRenamer implements RunnableSchedulable<JSession>{
+  @Nonnull
+  private static final Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
   public static final BooleanPropertyId JARJAR_ENABLED = BooleanPropertyId.create(
@@ -82,12 +88,12 @@ public class PackageRenamer implements RunnableSchedulable<JSession>{
       .addDefaultValue(false).addCategory(DumpInLibrary.class);
 
   @Nonnull
-  public static final ListPropertyId<InputStreamFile> JARJAR_FILES = new ListPropertyId<
-      InputStreamFile>("jack.repackaging.files", "Jarjar rules files", new InputStreamCodec())
-      .requiredIf(JARJAR_ENABLED.getValue().isTrue());
+  public static final ListPropertyId<ReaderFile> JARJAR_FILES =
+      new ListPropertyId<ReaderFile>("jack.repackaging.files", "Jarjar rules files",
+          new ReaderFileCodec().allowCharset()).requiredIf(JARJAR_ENABLED.getValue().isTrue());
 
   @Nonnull
-  private final List<InputStreamFile> jarjarRulesFiles = ThreadConfig.get(JARJAR_FILES);
+  private final List<ReaderFile> jarjarRulesFiles = ThreadConfig.get(JARJAR_FILES);
 
   private static class Visitor extends JVisitor {
 
@@ -160,14 +166,17 @@ public class PackageRenamer implements RunnableSchedulable<JSession>{
   @Override
   public void run(@Nonnull JSession session) throws Exception {
     List<PatternElement> result = new ArrayList<PatternElement>();
-    for (InputStreamFile jarjarFile : jarjarRulesFiles) {
+    for (ReaderFile jarjarFile : jarjarRulesFiles) {
       try {
         result.addAll(RulesFileParser.parse(jarjarFile));
+        jarjarFile.getBufferedReader().close();
       } catch (IllegalArgumentException e) {
         PackageRenamingParsingException ex =
             new PackageRenamingParsingException((FileLocation) jarjarFile.getLocation(), e);
         session.getReporter().report(Severity.FATAL, ex);
         throw new JackAbortException(ex);
+      } catch (IOException e) {
+        logger.log(Level.WARNING, "Failed to close ''{0}''", jarjarFile.getPath());
       }
     }
     List<Wildcard> wildcards = PatternElement.createWildcards(result);

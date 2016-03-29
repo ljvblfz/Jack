@@ -30,7 +30,7 @@ import javax.annotation.Nonnull;
 /**
  * This {@link InputStreamCodec} is used to create an instance of {@link InputStreamFile}.
  */
-public class InputStreamCodec extends StreamCodec<InputStreamFile> {
+public class InputStreamCodec extends FileCodec<InputStreamFile> {
   public InputStreamCodec() {
     super(Existence.MUST_EXIST, Permission.READ);
   }

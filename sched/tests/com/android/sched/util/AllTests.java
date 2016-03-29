@@ -26,6 +26,8 @@ import org.junit.runners.Suite.SuiteClasses;
     SubReleaseKindTest.class,
     com.android.sched.util.codec.AllTests.class,
     com.android.sched.util.config.cli.AllTests.class,
+    com.android.sched.util.log.AllTests.class,
+    com.android.sched.util.stream.AllTests.class
 })
 public class AllTests {
 }

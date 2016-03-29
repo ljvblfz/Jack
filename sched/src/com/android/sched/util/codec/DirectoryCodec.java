@@ -55,7 +55,7 @@ public class DirectoryCodec extends FileOrDirCodec<Directory> {
   @Override
   @Nonnull
   public String getUsage() {
-    return "a path to a directory (" + getUsageDetails() + ")";
+    return "a path to a directory (" + getDetailedUsage() + ")";
   }
 
   @Override

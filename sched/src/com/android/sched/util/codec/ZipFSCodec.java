@@ -83,7 +83,7 @@ public class ZipFSCodec extends FileOrDirCodec<VFS> {
   @Override
   @Nonnull
   public String getUsage() {
-    return "a path to a zip archive (" + getUsageDetails() + ")";
+    return "a path to a zip archive (" + getDetailedUsage() + ")";
   }
 
   @Override

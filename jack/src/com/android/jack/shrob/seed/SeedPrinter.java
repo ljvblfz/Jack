@@ -23,6 +23,8 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
+import com.android.jack.reporting.ReportableIOException;
+import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.transformations.ast.removeinit.FieldInitMethod;
@@ -30,14 +32,15 @@ import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
-import com.android.sched.util.codec.OutputStreamCodec;
+import com.android.sched.util.codec.WriterFileCodec;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.config.id.WriterFilePropertyId;
+import com.android.sched.util.file.CannotWriteException;
 import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.util.file.OutputStreamFile;
+import com.android.sched.util.stream.ExtendedPrintWriter;
 
-import java.io.PrintStream;
+import java.io.IOException;
 import java.util.Iterator;
 
 import javax.annotation.Nonnull;
@@ -52,18 +55,18 @@ import javax.annotation.Nonnull;
 public class SeedPrinter implements RunnableSchedulable<JSession> {
 
   @Nonnull
-  public static final PropertyId<OutputStreamFile> SEEDS_OUTPUT_FILE = PropertyId.create(
+  public static final WriterFilePropertyId SEEDS_OUTPUT_FILE = WriterFilePropertyId.create(
       "jack.seed.dump.file", "File where the seeds will be printed",
-      new OutputStreamCodec(Existence.MAY_EXIST).allowStandardOutputOrError())
+      new WriterFileCodec(Existence.MAY_EXIST).allowStandardOutputOrError().allowCharset())
       .addDefaultValue("-");
 
   @Nonnull
-  private final PrintStream stream;
+  private final ExtendedPrintWriter writer;
 
   private static final char TYPE_AND_MEMBER_SEPARATOR = ':';
 
   public SeedPrinter() {
-    stream = ThreadConfig.get(SEEDS_OUTPUT_FILE).getPrintStream();
+    writer = ThreadConfig.get(SEEDS_OUTPUT_FILE).getPrintWriter();
   }
 
   private void appendQualifiedName(
@@ -73,54 +76,63 @@ public class SeedPrinter implements RunnableSchedulable<JSession> {
 
   @Override
   public void run(@Nonnull JSession session) throws Exception {
+    try {
+      for (JDefinedClassOrInterface type : session.getTypesToEmit()) {
+        StringBuilder typeNameBuilder = new StringBuilder();
+        appendQualifiedName(typeNameBuilder, type);
 
-    for (JDefinedClassOrInterface type : session.getTypesToEmit()) {
-      StringBuilder typeNameBuilder = new StringBuilder();
-      appendQualifiedName(typeNameBuilder, type);
-
-      if (type.containsMarker(SeedMarker.class)) {
-        stream.println(typeNameBuilder.toString());
-      }
-
-      for (JField field : type.getFields()) {
-        if (field.containsMarker(SeedMarker.class)) {
-          StringBuilder fieldNameBuilder = new StringBuilder(typeNameBuilder);
-          fieldNameBuilder.append(TYPE_AND_MEMBER_SEPARATOR);
-          fieldNameBuilder.append(' ');
-          appendQualifiedName(fieldNameBuilder, field.getType());
-          fieldNameBuilder.append(' ');
-          fieldNameBuilder.append(field.getName());
-          stream.println(fieldNameBuilder.toString());
+        if (type.containsMarker(SeedMarker.class)) {
+          writer.println(typeNameBuilder.toString());
         }
-      }
 
-      for (JMethod method : type.getMethods()) {
-        if (method.containsMarker(SeedMarker.class)) {
-          StringBuilder methodNameBuilder = new StringBuilder(typeNameBuilder);
-          methodNameBuilder.append(TYPE_AND_MEMBER_SEPARATOR);
-          methodNameBuilder.append(' ');
-          if (method instanceof JConstructor) {
-            methodNameBuilder.append(method.getEnclosingType().getName());
-          } else {
-            appendQualifiedName(methodNameBuilder, method.getType());
+        for (JField field : type.getFields()) {
+          if (field.containsMarker(SeedMarker.class)) {
+            StringBuilder fieldNameBuilder = new StringBuilder(typeNameBuilder);
+            fieldNameBuilder.append(TYPE_AND_MEMBER_SEPARATOR);
+            fieldNameBuilder.append(' ');
+            appendQualifiedName(fieldNameBuilder, field.getType());
+            fieldNameBuilder.append(' ');
+            fieldNameBuilder.append(field.getName());
+            writer.println(fieldNameBuilder.toString());
+          }
+        }
+
+        for (JMethod method : type.getMethods()) {
+          if (method.containsMarker(SeedMarker.class)) {
+            StringBuilder methodNameBuilder = new StringBuilder(typeNameBuilder);
+            methodNameBuilder.append(TYPE_AND_MEMBER_SEPARATOR);
             methodNameBuilder.append(' ');
-            methodNameBuilder.append(method.getName());
-          }
-          methodNameBuilder.append('(');
-          Iterator<JParameter> iterator = method.getParams().iterator();
-          while (iterator.hasNext()) {
-            JParameter param = iterator.next();
-            appendQualifiedName(methodNameBuilder, param.getType());
-            if (iterator.hasNext()) {
-              methodNameBuilder.append(',');
+            if (method instanceof JConstructor) {
+              methodNameBuilder.append(method.getEnclosingType().getName());
+            } else {
+              appendQualifiedName(methodNameBuilder, method.getType());
+              methodNameBuilder.append(' ');
+              methodNameBuilder.append(method.getName());
             }
+            methodNameBuilder.append('(');
+            Iterator<JParameter> iterator = method.getParams().iterator();
+            while (iterator.hasNext()) {
+              JParameter param = iterator.next();
+              appendQualifiedName(methodNameBuilder, param.getType());
+              if (iterator.hasNext()) {
+                methodNameBuilder.append(',');
+              }
+            }
+            methodNameBuilder.append(')');
+            writer.println(methodNameBuilder.toString());
           }
-          methodNameBuilder.append(')');
-          stream.println(methodNameBuilder.toString());
         }
+      }
+    } finally {
+      writer.close();
+      try {
+        writer.throwPendingException();
+      } catch (IOException e) {
+        session.getReporter().report(Severity.FATAL, new ReportableIOException("Seed",
+            new CannotWriteException(ThreadConfig.get(SEEDS_OUTPUT_FILE), e)));
+        session.abortEventually();
       }
     }
-    stream.close();
   }
 
 }

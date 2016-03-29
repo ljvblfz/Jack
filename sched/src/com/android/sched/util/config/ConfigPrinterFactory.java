@@ -16,11 +16,12 @@
 
 package com.android.sched.util.config;
 
-import com.android.sched.util.codec.OutputStreamCodec;
+import com.android.sched.util.codec.WriterFileCodec;
 import com.android.sched.util.config.id.ImplementationPropertyId;
-import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.config.id.WriterFilePropertyId;
 import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.util.file.OutputStreamFile;
+
+import java.nio.charset.StandardCharsets;
 
 import javax.annotation.Nonnull;
 
@@ -35,9 +36,10 @@ public class ConfigPrinterFactory {
           ConfigPrinter.class).addDefaultValue("none");
 
   @Nonnull
-  public static final PropertyId<OutputStreamFile> CONFIG_PRINTER_FILE = PropertyId.create(
-      "config.printer.file", "The file where to print the config",
-      new OutputStreamCodec(Existence.MAY_EXIST).allowStandardOutputOrError())
+  public static final WriterFilePropertyId CONFIG_PRINTER_FILE = WriterFilePropertyId
+      .create("config.printer.file",
+          "The file where to print the config", new WriterFileCodec(Existence.MAY_EXIST)
+              .allowStandardOutputOrError().withDefaultCharset(StandardCharsets.ISO_8859_1))
       .addDefaultValue("-");
 
   @Nonnull

@@ -18,9 +18,9 @@ package com.android.sched.util.config;
 
 import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.config.id.PropertyId;
-import com.android.sched.util.file.OutputStreamFile;
+import com.android.sched.util.file.WriterFile;
 
-import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -35,8 +35,8 @@ import javax.annotation.Nonnull;
 public class PropertiesConfigPrinter implements ConfigPrinter {
   @Override
   public void printConfig(@Nonnull Config config) {
-    OutputStreamFile stream = ThreadConfig.get(ConfigPrinterFactory.CONFIG_PRINTER_FILE);
-    PrintStream printer = stream.getPrintStream();
+    WriterFile stream = ThreadConfig.get(ConfigPrinterFactory.CONFIG_PRINTER_FILE);
+    PrintWriter printer = stream.getPrintWriter();
 
     try {
       // Print header

@@ -64,7 +64,7 @@ public class OutputJackLibraryCodec implements StringCodec<OutputJackLibrary> {
   @Override
   @Nonnull
   public String getUsage() {
-    return "a path to a jack library (" + codec.getUsageDetails() + ")";
+    return "a path to a jack library (" + codec.getDetailedUsage() + ")";
   }
 
   @Override

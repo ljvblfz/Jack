@@ -41,13 +41,12 @@ import com.android.sched.scheduler.ManagedRunnable;
 import com.android.sched.scheduler.ManagedSchedulable;
 import com.android.sched.scheduler.ManagedVisitor;
 import com.android.sched.util.codec.ImplementationName;
-import com.android.sched.util.codec.OutputStreamCodec;
+import com.android.sched.util.codec.WriterFileCodec;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.config.id.ReflectFactoryPropertyId;
+import com.android.sched.util.config.id.WriterFilePropertyId;
 import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.util.file.OutputStreamFile;
 import com.android.sched.util.print.DataModel;
 import com.android.sched.util.print.DataModelList;
 import com.android.sched.util.print.DataModelListAdapter;
@@ -57,6 +56,7 @@ import com.android.sched.util.print.DataViewBuilder;
 import com.android.sched.util.print.Printer;
 
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.ResourceBundle;
@@ -80,9 +80,9 @@ public class ManagedDataAsReport implements ManagedDataListener {
           .isSubClassOf(ManagedDataAsReport.class));
 
   @Nonnull
-  public static final PropertyId<OutputStreamFile> STREAM = PropertyId
+  public static final WriterFilePropertyId FILE = WriterFilePropertyId
       .create("sched.report.file", "The file where to print the report",
-          new OutputStreamCodec(Existence.MAY_EXIST).allowStandardOutputOrError())
+          new WriterFileCodec(Existence.MAY_EXIST).allowStandardOutputOrError().allowCharset())
       .addDefaultValue("-").requiredIf(ManagedDataListenerFactory.DATA_LISTENER.getClazz()
           .isSubClassOf(ManagedDataAsReport.class));
 
@@ -738,12 +738,12 @@ public class ManagedDataAsReport implements ManagedDataListener {
       .build();
 
   private void close() {
-    PrintStream stream = ThreadConfig.get(STREAM).getPrintStream();
-    Printer provider = ThreadConfig.get(PRINTER).create(stream)
+    PrintWriter writer = ThreadConfig.get(FILE).getPrintWriter();
+    Printer provider = ThreadConfig.get(PRINTER).create(writer)
         .addResourceBundles(ResourceBundle.getBundle(ManagedDataAsReport.class.getCanonicalName()));
 
     try {
-      stream.print("ctx=");
+      writer.print("ctx=");
       provider.print(new DataModel() {
             @Override
             @Nonnull
@@ -766,7 +766,7 @@ public class ManagedDataAsReport implements ManagedDataListener {
             }
           });
     } finally {
-      stream.close();
+      writer.close();
     }
   }
 

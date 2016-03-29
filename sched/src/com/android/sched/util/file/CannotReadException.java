@@ -48,6 +48,14 @@ public class CannotReadException extends WithLocationIOException {
 
   @Override
   protected String createMessage(@Nonnull String description) {
-    return description + " can not be read";
+    String message = description + " cannot be read";
+    Throwable cause = getCause();
+    if (cause != null) {
+      String detail = cause.getMessage();
+      if (detail != null) {
+        message += ": " + detail;
+      }
+    }
+    return message;
   }
 }

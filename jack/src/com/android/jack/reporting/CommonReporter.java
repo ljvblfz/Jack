@@ -23,10 +23,12 @@ import com.android.jack.ir.HasSourceInfo;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.reporting.Reportable.ProblemLevel;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.file.OutputStreamFile;
+import com.android.sched.util.file.WriterFile;
 import com.android.sched.util.log.ThreadWithTracer;
+import com.android.sched.util.stream.ExtendedPrintWriter;
 
-import java.io.PrintStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -52,22 +54,23 @@ abstract class CommonReporter implements Reporter {
       new LinkedBlockingDeque<Problem>();
 
   @Nonnull
-  protected final PrintStream streamByDefault = ThreadConfig.get(REPORTER_OUTPUT_STREAM)
-      .getPrintStream();
+  protected final ExtendedPrintWriter writerByDefault = ThreadConfig.get(REPORTER_WRITER)
+      .getPrintWriter();
 
   @Nonnull
-  protected final Map<ProblemLevel, PrintStream> streamByLevel =
-      new EnumMap<ProblemLevel, PrintStream>(ProblemLevel.class);
+  protected final Map<ProblemLevel, ExtendedPrintWriter> writerByLevel =
+      new EnumMap<ProblemLevel, ExtendedPrintWriter>(ProblemLevel.class);
 
   @Nonnull
-  protected final PrintStream reporterStream =
-      ThreadConfig.get(REPORTER_OUTPUT_STREAM).getPrintStream();
+  protected final PrintWriter reporterStream =
+      ThreadConfig.get(REPORTER_WRITER).getPrintWriter();
 
   protected CommonReporter() {
-    for (final Entry<ProblemLevel, OutputStreamFile> entry : ThreadConfig.get(
-        Reporter.REPORTER_OUTPUT_STREAM_BY_LEVEL).entrySet()) {
-      streamByLevel.put(entry.getKey(), entry.getValue().getPrintStream());
+    for (final Entry<ProblemLevel, WriterFile> entry : ThreadConfig.get(
+        Reporter.REPORTER_WRITER_BY_LEVEL).entrySet()) {
+      writerByLevel.put(entry.getKey(), entry.getValue().getPrintWriter());
     }
+
     final Thread reporterThread = new ThreadWithTracer(new RunReporter(), "Jack reporter");
     reporterThread.start();
     Jack.getSession().getHooks().addHook(new Runnable() {
@@ -128,8 +131,31 @@ abstract class CommonReporter implements Reporter {
             + "' was interrupted");
         Thread.currentThread().interrupt();
       }
+
+      close(ThreadConfig.get(REPORTER_WRITER));
+      for (final Entry<ProblemLevel, WriterFile> entry : ThreadConfig
+          .get(Reporter.REPORTER_WRITER_BY_LEVEL).entrySet()) {
+        close(entry.getValue());
+      }
+    }
+  }
+
+  private void close(@Nonnull WriterFile file) {
+    ExtendedPrintWriter writer = file.getPrintWriter();
+
+    try {
+      writer.throwPendingException();
+    } catch (IOException e) {
+      logger.log(Level.SEVERE, "Pending exception writing " + file.getLocation().getDescription(),
+          e);
     }
 
+    try {
+      writer.close();
+      writer.throwPendingException();
+    } catch (IOException e) {
+      logger.log(Level.SEVERE, "Failed to close " + file.getLocation().getDescription(), e);
+    }
   }
 
   private static interface Problem {

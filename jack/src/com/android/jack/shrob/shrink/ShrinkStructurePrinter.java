@@ -17,19 +17,22 @@
 package com.android.jack.shrob.shrink;
 
 import com.android.jack.ir.ast.JSession;
+import com.android.jack.reporting.ReportableIOException;
+import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.util.StructurePrinter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
-import com.android.sched.util.codec.OutputStreamCodec;
+import com.android.sched.util.codec.WriterFileCodec;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.BooleanPropertyId;
-import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.config.id.WriterFilePropertyId;
+import com.android.sched.util.file.CannotWriteException;
 import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.util.file.OutputStreamFile;
+import com.android.sched.util.stream.ExtendedPrintWriter;
 
-import java.io.PrintStream;
+import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
@@ -48,26 +51,32 @@ public class ShrinkStructurePrinter implements RunnableSchedulable<JSession> {
       .addDefaultValue(Boolean.FALSE);
 
   @Nonnull
-  public static final PropertyId<OutputStreamFile> STRUCTURE_PRINTING_FILE = PropertyId.create(
+  public static final WriterFilePropertyId STRUCTURE_PRINTING_FILE = WriterFilePropertyId.create(
       "jack.internal.structure.print.file", "File containing the list of all types and members",
-      new OutputStreamCodec(Existence.MAY_EXIST).allowStandardOutputOrError())
+      new WriterFileCodec(Existence.MAY_EXIST).allowStandardOutputOrError().allowCharset())
       .addDefaultValue("-").requiredIf(STRUCTURE_PRINTING.getValue().isTrue());
 
   @Nonnull
-  private final PrintStream stream;
+  private final ExtendedPrintWriter writer;
 
   public ShrinkStructurePrinter() {
-    stream = ThreadConfig.get(STRUCTURE_PRINTING_FILE).getPrintStream();
+    writer = ThreadConfig.get(STRUCTURE_PRINTING_FILE).getPrintWriter();
   }
 
   @Override
-  public void run(@Nonnull JSession t) throws Exception {
+  public void run(@Nonnull JSession session) throws Exception {
     try {
-      StructurePrinter visitor = new StructurePrinter(stream);
-      visitor.accept(t.getTypesToEmit());
+      StructurePrinter visitor = new StructurePrinter(writer);
+      visitor.accept(session.getTypesToEmit());
     } finally {
-      stream.close();
+      writer.close();
+      try {
+        writer.throwPendingException();
+      } catch (IOException e) {
+        session.getReporter().report(Severity.FATAL, new ReportableIOException("Structure",
+            new CannotWriteException(ThreadConfig.get(STRUCTURE_PRINTING_FILE), e)));
+        session.abortEventually();
+      }
     }
   }
-
 }

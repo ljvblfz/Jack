@@ -19,12 +19,14 @@ package com.android.jack.coverage;
 import com.android.jack.library.DumpInLibrary;
 import com.android.sched.item.Description;
 import com.android.sched.item.Feature;
-import com.android.sched.util.codec.OutputStreamCodec;
+import com.android.sched.util.codec.WriterFileCodec;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.config.id.WriterFilePropertyId;
 import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.util.file.OutputStreamFile;
+
+import java.nio.charset.StandardCharsets;
 
 import javax.annotation.Nonnull;
 
@@ -41,9 +43,10 @@ public class CodeCoverage implements Feature {
       .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
 
   @Nonnull
-  public static final PropertyId<OutputStreamFile> COVERAGE_METADATA_FILE = PropertyId.create(
-      "jack.coverage.metadata.file", "File where the coverage metadata will be emitted",
-      new OutputStreamCodec(Existence.MAY_EXIST).allowStandardOutputOrError())
+  public static final WriterFilePropertyId COVERAGE_METADATA_FILE = WriterFilePropertyId
+      .create("jack.coverage.metadata.file", "File where the coverage metadata will be emitted",
+          new WriterFileCodec(Existence.MAY_EXIST).allowStandardOutputOrError()
+              .withDefaultCharset(StandardCharsets.UTF_8))
       .requiredIf(CODE_COVERVAGE.getValue().isTrue());
 
   @Nonnull

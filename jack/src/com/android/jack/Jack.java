@@ -122,6 +122,7 @@ import com.android.jack.optimizations.tailrecursion.TailRecursionOptimization;
 import com.android.jack.optimizations.tailrecursion.TailRecursionOptimizer;
 import com.android.jack.preprocessor.PreProcessor;
 import com.android.jack.preprocessor.PreProcessorApplier;
+import com.android.jack.reporting.ReportableIOException;
 import com.android.jack.reporting.Reporter;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.resource.LibraryResourceWriter;
@@ -304,6 +305,7 @@ import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.ReflectFactoryPropertyId;
+import com.android.sched.util.file.CannotWriteException;
 import com.android.sched.util.log.Event;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.Tracer;
@@ -724,7 +726,12 @@ public abstract class Jack {
                   || !config.get(Options.GENERATE_DEX_IN_LIBRARY).booleanValue());
         }
 
-        PlanPrinterFactory.getPlanPrinter().printPlan(plan);
+        try {
+          PlanPrinterFactory.getPlanPrinter().printPlan(plan);
+        } catch (CannotWriteException e) {
+          session.getReporter().report(Severity.FATAL, new ReportableIOException("Plan", e));
+          session.abortEventually();
+        }
 
         plan.getScheduleInstance().process(session);
       } finally {

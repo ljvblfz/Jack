@@ -31,6 +31,8 @@ import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.reporting.ReportableIOException;
+import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.sched.item.Description;
 import com.android.sched.marker.LocalMarkerManager;
@@ -39,15 +41,16 @@ import com.android.sched.schedulable.Optional;
 import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.ToSupport;
-import com.android.sched.util.codec.OutputStreamCodec;
+import com.android.sched.util.codec.WriterFileCodec;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.BooleanPropertyId;
-import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.config.id.WriterFilePropertyId;
+import com.android.sched.util.file.CannotWriteException;
 import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.util.file.OutputStreamFile;
+import com.android.sched.util.stream.ExtendedPrintWriter;
 
-import java.io.PrintStream;
+import java.io.IOException;
 import java.util.Iterator;
 
 import javax.annotation.Nonnull;
@@ -68,20 +71,20 @@ public class MappingPrinter implements RunnableSchedulable<JSession> {
       .addDefaultValue(false).addCategory(Arzon.class);
 
   @Nonnull
-  public static final PropertyId<OutputStreamFile> MAPPING_OUTPUT_FILE = PropertyId.create(
-      "jack.obfuscation.mapping.dump.file", "File where the mapping will be emitted",
-      new OutputStreamCodec(Existence.MAY_EXIST).allowStandardOutputOrError())
+  public static final WriterFilePropertyId MAPPING_OUTPUT_FILE = WriterFilePropertyId
+      .create("jack.obfuscation.mapping.dump.file", "File where the mapping will be emitted",
+          new WriterFileCodec(Existence.MAY_EXIST).allowStandardOutputOrError().allowCharset())
       .addDefaultValue("-").addCategory(Arzon.class);
 
   @Nonnull
-  private final PrintStream stream;
+  private final ExtendedPrintWriter writer;
 
   private static final String SEPARATOR = " -> ";
 
   private static final char PACKAGE_SEPARATOR = '.';
 
   public MappingPrinter() {
-    stream = ThreadConfig.get(MAPPING_OUTPUT_FILE).getPrintStream();
+    writer = ThreadConfig.get(MAPPING_OUTPUT_FILE).getPrintWriter();
   }
 
   private class Visitor extends JVisitor {
@@ -150,7 +153,7 @@ public class MappingPrinter implements RunnableSchedulable<JSession> {
       info.append(SEPARATOR);
       info.append(GrammarActions.getSourceFormatter().getName(type));
       info.append(':');
-      stream.println(info);
+      writer.println(info);
 
       return super.visit(type);
     }
@@ -163,7 +166,7 @@ public class MappingPrinter implements RunnableSchedulable<JSession> {
       appendOriginalName(info, field.getId());
       info.append(SEPARATOR);
       info.append(field.getName());
-      stream.println(info);
+      writer.println(info);
 
       return super.visit(field);
     }
@@ -186,17 +189,26 @@ public class MappingPrinter implements RunnableSchedulable<JSession> {
       info.append(')');
       info.append(SEPARATOR);
       info.append(method.getName());
-      stream.println(info);
+      writer.println(info);
 
       return super.visit(method);
     }
   }
 
   @Override
-  public void run(@Nonnull JSession t) throws Exception {
-    Visitor visitor = new Visitor();
-    visitor.accept(t.getTypesToEmit());
-    stream.close();
+  public void run(@Nonnull JSession session) throws Exception {
+    try {
+      Visitor visitor = new Visitor();
+      visitor.accept(session.getTypesToEmit());
+    } finally {
+      writer.close();
+      try {
+        writer.throwPendingException();
+      } catch (IOException e) {
+        session.getReporter().report(Severity.FATAL, new ReportableIOException("Mapping",
+            new CannotWriteException(ThreadConfig.get(MAPPING_OUTPUT_FILE), e)));
+        session.abortEventually();
+      }
+    }
   }
-
 }

@@ -78,7 +78,7 @@ public class InputFileOrDirectoryCodec extends FileOrDirCodec<FileOrDirectory> {
   @Override
   @Nonnull
   public String getUsage() {
-    return "a path to a file or directory (" + getUsageDetails() + ")";
+    return "a path to a file or directory (" + getDetailedUsage() + ")";
   }
 
   @Override

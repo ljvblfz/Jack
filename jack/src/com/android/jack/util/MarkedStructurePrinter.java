@@ -19,7 +19,7 @@ package com.android.jack.util;
 import com.android.jack.ir.ast.JNode;
 import com.android.sched.marker.Marker;
 
-import java.io.PrintStream;
+import java.io.PrintWriter;
 
 import javax.annotation.Nonnull;
 
@@ -31,7 +31,7 @@ public class MarkedStructurePrinter extends StructurePrinter {
   @Nonnull
   private final Class<? extends Marker> marker;
 
-  public MarkedStructurePrinter(@Nonnull PrintStream out, @Nonnull Class<? extends Marker> marker) {
+  public MarkedStructurePrinter(@Nonnull PrintWriter out, @Nonnull Class<? extends Marker> marker) {
     super(out);
     this.marker = marker;
   }

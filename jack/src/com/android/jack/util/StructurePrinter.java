@@ -24,7 +24,7 @@ import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.formatter.BinarySignatureFormatter;
 import com.android.jack.ir.formatter.TypeAndMethodFormatter;
 
-import java.io.PrintStream;
+import java.io.PrintWriter;
 
 import javax.annotation.Nonnull;
 
@@ -37,17 +37,17 @@ public class StructurePrinter extends JVisitor {
   private static final TypeAndMethodFormatter formatter = BinarySignatureFormatter.getFormatter();
 
   @Nonnull
-  private final PrintStream stream;
+  private final PrintWriter writer;
 
-  public StructurePrinter(@Nonnull PrintStream out) {
-    this.stream = out;
+  public StructurePrinter(@Nonnull PrintWriter out) {
+    this.writer = out;
   }
 
   @Override
   public boolean visit(@Nonnull JDefinedClassOrInterface type) {
     if (acceptFilter(type)) {
-      stream.print(formatter.getName(type));
-      stream.println(":");
+      writer.print(formatter.getName(type));
+      writer.println(":");
       return true;
     } else {
       return false;
@@ -57,9 +57,9 @@ public class StructurePrinter extends JVisitor {
   @Override
   public boolean visit(@Nonnull JField field) {
     if (acceptFilter(field)) {
-      stream.print(formatter.getName(field.getType()));
-      stream.print(" ");
-      stream.println(field.getName());
+      writer.print(formatter.getName(field.getType()));
+      writer.print(" ");
+      writer.println(field.getName());
     }
     return false;
   }
@@ -67,7 +67,7 @@ public class StructurePrinter extends JVisitor {
   @Override
   public boolean visit(@Nonnull JMethod method) {
     if (acceptFilter(method)) {
-      stream.println(formatter.getName(method));
+      writer.println(formatter.getName(method));
     }
     return false;
   }

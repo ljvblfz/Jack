@@ -18,10 +18,12 @@ package com.android.sched.scheduler;
 
 import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.file.OutputStreamFile;
+import com.android.sched.util.file.CannotWriteException;
+import com.android.sched.util.file.WriterFile;
 import com.android.sched.util.log.LoggerFactory;
+import com.android.sched.util.stream.ExtendedPrintWriter;
 
-import java.io.PrintStream;
+import java.io.IOException;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
@@ -35,15 +37,20 @@ public class DetailedTextPlanPrinter implements PlanPrinter {
   private static Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
-  private final OutputStreamFile planFile = ThreadConfig.get(PlanPrinterFactory.PLAN_PRINTER_FILE);
+  private final WriterFile planFile = ThreadConfig.get(PlanPrinterFactory.PLAN_PRINTER_FILE);
 
   @Override
-  public void printPlan(@Nonnull Plan<?> plan) {
-    PrintStream printStream = planFile.getPrintStream();
+  public void printPlan(@Nonnull Plan<?> plan) throws CannotWriteException {
+    ExtendedPrintWriter printStream = planFile.getPrintWriter();
     try {
       printStream.println(plan.getDetailedDescription());
     } finally {
       printStream.close();
+      try {
+        printStream.throwPendingException();
+      } catch (IOException e) {
+        throw new CannotWriteException(planFile.getLocation(), e);
+      }
     }
   }
 }

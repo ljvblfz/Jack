@@ -28,15 +28,21 @@ import com.android.jack.ir.formatter.BinarySignatureFormatter;
 import com.android.jack.ir.formatter.TypeAndMethodFormatter;
 import com.android.jack.ir.formatter.TypeFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.reporting.ReportableIOException;
+import com.android.jack.reporting.Reporter.Severity;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.file.CannotWriteException;
+import com.android.sched.util.file.WriterFile;
+import com.android.sched.util.stream.ExtendedPrintWriter;
 
 import java.io.File;
-import java.io.PrintStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -84,7 +90,7 @@ public class CodeCoverageMetadataFileWriter implements RunnableSchedulable<JSess
     private static final int ONE_TAB_LENGTH = ONE_TAB.length();
 
     @Nonnull
-    private final PrintStream writer;
+    private final PrintWriter writer;
 
     @Nonnull
     private final CodeCoverageMarker marker;
@@ -92,7 +98,7 @@ public class CodeCoverageMetadataFileWriter implements RunnableSchedulable<JSess
     @Nonnull
     private String currentIndent = "";
 
-    public Visitor(@Nonnull PrintStream writer, @Nonnull CodeCoverageMarker marker) {
+    public Visitor(@Nonnull PrintWriter writer, @Nonnull CodeCoverageMarker marker) {
       this.writer = writer;
       this.marker = marker;
     }
@@ -241,15 +247,24 @@ public class CodeCoverageMetadataFileWriter implements RunnableSchedulable<JSess
 
   @Override
   public void run(@Nonnull JSession session) throws Exception {
-    PrintStream writer = ThreadConfig.get(CodeCoverage.COVERAGE_METADATA_FILE).getPrintStream();
+    WriterFile file = ThreadConfig.get(CodeCoverage.COVERAGE_METADATA_FILE);
+    ExtendedPrintWriter writer = file.getPrintWriter();
+
     try {
       writeMetadata(session, writer);
     } finally {
       writer.close();
+      try {
+        writer.throwPendingException();
+      } catch (IOException e) {
+        session.getReporter().report(Severity.FATAL,
+            new ReportableIOException("Coverage metadata", new CannotWriteException(file, e)));
+        session.abortEventually();
+      }
     }
   }
 
-  private void writeMetadata(@Nonnull JSession session, @Nonnull PrintStream writer) {
+  private void writeMetadata(@Nonnull JSession session, @Nonnull PrintWriter writer) {
     writer.print("{ \"");
     writer.print(JSON_VERSION_ATTRIBUTE);
     writer.print("\":\"");

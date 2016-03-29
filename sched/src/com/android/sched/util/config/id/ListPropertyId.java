@@ -85,6 +85,22 @@ public class ListPropertyId<T> extends PropertyId<List<T>> {
 
   @Override
   @Nonnull
+  public ListPropertyId<T> setShutdownHook(@Nonnull ShutdownRunnable<List<T>> shutdownRunner) {
+    super.setShutdownHook(shutdownRunner);
+
+    return this;
+  }
+
+  @Override
+  @Nonnull
+  public ListPropertyId<T> removeShutdownHook() {
+    super.removeShutdownHook();
+
+    return this;
+  }
+
+  @Override
+  @Nonnull
   public ListCodec<T> getCodec() {
     return (ListCodec<T>) super.getCodec();
   }

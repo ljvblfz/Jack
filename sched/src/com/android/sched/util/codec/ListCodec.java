@@ -232,7 +232,7 @@ public class ListCodec<T> implements StringCodec<List<T>> {
       sb.append(end);
     }
 
-    sb.append(" where ").append('<').append(var).append("-i> is ");
+    sb.append(" where <").append(var).append("-i> is ");
     sb.append(parser.getUsage());
 
     return sb.toString();

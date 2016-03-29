@@ -38,7 +38,7 @@ public class DirectDirOutputVFSCodec extends OutputVFSCodec {
   @Override
   @Nonnull
   public String getUsage() {
-    return "a path to an output directory (" + getUsageDetails() + ")";
+    return "a path to an output directory (" + getDetailedUsage() + ")";
   }
 
   @Override

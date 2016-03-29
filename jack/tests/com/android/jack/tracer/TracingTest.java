@@ -35,7 +35,7 @@ import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -116,9 +116,9 @@ public class TracingTest {
         ByteArrayOutputStream refOut = new ByteArrayOutputStream();
         ByteArrayOutputStream compOut = new ByteArrayOutputStream();
         MultiMarkedStructurePrinter refPrinter = new MultiMarkedStructurePrinter(
-            new PrintStream(refOut), NB_TRACE + i);
+            new PrintWriter(refOut), NB_TRACE + i);
         MultiMarkedStructurePrinter mdPrinter = new MultiMarkedStructurePrinter(
-            new PrintStream(compOut), i);
+            new PrintWriter(compOut), i);
 
         refPrinter.accept(session);
         mdPrinter.accept(session);
@@ -130,5 +130,4 @@ public class TracingTest {
     }
 
   }
-
 }

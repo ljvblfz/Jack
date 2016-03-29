@@ -19,11 +19,10 @@ package com.android.jack.preprocessor;
 import com.android.jack.library.DumpInLibrary;
 import com.android.sched.item.Description;
 import com.android.sched.item.Feature;
-import com.android.sched.util.codec.InputStreamCodec;
+import com.android.sched.util.codec.ReaderFileCodec;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.id.BooleanPropertyId;
-import com.android.sched.util.config.id.PropertyId;
-import com.android.sched.util.file.InputStreamFile;
+import com.android.sched.util.config.id.ReaderFilePropertyId;
 
 import javax.annotation.Nonnull;
 
@@ -42,8 +41,7 @@ public class PreProcessor implements Feature {
       .addDefaultValue(false).addCategory(DumpInLibrary.class);
 
   @Nonnull
-  public static final PropertyId<InputStreamFile> FILE = PropertyId.create(
+  public static final ReaderFilePropertyId FILE = ReaderFilePropertyId.create(
       "jack.preprocessor.file", "Preprocessor source file",
-      new InputStreamCodec()).requiredIf(ENABLE.getValue().isTrue());
-
+      new ReaderFileCodec().allowCharset()).requiredIf(ENABLE.getValue().isTrue());
 }

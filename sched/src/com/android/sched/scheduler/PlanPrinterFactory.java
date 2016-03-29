@@ -16,13 +16,12 @@
 
 package com.android.sched.scheduler;
 
-import com.android.sched.util.codec.OutputStreamCodec;
+import com.android.sched.util.codec.WriterFileCodec;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.ImplementationPropertyId;
-import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.config.id.WriterFilePropertyId;
 import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.util.file.OutputStreamFile;
 
 import javax.annotation.Nonnull;
 
@@ -32,7 +31,6 @@ import javax.annotation.Nonnull;
  */
 @HasKeyId
 public class PlanPrinterFactory {
-
   @Nonnull
   private static final
       ImplementationPropertyId<PlanPrinter> PLAN_PRINTER = ImplementationPropertyId.create(
@@ -40,9 +38,12 @@ public class PlanPrinterFactory {
           .addDefaultValue("none");
 
   @Nonnull
-  public static final PropertyId<OutputStreamFile> PLAN_PRINTER_FILE = PropertyId.create(
+  public static final WriterFilePropertyId PLAN_PRINTER_FILE = WriterFilePropertyId.create(
       "sched.plan.printer.file", "The file where to print the plan",
-      new OutputStreamCodec(Existence.MAY_EXIST).allowStandardOutputOrError())
+      new WriterFileCodec(Existence.MAY_EXIST).allowStandardOutputOrError().allowCharset())
+      .requiredIf(PLAN_PRINTER.getClazz().isSubClassOf(DetailedTextPlanPrinter.class)
+              .or(PLAN_PRINTER.getClazz().isSubClassOf(PlanSerializer.class))
+              .or(PLAN_PRINTER.getClazz().isSubClassOf(SimpleTextPlanPrinter.class)))
       .addDefaultValue("-");
 
   public static PlanPrinter getPlanPrinter() {

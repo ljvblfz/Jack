@@ -31,6 +31,7 @@ import com.android.sched.util.file.WrongPermissionException;
 import java.io.File;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.nio.charset.Charset;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -43,15 +44,23 @@ public class CodecContext {
 
   @CheckForNull
   private RunnableHooks hooks;
+  @Nonnull
+  private Charset defaultCharset = Charset.defaultCharset();
 
   @Nonnull
   private InputStream standardInput = System.in;
+  @Nonnull
+  private Charset standardInputCharset = Charset.defaultCharset();
 
   @Nonnull
   private PrintStream standardOutput = System.out;
+  @Nonnull
+  private Charset standardOutputCharset = Charset.defaultCharset();
 
   @Nonnull
   private PrintStream standardError = System.err;
+  @Nonnull
+  private Charset standardErrorCharset = Charset.defaultCharset();
 
   @CheckForNull
   private Directory workingDirectory;
@@ -59,13 +68,6 @@ public class CodecContext {
   @Nonnull
   public CodecContext setDebug() {
     this.debug = true;
-
-    return this;
-  }
-
-  @Nonnull
-  public CodecContext setHooks(@Nonnull RunnableHooks hooks) {
-    this.hooks = hooks;
 
     return this;
   }
@@ -80,12 +82,37 @@ public class CodecContext {
   }
 
   @Nonnull
+  public CodecContext setHooks(@Nonnull RunnableHooks hooks) {
+    this.hooks = hooks;
+
+    return this;
+  }
+
+  @Nonnull
+  public Charset getDefaultCharset() {
+    return defaultCharset;
+  }
+
+  public void setDefaultCharset(@Nonnull Charset charset) {
+    this.defaultCharset = charset;
+  }
+
+  @Nonnull
   public InputStream getStandardInput() {
     return standardInput;
   }
 
   public void setStandardInput(@Nonnull InputStream standardInput) {
     this.standardInput = standardInput;
+  }
+
+  @Nonnull
+  public Charset getStandardInputCharset() {
+    return standardInputCharset;
+  }
+
+  public void setStandardInputCharset(@Nonnull Charset charset) {
+    this.standardInputCharset = charset;
   }
 
   @Nonnull
@@ -98,12 +125,30 @@ public class CodecContext {
   }
 
   @Nonnull
+  public Charset getStandardOutputCharset() {
+    return standardOutputCharset;
+  }
+
+  public void setStandardOutputCharset(@Nonnull Charset charset) {
+    this.standardOutputCharset = charset;
+  }
+
+  @Nonnull
   public PrintStream getStandardError() {
     return standardError;
   }
 
   public void setStandardError(@Nonnull PrintStream standardError) {
     this.standardError = standardError;
+  }
+
+  @Nonnull
+  public Charset getStandardErrorCharset() {
+    return standardErrorCharset;
+  }
+
+  public void setStandardErrorCharset(@Nonnull Charset charset) {
+    this.standardErrorCharset = charset;
   }
 
   @CheckForNull

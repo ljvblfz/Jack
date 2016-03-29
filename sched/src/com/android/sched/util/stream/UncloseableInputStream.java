@@ -22,7 +22,7 @@ import java.io.InputStream;
 import javax.annotation.Nonnull;
 
 /**
- * InputStream which silently ignore close
+ * {@link InputStream} which silently ignore close
  */
 public class UncloseableInputStream extends FilterInputStream {
   public UncloseableInputStream(@Nonnull InputStream stream) {

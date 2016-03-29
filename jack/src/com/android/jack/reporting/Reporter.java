@@ -21,20 +21,26 @@ import com.android.jack.config.id.Brest;
 import com.android.jack.reporting.Reportable.ProblemLevel;
 import com.android.sched.util.codec.EnumCodec;
 import com.android.sched.util.codec.ListCodec;
-import com.android.sched.util.codec.OutputStreamCodec;
 import com.android.sched.util.codec.PairCodec;
 import com.android.sched.util.codec.PairCodec.Pair;
 import com.android.sched.util.codec.PairListToMapCodecConverter;
 import com.android.sched.util.codec.VariableName;
+import com.android.sched.util.codec.WriterFileCodec;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.id.ImplementationPropertyId;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.config.id.PropertyId.ShutdownRunnable;
+import com.android.sched.util.config.id.WriterFilePropertyId;
 import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.util.file.OutputStreamFile;
+import com.android.sched.util.file.WriterFile;
+import com.android.sched.util.log.LoggerFactory;
+import com.android.sched.util.stream.ExtendedPrintWriter;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
@@ -44,7 +50,6 @@ import javax.annotation.Nonnull;
 @HasKeyId
 @VariableName("reporter")
 public interface Reporter {
-
   /**
    * Whether the {@link Reportable} object is fatal or not.
    */
@@ -58,31 +63,51 @@ public interface Reporter {
       .addDefaultValue("default").addCategory(Arzon.class);
 
   @Nonnull
-  public static final PropertyId<OutputStreamFile> REPORTER_OUTPUT_STREAM = PropertyId.create(
-      "jack.reporter.file", "File where the reporter will write",
-      new OutputStreamCodec(Existence.MAY_EXIST).allowStandardOutputOrError())
-      .addDefaultValue("--").requiredIf(REPORTER.getClazz().isImplementedBy(DefaultReporter.class)
-          .or(REPORTER.getClazz().isImplementedBy(SdkReporter.class))).addCategory(Brest.class);
+  public static final WriterFilePropertyId REPORTER_WRITER = WriterFilePropertyId
+      .create("jack.reporter.file", "File where the reporter will write",
+          new WriterFileCodec(Existence.MAY_EXIST).allowStandardOutputOrError().allowCharset())
+      .addDefaultValue("--")
+      .requiredIf(REPORTER.getClazz().isImplementedBy(DefaultReporter.class)
+              .or(REPORTER.getClazz().isImplementedBy(SdkReporter.class)))
+      .addCategory(Brest.class);
 
   @Nonnull
-  public static final PropertyId<Map<ProblemLevel, OutputStreamFile>>
-                                                                  REPORTER_OUTPUT_STREAM_BY_LEVEL =
+  public static final PropertyId<Map<ProblemLevel, WriterFile>> REPORTER_WRITER_BY_LEVEL =
       PropertyId
           .create(
               "jack.reporter.level.file",
               "File where the reporter will write by level",
-              new PairListToMapCodecConverter<ProblemLevel, OutputStreamFile>(
-                  new ListCodec<Pair<ProblemLevel, OutputStreamFile>>(
-                      new PairCodec<ProblemLevel, OutputStreamFile>(new EnumCodec<ProblemLevel>(
+              new PairListToMapCodecConverter<ProblemLevel, WriterFile>(
+                  new ListCodec<Pair<ProblemLevel, WriterFile>>(
+                      new PairCodec<ProblemLevel, WriterFile>(new EnumCodec<ProblemLevel>(
                           ProblemLevel.class, ProblemLevel.values()).ignoreCase(),
-                          new OutputStreamCodec(Existence.MAY_EXIST).allowStandardOutputOrError())
+                          new WriterFileCodec(Existence.MAY_EXIST).allowStandardOutputOrError()
+                                                                  .allowCharset())
                           .on("=")).setMin(0)))
-          .addDefaultValue(Collections.<ProblemLevel, OutputStreamFile>emptyMap())
-          .setShutdownHook(new ShutdownRunnable<Map<ProblemLevel, OutputStreamFile>>() {
+          .addDefaultValue(Collections.<ProblemLevel, WriterFile>emptyMap())
+          .setShutdownHook(new ShutdownRunnable<Map<ProblemLevel, WriterFile>>() {
+            @Nonnull
+            private final Logger logger = LoggerFactory.getLogger();
+
             @Override
-            public void run(@Nonnull Map<ProblemLevel, OutputStreamFile> map) {
-              for (OutputStreamFile osf : map.values()) {
-                osf.getPrintStream().close();
+            public void run(@Nonnull Map<ProblemLevel, WriterFile> map) {
+              for (WriterFile osf : map.values()) {
+                ExtendedPrintWriter writer = osf.getPrintWriter();
+
+                try {
+                  writer.throwPendingException();
+                } catch (IOException e) {
+                  logger.log(Level.SEVERE, "Pending exception writing '" + osf.getPath()
+                      + "' from property 'jack.reporter.level.file'", e);
+                }
+
+                try {
+                  writer.close();
+                  writer.throwPendingException();
+                } catch (IOException e) {
+                  logger.log(Level.SEVERE, "Failed to close '" + osf.getPath()
+                  + "' from property 'jack.reporter.level.file'", e);
+                }
               }
             }
           });

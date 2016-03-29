@@ -20,7 +20,7 @@ import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.reporting.Reportable.ProblemLevel;
 import com.android.sched.util.codec.ImplementationName;
 
-import java.io.PrintStream;
+import java.io.PrintWriter;
 
 import javax.annotation.Nonnull;
 
@@ -47,11 +47,11 @@ public class DefaultReporter extends CommonReporter {
     messageBuffer.append(": ");
     messageBuffer.append(message);
 
-    PrintStream printer = streamByLevel.get(problemLevel);
-    if (printer == null) {
-      printer = streamByDefault;
+    PrintWriter writer = writerByLevel.get(problemLevel);
+    if (writer == null) {
+      writer = writerByDefault;
     }
 
-    printer.println(messageBuffer.toString());
+    writer.println(messageBuffer.toString());
   }
 }

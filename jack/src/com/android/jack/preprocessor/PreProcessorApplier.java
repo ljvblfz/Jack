@@ -25,17 +25,19 @@ import com.android.sched.item.Description;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.file.InputStreamFile;
+import com.android.sched.util.file.ReaderFile;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.InputVFile;
 
-import org.antlr.runtime.ANTLRInputStream;
+import org.antlr.runtime.ANTLRReaderStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -61,8 +63,8 @@ public class PreProcessorApplier implements RunnableSchedulable<JSession> {
     Collection<Rule> rules = new ArrayList<Rule>();
 
     if (ThreadConfig.get(PreProcessor.ENABLE).booleanValue()) {
-      InputStreamFile inputFile = ThreadConfig.get(PreProcessor.FILE);
-      InputStream inputStream = inputFile.getInputStream();
+      ReaderFile inputFile = ThreadConfig.get(PreProcessor.FILE);
+      Reader inputStream = inputFile.getBufferedReader();
       try {
         rules.addAll(parseRules(session, inputStream, inputFile.getLocation()));
       } finally {
@@ -82,7 +84,8 @@ public class PreProcessorApplier implements RunnableSchedulable<JSession> {
         if (inputFile.getName().endsWith(PreProcessor.PREPROCESSOR_FILE_EXTENSION)) {
           InputStream inputStream = inputFile.getInputStream();
           try {
-            rules.addAll(parseRules(session, inputStream, inputFile.getLocation()));
+            rules.addAll(parseRules(session, new InputStreamReader(inputStream, ""),
+                inputFile.getLocation()));
           } finally {
             try {
               inputStream.close();
@@ -100,9 +103,9 @@ public class PreProcessorApplier implements RunnableSchedulable<JSession> {
   @Nonnull
   private Collection<Rule> parseRules(
       @Nonnull JSession session,
-      @Nonnull InputStream inputStream,
+      @Nonnull Reader reader,
       @Nonnull Location location) throws IOException, RecognitionException {
-    ANTLRInputStream in = new ANTLRInputStream(inputStream);
+    ANTLRReaderStream in = new ANTLRReaderStream(reader);
     PreProcessorLexer lexer = new PreProcessorLexer(in);
     CommonTokenStream tokens = new CommonTokenStream(lexer);
     PreProcessorParser parser = new PreProcessorParser(tokens);

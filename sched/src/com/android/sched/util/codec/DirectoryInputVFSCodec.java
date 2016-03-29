@@ -44,7 +44,7 @@ public class DirectoryInputVFSCodec extends InputVFSCodec
   @Override
   @Nonnull
   public String getUsage() {
-    return "a path to a directory (" + getUsageDetails() + ")";
+    return "a path to a directory (" + getDetailedUsage() + ")";
   }
 
   @Override

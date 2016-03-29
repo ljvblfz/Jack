@@ -21,11 +21,10 @@ import com.android.sched.schedulable.AdapterSchedulable;
 import com.android.sched.schedulable.ProcessorSchedulable;
 import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.file.InputStreamFile;
+import com.android.sched.util.file.ReaderFile;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Stack;
 
 import javax.annotation.Nonnull;
@@ -37,7 +36,7 @@ import javax.annotation.Nonnull;
 public class DeserializerPlanner<T extends Component> implements Planner<T> {
 
   @Nonnull
-  private final InputStreamFile planFile = ThreadConfig.get(PlannerFactory.PLANNER_FILE);
+  private final ReaderFile planFile = ThreadConfig.get(PlannerFactory.PLANNER_FILE);
 
   @SuppressWarnings("unchecked")
   @Nonnull
@@ -48,7 +47,7 @@ public class DeserializerPlanner<T extends Component> implements Planner<T> {
     BufferedReader reader = null;
     try {
       try {
-        reader = new BufferedReader(new InputStreamReader(planFile.getInputStream()));
+        reader = new BufferedReader(planFile.getBufferedReader());
         Stack<SubPlanBuilder<T>> subPlanStack = new Stack<SubPlanBuilder<T>>();
         subPlanStack.add(builder);
         for (String line = reader.readLine(); line != null; line = reader.readLine()) {

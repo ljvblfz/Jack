@@ -17,6 +17,7 @@
 package com.android.sched.scheduler;
 
 import com.android.sched.util.codec.VariableName;
+import com.android.sched.util.file.CannotWriteException;
 
 import javax.annotation.Nonnull;
 
@@ -26,5 +27,5 @@ import javax.annotation.Nonnull;
  */
 @VariableName("printer")
 public interface PlanPrinter {
-  public void printPlan(@Nonnull Plan<?> plan);
+  public void printPlan(@Nonnull Plan<?> plan) throws CannotWriteException;
 }

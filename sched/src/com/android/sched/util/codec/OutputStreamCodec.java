@@ -31,8 +31,8 @@ import javax.annotation.Nonnull;
 /**
  * This {@link OutputStreamCodec} is used to create an instance of {@link OutputStreamFile}.
  */
-public class OutputStreamCodec extends StreamCodec<OutputStreamFile> {
-  private boolean append        = false;
+public class OutputStreamCodec extends FileCodec<OutputStreamFile> {
+  private boolean append = false;
 
   public OutputStreamCodec(@Nonnull Existence existence) {
     super(existence, Permission.WRITE);

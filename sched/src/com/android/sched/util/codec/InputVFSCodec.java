@@ -59,7 +59,7 @@ abstract class InputVFSCodec extends FileOrDirCodec<InputVFS> {
   @Override
   @Nonnull
   public String getUsage() {
-    return "a path to a directory or zip archive (" + getUsageDetails() + ")";
+    return "a path to a directory or zip archive (" + getDetailedUsage() + ")";
   }
 
   @Override

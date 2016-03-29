@@ -87,7 +87,7 @@ import com.android.sched.util.file.FileUtils;
 import com.android.sched.util.file.Files;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
-import com.android.sched.util.file.OutputStreamFile;
+import com.android.sched.util.file.WriterFile;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.NoLocation;
@@ -780,8 +780,8 @@ public class Options {
     configBuilder.set(VERBOSITY_LEVEL, verbose);
 
     if (reporterStream != null) {
-      configBuilder.set(Reporter.REPORTER_OUTPUT_STREAM,
-          new OutputStreamFile(new PrintStream(reporterStream), new NoLocation()));
+      configBuilder.set(Reporter.REPORTER_WRITER,
+          new WriterFile(reporterStream, new NoLocation()));
     }
 
     if (!jarjarRulesFiles.isEmpty()) {

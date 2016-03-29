@@ -25,7 +25,7 @@ import java.util.Locale;
 import javax.annotation.Nonnull;
 
 /**
- * PrintStream which silently ignore close
+ * {@link PrintStream} which silently ignore close
  */
 public class UncloseablePrintStream extends PrintStream {
   @Nonnull
@@ -38,6 +38,7 @@ public class UncloseablePrintStream extends PrintStream {
 
   @Override
   public void close() {
+    stream.flush();
   }
 
   //

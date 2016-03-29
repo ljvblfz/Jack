@@ -81,6 +81,13 @@ public class PropertyId<T> extends KeyId<T, String> implements HasDescription {
   }
 
   @Nonnull
+  public PropertyId<T> removeShutdownHook() {
+    this.shutdownRunner = null;
+
+    return this;
+  }
+
+  @Nonnull
   public PropertyId<T> addDefaultValue(@Nonnull String defaultValue) {
     defaultValues.add(new Value(defaultValue));
 

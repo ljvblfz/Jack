@@ -19,13 +19,12 @@ package com.android.sched.util.log;
 import com.google.common.collect.Iterators;
 
 import com.android.sched.util.codec.ImplementationName;
-import com.android.sched.util.codec.OutputStreamCodec;
+import com.android.sched.util.codec.WriterFileCodec;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.config.id.ReflectFactoryPropertyId;
+import com.android.sched.util.config.id.WriterFilePropertyId;
 import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.util.file.OutputStreamFile;
 import com.android.sched.util.log.stats.Statistic;
 import com.android.sched.util.log.stats.StatisticId;
 import com.android.sched.util.log.tracer.AbstractTracer;
@@ -42,6 +41,7 @@ import com.android.sched.util.print.DataViewBuilder;
 import com.android.sched.util.print.Printer;
 
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -77,9 +77,9 @@ public final class StatisticOnlyTracer implements Tracer {
       .requiredIf(TracerFactory.TRACER.getClazz().isSubClassOf(StatisticOnlyTracer.class));
 
   @Nonnull
-  public static final PropertyId<OutputStreamFile> STREAM = PropertyId
+  public static final WriterFilePropertyId STREAM = WriterFilePropertyId
       .create("sched.tracer.file", "The file where to print statistics",
-          new OutputStreamCodec(Existence.MAY_EXIST).allowStandardOutputOrError())
+          new WriterFileCodec(Existence.MAY_EXIST).allowStandardOutputOrError().allowCharset())
       .addDefaultValue("-").requiredIf(TracerFactory.TRACER.getClazz()
           .isSubClassOf(StatisticOnlyTracer.class));
 
@@ -164,14 +164,14 @@ public final class StatisticOnlyTracer implements Tracer {
             }
           }
 
-          PrintStream stream = ThreadConfig.get(STREAM).getPrintStream();
-          Printer printer = ThreadConfig.get(PRINTER).create(stream).addResourceBundles(
+          PrintWriter writer = ThreadConfig.get(STREAM).getPrintWriter();
+          Printer printer = ThreadConfig.get(PRINTER).create(writer).addResourceBundles(
               ResourceBundle.getBundle(Statistic.class.getCanonicalName()),
               ResourceBundle.getBundle(StatisticOnlyTracer.class.getCanonicalName()));
           try {
             printer.print(report);
           } finally {
-            stream.close();
+            writer.close();
           }
         } finally {
           enable.set(Boolean.TRUE);

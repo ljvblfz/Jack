@@ -88,7 +88,7 @@ public abstract class FileOrDirCodec<T> implements StringCodec<T> {
   }
 
   @Nonnull
-  public String getUsageDetails() {
+  public String getDetailedUsage() {
     StringBuilderAppender sb = new StringBuilderAppender(", ");
 
     sb.append("must ");
