@@ -80,6 +80,7 @@ public enum Token {
   CONCAT_OPERATION("concat"),
   CONDITIONAL_EXPRESSION ("?"),
   CONSTRUCTOR ("constructor"),
+  CONTAINER_ANNOTATION("container-annotation"),
   CONTINUE_STATEMENT("continue"),
   DIV_OPERATION("/"),
   DO_STATEMENT("do"),

@@ -204,6 +204,7 @@ import com.android.jack.transformations.SanityChecks;
 import com.android.jack.transformations.UnusedLocalRemover;
 import com.android.jack.transformations.VisibilityBridgeAdder;
 import com.android.jack.transformations.annotation.ContainerAnnotationAdder;
+import com.android.jack.transformations.annotation.ContainerAnnotationMarkerAdder;
 import com.android.jack.transformations.assertion.AssertionRemover;
 import com.android.jack.transformations.assertion.AssertionTransformerSchedulingSeparator;
 import com.android.jack.transformations.assertion.DisabledAssertionFeature;
@@ -1080,6 +1081,7 @@ public abstract class Jack {
           fieldPlan.append(FieldStats.class);
         }
         fieldPlan.append(FieldInitializerRemover.class);
+        fieldPlan.append(ContainerAnnotationMarkerAdder.FieldContainerAnnotationMarkerAdder.class);
       }
     }
 
@@ -1188,6 +1190,8 @@ public abstract class Jack {
         SubPlanBuilder<JMethod> methodPlan =
             typePlan4.appendSubPlan(JMethodAdapter.class);
         methodPlan.append(FlowNormalizer.class);
+        methodPlan
+            .append(ContainerAnnotationMarkerAdder.MethodContainerAnnotationMarkerAdder.class);
         if (features.contains(SourceVersion7.class)) {
           methodPlan.append(SwitchStringSupport.class);
         }
@@ -1219,6 +1223,7 @@ public abstract class Jack {
       }
 
       typePlan.append(UsedEnumFieldMarkerRemover.class);
+      typePlan.append(ContainerAnnotationMarkerAdder.TypeContainerAnnotationMarkerAdder.class);
 
     }
 
