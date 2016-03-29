@@ -33,7 +33,7 @@ import com.android.jack.analysis.dependency.library.LibraryDependenciesInLibrary
 import com.android.jack.analysis.dependency.type.TypeDependenciesCollector;
 import com.android.jack.analysis.dependency.type.TypeDependenciesInLibraryWriter;
 import com.android.jack.analysis.dfa.reachingdefs.ReachingDefinitions;
-import com.android.jack.analysis.tracer.ExtendingOrImplementingClassFinder;
+import com.android.jack.analysis.tracer.SubClassOrInterfaceFinder;
 import com.android.jack.backend.ResourceWriter;
 import com.android.jack.backend.dex.ClassAnnotationBuilder;
 import com.android.jack.backend.dex.ClassDefItemBuilder;
@@ -929,10 +929,10 @@ public abstract class Jack {
     ProductionSet productions = planBuilder.getRequest().getTargetProductions();
     FeatureSet features = planBuilder.getRequest().getFeatures();
     boolean shrinking = features.contains(Shrinking.class);
+    boolean obfuscating = features.contains(Obfuscation.class);
     boolean multiDexLegacy = features.contains(MultiDexLegacy.class);
     boolean multiDex = features.contains(MultiDex.class);
-    if (!(shrinking || features.contains(Obfuscation.class) || multiDex
-            || productions.contains(SeedFile.class))) {
+    if (!(shrinking || obfuscating || multiDex || productions.contains(SeedFile.class))) {
       // nothing to do
       return;
     }
@@ -940,8 +940,7 @@ public abstract class Jack {
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-      if (shrinking || features.contains(Obfuscation.class)
-          || productions.contains(SeedFile.class)) {
+      if (shrinking || obfuscating || productions.contains(SeedFile.class)) {
         typePlan.append(SeedFinder.class);
       }
 
@@ -954,9 +953,9 @@ public abstract class Jack {
         typePlan.append(AnnotatedFinder.class);
       }
 
-      if (multiDexLegacy || shrinking) {
-        typePlan.append(ExtendingOrImplementingClassFinder.class);
-
+      if (multiDexLegacy || shrinking || obfuscating) {
+        SubPlanBuilder<JPackage> packagePlan = planBuilder.appendSubPlan(JPackageAdapter.class);
+        packagePlan.append(SubClassOrInterfaceFinder.class);
       }
     }
 

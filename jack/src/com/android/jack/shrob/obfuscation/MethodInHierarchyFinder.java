@@ -1,0 +1,85 @@
+/*
+ * Copyright (C) 2015 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.android.jack.shrob.obfuscation;
+
+import com.android.jack.ir.ast.JDefinedClassOrInterface;
+import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JMethodIdWide;
+
+import javax.annotation.Nonnull;
+
+/**
+ * A visitor that visits a type hierarchy.
+ */
+public class MethodInHierarchyFinder extends OneTimeHierarchyVisitor {
+
+  @Nonnull
+  private final String methodKey;
+
+  private boolean hasFoundMethodId = false;
+
+  private MethodInHierarchyFinder(@Nonnull String methodKey) {
+    this.methodKey = methodKey;
+  }
+
+  public void startVisit(@Nonnull JDefinedClassOrInterface type) {
+    // Search static and private methods
+    for (JMethod sameEnclosingTypeMethod : type.getMethods()) {
+      JMethodIdWide id = sameEnclosingTypeMethod.getMethodId().getMethodIdWide();
+      if (!id.canBeVirtual() && !Renamer.mustBeRenamed(id)) {
+        if (Renamer.getKey(id).equals(methodKey)) {
+          hasFoundMethodId = true;
+          return;
+        }
+      }
+    }
+    visitSuperTypes(type);
+    visitSubTypes(type);
+  }
+
+  @Override
+  public boolean doAction(@Nonnull JDefinedClassOrInterface type) {
+    // Search in already renamed methods
+    NewMethodSignatureMarker marker = type.getMarker(NewMethodSignatureMarker.class);
+    if (marker != null && marker.getNewNames().contains(methodKey)) {
+      hasFoundMethodId = true;
+      return false;
+    }
+
+    // Search method in impacted types excluding static and private methods
+    for (JMethod sameEnclosingTypeMethod : type.getMethods()) {
+      JMethodIdWide id = sameEnclosingTypeMethod.getMethodId().getMethodIdWide();
+      if (id.canBeVirtual() && !Renamer.mustBeRenamed(id)) {
+        if (Renamer.getKey(id).equals(methodKey)) {
+          hasFoundMethodId = true;
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  public static boolean containsMethodKey(
+      @Nonnull String methodKey, @Nonnull JMethodIdWide methodId) {
+    MethodInHierarchyFinder visitor = new MethodInHierarchyFinder(methodKey);
+    for (JMethod otherMethod : methodId.getMethods()) {
+      visitor.startVisit(otherMethod.getEnclosingType());
+    }
+    return visitor.hasFoundMethodId;
+  }
+}
+

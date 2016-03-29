@@ -16,11 +16,11 @@
 
 package com.android.jack.shrob.shrink;
 
-import com.android.jack.analysis.tracer.ExtendingOrImplementingClassMarker;
 import com.android.jack.analysis.tracer.Tracer;
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.scheduling.feature.SourceVersion8;
+import com.android.jack.shrob.obfuscation.SubClassOrInterfaceMarker;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Optional;
@@ -35,8 +35,8 @@ import javax.annotation.Nonnull;
  * shrinking.
  */
 @Description("Marks all classes and members that will be kept when shrinking.")
-@Constraint(need = {ExtendingOrImplementingClassMarker.class})
 @Use({Tracer.class, KeeperBrush.class})
+@Constraint(need = SubClassOrInterfaceMarker.class)
 @Optional(@ToSupport(feature = SourceVersion8.class,
     add = @Constraint(need = JAnnotation.RepeatedAnnotation.class)))
 public class Keeper implements RunnableSchedulable<JDefinedClassOrInterface> {

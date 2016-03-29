@@ -17,6 +17,7 @@
 package com.android.jack.shrob;
 
 import com.android.jack.Options;
+import com.android.jack.shrob.obfuscation.MappingApplier;
 import com.android.jack.shrob.obfuscation.NameProviderFactory;
 import com.android.jack.test.comparator.ComparatorMapping;
 import com.android.jack.test.helper.RuntimeTestHelper;
@@ -181,6 +182,38 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
     RuntimeTestHelper.runOnRuntimeEnvironments(
         Collections.singletonList("com.android.jack.shrob.test054.dx.Tests"),
         RuntimeTestHelper.getJunitDex(), libDex, jackDex, testDex);
+  }
 
+  @Test
+  public void test055() throws Exception {
+    String testPackageName = "com.android.jack.shrob.test055";
+    File testFolder = AbstractTestTools.getTestRootDir(testPackageName);
+
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    File refFolder = new File(testFolder, "refsObfuscationWithoutMapping");
+
+    toolchain.addProperty(NameProviderFactory.NAMEPROVIDER.getName(), "rot13");
+    toolchain.addProperty(Options.METHOD_FILTER.getName(), "supported-methods");
+    // Only difference with other tests: allows mapping collision
+    toolchain.addProperty(MappingApplier.COLLISION_POLICY.getName(), "ignore");
+
+    File candidateOutputMapping = AbstractTestTools.createTempFile("mapping", ".txt");
+    File refOutputMapping = new File(refFolder, "expected-001.txt");
+
+    File proguardFlagsFile = addOptionsToFlagsFile(
+        new File(testFolder, "proguard.flags001"),
+        testFolder,
+        " -printmapping " + candidateOutputMapping.getAbsolutePath());
+
+    toolchain.addProguardFlags(proguardFlagsFile);
+
+    SourceToDexComparisonTestHelper env =
+        new SourceToDexComparisonTestHelper(new File(testFolder, "jack"));
+
+    env.setCandidateTestTools(toolchain);
+    env.setReferenceTestTools(new DummyToolchain());
+
+    env.runTest(new ComparatorMapping(refOutputMapping, candidateOutputMapping));
   }
 }
