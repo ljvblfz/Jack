@@ -478,7 +478,7 @@
     </dependset>
     <javac encoding="UTF-8" srcdir="${jack.dir}/src"
       destdir="${jack.build.outdir}"
-      source="1.6" target="1.6"
+      source="1.7" target="1.7"
       debug="true" includeantruntime="false" includeDestClasses="false">
       <classpath>
         <filelist refid="jack.link.libs.fileset" />
@@ -1077,7 +1077,7 @@
     <!-- compile -->
     <javac  encoding="UTF-8" srcdir="${jill.dir}/src"
           destdir="${jill.build.outdir}"
-          source="1.5" target="1.5"
+          source="1.7" target="1.7"
           debug="true" includeantruntime="false">
       <classpath>
         <filelist refid="jill.libs.filelist" />
@@ -1592,7 +1592,7 @@
       </targets>
     </dependset>
     <javac encoding="UTF-8" srcdir="${sched.dir}/src" destdir="${schedlib.build.outdir}"
-      source="1.6" target="1.6" debug="true" includeantruntime="false"  includeDestClasses="false">
+      source="1.7" target="1.7" debug="true" includeantruntime="false"  includeDestClasses="false">
       <classpath>
         <filelist refid="schedlib.link.libs.fileset"/>
       </classpath>
