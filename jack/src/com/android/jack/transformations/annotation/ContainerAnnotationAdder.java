@@ -21,8 +21,6 @@ import com.android.jack.ir.ast.Annotable;
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JArrayLiteral;
-import com.android.jack.ir.ast.JClassLiteral;
-import com.android.jack.ir.ast.JDefinedAnnotationType;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JLiteral;
@@ -30,7 +28,6 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JNameValuePair;
 import com.android.jack.ir.ast.JParameter;
-import com.android.jack.ir.ast.JRetentionPolicy;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.sourceinfo.SourceInfo;
@@ -38,7 +35,6 @@ import com.android.jack.transformations.request.AddAnnotation;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
-import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
@@ -47,22 +43,20 @@ import com.android.sched.schedulable.Use;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 import javax.annotation.Nonnull;
 
 /**
- * Add a container annotation when same annotations are used several times on an annotable.
+ * Add container annotations when they are needed.
  */
 @Transform(add = {JAnnotation.class, JNameValuePair.class, JArrayLiteral.class})
 public class ContainerAnnotationAdder {
 
   /**
-   * Add a container annotation when same annotations are used several times on a type.
+   * Add container annotations on a type when they are needed.
    */
-  @Description("Add a container annotation when same annotations are used several times on a type")
-  @Name("TypeContainerAnnotationAdder")
-  @Constraint(need = JAnnotation.RepeatedAnnotationOnType.class)
+  @Description("Add container annotations on a type when they are needed")
+  @Constraint(need = ContainerAnnotationMarker.class)
   @Transform(remove = {JAnnotation.RepeatedAnnotationOnType.class})
   @Use(ContainerAnnotationAdder.class)
   public static class TypeContainerAnnotationAdder extends ContainerAnnotationAdder
@@ -78,12 +72,10 @@ public class ContainerAnnotationAdder {
   }
 
   /**
-   * Add a container annotation when same annotations are used several times on a field.
+   *Add container annotations on a field when they are needed.
    */
-  @Description("Add a container annotation when same annotations are used several times "
-      + "on a field")
-  @Name("FieldContainerAnnotationAdder")
-  @Constraint(need = JAnnotation.RepeatedAnnotationOnField.class)
+  @Description("Add container annotations on a field when they are needed")
+  @Constraint(need = ContainerAnnotationMarker.class)
   @Transform(remove = {JAnnotation.RepeatedAnnotationOnField.class})
   @Use(ContainerAnnotationAdder.class)
   public static class FieldContainerAnnotationAdder extends ContainerAnnotationAdder
@@ -99,13 +91,10 @@ public class ContainerAnnotationAdder {
   }
 
   /**
-   * Add a container annotation when same annotations are used several times on a method or on
-   * method parameters.
+   * Add container annotations on a method and its parameters when they are needed.
    */
-  @Description("Add a container annotation when same annotations are used several times on a"
-      + " method or on method parameters")
-  @Name("MethodContainerAnnotationAdder")
-  @Constraint(need = JAnnotation.RepeatedAnnotationOnMethod.class)
+  @Description("Add container annotations on a method and its parameters when they are needed")
+  @Constraint(need = ContainerAnnotationMarker.class)
   @Transform(remove = {JAnnotation.RepeatedAnnotationOnMethod.class})
   @Use(ContainerAnnotationAdder.class)
   public static class MethodContainerAnnotationAdder extends ContainerAnnotationAdder
@@ -134,35 +123,23 @@ public class ContainerAnnotationAdder {
       Collection<JAnnotation> annotationsOfSameType = annotable.getAnnotations(annotationType);
 
       if (annotationsOfSameType.size() > 1) {
-        assert annotationType instanceof JDefinedAnnotationType;
-
-        List<JAnnotation> repeatableAnnotation =
-            ((JDefinedAnnotationType) annotationType).getAnnotations(repeatableAnnotationType);
-        assert repeatableAnnotation.size() == 1;
-
-        JNameValuePair jnvp = repeatableAnnotation.get(0).getNameValuePair("value");
-        assert jnvp != null;
-
-        JClassLiteral containerLiteral = (JClassLiteral) jnvp.getValue();
-        JAnnotationType containerAnnotationType = (JAnnotationType) containerLiteral.getRefType();
-        assert containerAnnotationType instanceof JDefinedAnnotationType;
-
-        JRetentionPolicy retentionPolicy =
-            ((JDefinedAnnotationType) containerAnnotationType).getRetentionPolicy();
-
-        JAnnotation containerAnnotation =
-            new JAnnotation(SourceInfo.UNKNOWN, retentionPolicy, containerAnnotationType);
-
-        JMethodIdWide methodId = containerAnnotationType.getMethodIdWide("value",
-            Collections.<JType>emptyList(), MethodKind.INSTANCE_VIRTUAL);
-        containerAnnotation.add(new JNameValuePair(SourceInfo.UNKNOWN, methodId,
-            new JArrayLiteral(SourceInfo.UNKNOWN, new ArrayList<JLiteral>(annotationsOfSameType))));
-
         for (JAnnotation annotation : annotationsOfSameType) {
           // Remove old annotations before to add the new one since we move existing annotations
           // to the new annotation.
           tr.append(new Remove(annotation));
         }
+
+        ContainerAnnotationMarker cam =
+            annotationsOfSameType.iterator().next().getMarker(ContainerAnnotationMarker.class);
+        assert cam != null;
+
+        JAnnotation containerAnnotation = new JAnnotation(SourceInfo.UNKNOWN,
+            cam.getRetentionPolicy(), cam.getContainerAnnotationType());
+
+        JMethodIdWide methodId = cam.getContainerAnnotationType().getOrCreateMethodIdWide("value",
+            Collections.<JType>emptyList(), MethodKind.INSTANCE_VIRTUAL);
+        containerAnnotation.add(new JNameValuePair(SourceInfo.UNKNOWN, methodId,
+            new JArrayLiteral(SourceInfo.UNKNOWN, new ArrayList<JLiteral>(annotationsOfSameType))));
 
         tr.append(new AddAnnotation(containerAnnotation, annotable));
       }

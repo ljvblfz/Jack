@@ -57,6 +57,9 @@ public class NAnnotation extends NLiteral {
   @CheckForNull
   public NSourceInfo sourceInfo;
 
+  @Nonnull
+  public List<NMarker> markers = Collections.emptyList();
+
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JAnnotation jAnnotation = (JAnnotation) node;
@@ -64,6 +67,7 @@ public class NAnnotation extends NLiteral {
     annotationType = ImportHelper.getSignatureName(jAnnotation.getType());
     elements = loader.load(NNameValuePair.class, jAnnotation.getNameValuePairs());
     sourceInfo = loader.load(jAnnotation.getSourceInfo());
+    markers = loader.load(NMarker.class, jAnnotation.getAllMarkers());
   }
 
   @Override
@@ -79,6 +83,9 @@ public class NAnnotation extends NLiteral {
     for (NNameValuePair valuePair : elements) {
       jAnnotation.put(valuePair.exportAsJast(exportSession));
     }
+    for (NMarker marker : markers) {
+      jAnnotation.addMarker(marker.exportAsJast(exportSession));
+    }
     return jAnnotation;
   }
 
@@ -88,6 +95,7 @@ public class NAnnotation extends NLiteral {
     out.writeRetentionPolicyEnum(retentionPolicy);
     out.writeId(annotationType);
     out.writeNodes(elements);
+    out.writeNodes(markers);
   }
 
   @Override
@@ -95,6 +103,7 @@ public class NAnnotation extends NLiteral {
     retentionPolicy = in.readRetentionPolicyEnum();
     annotationType = in.readId();
     elements = in.readNodes(NNameValuePair.class);
+    markers = in.readNodes(NMarker.class);
   }
 
   @Override

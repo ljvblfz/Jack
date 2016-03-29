@@ -174,6 +174,7 @@ import com.android.jack.jayce.v0003.nodes.NClassType;
 import com.android.jack.jayce.v0003.nodes.NConcatOperation;
 import com.android.jack.jayce.v0003.nodes.NConditionalExpression;
 import com.android.jack.jayce.v0003.nodes.NConstructor;
+import com.android.jack.jayce.v0003.nodes.NContainerAnnotation;
 import com.android.jack.jayce.v0003.nodes.NContinueStatement;
 import com.android.jack.jayce.v0003.nodes.NDivOperation;
 import com.android.jack.jayce.v0003.nodes.NDoStatement;
@@ -250,6 +251,7 @@ import com.android.jack.jayce.v0003.nodes.NThrownExceptionMarker;
 import com.android.jack.jayce.v0003.nodes.NTryStatement;
 import com.android.jack.jayce.v0003.nodes.NUnlock;
 import com.android.jack.jayce.v0003.nodes.NWhileStatement;
+import com.android.jack.transformations.annotation.ContainerAnnotationMarker;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.SerializableMarker;
 
@@ -799,6 +801,8 @@ public class NodeFactory {
       nMarker = new NThrownExceptionMarker();
     } else if (from instanceof OriginDigestMarker) {
       nMarker = new NOriginDigest();
+    } else if (from instanceof ContainerAnnotationMarker) {
+      nMarker = new NContainerAnnotation();
     }
     // no NMarker if and only if the given Marker was not Jayce capable.
     assert (nMarker == null) == (!(from instanceof SerializableMarker)) : from.getClass();

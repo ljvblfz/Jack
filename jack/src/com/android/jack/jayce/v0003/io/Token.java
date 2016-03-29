@@ -58,6 +58,7 @@ import com.android.jack.jayce.v0003.nodes.NClassType;
 import com.android.jack.jayce.v0003.nodes.NConcatOperation;
 import com.android.jack.jayce.v0003.nodes.NConditionalExpression;
 import com.android.jack.jayce.v0003.nodes.NConstructor;
+import com.android.jack.jayce.v0003.nodes.NContainerAnnotation;
 import com.android.jack.jayce.v0003.nodes.NContinueStatement;
 import com.android.jack.jayce.v0003.nodes.NDivOperation;
 import com.android.jack.jayce.v0003.nodes.NDoStatement;
@@ -430,6 +431,13 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NConstructor();
+    }
+  },
+  CONTAINER_ANNOTATION("container-annotation", NodeLevel.STRUCTURE) {
+    @Nonnull
+    @Override
+    public NNode newNode() {
+      return new NContainerAnnotation();
     }
   },
   CONTINUE_STATEMENT("continue") {
