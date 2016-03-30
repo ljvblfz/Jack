@@ -57,10 +57,6 @@ import com.android.jack.server.type.ExactCodeVersionFinder;
 import com.android.jack.server.type.TextPlain;
 import com.android.sched.util.FinalizerRunner;
 import com.android.sched.util.Version;
-import com.android.sched.util.codec.IntCodec;
-import com.android.sched.util.codec.ListCodec;
-import com.android.sched.util.codec.LongCodec;
-import com.android.sched.util.codec.PairCodec;
 import com.android.sched.util.codec.PairCodec.Pair;
 import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.file.Directory;
@@ -247,8 +243,6 @@ public class JackHttpServer implements HasVersion {
   @Nonnull
   private static final String DELETED_SUFFIX = ".deleted";
 
-  private static final int TIMEOUT_DISABLED = -1;
-
   @Nonnegative
   private static final int MINIMAL_TIMEOUT = 60 * 60 * 24 * 7 * 2;
 
@@ -289,17 +283,6 @@ public class JackHttpServer implements HasVersion {
 
   @Nonnull
   private static Logger logger = Logger.getLogger(JackHttpServer.class.getName());
-
-  private static final List<Pair<Integer, Long>> DEFAULT_MAX_SERVICES_BY_MEM = new ArrayList<>();
-  static {
-    DEFAULT_MAX_SERVICES_BY_MEM
-    .add(new Pair<Integer, Long>(Integer.valueOf(1), Long.valueOf(2L * 1024 * 1024 * 1024)));
-    DEFAULT_MAX_SERVICES_BY_MEM
-    .add(new Pair<Integer, Long>(Integer.valueOf(2), Long.valueOf(3L * 1024 * 1024 * 1024)));
-    DEFAULT_MAX_SERVICES_BY_MEM
-    .add(new Pair<Integer, Long>(Integer.valueOf(3), Long.valueOf(4L * 1024 * 1024 * 1024)));
-  }
-
 
   private int portService;
 
@@ -508,56 +491,24 @@ public class JackHttpServer implements HasVersion {
 
   private void loadConfig() throws IOException,
       WrongPermissionException, NotFileException {
-    File configFile = new File(serverDir, ConfigFile.CONFIG_FILE_NAME);
-    if (configFile.exists()) {
-      checkAccess(configFile, EnumSet.of(PosixFilePermission.OWNER_READ,
-          PosixFilePermission.OWNER_WRITE));
-    } else {
-      if (!(configFile.createNewFile())) {
-        throw new IOException("Failed to create '" + configFile.getPath() + "'");
-      }
-      if (!(configFile.setExecutable(false, false)
-         && configFile.setWritable(false, false)
-         && configFile.setReadable(false, false)
-         && configFile.setWritable(true, true)
-         && configFile.setReadable(true, true))) {
-        throw new IOException("Failed to set permissions of '" + configFile.getPath() + "'");
-      }
-    }
-    ConfigFile config = new ConfigFile();
-    config.loadIfPossible(configFile);
 
-    logger.log(Level.INFO, "Starting jack server version: " + getVersion().getVerboseVersion());
+    logger.log(Level.INFO, "Loading config of jack server version: "
+        + getVersion().getVerboseVersion());
 
-    portService = config.getProperty(ConfigFile.SERVICE_PORT_PROPERTY, Integer.valueOf(8076),
-        new IntCodec()).intValue();
-    portAdmin = config.getProperty(ConfigFile.ADMIN_PORT_PROPERTY, Integer.valueOf(8077),
-        new IntCodec()).intValue();
-    timeout = config.getProperty(ConfigFile.TIME_OUT_PROPERTY, Integer.valueOf(7200),
-        new IntCodec()).intValue();
-    if (timeout < 0 && timeout != TIMEOUT_DISABLED) {
-      logger.log(Level.WARNING,
-          "Invalid config value for " + ConfigFile.TIME_OUT_PROPERTY + ": " + maxJarSize);
-      timeout = TIMEOUT_DISABLED;
-    } else {
-      timeout = Math.max(timeout, MINIMAL_TIMEOUT);
-    }
-    maxJarSize = config.getProperty(
-        ConfigFile.MAX_JAR_SIZE_PROPERTY, Long.valueOf(100 * 1024 * 1024),
-        new LongCodec()).longValue();
-    if (maxJarSize < -1) {
-      logger.log(Level.WARNING,
-          "Invalid config value for " + ConfigFile.MAX_JAR_SIZE_PROPERTY + ": " + maxJarSize);
-      maxJarSize = -1;
-    }
+    ConfigFile config = new ConfigFile(serverDir);
+    checkAccess(config.getStorageFile(), EnumSet.of(PosixFilePermission.OWNER_READ,
+        PosixFilePermission.OWNER_WRITE));
 
-    maxServices = config.getProperty(ConfigFile.MAX_SERVICE_PROPERTY, Integer.valueOf(4),
-        new IntCodec()).intValue();
-    List<Pair<Integer, Long>> maxServicesByMem = config.getProperty(
-        ConfigFile.MAX_SERVICE_BY_MEM_PROPERTY, DEFAULT_MAX_SERVICES_BY_MEM,
-        new ListCodec<>(
-            new PairCodec<>(new IntCodec(1, Integer.MAX_VALUE), new LongCodec()).on("="))
-        .setSeparator(":"));
+    portService = config.getServicePort();
+    portAdmin = config.getAdminPort();
+    timeout = config.getTimeout();
+    if (timeout != ConfigFile.TIMEOUT_DISABLED) {
+       timeout = Math.max(timeout, MINIMAL_TIMEOUT);
+    }
+    maxJarSize = config.getMaxJarSize();
+
+    maxServices = config.getMaxServices();
+    List<Pair<Integer, Long>> maxServicesByMem = config.getMaxServiceByMem();
     if (!maxServicesByMem.isEmpty()) {
       long maxMemory = Runtime.getRuntime().maxMemory();
       for (Pair<Integer, Long> pair : maxServicesByMem) {
@@ -567,9 +518,8 @@ public class JackHttpServer implements HasVersion {
       }
     }
 
-    if (config.isModified() && config.getProperty(ConfigFile.CONFIG_VERSION_PROPERTY,
-        Long.valueOf(-1), new LongCodec()).longValue() < ConfigFile.CURRENT_CONFIG_VERSION) {
-      config.store(configFile);
+    if (config.isModified() && config.getConfigVersion() < ConfigFile.CURRENT_CONFIG_VERSION) {
+      config.store();
     }
   }
 
@@ -824,7 +774,7 @@ public class JackHttpServer implements HasVersion {
 
   private void startTimer() {
     synchronized (lock) {
-      if (timeout == TIMEOUT_DISABLED) {
+      if (timeout == ConfigFile.TIMEOUT_DISABLED) {
         return;
       }
       if (timer != null) {
@@ -906,7 +856,7 @@ public class JackHttpServer implements HasVersion {
 
   private void shutdownSimpleServer() {
     synchronized (lock) {
-      timeout = TIMEOUT_DISABLED;
+      timeout = ConfigFile.TIMEOUT_DISABLED;
       cancelTimer();
     }
 

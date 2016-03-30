@@ -17,6 +17,11 @@
 package com.android.jack.server;
 
 import com.android.sched.util.codec.CodecContext;
+import com.android.sched.util.codec.IntCodec;
+import com.android.sched.util.codec.ListCodec;
+import com.android.sched.util.codec.LongCodec;
+import com.android.sched.util.codec.PairCodec;
+import com.android.sched.util.codec.PairCodec.Pair;
 import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.codec.StringCodec;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
@@ -36,6 +41,8 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,42 +55,76 @@ class ConfigFile extends Properties {
   private static Logger logger = Logger.getLogger(ConfigFile.class.getName());
 
   static final int CURRENT_CONFIG_VERSION = 2;
+
+  static final int TIMEOUT_DISABLED = -1;
+
   @Nonnull
   private static final Charset CONFIG_CHARSET = StandardCharsets.UTF_8;
   private static final long serialVersionUID = 1L;
+
+  @Nonnull
+  private static final String ADMIN_PORT_PROPERTY = "jack.server.admin.port";
+  @Nonnull
+  private static final String SERVICE_PORT_PROPERTY = "jack.server.service.port";
+  @Nonnull
+  private static final String MAX_JAR_SIZE_PROPERTY = "jack.server.max-jars-size";
+  @Nonnull
+  private static final String MAX_SERVICE_PROPERTY = "jack.server.max-service";
+  @Nonnull
+  private static final String MAX_SERVICE_BY_MEM_PROPERTY = "jack.server.max-service.by-mem";
+  @Nonnull
+  private static final String TIME_OUT_PROPERTY = "jack.server.time-out";
+  @Nonnull
+  private static final String CONFIG_VERSION_PROPERTY = "jack.server.config.version";
+  @Nonnull
+  private static final String CONFIG_FILE_NAME = "config.properties";
+
+  @Nonnull
+  private static final List<Pair<Integer, Long>> DEFAULT_MAX_SERVICES_BY_MEM = new ArrayList<>();
+
+  static {
+    DEFAULT_MAX_SERVICES_BY_MEM
+    .add(new Pair<Integer, Long>(Integer.valueOf(1), Long.valueOf(2L * 1024 * 1024 * 1024)));
+    DEFAULT_MAX_SERVICES_BY_MEM
+    .add(new Pair<Integer, Long>(Integer.valueOf(2), Long.valueOf(3L * 1024 * 1024 * 1024)));
+    DEFAULT_MAX_SERVICES_BY_MEM
+    .add(new Pair<Integer, Long>(Integer.valueOf(3), Long.valueOf(4L * 1024 * 1024 * 1024)));
+  }
+
   private boolean modified = false;
 
   @Nonnull
-  static final String ADMIN_PORT_PROPERTY = "jack.server.admin.port";
+  private final File storageFile;
+
+  public ConfigFile(@Nonnull File serverDir) throws IOException {
+    storageFile = new File(serverDir, CONFIG_FILE_NAME);
+    if (!storageFile.exists()) {
+      if (!(storageFile.createNewFile())) {
+        throw new IOException("Failed to create '" + storageFile.getPath() + "'");
+      }
+      if (!(storageFile.setExecutable(false, false)
+         && storageFile.setWritable(false, false)
+         && storageFile.setReadable(false, false)
+         && storageFile.setWritable(true, true)
+         && storageFile.setReadable(true, true))) {
+        throw new IOException("Failed to set permissions of '" + storageFile.getPath() + "'");
+      }
+    }
+    loadIfPossible(storageFile);
+  }
 
   @Nonnull
-  static final String SERVICE_PORT_PROPERTY = "jack.server.service.port";
-
-  @Nonnull
-  static final String MAX_JAR_SIZE_PROPERTY = "jack.server.max-jars-size";
-
-  @Nonnull
-  static final String MAX_SERVICE_PROPERTY = "jack.server.max-service";
-
-  @Nonnull
-  static final String MAX_SERVICE_BY_MEM_PROPERTY = "jack.server.max-service.by-mem";
-
-  @Nonnull
-  static final String TIME_OUT_PROPERTY = "jack.server.time-out";
-
-  @Nonnull
-  static final String CONFIG_VERSION_PROPERTY = "jack.server.config.version";
-
-  @Nonnull
-  static final String CONFIG_FILE_NAME = "config.properties";
+  public File getStorageFile() {
+    return storageFile;
+  }
 
   @Override
-  public Object setProperty(String key, String value) {
+  public Object setProperty(@Nonnull String key, @Nonnull String value) {
     modified = true;
     return super.setProperty(key, value);
   }
 
-  public void loadIfPossible(File configFile) throws IOException {
+  private void loadIfPossible(@Nonnull File configFile) throws IOException {
     InputStreamFile streamFile;
     try {
       streamFile = new InputStreamFile(configFile.getPath());
@@ -104,15 +145,15 @@ class ConfigFile extends Properties {
     modified = false;
   }
 
-  public void store(File configFile) throws WrongPermissionException, NotFileException,
+  public void store() throws WrongPermissionException, NotFileException,
     IOException {
     setProperty(ConfigFile.CONFIG_VERSION_PROPERTY,
         Integer.toString(CURRENT_CONFIG_VERSION));  // FINDBUGS
 
-    new OutputStreamFile(configFile.getPath(), null, Existence.MAY_EXIST,
+    new OutputStreamFile(storageFile.getPath(), null, Existence.MAY_EXIST,
         ChangePermission.NOCHANGE, /* append = */ false);
-    File tmpOut = File.createTempFile("jackserver-" + configFile.getName(), ".tmp",
-        configFile.getParentFile());
+    File tmpOut = File.createTempFile("jackserver-" + storageFile.getName(), ".tmp",
+        storageFile.getParentFile());
     try {
       if (!(tmpOut.setExecutable(false, false)
           && tmpOut.setWritable(false, false)
@@ -124,7 +165,7 @@ class ConfigFile extends Properties {
       try (Writer writer = new OutputStreamWriter(new FileOutputStream(tmpOut), CONFIG_CHARSET)) {
         store(writer, "");
       }
-      if (!tmpOut.renameTo(configFile)) {
+      if (!tmpOut.renameTo(storageFile)) {
         throw new IOException("failed to rename temp config file '" + tmpOut);
       }
       tmpOut = null;
@@ -141,7 +182,66 @@ class ConfigFile extends Properties {
     return modified;
   }
 
-  public <T> T getProperty(String key, T defaultValue, StringCodec<T> codec) {
+  public int getServicePort() {
+    return getProperty(ConfigFile.SERVICE_PORT_PROPERTY, Integer.valueOf(8076), new IntCodec())
+        .intValue();
+  }
+
+  public int getAdminPort() {
+    return getProperty(ConfigFile.ADMIN_PORT_PROPERTY, Integer.valueOf(8077), new IntCodec())
+        .intValue();
+  }
+
+  public int getTimeout() {
+    int timeout = getProperty(ConfigFile.TIME_OUT_PROPERTY, Integer.valueOf(7200), new IntCodec())
+        .intValue();
+    if (timeout < 0 && timeout != TIMEOUT_DISABLED) {
+      logger.log(Level.WARNING,
+          "Invalid config value for " + ConfigFile.TIME_OUT_PROPERTY + ": " + timeout);
+      timeout = TIMEOUT_DISABLED;
+    }
+    return timeout;
+  }
+
+  public long getMaxJarSize() {
+    long maxJarSize = getProperty(
+          ConfigFile.MAX_JAR_SIZE_PROPERTY, Long.valueOf(100 * 1024 * 1024),
+          new LongCodec())
+        .longValue();
+    if (maxJarSize < -1) {
+      logger.log(Level.WARNING,
+          "Invalid config value for " + ConfigFile.MAX_JAR_SIZE_PROPERTY + ": " + maxJarSize);
+      maxJarSize = -1;
+    }
+    return maxJarSize;
+  }
+
+  public int getMaxServices() {
+    return getProperty(ConfigFile.MAX_SERVICE_PROPERTY, Integer.valueOf(4),
+        new IntCodec()).intValue();
+  }
+
+  public long getConfigVersion() {
+    return getProperty(ConfigFile.CONFIG_VERSION_PROPERTY, Long.valueOf(-1), new LongCodec())
+        .longValue();
+  }
+
+  @Nonnull
+  public List<Pair<Integer, Long>> getMaxServiceByMem() {
+    List<Pair<Integer, Long>> list = getProperty(
+        ConfigFile.MAX_SERVICE_BY_MEM_PROPERTY, DEFAULT_MAX_SERVICES_BY_MEM,
+        new ListCodec<>(
+            new PairCodec<>(new IntCodec(1, Integer.MAX_VALUE), new LongCodec()).on("="))
+        .setSeparator(":"));
+
+    return list;
+  }
+
+  @Nonnull
+  private <T> T getProperty(
+      @Nonnull String key,
+      @Nonnull T defaultValue,
+      @Nonnull StringCodec<T> codec) {
     String stringValue = getProperty(key);
     T value = null;
     if (stringValue != null) {
@@ -162,11 +262,13 @@ class ConfigFile extends Properties {
     return value;
   }
 
+  // FINDBUGS
   @Override
   public boolean equals(Object o) {
     return super.equals(o);
   }
 
+  // FINDBUGS
   @Override
   public int hashCode() {
     return super.hashCode();
