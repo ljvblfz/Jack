@@ -193,6 +193,14 @@
       <java jar="${jack.dist.dir}/${jack.execname}" fork="true" failonerror="true"
         output="${jack.doc.dir}/properties.txt">
         <arg value="--help-properties"/>
+        <arg value="--sanity-checks"/>
+        <arg value="off"/>
+      </java>
+      <java jar="${jack.dist.dir}/${jack.execname}" fork="true" failonerror="true"
+        output="${jack.doc.dir}/properties-dev.txt">
+        <arg value="--help-properties"/>
+        <arg value="--sanity-checks"/>
+        <arg value="on"/>
       </java>
       <!-- Jack server -->
       <mkdir dir="${jack-server.doc.dir}" />

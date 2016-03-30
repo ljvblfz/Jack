@@ -36,11 +36,15 @@ import javax.annotation.Nonnull;
  */
 public class SchedulableSet {
   @Nonnull
-  private final SchedulableManager schedulableManager = SchedulableManager.getSchedulableManager();
+  private final SchedulableManager schedulableManager;
 
   @Nonnull
   private final Set<ManagedSchedulable> scheds =
       new TreeSet<ManagedSchedulable>(new SchedulableComparator());
+
+  SchedulableSet(@Nonnull SchedulableManager manager) {
+    schedulableManager = manager;
+  }
 
   /**
    * Returns whether this {@code SchedulableSet} contains the given {@link Schedulable} class.

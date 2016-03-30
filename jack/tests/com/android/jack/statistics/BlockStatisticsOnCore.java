@@ -27,7 +27,6 @@ import com.android.jack.scheduling.adapter.JMethodAdapter;
 import com.android.jack.transformations.parent.AstChecker;
 import com.android.sched.scheduler.PlanBuilder;
 import com.android.sched.scheduler.Request;
-import com.android.sched.scheduler.SchedulableManager;
 import com.android.sched.scheduler.Scheduler;
 import com.android.sched.scheduler.SubPlanBuilder;
 
@@ -68,11 +67,10 @@ public class BlockStatisticsOnCore {
     JSession session = TestTools.buildJAst(options);
     Assert.assertNotNull(session);
 
-    Scheduler scheduler = Scheduler.getScheduler();
-    SchedulableManager sm = SchedulableManager.getSchedulableManager();
+    Scheduler scheduler = new Scheduler();
     Request sr = scheduler.createScheduleRequest();
 
-    sr.addSchedulables(sm.getAllSchedulable());
+    sr.addSchedulables(scheduler.getAllSchedulable());
     sr.addTargetIncludeTagOrMarker(JavaSourceIr.class);
     sr.addInitialTagOrMarker(JavaSourceIr.class);
 

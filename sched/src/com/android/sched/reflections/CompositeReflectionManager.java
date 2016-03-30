@@ -16,8 +16,14 @@
 
 package com.android.sched.reflections;
 
+import com.android.sched.util.location.Location;
+import com.android.sched.util.location.NoLocation;
 import com.android.sched.util.log.LoggerFactory;
 
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -33,34 +39,120 @@ public class CompositeReflectionManager extends CommonReflectionManager
   @Nonnull
   private final List<ReflectionManager> reflectionManagers;
 
+  public CompositeReflectionManager() {
+    this.reflectionManagers = new ArrayList<ReflectionManager>();
+  }
+
+  public CompositeReflectionManager(@Nonnull ReflectionManager reflectionManager) {
+    this.reflectionManagers = new ArrayList<ReflectionManager>();
+    this.reflectionManagers.add(reflectionManager);
+  }
+
+  public CompositeReflectionManager(@Nonnull ReflectionManager[] reflectionManagers) {
+    this.reflectionManagers = Arrays.asList(reflectionManagers);
+  }
+
   public CompositeReflectionManager(@Nonnull List<ReflectionManager> reflectionManagers) {
     this.reflectionManagers = reflectionManagers;
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see com.android.sched.reflections.ReflectionManager#getSubTypesOf(java.lang.Class)
-   */
+  @Nonnull
+  public synchronized CompositeReflectionManager addReflectionManager(
+      @Nonnull ReflectionManager reflectionManager) {
+    reflectionManagers.add(reflectionManager);
+
+    return this;
+  }
+
   @Override
   @Nonnull
-  public <T> Set<Class<? extends T>> getSubTypesOf(@Nonnull Class<T> cls) {
-    Set<Class<? extends T>> result = null;
+  public synchronized <T> Set<Class<? extends T>> getSubTypesOf(@Nonnull Class<T> cls) {
+    Set<Class<? extends T>> set = new HashSet<Class<? extends T>>();
+
     for (int i = 0; i < reflectionManagers.size(); i++) {
       try {
-        result = reflectionManagers.get(i).getSubTypesOf(cls);
-        break;
+        set.addAll(reflectionManagers.get(i).getSubTypesOf(cls));
       } catch (ReflectionException e) {
         // try next manager
       }
     }
 
-    if (result == null) {
-      LoggerFactory.getLogger().log(Level.SEVERE, "Failed to getSubtypes of {0}", cls.getName());
+    if (set.isEmpty()) {
+      LoggerFactory.getLogger().log(Level.SEVERE, "Failed to getSubTypes of {0}", cls.getName());
       throw new ReflectionException("Failed to getSubtypes of " + cls.getName());
     }
 
-    return result;
+    return set;
   }
 
+  @Override
+  @Nonnull
+  public synchronized <T> Set<ClassWithLocation<? extends T>> getSubTypesOfWithLocation(
+      @Nonnull Class<T> cls) {
+    Set<ClassWithLocation<? extends T>> set = new HashSet<ClassWithLocation<? extends T>>();
+
+    for (int i = 0; i < reflectionManagers.size(); i++) {
+      try {
+        set.addAll(reflectionManagers.get(i).getSubTypesOfWithLocation(cls));
+      } catch (ReflectionException e) {
+        // try next manager
+      }
+    }
+
+    if (set.isEmpty()) {
+      LoggerFactory.getLogger().log(Level.SEVERE, "Failed to getSubTypes of {0}", cls.getName());
+      throw new ReflectionException("Failed to getSubtypes of " + cls.getName());
+    }
+
+    return set;
+  }
+
+  @Override
+  @Nonnull
+  public <T extends Annotation> Set<Class<?>> getAnnotatedBy(@Nonnull Class<T> cls) {
+    Set<Class<?>> set = new HashSet<Class<?>>();
+
+    for (ReflectionManager reflectionManager : reflectionManagers) {
+      try {
+        set.addAll(reflectionManager.getAnnotatedBy(cls));
+      } catch (ReflectionException e) {
+        // try next manager
+      }
+    }
+
+    if (set.isEmpty()) {
+      LoggerFactory.getLogger().log(Level.SEVERE, "Failed to getAnnotatedBy of {0}", cls.getName());
+      throw new ReflectionException("Failed to getAnnotatedBy of " + cls.getName());
+    }
+
+    return set;
+  }
+
+  @Override
+  @Nonnull
+  public <T extends Annotation> Set<ClassWithLocation<?>> getAnnotatedByWithLocation(
+      @Nonnull Class<T> cls) {
+    Set<ClassWithLocation<?>> set = new HashSet<ClassWithLocation<?>>();
+
+    for (ReflectionManager reflectionManager : reflectionManagers) {
+      try {
+        set.addAll(reflectionManager.getAnnotatedByWithLocation(cls));
+      } catch (ReflectionException e) {
+        // try next manager
+      }
+    }
+
+    if (set.isEmpty()) {
+      LoggerFactory.getLogger().log(Level.SEVERE, "Failed to getAnnotatedBy of {0}", cls.getName());
+      throw new ReflectionException("Failed to getAnnotatedBy of " + cls.getName());
+    }
+
+    return set;
+  }
+
+  @Override
+  @Nonnull
+  public Location getLocation() {
+    return NoLocation.getInstance();
+  }
 }

@@ -16,7 +16,7 @@
 
 package com.android.sched.scheduler;
 
-import com.android.sched.item.ItemManager;
+import com.android.sched.item.AbstractItemManager;
 import com.android.sched.item.ItemSet;
 import com.android.sched.item.TagOrMarkerOrComponent;
 
@@ -30,7 +30,7 @@ public class TagOrMarkerOrComponentSet extends ItemSet<TagOrMarkerOrComponent> {
     super(initial);
   }
 
-  public TagOrMarkerOrComponentSet(@Nonnull ItemManager manager) {
+  public TagOrMarkerOrComponentSet(@Nonnull AbstractItemManager manager) {
     super(manager);
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,12 @@
  * limitations under the License.
  */
 
-package com.android.sched.item;
+package com.android.sched.util.config.category;
 
-import javax.annotation.Nonnull;
+import com.android.sched.util.location.HasLocation;
 
 /**
- * Thrown when an {@link Item} class is not known by the {@link AbstractItemManager}.
+ * Define a sub-category for origin location
  */
-public class ItemNotRegisteredError extends Error {
-  private static final long serialVersionUID = 1L;
-
-  public ItemNotRegisteredError(@Nonnull Class<? extends Item> cls) {
-    super("Item '" + Items.getName(cls) + "' is not registered in the system.");
-  }
+public interface Origin extends Category, HasLocation {
 }

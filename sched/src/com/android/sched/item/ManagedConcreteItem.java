@@ -29,12 +29,13 @@ public class ManagedConcreteItem extends ManagedItem {
   private int posInteger = -1;
   private int posBit = -1;
 
-  public ManagedConcreteItem(@Nonnull Class<? extends Item> item, @Nonnull ItemManager manager) {
+  public ManagedConcreteItem(@Nonnull Class<? extends Item> item,
+      @Nonnull AbstractItemManager manager) {
     super(item, manager);
   }
 
-  public ManagedConcreteItem(@Nonnull Class<? extends Item> item, @Nonnull ItemManager manager,
-      @Nonnegative int posInteger, @Nonnegative int posBits) {
+  public ManagedConcreteItem(@Nonnull Class<? extends Item> item,
+      @Nonnull AbstractItemManager manager, @Nonnegative int posInteger, @Nonnegative int posBits) {
     super(item, manager);
 
     this.posInteger = posInteger;

@@ -49,11 +49,11 @@ public class ItemSet<T extends Item> implements Cloneable, Iterable<Class<? exte
   private static final Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
-  private final ItemManager manager;
+  private final AbstractItemManager manager;
   @Nonnull
   private long[] bitmap;
 
-  public ItemSet(@Nonnull ItemManager manager) {
+  public ItemSet(@Nonnull AbstractItemManager manager) {
     this.manager = manager;
     this.bitmap = new long[manager.getIntegersCount()];
   }

@@ -74,7 +74,7 @@ public class SingleScheduleInstance<T extends Component> extends ScheduleInstanc
     worker.throwIfNecessary();
   }
 
-  private static class Worker<U extends Component> implements Runnable {
+  private class Worker<U extends Component> implements Runnable {
     @Nonnull
     private final U component;
     @Nonnull
@@ -90,7 +90,7 @@ public class SingleScheduleInstance<T extends Component> extends ScheduleInstanc
     @Override
     public void run() {
       try {
-        ComponentFilterSet filters = Scheduler.getScheduler().createComponentFilterSet();
+        ComponentFilterSet filters = scheduler.createComponentFilterSet();
         filters.add(NoFilter.class);
         process(schedule, component, filters);
       } catch (ProcessException e) {
@@ -99,7 +99,7 @@ public class SingleScheduleInstance<T extends Component> extends ScheduleInstanc
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private static <U extends Component> void process(@Nonnull SingleScheduleInstance<U> schedule,
+    private <U extends Component> void process(@Nonnull SingleScheduleInstance<U> schedule,
         @Nonnull U component, @Nonnull ComponentFilterSet parentFilters) throws ProcessException {
       ComponentFilterSet currentFilters = schedule.applyFilters(parentFilters, component);
 

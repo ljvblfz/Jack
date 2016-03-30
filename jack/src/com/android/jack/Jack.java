@@ -468,7 +468,8 @@ public abstract class Jack {
 
         buildSession(session, options, hooks);
 
-        Request request = createInitialRequest();
+        Scheduler scheduler = new Scheduler();
+        Request request = createInitialRequest(scheduler);
         request.addFeature(PreProcessor.class);
 
         request.addFeature(Resources.class);
@@ -580,8 +581,8 @@ public abstract class Jack {
           request.addFeature(TailRecursionOptimization.class);
         }
 
-        request.addInitialTagsOrMarkers(getJavaSourceInitialTagSet());
-        request.addInitialTagsOrMarkers(getJackFormatInitialTagSet());
+        request.addInitialTagsOrMarkers(getJavaSourceInitialTagSet(scheduler));
+        request.addInitialTagsOrMarkers(getJackFormatInitialTagSet(scheduler));
 
         if (config.get(Options.GENERATE_DEX_IN_LIBRARY).booleanValue()) {
           request.addProduction(DexInLibraryProduct.class);
@@ -789,8 +790,7 @@ public abstract class Jack {
   }
 
   @Nonnull
-  public static Request createInitialRequest() {
-    Scheduler scheduler = Scheduler.getScheduler();
+  public static Request createInitialRequest(@Nonnull Scheduler scheduler) {
     Request request = scheduler.createScheduleRequest();
 
     request.addSchedulables(scheduler.getAllSchedulable());
@@ -798,8 +798,7 @@ public abstract class Jack {
   }
 
   @Nonnull
-  public static TagOrMarkerOrComponentSet getJavaSourceInitialTagSet() {
-    Scheduler scheduler = Scheduler.getScheduler();
+  public static TagOrMarkerOrComponentSet getJavaSourceInitialTagSet(@Nonnull Scheduler scheduler) {
     TagOrMarkerOrComponentSet set = scheduler.createTagOrMarkerOrComponentSet();
     set.add(JavaSourceIr.class);
     set.add(OriginalNames.class);
@@ -808,8 +807,7 @@ public abstract class Jack {
   }
 
   @Nonnull
-  private static TagOrMarkerOrComponentSet getJackFormatInitialTagSet() {
-    Scheduler scheduler = Scheduler.getScheduler();
+  public static TagOrMarkerOrComponentSet getJackFormatInitialTagSet(@Nonnull Scheduler scheduler) {
     TagOrMarkerOrComponentSet set = scheduler.createTagOrMarkerOrComponentSet();
     set.add(JackFormatIr.class);
     set.add(OriginalNames.class);

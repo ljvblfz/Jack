@@ -30,7 +30,7 @@ public class ManagedItem implements HasDescription {
   protected long[] bitmap;
 
   @Nonnull
-  private final ItemManager manager;
+  private final AbstractItemManager manager;
 
   @Nonnull
   private final String name;
@@ -40,7 +40,7 @@ public class ManagedItem implements HasDescription {
   @Nonnull
   private final Class<? extends Item> item;
 
-  protected ManagedItem(@Nonnull Class<? extends Item> item, @Nonnull ItemManager manager) {
+  protected ManagedItem(@Nonnull Class<? extends Item> item, @Nonnull AbstractItemManager manager) {
     this.manager = manager;
     this.item = item;
     this.name = Items.getName(item);

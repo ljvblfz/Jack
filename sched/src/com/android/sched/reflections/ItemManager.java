@@ -17,14 +17,13 @@
 package com.android.sched.reflections;
 
 import com.android.sched.SchedProperties;
+import com.android.sched.item.AbstractItemManager;
 import com.android.sched.item.Item;
-import com.android.sched.item.ItemManager;
 import com.android.sched.item.ItemSet;
 import com.android.sched.item.Items;
 import com.android.sched.item.ManagedItem;
 import com.android.sched.item.onlyfor.Default;
 import com.android.sched.item.onlyfor.OnlyForType;
-import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.sched.ManagedDataListener;
@@ -36,11 +35,10 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 
 /**
- * Implementation of {@link ItemManager} that uses the library {@code org.reflections} to access
- * subtypes of the considered {@link Item} type by reflection.
+ * Implementation of {@link AbstractItemManager} that uses the library {@code org.reflections} to
+ * access subtypes of the considered {@link Item} type by reflection.
  */
-@ImplementationName(iface = ItemManager.class, name = "reflections")
-public class ItemManagerReflections extends ItemManager {
+public class ItemManager extends AbstractItemManager {
   @Nonnull
   private final Logger logger = LoggerFactory.getLogger();
 
@@ -52,9 +50,10 @@ public class ItemManagerReflections extends ItemManager {
   @Nonnull
   private final Class<? extends Item> type;
 
-  public ItemManagerReflections(@Nonnull Class<? extends Item> type) {
+  public ItemManager(@Nonnull ReflectionManager reflectionManager,
+      @Nonnull Class<? extends Item> type) {
     this.type = type;
-    scan();
+    scan(reflectionManager);
   }
 
   @Nonnull
@@ -63,9 +62,7 @@ public class ItemManagerReflections extends ItemManager {
     return type;
   }
 
-  private void scan() {
-    ReflectionManager reflectionManager = ReflectionFactory.getManager();
-
+  private void scan(@Nonnull ReflectionManager reflectionManager) {
     // Discover all items
     for (Class<? extends Item> item : reflectionManager.getSubTypesOf(type)) {
 

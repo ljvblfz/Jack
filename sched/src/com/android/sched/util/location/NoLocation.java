@@ -22,6 +22,8 @@ import javax.annotation.Nonnull;
  * Class without location.
  */
 public class NoLocation extends Location {
+  @Nonnull
+  private static final NoLocation NO_LOCATION = new NoLocation();
 
   @Override
   @Nonnull
@@ -37,5 +39,10 @@ public class NoLocation extends Location {
   @Override
   public final int hashCode() {
     return NoLocation.class.hashCode();
+  }
+
+  @Nonnull
+  public static NoLocation getInstance() {
+    return NO_LOCATION;
   }
 }

@@ -106,7 +106,7 @@ public class ImplicitBlockTest {
     JSession session = TestTools.buildJAst(options);
     Assert.assertNotNull(session);
 
-    Scheduler scheduler = Scheduler.getScheduler();
+    Scheduler scheduler = new Scheduler();
     Request sr = scheduler.createScheduleRequest();
 
     sr.addSchedulables(scheduler.getAllSchedulable());

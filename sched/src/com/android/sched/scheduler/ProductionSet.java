@@ -16,7 +16,7 @@
 
 package com.android.sched.scheduler;
 
-import com.android.sched.item.ItemManager;
+import com.android.sched.item.AbstractItemManager;
 import com.android.sched.item.ItemSet;
 import com.android.sched.item.Production;
 
@@ -30,7 +30,7 @@ public class ProductionSet extends ItemSet<Production> {
     super(initial);
   }
 
-  public ProductionSet(@Nonnull ItemManager manager) {
+  public ProductionSet(@Nonnull AbstractItemManager manager) {
     super(manager);
   }
 

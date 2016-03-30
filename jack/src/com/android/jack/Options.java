@@ -689,7 +689,7 @@ public class Options {
 
   @Nonnull
   public GatherConfigBuilder getDefaultConfigBuilder() throws IOException {
-    GatherConfigBuilder configBuilder = new GatherConfigBuilder();
+    GatherConfigBuilder configBuilder = new GatherConfigBuilder(sanityChecks);
     String resourceName = "/config.properties";
 
     InputStream is = Main.class.getResourceAsStream(resourceName);
@@ -725,7 +725,7 @@ public class Options {
             "The specified config file '" + propertiesFile.getPath() + "' cannot be read.");
       }
 
-      configBuilder = new GatherConfigBuilder();
+      configBuilder = new GatherConfigBuilder(sanityChecks);
       if (sanityChecks) {
         configBuilder.setDebug();
       }
