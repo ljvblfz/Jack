@@ -899,6 +899,7 @@
           <exclude name="com/android/jack/frontend/test005/jack/**"/>
           <exclude name="com/android/jack/frontend/test006/jack/**"/>
           <exclude name="com/android/jack/frontend/test007/**"/>
+          <exclude name="com/android/jack/sourcepath/test002/jack/Sourcepath002.java"/>
         </fileset>
         <filelist dir="/">
           <!-- classpath -->
@@ -961,6 +962,7 @@
       <exclude name="com/android/jack/frontend/test005/jack/**"/>
       <exclude name="com/android/jack/frontend/test006/jack/**"/>
       <exclude name="com/android/jack/frontend/test007/**"/>
+      <exclude name="com/android/jack/sourcepath/test002/jack/Sourcepath002.java"/>
       <classpath>
         <filelist dir="/">
           <file name="${jill-api.dist.dir}/${jill-api.lib.name}" />

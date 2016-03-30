@@ -16,9 +16,11 @@
 
 package com.android.jack.experimental.incremental;
 
+import com.android.jack.Options;
 import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.test.helper.IncrementalTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.sched.util.config.ConfigurationError;
 
 import junit.framework.Assert;
 
@@ -580,4 +582,34 @@ public class DependenciesTest001 {
     Assert.assertTrue(fqnOfRebuiltTypes.contains("jack.incremental.B"));
     Assert.assertTrue(fqnOfRebuiltTypes.contains("jack.incremental.I"));
   }
+
+
+  /**
+   * Check that incremental compilation is disabled when source path is set.
+   */
+  @Test
+  public void testDependency016() throws Exception {
+    IncrementalTestHelper ite =
+        new IncrementalTestHelper(AbstractTestTools.createTempDir());
+
+    ite.addProperty(Options.SOURCE_PATH.getName(), AbstractTestTools.createTempDir().getPath());
+
+    ite.addJavaFile("jack.incremental", "A.java",
+        "package jack.incremental; \n"+
+        "public class A extends B {} \n");
+
+    ite.addJavaFile("jack.incremental", "B.java",
+        "package jack.incremental; \n"+
+        "public class B {} \n");
+
+    ite.incrementalBuildFromFolder();
+    try {
+      AbstractTestTools.getInputJackLibrary(ite.getCompilerStateFolder());
+      Assert.fail();
+    } catch (ConfigurationError e) {
+      // When incremental is disabled Jack does not emit a library in ite.getCompilerStateFolder()
+      Assert.assertTrue(e.getMessage().contains("is not a jack library"));
+    }
+  }
+
 }
