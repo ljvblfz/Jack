@@ -191,7 +191,7 @@ public class AnnotationProcessorTests {
         ANNOTATIONS_DIR,
         ANNOTATED_DIR
             );
-    InputJackLibrary libOut = openDirAsJackLibrary(jackOut);
+    InputJackLibrary libOut = AbstractTestTools.getInputJackLibrary(jackOut);
     libOut.getFile(FileType.RSC, new VPath("rscGeneratedFile0", '/'));
     libOut.getFile(FileType.JAYCE, new VPath("Annotated2Duplicated", '/'));
   }
@@ -211,7 +211,7 @@ public class AnnotationProcessorTests {
         ANNOTATIONS_DIR,
         ANNOTATED_DIR
             );
-    InputJackLibrary libOut = openDirAsJackLibrary(jackOut);
+    InputJackLibrary libOut = AbstractTestTools.getInputJackLibrary(jackOut);
     libOut.getFile(FileType.RSC, new VPath("rscGeneratedFile0", '/'));
     libOut.getFile(FileType.JAYCE, new VPath("Annotated2Duplicated", '/'));
   }
@@ -233,7 +233,7 @@ public class AnnotationProcessorTests {
         ANNOTATIONS_DIR,
         ANNOTATED_DIR
             );
-    InputJackLibrary libOut = openDirAsJackLibrary(jackOut);
+    InputJackLibrary libOut = AbstractTestTools.getInputJackLibrary(jackOut);
     libOut.getFile(FileType.RSC, new VPath("rscGeneratedFile0", '/'));
     try {
       libOut.getFile(FileType.JAYCE, new VPath("Annotated2Duplicated", '/'));
@@ -258,7 +258,7 @@ public class AnnotationProcessorTests {
         ANNOTATIONS_DIR,
         ANNOTATED_DIR
         );
-    InputJackLibrary libOut = openDirAsJackLibrary(jackOut);
+    InputJackLibrary libOut = AbstractTestTools.getInputJackLibrary(jackOut);
     Assert.assertFalse(libOut.containsFileType(FileType.RSC));
     try {
       libOut.getFile(FileType.JAYCE, new VPath("Annotated2Duplicated", '/'));
@@ -284,7 +284,7 @@ public class AnnotationProcessorTests {
         ANNOTATIONS_DIR,
         ANNOTATED_DIR
             );
-    InputJackLibrary libOut = openDirAsJackLibrary(jackOut);
+    InputJackLibrary libOut = AbstractTestTools.getInputJackLibrary(jackOut);
     Assert.assertFalse(libOut.containsFileType(FileType.RSC));
     libOut.getFile(FileType.JAYCE, new VPath("Annotated2Duplicated", '/'));
   }
@@ -305,18 +305,7 @@ public class AnnotationProcessorTests {
         ANNOTATIONS_DIR,
         ANNOTATED_DIR
             );
-    InputJackLibrary libOut = openDirAsJackLibrary(jackOut);
+    InputJackLibrary libOut = AbstractTestTools.getInputJackLibrary(jackOut);
     libOut.getFile(FileType.JAYCE, new VPath("Annotated2WithOption", '/'));
-  }
-
-  private InputJackLibrary openDirAsJackLibrary(File jackOut)
-      throws LibraryVersionException, LibraryFormatException, NotJackLibraryException,
-      ParsingException {
-    CodecContext context = new CodecContext();
-    InputJackLibrary libOut =
-        JackLibraryFactory.getInputLibrary(
-            new CaseInsensitiveDirectFSCodec(Existence.MUST_EXIST)
-            .checkString(context, jackOut.getPath()));
-    return libOut;
   }
 }
