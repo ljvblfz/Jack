@@ -162,8 +162,8 @@ public class JSession extends JNode {
     return sourceInfoFactory;
   }
 
-  public void setAbortEventually(boolean value) {
-    mustAbortEventually = value;
+  public void abortEventually() {
+    mustAbortEventually = true;
   }
 
   public boolean mustAbortEventually() {

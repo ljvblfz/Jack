@@ -69,7 +69,7 @@ public class AndroidCompatibilityChecker implements RunnableSchedulable<JMethod>
         }
 
         session.getReporter().report(Severity.NON_FATAL, reportable);
-        session.setAbortEventually(true);
+        session.abortEventually();
       }
     }
   }
