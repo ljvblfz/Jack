@@ -75,6 +75,8 @@ public class IncrementalTestHelper {
   private OutputStream out = System.out;
   @Nonnull
   private OutputStream err = System.err;
+  @Nonnull
+  private final Map<String, String> properties = new HashMap<String, String>();
 
   private boolean isApiTest = false;
 
@@ -218,6 +220,10 @@ public class IncrementalTestHelper {
       jackToolchain.addToClasspath(classpath);
     }
 
+    for (Map.Entry<String, String> property : properties.entrySet()) {
+      jackToolchain.addProperty(property.getKey(), property.getValue());
+    }
+
     jackToolchain.srcToExe(dexOutDir, /* zipFile = */ false, sourceFolder);
 
     Thread.sleep(1000);
@@ -237,6 +243,13 @@ public class IncrementalTestHelper {
   @Nonnull
   public File getDexFile() {
     return dexFile;
+  }
+
+  @Nonnull
+  public IncrementalTestHelper addProperty(@Nonnull String propertyName,
+      @Nonnull String propertyValue) {
+    properties.put(propertyName, propertyValue);
+    return this;
   }
 
   @Nonnull

@@ -251,8 +251,20 @@ public class JackBatchCompiler extends Main {
   @Override
   public void configure(String[] argv) {
     super.configure(argv);
-    checkedClasspaths = new FileSystem.Classpath[] {
-        new JAstClasspath("<jack-logical-entry>", session.getLookup(), null)};
+
+    List<FileOrDirectory> sourcePath = ThreadConfig.get(Options.SOURCE_PATH);
+    int nbSourcePathElement = sourcePath.size();
+    checkedClasspaths = new FileSystem.Classpath[nbSourcePathElement + 1];
+    for (int i = 0; i < nbSourcePathElement; i++) {
+      checkedClasspaths[i] = FileSystem.getClasspath(sourcePath.get(i).getPath(),
+          /* encoding = */ null,
+          /* isSourceOnly = */ true,
+          /* accessRuleSet = */ null,
+          /* destinationPath = */ NONE,
+          /* options = */ null);
+    }
+    checkedClasspaths[nbSourcePathElement] =
+        new JAstClasspath("<jack-logical-entry>", session.getLookup(), null);
   }
 
   @SuppressWarnings({"rawtypes", "unchecked"})

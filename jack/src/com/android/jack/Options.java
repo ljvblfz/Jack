@@ -527,6 +527,12 @@ public class Options {
           .minElements(0).requiredIf(ANNOTATION_PROCESSOR_PATH.getValue().isTrue());
 
   @Nonnull
+  public static final ListPropertyId<FileOrDirectory> SOURCE_PATH =
+      new ListPropertyId<FileOrDirectory>("jack.source.path",
+          "Source path", new InputFileOrDirectoryCodec()).on(File.pathSeparator)
+          .minElements(0).addDefaultValue(Collections.<FileOrDirectory>emptyList());
+
+  @Nonnull
   @Option(name = "-cp", aliases = "--classpath", usage = "set classpath", metaVar = "<PATH>")
   protected String classpath = "";
 
@@ -998,6 +1004,9 @@ public class Options {
       } else if (!jarjarRulesFiles.isEmpty()) {
         LoggerFactory.getLogger().log(Level.WARNING,
             "Incremental mode is disabled due to usage of jarjar");
+      } else if (properties.containsKey(SOURCE_PATH.getName())) {
+        LoggerFactory.getLogger().log(Level.WARNING,
+            "Incremental mode is disabled due to usage of source path");
       } else {
         configBuilder.set(Options.INCREMENTAL_MODE, true);
         configBuilder.setString(Options.INPUT_FILTER, "incremental");
