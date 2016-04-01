@@ -16,26 +16,17 @@
 
 package com.android.jack.shrob.obfuscation;
 
-import com.google.common.base.Strings;
-
 import com.android.jack.config.id.Arzon;
-import com.android.jack.ir.ast.HasName;
-import com.android.jack.ir.ast.JArrayType;
-import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JNode;
-import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JSession;
-import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.reporting.ReportableIOException;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.sched.item.Description;
-import com.android.sched.marker.LocalMarkerManager;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Optional;
 import com.android.sched.schedulable.Produce;
@@ -84,8 +75,6 @@ public class MappingPrinter implements RunnableSchedulable<JSession> {
 
   private static final String SEPARATOR = " -> ";
 
-  private static final char PACKAGE_SEPARATOR = '.';
-
   private static class Visitor extends JVisitor {
     @Nonnull
     private final PrintWriter writer;
@@ -94,67 +83,11 @@ public class MappingPrinter implements RunnableSchedulable<JSession> {
       this.writer = writer;
     }
 
-    private void appendOriginalQualifiedName(
-        @Nonnull StringBuilder nameBuilder, @Nonnull JPackage pack) {
-      JPackage enclosingPackage;
-      OriginalPackageMarker marker = pack.getMarker(OriginalPackageMarker.class);
-      if (marker != null) {
-        enclosingPackage = marker.getOriginalEnclosingPackage();
-      } else {
-        enclosingPackage = pack.getEnclosingPackage();
-      }
-      if (enclosingPackage != null && !enclosingPackage.isTopLevelPackage()) {
-        appendOriginalQualifiedName(nameBuilder, enclosingPackage);
-        nameBuilder.append(PACKAGE_SEPARATOR);
-      }
-      appendOriginalName(nameBuilder, pack);
-    }
-
-    private void appendOriginalQualifiedName(
-        @Nonnull StringBuilder nameBuilder, @Nonnull JClassOrInterface type) {
-      JPackage enclosingPackage;
-      OriginalPackageMarker marker = ((JNode) type).getMarker(OriginalPackageMarker.class);
-      if (marker != null) {
-        enclosingPackage = marker.getOriginalEnclosingPackage();
-      } else {
-        enclosingPackage = type.getEnclosingPackage();
-      }
-      assert enclosingPackage != null;
-      appendOriginalQualifiedName(nameBuilder, enclosingPackage);
-      if (!enclosingPackage.isTopLevelPackage()) {
-        nameBuilder.append(PACKAGE_SEPARATOR);
-      }
-      appendOriginalName(nameBuilder, type);
-    }
-
-    private void appendOriginalName(@Nonnull StringBuilder nameBuilder, @Nonnull HasName node) {
-      OriginalNameMarker marker = ((LocalMarkerManager) node).getMarker(OriginalNameMarker.class);
-      if (marker != null) {
-        nameBuilder.append(marker.getOriginalName());
-      } else {
-        nameBuilder.append(node.getName());
-      }
-    }
-
-    private void appendOriginalQualifiedName(
-        @Nonnull StringBuilder nameBuilder, @Nonnull HasName node) {
-      if (node instanceof JArrayType) {
-        JArrayType arrayType = (JArrayType) node;
-        appendOriginalQualifiedName(nameBuilder, arrayType.getLeafType());
-        nameBuilder.append(Strings.repeat("[]", arrayType.getDims()));
-      } else if (node instanceof JDefinedClassOrInterface) {
-        appendOriginalQualifiedName(nameBuilder, (JClassOrInterface) node);
-      } else if (node instanceof JType) {
-        nameBuilder.append(node.getName());
-      } else {
-        appendOriginalName(nameBuilder, node);
-      }
-    }
 
     @Override
     public boolean visit(@Nonnull JDefinedClassOrInterface type) {
       StringBuilder info = new StringBuilder();
-      appendOriginalQualifiedName(info, type);
+      OriginalNameTools.appendOriginalQualifiedName(info, type);
       info.append(SEPARATOR);
       info.append(GrammarActions.getSourceFormatter().getName(type));
       info.append(':');
@@ -166,9 +99,9 @@ public class MappingPrinter implements RunnableSchedulable<JSession> {
     @Override
     public boolean visit(@Nonnull JField field) {
       StringBuilder info = new StringBuilder().append("    ");
-      appendOriginalQualifiedName(info, field.getType());
+      OriginalNameTools.appendOriginalQualifiedName(info, field.getType());
       info.append(' ');
-      appendOriginalName(info, field.getId());
+      OriginalNameTools.appendOriginalName(info, field.getId());
       info.append(SEPARATOR);
       info.append(field.getName());
       writer.println(info);
@@ -179,14 +112,14 @@ public class MappingPrinter implements RunnableSchedulable<JSession> {
     @Override
     public boolean visit(@Nonnull JMethod method) {
       StringBuilder info = new StringBuilder().append("    ");
-      appendOriginalQualifiedName(info, method.getType());
+      OriginalNameTools.appendOriginalQualifiedName(info, method.getType());
       info.append(' ');
-      appendOriginalName(info, method.getMethodIdWide());
+      OriginalNameTools.appendOriginalName(info, method.getMethodIdWide());
       info.append('(');
       Iterator<JParameter> iterator = method.getParams().iterator();
       while (iterator.hasNext()) {
         JParameter param = iterator.next();
-        appendOriginalQualifiedName(info, param.getType());
+        OriginalNameTools.appendOriginalQualifiedName(info, param.getType());
         if (iterator.hasNext()) {
           info.append(',');
         }
