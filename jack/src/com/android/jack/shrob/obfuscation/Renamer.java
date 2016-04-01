@@ -199,13 +199,13 @@ public class Renamer implements RunnableSchedulable<JSession> {
       if (!type.isExternal()) {
         NameProvider fieldNameProvider = nameProviderFactory.getFieldNameProvider();
         for (JField field : type.getFields()) {
-          JFieldId id = field.getId();
-          if (mustBeRenamed(id)) {
+          JFieldId fieldId = field.getId();
+          if (mustBeRenamed(fieldId)) {
             String name;
             do {
-              name = fieldNameProvider.getNewName(getKey(field));
+              name = fieldNameProvider.getNewName(getKey(fieldId));
             } while (FieldInHierarchyFinderVisitor.containsFieldKey(name, field));
-            rename(id, fieldNameProvider);
+            rename(fieldId, fieldNameProvider);
           }
         }
 
@@ -215,7 +215,7 @@ public class Renamer implements RunnableSchedulable<JSession> {
           if (mustBeRenamed(methodId)) {
             String name;
             do {
-              name = fieldNameProvider.getNewName(getKey(method));
+              name = methodNameProvider.getNewName(getKey(methodId));
             } while (MethodInHierarchyFinder.containsMethodKey(name, methodId));
             rename(methodId, methodNameProvider);
           }

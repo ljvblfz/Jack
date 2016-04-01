@@ -1,1 +1,1 @@
-This tests contains a partial mapping with forces the shrob to avoid collisions.
+This tests contains a partial mapping which forces the shrob to avoid collisions.
