@@ -37,3 +37,9 @@ com.android.jack.shrob.test001.jack.A -> com.android.jack.shrob.test001.jack.Ren
     void privateFunc() -> renamedPrivateFunc
 com.android.jack.shrob.test001.jack.K -> com.android.jack.shrob.test001.jack.K:
     void keep() -> renamedKeep
+com.android.jack.shrob.test001.jack.Reflect2 -> com.android.jack.shrob.test001.jack.Reflect2:
+    void calledMethod() -> renamedCalledMethod
+    void m(com.android.jack.shrob.test001.jack.Reflect2$A) -> renamedM
+    void privateMethod(com.android.jack.shrob.test001.jack.Reflect2$B) -> renamedPrivateMethod
+com.android.jack.shrob.test001.jack.L -> com.android.jack.shrob.test001.jack.L:
+    void onReceive() -> renamedOnReceive
