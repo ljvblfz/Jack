@@ -371,8 +371,6 @@ public class JPackage extends JNode implements HasName, CanBeRenamed, HasEnclosi
 
   @Override
   public void traverse(@Nonnull JVisitor visitor) {
-    assert enclosingPackage == null || !enclosingPackage.deletedItems.contains(getName());
-
     if (visitor.visit(this)) {
       if (visitor.needLoading()) {
         loadSubPackages();
