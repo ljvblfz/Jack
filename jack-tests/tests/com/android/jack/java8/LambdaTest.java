@@ -22,7 +22,9 @@ import com.android.jack.test.helper.FileChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackApiV01;
+import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
@@ -32,6 +34,7 @@ import org.jf.dexlib.ClassDefItem;
 import org.jf.dexlib.DexFile;
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -414,6 +417,31 @@ public class LambdaTest {
   @Test
   public void testLamba036() throws Exception {
     run(LAMBDA036);
+  }
+
+  @Test
+  public void testLamba037() throws Exception {
+    List<Class<? extends IToolchain>> excludedToolchains =
+        new ArrayList<Class<? extends IToolchain>>();
+    excludedToolchains.add(JillBasedToolchain.class);
+    excludedToolchains.add(JackApiV01.class);
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
+
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+    toolchain.setErrorStream(err);
+    toolchain.setSourceLevel(SourceLevel.JAVA_8);
+    toolchain.addProperty(Options.ANDROID_MIN_API_LEVEL.getName(),
+        String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL));
+
+
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath()).srcToExe(
+        AbstractTestTools.createTempDir(), /* zipFile = */ false,
+        AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test037.jack"));
+    String errString = err.toString();
+    Assert.assertTrue(errString.contains("Tests.java:34: Serializable lambda is not supported"));
+    Assert.assertTrue(errString.contains("Tests.java:43: Serializable lambda is not supported"));
+    Assert.assertTrue(errString.contains("Tests.java:55: Serializable lambda is not supported"));
   }
 
   private void run(@Nonnull RuntimeTestInfo rti) throws Exception {

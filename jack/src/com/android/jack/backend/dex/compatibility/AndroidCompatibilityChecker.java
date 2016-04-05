@@ -19,10 +19,15 @@ package com.android.jack.backend.dex.compatibility;
 import com.android.jack.Jack;
 import com.android.jack.Options;
 import com.android.jack.ir.ast.JInterface;
+import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JSession;
+import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.lookup.CommonTypes;
 import com.android.jack.reporting.Reportable;
 import com.android.jack.reporting.Reporter.Severity;
+import com.android.jack.transformations.lambda.SerializableLambdaReportable;
+import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
@@ -45,7 +50,7 @@ public class AndroidCompatibilityChecker implements RunnableSchedulable<JMethod>
   public static final BooleanPropertyId CHECK_COMPATIBILITY =
       BooleanPropertyId.create(
               "jack.android.api-level.check",
-              "Check compatibility with the Dex output")
+              "Check compatibility with the Android platform")
           .addDefaultValue(Boolean.FALSE);
 
   @Nonnegative
@@ -55,7 +60,35 @@ public class AndroidCompatibilityChecker implements RunnableSchedulable<JMethod>
       ThreadConfig.get(Options.ANDROID_MIN_API_LEVEL).longValue();
 
   @Nonnull
+  private final JInterface serializable =
+      Jack.getSession().getPhantomLookup().getInterface(CommonTypes.JAVA_IO_SERIALIZABLE);
+
+  @Nonnull
+  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+
+  @Nonnull
   private final JSession session = Jack.getSession();
+
+  private class SerializableLambdaVisitor extends JVisitor {
+
+    @Override
+    public boolean visit(@Nonnull JLambda lambda) {
+
+      if (lambda.getType().canBeSafelyUpcast(serializable)) {
+        Jack.getSession().getReporter().report(Severity.NON_FATAL,
+            new SerializableLambdaReportable(lambda));
+      }
+
+      for (JInterface bound : lambda.getInterfaceBounds()) {
+        if (bound.canBeSafelyUpcast(serializable)) {
+          Jack.getSession().getReporter().report(Severity.NON_FATAL,
+              new SerializableLambdaReportable(lambda));
+        }
+      }
+
+      return true;
+    }
+  }
 
   @Override
   public void run(@Nonnull JMethod m) throws Exception {
@@ -71,6 +104,11 @@ public class AndroidCompatibilityChecker implements RunnableSchedulable<JMethod>
         session.getReporter().report(Severity.NON_FATAL, reportable);
         session.setAbortEventually(true);
       }
+    }
+
+    if (!m.isNative() && !m.isAbstract() && filter.accept(this.getClass(), m)) {
+      SerializableLambdaVisitor visitor = new SerializableLambdaVisitor();
+      visitor.accept(m);
     }
   }
 }
