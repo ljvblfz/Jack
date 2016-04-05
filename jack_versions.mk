@@ -1,4 +1,5 @@
-# Copyright (C) 2012 The Android Open Source Project
+#
+# Copyright (C) 2016 The Android Open Source Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,15 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
 
-LOCAL_PATH:= $(call my-dir)
+JACK_DEFAULT_VERSION := 4.0.ENGINEERING
 
-include $(JACK_CLEAR_VARS)
-
-JACKTEST_MODULE := shrob/test011_2
-JACKTEST_ARGS := --config-proguard $(LOCAL_PATH)/proguard.flags002
-JACKTEST_WITHJACK_SRC := $(call all-java-files-under, jack)
-JACKTEST_WITHDX_SRC := dx/Tests2.java
-JACKTEST_JUNIT := com.android.jack.shrob.test011.dx.Tests2
-
-include $(JACK_RUN_TEST)
