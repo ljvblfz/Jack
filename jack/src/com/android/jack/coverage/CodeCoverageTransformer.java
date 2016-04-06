@@ -273,6 +273,10 @@ public class CodeCoverageTransformer implements RunnableSchedulable<JDefinedClas
       return;
     }
 
+    // First we need to compute the class ID of the class.
+    final long classID = CodeCoverageSelector.computeClassID(declaredType);
+    marker.setClassId(classID);
+
     TransformationRequest transformationRequest = new TransformationRequest(declaredType);
 
     // Add coverage data field.
@@ -281,7 +285,7 @@ public class CodeCoverageTransformer implements RunnableSchedulable<JDefinedClas
 
     // Add coverage init method.
     JMethod coverageInitMethod = createProbesArrayInitMethod(declaredType,
-        marker.getNumberOfProbes(), transformationRequest, coverageDataField, marker.getClassId());
+        marker.getNumberOfProbes(), transformationRequest, coverageDataField, classID);
     marker.setInitMethod(coverageInitMethod);
     transformationRequest.append(new AppendMethod(declaredType, coverageInitMethod));
 

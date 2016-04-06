@@ -156,8 +156,11 @@ public class CodeCoverageMetadataFileWriter implements RunnableSchedulable<JSess
         methods.add(m);
       }
 
+      final long classID = marker.getClassId();
+      assert classID != CodeCoverageMarker.INVALID_CLASS_ID;
+
       indent();
-      println("\"id\": " + marker.getClassId() + ",");
+      println("\"id\": " + classID + ",");
       println("\"name\": \"" + className + "\",");
       println("\"superClassName\": \"" + superClassName + "\",");
       println("\"sourceFile\": \"" + sourceFilename + "\",");
