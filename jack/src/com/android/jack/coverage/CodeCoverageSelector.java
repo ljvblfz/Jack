@@ -16,9 +16,10 @@
 
 package com.android.jack.coverage;
 
-import com.android.jack.digest.OriginDigestMarker;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDefinedInterface;
+import com.android.jack.ir.ast.JField;
+import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.formatter.SourceFormatter;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.sched.item.Description;
@@ -62,8 +63,7 @@ public class CodeCoverageSelector implements RunnableSchedulable<JDefinedClassOr
   @Override
   public void run(@Nonnull JDefinedClassOrInterface t) throws Exception {
     if (needsCoverage(t)) {
-      long classId = computeClassID(t);
-      t.addMarker(new CodeCoverageMarker(classId));
+      t.addMarker(new CodeCoverageMarker());
     }
   }
 
@@ -81,27 +81,36 @@ public class CodeCoverageSelector implements RunnableSchedulable<JDefinedClassOr
     return filter.matches(typeName);
   }
 
+  /**
+   * Fallback to compute digest based on the class information (name, fields, methods, ...).
+   * The goal is to distinct two classes, even if they have the same name. Otherwise this will
+   * cause conflicts in Jacoco.
+   */
   @Nonnull
   private static byte[] computeClassDigest(@Nonnull JDefinedClassOrInterface type)
       throws NoSuchAlgorithmException {
-    OriginDigestMarker marker = type.getMarker(OriginDigestMarker.class);
-    if (marker != null) {
-      // Use the digest that has been already computed.
-      return marker.getDigest();
-    }
-    // Fallback to compute digest based on the class name.
-    // Note: this will cause conflicts in Jacoco if multiple classes with the same name are
-    // instrumented at the same time.
-    String className = formatter.getName(type);
-    byte[] classNameAsBytes = className.getBytes(StandardCharsets.UTF_8);
     MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
-    messageDigest.update(classNameAsBytes);
+    // Update digest with class name.
+    messageDigest.update(stringToBytes(formatter.getName(type)));
+    // Update digest with fields.
+    for (JField field : type.getFields()) {
+      messageDigest.update(stringToBytes(field.getName()));
+      messageDigest.update(stringToBytes(formatter.getName(field.getType())));
+    }
+    // Update digest with methods.
+    for (JMethod method : type.getMethods()) {
+      messageDigest.update(stringToBytes(formatter.getName(method)));
+    }
     byte[] digest = messageDigest.digest();
     assert digest != null;
     return digest;
   }
 
-  private static long computeClassID(@Nonnull JDefinedClassOrInterface type)
+  private static byte[] stringToBytes(@Nonnull String str) {
+    return str.getBytes(StandardCharsets.UTF_8);
+  }
+
+  public static long computeClassID(@Nonnull JDefinedClassOrInterface type)
       throws NoSuchAlgorithmException {
     // Compute the digest of the class and convert it to a long.
     byte[] digest = computeClassDigest(type);

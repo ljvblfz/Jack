@@ -65,6 +65,8 @@ public class CodeCoverageMarker implements Marker {
   public static final class Complete implements Tag {
   }
 
+  public static final long INVALID_CLASS_ID = -1L;
+
   // Access to this list must be thread-safe.
   @Nonnull
   private final List<ProbeDescription> probes;
@@ -73,7 +75,7 @@ public class CodeCoverageMarker implements Marker {
    * The unique identifier of a class for code coverage. It must distinguish different classes
    * with the same name (mainly for class loader).
    */
-  private final long classId;
+  private long classId;
 
   /**
    * The coverage initialization method added to the class. This is used to exclude this method
@@ -98,8 +100,8 @@ public class CodeCoverageMarker implements Marker {
     return p;
   }
 
-  public CodeCoverageMarker(long classId) {
-    this(classId, new ArrayList<ProbeDescription>());
+  public CodeCoverageMarker() {
+    this(INVALID_CLASS_ID, new ArrayList<ProbeDescription>());
   }
 
   private CodeCoverageMarker(long classId, @Nonnull List<ProbeDescription> probes) {
@@ -109,6 +111,10 @@ public class CodeCoverageMarker implements Marker {
 
   public long getClassId() {
     return classId;
+  }
+
+  public void setClassId(long classId) {
+    this.classId = classId;
   }
 
   @Nonnull

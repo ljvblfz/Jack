@@ -239,6 +239,72 @@ public class CoverageTests {
     Assert.assertTrue(probesArray.size() > 0);
   }
 
+  @Test
+  public void testClassId() throws Exception {
+    String testPackageName = getTestPackageName("test005");
+    File testRootDir = AbstractTestTools.getTestRootDir(testPackageName);
+
+    // Compile with coverage only
+    JackBasedToolchain toolchain = createJackToolchain();
+    File coverageFileOne = createTempCoverageMetadataFile();
+    enableCodeCoverage(toolchain, coverageFileOne, null, null);
+    File outDexFolderOne = AbstractTestTools.createTempDir();
+    toolchain.srcToExe(outDexFolderOne, false, testRootDir);
+
+    // Compile with coverage only again into a different coverage file.
+    toolchain = createJackToolchain();
+    File coverageFileTwo = createTempCoverageMetadataFile();
+    enableCodeCoverage(toolchain, coverageFileTwo, null, null);
+    File outDexFolderTwo = AbstractTestTools.createTempDir();
+    toolchain.srcToExe(outDexFolderOne, false, testRootDir);
+
+    // Compile with coverage *and* proguard to shrink LibClass so it loses its unusedMethod.
+    toolchain = createJackToolchain();
+    File coverageFileThree = createTempCoverageMetadataFile();
+    enableCodeCoverage(toolchain, coverageFileThree, null, null);
+    File proguardFile = new File(testRootDir, "proguard.flags");
+    toolchain.addProguardFlags(proguardFile);
+    File outDexFolderThree = AbstractTestTools.createTempDir();
+    toolchain.srcToExe(outDexFolderThree, false, testRootDir);
+
+    // Extract class ID of LibClass for each coverage file.
+    final String className = getClassNameForJson(testPackageName + ".jack.LibClass");
+    long classIdOne = getClassIdOf(coverageFileOne, className);
+    long classIdTwo = getClassIdOf(coverageFileTwo, className);
+    long classIdThree = getClassIdOf(coverageFileThree, className);
+
+    // We should generate the same class ID for the same class.
+    Assert.assertEquals("Expected same class IDs", classIdOne, classIdTwo);
+
+    // We should generate different class IDs when they are different (after shrinking here).
+    assertNotEquals("Expected different class IDs", classIdOne, classIdThree);
+  }
+
+  private static void assertNotEquals(@Nonnull String msg, long expected, long actual) {
+    if (expected == actual) {
+      StringBuilder stringBuilder = new StringBuilder(msg);
+      stringBuilder.append(": expected=");
+      stringBuilder.append(Long.toHexString(expected));
+      stringBuilder.append(", actual=");
+      stringBuilder.append(Long.toHexString(actual));
+      Assert.fail(stringBuilder.toString());
+    }
+  }
+
+  private static long getClassIdOf(@Nonnull File coverageFile, @Nonnull String className)
+      throws IOException {
+    JsonArray classesArray = loadJsonCoverageClasses(coverageFile);
+    for (int i = 0, e = classesArray.size(); i < e; ++i) {
+      JsonObject classObject = classesArray.get(i).getAsJsonObject();
+      String jsonClassName = classObject.get("name").getAsString();
+      if (className.equals(jsonClassName)) {
+        long id = classObject.get("id").getAsLong();
+        return id;
+      }
+    }
+    throw new AssertionError("No class " + className + " in coverage file");
+  }
+
   @Nonnull
   private static JsonObject getJsonClass(
       @Nonnull JsonArray jsonClasses, @Nonnull String className) {

@@ -1,0 +1,4 @@
+-keep public class com.android.jack.coverage.test005.jack.SrcClass {
+  public static void callLibMethod();
+}
+-dontobfuscate
