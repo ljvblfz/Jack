@@ -211,6 +211,46 @@ public class CoverageTests {
     Assert.assertEquals(0, classes.size());
   }
 
+  @Test
+  public void testPreDex() throws Exception {
+    String testPackageName = getTestPackageName("test004");
+
+    // 1 - Create a lib.
+    JackBasedToolchain toolchain = createJackToolchain();
+    File libDir = AbstractTestTools.createTempDir();
+    File libSrcFiles = new File(AbstractTestTools.getTestRootDir(testPackageName), "lib");
+    toolchain.srcToLib(libDir, false, libSrcFiles);
+
+    // 2 - Compile the lib with coverage.
+    toolchain = createJackToolchain();
+    toolchain.addStaticLibs(libDir);
+    File coverageMetadataFile = createTempCoverageMetadataFile();
+    enableCodeCoverage(toolchain, coverageMetadataFile, null, null);
+    File srcFiles = new File(AbstractTestTools.getTestRootDir(testPackageName), "src");
+    File outDexFolder = AbstractTestTools.createTempDir();
+    toolchain.srcToExe(outDexFolder, false, srcFiles);
+
+    // 3 - Check types from the lib are instrumented.
+    JsonArray classes = loadJsonCoverageClasses(coverageMetadataFile);
+    JsonObject testClass =
+        getJsonClass(classes, getClassNameForJson(testPackageName + ".lib.LibClass"));
+    JsonArray probesArray = testClass.get("probes").getAsJsonArray();
+    Assert.assertNotNull(probesArray);
+    Assert.assertTrue(probesArray.size() > 0);
+  }
+
+  @Nonnull
+  private static JsonObject getJsonClass(
+      @Nonnull JsonArray jsonClasses, @Nonnull String className) {
+    for (JsonElement jsonElement : jsonClasses) {
+      JsonObject jsonClass = jsonElement.getAsJsonObject();
+      if (jsonClass.get("name").getAsString().equals(className)) {
+        return jsonClass;
+      }
+    }
+    throw new AssertionError("No class " + className);
+  }
+
   @Nonnull
   private static String getClassNameForJson(@Nonnull String className) {
     return NamingTools.getBinaryName(className);
@@ -226,25 +266,18 @@ public class CoverageTests {
   }
 
   @Nonnull
-  private JsonArray compileAndReadJson(@Nonnull String testPackageName)
-      throws CannotCreateFileException, CannotChangePermissionException, WrongPermissionException,
-          IOException, Exception {
-    return compileAndReadJson(testPackageName, null, null);
-  }
-
-  @Nonnull
-  private JsonArray compileAndReadJson(
-      @Nonnull String testPackageName,
-      @CheckForNull String includeFilter,
-      @CheckForNull String excludeFilter)
-      throws CannotCreateFileException, CannotChangePermissionException, WrongPermissionException,
-          IOException, Exception {
-    File outDexFolder = AbstractTestTools.createTempDir();
-    File coverageMetadataFile = AbstractTestTools.createTempFile("coverage", ".metadata");
+  private static JackBasedToolchain createJackToolchain() {
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
+    return toolchain;
+  }
 
-    // Setup toolchain for code coverage.
+  private static void enableCodeCoverage(
+      @Nonnull JackBasedToolchain toolchain,
+      @Nonnull File coverageMetadataFile,
+      @Nonnull String includeFilter,
+      @Nonnull String excludeFilter) {
     toolchain.addProperty(CodeCoverage.CODE_COVERVAGE.getName(), "true");
     toolchain.addProperty(
         CodeCoverage.COVERAGE_METADATA_FILE.getName(), coverageMetadataFile.getAbsolutePath());
@@ -256,13 +289,56 @@ public class CoverageTests {
     if (excludeFilter != null) {
       toolchain.addProperty(CodeCoverage.COVERAGE_JACOCO_EXCLUDES.getName(), excludeFilter);
     }
+    toolchain.addToClasspath(getJacocoAgentLib());
+  }
+
+  @Nonnull
+  private JsonArray compileAndReadJson(@Nonnull String testPackageName)
+      throws CannotCreateFileException, CannotChangePermissionException, WrongPermissionException,
+          IOException, Exception {
+    return compileAndReadJson(testPackageName, null, null);
+  }
+
+  @Nonnull
+  private static File createTempCoverageMetadataFile()
+      throws CannotCreateFileException, CannotChangePermissionException {
+    return AbstractTestTools.createTempFile("coverage", ".metadata");
+  }
+
+  private File compileDexWithCoverage(@Nonnull File[] sourceFiles,
+      @CheckForNull String includeFilter,
+      @CheckForNull String excludeFilter,
+      @Nonnull File[] staticLibs) throws Exception {
+    File outDexFolder = AbstractTestTools.createTempDir();
+    File coverageMetadataFile = createTempCoverageMetadataFile();
+    JackBasedToolchain toolchain = createJackToolchain();
+    enableCodeCoverage(toolchain, coverageMetadataFile, includeFilter, excludeFilter);
 
     // Setup classpath.
-    toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
-    toolchain.addToClasspath(getJacocoAgentLib());
+    toolchain.addStaticLibs(staticLibs);
 
-    toolchain.srcToExe(outDexFolder, false, AbstractTestTools.getTestRootDir(testPackageName));
+    toolchain.srcToExe(outDexFolder, false, sourceFiles);
 
+    return coverageMetadataFile;
+  }
+
+  @Nonnull
+  private JsonArray compileAndReadJson(
+      @Nonnull String testPackageName,
+      @CheckForNull String includeFilter,
+      @CheckForNull String excludeFilter)
+      throws CannotCreateFileException, CannotChangePermissionException, WrongPermissionException,
+          IOException, Exception {
+    File sourceDir = AbstractTestTools.getTestRootDir(testPackageName);
+    File coverageMetadataFile = compileDexWithCoverage(new File[]{sourceDir},
+        includeFilter, excludeFilter, new File[0]);
+
+    return loadJsonCoverageClasses(coverageMetadataFile);
+  }
+
+  @Nonnull
+  private static JsonArray loadJsonCoverageClasses(@Nonnull File coverageMetadataFile)
+      throws IOException {
     Assert.assertTrue(coverageMetadataFile.length() > 0);
 
     JsonObject root = loadJson(coverageMetadataFile).getAsJsonObject();
