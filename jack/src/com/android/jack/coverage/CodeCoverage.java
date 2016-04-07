@@ -17,6 +17,7 @@
 package com.android.jack.coverage;
 
 import com.android.jack.library.DumpInLibrary;
+import com.android.jack.library.PrebuiltCompatibility;
 import com.android.sched.item.Description;
 import com.android.sched.item.Feature;
 import com.android.sched.util.codec.WriterFileCodec;
@@ -40,7 +41,9 @@ public class CodeCoverage implements Feature {
   @Nonnull
   public static final BooleanPropertyId CODE_COVERVAGE = BooleanPropertyId
       .create("jack.coverage", "Enable code coverage")
-      .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
+      .addDefaultValue(Boolean.FALSE)
+      .addCategory(DumpInLibrary.class)
+      .addCategory(PrebuiltCompatibility.class);
 
   @Nonnull
   public static final WriterFilePropertyId COVERAGE_METADATA_FILE = WriterFilePropertyId
@@ -56,7 +59,8 @@ public class CodeCoverage implements Feature {
               "The name of the JaCoCo package containing the classes that manage instrumentation.",
               new JacocoPackage.Codec())
           .requiredIf(CODE_COVERVAGE.getValue().isTrue())
-          .addDefaultValue(new JacocoPackage(""));
+          .addDefaultValue(new JacocoPackage(""))
+          .addCategory(PrebuiltCompatibility.class);
 
   @Nonnull
   public static final PropertyId<CoverageFilterSet> COVERAGE_JACOCO_INCLUDES =
@@ -67,7 +71,8 @@ public class CodeCoverage implements Feature {
               new CoverageFilterSetCodec())
           .addDefaultValue(new CoverageFilterSet())
           .requiredIf(CODE_COVERVAGE.getValue().isTrue())
-          .addCategory(DumpInLibrary.class);
+          .addCategory(DumpInLibrary.class)
+          .addCategory(PrebuiltCompatibility.class);
 
   @Nonnull
   public static final PropertyId<CoverageFilterSet> COVERAGE_JACOCO_EXCLUDES =
@@ -78,6 +83,7 @@ public class CodeCoverage implements Feature {
               new CoverageFilterSetCodec())
           .addDefaultValue(new CoverageFilterSet())
           .requiredIf(CODE_COVERVAGE.getValue().isTrue())
-          .addCategory(DumpInLibrary.class);
+          .addCategory(DumpInLibrary.class)
+          .addCategory(PrebuiltCompatibility.class);
 }
 
