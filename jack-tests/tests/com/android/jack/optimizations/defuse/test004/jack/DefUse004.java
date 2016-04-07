@@ -14,42 +14,16 @@
  * limitations under the License.
  */
 
-package com.android.jack.optimizations.defuse.test001.jack;
+package com.android.jack.optimizations.defuse.test004.jack;
 
-class C {
-}
+public class DefUse004 {
 
-class A {
-  static A mA(A a) {
-    return null;
-  }
-}
+  public static int get(boolean isA, boolean isB) {
+    int a = isA ? 1 : 2;
+    int c = 0;
+    int b = isB ? a : c;
 
-class D {
-  private String s;
-  D mD(String s, C c) {
-    this.s = s;
-    return this;
-  }
-  long size() {
-    return s.length();
-  }
-}
-
-public class DefUse001 {
-
-  static C staticField = null;
-
-  public static B create(A a, long l, D b) {
-    return new B(l);
+    return b;
   }
 
-  public static B create(A a, String s) {
-    C c = staticField;
-    if (a != null) {
-       a = A.mA(a);
-    }
-    D d = new D().mD(s, c);
-    return create(a, d.size(), d);
-  }
 }
