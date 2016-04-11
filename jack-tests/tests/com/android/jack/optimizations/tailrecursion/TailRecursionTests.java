@@ -17,14 +17,12 @@
 package com.android.jack.optimizations.tailrecursion;
 
 import com.android.jack.Options;
-import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 public class TailRecursionTests extends RuntimeTest {
 
@@ -39,13 +37,11 @@ public class TailRecursionTests extends RuntimeTest {
   }
 
   @Test
-  @Category(RuntimeRegressionTest.class)
   public void test001() throws Exception {
     createHelper(TEST001).compileAndRunTest();
   }
 
   @Override
   protected void fillRtTestInfos() {
-    rtTestInfos.add(TEST001);
   }
 }

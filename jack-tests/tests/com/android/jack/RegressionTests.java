@@ -41,7 +41,10 @@ import com.android.jack.newarray.NewarrayTests;
 import com.android.jack.opcodes.OpcodesTests;
 import com.android.jack.optimizations.exprsimplifier.ExprsimplifierTests;
 import com.android.jack.optimizations.notsimplifier.NotsimplifierTests;
+import com.android.jack.optimizations.tailrecursion.TailRecursionTests;
+import com.android.jack.optimizations.usedef.UseDefTests;
 import com.android.jack.order.OrderTests;
+import com.android.jack.reflect.ReflectTests;
 import com.android.jack.returnstatement.ReturnstatementTests;
 import com.android.jack.shrob.ShrobRuntimeTests;
 import com.android.jack.string.StringTests;
@@ -54,7 +57,6 @@ import com.android.jack.threeaddress.ThreeaddressTests;
 import com.android.jack.throwstatement.ThrowstatementTests;
 import com.android.jack.trycatch.TrycatchTests;
 import com.android.jack.tryfinally.TryfinallyTests;
-import com.android.jack.type.TypeTests;
 import com.android.jack.unary.UnaryTests;
 import com.android.jack.verify.VerifyTests;
 
@@ -92,16 +94,19 @@ public class RegressionTests {
       new NotsimplifierTests(),
       new OpcodesTests(),
       new OrderTests(),
+      new ReflectTests(),
       new ReturnstatementTests(),
       new ShrobRuntimeTests(),
       new StringTests(),
       new SwitchstatementTests(),
       new SynchronizeTests(),
+      new TailRecursionTests(),
       new ThreeaddressTests(),
       new ThrowstatementTests(),
       new TrycatchTests(),
       new TryfinallyTests(),
       new UnaryTests(),
+      new UseDefTests(),
       new VerifyTests(),
   };
 
