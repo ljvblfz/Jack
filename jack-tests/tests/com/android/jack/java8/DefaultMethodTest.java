@@ -174,6 +174,11 @@ public class DefaultMethodTest {
           AbstractTestTools.getTestRootDir("com.android.jack.java8.defaultmethod.test018"),
           "com.android.jack.java8.defaultmethod.test018.jack.Tests");
 
+  private RuntimeTestInfo DEFAULTMETHOD019 =
+      new RuntimeTestInfo(
+          AbstractTestTools.getTestRootDir("com.android.jack.java8.defaultmethod.test019"),
+          "com.android.jack.java8.defaultmethod.test019.jack.Tests");
+
   @Test
   public void testDefaultMethod001() throws Exception {
     run(DEFAULTMETHOD001);
@@ -402,6 +407,12 @@ public class DefaultMethodTest {
   @Test
   public void testDefaultMethod018() throws Exception {
     run(DEFAULTMETHOD018);
+  }
+
+  @Test
+  @KnownIssue
+  public void testDefaultMethod019() throws Exception {
+    run(DEFAULTMETHOD019);
   }
 
   private void run(@Nonnull RuntimeTestInfo rti) throws Exception {
