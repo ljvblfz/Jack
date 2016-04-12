@@ -419,8 +419,11 @@ public class LambdaTest {
     run(LAMBDA036);
   }
 
+  /**
+   * Test that warnings are printed when compiling a Serializable lambda directly to a dex.
+   */
   @Test
-  public void testLamba037() throws Exception {
+  public void testLamba037Direct() throws Exception {
     List<Class<? extends IToolchain>> excludedToolchains =
         new ArrayList<Class<? extends IToolchain>>();
     excludedToolchains.add(JillBasedToolchain.class);
@@ -442,6 +445,106 @@ public class LambdaTest {
     Assert.assertTrue(errString.contains("Tests.java:34: Serializable lambda is not supported"));
     Assert.assertTrue(errString.contains("Tests.java:43: Serializable lambda is not supported"));
     Assert.assertTrue(errString.contains("Tests.java:55: Serializable lambda is not supported"));
+  }
+
+  /**
+   * Test that warnings are NOT printed when compiling a Serializable lambda directly to a Jack
+   * library but are printed when compiling the library to a dex.
+   */
+  @Test
+  public void testLamba037ThroughLib() throws Exception {
+    List<Class<? extends IToolchain>> excludedToolchains =
+        new ArrayList<Class<? extends IToolchain>>();
+    excludedToolchains.add(JillBasedToolchain.class);
+    excludedToolchains.add(JackApiV01.class);
+
+    File lib = AbstractTestTools.createTempFile("lib", ".jack");
+
+    // src to lib
+    {
+      JackBasedToolchain toolchain =
+          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
+      ByteArrayOutputStream err = new ByteArrayOutputStream();
+      toolchain.setErrorStream(err);
+      toolchain.setSourceLevel(SourceLevel.JAVA_8);
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath()).srcToLib(lib,
+          /* zipFile = */ true,
+          AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test037.jack"));
+      String errString = err.toString();
+      Assert.assertTrue(errString.isEmpty());
+    }
+
+    // lib to dex
+    {
+      JackBasedToolchain toolchain =
+          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
+      ByteArrayOutputStream err = new ByteArrayOutputStream();
+      toolchain.setErrorStream(err);
+      toolchain.setSourceLevel(SourceLevel.JAVA_8);
+      toolchain.addProperty(Options.ANDROID_MIN_API_LEVEL.getName(),
+          String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL));
+
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+          .libToExe(lib, AbstractTestTools.createTempDir(), /* zipFile = */ false);
+      String errString = err.toString();
+      Assert.assertTrue(errString.contains("Tests.java:34: Serializable lambda is not supported"));
+      Assert.assertTrue(errString.contains("Tests.java:43: Serializable lambda is not supported"));
+      Assert.assertTrue(errString.contains("Tests.java:55: Serializable lambda is not supported"));
+    }
+  }
+
+  /**
+   * Test that warnings are printed when compiling a Serializable lambda directly to a Jack
+   * library with checks manually enabled, as well as when compiling the library to a dex.
+   */
+  @Test
+  public void testLamba037ThroughLibPlusCheck() throws Exception {
+    List<Class<? extends IToolchain>> excludedToolchains =
+        new ArrayList<Class<? extends IToolchain>>();
+    excludedToolchains.add(JillBasedToolchain.class);
+    excludedToolchains.add(JackApiV01.class);
+
+    File lib = AbstractTestTools.createTempFile("lib", ".jack");
+
+    // src to lib
+    {
+      JackBasedToolchain toolchain =
+          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
+      ByteArrayOutputStream err = new ByteArrayOutputStream();
+      toolchain.setErrorStream(err);
+      toolchain.setSourceLevel(SourceLevel.JAVA_8);
+      toolchain.addProperty(Options.ANDROID_MIN_API_LEVEL.getName(),
+          String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL));
+      // we need to enable the compatibility check manually since we haven't specified an Android
+      // API level or a dex output
+      toolchain.addProperty(AndroidCompatibilityChecker.CHECK_COMPATIBILITY.getName(), "true");
+
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath()).srcToLib(lib,
+          /* zipFile = */ true,
+          AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test037.jack"));
+      String errString = err.toString();
+      Assert.assertTrue(errString.contains("Tests.java:34: Serializable lambda is not supported"));
+      Assert.assertTrue(errString.contains("Tests.java:43: Serializable lambda is not supported"));
+      Assert.assertTrue(errString.contains("Tests.java:55: Serializable lambda is not supported"));
+    }
+
+    // lib to dex
+    {
+      JackBasedToolchain toolchain =
+          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
+      ByteArrayOutputStream err = new ByteArrayOutputStream();
+      toolchain.setErrorStream(err);
+      toolchain.setSourceLevel(SourceLevel.JAVA_8);
+      toolchain.addProperty(Options.ANDROID_MIN_API_LEVEL.getName(),
+          String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL));
+
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+          .libToExe(lib, AbstractTestTools.createTempDir(), /* zipFile = */ false);
+      String errString = err.toString();
+      Assert.assertTrue(errString.contains("Tests.java:34: Serializable lambda is not supported"));
+      Assert.assertTrue(errString.contains("Tests.java:43: Serializable lambda is not supported"));
+      Assert.assertTrue(errString.contains("Tests.java:55: Serializable lambda is not supported"));
+    }
   }
 
   private void run(@Nonnull RuntimeTestInfo rti) throws Exception {

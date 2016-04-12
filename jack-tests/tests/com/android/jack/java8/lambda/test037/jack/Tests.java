@@ -46,12 +46,12 @@ public class Tests {
   interface I3 extends Serializable {
   }
 
-  interface I2 {
+  interface I2 extends I3 {
     int getLength();
   }
 
   @Test
   public void test003() {
-    I1 i = () -> 10;
+    I2 i = () -> 10;
   }
 }
