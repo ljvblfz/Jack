@@ -36,7 +36,7 @@ import javax.annotation.Nonnull;
 public class UnaryTest {
 
   @Test
-  public void testCompile5() throws Exception {
+  public void testCompile5_getValue1() throws Exception {
     String classBinaryName = "com/android/jack/unary/test005/jack/UnaryNot";
     String methodSignature = "getValue1(II)I";
 
@@ -51,16 +51,23 @@ public class UnaryTest {
     CountIfStatement cis = new CountIfStatement();
     cis.accept(m);
     Assert.assertEquals(1, cis.countIf);
+  }
 
+  @Test
+  public void testCompile5_getValue2() throws Exception {
+    String classBinaryName = "com/android/jack/unary/test005/jack/UnaryNot";
+    String methodSignature = "getValue2(IIII)I";
+
+    Map<String, String> additionalProperty = new HashMap<String, String>();
+    additionalProperty.put(Optimizations.NotSimplifier.ENABLE.getName(), "true");
     additionalProperty.put(Optimizations.DefUseSimplifier.ENABLE.getName(), "true");
     additionalProperty.put(Optimizations.IfSimplifier.ENABLE.getName(), "true");
-    methodSignature = "getValue2(IIII)I";
-    m =
+    JMethod m =
         TestTools.getJMethodWithSignatureFilter(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
             + classBinaryName + ";", methodSignature, additionalProperty);
 
     Assert.assertNotNull(m);
-    cis = new CountIfStatement();
+    CountIfStatement cis = new CountIfStatement();
     cis.accept(m);
     Assert.assertEquals(2, cis.countIf);
 
