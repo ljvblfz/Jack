@@ -34,7 +34,10 @@ import javax.annotation.Nonnull;
 public class JLambda extends JExpression {
 
   @Nonnull
-  private JMethodId mthIdToImplement;
+  private JMethodId mthIdWithErasure;
+
+  @Nonnull
+  private final JMethodId mthIdWithoutErasure;
 
   @Nonnull
   private final JInterface type;
@@ -42,34 +45,36 @@ public class JLambda extends JExpression {
   @Nonnull
   private final List<JInterface> interfaceBounds;
 
-  private boolean captureInstance;
+  @Nonnull
+  private final List<JExpression> capturedVariables = new ArrayList<JExpression>(0);
 
   @Nonnull
-  private final List<JVariableRef> capturedVariablesRef = new ArrayList<JVariableRef>(0);
-
-  // TODO(jack-team): JMethod must be replace by a JCallable
-  @Nonnull
-  private final JMethod method;
+  private final JMethodIdRef methodIdRef;
 
   @Nonnull
   private final List<JMethodId> bridges = new ArrayList<JMethodId>();
 
-  public JLambda(@Nonnull SourceInfo info, @Nonnull JMethodId mthToImplement,
-      @Nonnull JMethod method, @Nonnull JInterface type, boolean captureInstance,
-      @Nonnull List<JInterface> interfaceBounds) {
+  public JLambda(@Nonnull SourceInfo info, @Nonnull JMethodId mthIdWithErasure,
+      @Nonnull JMethodIdRef methodRef, @Nonnull JInterface type,
+      @Nonnull List<JInterface> interfaceBounds, @Nonnull JMethodId mthIdWithoutErasure) {
     super(info);
-    assert method != null;
+    assert methodRef != null;
     assert type != null;
-    this.mthIdToImplement = mthToImplement;
+    this.mthIdWithErasure = mthIdWithErasure;
     this.type = type;
-    this.method = method;
-    this.captureInstance = captureInstance;
+    this.methodIdRef = methodRef;
     this.interfaceBounds = interfaceBounds;
+    this.mthIdWithoutErasure = mthIdWithoutErasure;
   }
 
   @Nonnull
-  public JMethodId getMethodIdToImplement() {
-    return mthIdToImplement;
+  public JMethodId getMethodIdWithErasure() {
+    return mthIdWithErasure;
+  }
+
+  @Nonnull
+  public JMethodId getMethodIdWithoutErasure() {
+    return mthIdWithoutErasure;
   }
 
   @Nonnull
@@ -85,24 +90,19 @@ public class JLambda extends JExpression {
     this.bridges.addAll(bridgeMethodIds);
   }
 
-  public void addCapturedVariable(@Nonnull JVariableRef capturedVariableRef) {
-    capturedVariablesRef.add(capturedVariableRef);
+  public void addCapturedVariable(@Nonnull JExpression capturedVariable) {
+    capturedVariables.add(capturedVariable);
   }
 
   @Override
   public void traverse(@Nonnull JVisitor visitor) {
-    if (visitor.visit(this)) {
-      visitor.accept(capturedVariablesRef);
-    }
+    visitor.visit(this);
     visitor.endVisit(this);
   }
 
   @Override
   public void traverse(@Nonnull ScheduleInstance<? super Component> schedule) throws Exception {
     schedule.process(this);
-    JMethodBody body = (JMethodBody) method.getBody();
-    assert body != null;
-    body.traverse(schedule);
   }
 
   @Override
@@ -117,34 +117,13 @@ public class JLambda extends JExpression {
   }
 
   @Nonnull
-  public JMethodBody getBody() {
-    JMethodBody body = (JMethodBody) method.getBody();
-    assert body != null;
-    return body;
+  public JMethodIdRef getMethodIdRef() {
+    return methodIdRef;
   }
 
   @Nonnull
-  public List<JParameter> getParameters() {
-    return method.getParams();
-  }
-
-  @Deprecated
-  @Nonnull
-  public JMethod getMethod() {
-    return method;
-  }
-
-  @Nonnull
-  public List<JVariableRef> getCapturedVariables() {
-    return capturedVariablesRef;
-  }
-
-  public void setCaptureInstance(boolean captureInstance) {
-    this.captureInstance = captureInstance;
-  }
-
-  public boolean needToCaptureInstance() {
-    return captureInstance;
+  public List<JExpression> getCapturedVariables() {
+    return capturedVariables;
   }
 
   @Override
@@ -158,17 +137,6 @@ public class JLambda extends JExpression {
   }
 
   public void resolveMethodId(@Nonnull JMethodId methodId) {
-    this.mthIdToImplement = methodId;
-  }
-
-  @Override
-  protected void replaceImpl(@Nonnull JNode existingNode, @Nonnull JNode newNode)
-      throws UnsupportedOperationException {
-    int nodeIdx = capturedVariablesRef.indexOf(existingNode);
-    if (nodeIdx != -1) {
-      capturedVariablesRef.set(nodeIdx, (JLocalRef) newNode);
-    } else {
-      super.replaceImpl(existingNode, newNode);
-    }
+    this.mthIdWithErasure = methodId;
   }
 }

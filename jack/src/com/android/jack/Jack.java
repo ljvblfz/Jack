@@ -132,7 +132,6 @@ import com.android.jack.scheduling.adapter.ExcludeTypeFromLibWithBinaryAdapter;
 import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdapter;
 import com.android.jack.scheduling.adapter.JFieldAdapter;
 import com.android.jack.scheduling.adapter.JMethodAdapter;
-import com.android.jack.scheduling.adapter.JMethodOnlyAdapter;
 import com.android.jack.scheduling.adapter.JPackageAdapter;
 import com.android.jack.scheduling.feature.CompiledTypeStats;
 import com.android.jack.scheduling.feature.DropMethodBody;
@@ -978,7 +977,7 @@ public abstract class Jack {
             planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
         typePlan.append(TypeShrinker.class);
         {
-          SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodOnlyAdapter.class);
+          SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
           methodPlan.append(MethodShrinker.class);
         }
         {
@@ -1258,7 +1257,7 @@ public abstract class Jack {
       {
         SubPlanBuilder<JDefinedClassOrInterface> typePlan =
             planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
-        SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodOnlyAdapter.class);
+        SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
         methodPlan.append(BridgeInInterfaceRemover.class);
       }
 
@@ -1273,31 +1272,11 @@ public abstract class Jack {
     }
 
     if (features.contains(LambdaToAnonymousConverter.class)) {
-      {
-        SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-            planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
-        SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodOnlyAdapter.class);
-        methodPlan.append(LambdaConverter.class);
-      }
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+          planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
+      SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
+      methodPlan.append(LambdaConverter.class);
     }
-      {
-        SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-            planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
-        if (features.contains(AvoidSynthethicAccessors.class)) {
-          typePlan.append(OptimizedInnerAccessorGenerator.class);
-        } else {
-          typePlan.append(InnerAccessorGenerator.class);
-        }
-      }
-      planBuilder.append(InnerAccessorSchedulingSeparator.class);
-      {
-        SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-            planBuilder.appendSubPlan(ExcludeTypeFromLibWithBinaryAdapter.class);
-        if (features.contains(AvoidSynthethicAccessors.class)) {
-          typePlan.append(ReferencedOuterFieldsExposer.class);
-        }
-        typePlan.append(InnerAccessorAdder.class);
-      }
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =

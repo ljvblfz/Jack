@@ -16,6 +16,8 @@
 
 package com.android.jack.ir.ast;
 
+import javax.annotation.Nonnull;
+
 /**
  * Modifiers.
  */
@@ -49,6 +51,8 @@ public class JModifier {
   //Jack does not longer support ANONYMOUS_TYPE modifier, nevertheless old libraries can have it
   @Deprecated
   public static final int ANONYMOUS_TYPE        = 0x40000;
+  public static final int CAPTURED_VARIABLE     = 0x80000;
+  public static final int LAMBDA_METHOD         = 0x200000;
 
   private static final int TYPE_MODIFIER_MASK = PUBLIC | PROTECTED | PRIVATE | STATIC | FINAL
       | ENUM | SYNTHETIC | ABSTRACT | INTERFACE | ANNOTATION | SUPER | STRICTFP | DEPRECATED;
@@ -58,9 +62,9 @@ public class JModifier {
 
   private static final int METHOD_MODIFIER_MASK = PUBLIC | PROTECTED | PRIVATE | STATIC | NATIVE
       | ABSTRACT | FINAL | SYNCHRONIZED | BRIDGE | SYNTHETIC | STRICTFP | VARARGS | STATIC_INIT
-      | DEPRECATED;
+      | DEPRECATED | LAMBDA_METHOD;
 
-  private static final int LOCAL_MODIFIER_MASK = FINAL | SYNTHETIC;
+  private static final int LOCAL_MODIFIER_MASK = FINAL | SYNTHETIC | CAPTURED_VARIABLE;
 
   public static boolean isPublic(int modifier) {
     return ((modifier & PUBLIC) == PUBLIC);
@@ -120,6 +124,14 @@ public class JModifier {
 
   public static boolean isSynthetic(int modifier) {
     return ((modifier & SYNTHETIC) == SYNTHETIC);
+  }
+
+  public static boolean isCapturedVariable(int modifier) {
+    return ((modifier & CAPTURED_VARIABLE) == CAPTURED_VARIABLE);
+  }
+
+  public static boolean isLambdaMethod(int modifier) {
+    return ((modifier & LAMBDA_METHOD) == LAMBDA_METHOD);
   }
 
   public static boolean isAnnotation(int modifier) {
@@ -358,6 +370,20 @@ public class JModifier {
     }
     if (isSynchronized(modifier)) {
       modifierStrBuilder.append("synchronized ");
+    }
+
+    return modifierStrBuilder.toString();
+  }
+
+  @Nonnull
+  public static String getStringVariableModifier(int modifier) {
+    assert isLocalModifier(modifier);
+
+    StringBuilder modifierStrBuilder = new StringBuilder();
+    getStringModifierCommon(modifier, modifierStrBuilder);
+
+    if (isCapturedVariable(modifier)) {
+      modifierStrBuilder.append("captured ");
     }
 
     return modifierStrBuilder.toString();

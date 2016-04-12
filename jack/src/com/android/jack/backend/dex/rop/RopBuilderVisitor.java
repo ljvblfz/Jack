@@ -40,7 +40,6 @@ import com.android.jack.dx.rop.cst.CstInteger;
 import com.android.jack.dx.rop.cst.CstKnownNull;
 import com.android.jack.dx.rop.cst.CstLong;
 import com.android.jack.dx.rop.cst.CstMethodRef;
-import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Prototype;
 import com.android.jack.dx.rop.type.StdTypeList;
@@ -223,32 +222,7 @@ class RopBuilderVisitor extends JVisitor {
 
     @Override
     public boolean visit(@Nonnull JLambda lambda) {
-      SourcePosition lambdaSrcPos = RopHelper.getSourcePosition(lambda);
-
-      CstMethodRef methodRef =
-          RopHelper.createMethodRef(lambda.getMethod().getEnclosingType(), lambda.getMethod());
-
-      if (lambda.needToCaptureInstance()) {
-        RegisterSpecList sources = RegisterSpecList.make(ropReg.getThisReg());
-        addInstruction(new PlainCstInsn(Rops.opCaptureVariable(sources), lambdaSrcPos, null,
-            sources, new CstString(ropReg.getThisReg().getType().getDescriptor())));
-      }
-
-      for (JVariableRef capturedVarRef : lambda.getCapturedVariables()) {
-        RegisterSpecList sources = RegisterSpecList.make(ropReg.getRegisterSpec(capturedVarRef));
-        addInstruction(new PlainCstInsn(Rops.opCaptureVariable(sources), lambdaSrcPos, null,
-            sources, new CstString(
-                RopHelper.convertTypeToDx(capturedVarRef.getTarget().getType()).getDescriptor())));
-      }
-
-      Insn callInst = new ThrowingCstInsn(Rops.opCreateLambda(), lambdaSrcPos,
-          RegisterSpecList.EMPTY, getCatchTypes(), methodRef);
-
-      addInstruction(callInst);
-
-      addMoveResultPseudoAsExtraInstruction(destReg, lambdaSrcPos);
-
-      return false;
+      throw new AssertionError();
     }
 
     @Override
@@ -1307,5 +1281,4 @@ class RopBuilderVisitor extends JVisitor {
   public void endVisit(@Nonnull JStatement x) {
     ropReg.resetFreeTmpRegister();
   }
-
 }

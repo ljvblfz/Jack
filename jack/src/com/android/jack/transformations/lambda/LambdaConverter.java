@@ -18,7 +18,6 @@ package com.android.jack.transformations.lambda;
 
 import com.android.jack.Jack;
 import com.android.jack.ir.ast.JAsgOperation;
-import com.android.jack.ir.ast.JBinaryOperator;
 import com.android.jack.ir.ast.JBlock;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JConstructor;
@@ -37,6 +36,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdRef;
 import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JNewInstance;
@@ -44,11 +44,9 @@ import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JParameterRef;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JReturnStatement;
-import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JThis;
 import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JType;
-import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
@@ -61,7 +59,6 @@ import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JLookup;
 import com.android.jack.transformations.request.AppendField;
 import com.android.jack.transformations.request.AppendMethod;
-import com.android.jack.transformations.request.PrependStatement;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.NamingTools;
@@ -76,7 +73,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
@@ -99,62 +95,14 @@ import javax.annotation.Nonnull;
 @Synchronized
 public class LambdaConverter implements RunnableSchedulable<JMethod> {
 
-  /**
-   * LambdaCtx keeps the following mappings:
-   * - mappings between captured variables and theirs corresponding fields
-   * - mappings between lambda parameters and theirs corresponding locals
-   * and it also keeps JThis of the method implementing the lambda.
-   */
-  private static class LambdaCtx {
-    @Nonnull
-    private final Map<JParameter, JLocal> lambdaParam2Local = new HashMap<JParameter, JLocal>();
-
-    @Nonnull
-    private final Map<JVariable, JField> capturedVar2Field = new HashMap<JVariable, JField>();
-
-    @Nonnull
-    private final JThis thisOfLambdaImpl;
-
-    public LambdaCtx(@Nonnull JThis thisOfLambdaImpl) {
-      this.thisOfLambdaImpl = thisOfLambdaImpl;
-    }
-
-    public void addLambdaParam2LocalMapping(@Nonnull JParameter oldParam,
-        @Nonnull JLocal newLocal) {
-      assert !lambdaParam2Local.containsKey(oldParam);
-      lambdaParam2Local.put(oldParam, newLocal);
-    }
-
-    @CheckForNull
-    public JLocalRef getLambdaParameter(@Nonnull JParameter oldParam) {
-      JLocal local = lambdaParam2Local.get(oldParam);
-      if (local != null) {
-        return local.makeRef(SourceInfo.UNKNOWN);
-      }
-      return null;
-    }
-
-    public void addVar2FieldMapping(@Nonnull JVariable capturedVar, @Nonnull JField field) {
-      assert !capturedVar2Field.containsKey(capturedVar);
-      capturedVar2Field.put(capturedVar, field);
-    }
-
-    @CheckForNull
-    public JFieldRef getCapturedVar(@Nonnull JVariable capturedVar) {
-      JField field = capturedVar2Field.get(capturedVar);
-      if (field != null) {
-        return (new JFieldRef(SourceInfo.UNKNOWN, thisOfLambdaImpl.makeRef(SourceInfo.UNKNOWN),
-            field.getId(), field.getEnclosingType()));
-      }
-
-      return null;
-    }
-  }
-
   @Nonnull
   private final JLookup lookup = Jack.getSession().getPhantomLookup();
 
   private class LambdaToAnonymousConverter extends JVisitor {
+
+    @Nonnull
+    private final Map<JExpression, JField> captureVar2InnerPath =
+        new HashMap<JExpression, JField>();
 
     @Nonnull
     private final TransformationRequest tr;
@@ -168,9 +116,6 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
     @Nonnull
     private final JMethodIdWide jloInitMethodId;
 
-    @Nonnull
-    private final Stack<LambdaCtx> lambdaCtxStack = new Stack<LambdaCtx>();
-
     @Nonnegative
     private int anonymousCountByMeth = 0;
 
@@ -179,12 +124,6 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
 
     @Nonnull
     private final JMethod currentMethod;
-
-    /**
-     * Save method representing lambda that are already transformed to reuse the same implementation
-     */
-    private final Map<JMethod, JConstructor> lambdaToLambaImplConst =
-        new HashMap<JMethod, JConstructor>();
 
     public LambdaToAnonymousConverter(@Nonnull TransformationRequest tr, @Nonnull JMethod method) {
       this.tr = tr;
@@ -199,175 +138,110 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
 
     @Override
     public boolean visit(@Nonnull JLambda lambdaExpr) {
-      LambdaCtx lambdaCtx = null;
-      JMethod lambdaMethod = lambdaExpr.getMethod();
-      JConstructor lambdaImplCons = lambdaToLambaImplConst.get(lambdaMethod);
-      JMethodBody lambdaBody = lambdaExpr.getBody();
+      JMethodIdRef mthIdRef = lambdaExpr.getMethodIdRef();
+      JMethod lambdaMethod = mthIdRef.getEnclosingType().getMethod(
+          mthIdRef.getMethodId().getMethodIdWide().getName(), mthIdRef.getMethodId().getType(),
+          mthIdRef.getMethodId().getMethodIdWide().getParamTypes());
 
-      JThis capturedInstance = null;
+      JDefinedClass lambdaInnerClass = createInnerClass(lambdaExpr);
 
-      if (lambdaExpr.needToCaptureInstance()) {
-        capturedInstance = currentMethod.getThis();
+      JMethodId mthIdWithErasure = lambdaExpr.getMethodIdWithErasure();
+      JMethod mthToImplement =
+          createMethod(lambdaInnerClass, mthIdWithErasure, /* isBridge= */ false);
+      JThis thisOfLambda = mthToImplement.getThis();
+      assert thisOfLambda != null;
+
+      for (JMethodId bridgeMthId : lambdaExpr.getBridgeMethodIds()) {
+        JMethod bridge =
+            createMethod(lambdaInnerClass, bridgeMthId, /* isBridge= */ true);
+        JThis thisOfBridge = bridge.getThis();
+        assert thisOfBridge != null;
+        delegateCall(bridge, mthToImplement, lambdaExpr.getMethodIdWithoutErasure(),
+            Collections.<JExpression>emptyList(),
+            thisOfBridge.makeRef(SourceInfo.UNKNOWN), lambdaInnerClass);
       }
 
-      if (lambdaImplCons == null) {
-        JDefinedClass lambdaImplClass = createLambdaImplClass(lambdaExpr);
+      // Build <init> method of class implementing lambda and fields for all captured variables.
+      // Generated code looks like
+      // public final synthetic class <current class name>$LambdaImpl<class counter> {
+      // private synthetic <captured variable type> val$<captured variable name>;
+      // ....
+      // public synthetic <current class name>$LambdaImpl<class counter>(<captured variable type>
+      // <captured variable name>, ...) {
+      // super.init();
+      // val$<captured variable name> = <captured variable name>;
+      // ...
+      // }
+      // }T
 
-        JMethodId mthIdToImplement = lambdaExpr.getMethodIdToImplement();
-        JMethod mthToImplement =
-            createMethod(lambdaImplClass, mthIdToImplement, /* isBridge= */ false);
-        JThis thisOfLambda = mthToImplement.getThis();
-        assert thisOfLambda != null;
-        lambdaCtx = new LambdaCtx(thisOfLambda);
+      JConstructor lambdaImplCons = new JConstructor(SourceInfo.UNKNOWN, lambdaInnerClass,
+          JModifier.PUBLIC | JModifier.SYNTHETIC);
 
-        // The body of the method to implement is the body of the lambda expression
-        mthToImplement.setBody(lambdaBody);
-        // Body is already transform, remove it
-        lambdaMethod.setBody(null);
-        JBlock blockOfBodytoImplement = lambdaBody.getBlock();
+      JBlock constructorBody = new JBlock(SourceInfo.UNKNOWN);
+      lambdaImplCons.setBody(new JMethodBody(SourceInfo.UNKNOWN, constructorBody));
 
-        // Move parameters of lambda body as local variables of mthToImplement
-        assert mthToImplement.getParams().size() == mthToImplement.getParams().size();
-        int pIdx = 0;
-        for (JParameter param : lambdaMethod.getParams()) {
-          JLocal local = new JLocal(param.getSourceInfo(), param.getName(), param.getType(),
-              param.getModifier(), lambdaBody);
-          lambdaBody.addLocal(local);
-          lambdaCtx.addLambdaParam2LocalMapping(param, local);
+      JThis thisOfConstructor = lambdaImplCons.getThis();
+      assert thisOfConstructor != null;
 
-          JStatement stmt = JAsgOperation
-          .create(SourceInfo.UNKNOWN, JBinaryOperator.ASG, local.makeRef(SourceInfo.UNKNOWN),
-              new JDynamicCastOperation(SourceInfo.UNKNOWN,
-                  mthToImplement.getParams().get(pIdx++).makeRef(SourceInfo.UNKNOWN),
-                  local.getType()))
-          .makeStatement();
+      constructorBody.addStmt(
+          new JMethodCall(SourceInfo.UNKNOWN, thisOfConstructor.makeRef(SourceInfo.UNKNOWN),
+              jlo, jloInitMethodId, JPrimitiveTypeEnum.VOID.getType(), false).makeStatement());
 
-          tr.append(new PrependStatement(blockOfBodytoImplement, stmt));
-        }
-
-        for (JMethodId bridgeMthIdWithReturnType : lambdaExpr.getBridgeMethodIds()) {
-          JMethod bridge =
-              createMethod(lambdaImplClass, bridgeMthIdWithReturnType, /* isBridge= */ true);
-          delegateImplementation(bridge, mthToImplement);
-        }
-
-        // Build <init> method of class implementing lambda and fields for all captured variables.
-        // Generated code looks like
-        // public final synthetic class <current class name>$LambdaImpl<class counter> {
-        // private synthetic <captured variable type> val$<captured variable name>;
-        // ....
-        // public synthetic <current class name>$LambdaImpl<class counter>(<captured variable type>
-        // <captured variable name>, ...) {
-        // super.init();
-        // val$<captured variable name> = <captured variable name>;
-        // ...
-        // }
-        // }T
-
-        lambdaImplCons = new JConstructor(SourceInfo.UNKNOWN, lambdaImplClass,
-            JModifier.PUBLIC | JModifier.SYNTHETIC);
-        lambdaToLambaImplConst.put(lambdaMethod, lambdaImplCons);
-
-        JBlock constructorBody = new JBlock(SourceInfo.UNKNOWN);
-        lambdaImplCons.setBody(new JMethodBody(SourceInfo.UNKNOWN, constructorBody));
-
-        JThis thisOfConstructor = lambdaImplCons.getThis();
-        assert thisOfConstructor != null;
-
-        constructorBody.addStmt(
-            new JMethodCall(SourceInfo.UNKNOWN, thisOfConstructor.makeRef(SourceInfo.UNKNOWN),
-                jlo, jloInitMethodId, JPrimitiveTypeEnum.VOID.getType(), false).makeStatement());
-
-        for (JVariableRef capturedVarRef : lambdaExpr.getCapturedVariables()) {
-          createFieldAndAssignment(lambdaCtx, lambdaImplCons, capturedVarRef.getTarget());
-        }
-
-        if (capturedInstance != null) {
-          createFieldAndAssignment(lambdaCtx, lambdaImplCons, capturedInstance);
-        }
-
-        constructorBody.addStmt(new JReturnStatement(SourceInfo.UNKNOWN, null));
-        tr.append(new AppendMethod(lambdaImplClass, lambdaImplCons));
+      for (JExpression capturedVar : lambdaExpr.getCapturedVariables()) {
+        createFieldAndAssignment(lambdaImplCons, capturedVar);
       }
 
-      assert lambdaImplCons != null;
+      delegateCall(mthToImplement, lambdaMethod, lambdaExpr.getMethodIdWithoutErasure(),
+          lambdaExpr.getCapturedVariables(), null, lambdaInnerClass);
+
+      tr.append(new AppendMethod(lambdaInnerClass, lambdaImplCons));
+      constructorBody.addStmt(new JReturnStatement(SourceInfo.UNKNOWN, null));
 
       // Replace a lambda expression by the following code:
       // new <current class name>$LambdaImpl<class counter>(value of captured variables,...)
       JNewInstance newAnnonymous = new JNewInstance(lambdaExpr.getSourceInfo(),
           lambdaImplCons.getEnclosingType(), lambdaImplCons.getMethodIdWide());
 
-      for (JVariableRef capturedVarRef : lambdaExpr.getCapturedVariables()) {
-        JVariable capturedVar = capturedVarRef.getTarget();
-        JExpression arg = getCapturedVar(capturedVar);
-        if (arg == null) {
-          if (capturedVarRef instanceof JParameterRef) {
-            // The parameter reference was not captured but it could be a parameter that was move to
-            // local
-            arg = getLambdaParameter((JParameter) capturedVarRef.getTarget());
-          }
-          if (arg == null) {
-            arg = capturedVar.makeRef(SourceInfo.UNKNOWN);
-          }
-        }
-        newAnnonymous.addArg(arg);
-      }
-
-      if (capturedInstance != null) {
-        JExpression arg = getCapturedVar(capturedInstance);
-        if (arg == null) {
-          newAnnonymous.addArg(capturedInstance.makeRef(SourceInfo.UNKNOWN));
-        } else {
-          newAnnonymous.addArg(arg);
-        }
+      for (JExpression capturedVar : lambdaExpr.getCapturedVariables()) {
+        newAnnonymous.addArg(capturedVar);
       }
 
       tr.append(new Replace(lambdaExpr, newAnnonymous));
 
-      lambdaCtxStack.push(lambdaCtx);
-
-      if (lambdaBody != null) {
-        accept(lambdaBody);
-      }
-
       return false;
     }
 
-    @CheckForNull
-    private JFieldRef getCapturedVar(@Nonnull JVariable capturedVar) {
-      JFieldRef fieldRef = null;
-      if (!lambdaCtxStack.isEmpty()) {
-        fieldRef = lambdaCtxStack.peek().getCapturedVar(capturedVar);
-      }
-      return fieldRef;
-    }
-
-    @CheckForNull
-    private JLocalRef getLambdaParameter(@Nonnull JParameter parameter) {
-      JLocalRef localRef = null;
-      if (!lambdaCtxStack.isEmpty()) {
-        localRef = lambdaCtxStack.peek().getLambdaParameter(parameter);
-      }
-      return localRef;
-    }
-
     @Nonnull
-    private void createFieldAndAssignment(@Nonnull LambdaCtx lambdaCtx,
-        @Nonnull JConstructor constructor, @Nonnull JVariable capturedVar) {
+    private void createFieldAndAssignment(@Nonnull JConstructor constructor,
+        @Nonnull JExpression capturedVar) {
       JDefinedClass lambdaImplClass = constructor.getEnclosingType();
       JMethodBody body = constructor.getBody();
       assert body != null;
       JBlock constructorBody = body.getBlock();
       JThis thisOfConstructor = constructor.getThis();
       assert thisOfConstructor != null;
+      String name = null;
+      if (capturedVar instanceof JVariableRef) {
+        name = ((JVariableRef) capturedVar).getTarget().getName();
+      } else {
+        if (capturedVar instanceof JFieldRef) {
+          JField field = ((JFieldRef) capturedVar).getFieldId().getField();
+          if (field != null) {
+            name = field.getName();
+          }
+        }
+        if (name == null) {
+          name = "arg" + constructor.getParams().size();
+        }
+      }
 
-      JField field = new JField(SourceInfo.UNKNOWN, "val$" + capturedVar.getName(), lambdaImplClass,
+      JField field = new JField(SourceInfo.UNKNOWN, "val$" + name, lambdaImplClass,
           capturedVar.getType(), JModifier.PRIVATE | JModifier.SYNTHETIC);
       tr.append(new AppendField(lambdaImplClass, field));
-      lambdaCtx.addVar2FieldMapping(capturedVar, field);
+      captureVar2InnerPath.put(capturedVar, field);
 
-      JParameter parameter = new JParameter(SourceInfo.UNKNOWN, capturedVar.getName(),
-          capturedVar.getType(), JModifier.SYNTHETIC, constructor);
+      JParameter parameter = new JParameter(SourceInfo.UNKNOWN, name, capturedVar.getType(),
+          JModifier.SYNTHETIC, constructor);
       constructor.addParam(parameter);
       constructor.getMethodIdWide().addParam(parameter.getType());
 
@@ -378,15 +252,9 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
       constructorBody.addStmt(asg.makeStatement());
     }
 
-    @Override
-    public void endVisit(@Nonnull JLambda lambdaExpr) {
-      lambdaCtxStack.pop();
-      super.endVisit(lambdaExpr);
-    }
-
     @Nonnull
-    private JMethod createMethod(@Nonnull JDefinedClass jClass,
-        @Nonnull JMethodId methId, boolean isBridge) {
+    private JMethod createMethod(@Nonnull JDefinedClass jClass, @Nonnull JMethodId methId,
+        boolean isBridge) {
       SourceInfo sourceInfo = SourceInfo.UNKNOWN;
 
       int mthModifier =
@@ -405,19 +273,41 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
       return mth;
     }
 
-    private void delegateImplementation(@Nonnull JMethod mth, @Nonnull JMethod mthToCall) {
+    private void delegateCall(@Nonnull JMethod mth, @Nonnull JMethod mthToCall,
+        @Nonnull JMethodId enforceMthId, @Nonnull List<JExpression> capturedVariables,
+        @CheckForNull JExpression instanceOfMthCall, @Nonnull JDefinedClass lambdaInnerClass) {
       SourceInfo sourceInfo = SourceInfo.UNKNOWN;
 
       JBlock bodyBlock = new JBlock(sourceInfo);
       JMethodBody body = new JMethodBody(sourceInfo, bodyBlock);
-      JThis jThis = mth.getThis();
-      assert jThis != null;
 
-      JMethodCall call =
-          new JMethodCall(sourceInfo, jThis.makeRef(sourceInfo), mth.getEnclosingType(),
-              mthToCall.getMethodIdWide(), mthToCall.getType(), true /* isVirtualDispatch */);
+      int firstArg = 0;
+      if (instanceOfMthCall == null && !mthToCall.isStatic()) {
+        JThis mthThis = mth.getThis();
+        assert mthThis != null;
+        instanceOfMthCall =
+            getInnerPath(capturedVariables.get(0), lambdaInnerClass, mthThis.makeRef(sourceInfo));
+        assert instanceOfMthCall != null;
+        firstArg = 1;
+      }
 
-      List<JType> paramType = mthToCall.getMethodIdWide().getParamTypes();
+      JMethodCall call = new JMethodCall(sourceInfo, instanceOfMthCall,
+          mthToCall.getEnclosingType(), mthToCall.getMethodId().getMethodIdWide(),
+          mthToCall.getType(), mthToCall.getMethodId().getMethodIdWide().canBeVirtual());
+
+      // Captured variables on a delegate call are always previously captured into a field of the
+      // inner class
+      for (int argIdx = firstArg; argIdx < capturedVariables.size(); argIdx++) {
+        JExpression capturedVar = capturedVariables.get(argIdx);
+        JThis mthThis = mth.getThis();
+        assert mthThis != null;
+        JExpression innerPath =
+            getInnerPath(capturedVar, lambdaInnerClass, mthThis.makeRef(sourceInfo));
+        assert innerPath != null;
+        call.addArg(innerPath);
+      }
+
+      List<JType> paramType = enforceMthId.getMethodIdWide().getParamTypes();
       int pIndex = 0;
       for (JParameter param : mth.getParams()) {
         call.addArg(new JDynamicCastOperation(sourceInfo, param.makeRef(sourceInfo),
@@ -434,56 +324,39 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
       mth.setBody(body);
     }
 
-    @Override
-    public boolean visit(@Nonnull JParameterRef varRef) {
-      // Check if parameter reference targets a lambda parameter that must be rewrite in local
-      // reference
-
-      JExpression exprToUse = getLambdaParameter((JParameter) varRef.getTarget());
-      if (exprToUse != null) {
-        tr.append(new Replace(varRef, exprToUse));
-        return false;
-      }
-
-      // Need to visit super to check if this parameter reference targets a captured variable
-      return super.visit(varRef);
-    }
-
-    @Override
-    public boolean visit(@Nonnull JVariableRef varRef) {
-      // Check if a captured variable must be rewrite into a field access containing the value of
-      // the captured variable
-      JExpression exprToUse = getCapturedVar(varRef.getTarget());
-      if (exprToUse != null) {
-        tr.append(new Replace(varRef, exprToUse));
-      }
-      return super.visit(varRef);
-    }
-
     @Nonnull
-    private JDefinedClass createLambdaImplClass(@Nonnull JLambda lambdaExpr) {
-      String simpleName = lambdaClassNamePrefix + anonymousCountByMeth;
+    private JDefinedClass createInnerClass(@Nonnull JLambda lambdaExpr) {
+      String simpleName = lambdaClassNamePrefix + anonymousCountByMeth++;
       JDefinedClass lambdaImpl = new JDefinedClass(
           new SourceInfoFactory().create(currentClass.getSourceInfo().getFileName()),
           currentClass.getName() + "$" + simpleName, JModifier.FINAL | JModifier.SYNTHETIC,
           currentClass.getEnclosingPackage(), NopClassOrInterfaceLoader.INSTANCE);
-      anonymousCountByMeth++;
 
       currentClass.addMemberType(lambdaImpl);
+      lambdaImpl.setEnclosingType(currentClass);
 
       lambdaImpl.setSuperClass(jlo);
+
       lambdaImpl.addImplements(lambdaExpr.getType());
       for (JInterface bound : lambdaExpr.getInterfaceBounds()) {
         if (!bound.isSameType(lambdaExpr.getType())) {
           lambdaImpl.addImplements(bound);
         }
       }
-      lambdaImpl.setEnclosingType(currentClass);
+
       lambdaImpl.addMarker(new SimpleName(simpleName));
 
       Jack.getSession().addTypeToEmit(lambdaImpl);
 
       return lambdaImpl;
+    }
+
+    @CheckForNull
+    public JFieldRef getInnerPath(@Nonnull JExpression capturedVar,
+        @Nonnull JDefinedClass innerClass, @Nonnull JExpression instance) {
+      assert captureVar2InnerPath.containsKey(capturedVar);
+      JField innerField = captureVar2InnerPath.get(capturedVar);
+      return new JFieldRef(SourceInfo.UNKNOWN, instance, innerField.getId(), innerClass);
     }
   }
 

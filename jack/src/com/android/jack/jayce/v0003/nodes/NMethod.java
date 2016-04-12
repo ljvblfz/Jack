@@ -27,7 +27,6 @@ import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.MethodKind;
-import com.android.jack.ir.ast.NopMethodLoader;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.JayceClassOrInterfaceLoader;
 import com.android.jack.jayce.JayceMethodLoader;
@@ -115,48 +114,6 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
       JMethodLookupException {
     JMethod jMethod = exportMethodAsJAst(exportSession, enclosingLoader);
     clearBodyResolvers(exportSession);
-    return jMethod;
-  }
-
-  @Nonnull
-  public JMethod exportLambdaMethodAsJast(@Nonnull ExportSession exportSession)
-      throws JTypeLookupException,
-      JMethodLookupException {
-    assert name != null;
-    assert returnType != null;
-    assert methodKind != null;
-    assert sourceInfo != null;
-    assert methodNodeIndex == INDEX_UNKNOWN;
-    assert body != null;
-    SourceInfo info = sourceInfo.exportAsJast(exportSession);
-    JDefinedClassOrInterface enclosingType = exportSession.getCurrentType();
-    assert enclosingType != null;
-    JMethodIdWide id = new JMethodIdWide(name, methodKind);
-    JMethod jMethod = new JMethod(
-        info, new JMethodId(id, exportSession.getLookup().getType(returnType)), enclosingType,
-        modifier, NopMethodLoader.INSTANCE);
-
-    ExportSession exportSessionForLambdaMeth = new ExportSession(exportSession);
-    exportSessionForLambdaMeth.setCurrentType(exportSession.getCurrentType());
-    exportSessionForLambdaMeth.setCurrentMethod(jMethod);
-
-    for (NParameter parameter : parameters) {
-      JParameter jParam = parameter.exportAsJast(exportSessionForLambdaMeth);
-      jMethod.addParam(jParam);
-      id.addParam(jParam.getType());
-    }
-    for (NAnnotation annotationLiteral : annotations) {
-      jMethod.addAnnotation(annotationLiteral.exportAsJast(exportSessionForLambdaMeth));
-    }
-
-    jMethod.setThis(exportSession.getCurrentMethod().getThis());
-    jMethod.setBody(body.exportAsJast(exportSessionForLambdaMeth));
-    jMethod.setThis(null);
-
-    for (NMarker marker : markers) {
-      jMethod.addMarker(marker.exportAsJast(exportSessionForLambdaMeth));
-    }
-
     return jMethod;
   }
 
