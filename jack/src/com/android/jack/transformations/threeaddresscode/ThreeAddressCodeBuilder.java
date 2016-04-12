@@ -64,6 +64,7 @@ import com.android.jack.transformations.request.AppendBefore;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
+import com.android.jack.transformations.request.TransformationStep;
 import com.android.jack.util.AnnotationSkipperVisitor;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
@@ -159,7 +160,7 @@ public class ThreeAddressCodeBuilder implements RunnableSchedulable<JMethod> {
       // Nothing to do on:
       // - JConditional, they are taken into account in descending order by replacing them by if
       // statements
-      // - JLiteral that can not throw exception since they are manage by the back-end
+      // - JLiteral that can not throw exception since they are managed by the back-end
       // - JVariableRef, no need to put variables into temporary variables except if they are
       // redefined by the following expressions in the statement.
       // - No need to move variable if it is the left part of an assignment.
@@ -289,8 +290,24 @@ public class ThreeAddressCodeBuilder implements RunnableSchedulable<JMethod> {
       SourceInfo elseSourceInfo = conditional.getElseExpr().getSourceInfo();
       JType exprType = conditional.getType();
 
-      JLocal tempLocal = localVarCreator.createTempLocal(exprType, srcInfo, transformationRequest);
-
+      JNode parentOfConditional = conditional.getParent();
+      assert parentOfConditional != null;
+      JLocal local;
+      TransformationStep endTransformation;
+      if    (parentOfConditional.getParent() == insertStatement
+          && insertStatement instanceof JExpressionStatement
+          && parentOfConditional instanceof JAsgOperation
+          && ((JAsgOperation) parentOfConditional).getLhs() instanceof JLocalRef) {
+        // <insertStatement> is in a JExpressionStatement in the form
+        // <local> = <conditional>;
+        // No need to create a new local for storing <conditional> values since we can use directly
+        // <local>.
+        local = ((JLocalRef) ((JAsgOperation) parentOfConditional).getLhs()).getLocal();
+        endTransformation = new Remove(insertStatement);
+      } else {
+        local = localVarCreator.createTempLocal(exprType, srcInfo, transformationRequest);
+        endTransformation = new Replace(conditional, local.makeRef(srcInfo));
+      }
       // If
       JBlock thenBlock = new JBlock(thenSrcInfo);
       JBlock elseBlock = new JBlock(elseSourceInfo);
@@ -306,19 +323,19 @@ public class ThreeAddressCodeBuilder implements RunnableSchedulable<JMethod> {
 
       // Then
       JBinaryOperation assign =
-          new JAsgOperation(thenSrcInfo, tempLocal.makeRef(thenSrcInfo), conditional.getThenExpr());
+          new JAsgOperation(thenSrcInfo, local.makeRef(thenSrcInfo), conditional.getThenExpr());
       JStatement assignStmt = assign.makeStatement();
       thenBlock.addStmt(assignStmt);
 
       // Else
-      assign = new JAsgOperation(elseSourceInfo, tempLocal.makeRef(elseSourceInfo),
+      assign = new JAsgOperation(elseSourceInfo, local.makeRef(elseSourceInfo),
           conditional.getElseExpr());
       assignStmt = assign.makeStatement();
       elseBlock.addStmt(assignStmt);
 
       assert insertStatement != null;
       transformationRequest.append(new AppendBefore(insertStatement, ifStmt));
-      transformationRequest.append(new Replace(conditional, tempLocal.makeRef(srcInfo)));
+      transformationRequest.append(endTransformation);
 
       transformationRequest.commit();
 

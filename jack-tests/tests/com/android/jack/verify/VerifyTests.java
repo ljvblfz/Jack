@@ -18,7 +18,6 @@ package com.android.jack.verify;
 
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.RuntimeTestHelper;
-import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -61,7 +60,6 @@ public class VerifyTests extends RuntimeTest {
     .compileAndRunTest();
   }
 
-  @KnownIssue
   @Test
   public void test003_2() throws Exception {
     new RuntimeTestHelper(TEST003)
