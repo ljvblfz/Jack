@@ -21,7 +21,7 @@ import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.CannotWriteException;
 import com.android.sched.util.file.WriterFile;
 import com.android.sched.util.log.LoggerFactory;
-import com.android.sched.util.stream.ExtendedPrintWriter;
+import com.android.sched.util.stream.CustomPrintWriter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -44,7 +44,7 @@ public class PlanSerializer implements PlanPrinter {
 
   @Override
   public void printPlan(@Nonnull Plan<?> plan) throws CannotWriteException {
-    ExtendedPrintWriter writer = null;
+    CustomPrintWriter writer = null;
     try {
       writer = planFile.getPrintWriter();
       printSubPlan(plan, writer);

@@ -22,14 +22,14 @@ import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.StandardErrorLocation;
 import com.android.sched.util.location.StandardOutputLocation;
-import com.android.sched.util.stream.UncloseablePrintStream;
+import com.android.sched.util.stream.QueryableOutputStream;
+import com.android.sched.util.stream.UncloseableOutputStream;
 import com.android.sched.vfs.OutputStreamProvider;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.io.PrintStream;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -39,11 +39,6 @@ import javax.annotation.Nonnull;
  */
 public class OutputStreamFile extends AbstractStreamFile implements OutputStreamProvider {
   private final boolean append;
-
-  @CheckForNull
-  protected PrintStream printer;
-  @CheckForNull
-  protected OutputStream stream;
 
   public OutputStreamFile(@Nonnull String name,
       @CheckForNull RunnableHooks hooks,
@@ -150,82 +145,34 @@ public class OutputStreamFile extends AbstractStreamFile implements OutputStream
   @Nonnull
   private static final Location STANDARD_ERROR_LOCATION = new StandardErrorLocation();
 
-  /**
-   * Standard output stream kinds
-   */
-  public enum StandardOutputKind {
-
-    STANDARD_OUTPUT {
-      @Override
-      @Nonnull
-      public PrintStream getPrintStream() {
-        return new UncloseablePrintStream(System.out);
-      }
-
-      @Override
-      @Nonnull
-      public Location getLocation() {
-        return STANDARD_OUTPUT_LOCATION;
-      }
-    },
-
-    STANDARD_ERROR {
-      @Override
-      @Nonnull
-      public PrintStream getPrintStream() {
-        return new UncloseablePrintStream(System.err);
-      }
-
-      @Override
-      @Nonnull
-      public Location getLocation() {
-        return STANDARD_ERROR_LOCATION;
-      }
-    };
-
-    @Nonnull
-    public abstract PrintStream getPrintStream();
-
-    @Nonnull
-    public abstract Location getLocation();
-  }
-
   public OutputStreamFile(@Nonnull StandardOutputKind standardOutputKind) {
     super(standardOutputKind.getLocation());
-    this.printer = standardOutputKind.getPrintStream();
+    this.stream =
+        new QueryableOutputStream(new UncloseableOutputStream(standardOutputKind.getOutputStream()));
     this.append = true;
   }
 
-  public OutputStreamFile(@Nonnull PrintStream printer, @Nonnull Location location) {
+  public OutputStreamFile(@Nonnull OutputStream stream, @Nonnull Location location) {
     super(location);
-    this.printer = new UncloseablePrintStream(printer);
+    this.stream = new QueryableOutputStream(new UncloseableOutputStream(stream));
     this.append = true;
   }
 
   @Override
   @Nonnull
   public synchronized OutputStream getOutputStream() {
+    wasUsed = true;
     if (stream == null) {
       clearRemover();
 
       try {
-        stream = new FileOutputStream(file, append);
+        stream =  new QueryableOutputStream(new FileOutputStream(file, append));
       } catch (FileNotFoundException e) {
         throw new ConcurrentIOException(e);
       }
     }
 
-    return stream;
-  }
-
-  @Override
-  @Nonnull
-  public synchronized PrintStream getPrintStream() {
-    if (printer == null) {
-      printer = new PrintStream(getOutputStream());
-    }
-
-    return printer;
+    return (OutputStream) stream;
   }
 
   public boolean isInAppendMode() {

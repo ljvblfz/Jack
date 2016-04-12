@@ -30,7 +30,7 @@ import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.WriterFilePropertyId;
 import com.android.sched.util.file.CannotWriteException;
 import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.util.stream.ExtendedPrintWriter;
+import com.android.sched.util.stream.CustomPrintWriter;
 
 import java.io.IOException;
 
@@ -57,7 +57,7 @@ public class ShrinkStructurePrinter implements RunnableSchedulable<JSession> {
       .addDefaultValue("-").requiredIf(STRUCTURE_PRINTING.getValue().isTrue());
 
   @Nonnull
-  private final ExtendedPrintWriter writer;
+  private final CustomPrintWriter writer;
 
   public ShrinkStructurePrinter() {
     writer = ThreadConfig.get(STRUCTURE_PRINTING_FILE).getPrintWriter();

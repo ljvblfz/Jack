@@ -14,24 +14,13 @@
  * limitations under the License.
  */
 
-package com.android.sched.util.stream;
-
-import java.io.FilterWriter;
-import java.io.IOException;
-import java.io.Writer;
-
-import javax.annotation.Nonnull;
+package com.android.sched.util.file;
 
 /**
- * {@link Writer} which silently ignore close
+ * Status of various {@link AbstractStreamFile}.
  */
-public class UncloseableWriter extends FilterWriter {
-  public UncloseableWriter(@Nonnull Writer writer) {
-    super(writer);
-  }
-
-  @Override
-  public void close() throws IOException {
-    out.flush();
-  }
+public enum StreamFileStatus {
+  NOT_USED,
+  OPEN,
+  CLOSED
 }

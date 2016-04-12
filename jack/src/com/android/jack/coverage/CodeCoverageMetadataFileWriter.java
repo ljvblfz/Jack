@@ -38,7 +38,7 @@ import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.CannotWriteException;
 import com.android.sched.util.file.WriterFile;
-import com.android.sched.util.stream.ExtendedPrintWriter;
+import com.android.sched.util.stream.CustomPrintWriter;
 
 import java.io.File;
 import java.io.IOException;
@@ -248,7 +248,7 @@ public class CodeCoverageMetadataFileWriter implements RunnableSchedulable<JSess
   @Override
   public void run(@Nonnull JSession session) throws Exception {
     WriterFile file = ThreadConfig.get(CodeCoverage.COVERAGE_METADATA_FILE);
-    ExtendedPrintWriter writer = file.getPrintWriter();
+    CustomPrintWriter writer = file.getPrintWriter();
 
     try {
       writeMetadata(session, writer);

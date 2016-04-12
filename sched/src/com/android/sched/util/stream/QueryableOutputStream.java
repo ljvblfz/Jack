@@ -17,37 +17,40 @@
 package com.android.sched.util.stream;
 
 import java.io.BufferedReader;
+import java.io.FilterOutputStream;
 import java.io.IOException;
-import java.io.Reader;
+import java.io.OutputStream;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
  * {@link BufferedReader} which supports {@link #isClosed()} method.
  */
-public class ExtendedBufferedReader extends BufferedReader {
-  public ExtendedBufferedReader(@Nonnull Reader in) {
-    super(in);
-  }
-
-  public ExtendedBufferedReader(@Nonnull Reader in, @Nonnegative int sz) {
-    super(in, sz);
+public class QueryableOutputStream extends FilterOutputStream implements QueryableStream {
+  public QueryableOutputStream(@Nonnull OutputStream out) {
+    super(out);
   }
 
   private boolean closed = false;
 
   @Override
-  public void close() throws IOException {
-    synchronized (lock) {
-      super.close();
-      closed = true;
-    }
+  public synchronized void close() throws IOException {
+    super.close();
+    closed = true;
   }
 
-  public boolean isClosed() {
-    synchronized (lock) {
-      return closed;
-    }
+  @Override
+  public synchronized boolean isClosed() {
+    return closed;
+  }
+
+  @Override
+  public void write(byte[] b) throws IOException {
+    out.write(b);
+  }
+
+  @Override
+  public void write(byte[] b, int off, int len) throws IOException {
+    out.write(b, off, len);
   }
 }

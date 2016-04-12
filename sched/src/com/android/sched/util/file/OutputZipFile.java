@@ -19,6 +19,7 @@ package com.android.sched.util.file;
 import com.android.sched.util.ConcurrentIOException;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.location.FileLocation;
+import com.android.sched.util.stream.QueryableStream;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -26,7 +27,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -39,7 +39,6 @@ import javax.annotation.Nonnull;
  * Class representing a zip file designed to be written to.
  */
 public class OutputZipFile extends OutputStreamFile {
-
   /**
    * Whether the zip will be compressed.
    */
@@ -98,21 +97,21 @@ public class OutputZipFile extends OutputStreamFile {
 
   @Override
   @Nonnull
-  public ZipOutputStream getOutputStream() {
+  public synchronized ZipOutputStream getOutputStream() {
     assert file != null;
-    clearRemover();
-    try {
-      return new CustomZipOutputStream(new BufferedOutputStream(new FileOutputStream(file)),
-          compression);
-    } catch (FileNotFoundException e) {
-      throw new ConcurrentIOException(e);
-    }
-  }
 
-  @Override
-  @Nonnull
-  public PrintStream getPrintStream() {
-    return new PrintStream(getOutputStream());
+    wasUsed = true;
+    if (stream == null) {
+      clearRemover();
+      try {
+        stream = new CustomZipOutputStream(new BufferedOutputStream(new FileOutputStream(file)),
+            compression);
+      } catch (FileNotFoundException e) {
+        throw new ConcurrentIOException(e);
+      }
+    }
+
+    return (ZipOutputStream) stream;
   }
 
   @Nonnull
@@ -123,11 +122,12 @@ public class OutputZipFile extends OutputStreamFile {
 
   /**
    * A {@link ZipOutputStream} that is not directly closed to avoid getting a {@link ZipException}
-   * when the zip has no entry (with a JRE 6).
+   * when the zip has no entry (with a JRE 6) and implements {@link QueryableStream}.
    */
-  private static class CustomZipOutputStream extends ZipOutputStream {
+  private static class CustomZipOutputStream extends ZipOutputStream implements QueryableStream {
 
     private boolean hasEntries = false;
+    private boolean isClosed = false;
 
     public CustomZipOutputStream(@Nonnull OutputStream out, @Nonnull Compression compression) {
       super(out);
@@ -151,12 +151,18 @@ public class OutputZipFile extends OutputStreamFile {
     }
 
     @Override
-    public void close() throws IOException {
+    public synchronized void close() throws IOException {
       if (hasEntries) {
         super.close();
       } else {
         out.close();
       }
+      isClosed = true;
+    }
+
+    @Override
+    public synchronized boolean isClosed() {
+      return isClosed;
     }
   }
 }

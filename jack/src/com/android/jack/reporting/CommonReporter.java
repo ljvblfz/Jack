@@ -25,7 +25,7 @@ import com.android.jack.reporting.Reportable.ProblemLevel;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.WriterFile;
 import com.android.sched.util.log.ThreadWithTracer;
-import com.android.sched.util.stream.ExtendedPrintWriter;
+import com.android.sched.util.stream.CustomPrintWriter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -54,12 +54,12 @@ abstract class CommonReporter implements Reporter {
       new LinkedBlockingDeque<Problem>();
 
   @Nonnull
-  protected final ExtendedPrintWriter writerByDefault = ThreadConfig.get(REPORTER_WRITER)
+  protected final CustomPrintWriter writerByDefault = ThreadConfig.get(REPORTER_WRITER)
       .getPrintWriter();
 
   @Nonnull
-  protected final Map<ProblemLevel, ExtendedPrintWriter> writerByLevel =
-      new EnumMap<ProblemLevel, ExtendedPrintWriter>(ProblemLevel.class);
+  protected final Map<ProblemLevel, CustomPrintWriter> writerByLevel =
+      new EnumMap<ProblemLevel, CustomPrintWriter>(ProblemLevel.class);
 
   @Nonnull
   protected final PrintWriter reporterStream =
@@ -141,7 +141,7 @@ abstract class CommonReporter implements Reporter {
   }
 
   private void close(@Nonnull WriterFile file) {
-    ExtendedPrintWriter writer = file.getPrintWriter();
+    CustomPrintWriter writer = file.getPrintWriter();
 
     try {
       writer.throwPendingException();

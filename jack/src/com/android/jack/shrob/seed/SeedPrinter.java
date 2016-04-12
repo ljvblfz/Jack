@@ -38,7 +38,7 @@ import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.WriterFilePropertyId;
 import com.android.sched.util.file.CannotWriteException;
 import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.util.stream.ExtendedPrintWriter;
+import com.android.sched.util.stream.CustomPrintWriter;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -61,7 +61,7 @@ public class SeedPrinter implements RunnableSchedulable<JSession> {
       .addDefaultValue("-");
 
   @Nonnull
-  private final ExtendedPrintWriter writer;
+  private final CustomPrintWriter writer;
 
   private static final char TYPE_AND_MEMBER_SEPARATOR = ':';
 

@@ -21,7 +21,7 @@ import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.CannotWriteException;
 import com.android.sched.util.file.WriterFile;
 import com.android.sched.util.log.LoggerFactory;
-import com.android.sched.util.stream.ExtendedPrintWriter;
+import com.android.sched.util.stream.CustomPrintWriter;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -41,7 +41,7 @@ public class DetailedTextPlanPrinter implements PlanPrinter {
 
   @Override
   public void printPlan(@Nonnull Plan<?> plan) throws CannotWriteException {
-    ExtendedPrintWriter printStream = planFile.getPrintWriter();
+    CustomPrintWriter printStream = planFile.getPrintWriter();
     try {
       printStream.println(plan.getDetailedDescription());
     } finally {
