@@ -16,6 +16,7 @@
 
 package com.android.sched.scheduler;
 
+import com.android.sched.filter.NoFilter;
 import com.android.sched.item.Component;
 import com.android.sched.item.Items;
 import com.android.sched.schedulable.AdapterSchedulable;
@@ -501,8 +502,9 @@ public class MultiWorkersScheduleInstance<T extends Component>
 
     // Initialize queue with the initial plan, and block a shutdown Task on it
     Task shutdown = new ShutdownTask(queue);
-    new SequentialTask<T>(queue, this, data, Scheduler.getScheduler().createComponentFilterSet(),
-        shutdown).commit();
+    ComponentFilterSet filters = Scheduler.getScheduler().createComponentFilterSet();
+    filters.add(NoFilter.class);
+    new SequentialTask<T>(queue, this, data, filters, shutdown).commit();
     shutdown.commit();
 
     // Create threads
