@@ -84,8 +84,8 @@ public class PreProcessorApplier implements RunnableSchedulable<JSession> {
         if (inputFile.getName().endsWith(PreProcessor.PREPROCESSOR_FILE_EXTENSION)) {
           InputStream inputStream = inputFile.getInputStream();
           try {
-            rules.addAll(parseRules(session, new InputStreamReader(inputStream, ""),
-                inputFile.getLocation()));
+            rules.addAll(
+                parseRules(session, new InputStreamReader(inputStream), inputFile.getLocation()));
           } finally {
             try {
               inputStream.close();
