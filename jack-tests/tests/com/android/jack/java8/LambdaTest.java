@@ -16,7 +16,6 @@
 
 package com.android.jack.java8;
 
-import com.android.jack.Options;
 import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
 import com.android.jack.test.helper.FileChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
@@ -434,9 +433,6 @@ public class LambdaTest {
     ByteArrayOutputStream err = new ByteArrayOutputStream();
     toolchain.setErrorStream(err);
     toolchain.setSourceLevel(SourceLevel.JAVA_8);
-    toolchain.addProperty(Options.ANDROID_MIN_API_LEVEL.getName(),
-        String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL));
-
 
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath()).srcToExe(
         AbstractTestTools.createTempDir(), /* zipFile = */ false,
@@ -481,8 +477,6 @@ public class LambdaTest {
       ByteArrayOutputStream err = new ByteArrayOutputStream();
       toolchain.setErrorStream(err);
       toolchain.setSourceLevel(SourceLevel.JAVA_8);
-      toolchain.addProperty(Options.ANDROID_MIN_API_LEVEL.getName(),
-          String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL));
 
       toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
           .libToExe(lib, AbstractTestTools.createTempDir(), /* zipFile = */ false);
@@ -513,8 +507,6 @@ public class LambdaTest {
       ByteArrayOutputStream err = new ByteArrayOutputStream();
       toolchain.setErrorStream(err);
       toolchain.setSourceLevel(SourceLevel.JAVA_8);
-      toolchain.addProperty(Options.ANDROID_MIN_API_LEVEL.getName(),
-          String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL));
       // we need to enable the compatibility check manually since we haven't specified an Android
       // API level or a dex output
       toolchain.addProperty(AndroidCompatibilityChecker.CHECK_COMPATIBILITY.getName(), "true");
@@ -535,8 +527,6 @@ public class LambdaTest {
       ByteArrayOutputStream err = new ByteArrayOutputStream();
       toolchain.setErrorStream(err);
       toolchain.setSourceLevel(SourceLevel.JAVA_8);
-      toolchain.addProperty(Options.ANDROID_MIN_API_LEVEL.getName(),
-          String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL));
 
       toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
           .libToExe(lib, AbstractTestTools.createTempDir(), /* zipFile = */ false);
@@ -550,9 +540,6 @@ public class LambdaTest {
   private void run(@Nonnull RuntimeTestInfo rti) throws Exception {
     new RuntimeTestHelper(rti)
         .setSourceLevel(SourceLevel.JAVA_8)
-        .addProperty(
-            Options.ANDROID_MIN_API_LEVEL.getName(),
-            String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL))
         .addIgnoredCandidateToolchain(JillBasedToolchain.class)
         .addIgnoredCandidateToolchain(JackApiV01.class)
         .compileAndRunTest();

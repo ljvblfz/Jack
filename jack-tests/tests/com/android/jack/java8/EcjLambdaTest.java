@@ -16,8 +16,6 @@
 
 package com.android.jack.java8;
 
-import com.android.jack.Options;
-import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
 import com.android.jack.test.eclipse.jdt.core.tests.compiler.regression.LambdaExpressionsTest;
 import com.android.jack.test.runner.AbstractRuntimeRunner;
 import com.android.jack.test.runner.RuntimeRunner;
@@ -151,9 +149,6 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
       File[] bootclasspath = jackToolchain.getDefaultBootClasspath();
       jackToolchain.addToClasspath(bootclasspath);
       jackToolchain.setSourceLevel(SourceLevel.JAVA_8);
-      jackToolchain.addProperty(
-          Options.ANDROID_MIN_API_LEVEL.getName(),
-          String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL));
       jackToolchain.srcToExe(dexOutDir, /* zipFile = */ false, sourceFolder);
     } catch (Exception e) {
       e.printStackTrace();
@@ -185,9 +180,6 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
       File[] bootclasspath = jackToolchain.getDefaultBootClasspath();
       jackToolchain.addToClasspath(bootclasspath);
       jackToolchain.setSourceLevel(SourceLevel.JAVA_8);
-      jackToolchain.addProperty(
-          Options.ANDROID_MIN_API_LEVEL.getName(),
-          String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL));
       jackToolchain.srcToExe(dexOutDir, /* zipFile = */ false, sourceFolder);
 
       File dexFile = new File(dexOutDir, "classes.dex");
