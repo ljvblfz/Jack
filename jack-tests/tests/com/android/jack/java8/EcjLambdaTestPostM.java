@@ -40,6 +40,7 @@ public class EcjLambdaTestPostM extends EcjLambdaTest {
           "testReferenceExpressionInference2",
           "testReferenceExpressionInference3a",
           "test425152",
+          "test427744",
           "test431514",
           "test431514a",
           "test421712",
