@@ -52,4 +52,11 @@ public class DefUse001 {
     D d = new D().mD(s, c);
     return create(a, d.size(), d);
   }
+
+  public static int test002(boolean a, boolean b, boolean c) {
+    int x = a ? 1 : 2;
+    int y = b ? 3 : 4;
+    int z = c ? x : y;
+    return z;
+  }
 }
