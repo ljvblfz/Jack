@@ -21,7 +21,7 @@ import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.OutputStreamFile;
-import com.android.sched.util.file.OutputStreamFile.StandardOutputKind;
+import com.android.sched.util.file.StandardOutputKind;
 import com.android.sched.util.location.Location;
 
 import java.io.IOException;

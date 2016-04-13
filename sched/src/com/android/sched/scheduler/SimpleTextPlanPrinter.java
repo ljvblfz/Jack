@@ -21,7 +21,7 @@ import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.CannotWriteException;
 import com.android.sched.util.file.WriterFile;
 import com.android.sched.util.log.LoggerFactory;
-import com.android.sched.util.stream.ExtendedPrintWriter;
+import com.android.sched.util.stream.CustomPrintWriter;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -42,7 +42,7 @@ public class SimpleTextPlanPrinter implements PlanPrinter {
 
   @Override
   public void printPlan(@Nonnull Plan<?> plan) throws CannotWriteException {
-    ExtendedPrintWriter writer = planFile.getPrintWriter();
+    CustomPrintWriter writer = planFile.getPrintWriter();
     try {
       writer.println(plan.getDescription());
     } finally {

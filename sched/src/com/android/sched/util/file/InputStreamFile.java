@@ -20,6 +20,7 @@ import com.android.sched.util.ConcurrentIOException;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.StandardInputLocation;
+import com.android.sched.util.stream.QueryableInputStream;
 import com.android.sched.util.stream.UncloseableInputStream;
 import com.android.sched.vfs.InputStreamProvider;
 
@@ -35,9 +36,6 @@ import javax.annotation.Nonnull;
  * Class representing a input stream from a file path or a standard input.
  */
 public class InputStreamFile extends AbstractStreamFile implements InputStreamProvider {
-  @CheckForNull
-  private InputStream stream;
-
   public InputStreamFile(@Nonnull String name)
       throws WrongPermissionException, NotFileException, NoSuchFileException {
     this(new File(name), new FileLocation(name));
@@ -45,12 +43,12 @@ public class InputStreamFile extends AbstractStreamFile implements InputStreamPr
 
   public InputStreamFile() {
     super(new StandardInputLocation());
-    stream = new UncloseableInputStream(System.in);
+    this.stream = new QueryableInputStream(new UncloseableInputStream(System.in));
   }
 
   public InputStreamFile(@Nonnull InputStream in, @Nonnull Location location) {
     super(location);
-    this.stream = new UncloseableInputStream(in);
+    this.stream = new QueryableInputStream(new UncloseableInputStream(in));
   }
 
   public InputStreamFile(@CheckForNull Directory workingDirectory, @Nonnull String string)
@@ -76,16 +74,17 @@ public class InputStreamFile extends AbstractStreamFile implements InputStreamPr
   @Override
   @Nonnull
   public synchronized InputStream getInputStream() {
+    wasUsed = true;
     if (stream == null) {
       clearRemover();
 
       try {
-        stream = new FileInputStream(file);
+        stream = new QueryableInputStream(new FileInputStream(file));
       } catch (FileNotFoundException e) {
         throw new ConcurrentIOException(e);
       }
     }
 
-    return stream;
+    return (InputStream) stream;
   }
 }

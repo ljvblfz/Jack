@@ -26,15 +26,15 @@ import java.io.Writer;
 
 import javax.annotation.Nonnull;
 
-public class ExtendedPrintWriterTest {
+public class CustomPrintWriterTest {
   @Test
   public void test() {
     CharArrayWriter caw;
-    ExtendedPrintWriter writer;
+    CustomPrintWriter writer;
 
     // Test writer with a specific line separator
     caw = new CharArrayWriter();
-    writer = new ExtendedPrintWriter(caw, "<cr>");
+    writer = new CustomPrintWriter(caw, "<cr>");
     testPrintWriter(writer);
     writer.close();
     Assert.assertEquals(
@@ -50,7 +50,7 @@ public class ExtendedPrintWriterTest {
     }
 
     // IOException
-    writer = new ExtendedPrintWriter(new Writer() {
+    writer = new CustomPrintWriter(new Writer() {
       private int id = 6;
 
       @Override

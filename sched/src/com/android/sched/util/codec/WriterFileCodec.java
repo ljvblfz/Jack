@@ -20,7 +20,7 @@ import com.android.sched.util.LineSeparator;
 import com.android.sched.util.config.ConfigurationError;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
-import com.android.sched.util.file.OutputStreamFile.StandardOutputKind;
+import com.android.sched.util.file.StandardOutputKind;
 import com.android.sched.util.file.WriterFile;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.StandardErrorLocation;

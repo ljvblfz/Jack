@@ -21,6 +21,6 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses(value = {ExtendedPrintWriterTest.class})
+@SuiteClasses(value = {CustomPrintWriterTest.class})
 public class AllTests {
 }

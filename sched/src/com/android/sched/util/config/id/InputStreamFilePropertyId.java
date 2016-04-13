@@ -16,11 +16,10 @@
 
 package com.android.sched.util.config.id;
 
-import com.android.sched.util.codec.ReaderFileCodec;
+import com.android.sched.util.codec.InputStreamCodec;
 import com.android.sched.util.config.category.Category;
 import com.android.sched.util.config.expression.BooleanExpression;
-import com.android.sched.util.file.OutputStreamFile;
-import com.android.sched.util.file.ReaderFile;
+import com.android.sched.util.file.InputStreamFile;
 import com.android.sched.util.file.StreamFileStatus;
 import com.android.sched.util.log.LoggerFactory;
 
@@ -31,32 +30,32 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 
 /**
- * Specialized {@link PropertyId} that manages properties of type {@link OutputStreamFile}
+ * Specialized {@link PropertyId} that manages properties of type {@link InputStreamFile}
  */
-public class ReaderFilePropertyId extends PropertyId<ReaderFile> {
+public class InputStreamFilePropertyId extends PropertyId<InputStreamFile> {
   @Nonnull
   private static final Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
-  public static ReaderFilePropertyId create(@Nonnull String name, @Nonnull String description,
-      @Nonnull ReaderFileCodec codec) {
-    return new ReaderFilePropertyId(name, description, codec);
+  public static InputStreamFilePropertyId create(@Nonnull String name, @Nonnull String description,
+      @Nonnull InputStreamCodec codec) {
+    return new InputStreamFilePropertyId(name, description, codec);
   }
 
-  protected ReaderFilePropertyId(
-      @Nonnull String name, @Nonnull String description, @Nonnull ReaderFileCodec codec) {
+  protected InputStreamFilePropertyId(
+      @Nonnull String name, @Nonnull String description, @Nonnull InputStreamCodec codec) {
     super(name, description, codec);
     withAutoCheck();
   }
 
   @Nonnull
-  public ReaderFilePropertyId withAutoClose() {
-    setShutdownHook(new ShutdownRunnable<ReaderFile>() {
+  public InputStreamFilePropertyId withAutoClose() {
+    setShutdownHook(new ShutdownRunnable<InputStreamFile>() {
       @Override
-      public void run(ReaderFile file) {
+      public void run(InputStreamFile file) {
         if (file.getStatus() == StreamFileStatus.OPEN) {
           try {
-            file.getBufferedReader().close();
+            file.getInputStream().close();
           } catch (IOException e) {
             logger.log(Level.SEVERE,
                 "Failed to close '" + file.getPath() + "' from property '" + getName() + "'", e);
@@ -69,13 +68,14 @@ public class ReaderFilePropertyId extends PropertyId<ReaderFile> {
   }
 
   @Nonnull
-  public ReaderFilePropertyId withAutoCheck() {
-    setShutdownHook(new ShutdownRunnable<ReaderFile>() {
+  public InputStreamFilePropertyId withAutoCheck() {
+    setShutdownHook(new ShutdownRunnable<InputStreamFile>() {
       @Override
-      public void run(ReaderFile file) {
+      public void run(InputStreamFile file) {
         if (file.getStatus() == StreamFileStatus.OPEN) {
           throw new AssertionError(
               "File '" + file.getPath() + "' from property '" + getName() + "' is not closed");
+
         }
       }
     });
@@ -84,7 +84,7 @@ public class ReaderFilePropertyId extends PropertyId<ReaderFile> {
   }
 
   @Nonnull
-  public ReaderFilePropertyId withoutAutoAction() {
+  public InputStreamFilePropertyId withoutAutoAction() {
     removeShutdownHook();
 
     return this;
@@ -92,7 +92,7 @@ public class ReaderFilePropertyId extends PropertyId<ReaderFile> {
 
   @Override
   @Nonnull
-  public ReaderFilePropertyId addDefaultValue (@Nonnull String defaultValue) {
+  public InputStreamFilePropertyId addDefaultValue (@Nonnull String defaultValue) {
     super.addDefaultValue(defaultValue);
 
     return this;
@@ -100,7 +100,7 @@ public class ReaderFilePropertyId extends PropertyId<ReaderFile> {
 
   @Override
   @Nonnull
-  public ReaderFilePropertyId addDefaultValue (@Nonnull ReaderFile defaultValue) {
+  public InputStreamFilePropertyId addDefaultValue (@Nonnull InputStreamFile defaultValue) {
     super.addDefaultValue(defaultValue);
 
     return this;
@@ -108,7 +108,7 @@ public class ReaderFilePropertyId extends PropertyId<ReaderFile> {
 
   @Override
   @Nonnull
-  public ReaderFilePropertyId requiredIf(@Nonnull BooleanExpression expression) {
+  public InputStreamFilePropertyId requiredIf(@Nonnull BooleanExpression expression) {
     super.requiredIf(expression);
 
     return this;
@@ -116,13 +116,13 @@ public class ReaderFilePropertyId extends PropertyId<ReaderFile> {
 
   @Override
   @Nonnull
-  public ReaderFileCodec getCodec() {
-    return (ReaderFileCodec) super.getCodec();
+  public InputStreamCodec getCodec() {
+    return (InputStreamCodec) super.getCodec();
   }
 
   @Override
   @Nonnull
-  public ReaderFilePropertyId addCategory(@Nonnull Class<? extends Category> category) {
+  public InputStreamFilePropertyId addCategory(@Nonnull Class<? extends Category> category) {
     super.addCategory(category);
 
     return this;
@@ -130,7 +130,7 @@ public class ReaderFilePropertyId extends PropertyId<ReaderFile> {
 
   @Override
   @Nonnull
-  public ReaderFilePropertyId addCategory(@Nonnull Category category) {
+  public InputStreamFilePropertyId addCategory(@Nonnull Category category) {
     super.addCategory(category);
 
     return this;

@@ -32,7 +32,7 @@ import javax.annotation.Nonnull;
  * {@link PrintWriter} which supports customized separator line and a way to retrieve
  * {@link IOException}.
  */
-public class ExtendedPrintWriter extends PrintWriter {
+public class CustomPrintWriter extends PrintWriter {
   private boolean autoFlush = false;
   @CheckForNull
   private Formatter formatter = null;
@@ -41,15 +41,15 @@ public class ExtendedPrintWriter extends PrintWriter {
   @CheckForNull
   private IOException pendingFirstException = null;
 
-  public ExtendedPrintWriter(@Nonnull Writer out) {
+  public CustomPrintWriter(@Nonnull Writer out) {
     this(out, LineSeparator.SYSTEM.getLineSeparator());
   }
 
-  public ExtendedPrintWriter(@Nonnull Writer out, @Nonnull String lineSeparator) {
+  public CustomPrintWriter(@Nonnull Writer out, @Nonnull String lineSeparator) {
     this(out, lineSeparator, false);
   }
 
-  public ExtendedPrintWriter(@Nonnull Writer out, @Nonnull String lineSeparator,
+  public CustomPrintWriter(@Nonnull Writer out, @Nonnull String lineSeparator,
       boolean autoFlush) {
     super(out, autoFlush);
     this.autoFlush = autoFlush;
@@ -91,12 +91,6 @@ public class ExtendedPrintWriter extends PrintWriter {
       } catch (IOException e) {
         manageException(e);
       }
-    }
-  }
-
-  public boolean isClosed() {
-    synchronized (lock) {
-      return out == null;
     }
   }
 

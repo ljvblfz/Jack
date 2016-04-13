@@ -20,9 +20,10 @@ import com.android.sched.util.codec.WriterFileCodec;
 import com.android.sched.util.config.category.Category;
 import com.android.sched.util.config.expression.BooleanExpression;
 import com.android.sched.util.file.OutputStreamFile;
+import com.android.sched.util.file.StreamFileStatus;
 import com.android.sched.util.file.WriterFile;
 import com.android.sched.util.log.LoggerFactory;
-import com.android.sched.util.stream.ExtendedPrintWriter;
+import com.android.sched.util.stream.CustomPrintWriter;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -54,8 +55,8 @@ public class WriterFilePropertyId extends PropertyId<WriterFile> {
     setShutdownHook(new ShutdownRunnable<WriterFile>() {
       @Override
       public void run(WriterFile file) {
-        if (file.hasUsedWriter()) {
-          ExtendedPrintWriter writer = file.getPrintWriter();
+        if (file.getStatus() != StreamFileStatus.NOT_USED) {
+          CustomPrintWriter writer = file.getPrintWriter();
           try {
             writer.throwPendingException();
           } catch (IOException e) {
@@ -63,12 +64,14 @@ public class WriterFilePropertyId extends PropertyId<WriterFile> {
                 + file.getLocation().getDescription() + " from property '" + getName() + "'", e);
           }
 
-          try {
-            writer.close();
-            writer.throwPendingException();
-          } catch (IOException e) {
-            logger.log(Level.SEVERE, "Failed to close " + file.getLocation().getDescription()
-                + " from property '" + getName() + "'", e);
+          if (file.getStatus() == StreamFileStatus.OPEN) {
+            try {
+              writer.close();
+              writer.throwPendingException();
+            } catch (IOException e) {
+              logger.log(Level.SEVERE, "Failed to close " + file.getLocation().getDescription()
+                  + " from property '" + getName() + "'", e);
+            }
           }
         }
       }
@@ -82,8 +85,8 @@ public class WriterFilePropertyId extends PropertyId<WriterFile> {
     setShutdownHook(new ShutdownRunnable<WriterFile>() {
       @Override
       public void run(WriterFile file) {
-        if (file.hasUsedWriter()) {
-          ExtendedPrintWriter writer = file.getPrintWriter();
+        if (file.getStatus() != StreamFileStatus.NOT_USED) {
+          CustomPrintWriter writer = file.getPrintWriter();
 
           try {
             writer.throwPendingException();
@@ -95,7 +98,7 @@ public class WriterFilePropertyId extends PropertyId<WriterFile> {
             throw new AssertionError(message);
           }
 
-          if (!writer.isClosed()) {
+          if (file.getStatus() == StreamFileStatus.OPEN) {
             throw new AssertionError(file.getLocation().getDescription() + " from property '"
                 + getName() + " is not closed");
           }

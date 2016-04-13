@@ -20,6 +20,7 @@ import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
+import com.android.sched.util.stream.QueryableStream;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,6 +38,9 @@ public abstract class AbstractStreamFile extends FileOrDirectory {
   private static final Logger  logger = LoggerFactory.getLogger();
   @CheckForNull
   protected final File    file;
+  @CheckForNull
+  protected QueryableStream stream;
+  protected boolean wasUsed = false;
 
   protected AbstractStreamFile(@Nonnull String name,
       @CheckForNull RunnableHooks hooks) {
@@ -134,5 +138,16 @@ public abstract class AbstractStreamFile extends FileOrDirectory {
   public String getPath() {
     assert file != null;
     return file.getPath();
+  }
+
+  @Nonnull
+  public final synchronized StreamFileStatus getStatus() {
+    if (!wasUsed) {
+      return StreamFileStatus.NOT_USED;
+    } else {
+      assert stream != null;
+
+      return stream.isClosed() ? StreamFileStatus.CLOSED : StreamFileStatus.OPEN;
+    }
   }
 }

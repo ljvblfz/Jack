@@ -66,12 +66,6 @@ public class GenericOutputVFile implements OutputVFile {
 
   @Override
   @Nonnull
-  public PrintStream getPrintStream() throws WrongPermissionException {
-    return new PrintStream(getOutputStream());
-  }
-
-  @Override
-  @Nonnull
   public PrintStream getPrintStream(boolean append) throws WrongPermissionException {
     return new PrintStream(getOutputStream(append));
   }

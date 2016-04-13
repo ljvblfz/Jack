@@ -34,7 +34,7 @@ import com.android.sched.util.config.id.WriterFilePropertyId;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.WriterFile;
 import com.android.sched.util.log.LoggerFactory;
-import com.android.sched.util.stream.ExtendedPrintWriter;
+import com.android.sched.util.stream.CustomPrintWriter;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -92,7 +92,7 @@ public interface Reporter {
             @Override
             public void run(@Nonnull Map<ProblemLevel, WriterFile> map) {
               for (WriterFile osf : map.values()) {
-                ExtendedPrintWriter writer = osf.getPrintWriter();
+                CustomPrintWriter writer = osf.getPrintWriter();
 
                 try {
                   writer.throwPendingException();

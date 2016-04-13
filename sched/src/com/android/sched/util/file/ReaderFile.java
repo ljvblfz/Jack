@@ -20,10 +20,11 @@ import com.android.sched.util.ConcurrentIOException;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.StandardInputLocation;
-import com.android.sched.util.stream.ExtendedBufferedReader;
+import com.android.sched.util.stream.QueryableInputStream;
 import com.android.sched.util.stream.UncloseableInputStream;
 import com.android.sched.vfs.ReaderProvider;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -43,13 +44,11 @@ public class ReaderFile extends AbstractStreamFile implements ReaderProvider {
   private static final int BUFFER_SIZE = 1024 * 8;
 
   @CheckForNull
-  private ExtendedBufferedReader reader;
+  private BufferedReader reader;
   @Nonnull
   private final Charset charset;
   @Nonnegative
   private final int bufferSize;
-  private boolean fromFile = false;
-  private boolean wasUsed = false;
 
   public ReaderFile(@Nonnull String name)
       throws WrongPermissionException, NotFileException, NoSuchFileException {
@@ -69,8 +68,9 @@ public class ReaderFile extends AbstractStreamFile implements ReaderProvider {
     super(new StandardInputLocation());
     this.charset = charset;
     this.bufferSize = BUFFER_SIZE;
-    this.reader = new ExtendedBufferedReader(
-        new InputStreamReader(new UncloseableInputStream(System.in), charset), bufferSize);
+    this.stream = new QueryableInputStream(new UncloseableInputStream(System.in));
+    this.reader =
+        new BufferedReader(new InputStreamReader((InputStream) this.stream, charset), bufferSize);
   }
 
   public ReaderFile(@Nonnull InputStream stream, @Nonnull Location location) {
@@ -82,8 +82,9 @@ public class ReaderFile extends AbstractStreamFile implements ReaderProvider {
     super(location);
     this.charset = charset;
     this.bufferSize = BUFFER_SIZE;
-    this.reader = new ExtendedBufferedReader(
-        new InputStreamReader(new UncloseableInputStream(stream), charset), bufferSize);
+    this.stream = new QueryableInputStream(new UncloseableInputStream(System.in));
+    this.reader =
+        new BufferedReader(new InputStreamReader((InputStream) this.stream, charset), bufferSize);
   }
 
   public ReaderFile(@Nonnull InputStream stream, @Nonnull Charset charset,
@@ -91,8 +92,9 @@ public class ReaderFile extends AbstractStreamFile implements ReaderProvider {
     super(location);
     this.charset = charset;
     this.bufferSize = bufferSize;
-    this.reader = new ExtendedBufferedReader(
-        new InputStreamReader(new UncloseableInputStream(stream), charset), bufferSize);
+    this.stream = new QueryableInputStream(new UncloseableInputStream(System.in));
+    this.reader =
+        new BufferedReader(new InputStreamReader((InputStream) this.stream, charset), bufferSize);
   }
 
   public ReaderFile(@CheckForNull Directory workingDirectory, @Nonnull String string)
@@ -147,15 +149,15 @@ public class ReaderFile extends AbstractStreamFile implements ReaderProvider {
 
   @Override
   @Nonnull
-  public synchronized ExtendedBufferedReader getBufferedReader() {
+  public synchronized BufferedReader getBufferedReader() {
     wasUsed = true;
     if (reader == null) {
       clearRemover();
 
       try {
-        reader = new ExtendedBufferedReader(
-            new InputStreamReader(new FileInputStream(file), charset), bufferSize);
-        fromFile = true;
+        this.stream = new QueryableInputStream(new FileInputStream(file));
+        this.reader = new BufferedReader(new InputStreamReader((InputStream) this.stream, charset),
+            bufferSize);
       } catch (FileNotFoundException e) {
         throw new ConcurrentIOException(e);
       }
@@ -167,13 +169,5 @@ public class ReaderFile extends AbstractStreamFile implements ReaderProvider {
   @Nonnull
   public Charset getCharset() {
     return charset;
-  }
-
-  public synchronized boolean isFromFile() {
-    return fromFile;
-  }
-
-  public synchronized boolean hasUsedReader() {
-    return wasUsed;
   }
 }

@@ -24,7 +24,8 @@ import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.StandardErrorLocation;
 import com.android.sched.util.location.StandardOutputLocation;
-import com.android.sched.util.stream.ExtendedPrintWriter;
+import com.android.sched.util.stream.CustomPrintWriter;
+import com.android.sched.util.stream.QueryableOutputStream;
 import com.android.sched.util.stream.UncloseableOutputStream;
 import com.android.sched.vfs.PrintWriterProvider;
 
@@ -51,7 +52,7 @@ public class WriterFile extends AbstractStreamFile implements PrintWriterProvide
   private static final int BUFFER_SIZE = 1024 * 8;
 
   @CheckForNull
-  private ExtendedPrintWriter writer;
+  private CustomPrintWriter writer;
   @Nonnull
   private final Charset charset;
   @Nonnull
@@ -59,8 +60,6 @@ public class WriterFile extends AbstractStreamFile implements PrintWriterProvide
   @Nonnegative
   private final int bufferSize;
   private final boolean append;
-  private boolean fromFile = false;
-  private boolean wasUsed = false;
 
   public WriterFile(@Nonnull String name,
       @CheckForNull RunnableHooks hooks,
@@ -284,50 +283,9 @@ public class WriterFile extends AbstractStreamFile implements PrintWriterProvide
   }
 
   @Nonnull
-  private static final Location STANDARD_OUTPUT_LOCATION = new StandardOutputLocation();
+  static final Location STANDARD_OUTPUT_LOCATION = new StandardOutputLocation();
   @Nonnull
-  private static final Location STANDARD_ERROR_LOCATION = new StandardErrorLocation();
-
-  /**
-   * Standard output stream kinds
-   */
-  public enum StandardOutputKind {
-
-    STANDARD_OUTPUT {
-      @Override
-      @Nonnull
-      public OutputStream getOutputStream() {
-        return System.out;
-      }
-
-      @Override
-      @Nonnull
-      public Location getLocation() {
-        return STANDARD_OUTPUT_LOCATION;
-      }
-    },
-
-    STANDARD_ERROR {
-      @Override
-      @Nonnull
-      public OutputStream getOutputStream() {
-        return System.err;
-      }
-
-
-      @Override
-      @Nonnull
-      public Location getLocation() {
-        return STANDARD_ERROR_LOCATION;
-      }
-    };
-
-    @Nonnull
-    public abstract OutputStream getOutputStream();
-
-    @Nonnull
-    public abstract Location getLocation();
-  }
+  static final Location STANDARD_ERROR_LOCATION = new StandardErrorLocation();
 
   public WriterFile(@Nonnull StandardOutputKind standardOutputKind) {
     this(standardOutputKind, Charset.defaultCharset(), LineSeparator.SYSTEM);
@@ -351,7 +309,8 @@ public class WriterFile extends AbstractStreamFile implements PrintWriterProvide
     this.append = true;
     this.lineSeparator = lineSeparator;
     this.bufferSize = bufferSize;
-    this.writer = getExtendedPrintWriter(new UncloseableOutputStream(stream));
+    this.stream = new QueryableOutputStream(new UncloseableOutputStream(stream));
+    this.writer = getCustomPrintWriter((OutputStream) this.stream);
   }
 
   public WriterFile(@Nonnull OutputStream stream, @Nonnull Charset charset,
@@ -361,20 +320,21 @@ public class WriterFile extends AbstractStreamFile implements PrintWriterProvide
     this.append = true;
     this.lineSeparator = lineSeparator;
     this.bufferSize = BUFFER_SIZE;
-    this.writer = getExtendedPrintWriter(new UncloseableOutputStream(stream));
+    this.stream = new QueryableOutputStream(new UncloseableOutputStream(stream));
+    this.writer = getCustomPrintWriter((OutputStream) this.stream);
   }
 
   @Override
   @Nonnull
   @SuppressFBWarnings("OBL_UNSATISFIED_OBLIGATION")
-  public synchronized ExtendedPrintWriter getPrintWriter() {
+  public synchronized CustomPrintWriter getPrintWriter() {
     wasUsed = true;
     if (writer == null) {
       clearRemover();
 
       try {
-        writer = getExtendedPrintWriter(new FileOutputStream(file, append));
-        fromFile = true;
+        this.stream = new QueryableOutputStream(new FileOutputStream(file, append));
+        this.writer = getCustomPrintWriter((OutputStream) this.stream);
       } catch (FileNotFoundException e) {
         throw new ConcurrentIOException(e);
       }
@@ -383,22 +343,14 @@ public class WriterFile extends AbstractStreamFile implements PrintWriterProvide
     return writer;
   }
 
-  public synchronized boolean isFromFile() {
-    return fromFile;
-  }
-
-  public synchronized boolean hasUsedWriter() {
-    return wasUsed;
-  }
-
   @Nonnull
-  private ExtendedPrintWriter getExtendedPrintWriter(@Nonnull OutputStream os) {
+  private CustomPrintWriter getCustomPrintWriter(@Nonnull OutputStream os) {
     Writer tmp = new OutputStreamWriter(os, charset);
     if (bufferSize > 0) {
       tmp = new BufferedWriter(tmp, bufferSize);
     }
 
-    return new ExtendedPrintWriter(tmp, lineSeparator.getLineSeparator());
+    return new CustomPrintWriter(tmp, lineSeparator.getLineSeparator());
   }
 
 

@@ -16,20 +16,31 @@
 
 package com.android.sched.util.stream;
 
-import java.io.FilterReader;
-import java.io.Reader;
+import java.io.BufferedReader;
+import java.io.FilterInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 import javax.annotation.Nonnull;
 
 /**
- * {@link Reader} which silently ignore close
+ * {@link BufferedReader} which supports {@link #isClosed()} method.
  */
-public class UncloseableReader extends FilterReader {
-  public UncloseableReader(@Nonnull Reader reader) {
-    super(reader);
+public class QueryableInputStream extends FilterInputStream implements QueryableStream {
+  public QueryableInputStream(@Nonnull InputStream in) {
+    super(in);
+  }
+
+  private boolean closed = false;
+
+  @Override
+  public synchronized void close() throws IOException {
+    super.close();
+    closed = true;
   }
 
   @Override
-  public void close() {
+  public synchronized boolean isClosed() {
+    return closed;
   }
 }
