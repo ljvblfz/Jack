@@ -16,28 +16,31 @@
 
 package com.android.jack.optimizations;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import com.android.jack.Options;
 import com.android.jack.analysis.DefinitionMarker;
 import com.android.jack.analysis.UseDefsMarker;
+import com.android.jack.analysis.UsedVariableMarker;
 import com.android.jack.analysis.dfa.reachingdefs.ReachingDefsMarker;
 import com.android.jack.cfg.BasicBlock;
 import com.android.jack.cfg.ControlFlowGraph;
 import com.android.jack.ir.ast.JAsgOperation;
-import com.android.jack.ir.ast.JBinaryOperation;
 import com.android.jack.ir.ast.JExpression;
-import com.android.jack.ir.ast.JIfStatement;
+import com.android.jack.ir.ast.JExpressionStatement;
+import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JStatement;
-import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVariableRef;
-import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.jack.util.ControlFlowHelper;
 import com.android.jack.util.OptimizationTools;
+import com.android.jack.util.ThreeAddressCodeFormUtils;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
@@ -51,9 +54,13 @@ import com.android.sched.util.log.stats.Counter;
 import com.android.sched.util.log.stats.CounterImpl;
 import com.android.sched.util.log.stats.StatisticId;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -78,19 +85,17 @@ import javax.annotation.Nonnull;
  * Path 3 target of path 1 & 2
  *
  * Optimization can be apply if the following conditions are respected:
- * - Condition (0) s0 and s1 are into the same block then b must not defined between s1 and s0
- * - Condition (1) s0 and s1 are not into the same block then b must not be defined into the
- * block of s0 and before s0
- * - Condition (2) s0 and s1 are not into the same block then b must not be defined into one of
- *  the block of s1 to sn and after one statement from s1 to sn
- *  - Condition (3) s0 and s1 are not into the same block then all definitions of b reaching
- *  the block of s0 must be know before statement s1 from sn
+ * (i)   all the possible paths from entry point to s0 are going through {si}
+ * (ii)  all possible paths from {si} to s0 do not have b assigned or referenced in between
+ * (iii) all a defined in {si} is only referenced in s0
+ * (iv)  all possible paths between {bi} and their uses don’t go through {si}
+ * (v)   there are no more definitions of a except those defined in {si}
  */
 @Description("Simplify definition uses chains.")
-@Constraint(need = {DefinitionMarker.class, UseDefsMarker.class, ThreeAddressCodeForm.class,
-    ControlFlowGraph.class})
+@Constraint(need = { DefinitionMarker.class, UseDefsMarker.class, ThreeAddressCodeForm.class,
+    ControlFlowGraph.class, UsedVariableMarker.class })
 // ReachingDefsMarker is no longer valid after this optimization, thus remove it directly
-@Transform(remove = {ReachingDefsMarker.class})
+@Transform(remove = { ReachingDefsMarker.class })
 @Support(Optimizations.DefUseSimplifier.class)
 public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
     implements RunnableSchedulable<JMethod> {
@@ -106,133 +111,380 @@ public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
   @Nonnull
   private final Tracer tracer = TracerFactory.getTracer();
 
-  private class Visitor extends JVisitor {
+  /** Represents information for single optimization application */
+  private static class OptInfo {
+    final JVariable aVariable;
+    final Set<DefinitionMarker> aDefinitions;
+    final DefinitionMarker bDefinition;
 
-    @Nonnull
-    private final JMethod method;
-
-    public Visitor(@Nonnull JMethod method) {
-      this.method = method;
+    private OptInfo(
+        @Nonnull JVariable aVariable,
+        @Nonnull Set<DefinitionMarker> aDefinitions,
+        @Nonnull DefinitionMarker bDefinition) {
+      this.aVariable = aVariable;
+      this.aDefinitions = aDefinitions;
+      this.bDefinition = bDefinition;
     }
+  }
 
-    @Override
-    public boolean visit(@Nonnull JBinaryOperation binary) {
-      if (binary instanceof JAsgOperation) {
-        DefinitionMarker defOfb = binary.getMarker(DefinitionMarker.class);
+  /** Collected information of variable definitions and usages */
+  private static class VarInfo {
+    /** Definitions of the variable */
+    final Set<DefinitionMarker> defs = Sets.newIdentityHashSet();
+    /** Statements referencing the variable */
+    final Set<JStatement> refStmts = Sets.newIdentityHashSet();
 
-        if (defOfb != null && defOfb.hasValue()) {
-          JExpression valueExpr = defOfb.getValue();
-          assert valueExpr == binary.getRhs();
+    void mergeWith(@Nonnull VarInfo other) {
+      // All defs of variable 'a' are now
+      // patched to be new defs of variable 'b'
+      this.defs.addAll(other.defs);
+      // 'a' variable was supposed to only have one
+      // referencing statement 's0' which we have removed
+      assert other.refStmts.size() == 1;
+    }
+  }
 
-          if (valueExpr instanceof JVariableRef) {
-            JStatement s0 = defOfb.getStatement();
-            assert s0 != null;
-            List<DefinitionMarker> defsOfa =
-                OptimizationTools.getUsedDefinitions((JVariableRef) valueExpr);
+  /** Collects all variables used within method with their definitions */
+  @Nonnull
+  private static Map<JVariable, VarInfo> collectDefinitions(@Nonnull ControlFlowGraph cfg) {
+    Map<JVariable, VarInfo> defs = Maps.newIdentityHashMap();
 
-            if (canApplyOptimisation(s0, defsOfa, defOfb)) {
-              tracer.getStatistic(SIMPLIFIED_DEF_USE).incValue();
+    for (BasicBlock bb : cfg.getNodes()) {
+      for (JStatement stmt : bb.getStatements()) {
 
-              TransformationRequest tr = new TransformationRequest(method);
-
-              for (DefinitionMarker defOfa : defsOfa) {
-                tr.append(
-                    new Replace(defOfa.getDefinedExpr(), getNewVarRef(defOfb.getDefinedExpr())));
-                updateUsagesOfDefinitions(defOfa, defOfb);
-              }
-
-              defOfb.removeAllUses();
-
-              tr.append(new Remove(binary.getParent()));
-              tr.commit();
-            }
+        // store variable -> definition info
+        DefinitionMarker dm = ThreeAddressCodeFormUtils.getDefinitionMarker(stmt);
+        if (dm != null) {
+          JVariable variable = dm.getDefinedVariable();
+          if (!defs.containsKey(variable)) {
+            defs.put(variable, new VarInfo());
           }
+          defs.get(variable).defs.add(dm);
+        }
+
+        // store variable -> referencing statement info
+        for (JVariableRef ref : OptimizationTools.getUsedVariables(stmt)) {
+          JVariable variable = ref.getTarget();
+          if (!defs.containsKey(variable)) {
+            defs.put(variable, new VarInfo());
+          }
+          defs.get(variable).refStmts.add(stmt);
         }
       }
-      return super.visit(binary);
     }
 
-    @Override
-    public boolean visit(@Nonnull JIfStatement jIf) {
-      super.visit(jIf);
-      accept(jIf.getIfExpr());
+    return defs;
+  }
+
+  /** Returns candidates for optimization satisfying conditions (iii) and (v). */
+  @Nonnull
+  private static List<OptInfo> collectCandidates(
+      @Nonnull Map<JVariable, VarInfo> definitions) {
+
+    ArrayList<OptInfo> result = new ArrayList<>();
+    for (Map.Entry<JVariable, VarInfo> entry : definitions.entrySet()) {
+      OptInfo info = considerCandidate(entry.getKey(), entry.getValue());
+      if (info != null) {
+        result.add(info);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Checks if the variable 'var' with the definitions and referencing statements
+   * (precalculated in 'info') satisfy conditions (iii) and (v), and if it does,
+   * returns a candidate pair {a(=var), b-definition(calculated)} info.
+   *
+   * Note that this pair still need to be checked against other conditions.
+   */
+  @CheckForNull
+  private static OptInfo considerCandidate(
+      @Nonnull JVariable var, @Nonnull VarInfo info) {
+
+    // 'a' must be synthetic variable
+    if (!var.isSynthetic()) {
+      return null;
+    }
+
+    // There must be only one single assignment statement s0 : b = a.
+    if (info.refStmts.size() != 1) {
+      return null;
+    }
+    JStatement stmt = info.refStmts.iterator().next();
+    if (!(stmt instanceof JExpressionStatement)) {
+      return null;
+    }
+    JExpression assignment = ((JExpressionStatement) stmt).getExpr();
+    if (!(assignment instanceof JAsgOperation)) {
+      return null;
+    }
+
+    // All defs of a-variable should only be used once in the same assignment
+    for (DefinitionMarker aDef : info.defs) {
+      List<JVariableRef> aRefs = aDef.getUses();
+      if (aRefs.size() == 1) {
+        if (assignment != aRefs.get(0).getParent()) {
+          return null;
+        }
+      }
+    }
+
+    // Just confirm that 'assignment' is a reference to the original variable
+    DefinitionMarker bDef = assignment.getMarker(DefinitionMarker.class);
+    if (bDef == null || !bDef.hasValue()) {
+      return null;
+    }
+    JExpression valueExpr = bDef.getValue();
+    if (!(valueExpr instanceof JVariableRef) ||
+        ((JVariableRef) valueExpr).getTarget() != var) {
+      return null;
+    }
+
+    // OK, we guarantee that conditions (iii) and (v) are satisfied                              \
+    return new OptInfo(var, info.defs, bDef);
+  }
+
+  /*
+   * Helper class implementing traversal CFG
+   *
+   * Lazily calculates and stores flags on each basic block indicating
+   * the latest (in bb) reference to 'a' or 'b' or being entry point.
+   *
+   * Implements cfg traversal to detect conditions (i), (ii) and (iv).
+   */
+  private static final class CfgHelper {
+    private static final int BB_NOT_CHECKED_YET = 0;
+    private static final int BB_ACCESSES_NONE = 1;
+    private static final int BB_ASSIGNS_OR_READS_B = 2;
+    private static final int BB_ASSIGNS_A = 3;
+    private static final int BB_ENTRY_POINT = 4;
+
+    private final ControlFlowGraph cfg;
+    private final int[] flags; // Lazily calculated
+    private final JVariable aVar;
+    private final JVariable bVar;
+
+    CfgHelper(@Nonnull ControlFlowGraph cfg, @Nonnull JVariable aVar, @Nonnull JVariable bVar) {
+      this.cfg = cfg;
+      this.aVar = aVar;
+      this.bVar = bVar;
+      this.flags = new int[cfg.getBasicBlockMaxId()];
+    }
+
+    private interface IntPredicate {
+      boolean test(int i);
+    }
+
+    private static final IntPredicate failTestFor1and2 = new IntPredicate() {
+      @Override public boolean test(int flag) {
+        // NOTE: even if 'b' is a parameter it still should be initialized
+        //       via 'a' variable on all paths
+        return flag == BB_ENTRY_POINT || flag == BB_ASSIGNS_OR_READS_B;
+      }
+    };
+
+    private static final IntPredicate descendTestFor1and2 = new IntPredicate() {
+      @Override public boolean test(int flag) {
+        return flag != BB_ASSIGNS_A;
+      }
+    };
+
+    boolean isCondition1or2Violated(@Nonnull JStatement startStmt) {
+      return traverse(Sets.newHashSet(startStmt), failTestFor1and2, descendTestFor1and2);
+    }
+
+    private static final IntPredicate failTestFor4param = new IntPredicate() {
+      @Override public boolean test(int flag) {
+        // NOTE: non local variable (parameter or this) is assumed to be assigned
+        //       just before the entry block, so it's OK if we reach it
+        return flag == BB_ASSIGNS_A;
+      }
+    };
+
+    private static final IntPredicate failTestFor4local = new IntPredicate() {
+      @Override public boolean test(int flag) {
+        assert flag != BB_ENTRY_POINT; // Local variable is supposed to be assigned
+        return flag == BB_ASSIGNS_A;
+      }
+    };
+
+    private static final IntPredicate descendFor4 = new IntPredicate() {
+      @Override public boolean test(int flag) {
+        return flag != BB_ASSIGNS_OR_READS_B;
+      }
+    };
+
+    boolean isCondition4Violated(@Nonnull Set<JStatement> startStmts) {
+      IntPredicate failed = (bVar instanceof JLocal) ? failTestFor4local : failTestFor4param;
+      return traverse(startStmts, failed, descendFor4);
+    }
+
+    private boolean traverse(
+        @Nonnull Set<JStatement> startStmts,
+        @Nonnull IntPredicate failed,
+        @Nonnull IntPredicate descend) {
+
+      boolean[] queued = new boolean[flags.length];
+      LinkedList<BasicBlock> queue = new LinkedList<>();
+
+      // Fill in the queue with predecessors of basic blocks including start statements
+      for (JStatement stmt : startStmts) {
+        // NOTE: we don't mark this basic block here as queued since we only analyzed
+        //       part of it [0...stmt), we still want to look at this block later if/when
+        //       we reach it in traversal to analyze the remaining [stmt...N] statements.
+        // NOTE: If there are no statements accessing 'a' or 'b' in the remaining
+        //       section ([stmt...N]), the block will be marked as
+        //       BB_ASSIGNS_OR_READS_B since 'b' is assigned or accessed in stmt
+        BasicBlock bb = ControlFlowHelper.getBasicBlock(stmt);
+        if (process(bb, stmt, failed, descend, queue, queued)) {
+          return true; // Failed in [0...stmt) section!
+        }
+      }
+
+      // Traverse basic blocks backwards starting at one or more basic blocks queued
+      while (!queue.isEmpty()) {
+        BasicBlock bb = queue.removeFirst();
+        if (process(bb, null /* whole block */, failed, descend, queue, queued)) {
+          return true; // Failed in [0...stmt) section!
+        }
+      }
+
+      // traversal ended, not failed once
       return false;
     }
 
-    @Override
-    public boolean visit(@Nonnull JSwitchStatement switchStmt) {
-      super.visit(switchStmt);
-      this.accept(switchStmt.getExpr());
+    private boolean process(
+        @Nonnull BasicBlock bb,
+        @CheckForNull JStatement stmt,
+        @Nonnull IntPredicate failed,
+        @Nonnull IntPredicate descend,
+        @Nonnull LinkedList<BasicBlock> queue,
+        @Nonnull boolean[] queued) {
+
+      int bbFlag = stmt != null ? computeBasicBlockFlag(bb, stmt) : getBasicBlockFlag(bb);
+      assert bbFlag != BB_NOT_CHECKED_YET;
+      if (failed.test(bbFlag)) {
+        return true; // Failed
+      }
+
+      if (descend.test(bbFlag)) {
+        for (BasicBlock bbPredecessor : bb.getPredecessors()) {
+          int id = bbPredecessor.getId();
+          if (!queued[id]) {
+            queue.addLast(bbPredecessor);
+            queued[id] = true;
+          }
+        }
+      }
       return false;
     }
 
-    private boolean canApplyOptimisation(@Nonnull JStatement s0,
-        @Nonnull List<DefinitionMarker> defaUsedBys0,
-        @Nonnull DefinitionMarker defOfb) {
-      BasicBlock bbOfs0 = ControlFlowHelper.getBasicBlock(s0);
-      JVariable b = defOfb.getDefinedVariable();
+    private int getBasicBlockFlag(@Nonnull BasicBlock basicBlock) {
+      int id = basicBlock.getId();
+      int flag = flags[id];
+      if (flag == BB_NOT_CHECKED_YET) {
+        flag = computeBasicBlockFlag(basicBlock, null);
+        flags[id] = flag;
+      }
+      return flag;
+    }
 
-      if (defaUsedBys0.size() == 1) {
-        DefinitionMarker defOfa = defaUsedBys0.get(0);
-        if (isOptimizableDefinition(defOfa)) {
-          JStatement s1 = defOfa.getStatement();
-          assert s1 != null;
-          BasicBlock bbOfs1 = ControlFlowHelper.getBasicBlock(s1);
-          if (bbOfs1 == bbOfs0) {
-            // Condition (0)
-            return hasLocalDef(b, bbOfs1, s1, s0);
+    private int computeBasicBlockFlag(
+        @Nonnull BasicBlock basicBlock, @CheckForNull JStatement upperLimit) {
+
+      List<JStatement> statements = basicBlock.getStatements();
+      for (int i = statements.size() - 1; i >= 0; i--) {
+        JStatement stmt = statements.get(i);
+
+        // If upper limit statement is specified, ignore everything until we see it
+        if (upperLimit != null) {
+          if (upperLimit == stmt) {
+            upperLimit = null;
+          }
+          continue; // to the next (actually previous) statement
+        }
+
+        // Assigns A or B?
+        DefinitionMarker dm = ThreeAddressCodeFormUtils.getDefinitionMarker(stmt);
+        if (dm != null) {
+          JVariable variable = dm.getDefinedVariable();
+          if (variable == aVar) {
+            return BB_ASSIGNS_A;
+          } else if (variable == bVar) {
+            return BB_ASSIGNS_OR_READS_B;
+          }
+        }
+
+        // Reads B?
+        List<JVariableRef> refs = OptimizationTools.getUsedVariables(stmt);
+        for (JVariableRef ref : refs) {
+          if (ref.getTarget() == bVar) {
+            return BB_ASSIGNS_OR_READS_B;
           }
         }
       }
 
-      // Condition (1)
-      if (hasLocalDef(b, bbOfs0, null, s0)) {
-        return false;
-      }
+      return cfg.getEntryNode() == basicBlock ? BB_ENTRY_POINT : BB_ACCESSES_NONE;
+    }
+  }
 
-      Collection<DefinitionMarker> defsOfbReachingBbOfs0 =
-          OptimizationTools.getReachingDefs(bbOfs0, b);
+  /** Check if preconditions stand for this candidate and perform optimization if they do */
+  private void handleCandidate(
+      @Nonnull JMethod method,
+      @Nonnull ControlFlowGraph cfg,
+      @Nonnull Map<JVariable, VarInfo> definitions,
+      @Nonnull OptInfo info) {
 
-      for (DefinitionMarker defOfa : defaUsedBys0) {
-        if (!isOptimizableDefinition(defOfa)) {
-          return false;
-        }
+    // Checking preconditions
+    DefinitionMarker bDef = info.bDefinition;
+    JVariable bVariable = bDef.getDefinedVariable();
 
-        JStatement stmtOfa = defOfa.getStatement();
-        assert stmtOfa != null;
-        BasicBlock bbOfa = ControlFlowHelper.getBasicBlock(stmtOfa);
+    // Build CFG helper to use for more complex analysis
+    CfgHelper helper = new CfgHelper(cfg, info.aVariable, bVariable);
 
-        // Condition (2)
-        if (hasLocalDef(b, bbOfa, stmtOfa, null)) {
-          return false;
-        } else {
-          DefinitionMarker previousDefOfB = getLastLocalDef(b, bbOfa, null, stmtOfa);
-          if (previousDefOfB != null) {
-            defsOfbReachingBbOfs0.remove(previousDefOfB);
-          } else {
-            defsOfbReachingBbOfs0.removeAll(OptimizationTools.getReachingDefs(bbOfa, b));
-          }
-        }
-      }
+    JStatement s0 = bDef.getStatement();
+    assert s0 != null;
+    assert definitions.containsKey(info.bDefinition.getDefinedVariable());
 
-      // Condition (3)
-      return defsOfbReachingBbOfs0.isEmpty();
+    // Check for conditions (i) and (ii)
+    if (helper.isCondition1or2Violated(s0)) {
+      return;
     }
 
-    private boolean isOptimizableDefinition(@Nonnull DefinitionMarker definition) {
-      return (definition.hasValue()
-          && definition.getUses().size() == 1
-          && definition.getDefinedVariable().isSynthetic());
+    // Check for condition (iv) for all references of variable 'b'
+    VarInfo bVarInfo = definitions.get(bVariable);
+    if (helper.isCondition4Violated(bVarInfo.refStmts)) {
+      return;
     }
 
-    private void updateUsagesOfDefinitions(
-        @Nonnull DefinitionMarker oldDefOfaAndNewDefOfb, @Nonnull DefinitionMarker oldDefOfb) {
-      oldDefOfaAndNewDefOfb.removeAllUses();
+    // Apply optimization for the pair and patch precalculated info
+    tracer.getStatistic(SIMPLIFIED_DEF_USE).incValue();
+    TransformationRequest tr = new TransformationRequest(method);
 
-      for (JVariableRef useOfOldDefOfb : oldDefOfb.getUses()) {
-        oldDefOfaAndNewDefOfb.addUse(useOfOldDefOfb);
+    for (DefinitionMarker aDef : info.aDefinitions) {
+      JVariableRef bRefNew = getNewVarRef(bDef.getDefinedExpr());
+      tr.append(new Replace(aDef.getDefinedExpr(), bRefNew));
+
+      // Definition of 'a' is becoming a definition of 'b'
+      aDef.resetDefinedVariable(bVariable);
+      // Also all uses of the original b definition are now uses of a new one
+      // Update definitions as well if needed
+      aDef.removeAllUses(); // should only be one
+      for (JVariableRef bDefUse : bDef.getUses()) {
+        aDef.addUse(bDefUse);
       }
     }
+
+    // Update use/def information to reflect the change
+    bDef.removeAllUses();
+
+    // Update `definitions`
+    bVarInfo.mergeWith(definitions.get(info.aVariable));
+    definitions.remove(info.aVariable);
+
+    tr.append(new Remove(s0));
+    tr.commit();
   }
 
   @Override
@@ -244,12 +496,18 @@ public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
     ControlFlowGraph cfg = method.getMarker(ControlFlowGraph.class);
     assert cfg != null;
 
-    Visitor visitor = new Visitor(method);
+    // Collect all variables defined in the method with info we are going to use to
+    // analyze them and make optimizations in one pass.
+    Map<JVariable, VarInfo> definitions = collectDefinitions(cfg);
 
-    for (BasicBlock bb : cfg.getNodes()) {
-      for (JStatement stmt : bb.getStatements()) {
-        visitor.accept(stmt);
-      }
+    // Define a list of candidates to be optimized which satisfy
+    // conditions (iii) and (v), other conditions will be checked later.
+    List<OptInfo> candidates = collectCandidates(definitions);
+
+    // Now handle each candidate pair separately to check the remaining
+    // conditions and apply optimization if they are satisfied.
+    for (OptInfo info : candidates) {
+      handleCandidate(method, cfg, definitions, info);
     }
 
     method.removeMarker(ReachingDefsMarker.class);

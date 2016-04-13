@@ -55,7 +55,7 @@ public class DefinitionMarker implements Marker {
   final List<JVariableRef> uses;
 
   @Nonnull
-  private final JVariable definedVariable;
+  private JVariable definedVariable;
 
   @Nonnegative
   private int bitSetIdx;
@@ -76,6 +76,14 @@ public class DefinitionMarker implements Marker {
   @Override
   public Marker cloneIfNeeded() {
     throw new AssertionError("It is not valid to use cloneIfNeeded, create a new marker.");
+  }
+
+  public void resetDefinedVariable(@Nonnull JVariable var) {
+    // NOTE: definedVariable is currently intentionally kept stale to support
+    //       a fix we made some time ago; we don't change this functionality
+    //       at the moment, but allow optimizations to update variable reference
+    //       if they need to
+    this.definedVariable = var;
   }
 
   public boolean isUnused() {

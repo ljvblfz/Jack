@@ -28,4 +28,9 @@ public class Tests {
   public void test001() {
     Assert.assertEquals(3, DefUse001.create(null, "abc").l);
   }
+
+  @Test
+  public void test002() {
+    Assert.assertEquals(1, DefUse001.test002(true, true, true));
+  }
 }
