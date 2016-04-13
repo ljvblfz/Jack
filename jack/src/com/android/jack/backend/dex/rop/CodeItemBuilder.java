@@ -174,7 +174,6 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
       ThreadConfig.get(Options.EMIT_LOCAL_DEBUG_INFO).booleanValue();
   private final boolean runDxOptimizations = ThreadConfig.get(DEX_OPTIMIZE).booleanValue();
   private final boolean forceJumbo = ThreadConfig.get(FORCE_JUMBO).booleanValue();
-  private final int apiLevel = ThreadConfig.get(Options.ANDROID_MIN_API_LEVEL).intValue();
   private final boolean emitLineNumberTable =
       ThreadConfig.get(Options.EMIT_LINE_NUMBER_DEBUG_INFO).booleanValue();
 
@@ -487,7 +486,6 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
   private DalvCode createCode(@Nonnull JMethod method, @Nonnull RopMethod ropMethod) {
     DexOptions options = new DexOptions();
     options.forceJumbo = forceJumbo;
-    options.targetApiLevel = apiLevel;
     int paramSize = getParameterWordCount(method);
     int positionListKind;
     LocalVariableInfo lvInfo;

@@ -16,9 +16,7 @@
 
 package com.android.jack.dx;
 
-import com.android.jack.Options;
 import com.android.jack.TestTools;
-import com.android.jack.dx.dex.DexFormat;
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.FileChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
@@ -26,11 +24,6 @@ import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
-import com.android.jack.test.toolchain.JackApiToolchainBase;
-import com.android.jack.test.toolchain.JackApiV01;
-import com.android.jack.test.toolchain.JackApiV02;
-import com.android.jack.test.toolchain.JackBasedToolchain;
-import com.android.jack.test.toolchain.JillBasedToolchain;
 
 import junit.framework.Assert;
 
@@ -47,12 +40,8 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.annotation.Nonnull;
-import javax.xml.bind.attachment.AttachmentMarshaller;
 
 public class DxTests extends RuntimeTest {
 
@@ -135,56 +124,6 @@ public class DxTests extends RuntimeTest {
         TestTools.getEncodedMethod(dexFile, "Lcom/android/jack/dx/regallocator/jack/Data;",
             "compute2", "(I)I").codeItem;
     Assert.assertTrue(hasOpcode(ci, Opcode.DIV_INT_2ADDR));
-  }
-
-  @Test
-  public void testDexVersionIsIncremented() throws Exception {
-
-    String dex37Magic = new String(new byte[] {0x64, 0x65, 0x78, 0x0A, 0x30, 0x33, 0x37, 0x00});
-    String dex35Magic = new String(new byte[] {0x64, 0x65, 0x78, 0x0A, 0x30, 0x33, 0x35, 0x00});
-
-    List<Class<? extends IToolchain>> excludedToolchains =
-        new ArrayList<Class<? extends IToolchain>>();
-    excludedToolchains.add(JillBasedToolchain.class);
-
-    JackApiToolchainBase toolchain =
-        AbstractTestTools.getCandidateToolchain(JackApiV02.class, excludedToolchains);
-
-    File dexOutDir = AbstractTestTools.createTempDir();
-    File outFile = new File(dexOutDir, "classes.dex");
-
-    toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
-    toolchain.addProperty(Options.ANDROID_MIN_API_LEVEL.getName(), "23");
-    toolchain.srcToExe(dexOutDir, /* zipFile = */ false,
-        AbstractTestTools.getTestRootDir("com.android.jack.dx.version"));
-
-    byte[] magic = new byte[8];
-
-    FileInputStream fis = new FileInputStream(outFile);
-    fis.read(magic);
-    fis.close();
-
-    Assert.assertEquals(dex35Magic, new String(magic));
-
-    toolchain =
-        AbstractTestTools.getCandidateToolchain(JackApiV02.class, excludedToolchains);
-
-    dexOutDir = AbstractTestTools.createTempDir();
-    outFile = new File(dexOutDir, "classes.dex");
-
-    toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
-    toolchain.addProperty(Options.ANDROID_MIN_API_LEVEL.getName(), "24");
-    toolchain.srcToExe(dexOutDir, /* zipFile = */ false,
-        AbstractTestTools.getTestRootDir("com.android.jack.dx.version"));
-
-    magic = new byte[8];
-
-    fis = new FileInputStream(outFile);
-    fis.read(magic);
-    fis.close();
-
-    Assert.assertEquals(dex37Magic, new String(magic));
-
   }
 
   private boolean hasOpcode(@Nonnull CodeItem codeItem, @Nonnull Opcode opcode) {

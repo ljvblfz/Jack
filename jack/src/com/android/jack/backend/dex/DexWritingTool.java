@@ -74,8 +74,6 @@ public abstract class DexWritingTool {
 
   private final boolean forceJumbo = ThreadConfig.get(CodeItemBuilder.FORCE_JUMBO).booleanValue();
 
-  private final int apiLevel = ThreadConfig.get(Options.ANDROID_MIN_API_LEVEL).intValue();
-
   private final boolean usePrebuilts =
       ThreadConfig.get(Options.USE_PREBUILT_FROM_LIBRARY).booleanValue();
 
@@ -83,7 +81,6 @@ public abstract class DexWritingTool {
   protected DexFile createDexFile() {
     DexOptions options = new DexOptions();
     options.forceJumbo = forceJumbo;
-    options.targetApiLevel = apiLevel;
     return new DexFile(options);
   }
 
