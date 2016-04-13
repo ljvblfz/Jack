@@ -186,6 +186,8 @@ public class AnnotationWriter extends JillWriter {
     writer.writeRetentionPolicyEnum(retentionPolicy);
     writer.writeId(anno.desc);
     writeNameValuePair(anno.values);
+    writer.writeOpenNodeList(); // Markers
+    writer.writeCloseNodeList();
     sourceInfoWriter.writeUnknownDebugEnd();
     writer.writeClose();
   }
