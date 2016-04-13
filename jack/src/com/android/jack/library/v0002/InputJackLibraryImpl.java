@@ -326,9 +326,13 @@ public class InputJackLibraryImpl extends InputJackLibrary {
           String value = getProperty("config." + property.getName());
           PrebuiltCompatibility compatibility = property.getCategory(PrebuiltCompatibility.class);
           if (compatibility != null) {
-            return compatibility.isCompatible(config, value);
+            if (!compatibility.isCompatible(config, value)) {
+              return false;
+            }
           } else {
-            return config.parseAs(value, property).equals(config.get(property));
+            if (!config.parseAs(value, property).equals(config.get(property))) {
+              return false;
+            }
           }
         } catch (MissingLibraryPropertyException e) {
           logger.log(Level.FINE, e.getMessage());
