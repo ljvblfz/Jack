@@ -1966,14 +1966,16 @@
     <delete file="${junit4-jack.dist.dir}/${junit4-jack.libname}" />
   </target>
 
-  <target name="junit4-jack-lib" depends="hamcrest-core-jack-lib">
+  <target name="junit4-jack-lib" depends="jack-intermediate,hamcrest-core-jack-lib">
     <!-- project layout -->
     <mkdir dir="${junit4-jack.build.outdir}"/>
     <mkdir dir="${junit4-jack.dist.dir}"/>
     <!-- compile -->
-    <java jar="${jack.dist.dir}/${jack.execname}" fork="true" failonerror="true">
+    <java jar="${jack.intermediate.dist.dir}/${jack.intermediatename}" fork="true" failonerror="true">
       <arg value="--verbose"/>
       <arg value="error"/>
+      <arg value="-D"/>
+      <arg value="jack.classpath.default-libraries=false"/>
       <arg value="--classpath"/>
       <arg value="${jack.prebuilts.dir}/${core-stubs-mini.jack.libname}:${hamcrest-core-jack.dist.dir}/${hamcrest-core-jack.libname}"/>
       <arg value="--output-jack"/>
@@ -2033,14 +2035,16 @@
     <delete dir="${hamcrest-core-jack.dist.dir}" />
   </target>
 
-  <target name="hamcrest-core-jack-lib">
+  <target name="hamcrest-core-jack-lib" depends="jack-intermediate">
     <!-- project layout -->
     <mkdir dir="${hamcrest-core-jack.build.outdir}"/>
     <mkdir dir="${hamcrest-core-jack.dist.dir}"/>
     <!-- compile -->
-    <java jar="${jack.dist.dir}/${jack.execname}" fork="true" failonerror="true">
+    <java jar="${jack.intermediate.dist.dir}/${jack.intermediatename}" fork="true" failonerror="true">
       <arg value="--verbose"/>
       <arg value="error"/>
+      <arg value="-D"/>
+      <arg value="jack.classpath.default-libraries=false"/>
       <arg value="--classpath"/>
       <arg value="${jack.prebuilts.dir}/${core-stubs-mini.jack.libname}"/>
       <arg value="--output-jack"/>
