@@ -16,6 +16,7 @@
 
 package com.android.jack.optimizations;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -29,7 +30,6 @@ import com.android.jack.cfg.ControlFlowGraph;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JExpressionStatement;
-import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JVariable;
@@ -55,6 +55,7 @@ import com.android.sched.util.log.stats.CounterImpl;
 import com.android.sched.util.log.stats.StatisticId;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -113,26 +114,28 @@ public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
 
   /** Represents information for single optimization application */
   private static class OptInfo {
-    final JVariable aVariable;
-    final Set<DefinitionMarker> aDefinitions;
-    final DefinitionMarker bDefinition;
+    @Nonnull final VarInfo aVarInfo;
+    @Nonnull final DefinitionMarker bDefinition;
 
     private OptInfo(
-        @Nonnull JVariable aVariable,
-        @Nonnull Set<DefinitionMarker> aDefinitions,
+        @Nonnull VarInfo aVarInfo,
         @Nonnull DefinitionMarker bDefinition) {
-      this.aVariable = aVariable;
-      this.aDefinitions = aDefinitions;
+      this.aVarInfo = aVarInfo;
       this.bDefinition = bDefinition;
     }
   }
 
   /** Collected information of variable definitions and usages */
   private static class VarInfo {
+    @Nonnull final JVariable var;
     /** Definitions of the variable */
-    final Set<DefinitionMarker> defs = Sets.newIdentityHashSet();
+    @Nonnull final Set<DefinitionMarker> defs = Sets.newIdentityHashSet();
     /** Statements referencing the variable */
-    final Set<JStatement> refStmts = Sets.newIdentityHashSet();
+    @Nonnull final List<JStatement> refStmts = new ArrayList<>();
+
+    VarInfo(@Nonnull JVariable var) {
+      this.var = var;
+    }
 
     void mergeWith(@Nonnull VarInfo other) {
       // All defs of variable 'a' are now
@@ -146,8 +149,9 @@ public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
 
   /** Collects all variables used within method with their definitions */
   @Nonnull
-  private static Map<JVariable, VarInfo> collectDefinitions(@Nonnull ControlFlowGraph cfg) {
-    Map<JVariable, VarInfo> defs = Maps.newIdentityHashMap();
+  private static LinkedHashMap<JVariable, VarInfo> collectDefinitions(
+      @Nonnull ControlFlowGraph cfg) {
+    LinkedHashMap<JVariable, VarInfo> defs = Maps.newLinkedHashMap(); // Keep the insertion order
 
     for (BasicBlock bb : cfg.getNodes()) {
       for (JStatement stmt : bb.getStatements()) {
@@ -156,19 +160,23 @@ public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
         DefinitionMarker dm = ThreeAddressCodeFormUtils.getDefinitionMarker(stmt);
         if (dm != null) {
           JVariable variable = dm.getDefinedVariable();
-          if (!defs.containsKey(variable)) {
-            defs.put(variable, new VarInfo());
+          VarInfo info = defs.get(variable);
+          if (info == null) {
+            info = new VarInfo(variable);
+            defs.put(variable, info);
           }
-          defs.get(variable).defs.add(dm);
+          info.defs.add(dm);
         }
 
         // store variable -> referencing statement info
         for (JVariableRef ref : OptimizationTools.getUsedVariables(stmt)) {
           JVariable variable = ref.getTarget();
-          if (!defs.containsKey(variable)) {
-            defs.put(variable, new VarInfo());
+          VarInfo info = defs.get(variable);
+          if (info == null) {
+            info = new VarInfo(variable);
+            defs.put(variable, info);
           }
-          defs.get(variable).refStmts.add(stmt);
+          info.refStmts.add(stmt);
         }
       }
     }
@@ -178,14 +186,14 @@ public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
 
   /** Returns candidates for optimization satisfying conditions (iii) and (v). */
   @Nonnull
-  private static List<OptInfo> collectCandidates(
-      @Nonnull Map<JVariable, VarInfo> definitions) {
+  private static LinkedHashMap<JVariable, OptInfo> collectCandidates(
+      @Nonnull LinkedHashMap<JVariable, VarInfo> definitions) {
 
-    ArrayList<OptInfo> result = new ArrayList<>();
-    for (Map.Entry<JVariable, VarInfo> entry : definitions.entrySet()) {
-      OptInfo info = considerCandidate(entry.getKey(), entry.getValue());
-      if (info != null) {
-        result.add(info);
+    LinkedHashMap<JVariable, OptInfo> result = Maps.newLinkedHashMap(); // Keep the insertion order
+    for (Map.Entry<JVariable, VarInfo> info : definitions.entrySet()) {
+      OptInfo opt = considerCandidate(info.getValue());
+      if (opt != null) {
+        result.put(opt.aVarInfo.var, opt);
       }
     }
     return result;
@@ -199,11 +207,10 @@ public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
    * Note that this pair still need to be checked against other conditions.
    */
   @CheckForNull
-  private static OptInfo considerCandidate(
-      @Nonnull JVariable var, @Nonnull VarInfo info) {
+  private static OptInfo considerCandidate(@Nonnull VarInfo info) {
 
     // 'a' must be synthetic variable
-    if (!var.isSynthetic()) {
+    if (!info.var.isSynthetic()) {
       return null;
     }
 
@@ -211,7 +218,7 @@ public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
     if (info.refStmts.size() != 1) {
       return null;
     }
-    JStatement stmt = info.refStmts.iterator().next();
+    JStatement stmt = info.refStmts.get(0);
     if (!(stmt instanceof JExpressionStatement)) {
       return null;
     }
@@ -237,12 +244,12 @@ public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
     }
     JExpression valueExpr = bDef.getValue();
     if (!(valueExpr instanceof JVariableRef) ||
-        ((JVariableRef) valueExpr).getTarget() != var) {
+        ((JVariableRef) valueExpr).getTarget() != info.var) {
       return null;
     }
 
     // OK, we guarantee that conditions (iii) and (v) are satisfied                              \
-    return new OptInfo(var, info.defs, bDef);
+    return new OptInfo(info, bDef);
   }
 
   /*
@@ -254,14 +261,14 @@ public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
    * Implements cfg traversal to detect conditions (i), (ii) and (iv).
    */
   private static final class CfgHelper {
-    private static final int BB_NOT_CHECKED_YET = 0;
-    private static final int BB_ACCESSES_NONE = 1;
-    private static final int BB_ASSIGNS_OR_READS_B = 2;
-    private static final int BB_ASSIGNS_A = 3;
-    private static final int BB_ENTRY_POINT = 4;
+    private static final byte BB_NOT_CHECKED_YET = 0;
+    private static final byte BB_ACCESSES_NONE = 1;
+    private static final byte BB_ASSIGNS_OR_READS_B = 2;
+    private static final byte BB_ASSIGNS_A = 4;
+    private static final byte BB_ENTRY_POINT = 8;
 
     private final ControlFlowGraph cfg;
-    private final int[] flags; // Lazily calculated
+    private final byte[] flags; // Lazily calculated
     private final JVariable aVar;
     private final JVariable bVar;
 
@@ -269,61 +276,22 @@ public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
       this.cfg = cfg;
       this.aVar = aVar;
       this.bVar = bVar;
-      this.flags = new int[cfg.getBasicBlockMaxId()];
+      this.flags = new byte[cfg.getBasicBlockMaxId()];
     }
-
-    private interface IntPredicate {
-      boolean test(int i);
-    }
-
-    private static final IntPredicate failTestFor1and2 = new IntPredicate() {
-      @Override public boolean test(int flag) {
-        // NOTE: even if 'b' is a parameter it still should be initialized
-        //       via 'a' variable on all paths
-        return flag == BB_ENTRY_POINT || flag == BB_ASSIGNS_OR_READS_B;
-      }
-    };
-
-    private static final IntPredicate descendTestFor1and2 = new IntPredicate() {
-      @Override public boolean test(int flag) {
-        return flag != BB_ASSIGNS_A;
-      }
-    };
 
     boolean isCondition1or2Violated(@Nonnull JStatement startStmt) {
-      return traverse(Sets.newHashSet(startStmt), failTestFor1and2, descendTestFor1and2);
+      return traverse(
+          Lists.newArrayList(startStmt),
+          (byte) (BB_ENTRY_POINT | BB_ASSIGNS_OR_READS_B), BB_ASSIGNS_A);
     }
 
-    private static final IntPredicate failTestFor4param = new IntPredicate() {
-      @Override public boolean test(int flag) {
-        // NOTE: non local variable (parameter or this) is assumed to be assigned
-        //       just before the entry block, so it's OK if we reach it
-        return flag == BB_ASSIGNS_A;
-      }
-    };
-
-    private static final IntPredicate failTestFor4local = new IntPredicate() {
-      @Override public boolean test(int flag) {
-        assert flag != BB_ENTRY_POINT; // Local variable is supposed to be assigned
-        return flag == BB_ASSIGNS_A;
-      }
-    };
-
-    private static final IntPredicate descendFor4 = new IntPredicate() {
-      @Override public boolean test(int flag) {
-        return flag != BB_ASSIGNS_OR_READS_B;
-      }
-    };
-
-    boolean isCondition4Violated(@Nonnull Set<JStatement> startStmts) {
-      IntPredicate failed = (bVar instanceof JLocal) ? failTestFor4local : failTestFor4param;
-      return traverse(startStmts, failed, descendFor4);
+    boolean isCondition4Violated(@Nonnull List<JStatement> startStmts) {
+      return traverse(
+          startStmts, BB_ASSIGNS_A, BB_ASSIGNS_OR_READS_B);
     }
 
     private boolean traverse(
-        @Nonnull Set<JStatement> startStmts,
-        @Nonnull IntPredicate failed,
-        @Nonnull IntPredicate descend) {
+        @Nonnull List<JStatement> startStmts, byte violatingFlags, byte ignorePredecessorFlags) {
 
       boolean[] queued = new boolean[flags.length];
       LinkedList<BasicBlock> queue = new LinkedList<>();
@@ -337,16 +305,16 @@ public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
         //       section ([stmt...N]), the block will be marked as
         //       BB_ASSIGNS_OR_READS_B since 'b' is assigned or accessed in stmt
         BasicBlock bb = ControlFlowHelper.getBasicBlock(stmt);
-        if (process(bb, stmt, failed, descend, queue, queued)) {
-          return true; // Failed in [0...stmt) section!
+        if (process(bb, stmt, violatingFlags, ignorePredecessorFlags, queue, queued)) {
+          return true; // Violated in [0...stmt) section!
         }
       }
 
       // Traverse basic blocks backwards starting at one or more basic blocks queued
       while (!queue.isEmpty()) {
         BasicBlock bb = queue.removeFirst();
-        if (process(bb, null /* whole block */, failed, descend, queue, queued)) {
-          return true; // Failed in [0...stmt) section!
+        if (process(bb, null, violatingFlags, ignorePredecessorFlags, queue, queued)) {
+          return true; // Violated in the whole block
         }
       }
 
@@ -357,18 +325,18 @@ public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
     private boolean process(
         @Nonnull BasicBlock bb,
         @CheckForNull JStatement stmt,
-        @Nonnull IntPredicate failed,
-        @Nonnull IntPredicate descend,
+        byte violatingFlags,
+        byte ignorePredecessorFlags,
         @Nonnull LinkedList<BasicBlock> queue,
         @Nonnull boolean[] queued) {
 
       int bbFlag = stmt != null ? computeBasicBlockFlag(bb, stmt) : getBasicBlockFlag(bb);
       assert bbFlag != BB_NOT_CHECKED_YET;
-      if (failed.test(bbFlag)) {
-        return true; // Failed
+      if ((violatingFlags & bbFlag) != 0) {
+        return true; // Condition violated
       }
 
-      if (descend.test(bbFlag)) {
+      if ((ignorePredecessorFlags & bbFlag) == 0) {
         for (BasicBlock bbPredecessor : bb.getPredecessors()) {
           int id = bbPredecessor.getId();
           if (!queued[id]) {
@@ -380,9 +348,9 @@ public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
       return false;
     }
 
-    private int getBasicBlockFlag(@Nonnull BasicBlock basicBlock) {
+    private byte getBasicBlockFlag(@Nonnull BasicBlock basicBlock) {
       int id = basicBlock.getId();
-      int flag = flags[id];
+      byte flag = flags[id];
       if (flag == BB_NOT_CHECKED_YET) {
         flag = computeBasicBlockFlag(basicBlock, null);
         flags[id] = flag;
@@ -390,7 +358,7 @@ public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
       return flag;
     }
 
-    private int computeBasicBlockFlag(
+    private byte computeBasicBlockFlag(
         @Nonnull BasicBlock basicBlock, @CheckForNull JStatement upperLimit) {
 
       List<JStatement> statements = basicBlock.getStatements();
@@ -430,10 +398,10 @@ public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
   }
 
   /** Check if preconditions stand for this candidate and perform optimization if they do */
-  private void handleCandidate(
+  private void processCandidate(
       @Nonnull JMethod method,
       @Nonnull ControlFlowGraph cfg,
-      @Nonnull Map<JVariable, VarInfo> definitions,
+      @Nonnull LinkedHashMap<JVariable, VarInfo> definitions,
       @Nonnull OptInfo info) {
 
     // Checking preconditions
@@ -441,7 +409,7 @@ public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
     JVariable bVariable = bDef.getDefinedVariable();
 
     // Build CFG helper to use for more complex analysis
-    CfgHelper helper = new CfgHelper(cfg, info.aVariable, bVariable);
+    CfgHelper helper = new CfgHelper(cfg, info.aVarInfo.var, bVariable);
 
     JStatement s0 = bDef.getStatement();
     assert s0 != null;
@@ -462,7 +430,7 @@ public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
     tracer.getStatistic(SIMPLIFIED_DEF_USE).incValue();
     TransformationRequest tr = new TransformationRequest(method);
 
-    for (DefinitionMarker aDef : info.aDefinitions) {
+    for (DefinitionMarker aDef : info.aVarInfo.defs) {
       JVariableRef bRefNew = getNewVarRef(bDef.getDefinedExpr());
       tr.append(new Replace(aDef.getDefinedExpr(), bRefNew));
 
@@ -480,11 +448,76 @@ public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
     bDef.removeAllUses();
 
     // Update `definitions`
-    bVarInfo.mergeWith(definitions.get(info.aVariable));
-    definitions.remove(info.aVariable);
+    bVarInfo.mergeWith(definitions.get(info.aVarInfo.var));
+    bVarInfo.defs.remove(bDef);
+    definitions.remove(info.aVarInfo.var);
 
     tr.append(new Remove(s0));
     tr.commit();
+  }
+
+  /**
+   * Process the candidates in order taking into account possible dependencies,
+   * break cycles if any.
+   *
+   * There may be a sequences of the variables that can be optimized,
+   * like in the following case:
+   *
+   *    $tmp1 = 1     $tmp1 = 2
+   *           \       /
+   *   S0.a: $tmp2 = $tmp1   $tmp2 = 3
+   *                   \    /
+   *            S0.b: x = $tmp2
+   *
+   * In this case we want optimizations to be processed is certain order: first take care
+   * of the case when S0 is S0.b, then when S0 is S0.a. This makes it easier to correctly update
+   * pre-collected data as we do optimizations.
+   *
+   * We also want to deterministically break cycles like { $t1 = $t0; $t2 = $t1; $t0 = $t2 }
+   * in case they happen.
+   */
+  private void processCandidatesWithDependencies(
+      @Nonnull JMethod method,
+      @Nonnull ControlFlowGraph cfg,
+      @Nonnull LinkedHashMap<JVariable, OptInfo> candidates,
+      @Nonnull LinkedHashMap<JVariable, VarInfo> definitions) {
+
+    Set<OptInfo> queued = Sets.newIdentityHashSet();
+    for (Map.Entry<JVariable, OptInfo> entry : candidates.entrySet()) {
+      processCandidateWithDependencies(
+          method, cfg, entry.getValue(), candidates, definitions, queued);
+    }
+  }
+
+  private void processCandidateWithDependencies(
+      @Nonnull JMethod method,
+      @Nonnull ControlFlowGraph cfg,
+      @Nonnull OptInfo candidate,
+      @Nonnull LinkedHashMap<JVariable, OptInfo> candidates,
+      @Nonnull LinkedHashMap<JVariable, VarInfo> definitions,
+      @Nonnull Set<OptInfo> queued) {
+
+    if (queued.contains(candidate)) {
+      // This candidate is either already processed or there is a dependency cycle
+      // and this one is scheduled to be processed but waits for it's dependencies,
+      // in both cases don't want to process it now.
+      return;
+    }
+
+    queued.add(candidate);
+
+    // Check if this candidate has dependency on other, i.e. current candidate's 'b'
+    // variable is an 'a' variable in some other possible optimization. Process that
+    // optimization first
+    JVariable bVar = candidate.bDefinition.getDefinedVariable();
+    if (candidates.containsKey(bVar)) {
+      // We do have 'b' in our candidate's list, process it first
+      processCandidateWithDependencies(
+          method, cfg, candidates.get(bVar), candidates, definitions, queued);
+    }
+
+    // Process this candidate
+    processCandidate(method, cfg, definitions, candidate);
   }
 
   @Override
@@ -498,17 +531,17 @@ public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
 
     // Collect all variables defined in the method with info we are going to use to
     // analyze them and make optimizations in one pass.
-    Map<JVariable, VarInfo> definitions = collectDefinitions(cfg);
+    // NOTE: we preserve the insertion order to make it deterministic
+    LinkedHashMap<JVariable, VarInfo> definitions = collectDefinitions(cfg);
 
     // Define a list of candidates to be optimized which satisfy
     // conditions (iii) and (v), other conditions will be checked later.
-    List<OptInfo> candidates = collectCandidates(definitions);
+    // NOTE: we preserve the insertion order to make it deterministic
+    LinkedHashMap<JVariable, OptInfo> candidates = collectCandidates(definitions);
 
     // Now handle each candidate pair separately to check the remaining
     // conditions and apply optimization if they are satisfied.
-    for (OptInfo info : candidates) {
-      handleCandidate(method, cfg, definitions, info);
-    }
+    processCandidatesWithDependencies(method, cfg, candidates, definitions);
 
     method.removeMarker(ReachingDefsMarker.class);
   }
