@@ -19,6 +19,7 @@ package com.android.jack.optimizations.unuseddef;
 import com.android.jack.TestTools;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 
@@ -73,4 +74,21 @@ public class UnusedDefTest {
     return false;
   }
 
+
+  /**
+   * Non-regression test. This used to fail intermittently in UnusedDefinitionRemover.
+   */
+  @Test
+  public void test002() throws Exception {
+
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+
+    File dexOutDir = AbstractTestTools.createTempDir();
+    File testSourceDir =
+        AbstractTestTools.getTestRootDir("com.android.jack.optimizations.unuseddef.test002");
+
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(dexOutDir, /* zipFile = */ false, testSourceDir);
+  }
 }

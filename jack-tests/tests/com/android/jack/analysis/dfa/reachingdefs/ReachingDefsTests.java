@@ -38,7 +38,6 @@ public class ReachingDefsTests {
         "dfaWithSwitch(I)I");
     toolchain.addProperty(ReachingDefinitions.REACHING_DEFS_CHECKER.getName(), "test001Checker");
 
-    String classpath = AbstractTestTools.getClasspathAsString(toolchain.getDefaultBootClasspath());
     File dexOutDir = AbstractTestTools.createTempDir();
     File testSourceDir = AbstractTestTools.getTestRootDir("com.android.jack.analysis.dfa.reachingdefs.test001");
 
