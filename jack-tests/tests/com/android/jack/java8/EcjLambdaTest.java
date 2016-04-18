@@ -128,28 +128,16 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
   // Only compile source file
   @Override
   public void runConformTest(String[] srcDescription) {
-    List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
-    excludeList.add(JillBasedToolchain.class);
-    excludeList.add(JackApiV01.class);
-
-    JackBasedToolchain jackToolchain = null;
-    try {
-      jackToolchain =
-          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeList);
-    } catch (AssumptionViolatedException e) {
-      // Handle JUnit4 feature in JUnit3 tests.
-      return;
-    }
-
     try {
       File sourceFolder = buildSourceFolder(srcDescription);
       File dexOutDir = AbstractTestTools.createTempDir();
 
       // Build dex file
-      File[] bootclasspath = jackToolchain.getDefaultBootClasspath();
-      jackToolchain.addToClasspath(bootclasspath);
-      jackToolchain.setSourceLevel(SourceLevel.JAVA_8);
+      JackBasedToolchain jackToolchain = createToolchain();
       jackToolchain.srcToExe(dexOutDir, /* zipFile = */ false, sourceFolder);
+    } catch (AssumptionViolatedException e) {
+      // Handle JUnit4 feature in JUnit3 tests.
+      return;
     } catch (Exception e) {
       e.printStackTrace();
       Assert.fail();
@@ -159,27 +147,12 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
   //Compile and run source file
   @Override
   public void runConformTest(String[] srcDescription, String expectedResult) {
-    List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
-    excludeList.add(JillBasedToolchain.class);
-    excludeList.add(JackApiV01.class);
-
-    JackBasedToolchain jackToolchain = null;
-    try {
-      jackToolchain =
-          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeList);
-    } catch (AssumptionViolatedException e) {
-      // Handle JUnit4 feature in JUnit3 tests.
-      return;
-    }
-
     try {
       File dexOutDir = AbstractTestTools.createTempDir();
       File sourceFolder = buildSourceFolder(srcDescription);
 
       // Build dex file
-      File[] bootclasspath = jackToolchain.getDefaultBootClasspath();
-      jackToolchain.addToClasspath(bootclasspath);
-      jackToolchain.setSourceLevel(SourceLevel.JAVA_8);
+      JackBasedToolchain jackToolchain = createToolchain();
       jackToolchain.srcToExe(dexOutDir, /* zipFile = */ false, sourceFolder);
 
       File dexFile = new File(dexOutDir, "classes.dex");
@@ -192,6 +165,9 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
         Assert.assertEquals(0, runner.run(new String[0], mainClass, dexFile));
         Assert.assertEquals(expectedResult, out.toString().trim());
       }
+    } catch (AssumptionViolatedException e) {
+      // Handle JUnit4 feature in JUnit3 tests.
+      return;
     } catch (Exception e) {
       e.printStackTrace();
       Assert.fail();
@@ -224,4 +200,22 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
 
     return sourceFolder;
   }
+
+  protected JackBasedToolchain createToolchain() throws AssumptionViolatedException {
+    List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
+    excludeList.add(JillBasedToolchain.class);
+    excludeList.add(JackApiV01.class);
+
+    JackBasedToolchain jackToolchain = null;
+    jackToolchain =
+          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeList);
+
+    File[] bootclasspath = jackToolchain.getDefaultBootClasspath();
+    jackToolchain.addToClasspath(bootclasspath);
+    jackToolchain.setSourceLevel(SourceLevel.JAVA_8);
+
+    return jackToolchain;
+
+  }
+
 }
