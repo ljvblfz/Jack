@@ -524,6 +524,36 @@ public class OpcodesTests extends RuntimeTest {
     "com.android.jack.opcodes.shr_int.ref.Test_shr_int");
 
   @Nonnull
+  private OpcodesRuntimeInfos SHR_CONST_INT = new OpcodesRuntimeInfos(
+    AbstractTestTools.getTestRootDir("com.android.jack.opcodes.shr_const_int"),
+    "com.android.jack.opcodes.shr_const_int.ref.Test_shr_const_int");
+
+  @Nonnull
+  private OpcodesRuntimeInfos SHR_CONST_LONG = new OpcodesRuntimeInfos(
+    AbstractTestTools.getTestRootDir("com.android.jack.opcodes.shr_const_long"),
+    "com.android.jack.opcodes.shr_const_long.ref.Test_shr_const_long");
+
+  @Nonnull
+  private OpcodesRuntimeInfos SHL_CONST_INT = new OpcodesRuntimeInfos(
+    AbstractTestTools.getTestRootDir("com.android.jack.opcodes.shl_const_int"),
+    "com.android.jack.opcodes.shl_const_int.ref.Test_shl_const_int");
+
+  @Nonnull
+  private OpcodesRuntimeInfos SHL_CONST_LONG = new OpcodesRuntimeInfos(
+    AbstractTestTools.getTestRootDir("com.android.jack.opcodes.shl_const_long"),
+    "com.android.jack.opcodes.shl_const_long.ref.Test_shl_const_long");
+
+  @Nonnull
+  private OpcodesRuntimeInfos USHR_CONST_INT = new OpcodesRuntimeInfos(
+    AbstractTestTools.getTestRootDir("com.android.jack.opcodes.ushr_const_int"),
+    "com.android.jack.opcodes.ushr_const_int.ref.Test_ushr_const_int");
+
+  @Nonnull
+  private OpcodesRuntimeInfos USHR_CONST_LONG = new OpcodesRuntimeInfos(
+    AbstractTestTools.getTestRootDir("com.android.jack.opcodes.ushr_const_long"),
+    "com.android.jack.opcodes.ushr_const_long.ref.Test_ushr_const_long");
+
+  @Nonnull
   private OpcodesRuntimeInfos OPC_RETURN = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.opc_return"),
     "com.android.jack.opcodes.opc_return.ref.Test_opc_return");
@@ -1249,6 +1279,48 @@ public class OpcodesTests extends RuntimeTest {
 
   @Test
   @Category(RuntimeRegressionTest.class)
+  public void shr_const_int() throws Exception {
+    new RuntimeTestHelper(SHR_CONST_INT)
+    .compileAndRunTest();
+  }
+
+  @Test
+  @Category(RuntimeRegressionTest.class)
+  public void shr_const_long() throws Exception {
+    new RuntimeTestHelper(SHR_CONST_LONG)
+    .compileAndRunTest();
+  }
+
+  @Test
+  @Category(RuntimeRegressionTest.class)
+  public void shl_const_int() throws Exception {
+    new RuntimeTestHelper(SHL_CONST_INT)
+    .compileAndRunTest();
+  }
+
+  @Test
+  @Category(RuntimeRegressionTest.class)
+  public void shl_const_long() throws Exception {
+    new RuntimeTestHelper(SHL_CONST_LONG)
+    .compileAndRunTest();
+  }
+
+  @Test
+  @Category(RuntimeRegressionTest.class)
+  public void ushr_const_int() throws Exception {
+    new RuntimeTestHelper(USHR_CONST_INT)
+    .compileAndRunTest();
+  }
+
+  @Test
+  @Category(RuntimeRegressionTest.class)
+  public void ushr_const_long() throws Exception {
+    new RuntimeTestHelper(USHR_CONST_LONG)
+    .compileAndRunTest();
+  }
+
+  @Test
+  @Category(RuntimeRegressionTest.class)
   public void opc_return() throws Exception {
     new RuntimeTestHelper(OPC_RETURN)
     .compileAndRunTest();
@@ -1416,6 +1488,12 @@ public class OpcodesTests extends RuntimeTest {
     rtTestInfos.add(AGET_BYTE);
     rtTestInfos.add(APUT);
     rtTestInfos.add(SHR_INT);
+    rtTestInfos.add(SHR_CONST_INT);
+    rtTestInfos.add(SHR_CONST_LONG);
+    rtTestInfos.add(SHL_CONST_INT);
+    rtTestInfos.add(SHL_CONST_LONG);
+    rtTestInfos.add(USHR_CONST_INT);
+    rtTestInfos.add(USHR_CONST_LONG);
     rtTestInfos.add(OPC_RETURN);
     rtTestInfos.add(INVOKE_SUPER);
     rtTestInfos.add(MUL_FLOAT);
