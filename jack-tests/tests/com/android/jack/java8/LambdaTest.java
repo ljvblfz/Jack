@@ -201,6 +201,10 @@ public class LambdaTest {
       AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test036"),
       "com.android.jack.java8.lambda.test036.jack.Tests");
 
+  private RuntimeTestInfo LAMBDA038 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test038"),
+      "com.android.jack.java8.lambda.test038.jack.Tests");
+
   @Test
   public void testLamba001() throws Exception {
     run(LAMBDA001);
@@ -545,6 +549,11 @@ public class LambdaTest {
       Assert.assertTrue(errString.contains("Tests.java:43: Serializable lambda is not supported"));
       Assert.assertTrue(errString.contains("Tests.java:55: Serializable lambda is not supported"));
     }
+  }
+
+  @Test
+  public void testLamba038() throws Exception {
+    run(LAMBDA038);
   }
 
   private void run(@Nonnull RuntimeTestInfo rti) throws Exception {
