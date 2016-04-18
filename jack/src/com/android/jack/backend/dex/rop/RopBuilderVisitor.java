@@ -38,6 +38,8 @@ import com.android.jack.dx.rop.cst.CstFieldRef;
 import com.android.jack.dx.rop.cst.CstFloat;
 import com.android.jack.dx.rop.cst.CstInteger;
 import com.android.jack.dx.rop.cst.CstKnownNull;
+import com.android.jack.dx.rop.cst.CstLiteral32;
+import com.android.jack.dx.rop.cst.CstLiteral64;
 import com.android.jack.dx.rop.cst.CstLong;
 import com.android.jack.dx.rop.cst.CstMethodRef;
 import com.android.jack.dx.rop.cst.CstType;
@@ -1118,12 +1120,39 @@ class RopBuilderVisitor extends JVisitor {
         break;
       case SHL:
         opcode = Rops.opShl(sources);
+        if (opcode.equals(Rops.SHL_CONST_INT)) {
+          assert cst != null;
+          CstLiteral32 lit = (CstLiteral32) cst;
+          cst = CstInteger.make(lit.getIntBits() & 0b11111);
+        } else if (opcode.equals(Rops.SHL_CONST_LONG)) {
+          assert cst != null;
+          CstLiteral64 lit = (CstLiteral64) cst;
+          cst = CstInteger.make(lit.getIntBits() & 0b111111);
+        }
         break;
       case SHR:
         opcode = Rops.opShr(sources);
+        if (opcode.equals(Rops.SHR_CONST_INT)) {
+          assert cst != null;
+          CstLiteral32 lit = (CstLiteral32) cst;
+          cst = CstInteger.make(lit.getIntBits() & 0b11111);
+        } else if (opcode.equals(Rops.SHR_CONST_LONG)) {
+          assert cst != null;
+          CstLiteral64 lit = (CstLiteral64) cst;
+          cst = CstInteger.make(lit.getIntBits() & 0b111111);
+        }
         break;
       case SHRU:
         opcode = Rops.opUshr(sources);
+        if (opcode.equals(Rops.USHR_CONST_INT)) {
+          assert cst != null;
+          CstLiteral32 lit = (CstLiteral32) cst;
+          cst = CstInteger.make(lit.getIntBits() & 0b11111);
+        } else if (opcode.equals(Rops.USHR_CONST_LONG)) {
+          assert cst != null;
+          CstLiteral64 lit = (CstLiteral64) cst;
+          cst = CstInteger.make(lit.getIntBits() & 0b111111);
+        }
         break;
       default:
         throw new AssertionError();
