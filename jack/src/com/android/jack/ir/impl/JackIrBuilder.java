@@ -123,6 +123,7 @@ import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.ast.Number;
 import com.android.jack.ir.ast.marker.GenericSignature;
 import com.android.jack.ir.ast.marker.ThisRefTypeInfo;
+import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.ir.sourceinfo.SourceInfoFactory;
 import com.android.jack.lookup.CommonTypes;
@@ -1349,8 +1350,9 @@ public class JackIrBuilder {
 
       JMethodId methodId = new JMethodId(
           new JMethodIdWide(
-              ReferenceMapper
-                  .intern(curClass.type.getName() + "-mthref-" + (curClass.mthRefCount++)),
+              ReferenceMapper.intern(NamingTools.getNonSourceConflictingName(
+                  BinaryQualifiedNameFormatter.getFormatter().getName(curClass.type) + "-mthref-"
+                      + (curClass.mthRefCount++))),
               csc.shouldCaptureInstance ? MethodKind.INSTANCE_VIRTUAL : MethodKind.STATIC),
           returnType);
 
@@ -1359,7 +1361,7 @@ public class JackIrBuilder {
       JMethod lambdaMethod =
           new JMethod(info, methodId, curClass.type,
               (csc.shouldCaptureInstance ? JModifier.DEFAULT : JModifier.STATIC)
-                  | JModifier.SYNTHETIC | JModifier.LAMBDA_METHOD
+                  | JModifier.SYNTHETIC | JModifier.LAMBDA_METHOD | JModifier.FINAL
                   | (curClass.type instanceof JInterface ? JModifier.PUBLIC : JModifier.DEFAULT));
 
       int pIndex = 0;
@@ -1742,12 +1744,17 @@ public class JackIrBuilder {
           assert !lambdaExpression.binding.isStatic();
         }
         lambdaMethod = getTypeMap().get(lambdaExpression.binding);
-        lambdaMethod.setModifier(lambdaMethod.getModifier() | JModifier.LAMBDA_METHOD);
+        lambdaMethod
+            .setModifier(lambdaMethod.getModifier() | JModifier.LAMBDA_METHOD | JModifier.FINAL);
         if (lambdaExpression.binding.declaringClass.isInterface()) {
           lambdaMethod.setModifier(lambdaMethod.getModifier() | JModifier.PUBLIC);
         }
         lambdaExpression.binding.modifiers |= ClassFileConstants.AccPrivate;
         lambdaExpression.binding.modifiers &= ~ClassFileConstants.AccStatic;
+        lambdaMethod.getMethodIdWide()
+            .setName(ReferenceMapper.intern(NamingTools.getNonSourceConflictingName(
+                BinaryQualifiedNameFormatter.getFormatter().getName(curClass.type)
+                    + "_" + lambdaMethod.getMethodIdWide().getName())));
       } catch (JTypeLookupException e) {
         throw translateException(lambdaExpression, e);
       } catch (RuntimeException e) {
