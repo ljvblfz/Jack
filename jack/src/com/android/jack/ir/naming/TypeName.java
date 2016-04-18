@@ -117,10 +117,9 @@ public class TypeName extends AbstractName {
     String simpleName = type.getName();
     JClassOrInterface enclosingType = type.getEnclosingType();
 
-    if (enclosingType != null) {
+    if (enclosingType != null && simpleName.startsWith(enclosingType.getName() + '$')) {
       // Remove enclosing type name from simpleName
       int simpleNameBeginIndex = enclosingType.getName().length() + 1;
-      assert simpleName.charAt(simpleNameBeginIndex - 1) == '$';
 
       // Simple name of Foo$1Bar is Bar, it happens when there is another class named Foo$Bar
       while (simpleNameBeginIndex < simpleName.length()
