@@ -194,15 +194,13 @@ public class Options {
   @Nonnull
   public static final JavaVersionPropertyId JAVA_SOURCE_VERSION =
       JavaVersionPropertyId.create("jack.java.source.version", "Java source version")
-          .addDefaultValue("1.7").addCategory(Arzon.class).addCategory(DumpInLibrary.class)
-          .addCategory(PrebuiltCompatibility.class);
+          .addDefaultValue("1.7").addCategory(Arzon.class).addCategory(DumpInLibrary.class);
 
   @Nonnull
   public static final BooleanPropertyId LAMBDA_TO_ANONYMOUS_CONVERTER = BooleanPropertyId
       .create("jack.lambda.anonymous", "Enable lambda support with an anonymous class")
       .addDefaultValue(Boolean.TRUE)
-      .addCategory(DumpInLibrary.class)
-      .addCategory(PrebuiltCompatibility.class);
+      .addCategory(DumpInLibrary.class);
 
   @Nonnull
   public static final BooleanPropertyId GENERATE_JACK_LIBRARY = BooleanPropertyId.create(
