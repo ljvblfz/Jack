@@ -306,6 +306,9 @@ import com.android.sched.util.log.Event;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
+import com.android.sched.util.log.stats.Percent;
+import com.android.sched.util.log.stats.PercentImpl;
+import com.android.sched.util.log.stats.StatisticId;
 import com.android.sched.vfs.Container;
 import com.android.sched.vfs.ReadWriteZipFS;
 import com.android.sched.vfs.VFS;
@@ -373,6 +376,12 @@ public abstract class Jack {
   public static final BooleanPropertyId STRICT_CLASSPATH = BooleanPropertyId.create(
       "jack.classpath.strict", "Do not ignore missing or malformed class path entries")
       .addDefaultValue(Boolean.FALSE);
+
+  @Nonnull
+  private static final StatisticId<Percent> INCOMPATIBLE_PREDEX = new StatisticId<
+      Percent>("jack.library.prebuilt.incompatible",
+          "Imported library incompatible prebuilts",
+          PercentImpl.class, Percent.class);
 
   @Nonnull
   public static JSession getSession() {
@@ -448,325 +457,330 @@ public abstract class Jack {
   public static void run(@Nonnull Options options, @Nonnull RunnableHooks hooks)
       throws JackUserException, ProcessException {
 
-    Event event = null;
-
     try {
       Config config = options.getConfig();
       ThreadConfig.setConfig(config);
 
-      event = TracerFactory.getTracer().start(JackEventType.JACK_RUN);
 
-      ConfigPrinterFactory.getConfigPrinter().printConfig(config);
-
-      JSession session = getSession();
-
-      OutputJackLibrary outputJackLibrary = null;
+      Tracer tracer = TracerFactory.getTracer();
+      Event event = tracer.start(JackEventType.JACK_RUN);
 
       try {
-        outputJackLibrary = createOutputJackLibrary();
-        session.setJackOutputLibrary(outputJackLibrary);
 
-        buildSession(session, options, hooks);
+        ConfigPrinterFactory.getConfigPrinter().printConfig(config);
 
-        Scheduler scheduler = new Scheduler();
-        Request request = createInitialRequest(scheduler);
-        request.addFeature(PreProcessor.class);
+        JSession session = getSession();
 
-        request.addFeature(Resources.class);
+        OutputJackLibrary outputJackLibrary = null;
 
-        JavaVersion sourceVersion = config.get(Options.JAVA_SOURCE_VERSION);
-        if (sourceVersion.compareTo(JavaVersion.JAVA_7) >= 0) {
-          request.addFeature(SourceVersion7.class);
-        }
-        if (sourceVersion.compareTo(JavaVersion.JAVA_8) >= 0) {
-          request.addFeature(SourceVersion8.class);
-        }
+        try {
+          outputJackLibrary = createOutputJackLibrary();
+          session.setJackOutputLibrary(outputJackLibrary);
 
-        if (config.get(Options.DROP_METHOD_BODY).booleanValue()) {
-          request.addFeature(DropMethodBody.class);
-        }
+          buildSession(session, options, hooks);
 
-        if (config.get(Options.ENABLE_COMPILED_FILES_STATISTICS).booleanValue()) {
-          request.addFeature(CompiledTypeStats.class);
-          request.addFeature(CodeStats.class);
-        }
+          Scheduler scheduler = new Scheduler();
+          Request request = createInitialRequest(scheduler);
+          request.addFeature(PreProcessor.class);
 
-        if (config.get(Options.SANITY_CHECKS).booleanValue()) {
-          request.addFeature(SanityChecks.class);
-        }
+          request.addFeature(Resources.class);
 
-        if (config.get(OriginDigestFeature.ORIGIN_DIGEST).booleanValue()) {
-          request.addFeature(OriginDigestFeature.class);
-        }
-
-        if (config.get(PackageRenamer.JARJAR_ENABLED).booleanValue()) {
-          request.addFeature(Jarjar.class);
-        }
-        if (config.get(VisibilityBridgeAdder.VISIBILITY_BRIDGE).booleanValue()) {
-          request.addFeature(VisibilityBridge.class);
-        }
-        if (options.flags != null) {
-          if (options.flags.shrink()) {
-            request.addFeature(Shrinking.class);
+          JavaVersion sourceVersion = config.get(Options.JAVA_SOURCE_VERSION);
+          if (sourceVersion.compareTo(JavaVersion.JAVA_7) >= 0) {
+            request.addFeature(SourceVersion7.class);
           }
-          if (options.flags.obfuscate()) {
-            request.addFeature(Obfuscation.class);
+          if (sourceVersion.compareTo(JavaVersion.JAVA_8) >= 0) {
+            request.addFeature(SourceVersion8.class);
+          }
 
-            if (!options.flags.keepAttribute("EnclosingMethod")) {
-              request.addFeature(RemoveEnclosingMethodFeature.class);
+          if (config.get(Options.DROP_METHOD_BODY).booleanValue()) {
+            request.addFeature(DropMethodBody.class);
+          }
+
+          if (config.get(Options.ENABLE_COMPILED_FILES_STATISTICS).booleanValue()) {
+            request.addFeature(CompiledTypeStats.class);
+            request.addFeature(CodeStats.class);
+          }
+
+          if (config.get(Options.SANITY_CHECKS).booleanValue()) {
+            request.addFeature(SanityChecks.class);
+          }
+
+          if (config.get(OriginDigestFeature.ORIGIN_DIGEST).booleanValue()) {
+            request.addFeature(OriginDigestFeature.class);
+          }
+
+          if (config.get(PackageRenamer.JARJAR_ENABLED).booleanValue()) {
+            request.addFeature(Jarjar.class);
+          }
+          if (config.get(VisibilityBridgeAdder.VISIBILITY_BRIDGE).booleanValue()) {
+            request.addFeature(VisibilityBridge.class);
+          }
+          if (options.flags != null) {
+            if (options.flags.shrink()) {
+              request.addFeature(Shrinking.class);
             }
-            if (!options.flags.keepAttribute("InnerClasses")) {
-              request.addFeature(RemoveEnclosingType.class);
-            }
-            if (!options.flags.keepAttribute("Signature")) {
-              request.addFeature(RemoveGenericSignature.class);
-            }
-            if (!options.flags.keepAttribute("AnnotationDefault")) {
-              request.addFeature(RemoveAnnotationDefaultValue.class);
-            }
-            if (!options.flags.keepAttribute("LocalVariableTypeTable")) {
-              request.addFeature(RemoveLocalVariableGenericSignature.class);
-            }
-            if (!options.flags.keepAttribute("Exceptions")) {
-              request.addFeature(RemoveThrownException.class);
-            }
-            if (!options.flags.keepAttribute("SourceFile")) {
-              request.addFeature(RemoveSourceFile.class);
-            }
-            if (!options.flags.keepAttribute("LineNumberTable")) {
-              request.addFeature(RemoveLineNumber.class);
-            }
-            if (!options.flags.keepAttribute("LocalVariableTable")) {
-              request.addFeature(RemoveLocalVariableName.class);
-              if (!options.flags.getKeepParameterNames()) {
-                request.addFeature(RemoveParameterName.class);
+            if (options.flags.obfuscate()) {
+              request.addFeature(Obfuscation.class);
+
+              if (!options.flags.keepAttribute("EnclosingMethod")) {
+                request.addFeature(RemoveEnclosingMethodFeature.class);
+              }
+              if (!options.flags.keepAttribute("InnerClasses")) {
+                request.addFeature(RemoveEnclosingType.class);
+              }
+              if (!options.flags.keepAttribute("Signature")) {
+                request.addFeature(RemoveGenericSignature.class);
+              }
+              if (!options.flags.keepAttribute("AnnotationDefault")) {
+                request.addFeature(RemoveAnnotationDefaultValue.class);
+              }
+              if (!options.flags.keepAttribute("LocalVariableTypeTable")) {
+                request.addFeature(RemoveLocalVariableGenericSignature.class);
+              }
+              if (!options.flags.keepAttribute("Exceptions")) {
+                request.addFeature(RemoveThrownException.class);
+              }
+              if (!options.flags.keepAttribute("SourceFile")) {
+                request.addFeature(RemoveSourceFile.class);
+              }
+              if (!options.flags.keepAttribute("LineNumberTable")) {
+                request.addFeature(RemoveLineNumber.class);
+              }
+              if (!options.flags.keepAttribute("LocalVariableTable")) {
+                request.addFeature(RemoveLocalVariableName.class);
+                if (!options.flags.getKeepParameterNames()) {
+                  request.addFeature(RemoveParameterName.class);
+                }
               }
             }
+            if (options.flags.printSeeds()) {
+              request.addProduction(SeedFile.class);
+            }
+            if (options.flags.getRenameSourceFileAttribute() != null) {
+              request.addFeature(SourceFileRenaming.class);
+            }
+            if (options.flags.getAdaptResourceFileContents() != null) {
+              request.addFeature(AdaptResourceFileContent.class);
+            }
           }
-          if (options.flags.printSeeds()) {
-            request.addProduction(SeedFile.class);
+          if (config.get(MappingPrinter.MAPPING_OUTPUT_ENABLED).booleanValue()) {
+            request.addProduction(Mapping.class);
           }
-          if (options.flags.getRenameSourceFileAttribute() != null) {
-            request.addFeature(SourceFileRenaming.class);
+          if (config.get(ShrinkStructurePrinter.STRUCTURE_PRINTING).booleanValue()) {
+            request.addProduction(StructurePrinting.class);
           }
-          if (options.flags.getAdaptResourceFileContents() != null) {
-            request.addFeature(AdaptResourceFileContent.class);
+          if (config.get(MultiDexLegacy.MULTIDEX_LEGACY).booleanValue()) {
+            request.addFeature(MultiDexLegacy.class);
           }
-        }
-        if (config.get(MappingPrinter.MAPPING_OUTPUT_ENABLED).booleanValue()) {
-          request.addProduction(Mapping.class);
-        }
-        if (config.get(ShrinkStructurePrinter.STRUCTURE_PRINTING).booleanValue()) {
-          request.addProduction(StructurePrinting.class);
-        }
-        if (config.get(MultiDexLegacy.MULTIDEX_LEGACY).booleanValue()) {
-          request.addFeature(MultiDexLegacy.class);
-        }
-        DexWritingTool dexWritingTool = config.get(DexFileWriter.DEX_WRITING_POLICY);
-        if (dexWritingTool instanceof MultiDexWritingTool) {
-          request.addFeature(MultiDex.class);
-        }
-        if (config.get(Options.INCREMENTAL_MODE).booleanValue()) {
-          request.addFeature(Incremental.class);
-        }
-        if (config.get(Options.GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER).booleanValue()) {
-          request.addFeature(GenerateLibraryFromIncrementalFolder.class);
-        }
-
-        if (config.get(Options.OPTIMIZE_INNER_CLASSES_ACCESSORS).booleanValue()) {
-          request.addFeature(AvoidSynthethicAccessors.class);
-        }
-
-        if (config.get(Options.OPTIMIZE_TAIL_RECURSION).booleanValue()) {
-          request.addFeature(TailRecursionOptimization.class);
-        }
-
-        request.addInitialTagsOrMarkers(getJavaSourceInitialTagSet(scheduler));
-        request.addInitialTagsOrMarkers(getJackFormatInitialTagSet(scheduler));
-
-        if (config.get(Options.GENERATE_DEX_IN_LIBRARY).booleanValue()) {
-          request.addProduction(DexInLibraryProduct.class);
-        }
-
-        if (config.get(Options.LAMBDA_TO_ANONYMOUS_CONVERTER).booleanValue()) {
-          request.addFeature(LambdaToAnonymousConverter.class);
-        }
-
-        if (config.get(Options.GENERATE_DEX_FILE).booleanValue()) {
-          request.addProduction(DexFileProduct.class);
-          session.addGeneratedFileType(FileType.PREBUILT);
-          request.addFeature(EnsureAndroidCompatibility.class);
-        }
-
-        if (config.get(AndroidCompatibilityChecker.CHECK_COMPATIBILITY).booleanValue()) {
-          request.addFeature(CheckAndroidCompatibility.class);
-        }
-
-        if (config.get(Options.OPTIMIZED_ENUM_SWITCH) == SwitchEnumOptStrategy.FEEDBACK) {
-          request.addFeature(OptimizedSwitchEnumFeedbackFeature.class);
-        } else if (config.get(Options.OPTIMIZED_ENUM_SWITCH) == SwitchEnumOptStrategy.ALWAYS) {
-          request.addFeature(OptimizedSwitchEnumNonFeedbackFeature.class);
-        }
-
-        if (config.get(Optimizations.DefUseSimplifier.ENABLE).booleanValue()) {
-          request.addFeature(Optimizations.DefUseSimplifier.class);
-        }
-        if (config.get(Optimizations.UseDefSimplifier.ENABLE).booleanValue()) {
-          request.addFeature(Optimizations.UseDefSimplifier.class);
-        }
-        if (config.get(Optimizations.ExpressionSimplifier.ENABLE).booleanValue()) {
-          request.addFeature(Optimizations.ExpressionSimplifier.class);
-        }
-        if (config.get(Optimizations.IfSimplifier.ENABLE).booleanValue()) {
-          request.addFeature(Optimizations.IfSimplifier.class);
-        }
-        if (config.get(Optimizations.NotSimplifier.ENABLE).booleanValue()) {
-          request.addFeature(Optimizations.NotSimplifier.class);
-        }
-
-        if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.ENABLE) {
-          request.addFeature(EnabledAssertionFeature.class);
-        } else if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.DYNAMIC) {
-          request.addFeature(DynamicAssertionFeature.class);
-        } else if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.DISABLE) {
-          request.addFeature(DisabledAssertionFeature.class);
-        }
-
-        if (config.get(Options.GENERATE_JAYCE_IN_LIBRARY).booleanValue()) {
-          request.addProduction(JayceInLibraryProduct.class);
-        }
-
-        if (config.get(Options.GENERATE_DEPENDENCIES_IN_LIBRARY).booleanValue()) {
-          request.addProduction(DependencyInLibraryProduct.class);
-        }
-
-        if (config.get(TypeDefRemover.REMOVE_TYPEDEF).booleanValue()) {
-          request.addFeature(TypeDefRemover.RemoveTypeDef.class);
-        }
-
-        // TODO(jack-team): Remove this hack
-        List<InputLibrary> importedLibraries = session.getImportedLibraries();
-        boolean preDexing = !importedLibraries.isEmpty();
-        for (InputLibrary il : importedLibraries) {
-          if (!il.containsFileType(FileType.PREBUILT)) {
-            preDexing = false;
+          DexWritingTool dexWritingTool = config.get(DexFileWriter.DEX_WRITING_POLICY);
+          if (dexWritingTool instanceof MultiDexWritingTool) {
+            request.addFeature(MultiDex.class);
           }
-        }
-        logger.log(Level.INFO, "Jack pre-dexing is " + (preDexing ? "enabled" : "disabled"));
-
-        for (InputLibrary il : importedLibraries) {
-          if (!config.get(Options.USE_PREBUILT_FROM_LIBRARY).booleanValue()
-              || !((InputJackLibrary) il).hasCompliantPrebuilts()) {
-            ((InputJackLibrary) il).fileTypes.remove(FileType.PREBUILT);
+          if (config.get(Options.INCREMENTAL_MODE).booleanValue()) {
+            request.addFeature(Incremental.class);
           }
-        }
-
-        ProductionSet targetProduction = request.getTargetProductions();
-        FeatureSet features = request.getFeatures();
-        PlanBuilder<JSession> planBuilder;
-        try {
-          planBuilder = request.getPlanBuilder(JSession.class);
-        } catch (IllegalRequestException e) {
-          throw new AssertionError(e);
-        }
-
-        if (features.contains(OriginDigestFeature.class)) {
-          SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-              planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-          typePlan.append(OriginDigestAdder.class);
-        }
-
-        planBuilder.append(PreProcessorApplier.class);
-
-        fillDexPlan(planBuilder);
-        if (targetProduction.contains(DexFileProduct.class)) {
-          planBuilder.append(DexFileWriter.class);
-        }
-
-        if (features.contains(Resources.class)) {
-          if (targetProduction.contains(DexFileProduct.class)) {
-            planBuilder.append(ResourceWriter.class);
+          if (config.get(Options.GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER).booleanValue()) {
+            request.addFeature(GenerateLibraryFromIncrementalFolder.class);
           }
-          if (targetProduction.contains(JayceInLibraryProduct.class)) {
-            planBuilder.append(LibraryResourceWriter.class);
+
+          if (config.get(Options.OPTIMIZE_INNER_CLASSES_ACCESSORS).booleanValue()) {
+            request.addFeature(AvoidSynthethicAccessors.class);
           }
-        }
 
-        if (targetProduction.contains(JayceInLibraryProduct.class)) {
-          planBuilder.append(LibraryMetaWriter.class);
-        }
+          if (config.get(Options.OPTIMIZE_TAIL_RECURSION).booleanValue()) {
+            request.addFeature(TailRecursionOptimization.class);
+          }
 
-        Plan<JSession> plan;
-        try {
-          // Try to build an automatic plan ...
+          request.addInitialTagsOrMarkers(getJavaSourceInitialTagSet(scheduler));
+          request.addInitialTagsOrMarkers(getJackFormatInitialTagSet(scheduler));
+
+          if (config.get(Options.GENERATE_DEX_IN_LIBRARY).booleanValue()) {
+            request.addProduction(DexInLibraryProduct.class);
+          }
+
+          if (config.get(Options.LAMBDA_TO_ANONYMOUS_CONVERTER).booleanValue()) {
+            request.addFeature(LambdaToAnonymousConverter.class);
+          }
+
+          if (config.get(Options.GENERATE_DEX_FILE).booleanValue()) {
+            request.addProduction(DexFileProduct.class);
+            session.addGeneratedFileType(FileType.PREBUILT);
+            request.addFeature(EnsureAndroidCompatibility.class);
+          }
+
+          if (config.get(AndroidCompatibilityChecker.CHECK_COMPATIBILITY).booleanValue()) {
+            request.addFeature(CheckAndroidCompatibility.class);
+          }
+
+          if (config.get(Options.OPTIMIZED_ENUM_SWITCH) == SwitchEnumOptStrategy.FEEDBACK) {
+            request.addFeature(OptimizedSwitchEnumFeedbackFeature.class);
+          } else if (config.get(Options.OPTIMIZED_ENUM_SWITCH) == SwitchEnumOptStrategy.ALWAYS) {
+            request.addFeature(OptimizedSwitchEnumNonFeedbackFeature.class);
+          }
+
+          if (config.get(Optimizations.DefUseSimplifier.ENABLE).booleanValue()) {
+            request.addFeature(Optimizations.DefUseSimplifier.class);
+          }
+          if (config.get(Optimizations.UseDefSimplifier.ENABLE).booleanValue()) {
+            request.addFeature(Optimizations.UseDefSimplifier.class);
+          }
+          if (config.get(Optimizations.ExpressionSimplifier.ENABLE).booleanValue()) {
+            request.addFeature(Optimizations.ExpressionSimplifier.class);
+          }
+          if (config.get(Optimizations.IfSimplifier.ENABLE).booleanValue()) {
+            request.addFeature(Optimizations.IfSimplifier.class);
+          }
+          if (config.get(Optimizations.NotSimplifier.ENABLE).booleanValue()) {
+            request.addFeature(Optimizations.NotSimplifier.class);
+          }
+
+          if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.ENABLE) {
+            request.addFeature(EnabledAssertionFeature.class);
+          } else if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.DYNAMIC) {
+            request.addFeature(DynamicAssertionFeature.class);
+          } else if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.DISABLE) {
+            request.addFeature(DisabledAssertionFeature.class);
+          }
+
+          if (config.get(Options.GENERATE_JAYCE_IN_LIBRARY).booleanValue()) {
+            request.addProduction(JayceInLibraryProduct.class);
+          }
+
+          if (config.get(Options.GENERATE_DEPENDENCIES_IN_LIBRARY).booleanValue()) {
+            request.addProduction(DependencyInLibraryProduct.class);
+          }
+
+          if (config.get(TypeDefRemover.REMOVE_TYPEDEF).booleanValue()) {
+            request.addFeature(TypeDefRemover.RemoveTypeDef.class);
+          }
+
+          // TODO(jack-team): Remove this hack
+          List<InputLibrary> importedLibraries = session.getImportedLibraries();
+          boolean preDexing = !importedLibraries.isEmpty();
+          for (InputLibrary il : importedLibraries) {
+            if (!il.containsFileType(FileType.PREBUILT)) {
+              preDexing = false;
+            }
+          }
+          logger.log(Level.INFO, "Jack pre-dexing is " + (preDexing ? "enabled" : "disabled"));
+
+          Percent incompatiblePredexStatistic = tracer.getStatistic(INCOMPATIBLE_PREDEX);
+          boolean usePrebuilt = config.get(Options.USE_PREBUILT_FROM_LIBRARY).booleanValue();
+          for (InputLibrary il : importedLibraries) {
+            boolean compatible = ((InputJackLibrary) il).hasCompliantPrebuilts();
+            incompatiblePredexStatistic.add(!compatible);
+            if (!usePrebuilt || !compatible) {
+              ((InputJackLibrary) il).fileTypes.remove(FileType.PREBUILT);
+            }
+          }
+
+          ProductionSet targetProduction = request.getTargetProductions();
+          FeatureSet features = request.getFeatures();
+          PlanBuilder<JSession> planBuilder;
           try {
-            plan = request.buildPlan(JSession.class);
-          } catch (PlanNotFoundException e) {
-            throw new AssertionError(e);
+            planBuilder = request.getPlanBuilder(JSession.class);
           } catch (IllegalRequestException e) {
             throw new AssertionError(e);
           }
-        } catch (UnsupportedOperationException e) {
-          // ... but use a manual one if not supported
-          plan = planBuilder.getPlan();
 
-          assert!targetProduction.contains(JayceInLibraryProduct.class)
-              || targetProduction.contains(DexFileProduct.class)
-              || (plan.computeFinalTagsOrMarkers(request.getInitialTags()).contains(
-                  JackFormatIr.class) && !targetProduction.contains(DexInLibraryProduct.class))
-              || ((targetProduction.contains(DexInLibraryProduct.class)
-                  && targetProduction.contains(JayceInLibraryProduct.class))
-                  || !config.get(Options.GENERATE_DEX_IN_LIBRARY).booleanValue());
+          if (features.contains(OriginDigestFeature.class)) {
+            SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+                planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+            typePlan.append(OriginDigestAdder.class);
+          }
+
+          planBuilder.append(PreProcessorApplier.class);
+
+          fillDexPlan(planBuilder);
+          if (targetProduction.contains(DexFileProduct.class)) {
+            planBuilder.append(DexFileWriter.class);
+          }
+
+          if (features.contains(Resources.class)) {
+            if (targetProduction.contains(DexFileProduct.class)) {
+              planBuilder.append(ResourceWriter.class);
+            }
+            if (targetProduction.contains(JayceInLibraryProduct.class)) {
+              planBuilder.append(LibraryResourceWriter.class);
+            }
+          }
+
+          if (targetProduction.contains(JayceInLibraryProduct.class)) {
+            planBuilder.append(LibraryMetaWriter.class);
+          }
+
+          Plan<JSession> plan;
+          try {
+            // Try to build an automatic plan ...
+            try {
+              plan = request.buildPlan(JSession.class);
+            } catch (PlanNotFoundException e) {
+              throw new AssertionError(e);
+            } catch (IllegalRequestException e) {
+              throw new AssertionError(e);
+            }
+          } catch (UnsupportedOperationException e) {
+            // ... but use a manual one if not supported
+            plan = planBuilder.getPlan();
+
+            assert!targetProduction.contains(JayceInLibraryProduct.class)
+            || targetProduction.contains(DexFileProduct.class)
+            || (plan.computeFinalTagsOrMarkers(request.getInitialTags()).contains(
+                JackFormatIr.class) && !targetProduction.contains(DexInLibraryProduct.class))
+            || ((targetProduction.contains(DexInLibraryProduct.class)
+                && targetProduction.contains(JayceInLibraryProduct.class))
+                || !config.get(Options.GENERATE_DEX_IN_LIBRARY).booleanValue());
+          }
+
+          try {
+            PlanPrinterFactory.getPlanPrinter().printPlan(plan);
+          } catch (CannotWriteException e) {
+            session.getReporter().report(Severity.FATAL, new ReportableIOException("Plan", e));
+            session.abortEventually();
+          }
+
+          plan.getScheduleInstance().process(session);
+        } finally {
+          try {
+            if (outputJackLibrary != null) {
+              outputJackLibrary.close();
+            }
+
+            // TODO(jack-team): auto-close
+            if (config.get(Options.GENERATE_DEX_FILE).booleanValue()
+                && config.get(Options.DEX_OUTPUT_CONTAINER_TYPE) == Container.ZIP) {
+              config.get(Options.DEX_OUTPUT_ZIP).close();
+            }
+
+            for (InputLibrary importedLibrary : session.getImportedLibraries()) {
+              try {
+                importedLibrary.close();
+              } catch (LibraryIOException e) {
+                // ignore and log I/O errors when closing
+                logger.log(Level.FINE, "Cannot close input jack library "
+                    + importedLibrary.getLocation().getDescription());
+              }
+            }
+            for (InputLibrary classpathLibrary : session.getLibraryOnClasspath()) {
+              try {
+                classpathLibrary.close();
+              } catch (LibraryIOException e) {
+                // ignore and log I/O errors when closing
+                logger.log(Level.FINE, "Cannot close input jack library "
+                    + classpathLibrary.getLocation().getDescription());
+              }
+            }
+          } catch (LibraryIOException e) {
+            throw new AssertionError(e);
+          } catch (IOException e) {
+            throw new AssertionError(e);
+          }
         }
-
-        try {
-          PlanPrinterFactory.getPlanPrinter().printPlan(plan);
-        } catch (CannotWriteException e) {
-          session.getReporter().report(Severity.FATAL, new ReportableIOException("Plan", e));
-          session.abortEventually();
-        }
-
-        plan.getScheduleInstance().process(session);
       } finally {
-        try {
-          if (outputJackLibrary != null) {
-            outputJackLibrary.close();
-          }
-
-          // TODO(jack-team): auto-close
-          if (config.get(Options.GENERATE_DEX_FILE).booleanValue()
-              && config.get(Options.DEX_OUTPUT_CONTAINER_TYPE) == Container.ZIP) {
-            config.get(Options.DEX_OUTPUT_ZIP).close();
-          }
-
-          for (InputLibrary importedLibrary : session.getImportedLibraries()) {
-            try {
-              importedLibrary.close();
-            } catch (LibraryIOException e) {
-              // ignore and log I/O errors when closing
-              logger.log(Level.FINE, "Cannot close input jack library "
-                  + importedLibrary.getLocation().getDescription());
-            }
-          }
-          for (InputLibrary classpathLibrary : session.getLibraryOnClasspath()) {
-            try {
-              classpathLibrary.close();
-            } catch (LibraryIOException e) {
-              // ignore and log I/O errors when closing
-              logger.log(Level.FINE, "Cannot close input jack library "
-                  + classpathLibrary.getLocation().getDescription());
-            }
-          }
-        } catch (LibraryIOException e) {
-          throw new AssertionError(e);
-        } catch (IOException e) {
-          throw new AssertionError(e);
-        }
-      }
-    } finally {
-      if (event != null) {
         event.end();
       }
+    } finally {
       ThreadConfig.unsetConfig();
     }
   }
