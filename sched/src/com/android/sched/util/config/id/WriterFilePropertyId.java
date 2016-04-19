@@ -100,7 +100,7 @@ public class WriterFilePropertyId extends PropertyId<WriterFile> {
 
           if (file.getStatus() == StreamFileStatus.OPEN) {
             throw new AssertionError(file.getLocation().getDescription() + " from property '"
-                + getName() + " is not closed");
+                + getName() + "' is not closed");
           }
         }
       }

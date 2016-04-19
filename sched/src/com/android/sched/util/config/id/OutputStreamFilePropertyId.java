@@ -74,7 +74,7 @@ public class OutputStreamFilePropertyId extends PropertyId<OutputStreamFile> {
       public void run(OutputStreamFile file) {
         if (file.getStatus() == StreamFileStatus.OPEN) {
           throw new AssertionError(file.getLocation().getDescription() + " from property '"
-              + getName() + " is not closed");
+              + getName() + "' is not closed");
         }
       }
     });
