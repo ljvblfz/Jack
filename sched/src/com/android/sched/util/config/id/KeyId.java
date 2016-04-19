@@ -125,9 +125,9 @@ public abstract class KeyId<T, S> {
       return null;
     }
 
-    for (Class<? extends Category> category : categories.keySet()) {
-      if (target.isAssignableFrom(category)) {
-        return (T) categories.get(target);
+    for (Map.Entry<Class<? extends Category>, Category> entry : categories.entrySet()) {
+      if (target.isAssignableFrom(entry.getKey())) {
+        return (T) entry.getValue();
       }
     }
 
