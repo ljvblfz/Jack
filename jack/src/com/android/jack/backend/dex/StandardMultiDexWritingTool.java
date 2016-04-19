@@ -24,7 +24,9 @@ import com.android.sched.vfs.OutputVFS;
 import com.android.sched.vfs.OutputVFile;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -41,14 +43,13 @@ public class StandardMultiDexWritingTool extends DexWritingTool implements Multi
     int dexCount = 1;
     JackMerger merger = new JackMerger(createDexFile());
     OutputVFile outputDex = getOutputDex(outputVDir, dexCount++);
-    List<InputVFile> mainDexList = new ArrayList<InputVFile>();
+    Set<MatchableInputVFile> mainDexList = new HashSet<MatchableInputVFile>();
     List<InputVFile> anyDexList = new ArrayList<InputVFile>();
     fillDexLists(mainDexList, anyDexList);
-    mainDexList.addAll(getOrphanDexFiles());
 
-    for (InputVFile currentDex : mainDexList) {
+    for (MatchableInputVFile currentDex : mainDexList) {
       try {
-        mergeDex(merger, currentDex);
+        mergeDex(merger, currentDex.getInputVFile());
       } catch (MergingOverflowException e) {
         throw new DexWritingException(new MainDexOverflowException(e));
       }

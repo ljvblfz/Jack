@@ -55,9 +55,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -65,6 +67,39 @@ import javax.annotation.Nonnull;
  */
 @VariableName("writer")
 public abstract class DexWritingTool {
+
+  /**
+   * {@link MatchableInputVFile} is used to deduplicate {@link InputVFile}.
+   */
+  static class MatchableInputVFile {
+
+    @Nonnull
+    private final InputVFile inputVFile;
+
+    public MatchableInputVFile(@Nonnull InputVFile inputVFile) {
+      this.inputVFile = inputVFile;
+    }
+
+    @Override
+    public final boolean equals(@CheckForNull Object obj) {
+      if (!(obj instanceof MatchableInputVFile)) {
+        return false;
+      }
+
+      return inputVFile.getPathFromRoot()
+          .equals(((MatchableInputVFile) obj).getInputVFile().getPathFromRoot());
+    }
+
+    @Override
+    public final int hashCode() {
+      return inputVFile.getPathFromRoot().hashCode();
+    }
+
+    @Nonnull
+    public InputVFile getInputVFile() {
+      return inputVFile;
+    }
+  }
 
   @Nonnull
   private static final TypePackageAndMethodFormatter FORMATTER = Jack.getLookupFormatter();
@@ -143,7 +178,7 @@ public abstract class DexWritingTool {
     }
   }
 
-  protected void fillDexLists(@Nonnull List<InputVFile> mainDexList,
+  protected void fillDexLists(@Nonnull Set<MatchableInputVFile> mainDexList,
       @Nonnull List<InputVFile> anyDexList) {
     final OutputJackLibrary jackOutputLibrary = Jack.getSession().getJackOutputLibrary();
     Collection<JDefinedClassOrInterface> typesToEmit = Jack.getSession().getTypesToEmit();
@@ -153,7 +188,7 @@ public abstract class DexWritingTool {
 
     for (JDefinedClassOrInterface type : typesToEmit) {
       if (type.containsMarker(MainDexMarker.class)) {
-        mainDexList.add(getDexInputVFileOfType(jackOutputLibrary, type));
+        mainDexList.add(new MatchableInputVFile(getDexInputVFileOfType(jackOutputLibrary, type)));
       } else {
         anyTypeList.add(type);
       }
@@ -167,6 +202,8 @@ public abstract class DexWritingTool {
     for (JDefinedClassOrInterface type : anyTypeList) {
       anyDexList.add(getDexInputVFileOfType(jackOutputLibrary, type));
     }
+
+    addOrphanDexFiles(mainDexList);
   }
 
   @Nonnull
@@ -202,8 +239,7 @@ public abstract class DexWritingTool {
    * @return a list of orphan dex files.
    */
   @Nonnull
-  protected List<InputVFile> getOrphanDexFiles() {
-    List<InputVFile> orphanDexFiles = new ArrayList<InputVFile>();
+  protected void addOrphanDexFiles(@Nonnull Set<MatchableInputVFile> dexToMerge) {
     if (usePrebuilts) {
       for (InputLibrary inputLibrary : Jack.getSession().getImportedLibraries()) {
         if (inputLibrary instanceof InputJackLibrary) {
@@ -220,14 +256,12 @@ public abstract class DexWritingTool {
               try {
                 inputJackLibrary.getFile(FileType.JAYCE, new VPath(type, '/'));
               } catch (FileTypeDoesNotExistException e) {
-                orphanDexFiles.add(dexFile);
+                dexToMerge.add(new MatchableInputVFile(dexFile));
               }
             }
           }
         }
       }
     }
-
-    return orphanDexFiles;
   }
 }
