@@ -497,4 +497,9 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
   VPath getPathFromRoot(@Nonnull MessageDigestVFile file) {
     return vfs.getPathFromRoot(file.getWrappedFile());
   }
+
+  @Override
+  public String toString() {
+    return "digestFS >> " + vfs.toString();
+  }
 }

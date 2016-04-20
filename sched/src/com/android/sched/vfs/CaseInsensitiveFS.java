@@ -630,4 +630,9 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
   VPath getPathFromRoot(@Nonnull CaseInsensitiveVFile file) {
     return getPathFromDir(root, file);
   }
+
+  @Override
+  public String toString() {
+    return "ciFS >> " + vfs.toString();
+  }
 }
