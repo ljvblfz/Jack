@@ -18,6 +18,7 @@ package com.android.jack.verify;
 
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -31,6 +32,14 @@ public class VerifyTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.verify.test001"),
     "com.android.jack.verify.test001.dx.Tests");
 
+  private RuntimeTestInfo TEST002 = new RuntimeTestInfo(
+    AbstractTestTools.getTestRootDir("com.android.jack.verify.test002"),
+    "com.android.jack.verify.test002.dx.Tests");
+
+  private RuntimeTestInfo TEST003 = new RuntimeTestInfo(
+    AbstractTestTools.getTestRootDir("com.android.jack.verify.test003"),
+    "com.android.jack.verify.test003.dx.Tests");
+
 
   @Test
   @Category(RuntimeRegressionTest.class)
@@ -38,8 +47,31 @@ public class VerifyTests extends RuntimeTest {
     new RuntimeTestHelper(TEST001).compileAndRunTest();
   }
 
+  @Test
+  public void test002() throws Exception {
+    new RuntimeTestHelper(TEST002)
+    .addProperty("jack.optimization.def-use-simplifier", "false")
+    .compileAndRunTest();
+  }
+
+  @Test
+  @Category(RuntimeRegressionTest.class)
+  public void test003() throws Exception {
+    new RuntimeTestHelper(TEST003)
+    .compileAndRunTest();
+  }
+
+  @KnownIssue
+  @Test
+  public void test003_2() throws Exception {
+    new RuntimeTestHelper(TEST003)
+    .addProperty("jack.optimization.def-use-simplifier", "false")
+    .compileAndRunTest();
+  }
+
   @Override
   protected void fillRtTestInfos() {
     rtTestInfos.add(TEST001);
+    rtTestInfos.add(TEST003);
   }
 }
