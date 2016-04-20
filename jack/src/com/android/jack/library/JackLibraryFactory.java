@@ -16,6 +16,7 @@
 
 package com.android.jack.library;
 
+import com.android.jack.library.v0002.InputJackLibraryImpl;
 import com.android.jack.library.v0002.OutputJackLibraryImpl;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.id.BooleanPropertyId;
@@ -72,12 +73,12 @@ public abstract class JackLibraryFactory {
       throws LibraryVersionException, LibraryFormatException, NotJackLibraryException {
     GenericInputVFS giVFS = new GenericInputVFS(vdir);
     Properties libraryProperties = loadLibraryProperties(giVFS);
-    String majorVersion = getMajorVersionAsString(giVFS, libraryProperties);
+    String majorVersion = getVersionString(getMajorVersion(giVFS, libraryProperties));
 
     InputJackLibrary inputJackLibrary = (InputJackLibrary) instantiateConstructorWithParameters(
         vdir, "com.android.jack.library.v" + majorVersion + ".InputJackLibraryImpl",
         new Class[] {VFS.class, Properties.class}, new Object[] {vdir, libraryProperties},
-        String.valueOf(majorVersion));
+        majorVersion);
 
     return inputJackLibrary;
   }
@@ -88,11 +89,10 @@ public abstract class JackLibraryFactory {
     return new OutputJackLibraryImpl(vfs, emitterId, emitterVersion);
   }
 
-  private static String getMajorVersionAsString(@Nonnull InputVFS vdir,
+  private static int getMajorVersion(@Nonnull InputVFS vdir,
       @Nonnull Properties libraryProperties) throws LibraryFormatException {
     try {
-      return (getVersionString(
-          Integer.parseInt((String) libraryProperties.get(JackLibrary.KEY_LIB_MAJOR_VERSION))));
+      return Integer.parseInt((String) libraryProperties.get(JackLibrary.KEY_LIB_MAJOR_VERSION));
     } catch (NumberFormatException e) {
       Location location = vdir.getLocation();
       logger.log(Level.SEVERE, "Failed to parse the property " + JackLibrary.KEY_LIB_MAJOR_VERSION
@@ -167,5 +167,19 @@ public abstract class JackLibraryFactory {
       throw new AssertionError(cause);
     }
     return constructorInstance;
+  }
+
+  @Nonnull
+  public static InputJackLibrary getInputLibrary(@Nonnull OutputJackLibrary jackOutputLibrary)
+      throws LibraryFormatException, LibraryVersionException, NotJackLibraryException {
+    GenericInputVFS giVFS = new GenericInputVFS(jackOutputLibrary.getVfs());
+    Properties libraryProperties = loadLibraryProperties(giVFS);
+    int majorVersion = getMajorVersion(giVFS, libraryProperties);
+    if (majorVersion != jackOutputLibrary.getMajorVersion()) {
+      throw new LibraryVersionException("Library "
+          + jackOutputLibrary.getLocation().getDescription() + " does not have the latest version ("
+          + majorVersion + ") and cannot be used as input/output");
+    }
+    return new InputJackLibraryImpl((OutputJackLibraryImpl) jackOutputLibrary, libraryProperties);
   }
 }

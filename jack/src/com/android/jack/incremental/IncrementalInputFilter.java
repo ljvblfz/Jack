@@ -52,9 +52,7 @@ import com.android.sched.util.log.TracerFactory;
 import com.android.sched.util.log.stats.Counter;
 import com.android.sched.util.log.stats.CounterImpl;
 import com.android.sched.util.log.stats.StatisticId;
-import com.android.sched.vfs.Container;
 import com.android.sched.vfs.InputVFile;
-import com.android.sched.vfs.VFS;
 import com.android.sched.vfs.VPath;
 
 import java.io.File;
@@ -154,13 +152,8 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   @Nonnull
   private final List<? extends InputLibrary> librariesOnClasspathFromCommandLine;
 
-  @Nonnull
-  private final File incrementalFolder;
-
   public IncrementalInputFilter(@Nonnull Options options) {
     Config config = ThreadConfig.getConfig();
-
-    incrementalFolder = new File(config.get(Options.LIBRARY_OUTPUT_DIR).getPath());
 
     this.options = options;
     incrementalInputLibrary = getIncrementalInternalLibrary();
@@ -374,15 +367,8 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
 
   @CheckForNull
   private InputJackLibrary getIncrementalInternalLibrary() {
-    VFS incrementalVfs;
-    if (ThreadConfig.get(Options.GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER).booleanValue()
-        || ThreadConfig.get(Options.LIBRARY_OUTPUT_CONTAINER_TYPE) == Container.ZIP) {
-      incrementalVfs = ThreadConfig.get(Options.LIBRARY_OUTPUT_ZIP);
-    } else {
-      incrementalVfs = ThreadConfig.get(Options.LIBRARY_OUTPUT_DIR);
-    }
     try {
-      return JackLibraryFactory.getInputLibrary(incrementalVfs);
+      return JackLibraryFactory.getInputLibrary(Jack.getSession().getJackOutputLibrary());
     } catch (NotJackLibraryException e) {
       // No incremental internal library, it is the first compilation
     } catch (LibraryVersionException e) {

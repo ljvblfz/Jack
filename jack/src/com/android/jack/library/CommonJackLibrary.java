@@ -136,7 +136,7 @@ public abstract class CommonJackLibrary implements JackLibrary {
   }
 
   @Nonnull
-  protected VFS getVfs() {
+  public VFS getVfs() {
     return vfs;
   }
 
