@@ -37,7 +37,7 @@ public class OpcodesTests extends RuntimeTest {
     public OpcodesRuntimeInfos(File directory, String jUnit) {
       super(directory, jUnit);
       setSrcDirName("jm");
-      setRefDirName( ".");
+      setRefDirName("ref");
       addReferenceExtraSources(new File(TestsProperties.getJackRootDir(),
           "jack-tests/src/com/android/jack/test/DxTestCase.java"));
     }
@@ -46,532 +46,532 @@ public class OpcodesTests extends RuntimeTest {
   @Nonnull
   private OpcodesRuntimeInfos INVOKE_STATIC = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.invoke_static"),
-    "com.android.jack.opcodes.invoke_static.Test_invoke_static");
+    "com.android.jack.opcodes.invoke_static.ref.Test_invoke_static");
 
   @Nonnull
   private OpcodesRuntimeInfos ARRAY_LENGTH = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.array_length"),
-    "com.android.jack.opcodes.array_length.Test_array_length");
+    "com.android.jack.opcodes.array_length.ref.Test_array_length");
 
   @Nonnull
   private OpcodesRuntimeInfos NEG_FLOAT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.neg_float"),
-    "com.android.jack.opcodes.neg_float.Test_neg_float");
+    "com.android.jack.opcodes.neg_float.ref.Test_neg_float");
 
   @Nonnull
   private OpcodesRuntimeInfos SUB_DOUBLE = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.sub_double"),
-    "com.android.jack.opcodes.sub_double.Test_sub_double");
+    "com.android.jack.opcodes.sub_double.ref.Test_sub_double");
 
   @Nonnull
   private OpcodesRuntimeInfos AGET = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.aget"),
-    "com.android.jack.opcodes.aget.Test_aget");
+    "com.android.jack.opcodes.aget.ref.Test_aget");
 
   @Nonnull
   private OpcodesRuntimeInfos APUT_BYTE = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.aput_byte"),
-    "com.android.jack.opcodes.aput_byte.Test_aput_byte");
+    "com.android.jack.opcodes.aput_byte.ref.Test_aput_byte");
 
   @Nonnull
   private OpcodesRuntimeInfos OPC_NEW = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.opc_new"),
-    "com.android.jack.opcodes.opc_new.Test_opc_new");
+    "com.android.jack.opcodes.opc_new.ref.Test_opc_new");
 
   @Nonnull
   private OpcodesRuntimeInfos CMPL_DOUBLE = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.cmpl_double"),
-    "com.android.jack.opcodes.cmpl_double.Test_cmpl_double");
+    "com.android.jack.opcodes.cmpl_double.ref.Test_cmpl_double");
 
   @Nonnull
   private OpcodesRuntimeInfos IF_GTZ = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.if_gtz"),
-    "com.android.jack.opcodes.if_gtz.Test_if_gtz");
+    "com.android.jack.opcodes.if_gtz.ref.Test_if_gtz");
 
   @Nonnull
   private OpcodesRuntimeInfos FLOAT_TO_LONG = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.float_to_long"),
-    "com.android.jack.opcodes.float_to_long.Test_float_to_long");
+    "com.android.jack.opcodes.float_to_long.ref.Test_float_to_long");
 
   @Nonnull
   private OpcodesRuntimeInfos ADD_LONG = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.add_long"),
-    "com.android.jack.opcodes.add_long.Test_add_long");
+    "com.android.jack.opcodes.add_long.ref.Test_add_long");
 
   @Nonnull
   private OpcodesRuntimeInfos ADD_FLOAT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.add_float"),
-    "com.android.jack.opcodes.add_float.Test_add_float");
+    "com.android.jack.opcodes.add_float.ref.Test_add_float");
 
   @Nonnull
   private OpcodesRuntimeInfos IPUT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.iput"),
-    "com.android.jack.opcodes.iput.Test_iput");
+    "com.android.jack.opcodes.iput.ref.Test_iput");
 
   @Nonnull
   private OpcodesRuntimeInfos DIV_FLOAT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.div_float"),
-    "com.android.jack.opcodes.div_float.Test_div_float");
+    "com.android.jack.opcodes.div_float.ref.Test_div_float");
 
   @Nonnull
   private OpcodesRuntimeInfos USHR_LONG = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.ushr_long"),
-    "com.android.jack.opcodes.ushr_long.Test_ushr_long");
+    "com.android.jack.opcodes.ushr_long.ref.Test_ushr_long");
 
   @Nonnull
   private OpcodesRuntimeInfos CONST_WIDE = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.const_wide"),
-    "com.android.jack.opcodes.const_wide.Test_const_wide");
+    "com.android.jack.opcodes.const_wide.ref.Test_const_wide");
 
   @Nonnull
   private OpcodesRuntimeInfos XOR_INT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.xor_int"),
-    "com.android.jack.opcodes.xor_int.Test_xor_int");
+    "com.android.jack.opcodes.xor_int.ref.Test_xor_int");
 
   @Nonnull
   private OpcodesRuntimeInfos AGET_OBJECT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.aget_object"),
-    "com.android.jack.opcodes.aget_object.Test_aget_object");
+    "com.android.jack.opcodes.aget_object.ref.Test_aget_object");
 
   @Nonnull
   private OpcodesRuntimeInfos CONST4_16 = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.const4_16"),
-    "com.android.jack.opcodes.const4_16.Test_const4_16");
+    "com.android.jack.opcodes.const4_16.ref.Test_const4_16");
 
   @Nonnull
   private OpcodesRuntimeInfos REM_LONG = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.rem_long"),
-    "com.android.jack.opcodes.rem_long.Test_rem_long");
+    "com.android.jack.opcodes.rem_long.ref.Test_rem_long");
 
   @Nonnull
   private OpcodesRuntimeInfos USHR_INT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.ushr_int"),
-    "com.android.jack.opcodes.ushr_int.Test_ushr_int");
+    "com.android.jack.opcodes.ushr_int.ref.Test_ushr_int");
 
   @Nonnull
   private OpcodesRuntimeInfos IF_GE = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.if_ge"),
-    "com.android.jack.opcodes.if_ge.Test_if_ge");
+    "com.android.jack.opcodes.if_ge.ref.Test_if_ge");
 
   @Nonnull
   private OpcodesRuntimeInfos SUB_LONG = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.sub_long"),
-    "com.android.jack.opcodes.sub_long.Test_sub_long");
+    "com.android.jack.opcodes.sub_long.ref.Test_sub_long");
 
   @Nonnull
   private OpcodesRuntimeInfos FLOAT_TO_INT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.float_to_int"),
-    "com.android.jack.opcodes.float_to_int.Test_float_to_int");
+    "com.android.jack.opcodes.float_to_int.ref.Test_float_to_int");
 
   @Nonnull
   private OpcodesRuntimeInfos INT_TO_LONG = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.int_to_long"),
-    "com.android.jack.opcodes.int_to_long.Test_int_to_long");
+    "com.android.jack.opcodes.int_to_long.ref.Test_int_to_long");
 
   @Nonnull
   private OpcodesRuntimeInfos OR_LONG = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.or_long"),
-    "com.android.jack.opcodes.or_long.Test_or_long");
+    "com.android.jack.opcodes.or_long.ref.Test_or_long");
 
   @Nonnull
   private OpcodesRuntimeInfos IF_GEZ = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.if_gez"),
-    "com.android.jack.opcodes.if_gez.Test_if_gez");
+    "com.android.jack.opcodes.if_gez.ref.Test_if_gez");
 
   @Nonnull
   private OpcodesRuntimeInfos SHL_INT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.shl_int"),
-    "com.android.jack.opcodes.shl_int.Test_shl_int");
+    "com.android.jack.opcodes.shl_int.ref.Test_shl_int");
 
   @Nonnull
   private OpcodesRuntimeInfos LONG_TO_FLOAT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.long_to_float"),
-    "com.android.jack.opcodes.long_to_float.Test_long_to_float");
+    "com.android.jack.opcodes.long_to_float.ref.Test_long_to_float");
 
   @Nonnull
   private OpcodesRuntimeInfos DIV_INT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.div_int"),
-    "com.android.jack.opcodes.div_int.Test_div_int");
+    "com.android.jack.opcodes.div_int.ref.Test_div_int");
 
   @Nonnull
   private OpcodesRuntimeInfos AND_LONG = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.and_long"),
-    "com.android.jack.opcodes.and_long.Test_and_long");
+    "com.android.jack.opcodes.and_long.ref.Test_and_long");
 
   @Nonnull
   private OpcodesRuntimeInfos DOUBLE_TO_LONG = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.double_to_long"),
-    "com.android.jack.opcodes.double_to_long.Test_double_to_long");
+    "com.android.jack.opcodes.double_to_long.ref.Test_double_to_long");
 
   @Nonnull
   private OpcodesRuntimeInfos MUL_LONG = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.mul_long"),
-    "com.android.jack.opcodes.mul_long.Test_mul_long");
+    "com.android.jack.opcodes.mul_long.ref.Test_mul_long");
 
   @Nonnull
   private OpcodesRuntimeInfos DOUBLE_TO_INT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.double_to_int"),
-    "com.android.jack.opcodes.double_to_int.Test_double_to_int");
+    "com.android.jack.opcodes.double_to_int.ref.Test_double_to_int");
 
   @Nonnull
   private OpcodesRuntimeInfos IF_NEZ = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.if_nez"),
-    "com.android.jack.opcodes.if_nez.Test_if_nez");
+    "com.android.jack.opcodes.if_nez.ref.Test_if_nez");
 
   @Nonnull
   private OpcodesRuntimeInfos APUT_OBJECT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.aput_object"),
-    "com.android.jack.opcodes.aput_object.Test_aput_object");
+    "com.android.jack.opcodes.aput_object.ref.Test_aput_object");
 
   @Nonnull
   private OpcodesRuntimeInfos IF_LT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.if_lt"),
-    "com.android.jack.opcodes.if_lt.Test_if_lt");
+    "com.android.jack.opcodes.if_lt.ref.Test_if_lt");
 
   @Nonnull
   private OpcodesRuntimeInfos INT_TO_DOUBLE = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.int_to_double"),
-    "com.android.jack.opcodes.int_to_double.Test_int_to_double");
+    "com.android.jack.opcodes.int_to_double.ref.Test_int_to_double");
 
   @Nonnull
   private OpcodesRuntimeInfos MUL_INT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.mul_int"),
-    "com.android.jack.opcodes.mul_int.Test_mul_int");
+    "com.android.jack.opcodes.mul_int.ref.Test_mul_int");
 
   @Nonnull
   private OpcodesRuntimeInfos SPUT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.sput"),
-    "com.android.jack.opcodes.sput.Test_sput");
+    "com.android.jack.opcodes.sput.ref.Test_sput");
 
   @Nonnull
   private OpcodesRuntimeInfos SHL_LONG = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.shl_long"),
-    "com.android.jack.opcodes.shl_long.Test_shl_long");
+    "com.android.jack.opcodes.shl_long.ref.Test_shl_long");
 
   @Nonnull
   private OpcodesRuntimeInfos NEG_LONG = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.neg_long"),
-    "com.android.jack.opcodes.neg_long.Test_neg_long");
+    "com.android.jack.opcodes.neg_long.ref.Test_neg_long");
 
   @Nonnull
   private OpcodesRuntimeInfos LONG_TO_INT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.long_to_int"),
-    "com.android.jack.opcodes.long_to_int.Test_long_to_int");
+    "com.android.jack.opcodes.long_to_int.ref.Test_long_to_int");
 
   @Nonnull
   private OpcodesRuntimeInfos OPC_GOTO = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.opc_goto"),
-    "com.android.jack.opcodes.opc_goto.Test_opc_goto");
+    "com.android.jack.opcodes.opc_goto.ref.Test_opc_goto");
 
   @Nonnull
   private OpcodesRuntimeInfos INT_TO_FLOAT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.int_to_float"),
-    "com.android.jack.opcodes.int_to_float.Test_int_to_float");
+    "com.android.jack.opcodes.int_to_float.ref.Test_int_to_float");
 
   @Nonnull
   private OpcodesRuntimeInfos XOR_LONG = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.xor_long"),
-    "com.android.jack.opcodes.xor_long.Test_xor_long");
+    "com.android.jack.opcodes.xor_long.ref.Test_xor_long");
 
   @Nonnull
   private OpcodesRuntimeInfos MONITOR_ENTER = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.monitor_enter"),
-    "com.android.jack.opcodes.monitor_enter.Test_monitor_enter");
+    "com.android.jack.opcodes.monitor_enter.ref.Test_monitor_enter");
 
   @Nonnull
   private OpcodesRuntimeInfos IF_EQZ = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.if_eqz"),
-    "com.android.jack.opcodes.if_eqz.Test_if_eqz");
+    "com.android.jack.opcodes.if_eqz.ref.Test_if_eqz");
 
   @Nonnull
   private OpcodesRuntimeInfos INVOKE_DIRECT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.invoke_direct"),
-    "com.android.jack.opcodes.invoke_direct.Test_invoke_direct");
+    "com.android.jack.opcodes.invoke_direct.ref.Test_invoke_direct");
 
   @Nonnull
   private OpcodesRuntimeInfos CMPL_FLOAT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.cmpl_float"),
-    "com.android.jack.opcodes.cmpl_float.Test_cmpl_float");
+    "com.android.jack.opcodes.cmpl_float.ref.Test_cmpl_float");
 
   @Nonnull
   private OpcodesRuntimeInfos CHECK_CAST = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.check_cast"),
-    "com.android.jack.opcodes.check_cast.Test_check_cast");
+    "com.android.jack.opcodes.check_cast.ref.Test_check_cast");
 
   @Nonnull
   private OpcodesRuntimeInfos OPC_THROW = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.opc_throw"),
-    "com.android.jack.opcodes.opc_throw.Test_opc_throw");
+    "com.android.jack.opcodes.opc_throw.ref.Test_opc_throw");
 
   @Nonnull
   private OpcodesRuntimeInfos INT_TO_SHORT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.int_to_short"),
-    "com.android.jack.opcodes.int_to_short.Test_int_to_short");
+    "com.android.jack.opcodes.int_to_short.ref.Test_int_to_short");
 
   @Nonnull
   private OpcodesRuntimeInfos PACKED_SWITCH = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.packed_switch"),
-    "com.android.jack.opcodes.packed_switch.Test_packed_switch");
+    "com.android.jack.opcodes.packed_switch.ref.Test_packed_switch");
 
   @Nonnull
   private OpcodesRuntimeInfos AGET_CHAR = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.aget_char"),
-    "com.android.jack.opcodes.aget_char.Test_aget_char");
+    "com.android.jack.opcodes.aget_char.ref.Test_aget_char");
 
   @Nonnull
   private OpcodesRuntimeInfos RETURN_OBJECT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.return_object"),
-    "com.android.jack.opcodes.return_object.Test_return_object");
+    "com.android.jack.opcodes.return_object.ref.Test_return_object");
 
   @Nonnull
   private OpcodesRuntimeInfos OPC_CONST = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.opc_const"),
-    "com.android.jack.opcodes.opc_const.Test_opc_const");
+    "com.android.jack.opcodes.opc_const.ref.Test_opc_const");
 
   @Nonnull
   private OpcodesRuntimeInfos SUB_INT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.sub_int"),
-    "com.android.jack.opcodes.sub_int.Test_sub_int");
+    "com.android.jack.opcodes.sub_int.ref.Test_sub_int");
 
   @Nonnull
   private OpcodesRuntimeInfos APUT_CHAR = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.aput_char"),
-    "com.android.jack.opcodes.aput_char.Test_aput_char");
+    "com.android.jack.opcodes.aput_char.ref.Test_aput_char");
 
   @Nonnull
   private OpcodesRuntimeInfos NEG_INT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.neg_int"),
-    "com.android.jack.opcodes.neg_int.Test_neg_int");
+    "com.android.jack.opcodes.neg_int.ref.Test_neg_int");
 
   @Nonnull
   private OpcodesRuntimeInfos MUL_DOUBLE = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.mul_double"),
-    "com.android.jack.opcodes.mul_double.Test_mul_double");
+    "com.android.jack.opcodes.mul_double.ref.Test_mul_double");
 
   @Nonnull
   private OpcodesRuntimeInfos DOUBLE_TO_FLOAT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.double_to_float"),
-    "com.android.jack.opcodes.double_to_float.Test_double_to_float");
+    "com.android.jack.opcodes.double_to_float.ref.Test_double_to_float");
 
   @Nonnull
   private OpcodesRuntimeInfos INT_TO_BYTE = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.int_to_byte"),
-    "com.android.jack.opcodes.int_to_byte.Test_int_to_byte");
+    "com.android.jack.opcodes.int_to_byte.ref.Test_int_to_byte");
 
   @Nonnull
   private OpcodesRuntimeInfos IF_LE = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.if_le"),
-    "com.android.jack.opcodes.if_le.Test_if_le");
+    "com.android.jack.opcodes.if_le.ref.Test_if_le");
 
   @Nonnull
   private OpcodesRuntimeInfos INVOKE_VIRTUAL = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.invoke_virtual"),
-    "com.android.jack.opcodes.invoke_virtual.Test_invoke_virtual");
+    "com.android.jack.opcodes.invoke_virtual.ref.Test_invoke_virtual");
 
   @Nonnull
   private OpcodesRuntimeInfos DIV_DOUBLE = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.div_double"),
-    "com.android.jack.opcodes.div_double.Test_div_double");
+    "com.android.jack.opcodes.div_double.ref.Test_div_double");
 
   @Nonnull
   private OpcodesRuntimeInfos IF_GT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.if_gt"),
-    "com.android.jack.opcodes.if_gt.Test_if_gt");
+    "com.android.jack.opcodes.if_gt.ref.Test_if_gt");
 
   @Nonnull
   private OpcodesRuntimeInfos AGET_SHORT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.aget_short"),
-    "com.android.jack.opcodes.aget_short.Test_aget_short");
+    "com.android.jack.opcodes.aget_short.ref.Test_aget_short");
 
   @Nonnull
   private OpcodesRuntimeInfos CONST_STRING = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.const_string"),
-    "com.android.jack.opcodes.const_string.Test_const_string");
+    "com.android.jack.opcodes.const_string.ref.Test_const_string");
 
   @Nonnull
   private OpcodesRuntimeInfos OR_INT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.or_int"),
-    "com.android.jack.opcodes.or_int.Test_or_int");
+    "com.android.jack.opcodes.or_int.ref.Test_or_int");
 
   @Nonnull
   private OpcodesRuntimeInfos REM_INT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.rem_int"),
-    "com.android.jack.opcodes.rem_int.Test_rem_int");
+    "com.android.jack.opcodes.rem_int.ref.Test_rem_int");
 
   @Nonnull
   private OpcodesRuntimeInfos REM_DOUBLE = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.rem_double"),
-    "com.android.jack.opcodes.rem_double.Test_rem_double");
+    "com.android.jack.opcodes.rem_double.ref.Test_rem_double");
 
   @Nonnull
   private OpcodesRuntimeInfos LONG_TO_DOUBLE = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.long_to_double"),
-    "com.android.jack.opcodes.long_to_double.Test_long_to_double");
+    "com.android.jack.opcodes.long_to_double.ref.Test_long_to_double");
 
   @Nonnull
   private OpcodesRuntimeInfos IF_NE = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.if_ne"),
-    "com.android.jack.opcodes.if_ne.Test_if_ne");
+    "com.android.jack.opcodes.if_ne.ref.Test_if_ne");
 
   @Nonnull
   private OpcodesRuntimeInfos CMP_LONG = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.cmp_long"),
-    "com.android.jack.opcodes.cmp_long.Test_cmp_long");
+    "com.android.jack.opcodes.cmp_long.ref.Test_cmp_long");
 
   @Nonnull
   private OpcodesRuntimeInfos SGET = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.sget"),
-    "com.android.jack.opcodes.sget.Test_sget");
+    "com.android.jack.opcodes.sget.ref.Test_sget");
 
   @Nonnull
   private OpcodesRuntimeInfos AGET_WIDE = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.aget_wide"),
-    "com.android.jack.opcodes.aget_wide.Test_aget_wide");
+    "com.android.jack.opcodes.aget_wide.ref.Test_aget_wide");
 
   @Nonnull
   private OpcodesRuntimeInfos IF_LTZ = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.if_ltz"),
-    "com.android.jack.opcodes.if_ltz.Test_if_ltz");
+    "com.android.jack.opcodes.if_ltz.ref.Test_if_ltz");
 
   @Nonnull
   private OpcodesRuntimeInfos OPC_INSTANCEOF = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.opc_instanceof"),
-    "com.android.jack.opcodes.opc_instanceof.Test_opc_instanceof");
+    "com.android.jack.opcodes.opc_instanceof.ref.Test_opc_instanceof");
 
   @Nonnull
   private OpcodesRuntimeInfos NEG_DOUBLE = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.neg_double"),
-    "com.android.jack.opcodes.neg_double.Test_neg_double");
+    "com.android.jack.opcodes.neg_double.ref.Test_neg_double");
 
   @Nonnull
   private OpcodesRuntimeInfos RETURN_WIDE = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.return_wide"),
-    "com.android.jack.opcodes.return_wide.Test_return_wide");
+    "com.android.jack.opcodes.return_wide.ref.Test_return_wide");
 
   @Nonnull
   private OpcodesRuntimeInfos FLOAT_TO_DOUBLE = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.float_to_double"),
-    "com.android.jack.opcodes.float_to_double.Test_float_to_double");
+    "com.android.jack.opcodes.float_to_double.ref.Test_float_to_double");
 
   @Nonnull
   private OpcodesRuntimeInfos APUT_SHORT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.aput_short"),
-    "com.android.jack.opcodes.aput_short.Test_aput_short");
+    "com.android.jack.opcodes.aput_short.ref.Test_aput_short");
 
   @Nonnull
   private OpcodesRuntimeInfos CMPG_DOUBLE = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.cmpg_double"),
-    "com.android.jack.opcodes.cmpg_double.Test_cmpg_double");
+    "com.android.jack.opcodes.cmpg_double.ref.Test_cmpg_double");
 
   @Nonnull
   private OpcodesRuntimeInfos IF_LEZ = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.if_lez"),
-    "com.android.jack.opcodes.if_lez.Test_if_lez");
+    "com.android.jack.opcodes.if_lez.ref.Test_if_lez");
 
   @Nonnull
   private OpcodesRuntimeInfos IF_EQ = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.if_eq"),
-    "com.android.jack.opcodes.if_eq.Test_if_eq");
+    "com.android.jack.opcodes.if_eq.ref.Test_if_eq");
 
   @Nonnull
   private OpcodesRuntimeInfos NEW_ARRAY = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.new_array"),
-    "com.android.jack.opcodes.new_array.Test_new_array");
+    "com.android.jack.opcodes.new_array.ref.Test_new_array");
 
   @Nonnull
   private OpcodesRuntimeInfos SHR_LONG = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.shr_long"),
-    "com.android.jack.opcodes.shr_long.Test_shr_long");
+    "com.android.jack.opcodes.shr_long.ref.Test_shr_long");
 
   @Nonnull
   private OpcodesRuntimeInfos ADD_DOUBLE = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.add_double"),
-    "com.android.jack.opcodes.add_double.Test_add_double");
+    "com.android.jack.opcodes.add_double.ref.Test_add_double");
 
   @Nonnull
   private OpcodesRuntimeInfos DIV_LONG = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.div_long"),
-    "com.android.jack.opcodes.div_long.Test_div_long");
+    "com.android.jack.opcodes.div_long.ref.Test_div_long");
 
   @Nonnull
   private OpcodesRuntimeInfos SPARSE_SWITCH = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.sparse_switch"),
-    "com.android.jack.opcodes.sparse_switch.Test_sparse_switch");
+    "com.android.jack.opcodes.sparse_switch.ref.Test_sparse_switch");
 
   @Nonnull
   private OpcodesRuntimeInfos INVOKE_INTERFACE = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.invoke_interface"),
-    "com.android.jack.opcodes.invoke_interface.Test_invoke_interface");
+    "com.android.jack.opcodes.invoke_interface.ref.Test_invoke_interface");
 
   @Nonnull
   private OpcodesRuntimeInfos APUT_WIDE = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.aput_wide"),
-    "com.android.jack.opcodes.aput_wide.Test_aput_wide");
+    "com.android.jack.opcodes.aput_wide.ref.Test_aput_wide");
 
   @Nonnull
   private OpcodesRuntimeInfos AGET_BYTE = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.aget_byte"),
-    "com.android.jack.opcodes.aget_byte.Test_aget_byte");
+    "com.android.jack.opcodes.aget_byte.ref.Test_aget_byte");
 
   @Nonnull
   private OpcodesRuntimeInfos APUT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.aput"),
-    "com.android.jack.opcodes.aput.Test_aput");
+    "com.android.jack.opcodes.aput.ref.Test_aput");
 
   @Nonnull
   private OpcodesRuntimeInfos SHR_INT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.shr_int"),
-    "com.android.jack.opcodes.shr_int.Test_shr_int");
+    "com.android.jack.opcodes.shr_int.ref.Test_shr_int");
 
   @Nonnull
   private OpcodesRuntimeInfos OPC_RETURN = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.opc_return"),
-    "com.android.jack.opcodes.opc_return.Test_opc_return");
+    "com.android.jack.opcodes.opc_return.ref.Test_opc_return");
 
   @Nonnull
   private OpcodesRuntimeInfos INVOKE_SUPER = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.invoke_super"),
-    "com.android.jack.opcodes.invoke_super.Test_invoke_super");
+    "com.android.jack.opcodes.invoke_super.ref.Test_invoke_super");
 
   @Nonnull
   private OpcodesRuntimeInfos MUL_FLOAT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.mul_float"),
-    "com.android.jack.opcodes.mul_float.Test_mul_float");
+    "com.android.jack.opcodes.mul_float.ref.Test_mul_float");
 
   @Nonnull
   private OpcodesRuntimeInfos SUB_FLOAT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.sub_float"),
-    "com.android.jack.opcodes.sub_float.Test_sub_float");
+    "com.android.jack.opcodes.sub_float.ref.Test_sub_float");
 
   @Nonnull
   private OpcodesRuntimeInfos ADD_INT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.add_int"),
-    "com.android.jack.opcodes.add_int.Test_add_int");
+    "com.android.jack.opcodes.add_int.ref.Test_add_int");
 
   @Nonnull
   private OpcodesRuntimeInfos INT_TO_CHAR = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.int_to_char"),
-    "com.android.jack.opcodes.int_to_char.Test_int_to_char");
+    "com.android.jack.opcodes.int_to_char.ref.Test_int_to_char");
 
   @Nonnull
   private OpcodesRuntimeInfos AND_INT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.and_int"),
-    "com.android.jack.opcodes.and_int.Test_and_int");
+    "com.android.jack.opcodes.and_int.ref.Test_and_int");
 
   @Nonnull
   private OpcodesRuntimeInfos CMPG_FLOAT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.cmpg_float"),
-    "com.android.jack.opcodes.cmpg_float.Test_cmpg_float");
+    "com.android.jack.opcodes.cmpg_float.ref.Test_cmpg_float");
 
   @Nonnull
   private OpcodesRuntimeInfos IGET = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.iget"),
-    "com.android.jack.opcodes.iget.Test_iget");
+    "com.android.jack.opcodes.iget.ref.Test_iget");
 
   @Nonnull
   private OpcodesRuntimeInfos REM_FLOAT = new OpcodesRuntimeInfos(
     AbstractTestTools.getTestRootDir("com.android.jack.opcodes.rem_float"),
-    "com.android.jack.opcodes.rem_float.Test_rem_float");
+    "com.android.jack.opcodes.rem_float.ref.Test_rem_float");
 
 
 
