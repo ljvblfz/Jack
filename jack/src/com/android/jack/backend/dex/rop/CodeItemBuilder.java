@@ -156,8 +156,6 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
           "Emit synthetic local variable debug info into generated dex")
       .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
 
-  // STOPSHIP: Enable dx optimizations when final version of box-lambda will be supported by the
-  // runtime.
   @Nonnull
   public static final BooleanPropertyId DEX_OPTIMIZE = BooleanPropertyId.create(
       "jack.dex.optimize", "Define if Dex optimizations are activated")
