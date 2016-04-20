@@ -636,4 +636,9 @@ public class UnionVFS extends BaseVFS<UnionVDir, UnionVFile> implements VFS {
     return parentWrappedDir.getVFS().getVDirLocation(parentWrappedDir, path);
   }
 
+  @Override
+  public String toString() {
+    return "unionFS >> " + vfsList.toString();
+  }
+
 }

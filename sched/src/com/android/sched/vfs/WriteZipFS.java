@@ -362,4 +362,9 @@ public class WriteZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
   VPath getPathFromRoot(@Nonnull ZipVFile file) {
     return getPathFromDir(root, file);
   }
+
+  @Override
+  public String toString() {
+    return "wZipFS: " + getLocation().getDescription();
+  }
 }

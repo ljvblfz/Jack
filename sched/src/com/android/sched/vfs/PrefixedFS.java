@@ -227,4 +227,9 @@ public class PrefixedFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS {
     file.changeVFS(this);
     return file;
   }
+
+  @Override
+  public String toString() {
+    return "PrefixedFS >> " + vfs.toString();
+  }
 }

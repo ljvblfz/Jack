@@ -287,4 +287,8 @@ public class VFSToVFSWrapper extends BaseVFS<BaseVDir, BaseVFile> implements VFS
     return workVFS;
   }
 
+  @Override
+  public String toString() {
+    return "(workVFS >> " + workVFS.toString() + " / finalVFS >> " + finalVFS.toString() + ')';
+  }
 }

@@ -68,4 +68,10 @@ public class GenericInputVFS extends AbstractVFS implements InputVFS {
   public VPath getPathFromRoot(@Nonnull InputVFile file) {
     return ((BaseVFS) vfs).getPathFromRoot((BaseVFile) ((GenericInputVFile) file).getVFile());
   }
+
+  @Override
+  @Nonnull
+  public String toString() {
+    return "inputFS >> " + vfs.toString();
+  }
 }

@@ -243,4 +243,9 @@ public class ReadWriteZipFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS 
   public VFS getWorkVFS() {
     return vfs.getWorkVFS();
   }
+
+  @Override
+  public String toString() {
+    return "rwZipFS >> " + vfs.toString();
+  }
 }

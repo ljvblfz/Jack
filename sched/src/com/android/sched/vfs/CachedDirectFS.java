@@ -446,4 +446,9 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
   public VPath getPathFromRoot(@Nonnull CachedParentVFile file) {
     return getPathFromDir(root, file);
   }
+
+  @Override
+  public String toString() {
+    return "cachedDirFS: " + getLocation().getDescription();
+  }
 }
