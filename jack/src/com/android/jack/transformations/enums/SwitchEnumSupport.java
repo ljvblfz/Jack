@@ -262,7 +262,6 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
         TransformationRequest localTr = new TransformationRequest(currentClOrI);
 
         // Create $[EnumName]switchesValues field
-        // STOPSHIP: the field must not be public, uses an inner class to avoid the public field ?
         JField enumSwitchValues =
             new JField(dbgInfo, fieldName, currentClOrI, switchValuesArrayType,
                 (currentClOrI instanceof JDefinedInterface ? JModifier.PUBLIC : JModifier.PRIVATE)
