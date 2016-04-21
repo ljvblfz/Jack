@@ -1361,7 +1361,7 @@ public class JackIrBuilder {
       JMethod lambdaMethod =
           new JMethod(info, methodId, curClass.type,
               (csc.shouldCaptureInstance ? JModifier.DEFAULT : JModifier.STATIC)
-                  | JModifier.SYNTHETIC | JModifier.LAMBDA_METHOD | JModifier.FINAL
+                  | JModifier.SYNTHETIC | JModifier.LAMBDA_METHOD
                   | (curClass.type instanceof JInterface ? JModifier.PUBLIC : JModifier.DEFAULT));
 
       int pIndex = 0;
@@ -1744,8 +1744,7 @@ public class JackIrBuilder {
           assert !lambdaExpression.binding.isStatic();
         }
         lambdaMethod = getTypeMap().get(lambdaExpression.binding);
-        lambdaMethod
-            .setModifier(lambdaMethod.getModifier() | JModifier.LAMBDA_METHOD | JModifier.FINAL);
+        lambdaMethod.setModifier(lambdaMethod.getModifier() | JModifier.LAMBDA_METHOD);
         if (lambdaExpression.binding.declaringClass.isInterface()) {
           lambdaMethod.setModifier(lambdaMethod.getModifier() | JModifier.PUBLIC);
         }
