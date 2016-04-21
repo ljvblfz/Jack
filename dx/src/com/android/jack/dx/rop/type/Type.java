@@ -31,7 +31,6 @@ import javax.annotation.Nonnull;
  */
 public final class Type implements TypeBearer, Comparable<Type> {
 
-  // STOPSHIP: Remove closures from descriptor until the runtime support them.
   @Deprecated
   public static String replaceClosureFromDescriptor(@Nonnull String descriptor) {
     int pos = descriptor.indexOf("\\");
@@ -601,7 +600,6 @@ public final class Type implements TypeBearer, Comparable<Type> {
    */
   public String getDescriptor() {
     if (isClosure()) {
-      // STOPSHIP: Runtime does not support closure, replaces it by an object
       char[] array = descriptor.toCharArray();
       array[0] = 'L';
       return new String(array);
