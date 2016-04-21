@@ -694,8 +694,13 @@ public class Options {
       .addDefaultValue(Boolean.TRUE);
 
   @Nonnull
-  public static final BooleanPropertyId SHROB_ENABLED =
-      BooleanPropertyId.create("jack.shrob", "Enable shrink and obfuscation features")
+  public static final BooleanPropertyId SHRINKING_ENABLED =
+      BooleanPropertyId.create("jack.shrob.shrink", "Enable shrinking feature")
+      .addDefaultValue(false).addCategory(DumpInLibrary.class);
+
+  @Nonnull
+  public static final BooleanPropertyId OBFUSCATION_ENABLED =
+      BooleanPropertyId.create("jack.shrob.obfuscate", "Enable obfuscation feature")
       .addDefaultValue(false).addCategory(DumpInLibrary.class);
 
   @CheckForNull
@@ -1056,11 +1061,17 @@ public class Options {
 
     configBuilder.pushDefaultLocation(new StringLocation("proguard flags"));
 
+    configBuilder.set(SHRINKING_ENABLED, flags != null && flags.shrink());
+    configBuilder.set(OBFUSCATION_ENABLED, flags != null && flags.obfuscate());
+
     if (flags != null) {
-      configBuilder.set(SHROB_ENABLED, true);
-      configBuilder.set(Options.USE_PREBUILT_FROM_LIBRARY, false);
-      logger.log(Level.WARNING,
-          "Prebuilts from libraries are not used due to usage of shrinking or obfuscation");
+      if (flags.obfuscate() || flags.shrink()) {
+        configBuilder.set(Options.USE_PREBUILT_FROM_LIBRARY, false);
+        logger
+            .log(
+                Level.WARNING,
+                "Prebuilts from libraries are not use due to usage of shrinking or obfuscation");
+      }
 
       if (flags.obfuscate()) { // keepAttribute only makes sense when obfuscating
         boolean emitRuntimeInvisibleAnnotation = flags.keepAttribute("RuntimeInvisibleAnnotations");
@@ -1236,7 +1247,7 @@ public class Options {
       if (multiDexKind == MultiDexKind.LEGACY) {
         logger.log(Level.WARNING,
             "Incremental mode is disabled due to multi-dex legacy mode");
-      } else if (flags != null) {
+      } else if (flags != null && (flags.shrink() || flags.obfuscate())) {
         logger.log(Level.WARNING,
             "Incremental mode is disabled due to usage of shrinking or obfuscation");
       } else if (!jarjarRulesFiles.isEmpty()) {
