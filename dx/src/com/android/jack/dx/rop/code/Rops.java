@@ -1178,7 +1178,6 @@ public final class Rops {
   }
 
   public static Rop opCreateLambda() {
-    // STOPSHIP: replace long by a closure
     return new Rop(RegOps.CREATE_LAMBDA, Type.LONG, StdTypeList.EMPTY, Exceptions.LIST_Error,
         "create-lambda");
   }
@@ -1846,9 +1845,6 @@ public final class Rops {
       case Type.BT_INT:
         return RETURN_INT;
       case Type.BT_CLOSURE:
-//        // STOPSHIP: Jack must use return-lambda when it will be supported by the runtime
-//        return new Rop(RegOps.RETURN, Type.VOID, StdTypeList.make(type.getType()),
-//            Rop.BRANCH_RETURN, "return-lambda");
       case Type.BT_LONG:
         return RETURN_LONG;
       case Type.BT_FLOAT:
@@ -1881,9 +1877,7 @@ public final class Rops {
         return AGET_FLOAT;
       case Type.BT_DOUBLE:
         return AGET_DOUBLE;
-      // STOPSHIP: read closure from an array must use aget-lambda
       case Type.BT_CLOSURE:
-//        return AGET_LAMBDA;
       case Type.BT_OBJECT:
         return AGET_OBJECT;
       case Type.BT_BOOLEAN:
@@ -1916,9 +1910,7 @@ public final class Rops {
         return APUT_FLOAT;
       case Type.BT_DOUBLE:
         return APUT_DOUBLE;
-      // STOPSHIP: write closure into an array must use aput-lambda
       case Type.BT_CLOSURE:
-//        return APUT_LAMBDA;
       case Type.BT_OBJECT:
         return APUT_OBJECT;
       case Type.BT_BOOLEAN:
@@ -2019,9 +2011,7 @@ public final class Rops {
         return GET_FIELD_FLOAT;
       case Type.BT_DOUBLE:
         return GET_FIELD_DOUBLE;
-      // STOPSHIP: read closure from a field must use iget-lambda
       case Type.BT_CLOSURE:
-//        return GET_FIELD_LAMBDA;
       case Type.BT_OBJECT:
         return GET_FIELD_OBJECT;
       case Type.BT_BOOLEAN:
@@ -2054,9 +2044,7 @@ public final class Rops {
         return PUT_FIELD_FLOAT;
       case Type.BT_DOUBLE:
         return PUT_FIELD_DOUBLE;
-      // STOPSHIP: write closure into a field must use iput-lambda
       case Type.BT_CLOSURE:
-//        return PUT_FIELD_LAMBDA;
       case Type.BT_OBJECT:
         return PUT_FIELD_OBJECT;
       case Type.BT_BOOLEAN:
@@ -2089,9 +2077,7 @@ public final class Rops {
         return GET_STATIC_FLOAT;
       case Type.BT_DOUBLE:
         return GET_STATIC_DOUBLE;
-      // STOPSHIP: read closure from a field must use sget-lambda
       case Type.BT_CLOSURE:
-//        return GET_STATIC_LAMBDA;
       case Type.BT_OBJECT:
         return GET_STATIC_OBJECT;
       case Type.BT_BOOLEAN:
@@ -2124,9 +2110,7 @@ public final class Rops {
         return PUT_STATIC_FLOAT;
       case Type.BT_DOUBLE:
         return PUT_STATIC_DOUBLE;
-      // STOPSHIP: write closure into a field must use sput-lambda
       case Type.BT_CLOSURE:
-//        return PUT_STATIC_LAMBDA;
       case Type.BT_OBJECT:
         return PUT_STATIC_OBJECT;
       case Type.BT_BOOLEAN:

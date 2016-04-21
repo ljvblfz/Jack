@@ -530,8 +530,6 @@ switch (rop.getOpcode()) {
             case Type.BT_SHORT:
               return Dops.MOVE_RESULT;
             case Type.BT_CLOSURE:
-//            // STOPSHIP: Jack must use move-result-lambda when it will be supported by the runtime
-//            return Dops.MOVE_RESULT_LAMBDA;
             case Type.BT_LONG:
             case Type.BT_DOUBLE:
               return Dops.MOVE_RESULT_WIDE;
