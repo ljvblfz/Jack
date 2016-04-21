@@ -400,7 +400,6 @@ public class MappingApplier {
         if (previousNewSignature != null) {
           // The methodId was already renamed
           if (!previousNewSignature.equals(newSignature)) {
-            //STOPSHIP replace by NodeAlreadyRenamed
             throw new MappingCollisionException(
                 new LineLocation(new FileLocation(mappingFile), lineNumber), method, newName);
           }
