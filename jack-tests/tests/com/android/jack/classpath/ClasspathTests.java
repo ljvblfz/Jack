@@ -311,4 +311,43 @@ public class ClasspathTests {
       Assert.assertTrue(errOut.toString().isEmpty());
     }
   }
+
+  @Test
+  public void testWithEmptyJarInClasspath() throws Exception {
+    File srcDir = AbstractTestTools.getTestRootDir("com.android.jack.classpath.test004.jack");
+    File jar = new File(srcDir, "empty.jar");
+    Assert.assertTrue(jar.isFile());
+
+    // check that using an empty jar generates a warning
+    {
+      JackApiToolchainBase toolchain =
+          AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+      File testOut = AbstractTestTools.createTempFile("ClasspathTest", "jack");
+      ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+      toolchain.setErrorStream(errOut);
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath()).addToClasspath(jar)
+          .srcToLib(testOut, /* zipFiles = */ true, srcDir);
+      String errString = errOut.toString();
+      Assert.assertTrue(errString.contains("WARNING: Bad classpath entry ignored"));
+      Assert.assertTrue(errString.contains("empty.jar"));
+      Assert.assertTrue(errString.contains("zip file is empty"));
+    }
+
+    // check that using an empty jar in strict mode generates an error
+    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+    try {
+      JackApiToolchainBase toolchain =
+          AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+      File testOut = AbstractTestTools.createTempFile("ClasspathTest", "jack");
+      toolchain.setErrorStream(errOut);
+      toolchain.addProperty(Jack.STRICT_CLASSPATH.getName(), "true");
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath()).addToClasspath(jar)
+          .srcToLib(testOut, /* zipFiles = */ true, srcDir);
+    } catch (JackAbortException e) {
+      String errString = errOut.toString();
+      Assert.assertTrue(errString.contains("ERROR: Library reading phase"));
+      Assert.assertTrue(errString.contains("empty.jar"));
+      Assert.assertTrue(errString.contains("zip file is empty"));
+    }
+  }
 }

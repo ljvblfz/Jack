@@ -22,7 +22,6 @@ import com.android.sched.util.location.FileLocation;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import javax.annotation.CheckForNull;
@@ -77,11 +76,11 @@ public class InputZipFile extends StreamFile {
   }
 
   @Nonnull
-  private ZipFile processZip(File file) throws ZipException {
+  private ZipFile processZip(@Nonnull File file) throws ZipException {
     try {
       return new ZipFile(file);
-    } catch (ZipException e) {
-      throw e;
+    } catch (java.util.zip.ZipException e) {
+      throw new ZipException(getLocation(), e);
     } catch (IOException e) {
       // should not happen, because checks should already have been performed in processExisting
       throw new ConcurrentIOException(e);

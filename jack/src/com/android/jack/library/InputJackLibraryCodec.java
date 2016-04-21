@@ -36,6 +36,7 @@ import com.android.sched.util.file.InputZipFile;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.file.WrongPermissionException;
+import com.android.sched.util.file.ZipException;
 import com.android.sched.vfs.CaseInsensitiveFS;
 import com.android.sched.vfs.DirectFS;
 import com.android.sched.vfs.ReadZipFS;
@@ -46,7 +47,6 @@ import java.io.File;
 import java.security.Provider.Service;
 import java.util.Collections;
 import java.util.List;
-import java.util.zip.ZipException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;

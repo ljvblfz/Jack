@@ -60,6 +60,7 @@ import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.file.WrongPermissionException;
+import com.android.sched.util.file.ZipException;
 import com.android.sched.util.location.DirectoryLocation;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.log.LoggerFactory;
@@ -78,7 +79,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
-import java.util.zip.ZipException;
 
 import javax.annotation.Nonnull;
 

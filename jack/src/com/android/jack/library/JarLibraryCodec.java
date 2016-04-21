@@ -30,10 +30,10 @@ import com.android.sched.util.file.InputZipFile;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.WrongPermissionException;
+import com.android.sched.util.file.ZipException;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.zip.ZipException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
