@@ -37,8 +37,7 @@ public class TypeWithoutPrebuiltFilter implements ComponentFilter<JDefinedClassO
   public boolean accept(@Nonnull JDefinedClassOrInterface clOrI) {
     Location location = clOrI.getLocation();
     if (location instanceof TypeInInputLibraryLocation) {
-      InputLibrary inputLibrary = ((TypeInInputLibraryLocation) location)
-          .getInputLibraryLocation().getInputLibrary();
+      InputLibrary inputLibrary = ((TypeInInputLibraryLocation) location).getInputLibrary();
       if (inputLibrary.containsFileType(FileType.PREBUILT)) {
         return false;
       }

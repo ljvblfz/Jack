@@ -27,7 +27,7 @@ import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.library.FileType;
 import com.android.jack.library.FileTypeDoesNotExistException;
 import com.android.jack.library.InputLibrary;
-import com.android.jack.library.InputLibraryLocation;
+import com.android.jack.library.LibraryLocation;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
@@ -69,10 +69,8 @@ public abstract class DexInLibraryWriter extends DexWriter implements
       Location loc = type.getLocation();
       if (loc instanceof TypeInInputLibraryLocation) {
         InputVFile in;
-        InputLibraryLocation inputLibraryLocation =
-            ((TypeInInputLibraryLocation) loc).getInputLibraryLocation();
-        InputLibrary inputLibrary =
-            inputLibraryLocation.getInputLibrary();
+        InputLibrary inputLibrary = ((TypeInInputLibraryLocation) loc).getInputLibrary();
+        LibraryLocation inputLibraryLocation = inputLibrary.getLocation();
         if (outputLibrary.containsLibraryLocation(inputLibraryLocation)) {
           return;
         }

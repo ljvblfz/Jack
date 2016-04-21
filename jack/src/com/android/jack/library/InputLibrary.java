@@ -50,7 +50,7 @@ public interface InputLibrary extends Library {
 
   @Override
   @Nonnull
-  public InputLibraryLocation getLocation();
+  public LibraryLocation getLocation();
 
   @CheckForNull
   public String getDigest();

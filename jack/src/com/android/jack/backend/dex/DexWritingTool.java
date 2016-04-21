@@ -176,8 +176,7 @@ public abstract class DexWritingTool {
     Location location = type.getLocation();
     try {
       if (location instanceof TypeInInputLibraryLocation) {
-        InputLibrary inputLibrary =
-            ((TypeInInputLibraryLocation) location).getInputLibraryLocation().getInputLibrary();
+        InputLibrary inputLibrary = ((TypeInInputLibraryLocation) location).getInputLibrary();
         if (inputLibrary.containsFileType(FileType.PREBUILT)) {
           inputVFile = inputLibrary.getFile(FileType.PREBUILT,
               new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));

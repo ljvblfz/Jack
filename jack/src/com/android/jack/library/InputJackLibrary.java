@@ -18,7 +18,6 @@ package com.android.jack.library;
 
 import com.android.jack.Jack;
 import com.android.sched.util.findbugs.SuppressFBWarnings;
-import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.VFS;
 
@@ -53,29 +52,12 @@ public abstract class InputJackLibrary extends CommonJackLibrary implements Inpu
   private int jayceMinorVersion;
 
   @Nonnull
-  private final InputLibraryLocation location;
+  private final LibraryLocation location;
 
   public InputJackLibrary(@Nonnull Properties libraryProperties, @Nonnull final VFS vfs)
       throws LibraryFormatException {
     super(libraryProperties, vfs);
-    this.location = new InputLibraryLocation() {
-      @Override
-      @Nonnull
-      public String getDescription() {
-        return getVFSLocation().getDescription();
-      }
-
-      @Override
-      @Nonnull
-      public InputLibrary getInputLibrary() {
-        return InputJackLibrary.this;
-      }
-
-      @Override
-      protected Location getVFSLocation() {
-        return vfs.getLocation();
-      }
-    };
+    this.location = new LibraryLocation(vfs.getLocation());
     locationList.add(location);
 
     try {
@@ -92,7 +74,7 @@ public abstract class InputJackLibrary extends CommonJackLibrary implements Inpu
 
   @Override
   @Nonnull
-  public final InputLibraryLocation getLocation() {
+  public final LibraryLocation getLocation() {
     return location;
   }
 

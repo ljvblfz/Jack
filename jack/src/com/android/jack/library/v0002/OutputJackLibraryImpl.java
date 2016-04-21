@@ -24,9 +24,8 @@ import com.android.jack.library.FileTypeDoesNotExistException;
 import com.android.jack.library.JackLibrary;
 import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.library.LibraryIOException;
+import com.android.jack.library.LibraryLocation;
 import com.android.jack.library.OutputJackLibrary;
-import com.android.jack.library.OutputLibrary;
-import com.android.jack.library.OutputLibraryLocation;
 import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.PropertyId;
@@ -35,7 +34,6 @@ import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
-import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.GenericInputOutputVFS;
 import com.android.sched.vfs.GenericInputVFS;
@@ -85,24 +83,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
       new EnumMap<FileType, InputOutputVFS>(FileType.class);
 
   @Nonnull
-  private final OutputLibraryLocation location = new OutputLibraryLocation() {
-    @Override
-    @Nonnull
-    public String getDescription() {
-      return getVFSLocation().getDescription();
-    }
-
-    @Override
-    @Nonnull
-    public OutputLibrary getOutputLibrary() {
-      return OutputJackLibraryImpl.this;
-    }
-
-    @Override
-    protected Location getVFSLocation() {
-      return vfs.getLocation();
-    }
-  };
+  private final LibraryLocation location = new LibraryLocation(vfs.getLocation());
 
   public OutputJackLibraryImpl(@Nonnull VFS vfs, @Nonnull String emitterId,
       @Nonnull String emitterVersion) {
@@ -139,7 +120,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
 
   @Override
   @Nonnull
-  public OutputLibraryLocation getLocation() {
+  public LibraryLocation getLocation() {
     return location;
   }
 
