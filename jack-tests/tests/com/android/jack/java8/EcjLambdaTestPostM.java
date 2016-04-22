@@ -16,10 +16,15 @@
 
 package com.android.jack.java8;
 
+import com.android.jack.Options;
+import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
+import com.android.jack.test.toolchain.JackBasedToolchain;
+
 import junit.framework.Assert;
 import junit.framework.JUnit4TestAdapter;
 import junit.framework.Test;
 
+import org.junit.internal.AssumptionViolatedException;
 import org.junit.runner.Description;
 import org.junit.runner.manipulation.Filter;
 import org.junit.runner.manipulation.NoTestsRemainException;
@@ -70,8 +75,17 @@ public class EcjLambdaTestPostM extends EcjLambdaTest {
   }
 
   public static Test suite() {
-    return new MyAdapter(EcjLambdaTest.class);
+    return new MyAdapter(EcjLambdaTestPostM.class);
    }
+
+  @Override
+  protected JackBasedToolchain createToolchain() throws AssumptionViolatedException {
+    JackBasedToolchain jackToolchain = super.createToolchain();
+    jackToolchain.addProperty(
+        Options.ANDROID_MIN_API_LEVEL.getName(),
+        String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL));
+    return jackToolchain;
+  }
 
 }
 
