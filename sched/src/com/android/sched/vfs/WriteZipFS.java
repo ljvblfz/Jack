@@ -17,6 +17,7 @@
 package com.android.sched.vfs;
 
 import com.android.sched.util.file.OutputZipFile;
+import com.android.sched.util.file.StreamFileStatus;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.ZipLocation;
 import com.android.sched.vfs.WriteZipFS.ZipVDir;
@@ -100,12 +101,9 @@ public class WriteZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
   private final AtomicBoolean lastVFileOpen = new AtomicBoolean(false);
   @Nonnull
   private final OutputZipFile zipFile;
-  @Nonnull
-  private final ZipOutputStream outputStream;
 
   public WriteZipFS(@Nonnull OutputZipFile zipFile) {
     this.zipFile = zipFile;
-    outputStream = zipFile.getOutputStream();
   }
 
   void notifyVFileClosed() {
@@ -144,7 +142,9 @@ public class WriteZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
   @Override
   public synchronized void close() throws IOException {
     if (!closed) {
-      outputStream.close();
+      if (zipFile.getStatus() == StreamFileStatus.OPEN) {
+        zipFile.getOutputStream().close();
+      }
       closed = true;
     }
   }
@@ -303,7 +303,7 @@ public class WriteZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
     private boolean entryWritten = false;
 
     public ZipEntryOutputStream(@Nonnull WriteZipFS vfs, @Nonnull ZipEntry zipEntry) {
-      super(vfs.outputStream);
+      super(vfs.zipFile.getOutputStream());
       this.vfs = vfs;
       this.zipEntry = zipEntry;
     }
