@@ -334,4 +334,9 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
   public VPath getPathFromRoot(@Nonnull ParentVFile file) {
     return getPathFromDir(root, file);
   }
+
+  @Override
+  public String toString() {
+    return "dirFS: " + getLocation().getDescription();
+  }
 }

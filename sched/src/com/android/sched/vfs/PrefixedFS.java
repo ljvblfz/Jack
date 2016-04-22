@@ -230,6 +230,6 @@ public class PrefixedFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS {
 
   @Override
   public String toString() {
-    return "PrefixedFS >> " + vfs.toString();
+    return "prefixedFS >> " + vfs.toString();
   }
 }
