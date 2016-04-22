@@ -35,6 +35,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipOutputStream;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -100,12 +101,11 @@ public class WriteZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
   private final AtomicBoolean lastVFileOpen = new AtomicBoolean(false);
   @Nonnull
   private final OutputZipFile zipFile;
-  @Nonnull
-  private final ZipOutputStream outputStream;
+  @CheckForNull
+  private ZipOutputStream outputStream;
 
   public WriteZipFS(@Nonnull OutputZipFile zipFile) {
     this.zipFile = zipFile;
-    outputStream = zipFile.getOutputStream();
   }
 
   void notifyVFileClosed() {
@@ -144,7 +144,9 @@ public class WriteZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
   @Override
   public synchronized void close() throws IOException {
     if (!closed) {
-      outputStream.close();
+      if (outputStream != null) {
+        outputStream.close();
+      }
       closed = true;
     }
   }
@@ -168,6 +170,11 @@ public class WriteZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
       throw new AssertionError(getLocation().getDescription()
           + " cannot be written to because a previous stream has not been closed.");
     }
+
+    if (outputStream == null) {
+      outputStream = zipFile.getOutputStream();
+    }
+
     return new ZipEntryOutputStream(this, file.getZipEntry());
   }
 
