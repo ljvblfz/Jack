@@ -48,9 +48,11 @@ import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.WriterFilePropertyId;
 import com.android.sched.util.file.CannotWriteException;
 import com.android.sched.util.file.FileOrDirectory.Existence;
+import com.android.sched.util.file.WriterFile;
 import com.android.sched.util.stream.CustomPrintWriter;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Iterator;
 
 import javax.annotation.Nonnull;
@@ -77,17 +79,19 @@ public class MappingPrinter implements RunnableSchedulable<JSession> {
       .addDefaultValue("-").addCategory(Arzon.class);
 
   @Nonnull
-  private final CustomPrintWriter writer;
+  private final WriterFile file = ThreadConfig.get(MAPPING_OUTPUT_FILE);
 
   private static final String SEPARATOR = " -> ";
 
   private static final char PACKAGE_SEPARATOR = '.';
 
-  public MappingPrinter() {
-    writer = ThreadConfig.get(MAPPING_OUTPUT_FILE).getPrintWriter();
-  }
+  private static class Visitor extends JVisitor {
+    @Nonnull
+    private final PrintWriter writer;
 
-  private class Visitor extends JVisitor {
+    public Visitor(@Nonnull PrintWriter writer) {
+      this.writer = writer;
+    }
 
     private void appendOriginalQualifiedName(
         @Nonnull StringBuilder nameBuilder, @Nonnull JPackage pack) {
@@ -197,8 +201,9 @@ public class MappingPrinter implements RunnableSchedulable<JSession> {
 
   @Override
   public void run(@Nonnull JSession session) throws Exception {
+    CustomPrintWriter writer = file.getPrintWriter();
     try {
-      Visitor visitor = new Visitor();
+      Visitor visitor = new Visitor(writer);
       visitor.accept(session.getTypesToEmit());
     } finally {
       writer.close();
