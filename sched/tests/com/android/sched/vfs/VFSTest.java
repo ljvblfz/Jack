@@ -384,6 +384,58 @@ public class VFSTest {
   }
 
   @Test
+  public void testDeflatePrefixedCaseInsensitiveDirectFS()
+      throws NotDirectoryException,
+      CannotCreateFileException,
+      WrongPermissionException,
+      CannotChangePermissionException,
+      NoSuchFileException,
+      FileAlreadyExistsException,
+      IOException {
+    File file = null;
+    InputOutputVFS ioVFS1 = null;
+    InputOutputVFS ioVFS2 = null;
+    try {
+      file = File.createTempFile("vfs", "dir");
+      String path = file.getAbsolutePath();
+      Assert.assertTrue(file.delete());
+
+      CaseInsensitiveFS ciFS = new CaseInsensitiveFS(new DirectFS(new Directory(path, null,
+          Existence.NOT_EXIST, Permission.WRITE, ChangePermission.NOCHANGE),
+          Permission.READ | Permission.WRITE));
+
+      ioVFS1 =
+          new GenericInputOutputVFS(new DeflateFS(new PrefixedFS(ciFS, new VPath("stuff", '/'))));
+
+      testOutputVFS(ioVFS1);
+      testDelete(ioVFS1);
+      testInputVFS(ioVFS1);
+      ciFS.close();
+      ioVFS1.close();
+
+      CaseInsensitiveFS ciFS2 = new CaseInsensitiveFS(new DirectFS(new Directory(path, null,
+          Existence.MUST_EXIST, Permission.WRITE, ChangePermission.NOCHANGE),
+          Permission.READ | Permission.WRITE));
+
+      ioVFS2 =
+          new GenericInputOutputVFS(new DeflateFS(new PrefixedFS(ciFS2, new VPath("stuff", '/'))));
+      testInputVFS(ioVFS2);
+      ciFS2.close();
+
+    } finally {
+      if (ioVFS1 != null) {
+        ioVFS1.close();
+      }
+      if (ioVFS2 != null) {
+        ioVFS2.close();
+      }
+      if (file != null) {
+        FileUtils.deleteDir(file);
+      }
+    }
+  }
+
+  @Test
   public void testMessageDigestFSWithCachedDirectFS()
       throws NotDirectoryException,
       CannotCreateFileException,
@@ -575,6 +627,7 @@ public class VFSTest {
       ioVFS1 = new GenericInputOutputVFS(new PrefixedFS(ciFS, new VPath("stuff", '/')));
 
       testOutputVFS(ioVFS1);
+      testDelete(ioVFS1);
       testInputVFS(ioVFS1);
       ciFS.close();
       ioVFS1.close();
@@ -635,6 +688,7 @@ public class VFSTest {
       ioVFS1 = new GenericInputOutputVFS(new PrefixedFS(ciFS, new VPath("stuff", '/')));
 
       testOutputVFS(ioVFS1);
+      testDelete(ioVFS1);
       testInputVFS(ioVFS1);
       ciFS.close();
       ioVFS1.close();
