@@ -57,8 +57,6 @@ public class JackApiV02TwoStepsToolchain extends JackApiV02Toolchain implements 
     secondStep.setOutputStream(outRedirectStream);
     secondStep.setErrorStream(errRedirectStream);
     secondStep.setWithDebugInfos(withDebugInfos);
-    // STOPSHIP: getSingleAbstractMethod need to do a lookup
-    secondStep.addToClasspath(classpath.toArray(new File[classpath.size()]));
 
     for (Entry<String, String> entry : getProperties().entrySet()) {
       secondStep.addProperty(entry.getKey(), entry.getValue());
