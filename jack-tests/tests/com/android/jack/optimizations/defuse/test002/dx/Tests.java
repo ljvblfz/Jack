@@ -14,18 +14,24 @@
  * limitations under the License.
  */
 
-package com.android.jack.optimizations.defuse.test001.dx;
+package com.android.jack.optimizations.defuse.test002.dx;
 
-import com.android.jack.optimizations.defuse.test001.jack.DefUse001;
+import com.android.jack.optimizations.defuse.test002.jack.DefUse002;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 public class Tests {
 
   @Test
   public void test001() {
-    Assert.assertEquals(3, DefUse001.create(null, "abc").l);
+    Assert.assertEquals(1, DefUse002.get(true, true, true));
+    Assert.assertEquals(3, DefUse002.get(true, true, false));
+    Assert.assertEquals(1, DefUse002.get(true, false, true));
+    Assert.assertEquals(4, DefUse002.get(true, false, false));
+    Assert.assertEquals(2, DefUse002.get(false, true, true));
+    Assert.assertEquals(3, DefUse002.get(false, true, false));
+    Assert.assertEquals(2, DefUse002.get(false, false, true));
+    Assert.assertEquals(4, DefUse002.get(false, false, false));
   }
 }
