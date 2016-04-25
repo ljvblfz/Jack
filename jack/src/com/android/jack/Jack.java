@@ -184,6 +184,7 @@ import com.android.jack.shrob.seed.SeedFinder;
 import com.android.jack.shrob.seed.SeedPrinter;
 import com.android.jack.shrob.shrink.FieldShrinker;
 import com.android.jack.shrob.shrink.Keeper;
+import com.android.jack.shrob.shrink.KeeperSchedulingSeparator;
 import com.android.jack.shrob.shrink.MethodShrinker;
 import com.android.jack.shrob.shrink.ShrinkAndMainDexTracer;
 import com.android.jack.shrob.shrink.ShrinkStructurePrinter;
@@ -979,6 +980,7 @@ public abstract class Jack {
           typePlan.append(Keeper.class);
         }
       }
+      planBuilder.append(KeeperSchedulingSeparator.class);
       {
         SubPlanBuilder<JDefinedClassOrInterface> typePlan =
             planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);

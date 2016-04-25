@@ -48,7 +48,9 @@ import javax.annotation.Nonnull;
  * shrinking.
  */
 @Description("Marks all classes and members that will be kept when shrinking.")
-@Transform(add = {KeepMarker.class, PartialTypeHierarchy.class})
+@Transform(
+  add = {KeepMarker.class, PartialTypeHierarchy.class, KeeperSchedulingSeparator.SeparatorTag.class}
+)
 @Constraint(need = SeedMarker.class)
 @HasKeyId
 public class KeeperBrush extends AbstractTracerBrush<KeepMarker> {
