@@ -20,8 +20,6 @@ import com.android.sched.util.ConcurrentIOException;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
-import com.android.sched.util.location.StandardErrorLocation;
-import com.android.sched.util.location.StandardOutputLocation;
 import com.android.sched.util.stream.QueryableOutputStream;
 import com.android.sched.util.stream.UncloseableOutputStream;
 import com.android.sched.vfs.OutputStreamProvider;
@@ -140,15 +138,10 @@ public class OutputStreamFile extends AbstractStreamFile implements OutputStream
     this.append = false;
   }
 
-  @Nonnull
-  private static final Location STANDARD_OUTPUT_LOCATION = new StandardOutputLocation();
-  @Nonnull
-  private static final Location STANDARD_ERROR_LOCATION = new StandardErrorLocation();
-
   public OutputStreamFile(@Nonnull StandardOutputKind standardOutputKind) {
     super(standardOutputKind.getLocation());
-    this.stream =
-        new QueryableOutputStream(new UncloseableOutputStream(standardOutputKind.getOutputStream()));
+    this.stream = new QueryableOutputStream(
+        new UncloseableOutputStream(standardOutputKind.getOutputStream()));
     this.append = true;
   }
 

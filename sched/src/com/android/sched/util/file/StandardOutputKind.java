@@ -17,6 +17,8 @@
 package com.android.sched.util.file;
 
 import com.android.sched.util.location.Location;
+import com.android.sched.util.location.StandardErrorLocation;
+import com.android.sched.util.location.StandardOutputLocation;
 
 import java.io.OutputStream;
 
@@ -26,7 +28,6 @@ import javax.annotation.Nonnull;
  * Standard output stream kinds
  */
 public enum StandardOutputKind {
-
   STANDARD_OUTPUT {
     @Override
     @Nonnull
@@ -37,7 +38,7 @@ public enum StandardOutputKind {
     @Override
     @Nonnull
     public Location getLocation() {
-      return WriterFile.STANDARD_OUTPUT_LOCATION;
+      return STANDARD_OUTPUT_LOCATION;
     }
   },
 
@@ -52,9 +53,14 @@ public enum StandardOutputKind {
     @Override
     @Nonnull
     public Location getLocation() {
-      return WriterFile.STANDARD_ERROR_LOCATION;
+      return STANDARD_ERROR_LOCATION;
     }
   };
+
+  @Nonnull
+  private static final Location STANDARD_OUTPUT_LOCATION = new StandardOutputLocation();
+  @Nonnull
+  private static final Location STANDARD_ERROR_LOCATION = new StandardErrorLocation();
 
   @Nonnull
   public abstract OutputStream getOutputStream();

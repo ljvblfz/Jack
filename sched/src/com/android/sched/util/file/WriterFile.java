@@ -22,8 +22,6 @@ import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.findbugs.SuppressFBWarnings;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
-import com.android.sched.util.location.StandardErrorLocation;
-import com.android.sched.util.location.StandardOutputLocation;
 import com.android.sched.util.stream.CustomPrintWriter;
 import com.android.sched.util.stream.QueryableOutputStream;
 import com.android.sched.util.stream.UncloseableOutputStream;
@@ -281,11 +279,6 @@ public class WriterFile extends AbstractStreamFile implements PrintWriterProvide
     this.lineSeparator = lineSeparator;
     this.bufferSize = BUFFER_SIZE;
   }
-
-  @Nonnull
-  static final Location STANDARD_OUTPUT_LOCATION = new StandardOutputLocation();
-  @Nonnull
-  static final Location STANDARD_ERROR_LOCATION = new StandardErrorLocation();
 
   public WriterFile(@Nonnull StandardOutputKind standardOutputKind) {
     this(standardOutputKind, Charset.defaultCharset(), LineSeparator.SYSTEM);

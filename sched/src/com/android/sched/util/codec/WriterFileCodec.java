@@ -23,8 +23,6 @@ import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.StandardOutputKind;
 import com.android.sched.util.file.WriterFile;
 import com.android.sched.util.location.Location;
-import com.android.sched.util.location.StandardErrorLocation;
-import com.android.sched.util.location.StandardOutputLocation;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -164,11 +162,6 @@ public class WriterFileCodec extends FileCodec<WriterFile> {
     }
   }
 
-  @Nonnull
-  private static final Location STANDARD_OUTPUT_LOCATION = new StandardOutputLocation();
-  @Nonnull
-  private static final Location STANDARD_ERROR_LOCATION = new StandardErrorLocation();
-
   @Override
   @Nonnull
   public WriterFile checkString(@Nonnull CodecContext context, @Nonnull String string)
@@ -185,7 +178,7 @@ public class WriterFileCodec extends FileCodec<WriterFile> {
 
       return new WriterFile(context.getStandardOutput(),
           getCharset(context, localCharset), lineSeparator, bufferSize,
-          STANDARD_OUTPUT_LOCATION);
+          StandardOutputKind.STANDARD_OUTPUT.getLocation());
     } else if (string.equals(STANDARD_ERROR_NAME)) {
       if (!allowStandardError) {
         throw new ParsingException("Standard error can not be used");
@@ -193,7 +186,7 @@ public class WriterFileCodec extends FileCodec<WriterFile> {
 
       return new WriterFile(context.getStandardError(),
           getCharset(context, localCharset), lineSeparator, bufferSize,
-          STANDARD_ERROR_LOCATION);
+          StandardOutputKind.STANDARD_ERROR.getLocation());
     } else {
       try {
         return new WriterFile(context.getWorkingDirectory(),
