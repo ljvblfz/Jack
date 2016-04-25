@@ -26,6 +26,10 @@ endef
 
 include $(CLEAR_VARS)
 
+# This property file is created by ant build and will cause failure here. Deleting it here is not
+# interfering with further ant build making it an acceptable workaround.
+$(shell rm -f $(LOCAL_PATH)/rsc/jack-version.properties)
+
 LOCAL_MODULE := jack
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_CLASS := JAVA_LIBRARIES
