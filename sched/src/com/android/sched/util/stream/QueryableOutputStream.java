@@ -35,7 +35,7 @@ public class QueryableOutputStream extends FilterOutputStream implements Queryab
 
   @Override
   public synchronized void close() throws IOException {
-    super.close();
+    out.close();
     closed = true;
   }
 
