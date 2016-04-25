@@ -37,7 +37,10 @@ import javax.annotation.Nonnull;
  */
 @Description("Removes all methods not marked with the KeepMarker")
 @Synchronized
-@Constraint(need = {KeepMarker.class, PartialTypeHierarchy.class})
+@Constraint(
+  need = {KeepMarker.class, PartialTypeHierarchy.class},
+  no = KeeperSchedulingSeparator.SeparatorTag.class
+)
 public class MethodShrinker implements RunnableSchedulable<JMethod> {
 
   @Nonnull
