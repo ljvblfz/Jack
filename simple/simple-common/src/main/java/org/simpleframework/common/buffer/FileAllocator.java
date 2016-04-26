@@ -37,7 +37,7 @@ public class FileAllocator implements Allocator {
    /**
     * This is the default prefix used when none has been specified.
     */
-   private static final String PREFIX = "temp";
+   private static final String PREFIX = "jacksimple-";
    
    /**
     * This is the file manager used to create the buffer files.
