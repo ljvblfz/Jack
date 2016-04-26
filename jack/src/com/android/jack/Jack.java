@@ -267,6 +267,8 @@ import com.android.jack.transformations.exceptions.TryStatementSchedulingSeparat
 import com.android.jack.transformations.finallyblock.FinallyRemover;
 import com.android.jack.transformations.flow.FlowNormalizer;
 import com.android.jack.transformations.flow.FlowNormalizerSchedulingSeparator;
+import com.android.jack.transformations.lambda.DefaultBridgeInLambdaAdder;
+import com.android.jack.transformations.lambda.DefaultBridgeSeparator;
 import com.android.jack.transformations.lambda.LambdaConverter;
 import com.android.jack.transformations.lambda.LambdaToAnonymousConverter;
 import com.android.jack.transformations.parent.AstChecker;
@@ -1261,6 +1263,15 @@ public abstract class Jack {
     }
 
     {
+      {
+        SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+            planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+        SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
+        methodPlan.append(DefaultBridgeInLambdaAdder.class);
+      }
+
+      planBuilder.append(DefaultBridgeSeparator.class);
+
       {
         SubPlanBuilder<JDefinedClassOrInterface> typePlan =
             planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);

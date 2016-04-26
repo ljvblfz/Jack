@@ -19,6 +19,7 @@ package com.android.jack.ir.ast;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
+import com.android.sched.item.Tag;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 
@@ -32,6 +33,14 @@ import javax.annotation.Nonnull;
  */
 @Description("Lambda expression")
 public class JLambda extends JExpression {
+
+  /**
+   * A {@link Tag} meaning that default bridges were added into {@link JLambda} when they are
+   * needed.
+   */
+  @Description("Default bridges were added into JLambda when they are needed.")
+  public static final class DefaultBridgeAddedInLambda implements Tag {
+  }
 
   @Nonnull
   private JMethodId mthIdWithErasure;

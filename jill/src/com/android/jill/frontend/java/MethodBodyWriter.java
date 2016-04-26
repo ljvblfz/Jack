@@ -676,6 +676,14 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
 
     writeBridges(iDyn, bridgesCountIdx);
 
+    // Markers
+    writer.writeOpen();
+    writer.writeInt(1);
+    writer.writeKeyword(Token.LAMBDA_FROM_JILL);
+    writer.writeOpen();
+    writer.writeClose();
+    writer.writeClose();
+
     sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
     writer.writeClose();
 

@@ -107,6 +107,7 @@ public enum Token {
   INTERFACE("interface"),
   LABELED_STATEMENT("label"),
   LAMBDA("lambda"),
+  LAMBDA_FROM_JILL("lambda-from-jill"),
   LOCAL("local"),
   LOCAL_REF("local-ref"),
   LOCK("lock"),

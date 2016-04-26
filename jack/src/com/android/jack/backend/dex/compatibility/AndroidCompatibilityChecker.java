@@ -27,7 +27,6 @@ import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.reporting.Reportable;
 import com.android.jack.reporting.Reporter.Severity;
-import com.android.jack.transformations.lambda.SerializableLambdaReportable;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.RunnableSchedulable;

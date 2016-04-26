@@ -201,6 +201,7 @@ import com.android.jack.jayce.v0003.nodes.NIntLiteral;
 import com.android.jack.jayce.v0003.nodes.NInterfaceType;
 import com.android.jack.jayce.v0003.nodes.NLabeledStatement;
 import com.android.jack.jayce.v0003.nodes.NLambda;
+import com.android.jack.jayce.v0003.nodes.NLambdaFromJill;
 import com.android.jack.jayce.v0003.nodes.NLocal;
 import com.android.jack.jayce.v0003.nodes.NLocalRef;
 import com.android.jack.jayce.v0003.nodes.NLock;
@@ -252,6 +253,7 @@ import com.android.jack.jayce.v0003.nodes.NTryStatement;
 import com.android.jack.jayce.v0003.nodes.NUnlock;
 import com.android.jack.jayce.v0003.nodes.NWhileStatement;
 import com.android.jack.transformations.annotation.ContainerAnnotationMarker;
+import com.android.jack.transformations.lambda.LambdaFromJillMarker;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.SerializableMarker;
 
@@ -803,6 +805,8 @@ public class NodeFactory {
       nMarker = new NOriginDigest();
     } else if (from instanceof ContainerAnnotationMarker) {
       nMarker = new NContainerAnnotation();
+    } else if (from instanceof LambdaFromJillMarker) {
+      nMarker = new NLambdaFromJill();
     }
     // no NMarker if and only if the given Marker was not Jayce capable.
     assert (nMarker == null) == (!(from instanceof SerializableMarker)) : from.getClass();
