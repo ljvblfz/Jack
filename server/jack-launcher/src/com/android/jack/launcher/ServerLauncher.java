@@ -459,7 +459,7 @@ public final class ServerLauncher {
     File tmpInstall = null;
     synchronized (currentServerLock) {
       try {
-        tmpInstall = File.createTempFile("server.jar", TMP_SUFFIX, serverDir);
+        tmpInstall = File.createTempFile("jacklauncher-", TMP_SUFFIX, serverDir);
         out = new FileOutputStream(tmpInstall);
         new ByteStreamSucker(jarIn, out).suck();
         out.close();
