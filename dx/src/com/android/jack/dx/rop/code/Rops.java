@@ -1230,7 +1230,6 @@ public final class Rops {
       case Type.BT_OBJECT:
         return MOVE_PARAM_OBJECT;
       case Type.BT_CLOSURE:
-        // STOPHIP: Need to be replace by a MOVE_PARAM_LAMBDA
         return MOVE_PARAM_LONG;
     }
 
