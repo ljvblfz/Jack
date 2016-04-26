@@ -51,8 +51,7 @@ public class EcjLambdaTestPostM extends EcjLambdaTest {
           "test431514a",
           "test421712",
           "test406744d",
-          "test027",
-          "test430035c");
+          "test027");
 
   public static class MyAdapter extends JUnit4TestAdapter {
 

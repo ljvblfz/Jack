@@ -50,9 +50,9 @@ public class JModifier {
   public static final int COMPILE_TIME_CONSTANT = 0x20000;
   //Jack does not longer support ANONYMOUS_TYPE modifier, nevertheless old libraries can have it
   @Deprecated
-  public static final int ANONYMOUS_TYPE        = 0x40000;
-  public static final int CAPTURED_VARIABLE     = 0x80000;
-  public static final int LAMBDA_METHOD         = 0x200000;
+  public static final int ANONYMOUS_TYPE          = 0x40000;
+  public static final int CAPTURED_VARIABLE       = 0x80000;
+  public static final int LAMBDA_METHOD           = 0x200000;
 
   private static final int TYPE_MODIFIER_MASK = PUBLIC | PROTECTED | PRIVATE | STATIC | FINAL
       | ENUM | SYNTHETIC | ABSTRACT | INTERFACE | ANNOTATION | SUPER | STRICTFP | DEPRECATED;

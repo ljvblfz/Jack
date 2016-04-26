@@ -169,7 +169,7 @@ public class JMethodIdWide extends LocalMarkerManager implements HasName, CanBeR
     return equals(otherName, otherParamTypes);
   }
 
-  boolean equals(@Nonnull String otherName, @Nonnull List<? extends JType> otherParamTypes) {
+  public boolean equals(@Nonnull String otherName, @Nonnull List<? extends JType> otherParamTypes) {
     if (!(this.name.equals(otherName) && this.paramTypes.size() == otherParamTypes.size())) {
       return false;
     }

@@ -126,6 +126,7 @@ import com.android.jack.transformations.ast.NoImplicitBlock;
 import com.android.jack.transformations.ast.inner.InnerAccessor;
 import com.android.jack.transformations.ast.switches.UselessSwitches;
 import com.android.jack.transformations.cast.SourceCast;
+import com.android.jack.transformations.lambda.DefaultBridgeIntoInterface;
 import com.android.sched.item.AbstractComponent;
 import com.android.sched.item.ComposedOf;
 import com.android.sched.item.Description;
@@ -138,6 +139,7 @@ import com.android.sched.item.Name;
 @Description("All JNodes, tags or markers that represent the Jack format.")
 @ComposedOf({AnnotationMethodDefaultValue.class,
     BooleanTestOutsideIf.class,
+    DefaultBridgeIntoInterface.class,
     EmptyClinit.class,
     ImplicitBoxingAndUnboxing.class,
     ImplicitCast.class,

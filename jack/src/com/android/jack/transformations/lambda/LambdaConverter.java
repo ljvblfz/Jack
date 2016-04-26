@@ -82,7 +82,7 @@ import javax.annotation.Nonnull;
  * Convert lambda to anonymous class.
  */
 @Description("Convert lambda to anonymous class implementation.")
-@Constraint(need = JLambda.class)
+@Constraint(need = {JLambda.class, JLambda.DefaultBridgeAddedInLambda.class})
 @Transform(remove = JLambda.class,
     add = {JAsgOperation.class, JBlock.class, JConstructor.class, JDynamicCastOperation.class,
         JDefinedClass.class, JLocal.class, JExpressionStatement.class, JField.class,

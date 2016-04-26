@@ -90,6 +90,9 @@ public class NLambda extends NExpression {
   @Nonnull
   private List<NMethodId> bridges = Collections.emptyList();
 
+  @Nonnull
+  public List<NMarker> markers = Collections.emptyList();
+
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JLambda lambda = (JLambda) node;
@@ -111,6 +114,7 @@ public class NLambda extends NExpression {
     mthIdWithErasure = (NMethodId) loader.load(lambda.getMethodIdWithErasure());
     mthIdWithoutErasure = (NMethodId) loader.load(lambda.getMethodIdWithoutErasure());
     bridges = loader.load(NMethodId.class, lambda.getBridgeMethodIds());
+    markers = loader.load(NMarker.class, lambda.getAllMarkers());
   }
 
   @Override
@@ -165,6 +169,10 @@ public class NLambda extends NExpression {
       lambda.addCapturedVariable(jcapturedVariable);
     }
 
+    for (NMarker marker : markers) {
+      lambda.addMarker(marker.exportAsJast(exportSession));
+    }
+
     return lambda;
   }
 
@@ -184,6 +192,7 @@ public class NLambda extends NExpression {
     out.writeNode(mthIdWithErasure);
     out.writeNode(mthIdWithoutErasure);
     out.writeNodes(bridges);
+    out.writeNodes(markers);
   }
 
   @Override
@@ -200,6 +209,7 @@ public class NLambda extends NExpression {
     mthIdWithErasure = in.readNode(NMethodId.class);
     mthIdWithoutErasure = in.readNode(NMethodId.class);
     bridges = in.readNodes(NMethodId.class);
+    markers = in.readNodes(NMarker.class);
   }
 
   @Override

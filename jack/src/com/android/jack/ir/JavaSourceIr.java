@@ -147,6 +147,7 @@ import com.android.jack.transformations.ast.removeinit.FieldInitMethod;
 import com.android.jack.transformations.ast.removeinit.FieldInitMethodCall;
 import com.android.jack.transformations.ast.switches.UselessSwitches;
 import com.android.jack.transformations.cast.SourceCast;
+import com.android.jack.transformations.lambda.DefaultBridgeIntoInterface;
 import com.android.sched.item.AbstractComponent;
 import com.android.sched.item.ComposedOf;
 import com.android.sched.item.Description;
@@ -159,6 +160,7 @@ import com.android.sched.item.Name;
 @Description("All JNodes, tags or markers that represent the Java source.")
 @ComposedOf({AnnotationMethodDefaultValue.class,
     BooleanTestOutsideIf.class,
+    DefaultBridgeIntoInterface.class,
     EmptyClinit.class,
     FieldInitMethod.class,
     FieldInitMethodCall.class,

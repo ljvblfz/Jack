@@ -17,6 +17,7 @@
 package com.android.jack.java8;
 
 import com.android.jack.JackAbortException;
+import com.android.jack.Options;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -44,6 +45,18 @@ public class BridgeTestPreN {
   private RuntimeTestInfo BRIDGE003 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.java8.bridges.test003"),
       "com.android.jack.java8.bridges.test003.jack.Tests");
+
+  private RuntimeTestInfo BRIDGE004 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java8.bridges.test004"),
+      "com.android.jack.java8.bridges.test004.jack.Tests");
+
+  private RuntimeTestInfo BRIDGE005 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java8.bridges.test005"),
+      "com.android.jack.java8.bridges.test005.jack.Tests");
+
+  private RuntimeTestInfo BRIDGE006 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java8.bridges.test006"),
+      "com.android.jack.java8.bridges.test006.jack.Tests");
 
   @Test
   public void testBridge001() throws Exception {
@@ -93,10 +106,66 @@ public class BridgeTestPreN {
   public void testBridge003() throws Exception {
     new RuntimeTestHelper(BRIDGE003).setSourceLevel(SourceLevel.JAVA_8)
         .addIgnoredCandidateToolchain(JackApiV01.class)
-        // Known issue with JillBasedToolchain because when Jill is used, it does not provide
-        // information needed to generate bridges, instead it uses default bridge methods into
-        // interfaces.
-        .addIgnoredCandidateToolchain(JillBasedToolchain.class)
         .compileAndRunTest();
+  }
+
+  @Test
+  public void testBridge004() throws Exception {
+    new RuntimeTestHelper(BRIDGE004).setSourceLevel(SourceLevel.JAVA_8)
+        .addIgnoredCandidateToolchain(JackApiV01.class)
+        .compileAndRunTest();
+  }
+
+  @Test
+  public void testBridge005() throws Exception {
+    new RuntimeTestHelper(BRIDGE005).setSourceLevel(SourceLevel.JAVA_8)
+        .addIgnoredCandidateToolchain(JackApiV01.class)
+        .compileAndRunTest();
+  }
+
+  @Test
+  public void testBridge006() throws Exception {
+    new RuntimeTestHelper(BRIDGE006).setSourceLevel(SourceLevel.JAVA_8)
+        .addIgnoredCandidateToolchain(JackApiV01.class)
+        .compileAndRunTest();
+  }
+
+  @Test
+  public void testBridge007() throws Exception {
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JillBasedToolchain.class);
+    File[] defaultClasspath = toolchain.getDefaultBootClasspath();
+    File lib = AbstractTestTools.createTempFile("lib", toolchain.getLibraryExtension());
+    File sourceDir = AbstractTestTools.getTestRootDir("com.android.jack.java8.bridges.test007.lib");
+    toolchain.setSourceLevel(SourceLevel.JAVA_8);
+    toolchain.addToClasspath(defaultClasspath).srcToLib(lib, /* zipFiles = */ true, sourceDir);
+
+    toolchain = AbstractTestTools.getCandidateToolchain(JillBasedToolchain.class);
+    File libDexFolder = AbstractTestTools.createTempDir();
+    toolchain.addToClasspath(defaultClasspath).setSourceLevel(SourceLevel.JAVA_8).libToExe(lib,
+        libDexFolder, /* zipFiles = */ false);
+
+    toolchain = AbstractTestTools.getCandidateToolchain(JillBasedToolchain.class);
+    File srclib = AbstractTestTools.createTempFile("srclib", toolchain.getLibraryExtension());
+    sourceDir = AbstractTestTools.getTestRootDir("com.android.jack.java8.bridges.test007.jack");
+    toolchain.addToClasspath(defaultClasspath).addToClasspath(lib)
+        .setSourceLevel(SourceLevel.JAVA_8).srcToLib(srclib, /* zipFiles = */ true, sourceDir);
+
+    toolchain = AbstractTestTools.getCandidateToolchain(JillBasedToolchain.class);
+    File srcDexFolder = AbstractTestTools.createTempDir();
+    toolchain.addProperty(Options.USE_PREBUILT_FROM_LIBRARY.getName(), Boolean.FALSE.toString());
+    ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
+    toolchain.setErrorStream(errorStream);
+    try {
+      toolchain.addToClasspath(defaultClasspath).setSourceLevel(SourceLevel.JAVA_8).libToExe(srclib,
+        srcDexFolder, /* zipFiles = */ false);
+    } catch (RuntimeException e) {
+      Assert.assertEquals("Jack compiler exited with an error", e.getMessage());
+    }
+
+    String errString = errorStream.toString();
+    Assert.assertTrue(errString.contains(
+        "ERROR: Tests.java:26: Lambda coming from jar file need their interfaces on the classpath "
+        + "to be compiled, unknown interfaces are com.android.jack.java8.bridges.test007.jack.B"));
   }
 }
