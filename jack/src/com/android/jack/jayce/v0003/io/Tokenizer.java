@@ -40,7 +40,7 @@ class Tokenizer {
   }
 
   private void readNextToken() throws IOException {
-    byte token = in.readByte();
+    int token = in.readUnsignedByte();
     try {
       currentTokenId = tokenMap[token];
     } catch (ArrayIndexOutOfBoundsException e) {
