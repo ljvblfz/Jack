@@ -228,7 +228,10 @@ public class RefinedVFile extends AbstractVElement implements InputVFile {
       while (available() != 0 && totalRead < len) {
         // Read current refined entry if any
         if (currentStream != null) {
-          totalRead += currentStream.read(b, off + totalRead, len - totalRead);
+          int read = currentStream.read(b, off + totalRead, len - totalRead);
+          if (read > 0) {
+            totalRead += read;
+          }
           if (currentStream.available() == 0) {
             closeCurrentRefinedEntry();
           }
@@ -244,8 +247,10 @@ public class RefinedVFile extends AbstractVElement implements InputVFile {
           baseLength = len - totalRead;
         }
         int read = baseInputStream.read(b, off + totalRead, baseLength);
-        totalRead += read;
-        position += read;
+        if (read > 0) {
+          totalRead += read;
+          position += read;
+        }
 
         if (totalRead < len) {
           openNextRefinedEntryIfNecessary();
