@@ -18,7 +18,6 @@ package com.android.jack.unary;
 
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.RuntimeTestHelper;
-import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -82,7 +81,6 @@ public class UnaryTests extends RuntimeTest {
     new RuntimeTestHelper(TEST005).compileAndRunTest();
   }
 
-  @KnownIssue
   @Test
   @Category(RuntimeRegressionTest.class)
   public void test006() throws Exception {
@@ -96,6 +94,6 @@ public class UnaryTests extends RuntimeTest {
     rtTestInfos.add(TEST003);
     rtTestInfos.add(TEST004);
     rtTestInfos.add(TEST005);
-//    rtTestInfos.add(TEST006); // KnownIssue
+    rtTestInfos.add(TEST006);
   }
 }
