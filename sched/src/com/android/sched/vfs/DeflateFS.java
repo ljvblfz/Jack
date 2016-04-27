@@ -228,4 +228,9 @@ public class DeflateFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS{
   public String getDigest() {
     return vfs.getDigest();
   }
+
+  @Override
+  public String toString() {
+    return "deflateFS >> " + vfs.toString();
+  }
 }
