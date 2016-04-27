@@ -178,6 +178,11 @@ public class IncrementalTestHelper {
     return fqnOfRebuiltTypes;
   }
 
+  @Nonnull
+  public File getSourceFolder() {
+    return sourceFolder;
+  }
+
   public void incrementalBuildFromFolder() throws Exception {
     incrementalBuildFromFolder(null, Collections.<File>emptyList());
   }
@@ -248,6 +253,11 @@ public class IncrementalTestHelper {
       @Nonnull String propertyValue) {
     properties.put(propertyName, propertyValue);
     return this;
+  }
+
+  @Nonnull
+  public File getDexOutDir() {
+    return dexOutDir;
   }
 
   @Nonnull
