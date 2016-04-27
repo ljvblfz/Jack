@@ -172,6 +172,62 @@ public class SubTreeMarkersCollector<T extends Marker> {
     return (parentCollectedMarkers.subList(0, collectedMarker.getBeforeMarkerEndPosition()));
   }
 
+  /**
+   * Collect all markers of kind <T>, that are found on nodes visited before the nodes on the path
+   * from {@code subTreeRoot} to {@code endNode}. Considered nodes are those in the subtrees of
+   * {@code endNode}'s previous sibling and all of its parents previous siblings up to
+   * {@code subTreeRoot}.
+   */
+  @Nonnull
+  public List<T> getMarkersOnNodesLeftToPath(@Nonnull JNode subTreeRoot,
+      @Nonnull JNode endNode) {
+    getOrCreateSubTreeMarkers(subTreeRoot);
+
+    List<T> markers = new ArrayList<>();
+
+    JNode currentNode = endNode;
+    do {
+      JNode currentParent = currentNode.getParent();
+      SubTreeMarkers<T> collectedMarker = currentNode.getMarker(subTreeMarkersClass);
+      assert collectedMarker != null;
+      SubTreeMarkers<T> parentCollectedMarkers = currentParent.getMarker(subTreeMarkersClass);
+      assert parentCollectedMarkers != null;
+      markers.addAll(parentCollectedMarkers.getAllMarkers().subList(
+          0, collectedMarker.getBeforeMarkerEndPosition()));
+      currentNode = currentParent;
+    } while (currentNode != subTreeRoot);
+
+    return markers;
+  }
+
+  /**
+   * Collect all markers of kind <T>, that are found on nodes visited after the nodes on the path
+   * from {@code subTreeRoot} to {@code endNode}. Considered nodes are those in the subtrees of
+   * {@code endNode}'s next sibling and all of its parents next siblings up to {@code subTreeRoot}.
+   */
+  @Nonnull
+  public List<T> getMarkersOnNodesRightToPath(@Nonnull JNode subTreeRoot,
+      @Nonnull JNode endNode) {
+    getOrCreateSubTreeMarkers(subTreeRoot);
+
+    List<T> markers = new ArrayList<>();
+
+    JNode currentNode = endNode;
+    do {
+      JNode currentParent = currentNode.getParent();
+      SubTreeMarkers<T> collectedMarker = currentNode.getMarker(subTreeMarkersClass);
+      assert collectedMarker != null;
+      SubTreeMarkers<T> parentCollectedMarkers = currentParent.getMarker(subTreeMarkersClass);
+      assert parentCollectedMarkers != null;
+      markers.addAll(parentCollectedMarkers.getAllMarkers().subList(
+          collectedMarker.getAfterMarkerStartPosition(),
+          parentCollectedMarkers.getPositionOfNestedMarkerEnd()));
+      currentNode = currentParent;
+    } while (currentNode != subTreeRoot);
+
+    return markers;
+  }
+
   @Nonnull
   private SubTreeMarkers<T> getOrCreateSubTreeMarkers(@Nonnull JNode node) {
     SubTreeMarkers<T> cm = node.getMarker(subTreeMarkersClass);

@@ -154,18 +154,19 @@ public class ThreeAddressCodeBuilder implements RunnableSchedulable<JMethod> {
     @Override
     public void endVisit(@Nonnull JExpression expr) {
       JNode parent = expr.getParent();
+      assert insertStatement != null;
 
       // Nothing to do on:
       // - JConditional, they are taken into account in descending order by replacing them by if
       // statements
       // - JLiteral that can not throw exception since they are manage by the back-end
       // - JVariableRef, no need to put variables into temporary variables except if they are
-      // redefined by the sibling of expr. No need to move variable if it is the left part of an
-      // assignment.
+      // redefined by the following expressions in the statement.
+      // - No need to move variable if it is the left part of an assignment.
       if (expr instanceof JConditionalExpression
           || (expr instanceof JValueLiteral && !expr.canThrow())
           || (expr instanceof JVariableRef && !isRedefineVariable(
-              expr.getSubTreeMarkersOnNextSibling(defMarkerCollector),
+              expr.getMarkersOnNodesRightToPath(defMarkerCollector, insertStatement),
               ((JVariableRef) expr).getTarget()))
           || (parent instanceof JAsgOperation &&
               ((JAsgOperation) parent).getLhs() == expr)) {

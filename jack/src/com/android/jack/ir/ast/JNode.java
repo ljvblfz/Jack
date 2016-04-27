@@ -309,5 +309,29 @@ public abstract class JNode extends LocalMarkerManager
     return collector.getSubTreeMarkersOnPreviousSibling(this);
   }
 
+  /**
+   * Collect all markers of kind <T>, that are found on nodes visited before the nodes on the path
+   * from {@code subTreeRoot} to this node. Considered nodes are those in the subtrees of this
+   * node's previous sibling and all of its parents previous siblings up to {@code subTreeRoot}.
+   */
+  @Nonnull
+  public <T extends Marker> List<T> getMarkersOnNodesLeftToPath(
+      @Nonnull SubTreeMarkersCollector<T> collector,
+      @Nonnull JNode subTreeRoot) {
+    return collector.getMarkersOnNodesLeftToPath(subTreeRoot, this);
+  }
+
+  /**
+   * Collect all markers of kind <T>, that are found on nodes visited after the nodes on the path
+   * from {@code subTreeRoot} to this node. Considered nodes are those in the subtrees of this
+   * node's next sibling and all of its parents next siblings up to {@code subTreeRoot}.
+   */
+  @Nonnull
+  public <T extends Marker> List<T> getMarkersOnNodesRightToPath(
+      @Nonnull SubTreeMarkersCollector<T> collector,
+      @Nonnull JNode subTreeRoot) {
+    return collector.getMarkersOnNodesRightToPath(subTreeRoot, this);
+  }
+
   public abstract void checkValidity();
 }

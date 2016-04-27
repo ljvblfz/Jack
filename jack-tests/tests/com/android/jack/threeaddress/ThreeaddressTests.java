@@ -31,6 +31,14 @@ public class ThreeaddressTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.threeaddress.test001"),
     "com.android.jack.threeaddress.test001.dx.Tests");
 
+  private RuntimeTestInfo TEST002 = new RuntimeTestInfo(
+    AbstractTestTools.getTestRootDir("com.android.jack.threeaddress.test002"),
+    "com.android.jack.threeaddress.test002.dx.Tests");
+
+  private RuntimeTestInfo TEST003 = new RuntimeTestInfo(
+    AbstractTestTools.getTestRootDir("com.android.jack.threeaddress.test003"),
+    "com.android.jack.threeaddress.test003.dx.Tests");
+
 
   @Test
   @Category(RuntimeRegressionTest.class)
@@ -38,8 +46,22 @@ public class ThreeaddressTests extends RuntimeTest {
     new RuntimeTestHelper(TEST001).compileAndRunTest();
   }
 
+  @Test
+  @Category(RuntimeRegressionTest.class)
+  public void test002() throws Exception {
+    new RuntimeTestHelper(TEST002).compileAndRunTest();
+  }
+
+  @Test
+  @Category(RuntimeRegressionTest.class)
+  public void test003() throws Exception {
+    new RuntimeTestHelper(TEST003).compileAndRunTest();
+  }
+
   @Override
   protected void fillRtTestInfos() {
     rtTestInfos.add(TEST001);
+    rtTestInfos.add(TEST002);
+    rtTestInfos.add(TEST003);
   }
 }
