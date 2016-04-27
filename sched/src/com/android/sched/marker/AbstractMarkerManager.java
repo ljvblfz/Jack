@@ -31,7 +31,6 @@ import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.log.LoggerFactory;
 
 import java.lang.reflect.Modifier;
-import java.util.Collection;
 import java.util.EmptyStackException;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,8 +42,7 @@ import javax.annotation.Nonnull;
 
 /**
  * Provides {@link Marker}-managing abilities to its subclasses.
- * <p>This is a skeletal implementation. Two full implementations are available:
- * {@link StaticMarkerManager} and {@link LocalMarkerManager}.
+ * <p>This is a skeletal implementation.
  */
 abstract class AbstractMarkerManager implements MarkerManager {
   @Nonnull
@@ -63,24 +61,6 @@ abstract class AbstractMarkerManager implements MarkerManager {
     ensureScan();
     assert map != null;
   }
-
-  @Override
-  @CheckForNull
-  public abstract <T extends Marker> T removeMarker(@Nonnull Class<T> c);
-
-  @Override
-  public abstract <T extends Marker> boolean containsMarker(@Nonnull Class<T> c);
-
-  @Override
-  public abstract void addMarker(@Nonnull Marker m);
-
-  @Override
-  @Nonnull
-  public abstract Collection<Marker> getAllMarkers();
-
-  @Override
-  @CheckForNull
-  public abstract <T extends Marker> T getMarker(@Nonnull Class<T> c);
 
   protected boolean isValidMarker(@Nonnull Class<? extends Marker> marker) {
     assert map != null;
