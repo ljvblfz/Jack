@@ -62,7 +62,7 @@ public class LibraryMetaWriter implements RunnableSchedulable<JSession> {
           if (!metaFile.getName().endsWith(Dependency.DEPENDENCY_FILE_EXTENSION)) {
             VPath path = getNameFromInputVFile(importedLibrary, metaFile);
             Meta meta = new Meta(path, metaFile,
-                new MetaInInputLibraryLocation(importedLibrary.getLocation(), path));
+                new MetaInInputLibraryLocation(importedLibrary, path));
             addMetaToOutputJackLib(meta, ojl);
           }
         }

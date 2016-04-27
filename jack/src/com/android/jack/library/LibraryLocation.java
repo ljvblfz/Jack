@@ -18,18 +18,30 @@ package com.android.jack.library;
 
 import com.android.sched.util.location.Location;
 
+import javax.annotation.Nonnull;
+
 /**
  * Class describing a library location.
  */
-public abstract class LibraryLocation extends Location {
+public class LibraryLocation extends Location {
 
-  protected abstract Location getVFSLocation();
+  @Nonnull
+  private final Location sourceLocation;
+
+  public LibraryLocation(@Nonnull Location sourceLocation) {
+    this.sourceLocation = sourceLocation;
+  }
+
+  @Override
+  @Nonnull
+  public String getDescription() {
+    return sourceLocation.getDescription();
+  }
 
   @Override
   public final boolean equals(Object obj) {
     if (obj instanceof LibraryLocation) {
-      return getVFSLocation().equals(
-          ((LibraryLocation) obj).getVFSLocation());
+      return sourceLocation.equals(((LibraryLocation) obj).sourceLocation);
     }
 
     return false;
@@ -37,6 +49,6 @@ public abstract class LibraryLocation extends Location {
 
   @Override
   public final int hashCode() {
-    return getVFSLocation().hashCode();
+    return sourceLocation.hashCode();
   }
 }

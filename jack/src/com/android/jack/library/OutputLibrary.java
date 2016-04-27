@@ -39,7 +39,7 @@ public interface OutputLibrary extends Library {
 
   @Override
   @Nonnull
-  public OutputLibraryLocation getLocation();
+  public LibraryLocation getLocation();
 
   public boolean containsFileType(@Nonnull FileType fileType);
 

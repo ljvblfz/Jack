@@ -27,7 +27,6 @@ import com.android.jack.library.FileTypeDoesNotExistException;
 import com.android.jack.library.IgnoringImportMessage;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputLibrary;
-import com.android.jack.library.InputLibraryLocation;
 import com.android.jack.library.LibraryReadingException;
 import com.android.jack.library.ResourceInInputLibraryLocation;
 import com.android.jack.library.TypeInInputLibraryLocation;
@@ -155,7 +154,7 @@ public class JayceFileImporter {
         InputVFile rscFile = rscFileIt.next();
         String name = rscFile.getPathFromRoot().getPathAsString('/');
         try {
-          addImportedResource(rscFile, session, name, jackLibrary.getLocation());
+          addImportedResource(rscFile, session, name, jackLibrary);
         } catch (ResourceImportConflictException e) {
           if (resourceCollisionPolicy == CollisionPolicy.FAIL) {
             throw new LibraryReadingException(e);
@@ -182,9 +181,7 @@ public class JayceFileImporter {
         Location previousLocation = declaredType.getLocation();
         if (previousLocation instanceof TypeInInputLibraryLocation) {
           InputLibrary previousInputLibrary =
-              ((TypeInInputLibraryLocation) previousLocation)
-                  .getInputLibraryLocation()
-                  .getInputLibrary();
+              ((TypeInInputLibraryLocation) previousLocation).getInputLibrary();
           String pathWithoutExt =
               path.substring(0, path.lastIndexOf(JAYCE_FILE_EXTENSION));
           try {
@@ -216,8 +213,7 @@ public class JayceFileImporter {
           return false;
       }
       TypeInInputLibraryLocation existingLocation = (TypeInInputLibraryLocation) existingSource;
-      return intendedInputLibrary.equals(
-              existingLocation.getInputLibraryLocation().getInputLibrary());
+    return intendedInputLibrary.equals(existingLocation.getInputLibrary());
   }
 
   @Nonnull
@@ -227,11 +223,11 @@ public class JayceFileImporter {
   }
 
   private void addImportedResource(@Nonnull InputVFile file, @Nonnull JSession session,
-      @Nonnull String currentPath, @Nonnull InputLibraryLocation inputLibraryLocation)
+      @Nonnull String currentPath, @Nonnull InputLibrary inputLibrary)
           throws ResourceImportConflictException {
     VPath path = new VPath(currentPath, VPATH_SEPARATOR);
     ResourceInInputLibraryLocation resourceLocation =
-        new ResourceInInputLibraryLocation(inputLibraryLocation, path);
+        new ResourceInInputLibraryLocation(inputLibrary, path);
     Resource newResource = new Resource(path, file, resourceLocation);
     for (Resource existingResource : session.getResources()) {
       if (existingResource.getPath().equals(path)) {

@@ -17,7 +17,6 @@
 package com.android.jack.library;
 
 import com.android.sched.util.location.FileLocation;
-import com.android.sched.util.location.Location;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
@@ -105,26 +104,8 @@ public class InvalidLibrary implements InputLibrary {
 
   @Override
   @Nonnull
-  public InputLibraryLocation getLocation() {
-    return new InputLibraryLocation() {
-
-      @Override
-      @Nonnull
-      public String getDescription() {
-        return new FileLocation(file).getDescription();
-      }
-
-      @Override
-      protected Location getVFSLocation() {
-        return new FileLocation(file);
-      }
-
-      @Override
-      @Nonnull
-      public InputLibrary getInputLibrary() {
-        return InvalidLibrary.this;
-      }
-    };
+  public LibraryLocation getLocation() {
+    return new LibraryLocation(new FileLocation(file));
   }
 
   @Override

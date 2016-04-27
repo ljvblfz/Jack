@@ -26,37 +26,36 @@ import javax.annotation.Nonnull;
 public class TypeInInputLibraryLocation extends Location {
 
   @Nonnull
-  private final InputLibraryLocation inputLibLoc;
+  private final InputLibrary inputLib;
 
   @Nonnull
   private final String typeName;
 
-  public TypeInInputLibraryLocation(@Nonnull InputLibraryLocation inputLibLoc,
-      @Nonnull String typeName) {
-    this.inputLibLoc = inputLibLoc;
+  public TypeInInputLibraryLocation(@Nonnull InputLibrary inputLib, @Nonnull String typeName) {
+    this.inputLib = inputLib;
     this.typeName = typeName;
   }
 
   @Override
   @Nonnull
   public String getDescription() {
-    return inputLibLoc.getDescription() + ", type '" + typeName + '\'';
+    return inputLib.getLocation().getDescription() + ", type '" + typeName + '\'';
   }
 
   @Override
   public final boolean equals(Object obj) {
     return obj instanceof TypeInInputLibraryLocation
-        && ((TypeInInputLibraryLocation) obj).inputLibLoc.equals(inputLibLoc)
+        && ((TypeInInputLibraryLocation) obj).inputLib.equals(inputLib)
         && ((TypeInInputLibraryLocation) obj).typeName.equals(typeName);
   }
 
   @Override
   public final int hashCode() {
-    return inputLibLoc.hashCode() ^ typeName.hashCode();
+    return inputLib.hashCode() ^ typeName.hashCode();
   }
 
   @Nonnull
-  public InputLibraryLocation getInputLibraryLocation() {
-    return inputLibLoc;
+  public InputLibrary getInputLibrary() {
+    return inputLib;
   }
 }

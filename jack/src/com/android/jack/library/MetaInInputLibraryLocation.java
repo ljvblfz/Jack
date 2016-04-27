@@ -25,14 +25,14 @@ import javax.annotation.Nonnull;
  */
 public class MetaInInputLibraryLocation extends ResourceOrMetaInInputLibraryLocation {
 
-  public MetaInInputLibraryLocation(@Nonnull InputLibraryLocation inputLibLoc,
+  public MetaInInputLibraryLocation(@Nonnull InputLibrary inputLib,
       @Nonnull VPath path) {
-    super(inputLibLoc, path);
+    super(inputLib, path);
   }
 
   @Override
   @Nonnull
   public String getDescription() {
-    return inputLibLoc.getDescription() + ", meta '" + path.getPathAsString('/') + '\'';
+    return inputLib.getLocation().getDescription() + ", meta '" + path.getPathAsString('/') + '\'';
   }
 }

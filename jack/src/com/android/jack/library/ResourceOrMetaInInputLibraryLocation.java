@@ -27,19 +27,19 @@ import javax.annotation.Nonnull;
 public abstract class ResourceOrMetaInInputLibraryLocation extends Location {
 
   @Nonnull
-  protected final InputLibraryLocation inputLibLoc;
+  protected final InputLibrary inputLib;
 
   @Nonnull
   protected final VPath path;
 
-  public ResourceOrMetaInInputLibraryLocation(@Nonnull InputLibraryLocation inputLibLoc,
+  public ResourceOrMetaInInputLibraryLocation(@Nonnull InputLibrary inputLib,
       @Nonnull VPath path) {
-    this.inputLibLoc = inputLibLoc;
+    this.inputLib = inputLib;
     this.path = path;
   }
 
   @Nonnull
-  public InputLibraryLocation getInputLibraryLocation() {
-    return inputLibLoc;
+  public InputLibrary getInputLibrary() {
+    return inputLib;
   }
 }

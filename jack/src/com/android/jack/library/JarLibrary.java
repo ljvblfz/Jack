@@ -17,7 +17,6 @@
 package com.android.jack.library;
 
 import com.android.sched.util.file.InputZipFile;
-import com.android.sched.util.location.Location;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
@@ -94,26 +93,8 @@ public class JarLibrary implements InputLibrary {
 
   @Override
   @Nonnull
-  public InputLibraryLocation getLocation() {
-    return new InputLibraryLocation() {
-
-      @Override
-      @Nonnull
-      public String getDescription() {
-        return file.getLocation().getDescription();
-      }
-
-      @Override
-      protected Location getVFSLocation() {
-        return file.getLocation();
-      }
-
-      @Override
-      @Nonnull
-      public InputLibrary getInputLibrary() {
-        return JarLibrary.this;
-      }
-    };
+  public LibraryLocation getLocation() {
+    return new LibraryLocation(file.getLocation());
   }
 
   @Override

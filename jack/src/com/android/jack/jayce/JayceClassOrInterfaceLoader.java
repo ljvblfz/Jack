@@ -129,7 +129,7 @@ public class JayceClassOrInterfaceLoader extends AbstractClassOrInterfaceLoader 
     this.lookup = lookup;
     nnode = new SoftReference<DeclaredTypeNode>(null);
     this.defaultLoadLevel = defaultLoadLevel;
-    location = new TypeInInputLibraryLocation(inputJackLibrary.getLocation(),
+    location = new TypeInInputLibraryLocation(inputJackLibrary,
         Jack.getUserFriendlyFormatter().getName(enclosingPackage, simpleName));
   }
 
