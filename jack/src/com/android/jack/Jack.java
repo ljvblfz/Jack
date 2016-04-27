@@ -71,12 +71,6 @@ import com.android.jack.backend.jayce.JayceInLibraryWriterNoPrebuilt;
 import com.android.jack.cfg.CfgBuilder;
 import com.android.jack.cfg.CfgMarkerRemover;
 import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
-import com.android.jack.coverage.CodeCoverage;
-import com.android.jack.coverage.CodeCoverageAnalyzer;
-import com.android.jack.coverage.CodeCoverageMetadataFile;
-import com.android.jack.coverage.CodeCoverageMetadataFileWriter;
-import com.android.jack.coverage.CodeCoverageSelector;
-import com.android.jack.coverage.CodeCoverageTransformer;
 import com.android.jack.digest.OriginDigestAdder;
 import com.android.jack.digest.OriginDigestFeature;
 import com.android.jack.frontend.FrontendCompilationException;
@@ -648,10 +642,6 @@ public abstract class Jack {
         if (config.get(TypeDefRemover.REMOVE_TYPEDEF).booleanValue()) {
           request.addFeature(TypeDefRemover.RemoveTypeDef.class);
         }
-        if (config.get(CodeCoverage.CODE_COVERVAGE).booleanValue()) {
-          request.addFeature(CodeCoverage.class);
-          request.addProduction(CodeCoverageMetadataFile.class);
-        }
 
         // TODO(jack-team): Remove this hack
         List<InputLibrary> importedLibraries = session.getImportedLibraries();
@@ -1067,14 +1057,6 @@ public abstract class Jack {
     }
 
     {
-      if (features.contains(CodeCoverage.class)) {
-        SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-            planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-        typePlan.append(CodeCoverageSelector.class);
-      }
-    }
-
-    {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       {
@@ -1448,26 +1430,11 @@ public abstract class Jack {
           methodPlan4.append(UselessIfRemover.class);
           methodPlan4.append(CfgMarkerRemover.class);
           methodPlan4.append(CfgBuilder.class);
-          if (features.contains(CodeCoverage.class)) {
-            methodPlan4.append(CodeCoverageAnalyzer.class);
-          }
-        }
-
-        // Apply code coverage on the whole class (after CodeCoverageAnalyzer has processed all
-        // methods of the class).
-        if (features.contains(CodeCoverage.class)) {
-          typePlan5.append(CodeCoverageTransformer.class);
         }
 
         {
           SubPlanBuilder<JMethod> methodPlan5 =
               typePlan5.appendSubPlan(JMethodAdapter.class);
-          if (features.contains(CodeCoverage.class)) {
-            // We instrumented the code with CodeCoverageTransformer so we need to update the
-            // control flow graph.
-            methodPlan5.append(CfgMarkerRemover.class);
-            methodPlan5.append(CfgBuilder.class);
-          }
           methodPlan5.append(CodeItemBuilder.class);
           methodPlan5.append(CfgMarkerRemover.class);
           methodPlan5.append(EncodedMethodBuilder.class);
@@ -1488,10 +1455,6 @@ public abstract class Jack {
       if (hasSanityChecks) {
         typePlan5.append(TypeAstChecker.class);
       }
-    }
-
-    if (productions.contains(CodeCoverageMetadataFile.class)) {
-      planBuilder.append(CodeCoverageMetadataFileWriter.class);
     }
 
     if (productions.contains(DexInLibraryProduct.class)) {

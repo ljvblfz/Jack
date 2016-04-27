@@ -96,7 +96,6 @@ import org.junit.runners.Suite.SuiteClasses;
     CompileTimeTests.class,
     ConditionalTests.class,
     ConstantTests.class,
-    CoverageTests.class,
     DebugTests.class,
     DefUseTests.class,
     DependencyAllTests.class,
