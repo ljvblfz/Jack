@@ -144,9 +144,6 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   private final Set<String> filesToRecompile;
 
   @Nonnull
-  private final List<? extends InputLibrary> importedLibrariesFromCommandLine;
-
-  @CheckForNull
   private List<InputLibrary> importedLibraries;
 
   @Nonnull
@@ -162,7 +159,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
 
     tracer.getStatistic(IncrementalInputFilter.SOURCE_FILES).incValue(fileNamesOnCmdLine.size());
 
-    importedLibrariesFromCommandLine = config.get(Options.IMPORTED_LIBRARIES);
+    List<InputLibrary> importedLibrariesFromCommandLine = config.get(Options.IMPORTED_LIBRARIES);
 
     JSession session = Jack.getSession();
 
@@ -236,6 +233,19 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
         LibraryWritingException reportable = new LibraryWritingException(e);
         Jack.getSession().getReporter().report(Severity.FATAL, reportable);
         throw new JackAbortException(reportable);
+      }
+    }
+
+    if (needFullBuild()) {
+      session.setFileDependencies(new FileDependencies());
+      session.setTypeDependencies(new TypeDependencies());
+      importedLibraries = importedLibrariesFromCommandLine;
+    } else {
+      try {
+        updateIncrementalState();
+      } catch (IncrementalException e) {
+        session.getReporter().report(Severity.FATAL, e);
+        throw new JackAbortException(e);
       }
     }
   }
@@ -458,22 +468,6 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   @Override
   @Nonnull
   public List<? extends InputLibrary> getImportedLibraries() {
-
-    JSession session = Jack.getSession();
-    if (needFullBuild()) {
-      session.setFileDependencies(new FileDependencies());
-      session.setTypeDependencies(new TypeDependencies());
-      return importedLibrariesFromCommandLine;
-    }
-
-    try {
-      updateIncrementalState();
-    } catch (IncrementalException e) {
-      session.getReporter().report(Severity.FATAL, e);
-      throw new JackAbortException(e);
-    }
-
-    assert importedLibraries != null;
     return importedLibraries;
   }
 }
