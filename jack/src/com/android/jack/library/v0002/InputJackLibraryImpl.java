@@ -91,6 +91,8 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   @CheckForNull
   private OutputJackLibraryImpl linkedOutputJackLib;
 
+  private boolean closed = false;
+
   public InputJackLibraryImpl(@Nonnull VFS vfs,
       @Nonnull Properties libraryProperties) throws LibraryVersionException,
       LibraryFormatException {
@@ -107,6 +109,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
     super(libraryProperties, jackOutputLibrary.getVfs());
     linkedOutputJackLib = jackOutputLibrary;
     originalVFS = jackOutputLibrary.getVfs();
+    jackOutputLibrary.incrementNumLinkedLibraries();
 
     check();
     fillFileTypes();
@@ -193,17 +196,22 @@ public class InputJackLibraryImpl extends InputJackLibrary {
 
   @Override
   public synchronized void close() throws LibraryIOException {
+    if (!closed) {
 
-    if (linkedOutputJackLib == null && !originalVFS.isClosed()) {
-      try {
+      if (linkedOutputJackLib != null) {
+        linkedOutputJackLib.notifyToClose();
 
-        for (InputVFS currentSectionVFS : sectionVFS.values()) {
-          currentSectionVFS.close();
+      } else if (!originalVFS.isClosed()) {
+        try {
+          for (InputVFS currentSectionVFS : sectionVFS.values()) {
+            currentSectionVFS.close();
+          }
+          vfs.close();
+        } catch (IOException e) {
+          throw new LibraryIOException(getLocation(), e);
         }
-        vfs.close();
-      } catch (IOException e) {
-        throw new LibraryIOException(getLocation(), e);
       }
+      closed = true;
     }
   }
 
