@@ -62,6 +62,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -75,8 +76,10 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
   private boolean closed = false;
 
   private final boolean generateJacklibDigest =
-
       ThreadConfig.get(JackLibraryFactory.GENERATE_JACKLIB_DIGEST).booleanValue();
+
+  @Nonnegative
+  private int numLinkedLibraries = 1; // one for ourselves
 
   @Nonnull
   private final Map<FileType, InputOutputVFS> sectionVFS =
@@ -100,6 +103,10 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
     putProperty(KEY_LIB_EMITTER_VERSION, emitterVersion);
     putProperty(KEY_LIB_MAJOR_VERSION, String.valueOf(getMajorVersion()));
     putProperty(KEY_LIB_MINOR_VERSION, String.valueOf(getMinorVersion()));
+  }
+
+  synchronized void incrementNumLinkedLibraries() {
+    numLinkedLibraries++;
   }
 
   @Override
@@ -157,54 +164,63 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
   @Override
   public synchronized void close() throws LibraryIOException {
     if (!closed) {
-      GenericOutputVFS goVFS = null;
+      notifyToClose();
+      closed = true;
+    }
+  }
 
-      // Write configuration properties in library
-      Config config = ThreadConfig.getConfig();
-      Collection<PropertyId<?>> properties = config.getPropertyIds();
-      for (PropertyId<?> property : properties) {
-        if (property.hasCategory(DumpInLibrary.class)) {
-          libraryProperties.put("config." + property.getName(), config.getAsString(property));
+  synchronized void notifyToClose() throws LibraryIOException {
+    numLinkedLibraries--;
+    if (numLinkedLibraries == 0) {
+      doClose();
+    }
+  }
+
+  private void doClose() throws LibraryIOException {
+    GenericOutputVFS goVFS = null;
+
+    // Write configuration properties in library
+    Config config = ThreadConfig.getConfig();
+    Collection<PropertyId<?>> properties = config.getPropertyIds();
+    for (PropertyId<?> property : properties) {
+      if (property.hasCategory(DumpInLibrary.class)) {
+        libraryProperties.put("config." + property.getName(), config.getAsString(property));
+      }
+    }
+
+    try {
+      goVFS = new GenericOutputVFS(vfs);
+      OutputVFile libraryPropertiesOut =
+          goVFS.getRootOutputVDir().createOutputVFile(LIBRARY_PROPERTIES_VPATH);
+
+      OutputStream propertiesOS = null;
+      try {
+        propertiesOS = libraryPropertiesOut.getOutputStream();
+        libraryProperties.store(propertiesOS, "Library properties");
+      } finally {
+        if (propertiesOS != null) {
+          propertiesOS.close();
         }
       }
-
       try {
-        goVFS = new GenericOutputVFS(vfs);
-        OutputVFile libraryPropertiesOut =
-            goVFS.getRootOutputVDir().createOutputVFile(LIBRARY_PROPERTIES_VPATH);
-
-        OutputStream propertiesOS = null;
-        try {
-          propertiesOS = libraryPropertiesOut.getOutputStream();
-          libraryProperties.store(propertiesOS, "Library properties");
-        } finally {
-          if (propertiesOS != null) {
-            propertiesOS.close();
-          }
+        for (InputOutputVFS intputOutputVFS : sectionVFS.values()) {
+          intputOutputVFS.close();
         }
-        try {
-          for (InputOutputVFS intputOutputVFS : sectionVFS.values()) {
-            intputOutputVFS.close();
-          }
-        } catch (IOException e) {
-          throw new LibraryIOException(getLocation(), e);
-        }
-      } catch (CannotCreateFileException e) {
-        throw new LibraryIOException(getLocation(), e);
       } catch (IOException e) {
         throw new LibraryIOException(getLocation(), e);
-      } finally {
-        try {
-          if (goVFS != null) {
-            goVFS.close();
-          }
-        } catch (IOException e) {
-          throw new LibraryIOException(getLocation(), e);
-        }
       }
-
-
-      closed = true;
+    } catch (CannotCreateFileException e) {
+      throw new LibraryIOException(getLocation(), e);
+    } catch (IOException e) {
+      throw new LibraryIOException(getLocation(), e);
+    } finally {
+      try {
+        if (goVFS != null) {
+          goVFS.close();
+        }
+      } catch (IOException e) {
+        throw new LibraryIOException(getLocation(), e);
+      }
     }
   }
 
