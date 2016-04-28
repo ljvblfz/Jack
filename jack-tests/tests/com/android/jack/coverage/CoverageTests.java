@@ -344,16 +344,16 @@ public class CoverageTests {
       @Nonnull File coverageMetadataFile,
       @Nonnull String includeFilter,
       @Nonnull String excludeFilter) {
-    toolchain.addProperty(CodeCoverage.CODE_COVERVAGE.getName(), "true");
+    toolchain.addProperty("jack.coverage", "true");
     toolchain.addProperty(
-        CodeCoverage.COVERAGE_METADATA_FILE.getName(), coverageMetadataFile.getAbsolutePath());
+        "jack.coverage.metadata.file", coverageMetadataFile.getAbsolutePath());
     toolchain.addProperty(
-        CodeCoverage.COVERAGE_JACOCO_PACKAGE_NAME.getName(), JACOCO_RUNTIME_PACKAGE);
+        "jack.coverage.jacoco.package", JACOCO_RUNTIME_PACKAGE);
     if (includeFilter != null) {
-      toolchain.addProperty(CodeCoverage.COVERAGE_JACOCO_INCLUDES.getName(), includeFilter);
+      toolchain.addProperty("jack.coverage.jacoco.include", includeFilter);
     }
     if (excludeFilter != null) {
-      toolchain.addProperty(CodeCoverage.COVERAGE_JACOCO_EXCLUDES.getName(), excludeFilter);
+      toolchain.addProperty("jack.coverage.jacoco.exclude", excludeFilter);
     }
     toolchain.addToClasspath(getJacocoAgentLib());
   }
@@ -410,12 +410,12 @@ public class CoverageTests {
     JsonObject root = loadJson(coverageMetadataFile).getAsJsonObject();
     Assert.assertNotNull(root);
 
-    String version = root.get(CodeCoverageMetadataFileWriter.JSON_VERSION_ATTRIBUTE).getAsString();
+    String version = root.get("version").getAsString();
     Assert.assertNotNull(version);
-    Assert.assertEquals(CodeCoverageMetadataFileWriter.VERSION, version);
+    Assert.assertEquals("1.0", version);
 
     JsonArray classes =
-        root.get(CodeCoverageMetadataFileWriter.JSON_DATA_ATTRIBUTE).getAsJsonArray();
+        root.get("data").getAsJsonArray();
     Assert.assertNotNull(classes);
     return classes;
   }

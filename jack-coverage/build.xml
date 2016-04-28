@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   Copyright (C) 2016 The Android Open Source Project
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<project name="jack-coverage" default="jack-coverage-lib">
+
+  <target name="clean" description="deletes files produced by target 'jack-coverage-lib'">
+    <delete dir="build"/>
+    <delete dir="dist"/>
+  </target>
+
+  <target name ="update-libs" description="update the project libraries (must be used at least once to install them)">
+    <mkdir dir="libs"/>
+    <mkdir dir="tools"/>
+
+    <copy file="../jack/dist/jack-lib.jar" todir="libs" />
+    <copy file="../sched/dist/sched-lib.jar" todir="libs" />
+    <copy file="../junit4/dist/junit4.jar" todir="libs" />
+    <copy file="../jsr305/dist/jsr305-lib.jar" todir="libs" />
+    <copy file="../sched/dist/sched-build.jar" todir="tools" />
+
+  </target>
+
+  <target name="jack-coverage-lib" description="build Jack code coverage support">
+
+    <mkdir dir="build/classes"/>
+    <javac srcdir="src" destdir="build/classes"
+      source="1.7" target="1.7"
+      encoding="UTF-8" debug="true" includeantruntime="false" includeDestClasses="false">
+      <classpath>
+        <filelist dir="libs">
+          <file name="jsr305-lib.jar"/>
+          <file name="junit4.jar"/>
+          <file name="sched-lib.jar"/>
+          <file name="jack-lib.jar"/>
+        </filelist>
+      </classpath>
+    </javac>
+
+    <copy todir="build/classes">
+      <fileset dir="rsc"/>
+    </copy>
+
+    <jar basedir="build/classes" destfile="build/jack-coverage-no-sched.jar"/>
+
+    <mkdir dir="dist"/>
+    <java jar="tools/sched-build.jar" fork="true" failonerror="true">
+      <arg value="build/jack-coverage-no-sched.jar" />
+      <arg value="dist/jack-coverage.jar" />
+    </java>
+
+  </target>
+
+</project>
