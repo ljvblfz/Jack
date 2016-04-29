@@ -81,7 +81,7 @@ public class InstallJack extends SynchronousAdministrativeTask {
         return;
       }
       jarIn = jarPart.getInputStream();
-      tmpJack = File.createTempFile("jack.jar", ".tmp", jackDir);
+      tmpJack = File.createTempFile("jackserver-", ".tmp", jackDir);
       out = new FileOutputStream(tmpJack);
       new ByteStreamSucker(jarIn, out).suck();
       out.close();

@@ -979,7 +979,7 @@ public class JackHttpServer implements HasVersion {
           + PosixFilePermissions.toString(permissions));
     }
 
-    File tmp = File.createTempFile("serverUserId", ".tmp", serverDir);
+    File tmp = File.createTempFile("jackserver-", ".tmp", serverDir);
     try {
       String tmpUser = Files.getFileAttributeView(tmp.toPath(),
           FileOwnerAttributeView.class).getOwner().getName();
