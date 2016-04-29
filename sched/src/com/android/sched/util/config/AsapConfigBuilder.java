@@ -18,13 +18,16 @@ package com.android.sched.util.config;
 
 import com.google.common.base.CharMatcher;
 
+import com.android.sched.reflections.CompositeReflectionManager;
 import com.android.sched.reflections.ReflectionFactory;
 import com.android.sched.reflections.ReflectionManager;
+import com.android.sched.reflections.ReflectionManager.ClassWithLocation;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.codec.CodecContext;
 import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.config.ChainedException.ChainedExceptionBuilder;
 import com.android.sched.util.config.category.Category;
+import com.android.sched.util.config.category.Origin;
 import com.android.sched.util.config.category.Private;
 import com.android.sched.util.config.expression.BooleanExpression;
 import com.android.sched.util.config.id.KeyId;
@@ -33,6 +36,7 @@ import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.WrongPermissionException;
+import com.android.sched.util.location.ContainerLocation;
 import com.android.sched.util.location.EnvironmentLocation;
 import com.android.sched.util.location.FieldLocation;
 import com.android.sched.util.location.LineLocation;
@@ -73,11 +77,11 @@ public class AsapConfigBuilder {
   private static final NoLocation NO_LOCATION = new NoLocation();
 
   @Nonnull
-  private static final Map<String, KeyId<?, ?>> keyIdsByName =
+  private final Map<String, KeyId<?, ?>> keyIdsByName =
       new HashMap<String, KeyId<?, ?>>();
 
   @Nonnull
-  private static final Map<KeyId<?, ?>, FieldLocation> defaultLocationsByKeyId =
+  private final Map<KeyId<?, ?>, FieldLocation> defaultLocationsByKeyId =
       new HashMap<KeyId<?, ?>, FieldLocation>();
 
   @Nonnull
@@ -103,21 +107,28 @@ public class AsapConfigBuilder {
   @CheckForNull
   private String name;
 
-  public AsapConfigBuilder() {
+  public AsapConfigBuilder(boolean debug, @Nonnull ReflectionManager... reflextionManagers) {
     defaultLocations.push(NO_LOCATION);
+    CompositeReflectionManager reflectionManager =
+        new CompositeReflectionManager(reflextionManagers);
+    loadProperties(reflectionManager, debug);
   }
 
-  static {
-    ReflectionManager reflectionManager = ReflectionFactory.getManager();
+  public AsapConfigBuilder(boolean debug) {
+    defaultLocations.push(NO_LOCATION);
+    loadProperties(ReflectionFactory.getManager(), debug);
+  }
 
-    Set<Class<? extends HasKeyId>> classesWithIds =
-        reflectionManager.getSubTypesOf(HasKeyId.class);
+  private void loadProperties(@Nonnull final ReflectionManager reflectionManager, boolean debug) {
+    Set<ClassWithLocation<?>> classesWithIds =
+        reflectionManager.getAnnotatedByWithLocation(HasKeyId.class);
 
     boolean hasErrors = false;
-    for (Class<? extends HasKeyId> propertyIdClass : classesWithIds) {
+    for (ClassWithLocation<?> propertyIdElement : classesWithIds) {
+      Class<?> propertyIdClass = propertyIdElement.getClazz();
       Field[] fields = propertyIdClass.getDeclaredFields();
 
-      for (Field field : fields) {
+      for (final Field field : fields) {
         if (KeyId.class.isAssignableFrom(field.getType())) {
           if ((field.getModifiers() & Modifier.STATIC) == 0) {
             logger.log(Level.WARNING, "Key id ''{0}'' should be declared static in ''{1}''",
@@ -144,6 +155,31 @@ public class AsapConfigBuilder {
 
             defaultLocationsByKeyId.put(keyId, new FieldLocation(field));
             keyIdsByName.put(keyId.getName(), keyId);
+
+            if (!keyId.hasCategory(Origin.class)) {
+              Location location = null;
+              if (debug) {
+                location = new FieldLocation(field);
+              }
+              if (!propertyIdElement.getLocation().equals(NoLocation.getInstance())) {
+                if (location != null) {
+                  location = new ContainerLocation(propertyIdElement.getLocation(), location);
+                } else {
+                  location = propertyIdElement.getLocation();
+                }
+              }
+
+              final Location finalLocation = location;
+              if (finalLocation != null) {
+                keyId.addCategory(new Origin() {
+                  @Override
+                  @Nonnull
+                  public Location getLocation() {
+                    return finalLocation;
+                  }
+                });
+              }
+            }
           } catch (IllegalArgumentException e) {
             throw new AssertionError(e);
           } catch (IllegalAccessException e) {

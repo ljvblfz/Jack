@@ -17,7 +17,7 @@
 package com.android.sched.scheduler;
 
 import com.android.sched.item.Feature;
-import com.android.sched.item.ItemManager;
+import com.android.sched.item.AbstractItemManager;
 import com.android.sched.item.ItemSet;
 
 import javax.annotation.Nonnull;
@@ -30,7 +30,7 @@ public class FeatureSet extends ItemSet<Feature> {
     super(initial);
   }
 
-  public FeatureSet(@Nonnull ItemManager manager) {
+  public FeatureSet(@Nonnull AbstractItemManager manager) {
     super(manager);
   }
 

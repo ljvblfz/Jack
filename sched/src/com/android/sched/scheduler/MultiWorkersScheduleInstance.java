@@ -502,7 +502,7 @@ public class MultiWorkersScheduleInstance<T extends Component>
 
     // Initialize queue with the initial plan, and block a shutdown Task on it
     Task shutdown = new ShutdownTask(queue);
-    ComponentFilterSet filters = Scheduler.getScheduler().createComponentFilterSet();
+    ComponentFilterSet filters = scheduler.createComponentFilterSet();
     filters.add(NoFilter.class);
     new SequentialTask<T>(queue, this, data, filters, shutdown).commit();
     shutdown.commit();

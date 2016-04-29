@@ -40,6 +40,7 @@ import com.android.jack.util.TextUtils;
 import com.android.jack.util.filter.SignatureMethodFilter;
 import com.android.sched.scheduler.PlanBuilder;
 import com.android.sched.scheduler.Request;
+import com.android.sched.scheduler.Scheduler;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ThreadConfig;
@@ -370,8 +371,9 @@ public class TestTools {
 
     JSession session = Jack.buildSession(options, hooks);
 
-    Request request = Jack.createInitialRequest();
-    request.addInitialTagsOrMarkers(Jack.getJavaSourceInitialTagSet());
+    Scheduler scheduler = new Scheduler();
+    Request request = Jack.createInitialRequest(scheduler);
+    request.addInitialTagsOrMarkers(Jack.getJavaSourceInitialTagSet(scheduler));
     request.addProduction(DexInLibraryProduct.class);
     if (ThreadConfig.get(Options.GENERATE_JAYCE_IN_LIBRARY).booleanValue()) {
       request.addProduction(JayceInLibraryProduct.class);

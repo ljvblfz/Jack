@@ -17,13 +17,13 @@
 package com.android.sched.scheduler;
 
 import com.android.sched.filter.ComponentFilterManager;
+import com.android.sched.item.AbstractItemManager;
 import com.android.sched.item.Feature;
-import com.android.sched.item.ItemManager;
 import com.android.sched.item.Production;
 import com.android.sched.item.TagOrMarkerOrComponent;
-import com.android.sched.util.config.HasKeyId;
-import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.config.id.ObjectId;
+import com.android.sched.reflections.CompositeReflectionManager;
+import com.android.sched.reflections.ReflectionFactory;
+import com.android.sched.reflections.ReflectionManager;
 import com.android.sched.util.sched.ManagedDataListenerFactory;
 
 import javax.annotation.Nonnull;
@@ -31,42 +31,41 @@ import javax.annotation.Nonnull;
 /**
  * Entry point of the {@code SchedLib}.
  */
-@HasKeyId
 public class Scheduler {
   @Nonnull
-  private static final ObjectId<Scheduler> SCHEDULER =
-      new ObjectId<Scheduler>("schedlib.scheduler", Scheduler.class);
-
+  private final AbstractItemManager featureManager;
   @Nonnull
-  public static Scheduler getScheduler() {
-    return ThreadConfig.get(SCHEDULER);
-  }
-
+  private final AbstractItemManager tagOrMarkerOrComponentManager;
   @Nonnull
-  private final ItemManager featureManager;
-  @Nonnull
-  private final ItemManager tagOrMarkerOrComponentManager;
-  @Nonnull
-  private final ItemManager productionManager;
+  private final AbstractItemManager productionManager;
   @Nonnull
   private final ComponentFilterManager filterManager;
   @Nonnull
   private final SchedulableManager schedulableManager;
 
-  private Scheduler() {
-    this.featureManager = ItemManager.createItemManager(Feature.class);
+  public Scheduler(@Nonnull ReflectionManager... reflextionManagers) {
+    this(new CompositeReflectionManager(reflextionManagers));
+  }
+
+  public Scheduler() {
+    this(ReflectionFactory.getManager());
+  }
+
+  public Scheduler(@Nonnull ReflectionManager reflectionManager) {
+    this.featureManager = AbstractItemManager.createItemManager(reflectionManager, Feature.class);
     this.tagOrMarkerOrComponentManager =
-        ItemManager.createItemManager(TagOrMarkerOrComponent.class);
-    this.productionManager = ItemManager.createItemManager(Production.class);
-    this.filterManager = ComponentFilterManager.createComponentFilterManager();
-    this.schedulableManager = SchedulableManager.getSchedulableManager();
+        AbstractItemManager.createItemManager(reflectionManager, TagOrMarkerOrComponent.class);
+    this.productionManager =
+        AbstractItemManager.createItemManager(reflectionManager, Production.class);
+    this.filterManager = ComponentFilterManager.createComponentFilterManager(reflectionManager);
+    this.schedulableManager = SchedulableManager.getSchedulableManager(this, reflectionManager);
 
     ManagedDataListenerFactory.getManagedDataListener().notifyNoMoreItemManager();
   }
 
   @Nonnull
   public SchedulableSet createSchedulableSet() {
-    return new SchedulableSet();
+    return new SchedulableSet(schedulableManager);
   }
 
   @Nonnull
@@ -86,7 +85,7 @@ public class Scheduler {
 
   @Nonnull
   public SchedulableSet getAllSchedulable() {
-    return schedulableManager.getAllSchedulable();
+    return schedulableManager.getAllSchedulable(schedulableManager);
   }
 
   @Nonnull
@@ -110,17 +109,17 @@ public class Scheduler {
   }
 
   @Nonnull
-  public ItemManager getFeatureManager() {
+  public AbstractItemManager getFeatureManager() {
     return featureManager;
   }
 
   @Nonnull
-  public ItemManager getTagOrMarkerOrComponentManager() {
+  public AbstractItemManager getTagOrMarkerOrComponentManager() {
     return tagOrMarkerOrComponentManager;
   }
 
   @Nonnull
-  public ItemManager getProductionManager() {
+  public AbstractItemManager getProductionManager() {
     return productionManager;
   }
 

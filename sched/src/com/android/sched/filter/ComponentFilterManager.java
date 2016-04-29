@@ -19,7 +19,7 @@ package com.android.sched.filter;
 import com.android.sched.SchedProperties;
 import com.android.sched.item.Component;
 import com.android.sched.item.Item;
-import com.android.sched.item.ItemManager;
+import com.android.sched.item.AbstractItemManager;
 import com.android.sched.item.ItemSet;
 import com.android.sched.item.Items;
 import com.android.sched.item.ManagedItem;
@@ -29,7 +29,6 @@ import com.android.sched.marker.LocalMarkerManager;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.MarkerNotConformException;
 import com.android.sched.marker.StaticMarkerManager;
-import com.android.sched.reflections.ReflectionFactory;
 import com.android.sched.reflections.ReflectionManager;
 import com.android.sched.schedulable.ComponentFilter;
 import com.android.sched.util.config.ThreadConfig;
@@ -48,7 +47,7 @@ import javax.annotation.Nonnull;
  * <p>This is a skeletal implementation. Two full implementations are available:
  * {@link StaticMarkerManager} and {@link LocalMarkerManager}.
  */
-public class ComponentFilterManager extends ItemManager {
+public class ComponentFilterManager extends AbstractItemManager {
   @Nonnull
   private static final Logger logger = LoggerFactory.getLogger();
 
@@ -61,12 +60,13 @@ public class ComponentFilterManager extends ItemManager {
   private final ManagedDataListener listener = ManagedDataListenerFactory.getManagedDataListener();
 
   @Nonnull
-  public static ComponentFilterManager createComponentFilterManager() {
-    return new ComponentFilterManager();
+  public static ComponentFilterManager createComponentFilterManager(
+      @Nonnull ReflectionManager reflectionManager) {
+    return new ComponentFilterManager(reflectionManager);
   }
 
-  protected ComponentFilterManager() {
-    ensureScan();
+  protected ComponentFilterManager(@Nonnull ReflectionManager reflectionManager) {
+    ensureScan(reflectionManager);
   }
 
   private void registerComponentFilter(
@@ -85,10 +85,9 @@ public class ComponentFilterManager extends ItemManager {
   }
 
   @SuppressWarnings("unchecked")
-  private synchronized void ensureScan() {
-    ReflectionManager reflectionManager = ReflectionFactory.getManager();
+  private synchronized void ensureScan(@Nonnull ReflectionManager reflectionManager) {
     for (@SuppressWarnings("rawtypes")
-    Class<? extends ComponentFilter> filter : reflectionManager
+         Class<? extends ComponentFilter> filter : reflectionManager
         .getSubTypesOf(ComponentFilter.class)) {
       try {
         Class<? extends OnlyForType> filterOnlyFor = Items.getOnlyForType(filter);

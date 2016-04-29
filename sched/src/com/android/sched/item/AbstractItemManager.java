@@ -17,10 +17,8 @@
 package com.android.sched.item;
 
 
-import com.android.sched.util.codec.VariableName;
-import com.android.sched.util.config.HasKeyId;
-import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.config.id.ReflectFactoryPropertyId;
+import com.android.sched.reflections.ItemManager;
+import com.android.sched.reflections.ReflectionManager;
 import com.android.sched.util.sched.ManagedDataListener;
 import com.android.sched.util.sched.ManagedDataListenerFactory;
 
@@ -36,18 +34,11 @@ import javax.annotation.Nonnull;
 /**
  * Provides utilities needed by an {@link ItemSet}.
  */
-@HasKeyId
-@VariableName("algo")
-public abstract class ItemManager {
+public abstract class AbstractItemManager {
   @Nonnull
-  private static final ReflectFactoryPropertyId<ItemManager> ITEM_MANAGER =
-      ReflectFactoryPropertyId.create(
-          "sched.item", "Define how items are discovered", ItemManager.class)
-          .addDefaultValue("reflections").addArgType(Class.class);
-
-  @Nonnull
-  public static ItemManager createItemManager(@Nonnull Class<? extends Item> type) {
-    return ThreadConfig.get(ITEM_MANAGER).create(type);
+  public static AbstractItemManager createItemManager(@Nonnull ReflectionManager reflectionManager,
+      @Nonnull Class<? extends Item> type) {
+    return new ItemManager(reflectionManager, type);
   }
 
   @Nonnull
@@ -64,7 +55,7 @@ public abstract class ItemManager {
   @Nonnegative
   private int itemsCount = 0;
 
-  protected ItemManager() {
+  protected AbstractItemManager() {
     listener.notifyNewItemManager(this);
   }
 

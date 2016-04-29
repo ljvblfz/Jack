@@ -34,8 +34,8 @@ public class PlanBuilder<T extends Component> extends SubPlanBuilder<T> {
   @Nonnull
   private final Request request;
 
-  public PlanBuilder(Request request, Class<T> runOn) {
-    super(runOn);
+  public PlanBuilder(@Nonnull Request request, @Nonnull Class<T> runOn) {
+    super(request.getScheduler(), runOn);
 
     this.request = request;
   }
@@ -46,7 +46,7 @@ public class PlanBuilder<T extends Component> extends SubPlanBuilder<T> {
 
     Event event = tracer.start(SchedEventType.PLANBUILDER);
     try {
-      plan.initPlan(this);
+      plan.initPlan(request, this);
     } finally {
       event.end();
     }

@@ -58,7 +58,7 @@ public class Main {
       throws Exception {
 
     // Build the plan, verify it and run it onto the session
-    Scheduler scheduler = Scheduler.getScheduler();
+    Scheduler scheduler = new Scheduler();
     Request sr = scheduler.createScheduleRequest();
 
     sr.addSchedulables(scheduler.getAllSchedulable());

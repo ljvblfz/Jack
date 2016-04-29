@@ -40,7 +40,7 @@ import javax.annotation.Nonnull;
  */
 public class Plan<T extends Component> implements Iterable<PlanStep>  {
   @Nonnull
-  private final Logger logger = LoggerFactory.getLogger();
+  private static final Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
   private final Class<? extends Component> runOn;
@@ -52,9 +52,12 @@ public class Plan<T extends Component> implements Iterable<PlanStep>  {
 
   @CheckForNull
   private FeatureSet features;
+  @Nonnull
+  private final Scheduler scheduler;
 
-  public Plan(@Nonnull Class<? extends Component> runOn) {
+  public Plan(@Nonnull Scheduler scheduler, @Nonnull Class<? extends Component> runOn) {
     this.runOn = runOn;
+    this.scheduler = scheduler;
   }
 
   @Nonnull
@@ -67,9 +70,7 @@ public class Plan<T extends Component> implements Iterable<PlanStep>  {
     return runOn;
   }
 
-  void initPlan(@Nonnull PlanBuilder<T> builder) throws PlanError {
-    Request request = builder.getRequest();
-
+  void initPlan(@Nonnull Request request, @Nonnull PlanBuilder<T> builder) throws PlanError {
     TagOrMarkerOrComponentSet minimal =
         new TagOrMarkerOrComponentSet(request.getTargetIncludeTags());
     computeMinimal(request.getFeatures(), minimal);
@@ -304,5 +305,10 @@ public class Plan<T extends Component> implements Iterable<PlanStep>  {
   @CheckForNull
   public FeatureSet getFeatures() {
     return features;
+  }
+
+  @Nonnull
+  public Scheduler getScheduler() {
+    return scheduler;
   }
 }

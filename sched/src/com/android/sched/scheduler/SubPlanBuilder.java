@@ -28,17 +28,18 @@ import javax.annotation.Nonnull;
  */
 public class SubPlanBuilder<T extends Component> {
   @Nonnull
-  private final SchedulableManager schedulableManager = SchedulableManager.getSchedulableManager();
+  private final Scheduler scheduler;
 
   @Nonnull
   private final Class<T> runOn;
   @Nonnull
   protected Plan<T> plan;
 
-  protected SubPlanBuilder(Class<T> runOn) {
+  protected SubPlanBuilder(@Nonnull Scheduler scheduler, @Nonnull Class<T> runOn) {
     this.runOn = runOn;
+    this.scheduler = scheduler;
 
-    plan = new Plan<T>(runOn);
+    plan = new Plan<T>(scheduler, runOn);
   }
 
   /**
@@ -48,7 +49,8 @@ public class SubPlanBuilder<T extends Component> {
    * {@code Plan}.
    */
   public void append(@Nonnull Class<? extends ProcessorSchedulable<T>> runner) {
-    ManagedRunnable ir = (ManagedRunnable) (schedulableManager.getManagedSchedulable(runner));
+    ManagedRunnable ir =
+        (ManagedRunnable) (scheduler.getSchedulableManager().getManagedSchedulable(runner));
     if (ir == null) {
       throw new SchedulableNotRegisteredError(runner);
     }
@@ -82,7 +84,8 @@ public class SubPlanBuilder<T extends Component> {
   @Nonnull
   public <U extends Component> SubPlanBuilder<U> appendSubPlan(
       @Nonnull Class<? extends AdapterSchedulable<T, U>> visitor) {
-    ManagedVisitor ia = (ManagedVisitor) (schedulableManager.getManagedSchedulable(visitor));
+    ManagedVisitor ia =
+        (ManagedVisitor) (scheduler.getSchedulableManager().getManagedSchedulable(visitor));
     if (ia == null) {
       throw new SchedulableNotRegisteredError(visitor);
     }
@@ -102,7 +105,8 @@ public class SubPlanBuilder<T extends Component> {
     assert visitor.getRunOn().equals(
         runOn) : "Expect '" + visitor.getRunOn().toString() + "', have '" + runOn.toString() + "'";
 
-    SubPlanBuilder<U> subPlanBuilder = new SubPlanBuilder<U>((Class<U>) visitor.getRunOnAfter());
+    SubPlanBuilder<U> subPlanBuilder =
+        new SubPlanBuilder<U>(scheduler, (Class<U>) visitor.getRunOnAfter());
     plan.appendStep(new PlanStep(visitor, subPlanBuilder.plan));
 
     return subPlanBuilder;

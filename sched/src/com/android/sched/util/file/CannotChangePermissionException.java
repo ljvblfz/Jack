@@ -44,12 +44,12 @@ public class CannotChangePermissionException extends WithLocationIOException {
   @Nonnull
   private final SetOrClearPermission setOrClear;
 
-  public CannotChangePermissionException(@Nonnull Location location, int permission,
+  private CannotChangePermissionException(@Nonnull Location location, int permission,
       @Nonnull ChangePermission change, @Nonnull SetOrClearPermission setOrClear) {
     this(location, permission, change, setOrClear, null);
   }
 
-  public CannotChangePermissionException(@Nonnull Location location, int permission,
+  private CannotChangePermissionException(@Nonnull Location location, int permission,
       @Nonnull ChangePermission change, @Nonnull SetOrClearPermission setOrClear,
       @CheckForNull Throwable cause) {
     super(location, cause);
@@ -58,12 +58,12 @@ public class CannotChangePermissionException extends WithLocationIOException {
     this.setOrClear = setOrClear;
   }
 
-  public CannotChangePermissionException(@Nonnull HasLocation locationProvider, int permission,
+  private CannotChangePermissionException(@Nonnull HasLocation locationProvider, int permission,
       @Nonnull ChangePermission change, @Nonnull SetOrClearPermission setOrClear) {
     this(locationProvider, permission, change, setOrClear, null);
   }
 
-  public CannotChangePermissionException(@Nonnull HasLocation locationProvider, int permission,
+  private CannotChangePermissionException(@Nonnull HasLocation locationProvider, int permission,
       @Nonnull ChangePermission change, @Nonnull SetOrClearPermission setOrClear,
       @CheckForNull Throwable cause) {
     super(locationProvider, cause);

@@ -38,14 +38,14 @@ import org.junit.Test;
 public class FilterTest implements OnlyForType {
   @Test
   public void testProcess1() throws Exception {
-    ThreadConfig.setConfig(new AsapConfigBuilder().set(SchedProperties.ONLY_FOR, FilterTest.class)
+    ThreadConfig.setConfig(new AsapConfigBuilder(/* debug = */ false).set(SchedProperties.ONLY_FOR, FilterTest.class)
         .set(ScheduleInstance.SKIP_ADAPTER, false)
         .setString(ScheduleInstance.DEFAULT_RUNNER, "single-threaded").build());
     Assert.assertEquals(
         "8: [A.2, A.2/B.2, A.2/B.2/C.1, A.2/B.2/C.2, A.2, A.2/D.1, A.2/D.2, A.2/D.2/E.2, A.2/D.3, A.2]",
         runPlan());
 
-    ThreadConfig.setConfig(new AsapConfigBuilder().set(SchedProperties.ONLY_FOR, FilterTest.class)
+    ThreadConfig.setConfig(new AsapConfigBuilder(/* debug = */ false).set(SchedProperties.ONLY_FOR, FilterTest.class)
         .set(ScheduleInstance.SKIP_ADAPTER, true)
         .setString(ScheduleInstance.DEFAULT_RUNNER, "single-threaded").build());
     Assert.assertEquals(
@@ -54,7 +54,7 @@ public class FilterTest implements OnlyForType {
   }
 
   private String runPlan() throws IllegalRequestException, ProcessException {
-    Request sr = Scheduler.getScheduler().createScheduleRequest();
+    Request sr = new Scheduler().createScheduleRequest();
 
     PlanBuilder<C_A> pb_a = sr.getPlanBuilder(C_A.class);
     pb_a.append(R_A.class);

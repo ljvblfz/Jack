@@ -17,7 +17,7 @@
 package com.android.sched.util.sched;
 
 import com.android.sched.item.Item;
-import com.android.sched.item.ItemManager;
+import com.android.sched.item.AbstractItemManager;
 import com.android.sched.item.ManagedItem;
 import com.android.sched.scheduler.ManagedSchedulable;
 import com.android.sched.util.codec.VariableName;
@@ -31,7 +31,7 @@ import javax.annotation.Nonnull;
  */
 @VariableName("listener")
 public interface ManagedDataListener {
-  public void notifyNewItemManager(@Nonnull ItemManager itemManager);
+  public void notifyNewItemManager(@Nonnull AbstractItemManager itemManager);
   public void notifyNoMoreItemManager();
 
   public void notifyNewManagedItem(@Nonnull ManagedItem item);

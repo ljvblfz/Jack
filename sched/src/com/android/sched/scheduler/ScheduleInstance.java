@@ -119,7 +119,7 @@ public abstract class ScheduleInstance<T extends Component> {
    */
   @SuppressWarnings("unchecked")
   public ScheduleInstance(@Nonnull Plan<T> plan) throws Exception {
-    scheduler = Scheduler.getScheduler();
+    scheduler = plan.getScheduler();
     this.features = plan.getFeatures();
 
     Event eventGlobal = tracer.start(SchedEventType.INSTANCIER);

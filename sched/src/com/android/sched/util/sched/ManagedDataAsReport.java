@@ -23,7 +23,7 @@ import com.android.sched.item.AbstractComponent;
 import com.android.sched.item.Component;
 import com.android.sched.item.Feature;
 import com.android.sched.item.Item;
-import com.android.sched.item.ItemManager;
+import com.android.sched.item.AbstractItemManager;
 import com.android.sched.item.Items;
 import com.android.sched.item.ManagedItem;
 import com.android.sched.item.Production;
@@ -99,7 +99,7 @@ public class ManagedDataAsReport implements ManagedDataListener {
   }
 
   @Override
-  public void notifyNewItemManager(@Nonnull ItemManager itemManager) {
+  public void notifyNewItemManager(@Nonnull AbstractItemManager itemManager) {
     assert !noMoreItemManager;
 
     nbItemManagerOpen++;

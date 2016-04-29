@@ -25,9 +25,6 @@ import javax.annotation.Nonnull;
  * Partial implementation of {@link ReflectionManager} that uses regular reflection API.
  */
 public abstract class CommonReflectionManager implements ReflectionManager {
-  /* (non-Javadoc)
-   * @see com.android.sched.reflections.ReflectionManager#getSuperTypesOf(java.lang.Class)
-   */
   @Override
   @Nonnull
   public Set<Class<?>> getSuperTypesOf(@Nonnull Class<?> cls) {

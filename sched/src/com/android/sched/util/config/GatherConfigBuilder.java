@@ -16,6 +16,7 @@
 
 package com.android.sched.util.config;
 
+import com.android.sched.reflections.ReflectionManager;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.config.ChainedException.ChainedExceptionBuilder;
 import com.android.sched.util.config.category.Category;
@@ -42,11 +43,19 @@ import javax.annotation.Nonnull;
  */
 public class GatherConfigBuilder {
   @Nonnull
-  private final AsapConfigBuilder builder = new AsapConfigBuilder();
+  private final AsapConfigBuilder builder;
 
   @Nonnull
   private final ChainedExceptionBuilder<ConfigurationException> exceptions =
       new ChainedExceptionBuilder<ConfigurationException>();
+
+  public GatherConfigBuilder(boolean debug, @Nonnull ReflectionManager... reflectionManagers) {
+    builder = new AsapConfigBuilder(debug, reflectionManagers);
+  }
+
+  public GatherConfigBuilder(boolean debug) {
+    builder = new AsapConfigBuilder(debug);
+  }
 
   @Nonnull
   public GatherConfigBuilder load(@Nonnull InputStream is, @Nonnull Location location)

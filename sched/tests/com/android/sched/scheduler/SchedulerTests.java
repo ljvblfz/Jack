@@ -38,10 +38,9 @@ public class SchedulerTests {
 
   @Before
   public void setUp() throws Exception {
-    scheduler = Scheduler.getScheduler();
-    SchedulableManager sm = SchedulableManager.getSchedulableManager();
+    scheduler = new Scheduler();
 
-    scs = sm.getAllSchedulable();
+    scs = scheduler.getAllSchedulable();
     scs.remove(Runner8.class);
     scs.remove(Runner9.class);
     scs.remove(Runner10.class);

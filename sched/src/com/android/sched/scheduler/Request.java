@@ -32,7 +32,7 @@ import javax.annotation.Nonnull;
  */
 public class Request {
   @Nonnull
-  private final SchedulableManager schedulableManager;
+  private final Scheduler scheduler;
 
   @Nonnull
   protected TagOrMarkerOrComponentSet initialTags;
@@ -52,8 +52,9 @@ public class Request {
   @Nonnull
   protected AdapterSet visitors = new AdapterSet();
 
-  Request(Scheduler scheduler) {
-    schedulableManager = SchedulableManager.getSchedulableManager();
+  Request(@Nonnull Scheduler scheduler) {
+    this.scheduler = scheduler;
+
     initialTags        = scheduler.createTagOrMarkerOrComponentSet();
     targetIncludeTags  = scheduler.createTagOrMarkerOrComponentSet();
     targetExcludeTags  = scheduler.createTagOrMarkerOrComponentSet();
@@ -198,7 +199,7 @@ public class Request {
    */
   @Nonnull
   public Request addSchedulable(@Nonnull Class<? extends Schedulable> sched) {
-    ManagedSchedulable schedulable = schedulableManager.getManagedSchedulable(sched);
+    ManagedSchedulable schedulable = scheduler.getSchedulableManager().getManagedSchedulable(sched);
     if (schedulable == null) {
       throw new SchedulableNotRegisteredError(sched);
     }
@@ -339,5 +340,10 @@ public class Request {
   public <T extends Component> PlanBuilder<T> getPlanBuilder(@Nonnull Class<T> runOn)
       throws IllegalRequestException {
     return new PlanBuilder<T>(this, runOn);
+  }
+
+  @Nonnull
+  public Scheduler getScheduler() {
+    return scheduler;
   }
 }

@@ -111,12 +111,12 @@ public class ManagedRunnable extends ManagedSchedulable {
 
   // Nonnull field is actually initialized during construction, in a private method
   @SuppressFBWarnings("NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR")
-  public ManagedRunnable(
+  public ManagedRunnable(@Nonnull Scheduler scheduler,
       @Nonnull Class<? extends ProcessorSchedulable<? extends Component>> runnable)
       throws SchedulableNotConformException {
     super(runnable);
 
-    this.scheduler = Scheduler.getScheduler();
+    this.scheduler = scheduler;
     this.runnable  = runnable;
 
     addedTags = scheduler.createTagOrMarkerOrComponentSet();

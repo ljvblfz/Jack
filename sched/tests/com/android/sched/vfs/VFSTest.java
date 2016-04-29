@@ -64,7 +64,7 @@ public class VFSTest {
 
   @Before
   public void setUp() throws ConfigurationException {
-    ThreadConfig.setConfig(new AsapConfigBuilder().build());
+    ThreadConfig.setConfig(new AsapConfigBuilder(/* debug = */ false).build());
   }
 
   @Test
