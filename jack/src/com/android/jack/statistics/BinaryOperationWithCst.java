@@ -60,7 +60,7 @@ public class BinaryOperationWithCst implements RunnableSchedulable<JMethod> {
   private final com.android.jack.util.filter.Filter<JMethod> filter =
       ThreadConfig.get(Options.METHOD_FILTER);
   @Nonnull
-  private static final CounterVisitor visitor = new CounterVisitor(TracerFactory.getTracer());
+  private final CounterVisitor visitor = new CounterVisitor(TracerFactory.getTracer());
 
   private static class StatBinOp {
     public static final StatisticId<Percent> SHIFT_WITH_LIT8 = new StatisticId<Percent>(
