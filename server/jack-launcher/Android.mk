@@ -32,11 +32,9 @@ LOCAL_STATIC_JAVA_LIBRARIES := \
   watchmaker-jack \
   maths-jack
 
-JACK_LAUNCHER_JARJAR_RULES := $(LOCAL_PATH)/jarjar-rules.txt
-
 JACK_LAUNCHER_VERSION_FILE := $(call local-intermediates-dir,COMMON)/generated.version/jack-launcher-version.properties
 LOCAL_JAVA_RESOURCE_FILES += $(JACK_LAUNCHER_VERSION_FILE)
-
+LOCAL_JARJAR_RULES := $(LOCAL_PATH)/jarjar-rules.txt
 LOCAL_JAR_MANIFEST := etc/manifest.txt
 
 include $(BUILD_HOST_JAVA_LIBRARY)
@@ -44,6 +42,3 @@ include $(BUILD_HOST_JAVA_LIBRARY)
 $(JACK_LAUNCHER_VERSION_FILE): $(TOP_DIR)$(LOCAL_PATH)/../version.properties | $(ACP)
 	$(copy-file-to-target)
 
-$(LOCAL_INSTALLED_MODULE): $(LOCAL_BUILT_MODULE)
-	@echo JarJar and Install: $@
-	$(hide) java -jar $(JARJAR) process $(JACK_LAUNCHER_JARJAR_RULES) $< $@
