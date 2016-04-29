@@ -72,7 +72,7 @@ LOCAL_STATIC_JAVA_LIBRARIES := \
 LOCAL_JAVA_LIBRARIES := \
   jsr305lib-jack
 
-JACK_SERVER_JARJAR_RULES := $(LOCAL_PATH)/jarjar-rules.txt
+LOCAL_JARJAR_RULES := $(LOCAL_PATH)/jarjar-rules.txt
 
 LOCAL_JAVA_RESOURCE_DIRS  := rsc
 
@@ -83,7 +83,3 @@ include $(BUILD_HOST_JAVA_LIBRARY)
 
 $(JACK_SERVER_VERSION_FILE): $(TOP_DIR)$(LOCAL_PATH)/../version.properties | $(ACP)
 	$(copy-file-to-target)
-
-$(LOCAL_INSTALLED_MODULE): $(LOCAL_BUILT_MODULE)
-	@echo JarJar and Install: $@
-	$(hide) java -jar $(JARJAR) process $(JACK_SERVER_JARJAR_RULES) $< $@
