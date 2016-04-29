@@ -150,7 +150,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   private List<InputLibrary> importedLibraries;
 
   @Nonnull
-  private final List<? extends InputLibrary> librariesOnClasspathFromCommandLine;
+  private final List<? extends InputLibrary> librariesOnClasspath;
 
   public IncrementalInputFilter(@Nonnull Options options) {
     Config config = ThreadConfig.getConfig();
@@ -205,11 +205,11 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
     }
 
     List<InputLibrary> classpathContent = config.get(Options.CLASSPATH);
-    librariesOnClasspathFromCommandLine = getClasspathLibraries(
+    librariesOnClasspath = getClasspathLibraries(
         classpathContent,
         config.get(Jack.STRICT_CLASSPATH).booleanValue());
     session.getLibraryDependencies().addImportedLibraries(importedLibrariesFromCommandLine);
-    session.getLibraryDependencies().addLibrariesOnClasspath(librariesOnClasspathFromCommandLine);
+    session.getLibraryDependencies().addLibrariesOnClasspath(librariesOnClasspath);
     filesToRecompile = getInternalFileNamesToCompile();
 
     if (config.get(INCREMENTAL_LOG).booleanValue()) {
@@ -217,7 +217,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
       try {
         incLog = new IncrementalLogWriter(session.getJackOutputLibrary());
         incLog.writeString("type: " + (needFullBuild() ? "full" : "incremental"));
-        incLog.writeLibraryDescriptions("classpath", classpathContent);
+        incLog.writeLibraryDescriptions("classpath", librariesOnClasspath);
         incLog.writeStrings("classpath digests (" + (libraryDependencies.hasSameLibraryOnClasspath(
             session.getLibraryDependencies()) ? "identical"
             : "modified") + ")",
@@ -243,7 +243,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   @Override
   @Nonnull
   public List<? extends InputLibrary> getClasspath() {
-    return librariesOnClasspathFromCommandLine;
+    return librariesOnClasspath;
   }
 
   @Override

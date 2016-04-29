@@ -95,7 +95,7 @@ class IncrementalLogWriter {
     writeStrings(prefixStr, Collections2.transform(libraries, new Function<InputLibrary, String>() {
       @Override
       public String apply(InputLibrary library) {
-        return library.getLocation().getDescription();
+        return "\"" + library.getLocation().getDescription() + "\"";
       }
     }));
   }
