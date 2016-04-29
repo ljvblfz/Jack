@@ -30,23 +30,34 @@ public class KeepModifier {
 
   private int modifier = NONE;
 
-  public boolean allowShrinking() {
+  public synchronized boolean allowShrinking() {
     return ((modifier & ALLOW_SHRINKING) == ALLOW_SHRINKING);
   }
 
-  public boolean allowObfuscation() {
+  public synchronized boolean allowObfuscation() {
     return ((modifier & ALLOW_OBFUSCATION) == ALLOW_OBFUSCATION);
   }
 
   @Nonnull
-  public KeepModifier setAllowShrinking() {
+  public synchronized KeepModifier setAllowShrinking() {
     modifier |= ALLOW_SHRINKING;
     return this;
   }
 
   @Nonnull
-  public KeepModifier setAllowObfuscation() {
+  public synchronized KeepModifier setAllowObfuscation() {
     modifier |= ALLOW_OBFUSCATION;
+    return this;
+  }
+
+  private synchronized int getModifier() {
+    return modifier;
+  }
+
+  public synchronized KeepModifier mergeModifier(@Nonnull KeepModifier keepModifier) {
+    if (this.modifier != keepModifier.getModifier()) {
+      this.modifier = NONE;
+    }
     return this;
   }
 }
