@@ -31,7 +31,6 @@ import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.jack.transformations.enums.SwitchEnumSupport;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
-import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Access;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Filter;
@@ -54,7 +53,6 @@ import javax.annotation.Nonnull;
  */
 @Description("Collect the number of classes using each enum in switch statements.")
 @Name("SwitchEnumUsageCollector")
-@Synchronized
 @Constraint(need = {JSwitchStatement.class, JDefinedClass.class, JDefinedEnum.class})
 @Filter(SourceTypeFilter.class)
 @Transform(add = {SwitchEnumUsageMarker.class, EnumFieldMarker.class})
@@ -74,7 +72,7 @@ public class SwitchEnumUsageCollector implements RunnableSchedulable<JMethod> {
   public SwitchEnumUsageCollector() {}
 
   @Override
-  public synchronized void run(@Nonnull JMethod method) throws Exception {
+  public void run(@Nonnull JMethod method) throws Exception {
     JDefinedClassOrInterface definedClass = method.getEnclosingType();
     // check if both the method and enclosing class are concrete
     if (!(definedClass instanceof JDefinedClass) || method.isNative() || method.isAbstract()) {
@@ -107,14 +105,14 @@ public class SwitchEnumUsageCollector implements RunnableSchedulable<JMethod> {
           enclosingPackage = enumType.getEnclosingPackage();
         }
         // the enum usage marker is used to tell the usage of enum under a package
-        SwitchEnumUsageMarker usageMarker = null;
-        if (!enclosingPackage.containsMarker(SwitchEnumUsageMarker.class)) {
-          usageMarker = new SwitchEnumUsageMarker(enclosingPackage);
-          enclosingPackage.addMarker(usageMarker);
-        } else {
-          usageMarker = enclosingPackage.getMarker(SwitchEnumUsageMarker.class);
+        SwitchEnumUsageMarker usageMarker = enclosingPackage.getMarker(SwitchEnumUsageMarker.class);
+        if (usageMarker == null) {
+          SwitchEnumUsageMarker newMarker = new SwitchEnumUsageMarker(enclosingPackage);
+          usageMarker = enclosingPackage.addMarkerIfAbsent(newMarker);
+          if (usageMarker == null) {
+            usageMarker = newMarker;
+          }
         }
-        assert usageMarker != null;
         // add the enclosing class into user set. This information will be used during
         // optimization stage
         if (usageMarker.addEnumUsage(enclosingClass, enumType) && usageMarker.getUses() > 1) {

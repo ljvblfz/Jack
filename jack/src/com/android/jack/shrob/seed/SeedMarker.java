@@ -40,16 +40,16 @@ public class SeedMarker implements Marker {
   }
 
   @Nonnull
-  public KeepModifier getModifier() {
+  public synchronized KeepModifier getModifier() {
     return modifier;
-  }
-
-  public void setModifier(@Nonnull KeepModifier modifier) {
-    this.modifier = modifier;
   }
 
   @Override
   public Marker cloneIfNeeded() {
     return this;
+  }
+
+  public synchronized void mergeModifier(@Nonnull KeepModifier modifier) {
+    this.modifier = KeepModifier.combineModifiers(this.modifier, modifier);
   }
 }

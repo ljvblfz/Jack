@@ -58,11 +58,7 @@ public class MainDexCollector extends TypeReferenceCollector
   protected void collect(@Nonnull JType type) {
     if (type instanceof JDefinedClassOrInterface) {
       JDefinedClassOrInterface jDefinedClassOrInterface = (JDefinedClassOrInterface) type;
-      synchronized (jDefinedClassOrInterface) {
-        if (!jDefinedClassOrInterface.containsMarker(MainDexMarker.class)) {
-          jDefinedClassOrInterface.addMarker(MainDexMarker.INSTANCE);
-        }
-      }
+      jDefinedClassOrInterface.addMarkerIfAbsent(MainDexMarker.INSTANCE);
     }
   }
 
