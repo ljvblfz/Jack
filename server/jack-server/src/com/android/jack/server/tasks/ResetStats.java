@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,33 +17,39 @@
 package com.android.jack.server.tasks;
 
 import com.android.jack.server.JackHttpServer;
-import com.android.sched.util.findbugs.SuppressFBWarnings;
 
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
 import org.simpleframework.http.Status;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryPoolMXBean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
 /**
- * Administrative task: Call {@link System#gc()}.
+ * Administrative task: Reset peak statistics.
  */
-@SuppressFBWarnings("DM_GC")
-public class GC extends SynchronousAdministrativeTask {
+public class ResetStats extends SynchronousAdministrativeTask {
   @Nonnull
-  private static Logger logger = Logger.getLogger(GC.class.getName());
+  private static Logger logger = Logger.getLogger(ResetStats.class.getName());
 
-  public GC(@Nonnull JackHttpServer jackServer) {
+  public ResetStats(@Nonnull JackHttpServer jackServer) {
     super(jackServer);
   }
 
   @Override
   protected void handle(long taskId, @Nonnull Request request, @Nonnull Response response) {
-    logger.log(Level.INFO, "Force GC");
-    System.gc();
+    logger.log(Level.INFO, "Reset statistics");
+
+    for (MemoryPoolMXBean pool : ManagementFactory.getMemoryPoolMXBeans()) {
+      pool.resetPeakUsage();
+    }
+
+    jackServer.resetMaxServiceStat();
+
     response.setStatus(Status.OK);
   }
 }

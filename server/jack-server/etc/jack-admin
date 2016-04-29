@@ -69,7 +69,7 @@ EOT
 fi
 
 usage () {
-  echo "Usage : $0 [ install-server <launcher.jar> <server.jar> | uninstall-server | list <program> | update <program> <program.jar> | start-server | stop-server | kill-server | list-server | server-stat | server-log | server-gc | cleanup-server | dump-report]"
+  echo "Usage : $0 [ install-server <launcher.jar> <server.jar> | uninstall-server | list <program> | update <program> <program.jar> | start-server | stop-server | kill-server | list-server | server-stat | server-stat-reset | server-log | server-gc | cleanup-server | dump-report]"
 }
 
 abort () { exit 255; }
@@ -386,6 +386,21 @@ case $COMMAND in
          )
     handleHttpErrors $? $HTTP_CODE
     exec 3>&- ;;
+
+
+  server-stat-reset)
+    echo "Reseting peak statistics from the background server"
+
+    HTTP_CODE=$(curl -f $JACK_EXTRA_CURL_OPTIONS \
+         --cert "${JACK_HOME}/client.pem" \
+         --cacert "${JACK_HOME}/server.pem" \
+         --output /dev/null \
+         --no-buffer --write-out '%{http_code}' --silent --connect-timeout $JACK_CONNECTION_TIMEOUT \
+         -X DELETE \
+         --noproxy ${SERVER_HOST} \
+         https://${SERVER_HOST}:$SERVER_PORT_ADMIN/stat \
+         )
+    handleHttpErrors $? $HTTP_CODE ;;
 
 
   server-log)

@@ -50,6 +50,7 @@ public class PathRouter implements Container {
   }
 
   public <T extends Container> PathRouter add(@Nonnull String path, @Nonnull T container) {
+    assert !registry.containsKey(path);
     registry.put(path, container);
     return this;
   }

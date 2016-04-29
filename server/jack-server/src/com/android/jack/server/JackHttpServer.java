@@ -49,6 +49,7 @@ import com.android.jack.server.tasks.JillTask;
 import com.android.jack.server.tasks.QueryJackVersion;
 import com.android.jack.server.tasks.QueryServerVersion;
 import com.android.jack.server.tasks.ReloadConfig;
+import com.android.jack.server.tasks.ResetStats;
 import com.android.jack.server.tasks.SetLoggerParameters;
 import com.android.jack.server.tasks.Stat;
 import com.android.jack.server.tasks.Stop;
@@ -964,6 +965,13 @@ public class JackHttpServer implements HasVersion {
     }
   }
 
+  public void resetMaxServiceStat() {
+    synchronized (lock) {
+      serviceInfo.maxForward = serviceInfo.currentForward;
+      serviceInfo.maxLocal = serviceInfo.currentLocal;
+    }
+  }
+
   public void uninstallJack(@Nonnull Program<JackProvider> existingJack) {
     installedJack.invalidate(existingJack.getVersion());
   }
@@ -1012,7 +1020,8 @@ public class JackHttpServer implements HasVersion {
         new MethodRouter()
           .add(Method.GET,
             new AcceptContentTypeRouter()
-              .add(TextPlain.CONTENT_TYPE_NAME, new Stat(this))))
+              .add(TextPlain.CONTENT_TYPE_NAME, new Stat(this)))
+          .add(Method.DELETE, new ResetStats(this)))
 
       .add("/server/stop",
           new MethodRouter()
