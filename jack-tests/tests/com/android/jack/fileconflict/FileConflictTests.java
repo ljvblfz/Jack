@@ -585,6 +585,7 @@ public class FileConflictTests {
     if (errorStream != null) {
       toolchain.setErrorStream(errorStream);
     }
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
     toolchain.libToLib(new File[] {jackImport1,jackImport2}, jackOutput, /* zipFiles = */ zip);
 
     return jackOutput;
