@@ -345,10 +345,26 @@ public class InputJackLibraryImpl extends InputJackLibrary {
           PrebuiltCompatibility compatibility = property.getCategory(PrebuiltCompatibility.class);
           if (compatibility != null) {
             if (!compatibility.isCompatible(config, value)) {
+              logger.log(Level.FINE, "Property ''{0}'' with value ''{1}'' from library {2} is not"
+                  + " compatible with current config ''{3}''",
+                  new Object[] {
+                    property.getName(),
+                    value,
+                    getLocation().getDescription(),
+                    String.valueOf(config.get(property))
+                  });
               return false;
             }
           } else {
             if (!config.parseAs(value, property).equals(config.get(property))) {
+              logger.log(Level.FINE, "Property ''{0}'' with value ''{1}'' from library {2} is not"
+                  + " compatible with current config ''{3}''",
+                  new Object[] {
+                    property.getName(),
+                    value,
+                    getLocation().getDescription(),
+                    String.valueOf(config.get(property))
+                  });
               return false;
             }
           }
