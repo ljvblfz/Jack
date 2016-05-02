@@ -27,7 +27,6 @@ import com.android.sched.util.codec.CodecContext;
 import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.config.ChainedException.ChainedExceptionBuilder;
 import com.android.sched.util.config.category.Category;
-import com.android.sched.util.config.category.Origin;
 import com.android.sched.util.config.category.Private;
 import com.android.sched.util.config.expression.BooleanExpression;
 import com.android.sched.util.config.id.KeyId;
@@ -87,6 +86,10 @@ public class AsapConfigBuilder {
   @Nonnull
   private final Map<PropertyId<?>, PropertyId<?>.Value> valuesById =
       new HashMap<PropertyId<?>, PropertyId<?>.Value>();
+
+  @Nonnull
+  private final Map<KeyId<?, ?>, Location> valueLocationsByKeyId =
+      new HashMap<KeyId<?, ?>, Location>();
 
   @Nonnull
   private final Map<ObjectId<?>, Object> instances =
@@ -156,30 +159,18 @@ public class AsapConfigBuilder {
             defaultLocationsByKeyId.put(keyId, new FieldLocation(field));
             keyIdsByName.put(keyId.getName(), keyId);
 
-            if (!keyId.hasCategory(Origin.class)) {
-              Location location = null;
-              if (debug) {
-                location = new FieldLocation(field);
-              }
-              if (!propertyIdElement.getLocation().equals(NoLocation.getInstance())) {
-                if (location != null) {
-                  location = new ContainerLocation(propertyIdElement.getLocation(), location);
-                } else {
-                  location = propertyIdElement.getLocation();
-                }
-              }
-
-              final Location finalLocation = location;
-              if (finalLocation != null) {
-                keyId.addCategory(new Origin() {
-                  @Override
-                  @Nonnull
-                  public Location getLocation() {
-                    return finalLocation;
-                  }
-                });
+            Location location = null;
+            if (debug) {
+              location = new FieldLocation(field);
+            }
+            if (!propertyIdElement.getLocation().equals(NoLocation.getInstance())) {
+              if (location != null) {
+                location = new ContainerLocation(propertyIdElement.getLocation(), location);
+              } else {
+                location = propertyIdElement.getLocation();
               }
             }
+            locationsByKeyId.put(keyId, location);
           } catch (IllegalArgumentException e) {
             throw new AssertionError(e);
           } catch (IllegalAccessException e) {
@@ -296,7 +287,7 @@ public class AsapConfigBuilder {
     }
 
     valuesById.put(propertyId, propertyId.new Value(value));
-    locationsByKeyId.put(propertyId, location);
+    valueLocationsByKeyId.put(propertyId, location);
 
     return this;
   }
@@ -319,7 +310,7 @@ public class AsapConfigBuilder {
     }
 
     valuesById.put(propertyId, propertyId.new Value(context, value));
-    locationsByKeyId.put(propertyId, location);
+    valueLocationsByKeyId.put(propertyId, location);
 
     return this;
   }
@@ -328,7 +319,7 @@ public class AsapConfigBuilder {
   public <T> AsapConfigBuilder set(
       @Nonnull ObjectId<T> objectId, @Nonnull T value, @Nonnull Location location) {
     instances.put(objectId, value);
-    locationsByKeyId.put(objectId, location);
+    valueLocationsByKeyId.put(objectId, location);
 
     return this;
   }
@@ -390,9 +381,6 @@ public class AsapConfigBuilder {
     return this;
   }
 
-
-
-
   /**
    * Builds the {@link Config} with all defined property values.
    *
@@ -417,7 +405,7 @@ public class AsapConfigBuilder {
     processDefaultValues(values);
 
     ConfigChecker checker =
-        new ConfigChecker(context, values, instances, locationsByKeyId);
+        new ConfigChecker(context, values, instances, valueLocationsByKeyId);
 
     for (KeyId<?, ?> keyId : keyIdsByName.values()) {
       boolean needChecks = false;
@@ -515,6 +503,11 @@ public class AsapConfigBuilder {
     }
   }
 
+  @Nonnull
+  public Location getLocation(@Nonnull KeyId<?, ?> keyId) {
+    return locationsByKeyId.get(keyId);
+  }
+
   private void processValues(@Nonnull Map<PropertyId<?>, PropertyId<?>.Value> values) {
     values.putAll(valuesById);
   }
@@ -527,7 +520,7 @@ public class AsapConfigBuilder {
         if (!values.containsKey(keyId)) {
           PropertyId<?>.Value defaultValue = propertyId.getDefaultValue(context);
           values.put(propertyId, defaultValue != null ? defaultValue.duplicate() : null);
-          locationsByKeyId.put(keyId, defaultLocationsByKeyId.get(keyId));
+          valueLocationsByKeyId.put(keyId, defaultLocationsByKeyId.get(keyId));
         }
       }
     }

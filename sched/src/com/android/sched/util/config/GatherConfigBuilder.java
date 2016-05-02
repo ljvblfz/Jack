@@ -20,6 +20,7 @@ import com.android.sched.reflections.ReflectionManager;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.config.ChainedException.ChainedExceptionBuilder;
 import com.android.sched.util.config.category.Category;
+import com.android.sched.util.config.id.KeyId;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.file.NoSuchFileException;
@@ -286,6 +287,11 @@ public class GatherConfigBuilder {
   @CheckForNull
   public String getDefaultValue(@Nonnull PropertyId<?> propertyId) {
     return builder.getDefaultValue(propertyId);
+  }
+
+  @Nonnull
+  public Location getLocation(@Nonnull KeyId<?, ?> keyId) {
+    return builder.getLocation(keyId);
   }
 
   @Nonnull

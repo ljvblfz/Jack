@@ -28,10 +28,11 @@ import com.android.sched.util.config.ChainedException;
 import com.android.sched.util.config.ConfigurationException;
 import com.android.sched.util.config.GatherConfigBuilder;
 import com.android.sched.util.config.category.Category;
-import com.android.sched.util.config.category.Origin;
 import com.android.sched.util.config.category.Version;
 import com.android.sched.util.config.expression.BooleanExpression;
 import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.location.Location;
+import com.android.sched.util.location.NoLocation;
 import com.android.sched.util.log.LoggerFactory;
 
 import org.kohsuke.args4j.CmdLineParser;
@@ -228,13 +229,11 @@ public abstract class CommandLine {
         sb.append(property.getName());
         sb.append(':');
 
-        if (property.hasCategory(Origin.class)) {
-          Origin origin = property.getCategory(Origin.class);
-          if (origin != null) {
-            sb.append(" (declared by ");
-            sb.append(origin.getLocation().getDescription());
-            sb.append(')');
-          }
+        Location location = builder.getLocation(property);
+        if (location.equals(NoLocation.getInstance())) {
+          sb.append(" (declared by ");
+          sb.append(location.getDescription());
+          sb.append(')');
         }
 
         // Description and default value
