@@ -230,7 +230,7 @@ public abstract class CommandLine {
         sb.append(':');
 
         Location location = builder.getLocation(property);
-        if (location.equals(NoLocation.getInstance())) {
+        if (!location.equals(NoLocation.getInstance())) {
           sb.append(" (declared by ");
           sb.append(location.getDescription());
           sb.append(')');

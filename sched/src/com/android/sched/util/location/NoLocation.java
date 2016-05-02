@@ -33,7 +33,7 @@ public class NoLocation extends Location {
 
   @Override
   public final boolean equals(Object obj) {
-    return obj instanceof NoLocation;
+    return (obj == this) || obj instanceof NoLocation;
   }
 
   @Override

@@ -170,7 +170,9 @@ public class AsapConfigBuilder {
                 location = propertyIdElement.getLocation();
               }
             }
-            locationsByKeyId.put(keyId, location);
+            if (location != null) {
+              locationsByKeyId.put(keyId, location);
+            }
           } catch (IllegalArgumentException e) {
             throw new AssertionError(e);
           } catch (IllegalAccessException e) {
@@ -505,7 +507,8 @@ public class AsapConfigBuilder {
 
   @Nonnull
   public Location getLocation(@Nonnull KeyId<?, ?> keyId) {
-    return locationsByKeyId.get(keyId);
+    Location location = locationsByKeyId.get(keyId);
+    return (location == null) ? NoLocation.getInstance() : location;
   }
 
   private void processValues(@Nonnull Map<PropertyId<?>, PropertyId<?>.Value> values) {
