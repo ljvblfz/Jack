@@ -65,7 +65,7 @@ public class ContainerAnnotationAdder {
   public static class TypeContainerAnnotationAdder extends ContainerAnnotationAdder
       implements RunnableSchedulable<JDefinedClassOrInterface> {
     @Override
-    public void run(JDefinedClassOrInterface type) throws Exception {
+    public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
       TransformationRequest tr = new TransformationRequest(type);
 
       addContainerAnnotationIfNeeded(tr, type);
@@ -85,7 +85,7 @@ public class ContainerAnnotationAdder {
   public static class FieldContainerAnnotationAdder extends ContainerAnnotationAdder
       implements RunnableSchedulable<JField> {
     @Override
-    public void run(JField type) throws Exception {
+    public void run(@Nonnull JField type) throws Exception {
       TransformationRequest tr = new TransformationRequest(type);
 
       addContainerAnnotationIfNeeded(tr, type);
@@ -105,7 +105,7 @@ public class ContainerAnnotationAdder {
   public static class MethodContainerAnnotationAdder extends ContainerAnnotationAdder
       implements RunnableSchedulable<JMethod> {
     @Override
-    public void run(JMethod jMethod) throws Exception {
+    public void run(@Nonnull JMethod jMethod) throws Exception {
       TransformationRequest tr = new TransformationRequest(jMethod);
 
       addContainerAnnotationIfNeeded(tr, jMethod);

@@ -117,7 +117,7 @@ public class VirtualMethodsMarker implements Marker, Iterable<JMethodIdWide>, Cl
     }
 
     @Override
-    public void run(JSession session) throws Exception {
+    public void run(@Nonnull JSession session) throws Exception {
       new Visitor().accept(session.getTypesToEmit());
     }
   }

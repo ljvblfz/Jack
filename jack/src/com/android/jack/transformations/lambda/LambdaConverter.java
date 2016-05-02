@@ -364,7 +364,7 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
   }
 
   @Override
-  public void run(JMethod method) throws Exception {
+  public void run(@Nonnull JMethod method) throws Exception {
     TransformationRequest request = new TransformationRequest(method);
     LambdaToAnonymousConverter visitor = new LambdaToAnonymousConverter(request, method);
     visitor.accept(method);

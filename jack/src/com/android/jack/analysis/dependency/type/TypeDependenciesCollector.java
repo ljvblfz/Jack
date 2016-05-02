@@ -89,7 +89,7 @@ public class TypeDependenciesCollector implements RunnableSchedulable<JDefinedCl
   }
 
   @Override
-  public synchronized void run(JDefinedClassOrInterface declaredType) throws Exception {
+  public synchronized void run(@Nonnull JDefinedClassOrInterface declaredType) throws Exception {
     Visitor v = new Visitor(declaredType);
     v.accept(declaredType);
   }
