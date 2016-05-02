@@ -26,6 +26,8 @@ import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
 
+import javax.annotation.Nonnull;
+
 /**
  * Mark runtime visible annotations as MainDexInstaller.
  *
@@ -39,7 +41,7 @@ import com.android.sched.schedulable.Transform;
 public class RuntimeAnnotationFinder implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Override
-  public void run(JDefinedClassOrInterface type) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
     if (type instanceof JDefinedAnnotationType &&
         (((JDefinedAnnotationType) type).getRetentionPolicy() == JRetentionPolicy.RUNTIME)) {
       type.addMarker(MultiDexInstallerMarker.INSTANCE);

@@ -112,7 +112,7 @@ public class MethodIdDuplicateRemover implements RunnableSchedulable<JDefinedCla
   }
 
   @Override
-  public void run(JDefinedClassOrInterface type) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
     new Visitor().accept(type);
   }
 }

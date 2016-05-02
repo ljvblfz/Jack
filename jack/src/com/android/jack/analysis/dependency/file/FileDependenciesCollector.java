@@ -27,6 +27,8 @@ import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 
+import javax.annotation.Nonnull;
+
 /**
  * Collect dependencies between files and types.
  */
@@ -39,7 +41,7 @@ public class FileDependenciesCollector implements
     RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Override
-  public synchronized void run(JDefinedClassOrInterface declaredType) throws Exception {
+  public synchronized void run(@Nonnull JDefinedClassOrInterface declaredType) throws Exception {
     if (declaredType.getSourceInfo() == SourceInfo.UNKNOWN) {
       return;
     }

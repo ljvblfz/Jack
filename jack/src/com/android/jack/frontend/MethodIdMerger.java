@@ -206,7 +206,7 @@ public class MethodIdMerger implements RunnableSchedulable<JSession> {
     }
 
   @Override
-  public void run(JSession session) throws Exception {
+  public void run(@Nonnull JSession session) throws Exception {
     new Visitor().accept(session.getTypesToEmit());
   }
 }

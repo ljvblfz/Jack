@@ -21,6 +21,8 @@ import com.android.sched.item.Description;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 
+import javax.annotation.Nonnull;
+
 /**
  * An empty {@link RunnableSchedulable} that sets type and member final names.
  */
@@ -28,6 +30,6 @@ import com.android.sched.schedulable.Transform;
 @Transform(add = FinalNames.class)
 public class NameFinalizer implements RunnableSchedulable<JSession> {
   @Override
-  public void run(JSession t) throws Exception {
+  public void run(@Nonnull JSession t) throws Exception {
   }
 }
