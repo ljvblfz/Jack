@@ -26,6 +26,7 @@ import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackApiV01;
 import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.JackCliToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
@@ -428,6 +429,7 @@ public class LambdaTest {
    * Test that warnings are printed when compiling a Serializable lambda directly to a dex.
    */
   @Test
+  @KnownIssue(candidate=JackCliToolchain.class)
   public void testLamba037Direct() throws Exception {
     List<Class<? extends IToolchain>> excludedToolchains =
         new ArrayList<Class<? extends IToolchain>>();
@@ -454,7 +456,7 @@ public class LambdaTest {
    * library but are printed when compiling the library to a dex.
    */
   @Test
-  @KnownIssue(candidate=IncrementalToolchain.class)
+  @KnownIssue(candidate={IncrementalToolchain.class, JackCliToolchain.class})
   public void testLamba037ThroughLib() throws Exception {
     List<Class<? extends IToolchain>> excludedToolchains =
         new ArrayList<Class<? extends IToolchain>>();
@@ -499,7 +501,7 @@ public class LambdaTest {
    * library with checks manually enabled, as well as when compiling the library to a dex.
    */
   @Test
-  @KnownIssue(candidate=IncrementalToolchain.class)
+  @KnownIssue(candidate={IncrementalToolchain.class, JackCliToolchain.class})
   public void testLamba037ThroughLibPlusCheck() throws Exception {
     List<Class<? extends IToolchain>> excludedToolchains =
         new ArrayList<Class<? extends IToolchain>>();
