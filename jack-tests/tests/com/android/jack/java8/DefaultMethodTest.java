@@ -415,7 +415,6 @@ public class DefaultMethodTest {
   }
 
   @Test
-  @KnownIssue
   public void testDefaultMethod019() throws Exception {
     run(DEFAULTMETHOD019);
   }
