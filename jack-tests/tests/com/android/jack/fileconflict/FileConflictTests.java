@@ -167,7 +167,6 @@ public class FileConflictTests {
    * @throws Exception
    */
   @Test
-  @KnownIssue
   public void test001d() throws Exception {
     File jackOutput = AbstractTestTools.createTempDir();
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
@@ -351,7 +350,6 @@ public class FileConflictTests {
    * @throws Exception
    */
   @Test
-  @KnownIssue
   public void test002g() throws Exception {
     File jackOutput;
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
@@ -529,6 +527,7 @@ public class FileConflictTests {
     toolchain = getToolchain(isApiTest);
     toolchain.addProguardFlags(new File(TEST001_DIR, "proguard.flags"));
     toolchain.addStaticLibs(jackLib1, jackLib2);
+    toolchain.setVerbose(verbose);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
     if (collisionPolicy != null) {
       toolchain.addProperty(JayceFileImporter.COLLISION_POLICY.getName(), collisionPolicy);
@@ -565,6 +564,7 @@ public class FileConflictTests {
     if (errorStream != null) {
       toolchain.setErrorStream(errorStream);
     }
+    toolchain.setVerbose(verbose);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath()).srcToLib(
         jackImport2,
         /* zipFiles = */ false,
@@ -586,6 +586,7 @@ public class FileConflictTests {
       toolchain.setErrorStream(errorStream);
     }
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
+    toolchain.setVerbose(verbose);
     toolchain.libToLib(new File[] {jackImport1,jackImport2}, jackOutput, /* zipFiles = */ zip);
 
     return jackOutput;
