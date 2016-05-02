@@ -48,19 +48,16 @@
           <file name="jack-lib.jar"/>
         </filelist>
       </classpath>
+      <compilerarg line="-processorpath tools/sched-build.jar" />
+      <compilerarg line="-processor com.android.sched.build.SchedAnnotationProcessor" />
     </javac>
 
     <copy todir="build/classes">
       <fileset dir="rsc"/>
     </copy>
 
-    <jar basedir="build/classes" destfile="build/jack-coverage-no-sched.jar"/>
-
     <mkdir dir="dist"/>
-    <java jar="tools/sched-build.jar" fork="true" failonerror="true">
-      <arg value="build/jack-coverage-no-sched.jar" />
-      <arg value="dist/jack-coverage.jar" />
-    </java>
+    <jar basedir="build/classes" destfile="dist/jack-coverage.jar"/>
 
   </target>
 
