@@ -15,4 +15,12 @@
 #
 
 JACK_DEFAULT_VERSION := 4.0.ENGINEERING
+JACK_SDKTOOL_VERSION := $(JACK_DEFAULT_VERSION)
+
+# Copy jack and jill engineering jars where the SDK can find them
+prebuilts/sdk/tools/jacks/jack-${JACK_SDKTOOL_VERSION}.jar: $(HOST_OUT_JAVA_LIBRARIES)/jack.jar
+	$(copy-file-to-target)
+
+prebuilts/sdk/tools/jills/jill-${JACK_SDKTOOL_VERSION}.jar: $(HOST_OUT_JAVA_LIBRARIES)/jill.jar
+	$(copy-file-to-target)
 
