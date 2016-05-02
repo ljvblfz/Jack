@@ -67,9 +67,11 @@ public class ResourceImporter extends ResourceOrMetaImporter {
 
   @Override
   protected void addImportedResource(@Nonnull InputVFile file, @Nonnull JSession session,
-      @Nonnull String currentPath) throws ResourceImportConflictException {
+      @Nonnull String currentPath, @Nonnull Location resourceDirLocation)
+      throws ResourceImportConflictException {
     VPath path = new VPath(currentPath, ResourceOrMetaImporter.VPATH_SEPARATOR);
-    Resource newResource = new Resource(path, file, new StandaloneResourceLocation(file));
+    Resource newResource =
+        new Resource(path, file, new StandaloneResourceLocation(resourceDirLocation, path));
     for (Resource existingResource : session.getResources()) {
       if (existingResource.getPath().equals(path)) {
         if (resourceCollisionPolicy == CollisionPolicy.FAIL) {
@@ -86,18 +88,16 @@ public class ResourceImporter extends ResourceOrMetaImporter {
     session.addResource(newResource);
   }
 
-  private static class StandaloneResourceLocation implements Location {
-    @Nonnull
-    private final InputVFile file;
+  private static class StandaloneResourceLocation extends StandaloneResOrMetaLocation {
 
-    public StandaloneResourceLocation(@Nonnull InputVFile file) {
-      this.file = file;
+    public StandaloneResourceLocation(@Nonnull Location baseLocation, @Nonnull VPath path) {
+      super(baseLocation, path);
     }
 
     @Override
     @Nonnull
     public String getDescription() {
-      return "resource " + file.getLocation().getDescription();
+      return baseLocation.getDescription() + ", resource '" + path.getPathAsString('/') + '\'';
     }
   }
 }

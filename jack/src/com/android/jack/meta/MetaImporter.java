@@ -19,6 +19,7 @@ package com.android.jack.meta;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.resource.ResourceOrMetaImporter;
 import com.android.jack.resource.ResourceReadingException;
+import com.android.jack.resource.StandaloneResOrMetaLocation;
 import com.android.sched.util.codec.DirectoryInputVFSCodec;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.id.ListPropertyId;
@@ -59,24 +60,22 @@ public class MetaImporter extends ResourceOrMetaImporter {
 
   @Override
   protected void addImportedResource(@Nonnull InputVFile file, @Nonnull JSession session,
-      @Nonnull String currentPath) {
+      @Nonnull String currentPath, @Nonnull Location resourceDirLocation) {
     VPath path = new VPath(currentPath, ResourceOrMetaImporter.VPATH_SEPARATOR);
-    Meta newMeta = new Meta(path, file, new StandaloneMetaLocation(file));
+    Meta newMeta = new Meta(path, file, new StandaloneMetaLocation(resourceDirLocation, path));
     session.addMeta(newMeta);
   }
 
-  private static class StandaloneMetaLocation implements Location {
-    @Nonnull
-    private final InputVFile file;
+  private static class StandaloneMetaLocation extends StandaloneResOrMetaLocation {
 
-    public StandaloneMetaLocation(@Nonnull InputVFile file) {
-      this.file = file;
+    public StandaloneMetaLocation(@Nonnull Location baseLocation, @Nonnull VPath path) {
+      super(baseLocation, path);
     }
 
     @Override
     @Nonnull
     public String getDescription() {
-      return "meta " + file.getLocation().getDescription();
+      return baseLocation.getDescription() + ", meta '" + path.getPathAsString('/') + '\'';
     }
   }
 }
