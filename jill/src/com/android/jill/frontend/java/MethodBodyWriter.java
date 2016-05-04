@@ -582,7 +582,8 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         }
       }
 
-      // Current solution for comparison requires its result to be consumed by an "if"
+      // Current solution for comparison requires its result to be consumed by an "if" or a "pop"
+      // instruction.
       if (!cmpOperands.isEmpty()) {
         throw new AssertionError("A comparison has not been followed by an if");
       }
@@ -2148,8 +2149,14 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         }
         break;
       }
+      case POP: {
+        if (!cmpOperands.isEmpty()) {
+          // Result of comparison must be pop
+          cmpOperands.remove(getStackVariable(frame, TOP_OF_STACK));
+        }
+        break;
+      }
       case NOP:
-      case POP:
       case POP2:{
         break;
       }
