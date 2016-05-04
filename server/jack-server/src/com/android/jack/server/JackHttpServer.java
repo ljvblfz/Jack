@@ -47,7 +47,8 @@ import com.android.jack.server.tasks.GetLauncherVersion;
 import com.android.jack.server.tasks.GetServerVersion;
 import com.android.jack.server.tasks.InstallJack;
 import com.android.jack.server.tasks.InstallServer;
-import com.android.jack.server.tasks.JackTask;
+import com.android.jack.server.tasks.JackTaskBase64Out;
+import com.android.jack.server.tasks.JackTaskRawOut;
 import com.android.jack.server.tasks.JillTask;
 import com.android.jack.server.tasks.QueryJackVersion;
 import com.android.jack.server.tasks.QueryServerVersion;
@@ -56,7 +57,8 @@ import com.android.jack.server.tasks.ResetStats;
 import com.android.jack.server.tasks.SetLoggerParameters;
 import com.android.jack.server.tasks.Stat;
 import com.android.jack.server.tasks.Stop;
-import com.android.jack.server.type.CommandOut;
+import com.android.jack.server.type.CommandOutBase64;
+import com.android.jack.server.type.CommandOutRaw;
 import com.android.jack.server.type.ExactCodeVersionFinder;
 import com.android.jack.server.type.TextPlain;
 import com.android.sched.util.FinalizerRunner;
@@ -1109,21 +1111,25 @@ public class JackHttpServer implements HasVersion {
       .add(Method.POST,
         new ContentTypeRouter()
           .add("multipart/form-data",
-            new AcceptContentTypeRouter()
-              .add(CommandOut.JACK_COMMAND_OUT_CONTENT_TYPE,
-                new AcceptContentTypeParameterRouter("version")
-                  .add("1",
-                    new PartContentTypeRouter("cli")
+            new AcceptContentTypeParameterRouter("version")
+              .add("1",
+                new PartContentTypeRouter("cli")
+                  .add(TextPlain.CONTENT_TYPE_NAME,
+                    new PartContentTypeRouter("pwd")
                       .add(TextPlain.CONTENT_TYPE_NAME,
-                        new PartContentTypeRouter("pwd")
-                          .add(TextPlain.CONTENT_TYPE_NAME,
-                            new PartContentTypeRouter("version")
-                              .add(ExactCodeVersionFinder.SELECT_EXACT_VERSION_CONTENT_TYPE,
-                                new PartContentTypeParameterRouter("version", "version")
-                                  .add("1",
-                                      new PathRouter()
-                                        .add("/jack", new JackTask(this))
-                                        .add("/jill", new JillTask(this))))))))));
+                        new PartContentTypeRouter("version")
+                          .add(ExactCodeVersionFinder.SELECT_EXACT_VERSION_CONTENT_TYPE,
+                            new PartContentTypeParameterRouter("version", "version")
+                              .add("1",
+                                 new PathRouter()
+                                  .add("/jack",
+                                      new AcceptContentTypeRouter()
+                                        .add(CommandOutRaw.JACK_COMMAND_OUT_CONTENT_TYPE,
+                                            new JackTaskRawOut(this))
+                                        .add(CommandOutBase64.JACK_COMMAND_OUT_CONTENT_TYPE,
+                                            new JackTaskBase64Out(this))
+
+                                  .add("/jill", new JillTask(this))))))))));
   }
 
   @Nonnull

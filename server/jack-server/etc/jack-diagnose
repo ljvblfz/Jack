@@ -148,6 +148,23 @@ checkport() {
   fi
 }
 
+
+checkBase64() {
+  BASE64_COMMAND=$(which base64)
+
+  if [ $? -ne 0 ] ; then
+    echo "base64 not found in PATH"
+    return 255
+  fi
+
+  BASE64_CHECK=$(echo amFjay1zZXJ2ZXIK | base64 --decode 2>&1)
+  if [ "$BASE64_CHECK" != jack-server ]; then
+    echo "'$BASE64_COMMAND' is not a supported version"
+    return 255
+  fi
+}
+
+
 checkCurl
 
 checkJava
@@ -156,6 +173,10 @@ checkKeytool
 
 checkport $SERVER_PORT_ADMIN
 checkport $SERVER_PORT_SERVICE
+
+if ! checkBase64 ; then
+  echo "base64 is not mandatory but installing a supported version can help with standard output and standard error problems"
+fi
 
 # Exit
 

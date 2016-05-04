@@ -30,6 +30,7 @@ import com.android.jack.server.TypeNotSupportedException;
 import com.android.jack.server.UnsupportedProgramException;
 import com.android.jack.server.VersionFinder;
 import com.android.jack.server.type.CommandOut;
+import com.android.jack.server.type.CommandOutRaw;
 import com.android.sched.util.Version;
 import com.android.sched.util.codec.ParsingException;
 
@@ -52,7 +53,7 @@ import javax.annotation.Nonnull;
 /**
  * Service task: Execute one Jack command.
  */
-public class JackTask extends SynchronousServiceTask {
+abstract class JackTask<T extends CommandOut> extends SynchronousServiceTask {
 
   @Nonnull
   private static Logger logger = Logger.getLogger(JackTask.class.getName());
@@ -140,11 +141,11 @@ public class JackTask extends SynchronousServiceTask {
     logger.log(Level.INFO, "Compilation #" + taskId + ", command '" + cli
         + "', pwd: '" + pwd.getPath() + "', required Jack: " + versionFinder.getDescription());
 
-    response.setContentType(CommandOut.JACK_COMMAND_OUT_CONTENT_TYPE + "; version=1");
+    response.setContentType(CommandOutRaw.JACK_COMMAND_OUT_CONTENT_TYPE + "; version=1");
     int commandStatus = JACK_STATUS_ERROR;
-    CommandOut commandOut;
+    T commandOut;
     try {
-      commandOut = new CommandOut(response.getByteChannel(), Charset.defaultCharset(), outCharset);
+      commandOut = createCommandOut(response, outCharset);
     } catch (IOException e) {
       logger.log(Level.SEVERE, "Exception while opening response: ", e);
       response.setContentLength(0);
@@ -153,7 +154,7 @@ public class JackTask extends SynchronousServiceTask {
     }
 
     try {
-      PrintStream err = commandOut.getErr();
+      PrintStream err = commandOut.getErrPrintStream();
       long start = System.currentTimeMillis();
 
       try {
@@ -161,8 +162,7 @@ public class JackTask extends SynchronousServiceTask {
         logger.log(Level.INFO, "Run Compilation #" + taskId + " with Jack "
             + version.getVerboseVersion()
             + " (" + version.getReleaseCode() + "." + version.getSubReleaseCode() + ")");
-        jack.setStandardError(err);
-        jack.setStandardOutput(commandOut.getOut());
+        installJackOutErr(jack, commandOut);
         jack.setWorkingDirectory(pwd);
         start = System.currentTimeMillis();
         commandStatus = jack.getTask(command).run();
@@ -192,4 +192,11 @@ public class JackTask extends SynchronousServiceTask {
     }
     response.setStatus(Status.OK);
   }
+
+  protected abstract void installJackOutErr(
+      @Nonnull Cli01Config jack,
+      @Nonnull T commandOut);
+
+  protected abstract T createCommandOut(@Nonnull Response response, @Nonnull Charset outCharset)
+      throws IOException;
 }
