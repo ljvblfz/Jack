@@ -33,6 +33,7 @@ import com.android.jack.dx.rop.code.SwitchInsn;
 import com.android.jack.dx.rop.code.ThrowingCstInsn;
 import com.android.jack.dx.rop.code.ThrowingInsn;
 import com.android.jack.dx.rop.cst.Constant;
+import com.android.jack.dx.rop.cst.CstBoolean;
 import com.android.jack.dx.rop.cst.CstDouble;
 import com.android.jack.dx.rop.cst.CstFieldRef;
 import com.android.jack.dx.rop.cst.CstFloat;
@@ -909,7 +910,7 @@ class RopBuilderVisitor extends JVisitor {
 
     switch (primitiveType) {
       case BOOLEAN:
-        cst = CstInteger.make(((JBooleanLiteral) literal).getValue() ? 1 : 0);
+        cst = CstBoolean.make(((JBooleanLiteral) literal).getValue());
         break;
       case BYTE:
         cst = CstInteger.make(((JByteLiteral) literal).getValue());
@@ -1012,6 +1013,15 @@ class RopBuilderVisitor extends JVisitor {
             || unary.getType() == JPrimitiveTypeEnum.LONG.getType();
         opcode = Rops.opNot(srcRegisterSpec);
         break;
+      }
+      case NOT: {
+        // Since Dalvik code does not have NOT operator, we will use
+        // x = y ^ true to represent x = !y
+        assert unary.getType() == JPrimitiveTypeEnum.BOOLEAN.getType();
+        addInstruction(
+            new PlainCstInsn(
+                Rops.opXor(sources), unarySrcPos, destReg, sources, CstBoolean.make(true)));
+        return;
       }
       default: {
         throw new AssertionError("Unary operation not supported.");

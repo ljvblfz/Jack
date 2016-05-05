@@ -16,10 +16,10 @@
 
 package com.android.jack.unary.test005.dx;
 
+import com.android.jack.unary.test005.jack.UnaryNot;
+
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.android.jack.unary.test005.jack.UnaryNot;
 
 /**
  * Tests '!' operator with comparison operators.
@@ -42,5 +42,29 @@ public class Tests {
     Assert.assertEquals(1, UnaryNot.getValue2(5, 3, 1, 2));
     Assert.assertEquals(1, UnaryNot.getValue2(2, 2, 5, 5));
     Assert.assertEquals(1, UnaryNot.getValue2(2, 1, 5, 3));
+  }
+
+  @Test
+  public void sccpBooleanNot1() {
+    Assert.assertTrue(UnaryNot.flipBooleans(100));
+    Assert.assertFalse(UnaryNot.flipBooleans(101));
+  }
+
+  @Test
+  public void sccpBooleanNot2() {
+    Assert.assertFalse(UnaryNot.flipBooleansWithDep(100));
+    Assert.assertFalse(UnaryNot.flipBooleansWithDep(101));
+  }
+
+  @Test
+  public void sccpBooleanNot3() {
+    Assert.assertTrue(UnaryNot.flipBooleansTwice(100));
+    Assert.assertTrue(UnaryNot.flipBooleansTwice(101));
+  }
+
+  @Test
+  public void sccpBooleanNot4() {
+    Assert.assertTrue(UnaryNot.flipBooleansTwiceWithDep(100));
+    Assert.assertTrue(UnaryNot.flipBooleansTwiceWithDep(101));
   }
 }

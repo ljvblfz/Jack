@@ -69,23 +69,6 @@ public class BooleanTestTransformer implements RunnableSchedulable<JMethod> {
     }
 
     @Override
-    public void endVisit(@Nonnull JUnaryOperation unaryOP) {
-      if (needReplacement(unaryOP)) {
-        SourceInfo sourceInfo = unaryOP.getSourceInfo();
-
-        JConditionalExpression replacingExpr =
-            new JConditionalExpression(sourceInfo, unaryOP.getArg(), new JBooleanLiteral(
-                sourceInfo, false), new JBooleanLiteral(sourceInfo, true));
-
-        TransformationRequest request = new TransformationRequest(method);
-        request.append(new Replace(unaryOP, replacingExpr));
-        request.commit();
-      }
-
-      super.endVisit(unaryOP);
-    }
-
-    @Override
     public void endVisit(@Nonnull JBinaryOperation binOp) {
       switch (binOp.getOp()) {
         case EQ:

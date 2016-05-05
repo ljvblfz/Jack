@@ -27,6 +27,7 @@ import com.android.jack.dx.rop.code.Rops;
 import com.android.jack.dx.rop.cst.Constant;
 import com.android.jack.dx.rop.cst.CstBoolean;
 import com.android.jack.dx.rop.cst.CstInteger;
+import com.android.jack.dx.rop.cst.CstLiteral32;
 import com.android.jack.dx.rop.cst.TypedConstant;
 import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.rop.type.TypeBearer;
@@ -460,6 +461,17 @@ public class SCCP {
         }
 
         return skip ? null : CstInteger.make(vR);
+
+      case Type.BT_BOOLEAN:
+        switch (opcode) {
+          case RegOps.XOR:
+            int vAb = ((CstLiteral32) cA).getIntBits();
+            int vBb = ((CstLiteral32) cB).getIntBits();
+            vR = vAb ^ vBb;
+            return CstBoolean.make(vR);
+          default:
+            return null;
+        }
 
       default:
         // not yet supported
