@@ -49,6 +49,7 @@ import com.android.jack.nopackage.NoPackageTests;
 import com.android.jack.opcodes.OpcodesTests;
 import com.android.jack.optimizations.defuse.DefUseTests;
 import com.android.jack.optimizations.exprsimplifier.ExprsimplifierTests;
+import com.android.jack.optimizations.modifiers.ModifiersTighteningTests;
 import com.android.jack.optimizations.notsimplifier.NotsimplifierTests;
 import com.android.jack.optimizations.sideeffect.SideEffectTests;
 import com.android.jack.optimizations.unuseddef.UnusedDefTest;
@@ -124,6 +125,7 @@ import org.junit.runners.Suite.SuiteClasses;
     LookupTests.class,
     MergerAllTests.class,
     FrontEndTests.class,
+    ModifiersTighteningTests.class,
     MultiDexAllTests.class,
     NewarrayTests.class,
     ExprsimplifierTests.class,

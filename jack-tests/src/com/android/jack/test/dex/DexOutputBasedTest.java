@@ -1,0 +1,108 @@
+/*
+ * Copyright (C) 2016 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.android.jack.test.dex;
+
+import com.android.jack.backend.dex.DexFileWriter;
+import com.android.jack.optimizations.Optimizations;
+import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.JackBasedToolchain;
+
+import org.jf.dexlib.DexFile;
+
+import java.io.File;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.Nonnull;
+
+/** Base implementation for all tests based on checking the resulting Dex output */
+public abstract class DexOutputBasedTest {
+
+  /** Get test resource file */
+  public File resource(String testPackage, String file) {
+    return new File(
+        AbstractTestTools.getTestRootDir(testPackage), file);
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  /** Properties to be used in the compilation */
+  public static final class CompilationProperties {
+    @Nonnull
+    public static final CompilationProperties EMPTY =
+        new CompilationProperties(Collections.<String, Object>emptyMap());
+
+    @Nonnull
+    private final Map<String, Object> properties;
+
+    public CompilationProperties(@Nonnull Map<String, Object> properties) {
+      this.properties = properties;
+    }
+
+    @Nonnull
+    public CompilationProperties with(@Nonnull String property, @Nonnull Object value) {
+      HashMap<String, Object> map = new HashMap<String, Object>(this.properties);
+      map.put(property, value);
+      return new CompilationProperties(map);
+    }
+
+    @Nonnull
+    public CompilationProperties withPreserveJls(boolean value) {
+      return this
+          .with(Optimizations.FieldFinalizer.PRESERVE_JLS.getName(),
+              Boolean.valueOf(value))
+          .with(Optimizations.MethodFinalizer.PRESERVE_JLS.getName(),
+              Boolean.valueOf(value))
+          .with(Optimizations.FieldFinalizer.PRESERVE_JLS.getName(),
+              Boolean.valueOf(value));
+    }
+
+    @Nonnull
+    public CompilationProperties withPreserveReflections(boolean value) {
+      return this
+          .with(Optimizations.ClassFinalizer.PRESERVE_REFLECTIONS.getName(),
+              Boolean.valueOf(value))
+          .with(Optimizations.MethodFinalizer.PRESERVE_REFLECTIONS.getName(),
+              Boolean.valueOf(value))
+          .with(Optimizations.FieldFinalizer.PRESERVE_REFLECTIONS.getName(),
+              Boolean.valueOf(value));
+    }
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  public final void compileAndValidate(
+      @Nonnull String testPackage,
+      @Nonnull CompilationProperties properties,
+      @Nonnull DexValidator<DexFile> validator) throws Exception {
+
+    File testFolder = AbstractTestTools.getTestRootDir(testPackage);
+    File outFolder = AbstractTestTools.createTempDir();
+    File out = new File(outFolder, DexFileWriter.DEX_FILENAME);
+
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    for (Map.Entry<String, Object> e : properties.properties.entrySet()) {
+      toolchain.addProperty(e.getKey(), e.getValue().toString());
+    }
+
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+        .srcToExe(outFolder, /* zipFile = */false, testFolder);
+
+    validator.validate(new DexFile(out));
+  }
+}

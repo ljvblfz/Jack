@@ -18,9 +18,9 @@ package com.android.jack.analysis.dfa.reachingdefs;
 
 import com.android.jack.Options;
 import com.android.jack.analysis.DefinitionMarker;
+import com.android.jack.analysis.common.ReachabilityAnalyzer;
 import com.android.jack.cfg.BasicBlock;
 import com.android.jack.cfg.ControlFlowGraph;
-import com.android.jack.cfg.PeiBasicBlock;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JStatement;
@@ -42,9 +42,7 @@ import com.android.sched.util.config.id.PropertyId;
 
 import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.LinkedList;
 import java.util.List;
-
 import javax.annotation.Nonnull;
 
 /**
@@ -84,110 +82,52 @@ public class ReachingDefinitions implements RunnableSchedulable<JMethod> {
     checker.check(method);
   }
 
-  private void solve(@Nonnull JMethod method) {
-    ControlFlowGraph cfg = method.getMarker(ControlFlowGraph.class);
-    assert cfg != null;
+  private class Analyzer extends ReachabilityAnalyzer<BitSet> {
+    @Nonnull
+    final ControlFlowGraph cfg;
+    @Nonnull
+    final List<DefinitionMarker> definitions;
+    final int initialized;
 
-    List<DefinitionMarker> definitions = getAllDefinitions(method, cfg);
-    int definitionsSize = definitions.size();
-
-    int basicBlockMaxId = cfg.getBasicBlockMaxId();
-    BitSet[] in = new BitSet[basicBlockMaxId];
-    // Output are not the same if we are on an exception path or not. Thus we compute two
-    // informations that are used according to the path.
-    BitSet[] out = new BitSet[basicBlockMaxId];
-    BitSet[] outException = new BitSet[basicBlockMaxId];
-
-    for (BasicBlock bb : cfg.getNodes()) {
-      int bbId = bb.getId();
-      in[bbId] = new BitSet(definitionsSize);
-      out[bbId] = new BitSet(definitionsSize);
-      outException[bbId] = new BitSet(definitionsSize);
+    private Analyzer(@Nonnull JMethod method) {
+      ControlFlowGraph cfg = method.getMarker(ControlFlowGraph.class);
+      assert cfg != null;
+      this.cfg = cfg;
+      this.definitions = getAllDefinitions(method, this.cfg);
+      this.initialized = (method.getThis() != null ? 1 : 0) + method.getParams().size();
     }
 
-    BasicBlock entryBb = cfg.getEntryNode();
-
-    if (method.getThis() != null) {
-      DefinitionMarker dm = getDefinitionMarkerForThis(method);
-      in[entryBb.getId()].set(dm.getBitSetIdx());
-      out[entryBb.getId()].set(dm.getBitSetIdx());
+    @Nonnull
+    @Override protected ControlFlowGraph getCfg() {
+      return cfg;
     }
 
-    // Parameters are definitions
-    for (JParameter param : method.getParams()) {
-      DefinitionMarker dm = param.getMarker(DefinitionMarker.class);
-      assert dm != null;
-      in[entryBb.getId()].set(dm.getBitSetIdx());
-      out[entryBb.getId()].set(dm.getBitSetIdx());
-    }
-
-    List<BasicBlock> changeNodes = new LinkedList<BasicBlock>(cfg.getNodes());
-
-    while (!changeNodes.isEmpty()) {
-      BasicBlock bb = changeNodes.remove(0);
-      int bbId = bb.getId();
-      List<BasicBlock> predecessors = bb.getPredecessors();
-
-      if (!predecessors.isEmpty()) {
-        BitSet unionOfPred = in[bbId];
-        unionOfPred.clear();
-
-        for (BasicBlock pred : predecessors) {
-          if (pred instanceof PeiBasicBlock
-              && ((PeiBasicBlock) pred).getExceptionBlocks().contains(bb)) {
-            unionOfPred.or(outException[pred.getId()]);
-          } else {
-            unionOfPred.or(out[pred.getId()]);
-          }
-        }
-
-        in[bbId] = unionOfPred;
-      }
-
-      BitSet oldOut = (BitSet) out[bbId].clone();
-
-      computeOutput(definitions, in[bbId], out[bbId], outException[bbId], bb);
-
-      if (!oldOut.equals(out[bbId])) {
-        for (BasicBlock succ : bb.getSuccessors()) {
-          if (!changeNodes.contains(succ) && succ != cfg.getExitNode()) {
-            changeNodes.add(succ);
-          }
-        }
+    @Override public void finalize(
+        @Nonnull List<BitSet> in, @Nonnull List<BitSet> out, @Nonnull List<BitSet> outException) {
+      for (BasicBlock bb : getCfg().getNodes()) {
+        bb.addMarker(new ReachingDefsMarker(getDefinitions(definitions, in.get(bb.getId()))));
       }
     }
 
-    assert cfg.getNodes().contains(entryBb);
-
-    for (BasicBlock bb : cfg.getNodes()) {
-      bb.addMarker(new ReachingDefsMarker(getDefinitions(definitions, in[bb.getId()])));
-    }
-  }
-
-  @Nonnull
-  private DefinitionMarker getDefinitionMarkerForThis(@Nonnull JMethod method) {
-    // JThis is a definition
-    JThis jThis = method.getThis();
-    assert jThis != null;
-    DefinitionMarker dm = jThis.getMarker(DefinitionMarker.class);
-    assert dm != null;
-    return dm;
-  }
-
-  private void computeOutput(@Nonnull List<DefinitionMarker> definitions, @Nonnull BitSet inBs,
-      @Nonnull BitSet outBs, @Nonnull BitSet outExceptionBs, @Nonnull BasicBlock bb) {
-    outBs.clear();
-    outBs.or(inBs);
-
-    List<JStatement> statements = bb.getStatements();
-
-    for (JStatement stmt : statements) {
-      if (stmt == statements.get(statements.size() - 1)) {
-        // We are on the lastStatement
-        outExceptionBs.clear();
-        outExceptionBs.or(outBs);
+    @Nonnull
+    @Override public BitSet newState(boolean entry) {
+      BitSet s = new BitSet(this.definitions.size());
+      if (entry) {
+        s.set(0, initialized);
       }
+      return s;
+    }
 
+    @Override public void copyState(@Nonnull BitSet src, @Nonnull BitSet dest) {
+      dest.clear();
+      dest.or(src);
+    }
+
+    @Override public void mergeState(@Nonnull BitSet state, @Nonnull BitSet otherState) {
+      state.or(otherState);
+    }
+
+    @Override public void processStatement(@Nonnull BitSet outBs, @Nonnull JStatement stmt) {
       DefinitionMarker currentDef = ThreeAddressCodeFormUtils.getDefinitionMarker(stmt);
       if (currentDef != null) {
         outBs.set(currentDef.getBitSetIdx());
@@ -201,6 +141,25 @@ public class ReachingDefinitions implements RunnableSchedulable<JMethod> {
         }
       }
     }
+
+    @Nonnull
+    @Override public BitSet cloneState(@Nonnull BitSet state) {
+      return (BitSet) state.clone();
+    }
+  }
+
+  private void solve(@Nonnull JMethod method) {
+    new Analyzer(method).analyze();
+  }
+
+  @Nonnull
+  private DefinitionMarker getDefinitionMarkerForThis(@Nonnull JMethod method) {
+    // JThis is a definition
+    JThis jThis = method.getThis();
+    assert jThis != null;
+    DefinitionMarker dm = jThis.getMarker(DefinitionMarker.class);
+    assert dm != null;
+    return dm;
   }
 
   /**

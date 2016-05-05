@@ -21,6 +21,7 @@ import com.android.jack.library.PrebuiltCompatibility;
 import com.android.sched.item.Description;
 import com.android.sched.item.Feature;
 import com.android.sched.util.config.HasKeyId;
+import com.android.sched.util.config.category.Private;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.PropertyId;
 
@@ -92,6 +93,96 @@ public class Optimizations {
     public static final BooleanPropertyId ENABLE =
         BooleanPropertyId.create("jack.optimization.not-simplifier", "Optimize '!' operator")
             .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
+  }
+
+  /**
+   * A {@link Feature} that represents optimization of class final modifiers.
+   */
+  @HasKeyId
+  @Description("Detect effectively final classes, add modifiers when possible")
+  public static class ClassFinalizer implements Feature {
+    @Nonnull
+    public static final BooleanPropertyId ENABLE = BooleanPropertyId
+        .create("jack.optimization.class-finalizer",
+            "Detect effectively final classes, add modifiers when possible")
+        .addDefaultValue(Boolean.FALSE)
+        .addCategory(Private.class);
+
+    @Nonnull
+    public static final BooleanPropertyId PRESERVE_JLS = BooleanPropertyId
+        .create("jack.optimization.class-finalizer.preserve-jls",
+            "Preserve JSL during class finalizer optimization")
+        .addDefaultValue(Boolean.TRUE)
+        .requiredIf(ENABLE.getValue().isTrue())
+        .addCategory(Private.class);
+
+    @Nonnull
+    public static final BooleanPropertyId PRESERVE_REFLECTIONS = BooleanPropertyId
+        .create("jack.optimization.class-finalizer.preserve-reflections",
+            "Preserve reflections during class finalizer optimization")
+        .addDefaultValue(Boolean.FALSE)
+        .requiredIf(ENABLE.getValue().isTrue())
+        .addCategory(Private.class);
+  }
+
+  /**
+   * A {@link Feature} that represents optimization of method final modifiers.
+   */
+  @HasKeyId
+  @Description("Detect effectively final methods, add modifiers when possible")
+  public static class MethodFinalizer implements Feature {
+    @Nonnull
+    public static final BooleanPropertyId ENABLE = BooleanPropertyId
+        .create("jack.optimization.method-finalizer",
+            "Detect effectively final methods, add modifiers when possible")
+        .addDefaultValue(Boolean.FALSE)
+        .addCategory(Private.class);
+
+    @Nonnull
+    public static final BooleanPropertyId PRESERVE_JLS = BooleanPropertyId
+        .create("jack.optimization.method-finalizer.preserve-jls",
+            "Preserve JSL during method finalizer optimization")
+        .addDefaultValue(Boolean.TRUE)
+        .requiredIf(ENABLE.getValue().isTrue())
+        .addCategory(Private.class);
+
+    @Nonnull
+    public static final BooleanPropertyId PRESERVE_REFLECTIONS = BooleanPropertyId
+        .create("jack.optimization.method-finalizer.preserve-reflections",
+            "Preserve reflections during method finalizer optimization")
+        .addDefaultValue(Boolean.FALSE)
+        .requiredIf(ENABLE.getValue().isTrue())
+        .addCategory(Private.class);
+  }
+
+  /**
+   * A {@link Feature} that represents optimization of field final modifiers.
+   */
+  @HasKeyId
+  @Description("Detect effectively final fields, add modifiers when possible")
+  public static class FieldFinalizer implements Feature {
+    @Nonnull
+    public static final BooleanPropertyId ENABLE = BooleanPropertyId
+        .create("jack.optimization.field-finalizer",
+            "Detect effectively final fields, add modifiers when possible")
+        .addDefaultValue(Boolean.FALSE)
+        .addCategory(Private.class);
+
+    @Nonnull
+    public static final BooleanPropertyId PRESERVE_JLS = BooleanPropertyId
+        .create("jack.optimization.field-finalizer.preserve-jls",
+            "Preserve JSL during field finalizer optimization")
+        .addDefaultValue(Boolean.TRUE)
+        .requiredIf(ENABLE.getValue().isTrue())
+        .addCategory(Private.class);
+
+    @Nonnull
+    public static final BooleanPropertyId PRESERVE_REFLECTIONS = BooleanPropertyId
+        .create("jack.optimization.field-finalizer.preserve-reflections",
+            "Preserve reflections during field finalizer optimization")
+        .addDefaultValue(Boolean.FALSE)
+        .requiredIf(ENABLE.getValue().isTrue())
+        .addCategory(Private.class);
   }
 
   @Nonnull

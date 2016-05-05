@@ -48,6 +48,10 @@ public class PeiBasicBlock extends NormalBasicBlock {
     setSuccessor(UNCAUGHT_PEI_EXIT_BLOCK_INDEX, exitBlock);
   }
 
+  public boolean isExceptionOrUncaughtBlock(@Nonnull BasicBlock basicBlock) {
+    return getInternalSuccessors().get(0) != basicBlock;
+  }
+
   @SuppressWarnings("unchecked")
   @Nonnull
   public List<CatchBasicBlock> getExceptionBlocks() {

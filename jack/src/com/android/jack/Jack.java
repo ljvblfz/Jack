@@ -119,6 +119,11 @@ import com.android.jack.optimizations.NotSimplifier;
 import com.android.jack.optimizations.Optimizations;
 import com.android.jack.optimizations.UnusedDefinitionRemover;
 import com.android.jack.optimizations.UseDefsChainsSimplifier;
+import com.android.jack.optimizations.common.DirectlyDerivedClassesProvider;
+import com.android.jack.optimizations.common.TypeToBeEmittedProvider;
+import com.android.jack.optimizations.modifiers.ClassFinalizer;
+import com.android.jack.optimizations.modifiers.FieldFinalizer;
+import com.android.jack.optimizations.modifiers.MethodFinalizer;
 import com.android.jack.optimizations.tailrecursion.TailRecursionOptimization;
 import com.android.jack.optimizations.tailrecursion.TailRecursionOptimizer;
 import com.android.jack.plugin.PluginManager;
@@ -647,6 +652,15 @@ public abstract class Jack {
           }
           if (config.get(BoostLockedRegionPriorityFeature.ENABLE).booleanValue()) {
             request.addFeature(BoostLockedRegionPriorityFeature.class);
+          }
+          if (config.get(Optimizations.ClassFinalizer.ENABLE)) {
+            request.addFeature(Optimizations.ClassFinalizer.class);
+          }
+          if (config.get(Optimizations.MethodFinalizer.ENABLE)) {
+            request.addFeature(Optimizations.MethodFinalizer.class);
+          }
+          if (config.get(Optimizations.FieldFinalizer.ENABLE)) {
+            request.addFeature(Optimizations.FieldFinalizer.class);
           }
 
           if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.ALWAYS) {
@@ -1352,12 +1366,22 @@ public abstract class Jack {
       methodPlan.append(LambdaConverter.class);
     }
 
+    boolean enableClassFinalizer = features.contains(Optimizations.ClassFinalizer.class);
+    boolean enableMethodFinalizer = features.contains(Optimizations.MethodFinalizer.class);
+    boolean enableFieldFinalizer = features.contains(Optimizations.FieldFinalizer.class);
+
+    boolean needTypeToBeEmittedMarker =
+        enableClassFinalizer | enableMethodFinalizer | enableFieldFinalizer;
+
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       if (productions.contains(DependencyInLibraryProduct.class)) {
         typePlan.append(TypeDependenciesCollector.class);
         typePlan.append(FileDependenciesCollector.class);
+      }
+      if (needTypeToBeEmittedMarker) {
+        typePlan.append(TypeToBeEmittedProvider.class);
       }
     }
 
@@ -1375,6 +1399,22 @@ public abstract class Jack {
         methodPlan.append(EnabledAssertionTransformer.class);
       } else if (features.contains(DisabledAssertionFeature.class)) {
         methodPlan.append(AssertionRemover.class);
+      }
+    }
+
+    if (enableClassFinalizer || enableMethodFinalizer) {
+      // Dependencies
+      planBuilder
+          .appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
+          .append(DirectlyDerivedClassesProvider.class);
+
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+      if (enableClassFinalizer) {
+        typePlan.append(ClassFinalizer.class);
+      }
+      if (enableMethodFinalizer) {
+        typePlan.append(MethodFinalizer.class);
       }
     }
 
@@ -1464,6 +1504,30 @@ public abstract class Jack {
       typePlan.append(ClassDefItemBuilder.class);
       typePlan.append(ContainerAnnotationAdder.TypeContainerAnnotationAdder.class);
       typePlan.append(ClassAnnotationBuilder.class);
+    }
+
+    if (enableFieldFinalizer) {
+      // Phase 1: field assignment information collection
+      planBuilder
+          .appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
+          .appendSubPlan(JMethodAdapter.class)
+          .append(FieldFinalizer.CollectionPhase.class);
+
+      // Phase 2: constructors analysis
+      SubPlanBuilder<JDefinedClassOrInterface> phase3 =
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+
+      SubPlanBuilder<JMethod> phase3method =
+          phase3.appendSubPlan(JMethodAdapter.class);
+      phase3method.append(RefAsStatementRemover.class);
+      phase3method.append(CfgBuilder.class);
+      phase3method.append(FieldFinalizer.ConstructorsAnalysisPhase.class);
+      phase3method.append(CfgMarkerRemover.class);
+
+      // Phase 3: field finalization
+      phase3
+          .appendSubPlan(JFieldAdapter.class)
+          .append(FieldFinalizer.FinalizingPhase.class);
     }
 
     {

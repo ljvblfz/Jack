@@ -220,6 +220,10 @@ public class JMethodIdWide extends LocalMarkerManager implements HasName, CanBeR
     return true;
   }
 
+  public boolean isInit() {
+    return name.equals(NamingTools.INIT_NAME);
+  }
+
   @Override
   public final int hashCode() {
     return super.hashCode();
