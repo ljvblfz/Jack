@@ -32,9 +32,6 @@ import com.android.sched.util.config.expression.BooleanExpression;
 import com.android.sched.util.config.id.KeyId;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.PropertyId;
-import com.android.sched.util.file.NoSuchFileException;
-import com.android.sched.util.file.NotDirectoryException;
-import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.ContainerLocation;
 import com.android.sched.util.location.EnvironmentLocation;
 import com.android.sched.util.location.FieldLocation;
@@ -42,12 +39,10 @@ import com.android.sched.util.location.LineLocation;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.NoLocation;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
-import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -103,7 +98,7 @@ public class AsapConfigBuilder {
   private final Stack<Location> defaultLocations = new Stack<Location>();
 
   @Nonnull
-  private final CodecContext context = new CodecContext();
+  private CodecContext context = new CodecContext();
 
   private boolean strict = false;
 
@@ -327,37 +322,13 @@ public class AsapConfigBuilder {
   }
 
   @Nonnull
-  public AsapConfigBuilder setDebug() {
-    context.setDebug();
-
-    return this;
+  public CodecContext getCodecContext() {
+    return context;
   }
 
   @Nonnull
-  public AsapConfigBuilder setStandardInput(@Nonnull InputStream in) {
-    context.setStandardInput(in);
-
-    return this;
-  }
-
-  @Nonnull
-  public AsapConfigBuilder setStandardOutput(@Nonnull PrintStream printer) {
-    context.setStandardOutput(printer);
-
-    return this;
-  }
-
-  @Nonnull
-  public AsapConfigBuilder setStandardError(@Nonnull PrintStream printer) {
-    context.setStandardError(printer);
-
-    return this;
-  }
-
-  @Nonnull
-  public AsapConfigBuilder setWorkingDirectory(@Nonnull File workingDirectory)
-      throws NotDirectoryException, WrongPermissionException, NoSuchFileException {
-    context.setWorkingDirectory(workingDirectory);
+  public AsapConfigBuilder setCodecContext(@Nonnull CodecContext context) {
+    this.context = context;
 
     return this;
   }

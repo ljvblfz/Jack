@@ -727,7 +727,7 @@ public class Options {
 
       configBuilder = new GatherConfigBuilder(sanityChecks);
       if (sanityChecks) {
-        configBuilder.setDebug();
+        configBuilder.getCodecContext().setDebug();
       }
 
       try {
@@ -755,7 +755,7 @@ public class Options {
 
     if (workingDirectory != null) {
       try {
-        configBuilder.setWorkingDirectory(workingDirectory);
+        configBuilder.getCodecContext().setWorkingDirectory(workingDirectory);
       } catch (NotDirectoryException e) {
         throw new IllegalOptionsException(e.getMessage(), e);
       } catch (WrongPermissionException e) {
@@ -766,11 +766,11 @@ public class Options {
     }
 
     if (standardError != null) {
-      configBuilder.setStandardError(standardError);
+      configBuilder.getCodecContext().setStandardError(standardError);
     }
 
     if (standardOutput != null) {
-      configBuilder.setStandardOutput(standardOutput);
+      configBuilder.getCodecContext().setStandardOutput(standardOutput);
     }
 
     configBuilder.pushDefaultLocation(new StringLocation("Options"));

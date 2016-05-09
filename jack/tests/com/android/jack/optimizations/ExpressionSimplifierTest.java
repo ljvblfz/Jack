@@ -35,8 +35,8 @@ import com.android.jack.ir.ast.JIntLiteral;
 import com.android.jack.ir.ast.JLongLiteral;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
-import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JMethodId;
+import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JNullLiteral;
 import com.android.jack.ir.ast.JPackage;
@@ -101,7 +101,7 @@ public class ExpressionSimplifierTest {
     hooks = new RunnableHooks();
     options.checkValidity(hooks);
     GatherConfigBuilder configBuilder = options.getConfigBuilder(hooks);
-    configBuilder.setDebug();
+    configBuilder.getCodecContext().setDebug();
     configBuilder.set(Optimizations.ENABLE_NULL_INSTANCEOF.getName(), Boolean.TRUE);
     ThreadConfig.setConfig(configBuilder.build());
   }

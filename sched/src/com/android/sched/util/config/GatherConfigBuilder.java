@@ -18,20 +18,16 @@ package com.android.sched.util.config;
 
 import com.android.sched.reflections.ReflectionManager;
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.codec.CodecContext;
 import com.android.sched.util.config.ChainedException.ChainedExceptionBuilder;
 import com.android.sched.util.config.category.Category;
 import com.android.sched.util.config.id.KeyId;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.PropertyId;
-import com.android.sched.util.file.NoSuchFileException;
-import com.android.sched.util.file.NotDirectoryException;
-import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.util.Collection;
 
 import javax.annotation.CheckForNull;
@@ -195,41 +191,19 @@ public class GatherConfigBuilder {
     return this;
   }
 
+
   @Nonnull
-  public GatherConfigBuilder setDebug() {
-    builder.setDebug();
+  public CodecContext getCodecContext() {
+    return builder.getCodecContext();
+  }
+
+  @Nonnull
+  public GatherConfigBuilder setCodecContext(@Nonnull CodecContext context) {
+    builder.setCodecContext(context);
 
     return this;
   }
 
-  @Nonnull
-  public GatherConfigBuilder setStandardInput(@Nonnull InputStream in) {
-    builder.setStandardInput(in);
-
-    return this;
-  }
-
-  @Nonnull
-  public GatherConfigBuilder setStandardOutput(@Nonnull PrintStream printer) {
-    builder.setStandardOutput(printer);
-
-    return this;
-  }
-
-  @Nonnull
-  public GatherConfigBuilder setStandardError(@Nonnull PrintStream printer) {
-    builder.setStandardError(printer);
-
-    return this;
-  }
-
-  @Nonnull
-  public GatherConfigBuilder setWorkingDirectory(@Nonnull File workingDirectory)
-      throws NotDirectoryException, WrongPermissionException, NoSuchFileException {
-    builder.setWorkingDirectory(workingDirectory);
-
-    return this;
-  }
 
   @Nonnull
   public GatherConfigBuilder setStrictMode() {
