@@ -43,7 +43,7 @@ public class RopRegisterManagerTest {
     Options options = new Options();
     hooks = new RunnableHooks();
     options.checkValidity(hooks);
-    options.getConfigBuilder(hooks).setDebug();
+    options.getConfigBuilder(hooks).getCodecContext().setDebug();
     ThreadConfig.setConfig(options.getConfig());
   }
 

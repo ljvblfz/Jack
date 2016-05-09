@@ -116,7 +116,7 @@ public class EscapeStringTest {
     try {
       Options options = new Options();
       options.checkValidity(hooks);
-      options.getConfigBuilder(hooks).setDebug();
+      options.getConfigBuilder(hooks).getCodecContext().setDebug();
       ThreadConfig.setConfig(options.getConfig());
       FileOutputStream fos = new FileOutputStream(tmp);
       JayceInternalWriterImpl jw = new JayceInternalWriterImpl(fos);
