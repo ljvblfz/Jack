@@ -23,7 +23,7 @@ import javax.annotation.Nonnull;
 /**
  * Class describing a library location.
  */
-public class LibraryLocation extends Location {
+public class LibraryLocation implements Location {
 
   @Nonnull
   private final Location sourceLocation;

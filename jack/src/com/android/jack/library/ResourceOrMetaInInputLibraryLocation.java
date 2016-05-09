@@ -24,7 +24,7 @@ import javax.annotation.Nonnull;
 /**
  * Location describing a resource or a meta in an input library.
  */
-public abstract class ResourceOrMetaInInputLibraryLocation extends Location {
+public abstract class ResourceOrMetaInInputLibraryLocation implements Location {
 
   @Nonnull
   protected final InputLibrary inputLib;

@@ -65,7 +65,7 @@ public class MetaImporter extends ResourceOrMetaImporter {
     session.addMeta(newMeta);
   }
 
-  private static class StandaloneMetaLocation extends Location {
+  private static class StandaloneMetaLocation implements Location {
     @Nonnull
     private final InputVFile file;
 

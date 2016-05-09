@@ -21,7 +21,7 @@ import javax.annotation.Nonnull;
 /**
  * Container location.
  */
-public class ContainerLocation extends Location {
+public class ContainerLocation implements Location {
   @Nonnull
   private final Location container;
   @Nonnull

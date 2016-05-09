@@ -23,7 +23,7 @@ import javax.annotation.Nonnull;
 /**
  * Class describing a line in another location.
  */
-public class LineLocation extends Location {
+public class LineLocation implements Location {
   @Nonnegative
   private final int line;
 

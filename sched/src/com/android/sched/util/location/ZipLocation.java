@@ -24,7 +24,7 @@ import javax.annotation.Nonnull;
 /**
  * Class describing an entry in an archive.
  */
-public class ZipLocation extends Location {
+public class ZipLocation implements Location {
 
   @Nonnull
   private final Location archive;

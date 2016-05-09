@@ -22,7 +22,7 @@ import javax.annotation.Nonnull;
 /**
  * Class describing a standard input.
  */
-public class StandardInputLocation extends Location {
+public class StandardInputLocation implements Location {
   @Override
   @Nonnull
   public String getDescription() {

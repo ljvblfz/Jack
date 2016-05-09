@@ -25,7 +25,7 @@ import javax.annotation.Nonnull;
 /**
  * Class describing a file or a directory location.
  */
-public abstract class FileOrDirLocation extends Location {
+public abstract class FileOrDirLocation implements Location {
   @Nonnull
   private final String path;
   @CheckForNull

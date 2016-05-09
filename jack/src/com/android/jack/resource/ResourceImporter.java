@@ -86,7 +86,7 @@ public class ResourceImporter extends ResourceOrMetaImporter {
     session.addResource(newResource);
   }
 
-  private static class StandaloneResourceLocation extends Location {
+  private static class StandaloneResourceLocation implements Location {
     @Nonnull
     private final InputVFile file;
 

@@ -23,7 +23,7 @@ import javax.annotation.Nonnull;
 /**
  * Class describing a field in a Java program.
  */
-public class FieldLocation extends Location {
+public class FieldLocation implements Location {
   @Nonnull
   private final Field field;
 

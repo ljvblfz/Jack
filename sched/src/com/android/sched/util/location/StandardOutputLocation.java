@@ -22,7 +22,7 @@ import javax.annotation.Nonnull;
 /**
  * Class describing a standard output.
  */
-public class StandardOutputLocation extends Location {
+public class StandardOutputLocation implements Location {
   @Override
   @Nonnull
   public String getDescription() {

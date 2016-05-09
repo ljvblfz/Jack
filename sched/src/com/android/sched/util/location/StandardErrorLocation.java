@@ -22,7 +22,7 @@ import javax.annotation.Nonnull;
 /**
  * Class describing a standard error.
  */
-public class StandardErrorLocation extends Location {
+public class StandardErrorLocation implements Location {
   @Override
   @Nonnull
   public String getDescription() {

@@ -21,7 +21,7 @@ import javax.annotation.Nonnull;
 /**
  * Class describing a location by a simple {@link String}.
  */
-public class StringLocation extends Location {
+public class StringLocation implements Location {
   @Nonnull
   private final String string;
 

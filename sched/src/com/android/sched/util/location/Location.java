@@ -19,7 +19,7 @@ package com.android.sched.util.location;
 import com.android.sched.util.HasDescription;
 
 /**
- * Base class to describe a location.
+ * Interface to describe a location.
  */
-public abstract class Location implements HasDescription {
+public interface Location extends HasDescription {
 }

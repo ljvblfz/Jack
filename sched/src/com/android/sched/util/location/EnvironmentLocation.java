@@ -21,7 +21,7 @@ import javax.annotation.Nonnull;
 /**
  * Class describing a environment variable.
  */
-public class EnvironmentLocation extends Location {
+public class EnvironmentLocation implements Location {
   @Nonnull
   private final String name;
 

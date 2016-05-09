@@ -21,7 +21,7 @@ import javax.annotation.Nonnull;
 /**
  * Class without location.
  */
-public class NoLocation extends Location {
+public class NoLocation implements Location {
   @Nonnull
   private static final NoLocation NO_LOCATION = new NoLocation();
 

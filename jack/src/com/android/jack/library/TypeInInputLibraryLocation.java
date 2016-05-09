@@ -23,7 +23,7 @@ import javax.annotation.Nonnull;
 /**
  * Location describing a type into an input library.
  */
-public class TypeInInputLibraryLocation extends Location {
+public class TypeInInputLibraryLocation implements Location {
 
   @Nonnull
   private final InputLibrary inputLib;
