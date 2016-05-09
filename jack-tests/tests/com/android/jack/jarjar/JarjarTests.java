@@ -209,7 +209,7 @@ public class JarjarTests {
     Options options = new Options();
     RunnableHooks hooks = new RunnableHooks();
     options.checkValidity(hooks);
-    options.getConfigBuilder(hooks).setDebug();
+    options.getConfigBuilder(hooks).getCodecContext().setDebug();
     ThreadConfig.setConfig(options.getConfig());
 
     InputJackLibrary inputJackLibrary = null;
