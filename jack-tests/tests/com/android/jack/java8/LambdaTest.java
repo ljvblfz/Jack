@@ -16,10 +16,15 @@
 
 package com.android.jack.java8;
 
+
+import com.android.jack.Options;
+import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
+import com.android.jack.test.TestsProperties;
 import com.android.jack.test.helper.FileChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.junit.KnownIssue;
+import com.android.jack.test.runner.RuntimeRunner;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
@@ -551,6 +556,119 @@ public class LambdaTest {
   @Test
   public void testLamba038() throws Exception {
     run(LAMBDA038);
+  }
+
+  /**
+   * Check that source using lambda can be compiled through jack library when SAM interface is into
+   * another library. Dex file generated from the source files is done through a jack library
+   *  where the predex is used.
+   */
+  @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
+  public void testLamba039() throws Exception {
+    List<Class<? extends IToolchain>> excludedToolchains = new ArrayList<Class<? extends IToolchain>>();
+    excludedToolchains.add(JackApiV01.class);
+    excludedToolchains.add(JillBasedToolchain.class);
+
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
+    File[] defaultClasspath = toolchain.getDefaultBootClasspath();
+    File lib =
+        AbstractTestTools.createTempFile("lib", toolchain.getLibraryExtension());
+    File sourceDir = AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test039.lib");
+    toolchain.addToClasspath(defaultClasspath).srcToLib(lib, /* zipFiles = */ true,
+        sourceDir);
+
+    toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
+    File libDexFolder = AbstractTestTools.createTempDir();
+    toolchain.addToClasspath(defaultClasspath)
+    .setSourceLevel(SourceLevel.JAVA_8)
+    .libToExe(lib,  libDexFolder, /* zipFiles = */ false);
+
+    toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
+    File srclib = AbstractTestTools.createTempFile("srclib", toolchain.getLibraryExtension());
+    sourceDir = AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test039.jack");
+    toolchain.addToClasspath(defaultClasspath)
+    .addToClasspath(lib)
+    .setSourceLevel(SourceLevel.JAVA_8)
+    .srcToLib(srclib, /* zipFiles = */ true, sourceDir);
+
+
+    toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
+    File srcDexFolder = AbstractTestTools.createTempDir();
+    toolchain.addToClasspath(defaultClasspath)
+    .setSourceLevel(SourceLevel.JAVA_8)
+    .libToExe(srclib, srcDexFolder, /* zipFiles = */ false);
+
+    run("com.android.jack.java8.lambda.test039.jack.Tests",
+        new File[] {
+            new File(TestsProperties.getJackRootDir(), "jack-tests/prebuilts/junit4-hostdex.jar"),
+            new File(libDexFolder, DexFileWriter.DEX_FILENAME),
+            new File(srcDexFolder, DexFileWriter.DEX_FILENAME)});
+  }
+
+  /**
+   * Check that source using lambda can be compiled through jack library when SAM interface is into
+   * another library. Dex file generated from the source files is done through a jack library
+   *  where the predex is not used.
+   */
+  @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
+  public void testLamba039_bis() throws Exception {
+    List<Class<? extends IToolchain>> excludedToolchains = new ArrayList<Class<? extends IToolchain>>();
+    excludedToolchains.add(JackApiV01.class);
+    excludedToolchains.add(JillBasedToolchain.class);
+
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
+    File[] defaultClasspath = toolchain.getDefaultBootClasspath();
+    File lib =
+        AbstractTestTools.createTempFile("lib", toolchain.getLibraryExtension());
+    File sourceDir = AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test039.lib");
+    toolchain.addToClasspath(defaultClasspath).srcToLib(lib, /* zipFiles = */ true,
+        sourceDir);
+
+    toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
+    File libDexFolder = AbstractTestTools.createTempDir();
+    toolchain.addToClasspath(defaultClasspath)
+    .setSourceLevel(SourceLevel.JAVA_8)
+    .libToExe(lib,  libDexFolder, /* zipFiles = */ false);
+
+    toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
+    File srclib = AbstractTestTools.createTempFile("srclib", toolchain.getLibraryExtension());
+    sourceDir = AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test039.jack");
+    toolchain.addToClasspath(defaultClasspath)
+    .addToClasspath(lib)
+    .setSourceLevel(SourceLevel.JAVA_8)
+    .srcToLib(srclib, /* zipFiles = */ true, sourceDir);
+
+
+    toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
+    toolchain.addProperty(Options.USE_PREBUILT_FROM_LIBRARY.getName(), Boolean.FALSE.toString());
+    File srcDexFolder = AbstractTestTools.createTempDir();
+    toolchain.addToClasspath(defaultClasspath)
+    .setSourceLevel(SourceLevel.JAVA_8)
+    .libToExe(srclib, srcDexFolder, /* zipFiles = */ false);
+
+    run("com.android.jack.java8.lambda.test039.jack.Tests",
+        new File[] {
+            new File(TestsProperties.getJackRootDir(), "jack-tests/prebuilts/junit4-hostdex.jar"),
+            new File(libDexFolder, DexFileWriter.DEX_FILENAME),
+            new File(srcDexFolder, DexFileWriter.DEX_FILENAME)});
+  }
+
+  private void run(@Nonnull String mainClass, @Nonnull File[] dexFiles) throws Exception {
+    List<RuntimeRunner> runnerList = AbstractTestTools.listRuntimeTestRunners(null);
+    for (RuntimeRunner runner : runnerList) {
+      Assert.assertEquals(0, runner.runJUnit(new String[0], AbstractTestTools.JUNIT_RUNNER_NAME,
+          new String[] {mainClass}, dexFiles));
+    }
   }
 
   private void run(@Nonnull RuntimeTestInfo rti) throws Exception {
