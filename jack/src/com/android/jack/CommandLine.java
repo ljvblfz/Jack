@@ -16,7 +16,7 @@
 
 package com.android.jack;
 
-import com.android.jack.config.id.Carnac;
+import com.android.jack.config.id.Douarn;
 import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.load.JackLoadingException;
 import com.android.sched.scheduler.ProcessException;
@@ -200,7 +200,7 @@ public abstract class CommandLine {
       throws IOException {
     GatherConfigBuilder builder = options.getDefaultConfigBuilder();
 
-    printProperties(printStream, builder, Carnac.class);
+    printProperties(printStream, builder, Douarn.class);
 
     printStream.println();
     printStream.println("Provisional properties (subject to change):");
