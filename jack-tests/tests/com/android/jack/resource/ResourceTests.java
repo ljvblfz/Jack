@@ -414,7 +414,7 @@ public class ResourceTests {
     }
   }
 
-  private void checkResourceContentFromLib(@Nonnull InputJackLibrary lib, @Nonnull String path,
+  public static void checkResourceContentFromLib(@Nonnull InputJackLibrary lib, @Nonnull String path,
       @Nonnull String expectedContent) throws IOException, FileTypeDoesNotExistException {
     InputVFile rescFile = lib.getFile(FileType.RSC, new VPath(path, '/'));
     BufferedReader candidateReader = null;
@@ -433,7 +433,7 @@ public class ResourceTests {
     }
   }
 
-  private void checkResourceContentFromDir(@Nonnull File dir, @Nonnull String path,
+  public static void checkResourceContentFromDir(@Nonnull File dir, @Nonnull String path,
       @Nonnull String expectedContent) throws IOException {
     assert dir.isDirectory();
     File file = new File(dir, path);
@@ -456,7 +456,7 @@ public class ResourceTests {
   }
 
 
-  private void checkResourceContent(@Nonnull InputVFile candidateFile,
+  private static void checkResourceContent(@Nonnull InputVFile candidateFile,
       @Nonnull File referenceFile) throws IOException {
     BufferedReader candidateReader = null;
     BufferedReader referenceReader = null;
@@ -475,7 +475,7 @@ public class ResourceTests {
     }
   }
 
-  private void compareReadLines(@Nonnull BufferedReader referenceReader,
+  private static void compareReadLines(@Nonnull BufferedReader referenceReader,
       @Nonnull BufferedReader candidateReader) throws IOException {
       String referenceLine = referenceReader.readLine();
       while (referenceLine != null) {
