@@ -23,6 +23,7 @@ import com.android.jack.JackUserException;
 import com.android.jack.JarTransformationException;
 import com.android.jack.LibraryException;
 import com.android.jack.Options;
+import com.android.jack.config.id.Carnac;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.library.DumpInLibrary;
 import com.android.jack.library.InputJackLibrary;
@@ -91,7 +92,7 @@ public abstract class CommonFilter {
   @Nonnull
   public static final BooleanPropertyId IMPORTED_JAR_DEBUG_INFO = BooleanPropertyId.create(
       "jack.import.jar.debug-info", "Keep debug info when importing Jars")
-      .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
+      .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class).addCategory(Carnac.class);
 
   @Nonnull
   public static final BooleanPropertyId CLASSPATH_JAR_DEBUG_INFO = BooleanPropertyId.create(

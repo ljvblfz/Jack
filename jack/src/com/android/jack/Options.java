@@ -23,6 +23,7 @@ import com.android.jack.backend.dex.MultiDexLegacy;
 import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.config.id.Arzon;
+import com.android.jack.config.id.Carnac;
 import com.android.jack.config.id.JavaVersionPropertyId;
 import com.android.jack.incremental.InputFilter;
 import com.android.jack.ir.ast.JMethod;
@@ -157,9 +158,9 @@ public class Options {
    */
   @VariableName("policy")
   public enum AssertionPolicy implements HasDescription {
-    ENABLE("always check assert statements"),
-    DISABLE("remove assert statements"),
-    DYNAMIC("dynamically check assert statements");
+    ALWAYS("always check assert statements"),
+    NEVER("remove assert statements"),
+    RUNTIME("check according to runtime configuration");
 
     @Nonnull
     private final String description;
@@ -177,9 +178,15 @@ public class Options {
 
   @Nonnull
   public static final EnumPropertyId<AssertionPolicy> ASSERTION_POLICY =
-      EnumPropertyId.create("jack.assert.policy", "Assert statement policy",
-          AssertionPolicy.class, AssertionPolicy.values())
-      .addDefaultValue(AssertionPolicy.DYNAMIC).ignoreCase().addCategory(DumpInLibrary.class);
+      EnumPropertyId.create(
+              "jack.assert.policy",
+              "Assert statement policy",
+              AssertionPolicy.class,
+              AssertionPolicy.values())
+          .addDefaultValue(AssertionPolicy.RUNTIME)
+          .ignoreCase()
+          .addCategory(DumpInLibrary.class)
+          .addCategory(Carnac.class);
 
   @Nonnull
   public static final BooleanPropertyId INCREMENTAL_MODE = BooleanPropertyId
@@ -598,6 +605,7 @@ public class Options {
       .withMin(1)
       .addDefaultValue(1)
       .addCategory(DumpInLibrary.class)
+      .addCategory(Carnac.class)
       .addCategory(new PrebuiltCompatibility() {
         @Override
         public boolean isCompatible(@Nonnull Config config, @Nonnull String valueFromLibrary)

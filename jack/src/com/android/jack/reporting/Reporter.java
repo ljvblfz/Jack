@@ -18,6 +18,7 @@ package com.android.jack.reporting;
 
 import com.android.jack.config.id.Arzon;
 import com.android.jack.config.id.Brest;
+import com.android.jack.config.id.Carnac;
 import com.android.jack.reporting.Reportable.ProblemLevel;
 import com.android.sched.util.codec.EnumCodec;
 import com.android.sched.util.codec.ListCodec;
@@ -85,6 +86,7 @@ public interface Reporter {
                                                                   .allowCharset())
                           .on("=")).setMin(0)))
           .addDefaultValue(Collections.<ProblemLevel, WriterFile>emptyMap())
+          .addCategory(Carnac.class)
           .setShutdownHook(new ShutdownRunnable<Map<ProblemLevel, WriterFile>>() {
             @Nonnull
             private final Logger logger = LoggerFactory.getLogger();

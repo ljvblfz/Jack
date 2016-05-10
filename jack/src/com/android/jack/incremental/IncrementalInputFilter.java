@@ -80,7 +80,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   @Nonnull
   public static final BooleanPropertyId INCREMENTAL_LOG = BooleanPropertyId
       .create("jack.incremental.log", "Enable incremental log")
-      .addDefaultValue(Boolean.TRUE);
+      .addDefaultValue(Boolean.FALSE);
 
   @Nonnull
   public static final StatisticId<Counter> COMPILED_FILES = new StatisticId<Counter>(

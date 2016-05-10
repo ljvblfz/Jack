@@ -16,6 +16,7 @@
 
 package com.android.jack.preprocessor;
 
+import com.android.jack.config.id.Carnac;
 import com.android.jack.library.DumpInLibrary;
 import com.android.sched.item.Description;
 import com.android.sched.item.Feature;
@@ -38,10 +39,14 @@ public class PreProcessor implements Feature {
   @Nonnull
   public static final BooleanPropertyId ENABLE = BooleanPropertyId.create(
       "jack.preprocessor", "Enable the Jack preprocessor")
-      .addDefaultValue(false).addCategory(DumpInLibrary.class);
+      .addDefaultValue(false).addCategory(DumpInLibrary.class).addCategory(Carnac.class);
 
   @Nonnull
-  public static final ReaderFilePropertyId FILE = ReaderFilePropertyId.create(
-      "jack.preprocessor.file", "Preprocessor source file",
-      new ReaderFileCodec().allowCharset()).requiredIf(ENABLE.getValue().isTrue());
+  public static final ReaderFilePropertyId FILE =
+      ReaderFilePropertyId.create(
+              "jack.preprocessor.file",
+              "Preprocessor source file",
+              new ReaderFileCodec().allowCharset())
+          .requiredIf(ENABLE.getValue().isTrue())
+          .addCategory(Carnac.class);
 }
