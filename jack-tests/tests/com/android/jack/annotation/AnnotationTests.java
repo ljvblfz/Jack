@@ -33,8 +33,10 @@ import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
+import com.android.jack.test.toolchain.JackApiV01;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
+import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 import com.android.sched.util.RunnableHooks;
 
 import junit.framework.Assert;
@@ -82,6 +84,10 @@ public class AnnotationTests extends RuntimeTest {
   private RuntimeTestInfo TEST018 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.annotation.test018"),
       "com.android.jack.annotation.test018.dx.Tests");
+
+  private RuntimeTestInfo TEST019 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.annotation.test019"),
+      "com.android.jack.annotation.test019.jack.Tests");
 
   private static final File ANNOTATION001_PATH =
       AbstractTestTools.getTestRootDir("com.android.jack.annotation.test001.jack");
@@ -411,6 +417,19 @@ public class AnnotationTests extends RuntimeTest {
     new RuntimeTestHelper(TEST018).compileAndRunTest();
   }
 
+  /**
+   * Test about type annotations and type parameter annotations.
+   */
+  @Test
+  @KnownIssue
+  @Category(RuntimeRegressionTest.class)
+  public void test019() throws Exception {
+    new RuntimeTestHelper(TEST019)
+    .setSourceLevel(SourceLevel.JAVA_8)
+    .addIgnoredCandidateToolchain(JackApiV01.class)
+    .compileAndRunTest();
+  }
+
 
   @Override
   protected void fillRtTestInfos() {
@@ -423,5 +442,6 @@ public class AnnotationTests extends RuntimeTest {
     rtTestInfos.add(TEST008);
     rtTestInfos.add(TEST009);
     rtTestInfos.add(TEST018);
+//    rtTestInfos.add(TEST019); // KnownIssue
   }
 }

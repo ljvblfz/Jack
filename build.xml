@@ -870,6 +870,7 @@
           <exclude name="com/android/jack/annotation/test015/jack/**"/>
           <exclude name="com/android/jack/annotation/test016/jack/**"/>
           <exclude name="com/android/jack/annotation/test017/jack/**"/>
+          <exclude name="com/android/jack/annotation/test019/jack/**"/>
           <exclude name="com/android/jack/classpath/test002/lib1override/**"/>
           <exclude name="com/android/jack/enums/test003/link/Other.java"/>
           <exclude name="com/android/jack/enums/test003/link/Values.java"/>
@@ -934,6 +935,7 @@
       debug="true" includeantruntime="false" nowarn="true">
       <src path="${jack-tests.dir}/src"/>
       <src path="${jack-tests.dir}/tests"/>
+      <exclude name="com/android/jack/annotation/test019/jack/**"/>
       <exclude name="com/android/jack/classpath/test002/lib1override/**"/>
       <exclude name="com/android/jack/enums/test003/link/Other.java"/>
       <exclude name="com/android/jack/enums/test003/link/Values.java"/>
