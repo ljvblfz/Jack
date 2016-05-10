@@ -76,4 +76,9 @@ public class Rot13NameProvider implements NameProvider {
     return sb.toString();
   }
 
+  @Override
+  public boolean hasAlternativeName(@Nonnull String oldName) {
+    return false;
+  }
+
 }

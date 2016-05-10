@@ -29,8 +29,12 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSession;
+import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.library.DumpInLibrary;
+import com.android.jack.reporting.Reportable.ProblemLevel;
+import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.shrob.obfuscation.nameprovider.NameProvider;
 import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.transformations.request.ChangeEnclosingPackage;
@@ -48,6 +52,8 @@ import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.location.FileLocation;
+import com.android.sched.util.location.LineLocation;
 
 import java.io.File;
 import java.util.Collection;
@@ -155,6 +161,16 @@ public class Renamer implements RunnableSchedulable<JSession> {
   }
 
   @Nonnull
+  static String getFieldKey(@Nonnull String name, @Nonnull JType type) {
+    return name + ':' + GrammarActions.getSignatureFormatter().getName(type);
+  }
+
+  @Nonnull
+  static String getMethodKey(@Nonnull String name, @Nonnull List<? extends JType> argumentTypes) {
+    return GrammarActions.getSignatureFormatter().getNameWithoutReturnType(name, argumentTypes);
+  }
+
+  @Nonnull
   static String getKey(@Nonnull HasName namedElement) {
     if (namedElement instanceof JFieldId) {
       return Renamer.getFieldKey((JFieldId) namedElement);
@@ -169,6 +185,14 @@ public class Renamer implements RunnableSchedulable<JSession> {
   private static void rename(@Nonnull CanBeRenamed node, @Nonnull NameProvider nameProvider) {
     if (mustBeRenamed((MarkerManager) node)) {
       String newName = nameProvider.getNewName(getKey(node));
+      ((MarkerManager) node).addMarker(new OriginalNameMarker(node.getName()));
+      node.setName(newName);
+    }
+  }
+
+  private static void rename(
+      @Nonnull CanBeRenamed node, @Nonnull String newName) {
+    if (mustBeRenamed((MarkerManager) node)) {
       ((MarkerManager) node).addMarker(new OriginalNameMarker(node.getName()));
       node.setName(newName);
     }
@@ -201,11 +225,33 @@ public class Renamer implements RunnableSchedulable<JSession> {
         for (JField field : type.getFields()) {
           JFieldId fieldId = field.getId();
           if (mustBeRenamed(fieldId)) {
-            String name;
-            do {
-              name = fieldNameProvider.getNewName(getKey(fieldId));
-            } while (FieldInHierarchyFinderVisitor.containsFieldKey(name, field));
-            rename(fieldId, fieldNameProvider);
+            String name = null;
+            boolean foundName;
+            try {
+              do {
+                String oldFieldKey = getKey(fieldId);
+                name = fieldNameProvider.getNewName(oldFieldKey);
+                foundName =
+                    FieldInHierarchyFinderVisitor.containsFieldKey(
+                        getFieldKey(name, field.getType()), field);
+                if (foundName && !fieldNameProvider.hasAlternativeName(oldFieldKey)) {
+                  throw new MaskedHierarchy(field.getName(), type, name);
+                }
+              } while (foundName);
+            } catch (MaskedHierarchy e) {
+              SourceInfo sourceInfo = field.getSourceInfo();
+              Jack.getSession()
+                  .getReporter()
+                  .report(
+                      Severity.NON_FATAL,
+                      new ObfuscationContextInfo(
+                          new LineLocation(
+                              new FileLocation(sourceInfo.getFileName()),
+                              sourceInfo.getStartLine()),
+                          ProblemLevel.INFO,
+                          e));
+            }
+            rename(fieldId, name);
           }
         }
 
@@ -213,11 +259,33 @@ public class Renamer implements RunnableSchedulable<JSession> {
         for (JMethod method : type.getMethods()) {
           JMethodIdWide methodId = method.getMethodId().getMethodIdWide();
           if (mustBeRenamed(methodId)) {
-            String name;
-            do {
-              name = methodNameProvider.getNewName(getKey(methodId));
-            } while (MethodInHierarchyFinder.containsMethodKey(name, methodId));
-            rename(methodId, methodNameProvider);
+            String name = null;
+            boolean foundName;
+            try {
+              do {
+                String oldMethodKey = getKey(methodId);
+                name = methodNameProvider.getNewName(oldMethodKey);
+                foundName =
+                    MethodInHierarchyFinder.containsMethodKey(
+                        getMethodKey(name, methodId.getParamTypes()), methodId);
+                if (foundName && !methodNameProvider.hasAlternativeName(oldMethodKey)) {
+                  throw new MaskedHierarchy(methodId.getName(), type, name);
+                }
+              } while (foundName);
+            } catch (MaskedHierarchy e) {
+              SourceInfo sourceInfo = method.getSourceInfo();
+              Jack.getSession()
+                  .getReporter()
+                  .report(
+                      Severity.NON_FATAL,
+                      new ObfuscationContextInfo(
+                          new LineLocation(
+                              new FileLocation(sourceInfo.getFileName()),
+                              sourceInfo.getStartLine()),
+                          ProblemLevel.INFO,
+                          e));
+            }
+            rename(methodId, name);
           }
         }
       }

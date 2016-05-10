@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,8 @@
  * limitations under the License.
  */
 
-package com.android.jack.shrob.obfuscation.nameprovider;
+package com.android.jack.shrob.test056.jack;
 
-import com.android.sched.util.codec.VariableName;
-
-import javax.annotation.Nonnull;
-
-/**
- * A class that provide names
- */
-@VariableName("provider")
-public interface NameProvider {
-  @Nonnull
-  public String getNewName(@Nonnull String oldName);
-
-  public boolean hasAlternativeName(@Nonnull String oldName);
+public class A {
+  int f;
 }

@@ -46,4 +46,9 @@ public class MappingNameProvider implements NameProvider {
     }
     return defaultNameProvider.getNewName(oldName);
   }
+
+  @Override
+  public boolean hasAlternativeName(@Nonnull String oldName) {
+    return !names.containsKey(oldName) && defaultNameProvider.hasAlternativeName(oldName);
+  }
 }

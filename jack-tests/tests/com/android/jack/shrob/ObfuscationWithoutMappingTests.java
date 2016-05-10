@@ -216,4 +216,9 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
 
     env.runTest(new ComparatorMapping(refOutputMapping, candidateOutputMapping));
   }
+
+  @Test
+  public void test56_001() throws Exception {
+    runTest("056", "001", "");
+  }
 }
