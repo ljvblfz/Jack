@@ -22,7 +22,6 @@ import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackApiV01;
 import com.android.jack.test.toolchain.JackBasedToolchain;
-import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
 import junit.framework.Assert;
@@ -76,7 +75,6 @@ public class VariableTest {
 
     List<Class<? extends IToolchain>> excludeClazz = new ArrayList<Class<? extends IToolchain>>(2);
     excludeClazz.add(JackApiV01.class);
-    excludeClazz.add(JillBasedToolchain.class);
     IToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeClazz);
 
@@ -121,7 +119,6 @@ public class VariableTest {
 
     List<Class<? extends IToolchain>> excludeClazz = new ArrayList<Class<? extends IToolchain>>(2);
     excludeClazz.add(JackApiV01.class);
-    excludeClazz.add(JillBasedToolchain.class);
     IToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeClazz);
 

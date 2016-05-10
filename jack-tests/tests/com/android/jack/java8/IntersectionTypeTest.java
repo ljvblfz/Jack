@@ -66,7 +66,6 @@ public class IntersectionTypeTest {
     new RuntimeTestHelper(INTERSECTION_TYPE_001)
     .setSourceLevel(SourceLevel.JAVA_8)
     .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
-    .addIgnoredCandidateToolchain(JillBasedToolchain.class)
     .addIgnoredCandidateToolchain(JackApiV01.class)
     .compileAndRunTest();
   }
@@ -76,7 +75,6 @@ public class IntersectionTypeTest {
     new RuntimeTestHelper(INTERSECTION_TYPE_002)
     .setSourceLevel(SourceLevel.JAVA_8)
     .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
-    .addIgnoredCandidateToolchain(JillBasedToolchain.class)
     .addIgnoredCandidateToolchain(JackApiV01.class)
     .compileAndRunTest();
   }
@@ -86,7 +84,6 @@ public class IntersectionTypeTest {
     new RuntimeTestHelper(INTERSECTION_TYPE_003)
     .setSourceLevel(SourceLevel.JAVA_8)
     .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
-    .addIgnoredCandidateToolchain(JillBasedToolchain.class)
     .addIgnoredCandidateToolchain(JackApiV01.class)
     .compileAndRunTest();
   }
@@ -124,6 +121,8 @@ public class IntersectionTypeTest {
     new RuntimeTestHelper(INTERSECTION_TYPE_006)
     .setSourceLevel(SourceLevel.JAVA_8)
     .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
+     // Can not be run with Jill based toolchain even if it compiles fine because runtime does not
+     // have lambda serialization API
     .addIgnoredCandidateToolchain(JillBasedToolchain.class)
     .addIgnoredCandidateToolchain(JackApiV01.class)
     .compileAndRunTest();

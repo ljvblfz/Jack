@@ -160,7 +160,12 @@ public class MethodRefTest {
 
   @Test
   public void testMethodRef014() throws Exception {
-    run(METHODREF014);
+    new RuntimeTestHelper(METHODREF014)
+        .setSourceLevel(SourceLevel.JAVA_8)
+        // This test must be exclude from the Jill tool-chain because it does not compile with it
+        .addIgnoredCandidateToolchain(JillBasedToolchain.class)
+        .addIgnoredCandidateToolchain(JackApiV01.class)
+        .compileAndRunTest();
   }
 
   @Test
@@ -171,7 +176,6 @@ public class MethodRefTest {
   private void run(@Nonnull RuntimeTestInfo rti) throws Exception {
     new RuntimeTestHelper(rti)
         .setSourceLevel(SourceLevel.JAVA_8)
-        .addIgnoredCandidateToolchain(JillBasedToolchain.class)
         .addIgnoredCandidateToolchain(JackApiV01.class)
         .compileAndRunTest();
   }

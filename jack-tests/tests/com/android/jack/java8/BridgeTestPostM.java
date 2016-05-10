@@ -101,7 +101,6 @@ public class BridgeTestPostM {
   public void testBridge002_3() throws Exception {
     List<Class<? extends IToolchain>> excludeClazz = new ArrayList<Class<? extends IToolchain>>(2);
     excludeClazz.add(JackApiV01.class);
-    excludeClazz.add(JillBasedToolchain.class);
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeClazz);
     File lib23 =

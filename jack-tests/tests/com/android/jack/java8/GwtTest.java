@@ -254,7 +254,12 @@ public class GwtTest {
 
   @Test
   public void testPrivateConstructorReference() throws Exception {
-    run(GWT_LAMBDA_TEST_19);
+    new RuntimeTestHelper(GWT_LAMBDA_TEST_19)
+    .setSourceLevel(SourceLevel.JAVA_8)
+    .addIgnoredCandidateToolchain(JackApiV01.class)
+    // This test must be exclude from the Jill tool-chain because it does not compile with it
+    .addIgnoredCandidateToolchain(JillBasedToolchain.class)
+    .compileAndRunTest();
   }
 
   @Test
@@ -325,7 +330,6 @@ public class GwtTest {
   private void run(@Nonnull RuntimeTestInfo rti) throws Exception {
     new RuntimeTestHelper(rti)
         .setSourceLevel(SourceLevel.JAVA_8)
-        .addIgnoredCandidateToolchain(JillBasedToolchain.class)
         .addIgnoredCandidateToolchain(JackApiV01.class)
         .compileAndRunTest();
   }

@@ -297,9 +297,19 @@ public class ClassNodeWriter extends JillWriter {
   private void writeMethods(@Nonnull ClassNode cn) throws IOException {
     writer.writeOpenNodeList();
 
+    List<MethodNode> additionalMethods = new ArrayList<MethodNode>();
+
     for (MethodNode mn : cn.methods) {
+      MethodBodyWriter mbw =
+          new MethodBodyWriter(writer, annotWriter, cn, mn, sourceInfoWriter, options);
+      mbw.write();
+      additionalMethods.addAll(mbw.getAdditionalMethods());
+    }
+
+    for (MethodNode mn : additionalMethods) {
       new MethodBodyWriter(writer, annotWriter, cn, mn, sourceInfoWriter, options).write();
     }
+
     writer.writeCloseNodeList();
   }
 

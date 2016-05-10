@@ -298,7 +298,13 @@ public class LambdaTest {
 
   @Test
   public void testLamba019() throws Exception {
-    run(LAMBDA019);
+    new RuntimeTestHelper(LAMBDA019)
+    .setSourceLevel(SourceLevel.JAVA_8)
+    // This test must be exclude from the Jill tool-chain because it does not compile with it
+    .addIgnoredCandidateToolchain(JillBasedToolchain.class)
+    .addIgnoredCandidateToolchain(JackApiV01.class)
+    .setWithDebugInfos(true)
+    .compileAndRunTest();
   }
 
   @Test
@@ -431,7 +437,6 @@ public class LambdaTest {
   public void testLamba037Direct() throws Exception {
     List<Class<? extends IToolchain>> excludedToolchains =
         new ArrayList<Class<? extends IToolchain>>();
-    excludedToolchains.add(JillBasedToolchain.class);
     excludedToolchains.add(JackApiV01.class);
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
@@ -458,40 +463,34 @@ public class LambdaTest {
   public void testLamba037ThroughLib() throws Exception {
     List<Class<? extends IToolchain>> excludedToolchains =
         new ArrayList<Class<? extends IToolchain>>();
-    excludedToolchains.add(JillBasedToolchain.class);
     excludedToolchains.add(JackApiV01.class);
 
-    File lib = AbstractTestTools.createTempFile("lib", ".jack");
-
     // src to lib
-    {
-      JackBasedToolchain toolchain =
-          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
-      ByteArrayOutputStream err = new ByteArrayOutputStream();
-      toolchain.setErrorStream(err);
-      toolchain.setSourceLevel(SourceLevel.JAVA_8);
-      toolchain.addToClasspath(toolchain.getDefaultBootClasspath()).srcToLib(lib,
-          /* zipFile = */ true,
-          AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test037.jack"));
-      String errString = err.toString();
-      Assert.assertTrue(errString.isEmpty());
-    }
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
+    File lib = AbstractTestTools.createTempFile("lib", toolchain.getLibraryExtension());
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+    toolchain.setErrorStream(err);
+    toolchain.setSourceLevel(SourceLevel.JAVA_8);
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath()).srcToLib(lib,
+        /* zipFile = */ true,
+        AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test037.jack"));
+    String errString = err.toString();
+    Assert.assertTrue(errString.isEmpty());
 
     // lib to dex
-    {
-      JackBasedToolchain toolchain =
-          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
-      ByteArrayOutputStream err = new ByteArrayOutputStream();
-      toolchain.setErrorStream(err);
-      toolchain.setSourceLevel(SourceLevel.JAVA_8);
+    toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
+    err = new ByteArrayOutputStream();
+    toolchain.setErrorStream(err);
+    toolchain.setSourceLevel(SourceLevel.JAVA_8);
 
-      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
-          .libToExe(lib, AbstractTestTools.createTempDir(), /* zipFile = */ false);
-      String errString = err.toString();
-      Assert.assertTrue(errString.contains("Tests.java:34: Serializable lambda is not supported"));
-      Assert.assertTrue(errString.contains("Tests.java:43: Serializable lambda is not supported"));
-      Assert.assertTrue(errString.contains("Tests.java:55: Serializable lambda is not supported"));
-    }
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath()).libToExe(lib,
+        AbstractTestTools.createTempDir(), /* zipFile = */ false);
+    errString = err.toString();
+    Assert.assertTrue(errString.contains("Tests.java:34: Serializable lambda is not supported"));
+    Assert.assertTrue(errString.contains("Tests.java:43: Serializable lambda is not supported"));
+    Assert.assertTrue(errString.contains("Tests.java:55: Serializable lambda is not supported"));
   }
 
   /**
@@ -503,6 +502,8 @@ public class LambdaTest {
   public void testLamba037ThroughLibPlusCheck() throws Exception {
     List<Class<? extends IToolchain>> excludedToolchains =
         new ArrayList<Class<? extends IToolchain>>();
+    // This test can not be used with JillBasedToolchain because generated library will be a jar
+    // file and not jack library, consequently Jack warning will not be print.
     excludedToolchains.add(JillBasedToolchain.class);
     excludedToolchains.add(JackApiV01.class);
 
@@ -553,8 +554,8 @@ public class LambdaTest {
   private void run(@Nonnull RuntimeTestInfo rti) throws Exception {
     new RuntimeTestHelper(rti)
         .setSourceLevel(SourceLevel.JAVA_8)
-        .addIgnoredCandidateToolchain(JillBasedToolchain.class)
         .addIgnoredCandidateToolchain(JackApiV01.class)
+        .setWithDebugInfos(true)
         .compileAndRunTest();
   }
 

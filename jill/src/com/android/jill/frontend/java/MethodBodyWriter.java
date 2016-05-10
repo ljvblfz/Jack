@@ -22,6 +22,7 @@ import com.android.jill.backend.jayce.JayceWriter;
 import com.android.jill.backend.jayce.Token;
 import com.android.jill.frontend.java.analyzer.JillAnalyzer;
 
+import org.objectweb.asm.Handle;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
@@ -75,6 +76,25 @@ import javax.annotation.Nonnull;
  * Method body writer.
  */
 public class MethodBodyWriter extends JillWriter implements Opcodes {
+
+  @Nonnull
+  private static final String LAMBDA_META_FACTORY = "java/lang/invoke/LambdaMetafactory";
+  @Nonnull
+  private static final String ALT_META_FACTORY = "altMetafactory";
+  @Nonnull
+  private static final String META_FACTORY = "metafactory";
+  @Nonnegative
+  private static final int LAMBDA_FLAG_SERIALIZABLE = 1;
+  @Nonnegative
+  private static final int LAMBDA_FLAG_MARKERS = 2;
+  @Nonnegative
+  private static final int LAMBDA_FLAG_BRDIGES = 4;
+  @Nonnull
+  private static final String JAVA_IO_SERIALIZABLE = "Ljava/io/Serializable;";
+  @Nonnull
+  private static final String LAMBDA_MTH_PREFIX = "lambda$";
+  @Nonnegative
+  public static final int LAMBDA_METHOD = 0x200000;
 
   @Nonnull
   private final Map<String, Variable> nameToVar = new HashMap<String, Variable>();
@@ -187,9 +207,14 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
   @Nonnull
   private final Options options;
 
+  private int lambdaCount = 0;
+
   @Nonnull
   private final Map<TryCatchBlockNode, Variable> catchBlockToCatchedVariable =
     new HashMap<TryCatchBlockNode, Variable>();
+
+  @Nonnull
+  private final List<MethodNode> additionalMethods = new ArrayList<MethodNode>();
 
   public MethodBodyWriter(@Nonnull JayceWriter writer,
       @Nonnull AnnotationWriter annotWriter,
@@ -220,6 +245,11 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     }
   }
 
+  @Nonnull
+  public List<MethodNode> getAdditionalMethods() {
+    return additionalMethods;
+  }
+
   public void write() throws IOException {
     if (AsmHelper.isAnnotation(currentClass)) {
       writeAnnotationMethod();
@@ -247,27 +277,57 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     writer.writeClose();
   }
 
+  @Nonnull
+  private String updateMethodNameForLambdaIfNeeded(@Nonnull String methodName) {
+    if (methodName.startsWith(LAMBDA_MTH_PREFIX)) {
+      return stringLegalizer(currentClass.name) + "_" + methodName;
+    }
+
+    return methodName;
+  }
+
   private void writeMethod() throws IOException {
     computeStartAndEndLine();
     sourceInfoWriter.writeDebugBegin(currentClass, startLine);
     writer.writeKeyword(Token.METHOD);
     writer.writeOpen();
-    writer.writeString(currentMethod.name);
+    writer.writeString(updateMethodNameForLambdaIfNeeded(currentMethod.name));
     writer.writeId(Type.getReturnType(currentMethod.desc).getDescriptor());
     writeParameters();
 
     MethodKind methodKind;
-    if (AsmHelper.isStatic(currentMethod)) {
-      methodKind = MethodKind.STATIC;
-    } else if (AsmHelper.isConstructor(currentMethod) || AsmHelper.isPrivate(currentMethod)) {
-      methodKind = MethodKind.INSTANCE_NON_VIRTUAL;
-    } else {
-      methodKind = MethodKind.INSTANCE_VIRTUAL;
-    }
-    writer.writeMethodKindEnum(methodKind);
+    int modifier;
 
-    writer.writeInt(AsmHelper.isStaticInit(currentMethod) ? AsmHelper.getModifiers(currentMethod)
-        | CONSTRUCTOR : AsmHelper.getModifiers(currentMethod));
+    if (currentMethod.name.startsWith(LAMBDA_MTH_PREFIX)) {
+      // If the method represents the body of a lambda expression, do not reuse modifier and
+      // methodKind but force its value.
+      modifier = LAMBDA_METHOD | ACC_SYNTHETIC;
+      if (AsmHelper.isInterface(currentClass)) {
+        modifier |= ACC_PUBLIC;
+      }
+      if (AsmHelper.isStatic(currentMethod)) {
+        modifier |= ACC_STATIC;
+        methodKind = MethodKind.STATIC;
+      } else {
+        methodKind = MethodKind.INSTANCE_VIRTUAL;
+      }
+    } else {
+      if (AsmHelper.isStatic(currentMethod)) {
+        methodKind = MethodKind.STATIC;
+      } else if (AsmHelper.isConstructor(currentMethod) || AsmHelper.isPrivate(currentMethod)) {
+        methodKind = MethodKind.INSTANCE_NON_VIRTUAL;
+      } else {
+        methodKind = MethodKind.INSTANCE_VIRTUAL;
+      }
+
+      modifier = AsmHelper.getModifiers(currentMethod);
+      if (AsmHelper.isStaticInit(currentMethod)) {
+        modifier |= CONSTRUCTOR;
+      }
+    }
+
+    writer.writeMethodKindEnum(methodKind);
+    writer.writeInt(modifier);
     annotWriter.writeAnnotations(currentMethod);
     writeMethodBody();
     writer.writeOpenNodeList(); // Markers
@@ -508,7 +568,15 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
           assert nextFrame != null;
           writeInsn(currentFrame, nextFrame, (MultiANewArrayInsnNode) insn);
         } else if (insn instanceof InvokeDynamicInsnNode) {
-          throw new JillException("invoke-dynamic is not supported");
+          InvokeDynamicInsnNode iDyn = (InvokeDynamicInsnNode) insn;
+          String handleName = iDyn.bsm.getName();
+          if (iDyn.bsm.getOwner().equals(LAMBDA_META_FACTORY)
+              && (handleName.equals(META_FACTORY) || handleName.equals(ALT_META_FACTORY))) {
+            writeLambda(currentFrame, nextFrame, iDyn);
+          } else {
+            throw new JillException("Method " + handleName + " in "
+                + iDyn.bsm.getOwner().replace('/', '.') + " is not supported with invoke dynamic");
+          }
         } else {
           throw new JillException("Unsupported instruction.");
         }
@@ -522,6 +590,337 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
 
     writer.writeCloseNodeList();
     sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writer.writeClose();
+  }
+
+  private void writeLambda(@Nonnull Frame<BasicValue> frame, @Nonnull Frame<BasicValue> nextFrame,
+      @Nonnull InvokeDynamicInsnNode iDyn) throws IOException {
+    Handle mthImplementingLambda = (Handle) iDyn.bsmArgs[1];
+
+    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writer.writeCatchBlockIds(currentCatchList);
+    writer.writeKeyword(Token.EXPRESSION_STATEMENT);
+    writer.writeOpen();
+
+    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writer.writeKeyword(Token.ASG_OPERATION);
+    writer.writeOpen();
+    writeStackAccess(nextFrame, TOP_OF_STACK);
+
+    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writer.writeKeyword(Token.LAMBDA);
+    writer.writeOpen();
+
+    // Write captured variables
+    writer.writeOpenNodeList();
+    Type[] capturedVarTypes = Type.getArgumentTypes(iDyn.desc);
+    int stackArgIndex = capturedVarTypes.length;
+    while (stackArgIndex > 0) {
+      // Add reinterpreter cast to precisely type captured variable
+      writeCastOperation(Token.REINTERPRETCAST_OPERATION, frame,
+          capturedVarTypes[capturedVarTypes.length - stackArgIndex].getDescriptor(),
+          -stackArgIndex);
+      stackArgIndex--;
+    }
+    writer.writeCloseNodeList();
+
+    // Receiver kind of the enclosing type of the method implementing the lambda
+    MethodCallReceiverKind receiverKind;
+    if (AsmHelper.isInterface(currentClass)) {
+      writer.writeReceiverKindEnum(MethodCallReceiverKind.INTERFACE);
+    } else {
+      writer.writeReceiverKindEnum(MethodCallReceiverKind.CLASS);
+    }
+
+    if (!mthImplementingLambda.getName().contains("lambda$")) {
+      mthImplementingLambda = generateMethodRef(iDyn, mthImplementingLambda, capturedVarTypes);
+    }
+
+    // Enclosing type of the method implementing the lambda
+    writer.writeId(Type.getObjectType(mthImplementingLambda.getOwner()).getDescriptor());
+
+    // name, argument types, method king and return type of the method implementing the lambda
+    writer.writeString(updateMethodNameForLambdaIfNeeded(mthImplementingLambda.getName()));
+    Type[] argumentTypes = Type.getArgumentTypes(mthImplementingLambda.getDesc());
+    List<String> argsTypeIds = new ArrayList<String>(argumentTypes.length);
+    for (Type argType : argumentTypes) {
+      argsTypeIds.add(argType.getDescriptor());
+    }
+    writer.writeIds(argsTypeIds);
+    switch (mthImplementingLambda.getTag()) {
+      case Opcodes.H_INVOKESTATIC: {
+        writer.writeMethodKindEnum(MethodKind.STATIC);
+        break;
+      }
+      case Opcodes.H_INVOKESPECIAL: {
+        writer.writeMethodKindEnum(MethodKind.INSTANCE_VIRTUAL);
+        break;
+      }
+      default: {
+        throw new AssertionError();
+      }
+    }
+    writer.writeId(Type.getReturnType(mthImplementingLambda.getDesc()).getDescriptor());
+
+    // SAM type
+    writer.writeId(Type.getReturnType(iDyn.desc).getDescriptor());
+
+    int bridgesCountIdx = writeBounds(iDyn, /*boundsCountIdx=*/ 4);
+
+    // Method to implement
+    writeMethodId(iDyn.name, (Type) iDyn.bsmArgs[0]);
+
+    // Method to enforce
+    writeMethodId(iDyn.name, (Type) iDyn.bsmArgs[2]);
+
+    writeBridges(iDyn, bridgesCountIdx);
+
+    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writer.writeClose();
+
+    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writer.writeClose();
+    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writer.writeClose();
+  }
+
+  @Nonnegative
+  private int writeBounds(@Nonnull InvokeDynamicInsnNode iDyn, @Nonnegative int boundsCountIdx)
+      throws IOException {
+    int bridgesCountIdx = boundsCountIdx;
+    List<String> bounds;
+    if (iDyn.bsmArgs.length > 3) {
+      int val = ((Integer) iDyn.bsmArgs[3]).intValue();
+      bounds = new ArrayList<String>(getBoundsCount(iDyn, boundsCountIdx));
+      if ((val & LAMBDA_FLAG_MARKERS) == LAMBDA_FLAG_MARKERS) {
+        int boundsCount = ((Integer) iDyn.bsmArgs[boundsCountIdx]).intValue();
+        int firstBounds = boundsCountIdx + 1;
+        bridgesCountIdx = firstBounds + boundsCount;
+        for (int boundIdx = firstBounds; boundIdx < bridgesCountIdx; boundIdx++) {
+          bounds.add(((Type) iDyn.bsmArgs[boundIdx]).getDescriptor());
+        }
+      }
+      if ((val & LAMBDA_FLAG_SERIALIZABLE) == LAMBDA_FLAG_SERIALIZABLE) {
+        bounds.add(JAVA_IO_SERIALIZABLE);
+      }
+    } else {
+      bounds = Collections.emptyList();
+    }
+
+    if (bounds.size() > 0) {
+      writer.writeIds(bounds);
+    } else {
+      writer.writeOpenNodeList();
+      writer.writeCloseNodeList();
+    }
+
+    return bridgesCountIdx;
+  }
+
+  @Nonnegative
+  private int getBoundsCount(@Nonnull InvokeDynamicInsnNode iDyn, @Nonnegative int boundsCountIdx) {
+    int boundsCount = 0;
+    int val = ((Integer) iDyn.bsmArgs[3]).intValue();
+    if ((val & LAMBDA_FLAG_MARKERS) == LAMBDA_FLAG_MARKERS) {
+      boundsCount = ((Integer) iDyn.bsmArgs[boundsCountIdx]).intValue();
+    }
+    if ((val & LAMBDA_FLAG_SERIALIZABLE) == LAMBDA_FLAG_SERIALIZABLE) {
+      boundsCount++;
+    }
+    return boundsCount;
+  }
+
+  private void writeBridges(@Nonnull InvokeDynamicInsnNode iDyn, @Nonnegative int bridgesCountIdx)
+      throws IOException {
+    if (iDyn.bsmArgs.length > 3) {
+      int val = ((Integer) iDyn.bsmArgs[3]).intValue();
+      if ((val & LAMBDA_FLAG_BRDIGES) == LAMBDA_FLAG_BRDIGES) {
+        int bridgesCount = ((Integer) iDyn.bsmArgs[bridgesCountIdx]).intValue();
+        writer.writeOpen();
+        writer.writeInt(bridgesCount);
+        int firstBridge = bridgesCountIdx + 1;
+        for (int bridgeIdx = firstBridge; bridgeIdx < firstBridge + bridgesCount; bridgeIdx++) {
+          writeMethodId(iDyn.name, (Type) iDyn.bsmArgs[bridgeIdx]);
+        }
+        writer.writeClose();
+        return;
+      }
+    }
+
+    writer.writeOpenNodeList();
+    writer.writeCloseNodeList();
+  }
+
+  /**
+   * This method will generate a new method that will be referenced from the lambda representing a
+   * method reference. This method will realize the call described by the method reference.
+   */
+  @Nonnull
+  private Handle generateMethodRef(@Nonnull InvokeDynamicInsnNode iDyn, @Nonnull Handle mthtoCall,
+      @Nonnull Type[] capturedVarTypes) {
+    int mthImplementingLambdaTag = mthtoCall.getTag();
+    Type returnType = getReturnTypeOfMthToGenerate(mthtoCall);
+    String mthToGenerate = getDescOfMethToGenerate(iDyn, mthtoCall, capturedVarTypes);
+    // Stack size is at least the size of the returned type
+    int stackSize = returnType.getSize();
+    int localSize = 0;
+
+    MethodNode mn = new MethodNode(Opcodes.ACC_SYNTHETIC | Opcodes.ACC_STATIC,
+        getNextLambdaMethodName(), mthToGenerate, null, null);
+
+    if (mthImplementingLambdaTag == Opcodes.H_NEWINVOKESPECIAL) {
+      mn.visitTypeInsn(NEW, returnType.getInternalName());
+      mn.visitInsn(DUP);
+      /*
+       * 2 means result of new instruction + duplicated value (one for invoke the constructor and
+       * one to return the allocated object)
+       */
+      stackSize += 2;
+    }
+
+    if (mthRefNeedInstance(mthtoCall)) {
+      // Instance is always the first parameter of the generated method
+      Type[] argTypeOfMethodToGenerate = Type.getArgumentTypes(mthToGenerate);
+      assert argTypeOfMethodToGenerate.length >= 1;
+      Type instanceType = argTypeOfMethodToGenerate[0];
+      mn.visitVarInsn(instanceType.getOpcode(ILOAD), 0);
+      localSize += instanceType.getSize();
+      stackSize += instanceType.getSize();
+    }
+
+    for (Type argType :  Type.getArgumentTypes(mthtoCall.getDesc())) {
+      mn.visitVarInsn(argType.getOpcode(ILOAD), localSize);
+      localSize += argType.getSize();
+      stackSize += argType.getSize();
+    }
+
+    mn.visitMethodInsn(getCallOpcodeFromTag(mthImplementingLambdaTag), mthtoCall.getOwner(),
+        mthtoCall.getName(), mthtoCall.getDesc());
+
+    mn.visitInsn(returnType.getOpcode(IRETURN));
+    mn.visitMaxs(stackSize, localSize);
+
+    additionalMethods.add(mn);
+
+    mthtoCall =
+        new Handle(Opcodes.H_INVOKESTATIC, currentClass.name, mn.name, mthToGenerate);
+
+    return mthtoCall;
+  }
+
+  @Nonnegative
+  private int getCallOpcodeFromTag(@Nonnegative int handleTag) {
+    switch (handleTag) {
+      case Opcodes.H_INVOKESTATIC: {
+        return INVOKESTATIC;
+      }
+      case Opcodes.H_INVOKEINTERFACE: {
+        return INVOKEINTERFACE;
+      }
+      case Opcodes.H_INVOKESPECIAL: {
+        return INVOKESPECIAL;
+      }
+      case Opcodes.H_INVOKEVIRTUAL: {
+        return INVOKEVIRTUAL;
+      }
+      case Opcodes.H_NEWINVOKESPECIAL: {
+        return INVOKESPECIAL;
+      }
+      default: {
+        throw new AssertionError();
+      }
+    }
+  }
+
+  @Nonnull
+  private String getDescOfMethToGenerate(@Nonnull InvokeDynamicInsnNode iDyn,
+      @Nonnull Handle mthtoCall, @Nonnull Type[] capturedVarTypes) {
+    Type[] argumentTypes = Type.getArgumentTypes(mthtoCall.getDesc());
+    Type[] lambdaMethodArgTypes = null;
+    int argTypeIdxOfMthToGenerate = 0;
+
+    if (mthRefNeedInstance(mthtoCall)) {
+      lambdaMethodArgTypes = new Type [argumentTypes.length + /*instance of method call*/ 1];
+      Type instanceType = null;
+
+      if (capturedVarTypes.length != 0) {
+        // instance of method call is captured, take its type from the captured variable
+        assert capturedVarTypes.length == 1;
+        instanceType = capturedVarTypes[0];
+      } else {
+        // instance is not captured, takes it from the first argument of the implemented interface
+        Type[] typeOfInterfaceMth =
+            Type.getArgumentTypes(((Type) iDyn.bsmArgs[2]).getDescriptor());
+        instanceType = typeOfInterfaceMth[0];
+      }
+      lambdaMethodArgTypes[argTypeIdxOfMthToGenerate++] = instanceType;
+    } else {
+      lambdaMethodArgTypes = new Type [argumentTypes.length];
+    }
+
+    for (Type argType : argumentTypes) {
+      lambdaMethodArgTypes[argTypeIdxOfMthToGenerate++] = argType;
+    }
+
+    String lambdaMethodDesc =
+        Type.getMethodDescriptor(getReturnTypeOfMthToGenerate(mthtoCall), lambdaMethodArgTypes);
+
+    return lambdaMethodDesc;
+  }
+
+  @Nonnull
+  private Type getReturnTypeOfMthToGenerate(@Nonnull Handle mthtoCall) {
+    Type returnType = Type.getReturnType(mthtoCall.getDesc());
+
+    if (mthtoCall.getTag() == Opcodes.H_NEWINVOKESPECIAL) {
+      // For '::new', return type is not contained in method descriptor since constructor return
+      // void, thus the return type is the owner of the constructor.
+      returnType = Type.getObjectType(mthtoCall.getOwner());
+    }
+    return returnType;
+  }
+
+  private boolean mthRefNeedInstance(@Nonnull Handle mthtoCall) {
+    return mthtoCall.getTag() == Opcodes.H_INVOKESPECIAL
+        || mthtoCall.getTag() == Opcodes.H_INVOKEINTERFACE
+        || mthtoCall.getTag() == Opcodes.H_INVOKEVIRTUAL;
+  }
+
+  @Nonnull
+  private String getNextLambdaMethodName() {
+    String lambdaMethodName = stringLegalizer(currentClass.name) + "_mthref$" + lambdaCount;
+
+    while (methodNameExist(currentClass, lambdaMethodName)) {
+      lambdaCount++;
+      lambdaMethodName = stringLegalizer(currentClass.name) + "_mthref$" + lambdaCount;
+    }
+
+    lambdaCount++;
+    return lambdaMethodName;
+  }
+
+  private boolean methodNameExist(@Nonnull ClassNode cn, @Nonnull String newMethodName) {
+    for (MethodNode mn : currentClass.methods) {
+      if (mn.name.equals(newMethodName)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private void writeMethodId(@Nonnull String methodName, @Nonnull Type type) throws IOException {
+    writer.writeKeyword(Token.METHODID_WITH_RETURN_TYPE);
+    writer.writeOpen();
+    writer.writeString(methodName);
+    writer.writeMethodKindEnum(MethodKind.INSTANCE_VIRTUAL);
+    writer.writeId(type.getReturnType().getDescriptor());
+    Type[] argumentTypes = type.getArgumentTypes();
+    List<String> argsTypeIds = new ArrayList<String>(argumentTypes.length);
+    for (Type argType : argumentTypes) {
+      argsTypeIds.add(argType.getDescriptor());
+    }
+    writer.writeIds(argsTypeIds);
     writer.writeClose();
   }
 
@@ -1144,7 +1543,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         writer.writeId(receiverType.getDescriptor()); // Receiver type
         writer.writeReceiverKindEnum(receiverKind);
 
-        writer.writeId(mthInsn.name);
+        writer.writeId(updateMethodNameForLambdaIfNeeded(mthInsn.name));
         Type[] argumentTypes = Type.getArgumentTypes(mthInsn.desc);
         List<String> argsTypeIds = new ArrayList<String>(argumentTypes.length);
         for (Type argType : argumentTypes) {
