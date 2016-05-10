@@ -53,6 +53,7 @@ import com.android.sched.util.log.stats.Counter;
 import com.android.sched.util.log.stats.CounterImpl;
 import com.android.sched.util.log.stats.StatisticId;
 import com.android.sched.vfs.InputVFile;
+import com.android.sched.vfs.UnionVFSReadOnlyException;
 import com.android.sched.vfs.VPath;
 
 import java.io.File;
@@ -61,6 +62,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -177,6 +179,10 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
         importedLibraries.add(incrementalInputLibrary);
         importedLibraries.addAll(importedLibrariesFromCommandLine);
       }
+
+      // delete all resources (they should all come from "--import-resource"), because we can't know
+      // if they have been modified, so we'll have to recopy them
+      deleteAllResources();
 
       try {
         fillDependencies(incrementalInputLibrary, FileDependencies.vpath, fileDependencies);
@@ -307,6 +313,22 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
 
       Jack.getSession().setFileDependencies(fileDependencies);
       Jack.getSession().setTypeDependencies(typeDependencies);
+    }
+  }
+
+  private void deleteAllResources() {
+    assert incrementalInputLibrary != null;
+
+    Iterator<InputVFile> vFileIt = incrementalInputLibrary.iterator(FileType.RSC);
+    while (vFileIt.hasNext()) {
+      try {
+        incrementalInputLibrary.delete(FileType.RSC, vFileIt.next().getPathFromRoot());
+      } catch (CannotDeleteFileException | FileTypeDoesNotExistException e) {
+        // should not happen
+        throw new AssertionError(e);
+      } catch (UnionVFSReadOnlyException e) {
+        // ignore, we only want to delete from the incremental dir anyway
+      }
     }
   }
 
