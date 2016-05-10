@@ -16,20 +16,17 @@
 
 package com.android.jack.backend.dex;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
-
 import com.android.jack.Jack;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.tools.merger.JackMerger;
 import com.android.jack.tools.merger.MergingOverflowException;
 import com.android.sched.util.codec.ImplementationName;
-import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.OutputVFS;
 import com.android.sched.vfs.OutputVFile;
 
-import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -49,25 +46,15 @@ public class SingleDexWritingTool extends DexWritingTool {
 
     final OutputJackLibrary jackOutputLibrary = Jack.getSession().getJackOutputLibrary();
 
-    Collection<InputVFile> inputVFiles = Collections2.transform(Jack.getSession().getTypesToEmit(),
-        new Function<JDefinedClassOrInterface, InputVFile>() {
-          @Override
-          public InputVFile apply(@Nonnull JDefinedClassOrInterface type) {
-            return getDexInputVFileOfType(jackOutputLibrary, type);
-          }
-        });
-
-    for (InputVFile vFile : inputVFiles) {
-      try {
-        mergeDex(merger, vFile);
-      } catch (MergingOverflowException e) {
-        throw new DexWritingException(new SingleDexOverflowException(e));
-      }
+    Set<MatchableInputVFile> dexToMerge = new HashSet<MatchableInputVFile>();
+    for (JDefinedClassOrInterface type : Jack.getSession().getTypesToEmit()) {
+      dexToMerge.add(new MatchableInputVFile(getDexInputVFileOfType(jackOutputLibrary, type)));
     }
+    addOrphanDexFiles(dexToMerge);
 
-    for (InputVFile vFile : getOrphanDexFiles()) {
+    for (MatchableInputVFile matchableVFile : dexToMerge) {
       try {
-        mergeDex(merger, vFile);
+        mergeDex(merger, matchableVFile.getInputVFile());
       } catch (MergingOverflowException e) {
         throw new DexWritingException(new SingleDexOverflowException(e));
       }

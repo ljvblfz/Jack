@@ -24,6 +24,7 @@ import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackApiV01;
 import com.android.jack.test.toolchain.JackBasedToolchain;
@@ -96,6 +97,7 @@ public class BridgeTestPostM {
    * a dex with min api 24.
    */
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testBridge002_3() throws Exception {
     List<Class<? extends IToolchain>> excludeClazz = new ArrayList<Class<? extends IToolchain>>(2);
     excludeClazz.add(JackApiV01.class);
@@ -131,6 +133,7 @@ public class BridgeTestPostM {
    * into a dex with min api 23.
    */
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testBridge002_4() throws Exception {
     List<Class<? extends IToolchain>> excludeClazz = new ArrayList<Class<? extends IToolchain>>(1);
     excludeClazz.add(JackApiV01.class);
@@ -166,6 +169,7 @@ public class BridgeTestPostM {
    * into a dex with min api 23.
    */
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testBridge002_5() throws Exception {
     List<Class<? extends IToolchain>> excludeClazz = new ArrayList<Class<? extends IToolchain>>(1);
     excludeClazz.add(JackApiV01.class);

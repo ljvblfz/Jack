@@ -25,6 +25,7 @@ import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackApiV01;
 import com.android.jack.test.toolchain.JackBasedToolchain;
@@ -183,6 +184,7 @@ public class DefaultMethodTest {
    * Ensure that we refuse to import a default method library in an api 23 dex.
    */
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testDefaultMethod001_1() throws Exception {
     List<Class<? extends IToolchain>> excludeClazz = new ArrayList<Class<? extends IToolchain>>(1);
     excludeClazz.add(JackApiV01.class);
@@ -218,6 +220,7 @@ public class DefaultMethodTest {
    * Ensure that we refuse to import a default method library in an api 23 dex.
    */
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testDefaultMethod001_2() throws Exception {
     List<Class<? extends IToolchain>> excludeClazz = new ArrayList<Class<? extends IToolchain>>(1);
     excludeClazz.add(JackApiV01.class);
@@ -254,6 +257,7 @@ public class DefaultMethodTest {
    * a dex with min api 24.
    */
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testDefaultMethod001_3() throws Exception {
     List<Class<? extends IToolchain>> excludeClazz = new ArrayList<Class<? extends IToolchain>>(2);
     excludeClazz.add(JackApiV01.class);
@@ -289,6 +293,7 @@ public class DefaultMethodTest {
    * a dex with min api 24.
    */
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testDefaultMethod001_4() throws Exception {
     List<Class<? extends IToolchain>> excludeClazz = new ArrayList<Class<? extends IToolchain>>(2);
     excludeClazz.add(JackApiV01.class);

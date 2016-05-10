@@ -19,9 +19,11 @@ package com.android.jack.java8;
 import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
 import com.android.jack.test.helper.FileChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackApiV01;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
@@ -452,6 +454,7 @@ public class LambdaTest {
    * library but are printed when compiling the library to a dex.
    */
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testLamba037ThroughLib() throws Exception {
     List<Class<? extends IToolchain>> excludedToolchains =
         new ArrayList<Class<? extends IToolchain>>();
@@ -496,6 +499,7 @@ public class LambdaTest {
    * library with checks manually enabled, as well as when compiling the library to a dex.
    */
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testLamba037ThroughLibPlusCheck() throws Exception {
     List<Class<? extends IToolchain>> excludedToolchains =
         new ArrayList<Class<? extends IToolchain>>();
