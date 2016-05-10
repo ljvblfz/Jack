@@ -400,11 +400,11 @@ public class TestTools {
       request.addFeature(Optimizations.NotSimplifier.class);
     }
 
-    if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.ENABLE) {
+    if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.ALWAYS) {
       request.addFeature(EnabledAssertionFeature.class);
-    } else if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.DYNAMIC) {
+    } else if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.RUNTIME) {
       request.addFeature(DynamicAssertionFeature.class);
-    } else if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.DISABLE) {
+    } else if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.NEVER) {
       request.addFeature(DisabledAssertionFeature.class);
     }
 

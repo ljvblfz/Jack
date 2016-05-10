@@ -75,7 +75,7 @@ public class AssertionTests extends RuntimeTest {
   public void test004() throws Exception {
     new RuntimeTestHelper(TEST004)
         .addIgnoredCandidateToolchain(JillBasedToolchain.class)
-        .addProperty(Options.ASSERTION_POLICY.getName(), AssertionPolicy.ENABLE.toString())
+        .addProperty(Options.ASSERTION_POLICY.getName(), AssertionPolicy.ALWAYS.toString())
         .compileAndRunTest();
   }
 
@@ -83,7 +83,7 @@ public class AssertionTests extends RuntimeTest {
   public void test005() throws Exception {
     new RuntimeTestHelper(TEST005)
         .addIgnoredCandidateToolchain(JillBasedToolchain.class)
-        .addProperty(Options.ASSERTION_POLICY.getName(), AssertionPolicy.DISABLE.toString())
+        .addProperty(Options.ASSERTION_POLICY.getName(), AssertionPolicy.NEVER.toString())
         .compileAndRunTest();
   }
 

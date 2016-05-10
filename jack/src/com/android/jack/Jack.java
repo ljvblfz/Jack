@@ -68,6 +68,7 @@ import com.android.jack.backend.jayce.JayceInLibraryProduct;
 import com.android.jack.backend.jayce.JayceInLibraryWriter;
 import com.android.jack.cfg.CfgBuilder;
 import com.android.jack.cfg.CfgMarkerRemover;
+import com.android.jack.config.id.Carnac;
 import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
 import com.android.jack.coverage.CodeCoverage;
 import com.android.jack.coverage.CodeCoverageAnalyzer;
@@ -375,7 +376,7 @@ public abstract class Jack {
   @Nonnull
   public static final BooleanPropertyId STRICT_CLASSPATH = BooleanPropertyId.create(
       "jack.classpath.strict", "Do not ignore missing or malformed class path entries")
-      .addDefaultValue(Boolean.FALSE);
+      .addDefaultValue(Boolean.FALSE).addCategory(Carnac.class);
 
   @Nonnull
   public static JSession getSession() {
@@ -626,11 +627,11 @@ public abstract class Jack {
           request.addFeature(Optimizations.NotSimplifier.class);
         }
 
-        if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.ENABLE) {
+        if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.ALWAYS) {
           request.addFeature(EnabledAssertionFeature.class);
-        } else if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.DYNAMIC) {
+        } else if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.RUNTIME) {
           request.addFeature(DynamicAssertionFeature.class);
-        } else if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.DISABLE) {
+        } else if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.NEVER) {
           request.addFeature(DisabledAssertionFeature.class);
         }
 

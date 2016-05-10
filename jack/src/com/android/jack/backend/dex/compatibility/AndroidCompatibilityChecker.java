@@ -18,6 +18,7 @@ package com.android.jack.backend.dex.compatibility;
 
 import com.android.jack.Jack;
 import com.android.jack.Options;
+import com.android.jack.config.id.Carnac;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JMethod;
@@ -51,7 +52,7 @@ public class AndroidCompatibilityChecker implements RunnableSchedulable<JMethod>
       BooleanPropertyId.create(
               "jack.android.api-level.check",
               "Check compatibility with the Android platform")
-          .addDefaultValue(Boolean.FALSE);
+          .addDefaultValue(Boolean.FALSE).addCategory(Carnac.class);
 
   @Nonnegative
   public static final long N_API_LEVEL = 24;
