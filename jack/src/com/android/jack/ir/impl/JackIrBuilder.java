@@ -2956,6 +2956,10 @@ public class JackIrBuilder {
     }
 
     protected boolean visit(@Nonnull Annotation annotation, @Nonnull BlockScope scope) {
+      if (annotation.recipient.kind() == Binding.TYPE_USE
+          || annotation.recipient.kind() == Binding.TYPE_PARAMETER) {
+        return false;
+      }
       try {
         JAnnotation jAnnotation = (JAnnotation) annotationParser.parseLiteral(annotation,
             annotation.resolvedType, scope);
