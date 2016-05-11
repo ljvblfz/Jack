@@ -193,6 +193,7 @@ import com.android.jack.statistics.BinaryOperationWithCst;
 import com.android.jack.statistics.CodeStats;
 import com.android.jack.statistics.FieldStats;
 import com.android.jack.statistics.MethodStats;
+import com.android.jack.transformations.BoostLockedRegionPriorityFeature;
 import com.android.jack.transformations.BridgeInInterfaceRemover;
 import com.android.jack.transformations.EmptyClinitRemover;
 import com.android.jack.transformations.FieldInitializer;
@@ -212,6 +213,7 @@ import com.android.jack.transformations.assertion.DynamicAssertionTransformer;
 import com.android.jack.transformations.assertion.EnabledAssertionFeature;
 import com.android.jack.transformations.assertion.EnabledAssertionTransformer;
 import com.android.jack.transformations.ast.BooleanTestTransformer;
+import com.android.jack.transformations.ast.BoostLockedRegionPriority;
 import com.android.jack.transformations.ast.CompoundAssignmentRemover;
 import com.android.jack.transformations.ast.ConcatRemover;
 import com.android.jack.transformations.ast.ExpressionStatementLegalizer;
@@ -646,6 +648,9 @@ public abstract class Jack {
           }
           if (config.get(Optimizations.NotSimplifier.ENABLE).booleanValue()) {
             request.addFeature(Optimizations.NotSimplifier.class);
+          }
+          if (config.get(BoostLockedRegionPriorityFeature.ENABLE).booleanValue()) {
+            request.addFeature(BoostLockedRegionPriorityFeature.class);
           }
 
           if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.ALWAYS) {
@@ -1377,7 +1382,6 @@ public abstract class Jack {
     if (features.contains(DynamicAssertionFeature.class)) {
       planBuilder.append(AssertionTransformerSchedulingSeparator.class);
     }
-
     {
       // After this point {@link JDcoiExcludeJackFileAdapter} must not be used since
       // schedulables are not executed into the Java to Jayce plan.
@@ -1390,6 +1394,9 @@ public abstract class Jack {
       }
       {
         SubPlanBuilder<JMethod> methodPlan = typePlan4.appendSubPlan(JMethodAdapter.class);
+        if (features.contains(BoostLockedRegionPriorityFeature.class)) {
+          methodPlan.append(BoostLockedRegionPriority.class);
+        }
         methodPlan.append(ConditionalAndOrRemover.class);
         if (hasSanityChecks) {
           methodPlan.append(ConditionalAndOrRemoverChecker.class);

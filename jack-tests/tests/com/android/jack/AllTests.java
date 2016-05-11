@@ -66,6 +66,7 @@ import com.android.jack.synchronize.SynchronizeTests;
 import com.android.jack.threeaddress.ThreeaddressTests;
 import com.android.jack.throwstatement.ThrowstatementTests;
 import com.android.jack.tools.merger.MergerAllTests;
+import com.android.jack.transformations.boostlockregionpriority.BoostLockedRegionPriorityTests;
 import com.android.jack.trycatch.TrycatchTests;
 import com.android.jack.tryfinally.TryfinallyTests;
 import com.android.jack.type.TypeTests;
@@ -85,6 +86,7 @@ import org.junit.runners.Suite.SuiteClasses;
     ArrayTests.class,
     AssertionTests.class,
     AssignTests.class,
+    BoostLockedRegionPriorityTests.class,
     BoxTests.class,
     BridgeTests.class,
     CastAllTests.class,
