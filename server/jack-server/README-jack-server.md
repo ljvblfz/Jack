@@ -71,6 +71,7 @@ The server can also be configured in `$HOME/.jack-server/config.properties`.
 ### `config.properties` file
 
 It contains Jack server configuration properties.  
+Modifications to those settings are taken into account after restarting the server.  
 Description with default values follows:
 
 `jack.server.max-service=<number>`  
@@ -183,11 +184,25 @@ bug and attach the file produced by `jack-admin dump-report`.
 See [Starting the server](#starting-the-server) above.
 
 
-### If your computer becomes unresponsive during compilation or if you experience Jack compilations
-failing on `Out of memory error.`:
+### If your computer becomes unresponsive during compilation:
 
 You can improve the situation by reducing the number of jack simultaneous compilations by editing
-your `$HOME/.jack-server/config.properties` and changing jack.server.max-service to a lower value.
+your `$HOME/.jack-server/config.properties` and changing jack.server.max-service to a lower value
+and then restarting the server.  
+
+### If you experience Jack compilations failing on `Out of memory error.`:
+
+You can improve the situation by reducing the number of jack simultaneous compilations by editing
+your `$HOME/.jack-server/config.properties` and changing jack.server.max-service to a lower value
+and then restarting the server.  
+If this is not enough, you may change the arguments used to start the server jvm and force a
+greater maximum Java heap size ("-Xmx"):  
+- Stop the server using `jack-admin stop-server`, then:  
+- If you start the server manually:  
+`JACK_SERVER_VM_ARGUMENTS="-Xmx2g -Dfile.encoding=UTF-8 -XX:+TieredCompilation" jack-admin start-server`  
+- If you use the jack server in the android tree then  
+`export ANDROID_JACK_VM_ARGS="-Xmx2g -Dfile.encoding=UTF-8 -XX:+TieredCompilation"`  
+and restart your build command.
 
 
 ### If you have trouble starting the server
