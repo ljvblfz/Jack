@@ -149,6 +149,35 @@ public class NamingTools {
         JLookup.PACKAGE_SEPARATOR);
   }
 
+  public static boolean isFullMethodName(@Nonnull String fullName) {
+    int seperatorIdx = fullName.indexOf('#');
+    char[] buffer = fullName.toCharArray();
+    if (seperatorIdx == -1) {
+      return false;
+    }
+    if (!isClassOrPackageName(
+        buffer, 0, seperatorIdx, PACKAGE_SOURCE_SEPARATOR, JLookup.PACKAGE_SEPARATOR)) {
+      return false;
+    }
+    return isValidJavaIdentifier(buffer, seperatorIdx + 1, buffer.length);
+  }
+
+  public static boolean isValidJavaIdentifier(
+      @Nonnull char[] buffer, @Nonnegative int pos, @Nonnegative int length) {
+    if (pos == length) {
+      return false;
+    }
+    if (!Character.isJavaIdentifierStart(buffer[pos])) {
+      return false;
+    }
+    for (int i = pos + 1; i < length; i++) {
+      if (!Character.isJavaIdentifierPart(buffer[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   private static boolean isClassOrPackageName(
       @Nonnull char[] buffer, @Nonnegative int pos, @Nonnegative int length, char usedSeparator,
       char forbiddenSeparator) {
