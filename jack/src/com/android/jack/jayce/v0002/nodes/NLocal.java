@@ -86,6 +86,9 @@ public class NLocal extends NVariable {
         exportSession.getLookup().getType(type),
         modifiers,
         null); /* methodBody */
+
+    manageSynthetic(jLocal);
+
     exportSession.getLocalResolver().addTarget(id, jLocal);
     for (NAnnotation annotation : annotationSet) {
       jLocal.addAnnotation(annotation.exportAsJast(exportSession));

@@ -58,6 +58,7 @@ public class NLocalRef extends NExpression {
     assert localId != null;
     JLocalRef jLocalRef = JLocalUnresolved.INSTANCE.makeRef(sourceInfo.exportAsJast(exportSession));
     exportSession.getVariableResolver().addLink(localId, new VariableRefLinker(jLocalRef));
+
     return jLocalRef;
   }
 
@@ -69,7 +70,6 @@ public class NLocalRef extends NExpression {
   @Override
   public void readContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
     localId = in.readId();
-
   }
 
   @Override

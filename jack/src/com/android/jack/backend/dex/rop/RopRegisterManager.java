@@ -16,12 +16,13 @@
 
 package com.android.jack.backend.dex.rop;
 
+import com.android.jack.debug.DebugVariableInfoMarker;
 import com.android.jack.dx.rop.code.LocalItem;
 import com.android.jack.dx.rop.code.RegisterSpec;
 import com.android.jack.dx.rop.cst.CstString;
+import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Type;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JThis;
 import com.android.jack.ir.ast.JThisRef;
@@ -37,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 class RopRegisterManager {
@@ -57,11 +59,11 @@ class RopRegisterManager {
   private final Map<Type, Integer> typeToNextPosFreeRegister = new Hashtable<Type, Integer>();
 
   /**
-   * Keep mapping between variables of IR and dex registers.
+   * Keep mapping between variables of IR and dex registers number.
    */
   @Nonnull
-  private final Map<JVariable, RegisterSpec> variableToRegister =
-      new Hashtable<JVariable, RegisterSpec>();
+  private final Map<JVariable, Integer> variableToRegNumber =
+      new Hashtable<JVariable, Integer>();
 
   @CheckForNull
   private RegisterSpec returnReg = null;
@@ -125,48 +127,22 @@ class RopRegisterManager {
   }
 
   /**
-   * Create a {@link RegisterSpec} from a {@link JVariable}.
-   *
-   * @param var The {@link JVariable} we want the {@link RegisterSpec} for.
-   * @return The built {@link RegisterSpec}.
+   * Return the register number associated with a {@link JVariable}
+   * @param variable The {@link JVariable} we want the register number of.
+   * @return The register number of a  {@link JVariable}.
    */
-  @Nonnull
-  RegisterSpec createRegisterSpec(@Nonnull JVariable var) {
-    assert var instanceof JLocal || var instanceof JParameter;
-    assert !variableToRegister.containsKey(var);
+  @Nonnegative
+  int getRegisterNumber(@Nonnull JVariable variable) {
+    Integer regNum = variableToRegNumber.get(variable);
 
-    JType type = var.getType();
-    Type dexRegType = RopHelper.convertTypeToDx(type);
-    RegisterSpec reg;
-    if (emitDebugInfo && var.getName() != null && (emitSyntheticDebugInfo || !isSynthetic(var))) {
-      CstString cstSignature = null;
-      GenericSignature infoMarker = var.getMarker(GenericSignature.class);
-      if (infoMarker != null) {
-        cstSignature = new CstString(infoMarker.getGenericSignature());
-      }
-      LocalItem localItem =
-          LocalItem.make(new CstString(var.getName()), RopHelper.getCstType(type), cstSignature);
-      reg = RegisterSpec.make(nextFreeReg, dexRegType, localItem);
-    } else {
-      reg = RegisterSpec.make(nextFreeReg, dexRegType);
+    if (regNum == null) {
+      Type dexRegType = RopHelper.convertTypeToDx(variable.getType());
+      regNum = Integer.valueOf(nextFreeReg);
+      variableToRegNumber.put(variable, regNum);
+      nextFreeReg += dexRegType.getCategory();
     }
-    nextFreeReg += dexRegType.getCategory();
 
-    variableToRegister.put(var, reg);
-
-    return (reg);
-  }
-
-  private boolean isSynthetic(@Nonnull JVariable var) {
-    if (var.isSynthetic()) {
-      return true;
-    }
-    String varName = var.getName();
-    if (varName == null) {
-      return false;
-    }
-    return varName.startsWith("-p_") || varName.startsWith("-l_")
-        || varName.startsWith("-s_") || varName.startsWith("-e_");
+    return regNum.intValue();
   }
 
   /**
@@ -176,21 +152,68 @@ class RopRegisterManager {
    * @return The previously built {@code RegisterSpec}.
    */
   @Nonnull
-  RegisterSpec getRegisterSpec(@Nonnull JVariableRef varRef) {
+  RegisterSpec getOrCreateRegisterSpec(@Nonnull JVariableRef varRef) {
     if (varRef instanceof JThisRef) {
       assert thisReg != null : "This register was not created.";
       return (thisReg);
     }
 
-    JVariable var = varRef.getTarget();
-    assert variableToRegister.containsKey(var);
+    JVariable variable = varRef.getTarget();
+    RegisterSpec register = getRegisterSpec(getRegisterNumber(variable), variable,
+        varRef.getMarker(DebugVariableInfoMarker.class));
 
-    RegisterSpec register = variableToRegister.get(var);
     assert RopHelper.areTypeCompatible(
         RopHelper.convertTypeToDx(varRef.getType()),
         register.getType());
 
     return register;
+  }
+
+  /**
+   * Get or create a {@link RegisterSpec} from a {@link JParameter}.
+   *
+   * @param var The {@link JParameter} we want the {@link RegisterSpec} for.
+   * @return The built {@link RegisterSpec}.
+   */
+  @Nonnull
+  RegisterSpec getOrCreateRegisterSpec(@Nonnull JParameter parameter) {
+    assert parameter.getMarker(DebugVariableInfoMarker.class) == null;
+    return getRegisterSpec(getRegisterNumber(parameter), parameter, /* debugInfo= */ null);
+  }
+
+  @Nonnull
+  private RegisterSpec getRegisterSpec(@Nonnegative int regNum, @Nonnull JVariable variable,
+      @CheckForNull DebugVariableInfoMarker debugInfo) {
+    RegisterSpec reg;
+    JType variableType = variable.getType();
+    Type regType = RopHelper.convertTypeToDx(variableType);
+
+    if (emitDebugInfo && variable.getName() != null
+        && (emitSyntheticDebugInfo || !variable.isSynthetic())) {
+      if (debugInfo != null) {
+        // Debug info marker exists, uses debug information from it
+        CstString cstSignature = null;
+        if (debugInfo.getGenericSignature() != null) {
+          cstSignature = new CstString(debugInfo.getGenericSignature());
+        }
+        LocalItem localItem = LocalItem.make(new CstString(debugInfo.getName()),
+            CstType.intern(RopHelper.convertTypeToDx(debugInfo.getType())), cstSignature);
+        reg = RegisterSpec.make(regNum, regType, localItem);
+      } else {
+        CstString cstSignature = null;
+        GenericSignature infoMarker = variable.getMarker(GenericSignature.class);
+        if (infoMarker != null) {
+          cstSignature = new CstString(infoMarker.getGenericSignature());
+        }
+        LocalItem localItem = LocalItem.make(new CstString(variable.getName()),
+            CstType.intern(regType), cstSignature);
+        reg = RegisterSpec.make(regNum, regType, localItem);
+      }
+    } else {
+      reg = RegisterSpec.make(regNum, regType);
+    }
+
+    return (reg);
   }
 
   /**

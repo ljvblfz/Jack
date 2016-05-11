@@ -85,6 +85,9 @@ public class NParameter extends NVariable {
         exportSession.getLookup().getType(type),
         modifiers,
         exportSession.getCurrentMethod());
+
+    manageSynthetic(jParameter);
+
     assert id != null;
     exportSession.getParameterResolver().addTarget(id, jParameter);
     for (NAnnotation annotation : annotations) {

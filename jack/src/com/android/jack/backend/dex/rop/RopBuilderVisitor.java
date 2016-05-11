@@ -147,7 +147,7 @@ class RopBuilderVisitor extends JVisitor {
 
     public AssignBuilderVisitor(@Nonnull JStatement declaration, @Nonnull JVariableRef destRef) {
       this.declaration = declaration;
-      this.destReg = ropReg.getRegisterSpec(destRef);
+      this.destReg = ropReg.getOrCreateRegisterSpec(destRef);
       this.sourcePosition = RopHelper.getSourcePosition(declaration);
     }
 
@@ -235,7 +235,7 @@ class RopBuilderVisitor extends JVisitor {
 
     @Override
     public boolean visit(@Nonnull JThisRef thisRef) {
-      RegisterSpec valueReg = ropReg.getRegisterSpec(thisRef);
+      RegisterSpec valueReg = ropReg.getOrCreateRegisterSpec(thisRef);
       RegisterSpecList sources = RegisterSpecList.make(valueReg);
       addInstruction(new PlainInsn(
           Rops.opMove(valueReg.getTypeBearer()), sourcePosition,
@@ -394,7 +394,7 @@ class RopBuilderVisitor extends JVisitor {
 
     private void buildAssignVariableRef(@Nonnull RegisterSpec destReg, @Nonnull JVariableRef vRef,
         @Nonnull SourcePosition sourcePosition) {
-      RegisterSpec valueReg = ropReg.getRegisterSpec(vRef);
+      RegisterSpec valueReg = ropReg.getOrCreateRegisterSpec(vRef);
       RegisterSpecList sources = RegisterSpecList.make(valueReg);
       addInstruction(
           new PlainInsn(Rops.opMove(valueReg.getTypeBearer()), sourcePosition, destReg, sources));
@@ -725,7 +725,7 @@ class RopBuilderVisitor extends JVisitor {
       assert dest instanceof JVariableRef;
       assert declaration.getParent() instanceof JCatchBlock
           && ((JCatchBlock) declaration.getParent()).getStatements().get(0) == declaration;
-      RegisterSpec exceptionReg = ropReg.getRegisterSpec((JVariableRef) dest);
+      RegisterSpec exceptionReg = ropReg.getOrCreateRegisterSpec((JVariableRef) dest);
       addInstruction(new PlainInsn(
           Rops.opMoveException(exceptionReg.getTypeBearer()), RopHelper.getSourcePosition(dest),
           exceptionReg, RegisterSpecList.EMPTY));
@@ -1041,13 +1041,13 @@ class RopBuilderVisitor extends JVisitor {
         int newCst = -((JIntegralConstant32) rhs).getIntValue();
         if (((JIntegralType32) JPrimitiveTypeEnum.SHORT.getType()).isValidValue(newCst)) {
           binOp = JBinaryOperator.ADD;
-          sources = RegisterSpecList.make(ropReg.getRegisterSpec((JVariableRef) lhs));
+          sources = RegisterSpecList.make(ropReg.getOrCreateRegisterSpec((JVariableRef) lhs));
           cst = CstInteger.make(newCst);
         } else {
           sources = RegisterSpecList.make(getRegisterSpec(lhs), getRegisterSpec(rhs));
         }
       } else {
-        sources = RegisterSpecList.make(ropReg.getRegisterSpec((JVariableRef) lhs));
+        sources = RegisterSpecList.make(ropReg.getOrCreateRegisterSpec((JVariableRef) lhs));
         cst = getConstant((JValueLiteral) rhs);
       }
     } else {
@@ -1056,11 +1056,11 @@ class RopBuilderVisitor extends JVisitor {
         if (binOp == JBinaryOperator.SUB
             && lhs instanceof JIntegralConstant32 && ((JIntegralType32) JPrimitiveTypeEnum.SHORT
                 .getType()).isValidValue(((JIntegralConstant32) lhs).getIntValue())) {
-          sources = RegisterSpecList.make(ropReg.getRegisterSpec((JVariableRef) rhs));
+          sources = RegisterSpecList.make(ropReg.getOrCreateRegisterSpec((JVariableRef) rhs));
           cst = getConstant((JValueLiteral) lhs);
         } else {
           sources = RegisterSpecList.make(getRegisterSpec(lhs),
-            ropReg.getRegisterSpec((JVariableRef) rhs));
+            ropReg.getOrCreateRegisterSpec((JVariableRef) rhs));
         }
       } else {
         assert rhs instanceof JValueLiteral;
@@ -1245,7 +1245,7 @@ class RopBuilderVisitor extends JVisitor {
     RegisterSpec regSpec;
 
     if (expr instanceof JVariableRef) {
-      regSpec = ropReg.getRegisterSpec((JVariableRef) expr);
+      regSpec = ropReg.getOrCreateRegisterSpec((JVariableRef) expr);
     } else {
       assert expr instanceof JValueLiteral;
       regSpec =

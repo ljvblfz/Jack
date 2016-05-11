@@ -241,6 +241,7 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
       assert !(node instanceof NMethod) || currentCatchBlockList.isEmpty();
       tokenizer.readClose();
     }
+
     if (nodeLevel.keep(token.getNodeLevel())) {
       if (statistic != null) {
         statistic.addFalse();

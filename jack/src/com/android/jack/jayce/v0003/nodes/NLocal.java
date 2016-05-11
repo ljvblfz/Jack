@@ -79,13 +79,16 @@ public class NLocal extends NVariable {
       JMethodLookupException {
     assert sourceInfo != null;
     assert type != null;
-    assert id != null;
     JLocal jLocal = new JLocal(
         sourceInfo.exportAsJast(exportSession),
         name,
         exportSession.getLookup().getType(type),
         modifiers,
         null); /* methodBody */
+
+    manageSynthetic(jLocal);
+
+    assert id != null;
     exportSession.getVariableResolver().addTarget(id, jLocal);
     for (NAnnotation annotation : annotationSet) {
       jLocal.addAnnotation(annotation.exportAsJast(exportSession));

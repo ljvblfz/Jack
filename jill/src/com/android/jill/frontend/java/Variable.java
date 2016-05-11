@@ -19,12 +19,15 @@ package com.android.jill.frontend.java;
 import org.objectweb.asm.Type;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
  * Represents variables that are used by Jill to represent local and stack items.
  */
 public class Variable {
+
+  private static final int NO_LOCAL_IDX = -1;
 
   @Nonnull
   private final Type type;
@@ -44,15 +47,34 @@ public class Variable {
 
   private boolean isSynthetic;
 
+  /* Index of local variable, -1 means the variable does not represent a local variable. */
+  private final int localIdx;
+
   public Variable(@Nonnull String id, @Nonnull String name, @Nonnull Type type,
       @CheckForNull String signature) {
+    this(id, name, type, signature, NO_LOCAL_IDX);
+  }
+
+  public Variable(@Nonnull String id, @Nonnull String name, @Nonnull Type type,
+      @CheckForNull String signature, int localIdx) {
     this.id = id;
     this.name = name;
     this.type = type;
     this.signature = signature;
+    this.localIdx = localIdx;
     isThis = false;
     isParameter = false;
     isSynthetic = false;
+  }
+
+  public boolean hasLocalIndex() {
+    return localIdx != NO_LOCAL_IDX;
+  }
+
+  @Nonnegative
+  public int getLocalIndex() {
+    assert hasLocalIndex();
+    return localIdx;
   }
 
   @Nonnull

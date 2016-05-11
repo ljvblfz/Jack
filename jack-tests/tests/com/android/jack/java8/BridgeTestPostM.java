@@ -30,7 +30,6 @@ import com.android.jack.test.toolchain.JackApiV01;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
-import com.android.jack.transformations.BridgeInInterfaceRemover;
 
 import org.junit.Assert;
 import org.junit.Test;

@@ -60,7 +60,6 @@ import com.android.jack.ir.ast.JConditionalExpression;
 import com.android.jack.ir.ast.JConditionalOperation;
 import com.android.jack.ir.ast.JExceptionRuntimeValue;
 import com.android.jack.ir.ast.JFieldInitializer;
-import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JLoop;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
@@ -204,9 +203,6 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
 
     JAbstractMethodBody body = method.getBody();
     assert body instanceof JMethodBody;
-    for (JLocal local : ((JMethodBody) body).getLocals()) {
-      ropReg.createRegisterSpec(local);
-    }
 
     if (method.getType() != JPrimitiveTypeEnum.VOID.getType()) {
       ropReg.createReturnReg(method.getType());
@@ -215,9 +211,6 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
     for (BasicBlock bb : cfg.getNodes()) {
       if (bb == cfg.getEntryNode()) {
         continue;
-      }
-      if (bb instanceof CatchBasicBlock) {
-        ropReg.createRegisterSpec(((CatchBasicBlock) bb).getCatchVar());
       }
       RopBuilderVisitor ropBuilder = new RopBuilderVisitor(ropReg, bb);
 
@@ -472,7 +465,7 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
 
     for (Iterator<JParameter> paramIt = parameters.iterator(); paramIt.hasNext(); indexParam++) {
       JParameter param = paramIt.next();
-      RegisterSpec paramReg = ropReg.createRegisterSpec(param);
+      RegisterSpec paramReg = ropReg.getOrCreateRegisterSpec(param);
       Insn insn =
           new PlainCstInsn(Rops.opMoveParam(paramReg.getType()), pos, paramReg,
               RegisterSpecList.EMPTY, CstInteger.make(paramReg.getReg()));
