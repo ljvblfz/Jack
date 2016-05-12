@@ -691,14 +691,24 @@ public class JackIrBuilder {
       try {
         SourceInfo info = makeSourceInfo(x);
 
-        if (isOptimizedTrue(x.condition)) {
-          JExpression valueIfTrue = pop(x.valueIfTrue);
-          pop(x.condition); // condition is unused but need to be pop
-          push(generateImplicitConversion(x.implicitConversion, valueIfTrue));
-        } else if (isOptimizedFalse(x.condition)) {
-          JExpression valueIfFalse = pop(x.valueIfFalse);
-          pop(x.condition); // condition is unused but need to be pop
-          push(generateImplicitConversion(x.implicitConversion, valueIfFalse));
+        boolean optimizedTrue = isOptimizedTrue(x.condition);
+        boolean optimizedFalse = isOptimizedFalse(x.condition);
+        if (optimizedTrue || optimizedFalse) {
+          // One branch of (condition ? valueIfTrue : valueIfFalse) is dead code,
+          // drop the dead code by keeping only (condition, value).
+          // The condition must be kept even if its value is unused because it may have side effect
+          JExpression value;
+          JExpression condition;
+          if (optimizedTrue) {
+            assert !optimizedFalse;
+            value = pop(x.valueIfTrue);
+            condition = pop(x.condition);
+          } else {
+            value = pop(x.valueIfFalse);
+            condition = pop(x.condition);
+          }
+          push(new JMultiExpression(info,
+             condition,  generateImplicitConversion(x.implicitConversion, value)));
         } else {
           JExpression valueIfFalse = pop(x.valueIfFalse);
           JExpression valueIfTrue = pop(x.valueIfTrue);
