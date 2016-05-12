@@ -17,9 +17,9 @@
 package com.android.sched.filter;
 
 import com.android.sched.SchedProperties;
+import com.android.sched.item.AbstractItemManager;
 import com.android.sched.item.Component;
 import com.android.sched.item.Item;
-import com.android.sched.item.AbstractItemManager;
 import com.android.sched.item.ItemSet;
 import com.android.sched.item.Items;
 import com.android.sched.item.ManagedItem;
@@ -28,7 +28,6 @@ import com.android.sched.item.onlyfor.OnlyForType;
 import com.android.sched.marker.LocalMarkerManager;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.MarkerNotConformException;
-import com.android.sched.marker.StaticMarkerManager;
 import com.android.sched.reflections.ReflectionManager;
 import com.android.sched.schedulable.ComponentFilter;
 import com.android.sched.util.config.ThreadConfig;

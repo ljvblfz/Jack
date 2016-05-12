@@ -25,17 +25,21 @@ import javax.annotation.Nonnull;
  * Provides {@link Marker}-managing abilities to its subclasses.
  */
 public interface MarkerManager {
+  <T extends Marker> boolean containsMarker(@Nonnull Class<T> cls);
 
   @CheckForNull
-  public abstract <T extends Marker> T removeMarker(@Nonnull Class<T> cls);
-
-  public abstract <T extends Marker> boolean containsMarker(@Nonnull Class<T> cls);
-
-  public abstract void addMarker(@Nonnull Marker m);
-
+  <T extends Marker> T getMarker(@Nonnull Class<T> cls);
   @Nonnull
-  public abstract Collection<Marker> getAllMarkers();
+  <T extends Marker> T getMarkerOrDefault(@Nonnull T defaultMarker);
+  @Nonnull
+  Collection<Marker> getAllMarkers();
 
   @CheckForNull
-  public abstract <T extends Marker> T getMarker(@Nonnull Class<T> cls);
+  <T extends Marker> T addMarker(@Nonnull T marker);
+  @CheckForNull
+  <T extends Marker> T addMarkerIfAbsent(@Nonnull T marker);
+  void addAllMarker(@Nonnull Collection<Marker> collection);
+
+  @CheckForNull
+  <T extends Marker> T removeMarker(@Nonnull Class<T> cls);
 }
