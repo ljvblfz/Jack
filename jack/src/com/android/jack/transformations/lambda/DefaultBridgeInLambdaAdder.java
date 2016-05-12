@@ -121,10 +121,14 @@ public class DefaultBridgeInLambdaAdder implements RunnableSchedulable<JMethod> 
 
     @Override
     public boolean visit(@Nonnull JLambda lambdaExpr) {
-      if (lambdaExpr.getMarker(LambdaFromJillMarker.class) != null) {
+      if (lambdaExpr.getMarker(LambdaFromJillMarker.class) != null
+          && lambdaExpr.getBridgeMethodIds().isEmpty()) {
+        // Lambdas come from Jill and does not have bridge information, search if default bridges
+        // exists to add it into lambda.
         List<JPhantomInterface> unknownInterfaces = new ArrayList<>();
-        addDefaultBridges(lambdaExpr, lambdaExpr.getType(), unknownInterfaces);
-        if (!unknownInterfaces.isEmpty()) {
+        boolean bridgesFound =
+            addDefaultBridges(lambdaExpr, lambdaExpr.getType(), unknownInterfaces);
+        if (!bridgesFound && !unknownInterfaces.isEmpty()) {
           session.getReporter().report(Severity.FATAL,
               new LambdaUnknownInterfaceReportable(lambdaExpr, unknownInterfaces));
           session.abortEventually();
@@ -133,8 +137,10 @@ public class DefaultBridgeInLambdaAdder implements RunnableSchedulable<JMethod> 
       return false;
     }
 
-    private void addDefaultBridges(@Nonnull JLambda lambdaExpr, @Nonnull JInterface interfaze,
+    private boolean addDefaultBridges(@Nonnull JLambda lambdaExpr, @Nonnull JInterface interfaze,
         @Nonnull List<JPhantomInterface> unknownInterfaces) {
+      boolean bridgeFound = false;
+
       if (interfaze instanceof JPhantomInterface) {
         unknownInterfaces.add((JPhantomInterface) interfaze);
       } else {
@@ -155,14 +161,22 @@ public class DefaultBridgeInLambdaAdder implements RunnableSchedulable<JMethod> 
               }
             }
             if (!bridgeAlreadyExists) {
+              bridgeFound = true;
               lambdaExpr.addBridgeMethodId(method.getMethodId());
             }
           }
         }
-        for (JInterface superInterface : definedInterface.getImplements()) {
-          addDefaultBridges(lambdaExpr, superInterface, unknownInterfaces);
+        if (!bridgeFound) {
+          for (JInterface superInterface : definedInterface.getImplements()) {
+            bridgeFound = addDefaultBridges(lambdaExpr, superInterface, unknownInterfaces);
+            if (bridgeFound) {
+              break;
+            }
+          }
         }
       }
+
+      return bridgeFound;
     }
   }
 
