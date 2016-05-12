@@ -18,6 +18,7 @@ package com.android.jack.transformations;
 
 import com.android.jack.Options;
 import com.android.jack.backend.dex.EnsureAndroidCompatibility;
+import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.transformations.lambda.DefaultBridgeIntoInterface;
@@ -32,7 +33,6 @@ import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -49,9 +49,6 @@ import javax.annotation.Nonnull;
 @Synchronized
 public class BridgeInInterfaceRemover implements RunnableSchedulable<JMethod> {
 
-  @Nonnegative
-  public static final long N_API_LEVEL = 24;
-
   private final long androidMinApiLevel =
       ThreadConfig.get(Options.ANDROID_MIN_API_LEVEL).longValue();
 
@@ -61,7 +58,7 @@ public class BridgeInInterfaceRemover implements RunnableSchedulable<JMethod> {
 
   @Override
   public void run(@Nonnull JMethod method) throws Exception {
-    if (androidMinApiLevel < N_API_LEVEL) {
+    if (androidMinApiLevel < AndroidCompatibilityChecker.N_API_LEVEL) {
       if (method.getEnclosingType() instanceof JInterface && method.isBridge()) {
         TransformationRequest tr = new TransformationRequest(method.getEnclosingType());
         tr.append(new Remove(method));

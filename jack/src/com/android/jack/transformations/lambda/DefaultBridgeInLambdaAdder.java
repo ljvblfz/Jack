@@ -22,6 +22,7 @@ import com.google.common.collect.Iterables;
 
 import com.android.jack.Jack;
 import com.android.jack.Options;
+import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
 import com.android.jack.ir.HasSourceInfo;
 import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.ast.JInterface;
@@ -59,6 +60,9 @@ import javax.annotation.Nonnull;
     add = {JLambda.DefaultBridgeAddedInLambda.class, DefaultBridgeSeparator.SeparatorTag.class})
 @Filter(TypeWithoutPrebuiltFilter.class)
 public class DefaultBridgeInLambdaAdder implements RunnableSchedulable<JMethod> {
+
+  private final long androidMinApiLevel =
+      ThreadConfig.get(Options.ANDROID_MIN_API_LEVEL).longValue();
 
   /**
    * Indicates that an interface is unknown and does not belong to classpath.
@@ -164,7 +168,8 @@ public class DefaultBridgeInLambdaAdder implements RunnableSchedulable<JMethod> 
 
   @Override
   public void run(@Nonnull JMethod method) throws Exception {
-    if (method.isNative() || method.isAbstract() || !filter.accept(this.getClass(), method)) {
+    if (androidMinApiLevel >= AndroidCompatibilityChecker.N_API_LEVEL || method.isNative()
+        || method.isAbstract() || !filter.accept(this.getClass(), method)) {
       return;
     }
 
