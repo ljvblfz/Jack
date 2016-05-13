@@ -926,11 +926,7 @@ public abstract class AbstractTestTools {
         throw new RuntimeException("Could not fetch version of Jack");
       }
 
-      String rawVersionOutput = bos.toString();
-      int index = rawVersionOutput.indexOf("Version: ");
-
-
-      return rawVersionOutput.substring(index + 9).trim();
+      return bos.toString().replace('\n', ' ');
 
     } catch (ExecFileException e) {
       throw new RuntimeException("Could not fetch version of  Jack", e);
