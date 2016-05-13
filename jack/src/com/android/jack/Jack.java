@@ -758,9 +758,9 @@ public abstract class Jack {
                       (ManagedRunnable) scheduler.getSchedulableManager().getManagedSchedulable(c));
                 }
 
-                if (!amender.amendPlan(request, JSession.class, runners, ctor)) {
-                  throw new JackUserException(
-                      "Jack cannot insert '" + plugin.getFriendlyName() + "'");
+                if (!amender.amendPlan(request, JSession.class, runners, ctor) || !ctor.isValid()) {
+                  throw new JackUserException("Jack cannot insert plugin '"
+                      + plugin.getFriendlyName() + "' (" + plugin.getName() + ")");
                 }
               }
 
