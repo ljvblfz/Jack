@@ -861,6 +861,7 @@ public class Options {
 
     GatherConfigBuilder configBuilder = new GatherConfigBuilder(sanityChecks,
         getPluginManager().getReflectionManager(ReflectionFactory.getManager()));
+    configBuilder.setCodecContext(codecContext);
     String resourceName = "/config.properties";
 
     InputStream is = Main.class.getResourceAsStream(resourceName);
@@ -877,7 +878,7 @@ public class Options {
 
   @Nonnull
   public GatherConfigBuilder getConfigBuilder(@Nonnull RunnableHooks hooks)
-      throws IllegalOptionsException, ConfigurationException {
+      throws IllegalOptionsException {
 
     GatherConfigBuilder configBuilder;
 
