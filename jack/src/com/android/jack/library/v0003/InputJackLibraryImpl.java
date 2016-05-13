@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.jack.library.v0002;
+package com.android.jack.library.v0003;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -88,6 +88,9 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   @Nonnull
   private final VFS originalVFS;
 
+  @CheckForNull
+  private OutputJackLibraryImpl linkedOutputJackLib;
+
   private boolean closed = false;
 
   public InputJackLibraryImpl(@Nonnull VFS vfs,
@@ -95,6 +98,18 @@ public class InputJackLibraryImpl extends InputJackLibrary {
       LibraryFormatException {
     super(libraryProperties, vfs);
     originalVFS = vfs;
+
+    check();
+    fillFileTypes();
+  }
+
+  public InputJackLibraryImpl(@Nonnull OutputJackLibraryImpl jackOutputLibrary,
+      @Nonnull Properties libraryProperties)
+      throws LibraryFormatException, LibraryVersionException {
+    super(libraryProperties, jackOutputLibrary.getVfs());
+    linkedOutputJackLib = jackOutputLibrary;
+    originalVFS = jackOutputLibrary.getVfs();
+    jackOutputLibrary.incrementNumLinkedLibraries();
 
     check();
     fillFileTypes();
@@ -183,7 +198,10 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   public synchronized void close() throws LibraryIOException {
     if (!closed) {
 
-      if (!originalVFS.isClosed()) {
+      if (linkedOutputJackLib != null) {
+        linkedOutputJackLib.notifyToClose();
+
+      } else if (!originalVFS.isClosed()) {
         try {
           for (InputVFS currentSectionVFS : sectionVFS.values()) {
             currentSectionVFS.close();
