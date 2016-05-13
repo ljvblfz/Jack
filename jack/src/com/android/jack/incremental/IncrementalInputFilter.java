@@ -27,6 +27,7 @@ import com.android.jack.analysis.dependency.library.LibraryDependenciesInLibrary
 import com.android.jack.analysis.dependency.type.TypeDependencies;
 import com.android.jack.analysis.dependency.type.TypeDependenciesInLibraryWriter;
 import com.android.jack.ir.ast.JSession;
+import com.android.jack.ir.ast.Resource;
 import com.android.jack.library.FileType;
 import com.android.jack.library.FileTypeDoesNotExistException;
 import com.android.jack.library.InputJackLibrary;
@@ -147,6 +148,9 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   private List<InputLibrary> importedLibraries;
 
   @Nonnull
+  private final List<Resource> importedResources;
+
+  @Nonnull
   private final List<? extends InputLibrary> librariesOnClasspath;
 
   public IncrementalInputFilter(@Nonnull Options options) {
@@ -214,6 +218,8 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
     session.getLibraryDependencies().addImportedLibraries(importedLibrariesFromCommandLine);
     session.getLibraryDependencies().addLibrariesOnClasspath(librariesOnClasspath);
     filesToRecompile = getInternalFileNamesToCompile();
+
+    importedResources = importStandaloneResources();
 
     if (config.get(INCREMENTAL_LOG).booleanValue()) {
       IncrementalLogWriter incLog;
@@ -491,5 +497,11 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   @Nonnull
   public List<? extends InputLibrary> getImportedLibraries() {
     return importedLibraries;
+  }
+
+  @Override
+  @Nonnull
+  public List<? extends Resource> getImportedResources() {
+    return importedResources;
   }
 }

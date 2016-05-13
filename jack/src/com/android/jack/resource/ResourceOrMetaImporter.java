@@ -16,7 +16,6 @@
 
 package com.android.jack.resource;
 
-import com.android.jack.ir.ast.JSession;
 import com.android.jack.lookup.JLookup;
 import com.android.sched.util.location.Location;
 import com.android.sched.vfs.InputVDir;
@@ -24,6 +23,7 @@ import com.android.sched.vfs.InputVElement;
 import com.android.sched.vfs.InputVFS;
 import com.android.sched.vfs.InputVFile;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -43,33 +43,37 @@ public abstract class ResourceOrMetaImporter {
     this.resourceDirs = resourceDirs;
   }
 
-  public void doImport(@Nonnull JSession session) throws ResourceReadingException {
+  @Nonnull
+  public List<? extends ResourceOrMeta> getImports()
+      throws ResourceReadingException {
+    List<ResourceOrMeta> resultList = new ArrayList<ResourceOrMeta>();
     try {
       for (InputVFS resourceDir : resourceDirs) {
-        importResourceDirElement(resourceDir.getRootInputVDir().list(), session, "",
-            resourceDir.getLocation());
+        importResourceDirElement(resourceDir.getRootInputVDir().list(), "",
+            resourceDir.getLocation(), resultList);
       }
     } catch (ResourceImportConflictException e) {
       throw new ResourceReadingException(e);
     }
+    return resultList;
   }
 
   private void importResourceDirElement(@Nonnull Collection<? extends InputVElement> elements,
-      @Nonnull JSession session, @Nonnull String currentPath, @Nonnull Location resourceDirLocation)
-      throws ResourceImportConflictException {
+      @Nonnull String currentPath, @Nonnull Location resourceDirLocation,
+      @Nonnull List<ResourceOrMeta> resultList) throws ResourceImportConflictException {
     for (InputVElement element : elements) {
       String path = currentPath + element.getName();
       if (element.isVDir()) {
-        importResourceDirElement(((InputVDir) element).list(), session, path + VPATH_SEPARATOR,
-            resourceDirLocation);
+        importResourceDirElement(((InputVDir) element).list(), path + VPATH_SEPARATOR,
+            resourceDirLocation, resultList);
       } else {
         InputVFile file = (InputVFile) element;
-        addImportedResource(file, session, path, resourceDirLocation);
+        addImportedResource(file, path, resourceDirLocation, resultList);
       }
     }
   }
 
-  protected abstract void addImportedResource(@Nonnull InputVFile file, @Nonnull JSession session,
-      @Nonnull String currentPath, @Nonnull Location resourceDirLocation)
-      throws ResourceImportConflictException;
+  protected abstract void addImportedResource(@Nonnull InputVFile file,
+      @Nonnull String currentPath, @Nonnull Location resourceDirLocation,
+      @Nonnull List<ResourceOrMeta> resultList) throws ResourceImportConflictException;
 }

@@ -24,6 +24,7 @@ import com.android.jack.analysis.dependency.type.TypeDependencies;
 import com.android.jack.incremental.CommonFilter;
 import com.android.jack.incremental.InputFilter;
 import com.android.jack.ir.ast.JSession;
+import com.android.jack.ir.ast.Resource;
 import com.android.jack.library.InputLibrary;
 import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.config.Config;
@@ -103,5 +104,11 @@ public class OrderedInputFilter extends CommonFilter implements InputFilter {
     }
 
     return (javaFileNames);
+  }
+
+  @Override
+  @Nonnull
+  public List<? extends Resource> getImportedResources() {
+    return importStandaloneResources();
   }
 }

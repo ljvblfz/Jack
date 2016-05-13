@@ -96,6 +96,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JSwitchStatement;
+import com.android.jack.ir.ast.Resource;
 import com.android.jack.ir.formatter.InternalFormatter;
 import com.android.jack.ir.formatter.TypePackageAndMethodFormatter;
 import com.android.jack.ir.formatter.UserFriendlyFormatter;
@@ -111,6 +112,7 @@ import com.android.jack.library.LibraryWritingException;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.meta.LibraryMetaWriter;
+import com.android.jack.meta.Meta;
 import com.android.jack.meta.MetaImporter;
 import com.android.jack.optimizations.ConstantRefinerAndVariableRemover;
 import com.android.jack.optimizations.DefUsesChainsSimplifier;
@@ -135,8 +137,6 @@ import com.android.jack.reporting.ReportableIOException;
 import com.android.jack.reporting.Reporter;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.resource.LibraryResourceWriter;
-import com.android.jack.resource.ResourceImporter;
-import com.android.jack.resource.ResourceReadingException;
 import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdapter;
 import com.android.jack.scheduling.adapter.JFieldAdapter;
 import com.android.jack.scheduling.adapter.JMethodAdapter;
@@ -950,7 +950,11 @@ public abstract class Jack {
       }
     }
 
-    new MetaImporter(config.get(MetaImporter.IMPORTED_META)).doImport(session);
+    MetaImporter metaImporter = new MetaImporter(config.get(MetaImporter.IMPORTED_META));
+    for (Meta meta : metaImporter.getImports()) {
+      session.addMeta(meta);
+    }
+
 
     List<InputJackLibrary> inputJackLibraries = new ArrayList<InputJackLibrary>();
     for (InputLibrary library : inputFilter.getImportedLibraries()) {
@@ -997,11 +1001,11 @@ public abstract class Jack {
       }
     }
 
-    try {
-      new ResourceImporter(config.get(ResourceImporter.IMPORTED_RESOURCES)).doImport(session);
-    } catch (ResourceReadingException e) {
-      session.getReporter().report(Severity.FATAL, e);
-      throw new JackAbortException(e);
+    // we're assuming that there is no resource in the session yet, or we would have to check for
+    // conflicts
+    assert session.getResources().isEmpty();
+    for (Resource resource : inputFilter.getImportedResources()) {
+      session.addResource(resource);
     }
 
     try {

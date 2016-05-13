@@ -16,6 +16,7 @@
 
 package com.android.jack.incremental;
 
+import com.android.jack.ir.ast.Resource;
 import com.android.jack.library.InputLibrary;
 import com.android.sched.util.codec.VariableName;
 
@@ -38,4 +39,7 @@ public interface InputFilter {
 
   @Nonnull
   public List<? extends InputLibrary> getImportedLibraries();
+
+  @Nonnull
+  public List<? extends Resource> getImportedResources();
 }

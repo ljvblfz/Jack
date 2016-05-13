@@ -25,6 +25,7 @@ import com.android.jack.LibraryException;
 import com.android.jack.Options;
 import com.android.jack.config.id.Carnac;
 import com.android.jack.ir.ast.JSession;
+import com.android.jack.ir.ast.Resource;
 import com.android.jack.library.DumpInLibrary;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputJackLibraryCodec;
@@ -37,6 +38,8 @@ import com.android.jack.library.NotJackLibraryException;
 import com.android.jack.reporting.Reportable;
 import com.android.jack.reporting.ReportableException;
 import com.android.jack.reporting.Reporter.Severity;
+import com.android.jack.resource.ResourceImporter;
+import com.android.jack.resource.ResourceReadingException;
 import com.android.jill.Jill;
 import com.android.jill.JillException;
 import com.android.jill.utils.FileUtils;
@@ -417,5 +420,19 @@ public abstract class CommonFilter {
     } catch (JillException e) {
       throw new JarTransformationException(e);
     }
+  }
+
+  @Nonnull
+  protected List<Resource> importStandaloneResources() {
+    JSession session = Jack.getSession();
+    List<Resource> resources;
+    try {
+      resources = new ResourceImporter(ThreadConfig.get(ResourceImporter.IMPORTED_RESOURCES))
+          .getImports();
+    } catch (ResourceReadingException e) {
+      session.getReporter().report(Severity.FATAL, e);
+      throw new JackAbortException(e);
+    }
+    return resources;
   }
 }

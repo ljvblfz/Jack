@@ -16,7 +16,7 @@
 
 package com.android.jack.meta;
 
-import com.android.jack.ir.ast.JSession;
+import com.android.jack.resource.ResourceOrMeta;
 import com.android.jack.resource.ResourceOrMetaImporter;
 import com.android.jack.resource.ResourceReadingException;
 import com.android.jack.resource.StandaloneResOrMetaLocation;
@@ -48,10 +48,12 @@ public class MetaImporter extends ResourceOrMetaImporter {
     super(metaDirs);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public void doImport(@Nonnull JSession session) {
+  @Nonnull
+  public List<Meta> getImports() {
     try {
-      super.doImport(session);
+      return (List<Meta>) super.getImports();
     } catch (ResourceReadingException e) {
       // should not happen for meta
       throw new AssertionError(e);
@@ -59,11 +61,12 @@ public class MetaImporter extends ResourceOrMetaImporter {
   }
 
   @Override
-  protected void addImportedResource(@Nonnull InputVFile file, @Nonnull JSession session,
-      @Nonnull String currentPath, @Nonnull Location resourceDirLocation) {
+  protected void addImportedResource(@Nonnull InputVFile file,
+      @Nonnull String currentPath, @Nonnull Location resourceDirLocation,
+      @Nonnull List<ResourceOrMeta> resultList) {
     VPath path = new VPath(currentPath, ResourceOrMetaImporter.VPATH_SEPARATOR);
     Meta newMeta = new Meta(path, file, new StandaloneMetaLocation(resourceDirLocation, path));
-    session.addMeta(newMeta);
+    resultList.add(newMeta);
   }
 
   private static class StandaloneMetaLocation extends StandaloneResOrMetaLocation {

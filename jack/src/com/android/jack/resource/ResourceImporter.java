@@ -16,9 +16,9 @@
 
 package com.android.jack.resource;
 
+import com.android.jack.Jack;
 import com.android.jack.backend.jayce.JayceFileImporter.CollisionPolicy;
 import com.android.jack.config.id.Arzon;
-import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.Resource;
 import com.android.sched.util.codec.DirectoryInputVFSCodec;
 import com.android.sched.util.codec.EnumCodec;
@@ -65,19 +65,27 @@ public class ResourceImporter extends ResourceOrMetaImporter {
     super(resourceDirs);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  protected void addImportedResource(@Nonnull InputVFile file, @Nonnull JSession session,
-      @Nonnull String currentPath, @Nonnull Location resourceDirLocation)
-      throws ResourceImportConflictException {
+  @Nonnull
+  public List<Resource> getImports() throws ResourceReadingException {
+    return (List<Resource>) super.getImports();
+  }
+
+  @Override
+  protected void addImportedResource(@Nonnull InputVFile file,
+      @Nonnull String currentPath, @Nonnull Location resourceDirLocation,
+      @Nonnull List<ResourceOrMeta> resultList) throws ResourceImportConflictException {
     VPath path = new VPath(currentPath, ResourceOrMetaImporter.VPATH_SEPARATOR);
     Resource newResource =
         new Resource(path, file, new StandaloneResourceLocation(resourceDirLocation, path));
-    for (Resource existingResource : session.getResources()) {
+    for (ResourceOrMeta existingResource : resultList) {
       if (existingResource.getPath().equals(path)) {
         if (resourceCollisionPolicy == CollisionPolicy.FAIL) {
-          throw new ResourceImportConflictException(existingResource, newResource.getLocation());
+          throw new ResourceImportConflictException((Resource) existingResource,
+              newResource.getLocation());
         } else {
-          session.getUserLogger().log(Level.INFO,
+          Jack.getSession().getUserLogger().log(Level.INFO,
               "Resource in {0} has already been imported from {1}: ignoring import", new Object[] {
                   newResource.getLocation().getDescription(),
                   existingResource.getLocation().getDescription()});
@@ -85,7 +93,7 @@ public class ResourceImporter extends ResourceOrMetaImporter {
         return;
       }
     }
-    session.addResource(newResource);
+    resultList.add(newResource);
   }
 
   private static class StandaloneResourceLocation extends StandaloneResOrMetaLocation {

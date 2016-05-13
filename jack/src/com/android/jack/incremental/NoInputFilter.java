@@ -22,6 +22,7 @@ import com.android.jack.analysis.dependency.file.FileDependencies;
 import com.android.jack.analysis.dependency.library.LibraryDependencies;
 import com.android.jack.analysis.dependency.type.TypeDependencies;
 import com.android.jack.ir.ast.JSession;
+import com.android.jack.ir.ast.Resource;
 import com.android.jack.library.InputLibrary;
 import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.config.ThreadConfig;
@@ -78,5 +79,11 @@ public class NoInputFilter extends CommonFilter implements InputFilter {
   @Nonnull
   public List<? extends InputLibrary> getImportedLibraries() {
     return importedLibrariesFromCommandLine;
+  }
+
+  @Override
+  @Nonnull
+  public List<? extends Resource> getImportedResources() {
+    return importStandaloneResources();
   }
 }
