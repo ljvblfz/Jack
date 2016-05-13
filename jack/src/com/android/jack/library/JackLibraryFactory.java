@@ -16,8 +16,8 @@
 
 package com.android.jack.library;
 
-import com.android.jack.library.v0002.InputJackLibraryImpl;
-import com.android.jack.library.v0002.OutputJackLibraryImpl;
+import com.android.jack.library.v0003.InputJackLibraryImpl;
+import com.android.jack.library.v0003.OutputJackLibraryImpl;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.MessageDigestPropertyId;

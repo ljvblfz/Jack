@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.jack.library.v0002;
+package com.android.jack.library.v0003;
 
 import com.google.common.collect.ImmutableSet;
 
