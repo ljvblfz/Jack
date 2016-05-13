@@ -52,7 +52,7 @@ public class BridgeTestPostM {
     new RuntimeTestHelper(BRIDGE002)
         .setSourceLevel(SourceLevel.JAVA_8)
         .addProperty(Options.ANDROID_MIN_API_LEVEL.getName(),
-            String.valueOf(BridgeInInterfaceRemover.N_API_LEVEL))
+            String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL))
         .addIgnoredCandidateToolchain(JackApiV01.class).compileAndRunTest();
   }
 
