@@ -82,12 +82,12 @@ class Cli01CompilationTaskImpl extends CommandLine implements Cli01CompilationTa
     }
 
     if (options.askForVersion()) {
-      printVersion(System.out);
+      printVersion(standardOutput);
       try {
         // STOPSHIP remove call
         options.ensurePluginManager();
         for (Plugin plugin : options.getPluginManager().getPlugins()) {
-          printVersion(System.out, plugin);
+          printVersion(standardOutput, plugin);
         }
 
         return ExitStatus.SUCCESS;
