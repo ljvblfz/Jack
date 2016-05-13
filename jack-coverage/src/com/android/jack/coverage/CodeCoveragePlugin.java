@@ -16,6 +16,7 @@
 
 package com.android.jack.coverage;
 
+import com.android.jack.cfg.CfgBuilder;
 import com.android.jack.cfg.CfgMarkerRemover;
 import com.android.jack.plugin.SchedAnnotationProcessorBasedPlugin;
 import com.android.sched.item.Component;
@@ -84,8 +85,8 @@ public class CodeCoveragePlugin extends SchedAnnotationProcessorBasedPlugin {
         CodeCoverageAnalyzer.class,
         CodeCoverageTransformer.class,
         CodeCoverageMetadataFileWriter.class,
-        CfgMarkerRemover.class
-        );
+        CfgMarkerRemover.class,
+        CfgBuilder.class);
   }
 
   @Override
