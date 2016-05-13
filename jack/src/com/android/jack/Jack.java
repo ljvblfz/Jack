@@ -128,6 +128,12 @@ import com.android.jack.optimizations.modifiers.FieldFinalizer;
 import com.android.jack.optimizations.modifiers.MethodFinalizer;
 import com.android.jack.optimizations.tailrecursion.TailRecursionOptimization;
 import com.android.jack.optimizations.tailrecursion.TailRecursionOptimizer;
+import com.android.jack.optimizations.valuepropagation.argument.AvpCalculateTaintedMethods;
+import com.android.jack.optimizations.valuepropagation.argument.AvpCollectMethodCallArguments;
+import com.android.jack.optimizations.valuepropagation.argument.AvpComputeMethodArgumentsValues;
+import com.android.jack.optimizations.valuepropagation.argument.AvpPropagateArgumentValues;
+import com.android.jack.optimizations.valuepropagation.field.FvpCollectFieldAssignments;
+import com.android.jack.optimizations.valuepropagation.field.FvpPropagateFieldValues;
 import com.android.jack.plugin.PluginManager;
 import com.android.jack.plugin.v01.Plugin;
 import com.android.jack.preprocessor.PreProcessor;
@@ -661,6 +667,12 @@ public abstract class Jack {
           }
           if (config.get(Optimizations.FieldFinalizer.ENABLE).booleanValue()) {
             request.addFeature(Optimizations.FieldFinalizer.class);
+          }
+          if (config.get(Optimizations.FieldValuePropagation.ENABLE).booleanValue()) {
+            request.addFeature(Optimizations.FieldValuePropagation.class);
+          }
+          if (config.get(Optimizations.ArgumentValuePropagation.ENABLE).booleanValue()) {
+            request.addFeature(Optimizations.ArgumentValuePropagation.class);
           }
 
           if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.ALWAYS) {
@@ -1372,8 +1384,14 @@ public abstract class Jack {
     boolean enableMethodFinalizer = features.contains(Optimizations.MethodFinalizer.class);
     boolean enableFieldFinalizer = features.contains(Optimizations.FieldFinalizer.class);
 
+    boolean enableFieldValuePropagation =
+        features.contains(Optimizations.FieldValuePropagation.class);
+    boolean enableArgumentValuePropagation =
+        features.contains(Optimizations.ArgumentValuePropagation.class);
+
     boolean needTypeToBeEmittedMarker =
-        enableClassFinalizer | enableMethodFinalizer | enableFieldFinalizer;
+        enableClassFinalizer | enableMethodFinalizer | enableFieldFinalizer |
+            enableFieldValuePropagation | enableArgumentValuePropagation;
 
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
@@ -1494,6 +1512,10 @@ public abstract class Jack {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       typePlan.append(ReflectAnnotationsAdder.class);
+      if (enableArgumentValuePropagation) {
+        typePlan.append(AvpCalculateTaintedMethods.class);
+      }
+
       {
         SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
         methodPlan.append(DefaultValueAnnotationAdder.class);
@@ -1566,6 +1588,12 @@ public abstract class Jack {
             methodPlan4.append(IfWithConstantSimplifier.class);
           }
           methodPlan4.append(UnusedLocalRemover.class);
+          if (enableFieldValuePropagation) {
+            methodPlan4.append(FvpCollectFieldAssignments.class);
+          }
+          if (enableArgumentValuePropagation) {
+            methodPlan4.append(AvpCollectMethodCallArguments.class);
+          }
           methodPlan4.append(DefUsesAndUseDefsChainRemover.class);
           methodPlan4.append(DefinitionMarkerRemover.class);
           methodPlan4.append(UsedVariableRemover.class);
@@ -1576,10 +1604,29 @@ public abstract class Jack {
           methodPlan4.append(CfgMarkerRemover.class);
           methodPlan4.append(CfgBuilder.class);
         }
-
+      }
+    }
+    if (enableArgumentValuePropagation) {
+      planBuilder.append(
+          AvpComputeMethodArgumentsValues.class);
+    }
+    {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan6 =
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+      {
         {
           SubPlanBuilder<JMethod> methodPlan5 =
-              typePlan5.appendSubPlan(JMethodAdapter.class);
+              typePlan6.appendSubPlan(JMethodAdapter.class);
+          if (enableFieldValuePropagation || enableArgumentValuePropagation) {
+            if (enableFieldValuePropagation) {
+              methodPlan5.append(FvpPropagateFieldValues.class);
+            }
+            if (enableArgumentValuePropagation) {
+              methodPlan5.append(AvpPropagateArgumentValues.class);
+            }
+            methodPlan5.append(CfgMarkerRemover.class);
+            methodPlan5.append(CfgBuilder.class);
+          }
           methodPlan5.append(CodeItemBuilder.class);
           methodPlan5.append(CfgMarkerRemover.class);
           methodPlan5.append(EncodedMethodBuilder.class);
@@ -1591,14 +1638,14 @@ public abstract class Jack {
         }
         {
           SubPlanBuilder<JField> fieldPlan2 =
-              typePlan5.appendSubPlan(JFieldAdapter.class);
+              typePlan6.appendSubPlan(JFieldAdapter.class);
           fieldPlan2.append(ContainerAnnotationAdder.FieldContainerAnnotationAdder.class);
           fieldPlan2.append(EncodedFieldBuilder.class);
           fieldPlan2.append(FieldAnnotationBuilder.class);
         }
       }
       if (hasSanityChecks) {
-        typePlan5.append(TypeAstChecker.class);
+        typePlan6.append(TypeAstChecker.class);
       }
     }
 

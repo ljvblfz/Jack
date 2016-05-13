@@ -31,6 +31,7 @@ public enum EffectivelyFinalFieldMarker implements Marker {
   Final;
 
   @Override
+  @Nonnull
   public Marker cloneIfNeeded() {
     return this;
   }

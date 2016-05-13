@@ -1,0 +1,8 @@
+method: Lcom/android/jack/optimizations/valuepropagation/test105/D;->equals(Ljava/lang/Object;)Z
+registers: 3, in/out: 2/2
+instructions: 5
+    | invoke-virtual v0, v1, v2, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test105/D;->s(Ljava/lang/Object;)V
+    | const-string/jumbo v0, string_id_item: DDD
+    | invoke-super v0, v1, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test105/C;->equals(Ljava/lang/Object;)Z
+    | move-result v0
+    | return v0

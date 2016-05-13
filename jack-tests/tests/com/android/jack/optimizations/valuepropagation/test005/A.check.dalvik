@@ -1,0 +1,9 @@
+method: Lcom/android/jack/optimizations/valuepropagation/test005/A;->check()I
+registers: 3, in/out: 1/0
+instructions: 6
+    | iget v0, v2, Lcom/android/jack/optimizations/valuepropagation/test005/A;->f1_reassigned_in_constructor_wrong:I
+    | add-int/lit16 v0, v0, 778
+    | add-int/lit16 v0, v0, 777
+    | iget v1, v2, Lcom/android/jack/optimizations/valuepropagation/test005/A;->f3_reassigned_in_method_wrong:I
+    | add-int/2addr v0, v1
+    | return v0

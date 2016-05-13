@@ -1,0 +1,5 @@
+method: Lcom/android/jack/optimizations/valuepropagation/test103/D;->foo(Ljava/lang/String;)Ljava/lang/String;
+registers: 3, in/out: 2/0
+instructions: 2
+    | const-string/jumbo v0, string_id_item: A
+    | return-object v0

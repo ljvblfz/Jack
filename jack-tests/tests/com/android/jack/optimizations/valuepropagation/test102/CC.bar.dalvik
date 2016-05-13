@@ -1,0 +1,13 @@
+method: Lcom/android/jack/optimizations/valuepropagation/test102/CC;->bar(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+registers: 8, in/out: 7/2
+instructions: 10
+    | const-string/jumbo v0, string_id_item: A
+    | invoke-virtual v0, v1, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test102/CC;->s(Ljava/lang/String;)V
+    | invoke-virtual v0, v1, v3, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test102/CC;->s(Ljava/lang/String;)V
+    | invoke-virtual v0, v1, v4, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test102/CC;->s(Ljava/lang/String;)V
+    | invoke-virtual v0, v1, v5, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test102/CC;->s(Ljava/lang/String;)V
+    | const-string/jumbo v0, string_id_item: E
+    | invoke-virtual v0, v1, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test102/CC;->s(Ljava/lang/String;)V
+    | const-string/jumbo v0, string_id_item: F
+    | invoke-virtual v0, v1, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test102/CC;->s(Ljava/lang/String;)V
+    | return-void

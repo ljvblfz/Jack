@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.android.jack.Options;
 import com.android.jack.ir.ast.JAlloc;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JClass;
+import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JMethod;
@@ -52,9 +53,13 @@ import javax.annotation.Nonnull;
  */
 @Description("Splits JSymbolicNewInstance into JAlloc and JSymbolicCall")
 @Name("SplitNewInstance")
-@Transform(add = {
-    JAlloc.class, JAsgOperation.NonReusedAsg.class, JLocalRef.class, JMultiExpression.class,
-    NewInstanceRemoved.class}, remove = {JNewInstance.class, ThreeAddressCodeForm.class})
+@Transform(add = { JAlloc.class,
+                   JAsgOperation.NonReusedAsg.class,
+                   JLocalRef.class,
+                   JMultiExpression.class,
+                   NewInstanceRemoved.class },
+    remove = { JNewInstance.class,
+               ThreeAddressCodeForm.class })
 @Use(LocalVarCreator.class)
 @Filter(TypeWithoutPrebuiltFilter.class)
 public class SplitNewInstance implements RunnableSchedulable<JMethod> {
@@ -79,32 +84,49 @@ public class SplitNewInstance implements RunnableSchedulable<JMethod> {
 
     @Override
     public boolean visit(@Nonnull JNewInstance newInstance) {
+      SourceInfo srcInfos = newInstance.getSourceInfo();
+      JExpression[] exprs =
+          NewExpressionSplitter.splitNewInstance(newInstance, request, lvCreator);
+      JMultiExpression splittedNewInstance = new JMultiExpression(srcInfos, exprs);
+
+      request.append(new Replace(newInstance, splittedNewInstance));
+
+      return super.visit(newInstance);
+    }
+  }
+
+  /** Utility class for splitting new instance expression into  */
+  @Transform(add = { JAlloc.class,
+                     JAsgOperation.NonReusedAsg.class,
+                     JLocalRef.class })
+  @Use(LocalVarCreator.class)
+  public static class NewExpressionSplitter {
+    @Nonnull
+    public static JExpression[] splitNewInstance(
+        @Nonnull JNewInstance newInstance,
+        @Nonnull TransformationRequest request,
+        @Nonnull LocalVarCreator varCreator) {
 
       SourceInfo srcInfos = newInstance.getSourceInfo();
       JClass type = newInstance.getType();
 
       // tmp = alloc<type>
       JAlloc alloc = new JAlloc(srcInfos, type);
-      JLocal tmp = lvCreator.createTempLocal(type, srcInfos, request);
+      JLocal tmp = varCreator.createTempLocal(type, srcInfos, request);
       JAsgOperation assign =
           new JAsgOperation(srcInfos, tmp.makeRef(srcInfos), alloc);
 
       // tmp.init(args)
       JMethodIdWide methodId = newInstance.getMethodId();
       JMethodCall initCall = new JMethodCall(
-          srcInfos,  tmp.makeRef(srcInfos), type, methodId,
+          srcInfos, tmp.makeRef(srcInfos), type, methodId,
           JPrimitiveTypeEnum.VOID.getType(), methodId.canBeVirtual());
       initCall.addArgs(newInstance.getArgs());
 
       // tmp
       JLocalRef result = tmp.makeRef(srcInfos);
 
-      JMultiExpression splittedNewInstance = new JMultiExpression(srcInfos,
-          assign, initCall, result);
-
-      request.append(new Replace(newInstance, splittedNewInstance));
-
-      return super.visit(newInstance);
+      return new JExpression[] { assign, initCall, result };
     }
   }
 
@@ -119,5 +141,4 @@ public class SplitNewInstance implements RunnableSchedulable<JMethod> {
     visitor.accept(method);
     request.commit();
   }
-
 }

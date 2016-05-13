@@ -1,0 +1,5 @@
+method: Lcom/android/jack/optimizations/valuepropagation/test005/B;->check()I
+registers: 2, in/out: 1/0
+instructions: 2
+    | const/16 v0, 123
+    | return v0

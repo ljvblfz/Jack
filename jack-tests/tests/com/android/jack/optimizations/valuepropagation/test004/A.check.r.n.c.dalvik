@@ -1,0 +1,12 @@
+method: Lcom/android/jack/optimizations/valuepropagation/test004/A;->check()I
+registers: 2, in/out: 1/1
+instructions: 9
+    | invoke-virtual v0, v1, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test004/A;->get()Lcom/android/jack/optimizations/valuepropagation/test004/A;
+    | invoke-virtual v0, v1, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test004/A;->get()Lcom/android/jack/optimizations/valuepropagation/test004/A;
+    | move-result-object v0
+    | if-nez v0, #00
+    | new-instance v0, type_id_item: Ljava/lang/NullPointerException;
+    | invoke-direct v0, v0, v0, v0, v0, method_id_item: Ljava/lang/NullPointerException;-><init>()V
+    | throw v0
+#00-> const/16 v0, 1414
+    | return v0

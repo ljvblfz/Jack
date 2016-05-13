@@ -19,14 +19,17 @@ package com.android.jack.test.dex;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.optimizations.Optimizations;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 
 import org.jf.dexlib.DexFile;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
 
@@ -34,7 +37,8 @@ import javax.annotation.Nonnull;
 public abstract class DexOutputBasedTest {
 
   /** Get test resource file */
-  public File resource(String testPackage, String file) {
+  @Nonnull
+  public File resource(@Nonnull String testPackage, @Nonnull String file) {
     return new File(
         AbstractTestTools.getTestRootDir(testPackage), file);
   }
@@ -45,20 +49,29 @@ public abstract class DexOutputBasedTest {
   public static final class CompilationProperties {
     @Nonnull
     public static final CompilationProperties EMPTY =
-        new CompilationProperties(Collections.<String, Object>emptyMap());
+        new CompilationProperties(Collections.<String, Object>emptyMap(), true);
+
+    private boolean allowJillToolchains;
 
     @Nonnull
     private final Map<String, Object> properties;
 
-    public CompilationProperties(@Nonnull Map<String, Object> properties) {
+    private CompilationProperties(
+        @Nonnull Map<String, Object> properties, boolean allowJillToolchains) {
       this.properties = properties;
+      this.allowJillToolchains = allowJillToolchains;
     }
 
     @Nonnull
     public CompilationProperties with(@Nonnull String property, @Nonnull Object value) {
       HashMap<String, Object> map = new HashMap<String, Object>(this.properties);
       map.put(property, value);
-      return new CompilationProperties(map);
+      return new CompilationProperties(map, allowJillToolchains);
+    }
+
+    @Nonnull
+    public CompilationProperties excludeJillToolchain() {
+      return new CompilationProperties(properties, false);
     }
 
     @Nonnull
@@ -69,6 +82,10 @@ public abstract class DexOutputBasedTest {
           .with(Optimizations.MethodFinalizer.PRESERVE_JLS.getName(),
               Boolean.valueOf(value))
           .with(Optimizations.FieldFinalizer.PRESERVE_JLS.getName(),
+              Boolean.valueOf(value))
+          .with(Optimizations.FieldValuePropagation.PRESERVE_JLS.getName(),
+              Boolean.valueOf(value))
+          .with(Optimizations.ArgumentValuePropagation.PRESERVE_JLS.getName(),
               Boolean.valueOf(value));
     }
 
@@ -80,6 +97,10 @@ public abstract class DexOutputBasedTest {
           .with(Optimizations.MethodFinalizer.PRESERVE_REFLECTIONS.getName(),
               Boolean.valueOf(value))
           .with(Optimizations.FieldFinalizer.PRESERVE_REFLECTIONS.getName(),
+              Boolean.valueOf(value))
+          .with(Optimizations.FieldValuePropagation.PRESERVE_REFLECTIONS.getName(),
+              Boolean.valueOf(value))
+          .with(Optimizations.ArgumentValuePropagation.PRESERVE_REFLECTIONS.getName(),
               Boolean.valueOf(value));
     }
   }
@@ -102,8 +123,14 @@ public abstract class DexOutputBasedTest {
     File outFolder = AbstractTestTools.createTempDir();
     File out = new File(outFolder, DexFileWriter.DEX_FILENAME);
 
+    List<Class<? extends IToolchain>> exclude = new ArrayList<>();
+    // Because source path is not supported by the toolchain
+    if (!properties.allowJillToolchains) {
+      exclude.add(JillBasedToolchain.class);
+    }
+
     JackBasedToolchain toolchain =
-        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     for (Map.Entry<String, Object> e : properties.properties.entrySet()) {
       toolchain.addProperty(e.getKey(), e.getValue().toString());
     }

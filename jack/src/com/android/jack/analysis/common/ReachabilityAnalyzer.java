@@ -57,7 +57,7 @@ public abstract class ReachabilityAnalyzer<S> {
   protected abstract S cloneState(@Nonnull S state);
 
   /** Perform the analysis */
-  public void analyze() {
+  public final void analyze() {
     ControlFlowGraph cfg = getCfg();
 
     int basicBlockMaxId = cfg.getBasicBlockMaxId();
@@ -106,7 +106,7 @@ public abstract class ReachabilityAnalyzer<S> {
   }
 
   /** Re-calculate 'in' state based on out states of the predecessors */
-  protected void recalculateInSet(
+  protected final void recalculateInSet(
       @Nonnull BasicBlock bb, boolean ignoreExceptionPath,
       @Nonnull S in, @Nonnull List<S> out, @Nonnull List<S> outException) {
 

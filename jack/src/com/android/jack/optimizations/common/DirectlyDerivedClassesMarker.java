@@ -45,6 +45,7 @@ public class DirectlyDerivedClassesMarker implements Marker {
   }
 
   @Override
+  @Nonnull
   public Marker cloneIfNeeded() {
     return this;
   }

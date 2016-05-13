@@ -36,6 +36,8 @@ public class CommonTypes {
       "Ljava/util/concurrent/atomic/AtomicLongFieldUpdater;";
   private static final String JAVA_LANG_STRING_SIGNATURE = "Ljava/lang/String;";
   private static final String JAVA_LANG_STRING_BUILDER_SIGNATURE = "Ljava/lang/StringBuilder;";
+  private static final String JAVA_LANG_NULL_POINTER_EXCEPTION_SIGNATURE =
+      "Ljava/lang/NullPointerException;";
   private static final String JAVA_LANG_CLASS_SIGNATURE = "Ljava/lang/Class;";
   private static final String JAVA_LANG_ENUM_SIGNATURE = "Ljava/lang/Enum;";
   private static final String JAVA_LANG_OBJECT_SIGNATURE = "Ljava/lang/Object;";
@@ -62,6 +64,7 @@ public class CommonTypes {
     ATOMIC_ATOMICLONGFIELDUPDATER(JAVA_UTIL_CONCURRENT_ATOMIC_ATOMICLONGFIELDUPDATER_SIGNATURE),
     STRING(JAVA_LANG_STRING_SIGNATURE),
     STRING_BUILDER(JAVA_LANG_STRING_BUILDER_SIGNATURE),
+    NULL_POINTER_EXCEPTION(JAVA_LANG_NULL_POINTER_EXCEPTION_SIGNATURE),
     CLASS(JAVA_LANG_CLASS_SIGNATURE),
     ENUM(JAVA_LANG_ENUM_SIGNATURE),
     OBJECT(JAVA_LANG_OBJECT_SIGNATURE),
@@ -104,6 +107,8 @@ public class CommonTypes {
       CommonType.ATOMIC_ATOMICLONGFIELDUPDATER;
   public static final CommonType JAVA_LANG_STRING = CommonType.STRING;
   public static final CommonType JAVA_LANG_STRING_BUILDER = CommonType.STRING_BUILDER;
+  public static final CommonType JAVA_LANG_NULL_POINTER_EXCEPTION =
+      CommonType.NULL_POINTER_EXCEPTION;
   public static final CommonType JAVA_LANG_CLASS = CommonType.CLASS;
   public static final CommonType JAVA_LANG_ENUM = CommonType.ENUM;
   public static final CommonType JAVA_LANG_OBJECT = CommonType.OBJECT;
