@@ -19,36 +19,39 @@ package com.android.jack.transformations.ast;
 import com.android.jack.Jack;
 import com.android.jack.Options;
 import com.android.jack.ir.ast.JBlock;
-import com.android.jack.ir.ast.JCatchBlock;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JExpressionStatement;
+import com.android.jack.ir.ast.JLock;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JStatement;
+import com.android.jack.ir.ast.JStatementList;
 import com.android.jack.ir.ast.JSynchronizedBlock;
 import com.android.jack.ir.ast.JTryStatement;
 import com.android.jack.ir.ast.JType;
+import com.android.jack.ir.ast.JUnlock;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.JNodeLookup;
+import com.android.jack.reporting.Reportable;
 import com.android.jack.reporting.ReportableException;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.transformations.BoostLockedRegionPriorityFeature;
+import com.android.jack.transformations.request.AppendStatement;
 import com.android.jack.transformations.request.PrependStatement;
-import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.NamingTools;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
+import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.PropertyId;
 
-import java.util.ArrayList;
 import java.util.Collections;
 
 import javax.annotation.CheckForNull;
@@ -68,36 +71,39 @@ import javax.annotation.Nonnull;
  * Example:
  *
  * <code>
- * synchronized(lock) {
- *   work();
- * }
+ *   JLock target
+ *   try {
+ *    work();
+ *   } finally {
+ *    JUnlock target
+ *   }
  * </code>
  *
  * could be transformed into:
  *
  * <code>
- *
- * synchronized(lock) {
+ *   JLock target
+ *   boostPriority()
  *   try {
- *     boostPriority()
  *     work();
  *   } finally {
+ *     JUnlock target
  *     resetPriority();
  *   }
- * }
  * </code>
  *
  * Try blocks are inserted to make sure that the reset call is always executed even in place of
  * exceptions. This is important for threads that might be reused like worker threads.
  */
 @Description("Raise locked region priority for certain types of locks.")
+@Constraint(
+  need = {JLock.class, JUnlock.class},
+  no = {JSynchronizedBlock.class}
+)
 @Transform(
   add = {
-    JBlock.class,
-    JCatchBlock.class,
     JExpressionStatement.class,
     JMethodCall.class,
-    JTryStatement.class
   }
 )
 public class BoostLockedRegionPriority implements RunnableSchedulable<JMethod> {
@@ -207,47 +213,51 @@ public class BoostLockedRegionPriority implements RunnableSchedulable<JMethod> {
     }
 
     @Override
-    public void endVisit(@Nonnull JSynchronizedBlock jSyncBock) {
+    public void endVisit(@Nonnull JLock jLock) {
       assert lockClass != null;
-      if (!jSyncBock.getLockExpr().getType().isSameType(lockClass)) {
+      if (!jLock.getLockExpr().getType().isSameType(lockClass)) {
         return;
       }
-      tr.append(
-          new PrependStatement(
-              jSyncBock.getSynchronizedBlock(), makeRequestCall(jSyncBock.getSourceInfo())));
-      JTryStatement tryStmt = makeTryStatement(jSyncBock.getSourceInfo(), jSyncBock);
-      tr.append(new Replace(jSyncBock, tryStmt));
+
+      JStatementList list = (JStatementList) jLock.getParent();
+      int index = list.getStatements().indexOf(jLock) + 1;
+      if (index >= list.getStatements().size()) {
+        abortPass();
+      }
+
+      JStatement next = list.getStatements().get(index);
+      if (!(next instanceof JTryStatement)) {
+        abortPass();
+        return;
+      }
+
+      JTryStatement jTry = (JTryStatement) next;
+      JBlock finallyBlock = jTry.getFinallyBlock();
+
+      if (finallyBlock == null) {
+        return;
+      }
+
+      tr.append(new PrependStatement(jTry.getTryBlock(), makeRequestCall(jLock.getSourceInfo())));
+      tr.append(new AppendStatement(finallyBlock, makeResetCall(jLock.getSourceInfo())));
     }
 
+    @Nonnull
     private JExpressionStatement makeRequestCall(SourceInfo info) {
-      assert requestClass != null && lockClass != null && requestMethodId != null;
+      assert lockClass != null && requestClass != null && requestMethodId != null;
       return new JExpressionStatement(
           info,
           new JMethodCall(
               info, null, requestClass, requestMethodId, JPrimitiveTypeEnum.VOID.getType(), false));
     }
 
+    @Nonnull
     private JExpressionStatement makeResetCall(SourceInfo info) {
-      assert resetClass != null && lockClass != null && resetMethodId != null;
+      assert lockClass != null && resetClass != null && resetMethodId != null;
       return new JExpressionStatement(
           info,
           new JMethodCall(
               info, null, resetClass, resetMethodId, JPrimitiveTypeEnum.VOID.getType(), false));
-    }
-
-    private JTryStatement makeTryStatement(SourceInfo info, JSynchronizedBlock syncBlock) {
-      JBlock tryBlock = new JBlock(info);
-      tryBlock.addStmt(syncBlock);
-      JBlock finallyBlock = new JBlock(info);
-      finallyBlock.addStmt(makeResetCall(info));
-      JTryStatement tryStmt =
-          new JTryStatement(
-              info,
-              new ArrayList<JStatement>(),
-              tryBlock,
-              new ArrayList<JCatchBlock>(),
-              finallyBlock);
-      return tryStmt;
     }
   }
 
@@ -276,5 +286,28 @@ public class BoostLockedRegionPriority implements RunnableSchedulable<JMethod> {
     public ProblemLevel getDefaultProblemLevel() {
       return ProblemLevel.ERROR;
     }
+  }
+
+  /**
+   * Report to user that we cannot perform this optimization. It is unlikely this will be ever
+   * called.
+   */
+  private static class BadBoostLockedRegionPriorityState implements Reportable {
+    @Override
+    public String getMessage() {
+      return "Cannot perform BoostLockedRegionPriority."
+          + " This is likely due to a library coming from a Jar, which is not supported.";
+    }
+
+    @Override
+    @Nonnull
+    public ProblemLevel getDefaultProblemLevel() {
+      return ProblemLevel.ERROR;
+    }
+  }
+
+  private static void abortPass() {
+    Jack.getSession().getReporter().report(Severity.FATAL, new BadBoostLockedRegionPriorityState());
+    Jack.getSession().setAbortEventually(true);
   }
 }
