@@ -16,6 +16,8 @@
 package com.android.jack.ir.ast;
 
 
+import com.google.common.collect.Lists;
+
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
@@ -34,13 +36,20 @@ import javax.annotation.Nonnull;
 @Description("Represents multiple ordered expressions")
 public class JMultiExpression extends JExpression {
 
+  @Nonnull
   public List<JExpression> exprs;
 
-  public JMultiExpression(SourceInfo info, List<JExpression> exprs) {
+  public JMultiExpression(@Nonnull SourceInfo info, @Nonnull List<JExpression> exprs) {
     super(info);
     this.exprs = exprs;
   }
 
+  public JMultiExpression(@Nonnull SourceInfo info, @Nonnull JExpression... exprs) {
+    super(info);
+    this.exprs = Lists.newArrayList(exprs);
+  }
+
+  @Nonnull
   @Override
   public JType getType() {
     int c = exprs.size();
@@ -51,12 +60,13 @@ public class JMultiExpression extends JExpression {
     }
   }
 
+  @Nonnull
   public List<JExpression> getExprs() {
     return exprs;
   }
 
   @Override
-  protected boolean isResultOfExpressionUsed(JExpression expr) {
+  protected boolean isResultOfExpressionUsed(@Nonnull JExpression expr) {
     assert exprs.contains(expr);
     JNode parent = getParent();
     assert parent != null;

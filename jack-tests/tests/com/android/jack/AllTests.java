@@ -16,7 +16,6 @@ import com.android.jack.comparison.ComparisonTests;
 import com.android.jack.compiletime.CompileTimeTests;
 import com.android.jack.conditional.ConditionalTests;
 import com.android.jack.constant.ConstantTests;
-import com.android.jack.coverage.CoverageTests;
 import com.android.jack.debug.DebugTests;
 import com.android.jack.dextag.DexTagTests;
 import com.android.jack.dx.DxTests;
@@ -40,8 +39,6 @@ import com.android.jack.instance.InstanceTest;
 import com.android.jack.invoke.InvokeTests;
 import com.android.jack.jarjar.JarjarTests;
 import com.android.jack.java7.Java7AllTest;
-import com.android.jack.java8.Java8AllTest;
-import com.android.jack.java8.Java8AllTestPreN;
 import com.android.jack.jill.JillTests;
 import com.android.jack.label.LabelTest;
 import com.android.jack.library.LibraryTests;
@@ -53,6 +50,7 @@ import com.android.jack.opcodes.OpcodesTests;
 import com.android.jack.optimizations.defuse.DefUseTests;
 import com.android.jack.optimizations.exprsimplifier.ExprsimplifierTests;
 import com.android.jack.optimizations.notsimplifier.NotsimplifierTests;
+import com.android.jack.optimizations.sideeffect.SideEffectTests;
 import com.android.jack.optimizations.unuseddef.UnusedDefTest;
 import com.android.jack.optimizations.usedef.UseDefTests;
 import com.android.jack.optimizations.uselesscopy.UselessVariableCopyTest;
@@ -138,6 +136,7 @@ import org.junit.runners.Suite.SuiteClasses;
     ResourceTests.class,
     ReachingDefsTests.class,
     ShrobAllTests.class,
+    SideEffectTests.class,
     StringTests.class,
     SwitchstatementTests.class,
     SynchronizeTests.class,
