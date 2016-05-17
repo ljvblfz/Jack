@@ -1392,9 +1392,6 @@ public abstract class Jack {
       }
       {
         SubPlanBuilder<JMethod> methodPlan = typePlan4.appendSubPlan(JMethodAdapter.class);
-        if (features.contains(BoostLockedRegionPriorityFeature.class)) {
-          methodPlan.append(BoostLockedRegionPriority.class);
-        }
         methodPlan.append(ConditionalAndOrRemover.class);
         if (hasSanityChecks) {
           methodPlan.append(ConditionalAndOrRemoverChecker.class);
@@ -1408,6 +1405,9 @@ public abstract class Jack {
         methodPlan.append(InitInNewArrayRemover.class);
         methodPlan.append(PrimitiveClassTransformer.class);
         methodPlan.append(SynchronizeTransformer.class);
+        if (features.contains(BoostLockedRegionPriorityFeature.class)) {
+          methodPlan.append(BoostLockedRegionPriority.class);
+        }
         methodPlan.append(NestedAssignRemover.class);
         methodPlan.append(IntersectionTypeRemover.class);
         methodPlan.append(TypeLegalizer.class);
