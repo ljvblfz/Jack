@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.jack.plugin;
+package com.android.jack.plugin.v01;
 
+import com.android.jack.plugin.PluginLocation;
 import com.android.sched.build.SchedAnnotationProcessor;
 import com.android.sched.reflections.AnnotationProcessorReflectionManager;
 import com.android.sched.reflections.ReflectionManager;
@@ -29,7 +30,7 @@ import javax.annotation.Nonnull;
 public abstract class SchedAnnotationProcessorBasedPlugin implements Plugin {
   @Override
   @Nonnull
-  public ReflectionManager getReflectionManager() {
+  public final ReflectionManager getReflectionManager() {
     return new AnnotationProcessorReflectionManager(this.getClass().getClassLoader(),
         new PluginLocation(this));
   }

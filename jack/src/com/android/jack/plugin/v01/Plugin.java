@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package com.android.jack.plugin;
+package com.android.jack.plugin.v01;
 
 import com.android.sched.item.Component;
 import com.android.sched.reflections.ReflectionManager;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.scheduler.FeatureSet;
 import com.android.sched.scheduler.ProductionSet;
+import com.android.sched.scheduler.Scheduler;
 import com.android.sched.util.Version;
 import com.android.sched.util.config.Config;
 
@@ -34,7 +35,7 @@ import javax.annotation.Nonnull;
  */
 public interface Plugin {
   @Nonnull
-  String getName();
+  String getCanonicalName();
   @Nonnull
   String getFriendlyName();
   @Nonnull
@@ -45,15 +46,15 @@ public interface Plugin {
   boolean isCompatibileWithJack(@Nonnull Version jackVersion);
 
   @Nonnull
-  ReflectionManager getReflectionManager();
-
+  FeatureSet getFeatures(@Nonnull Config config, @Nonnull Scheduler scheduler);
   @Nonnull
-  void manageFeaturesAndProductions(@Nonnull Config config, @Nonnull FeatureSet features,
-      @Nonnull ProductionSet productions);
+  ProductionSet getProductions(@Nonnull Config config, @Nonnull Scheduler scheduler);
 
   @Nonnull
   List<Class<? extends RunnableSchedulable<? extends Component>>> getSortedRunners();
-
   @Nonnull
   Collection<Class<? extends RunnableSchedulable<? extends Component>>> getCheckerRunners();
+
+  @Nonnull
+  ReflectionManager getReflectionManager();
 }

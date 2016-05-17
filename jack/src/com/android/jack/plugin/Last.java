@@ -21,6 +21,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 
+import com.android.jack.plugin.v01.Plugin;
 import com.android.sched.util.UncomparableVersion;
 import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.log.LoggerFactory;
@@ -72,10 +73,10 @@ public class Last implements PluginSelector {
             }));
 
         logger.log(Level.INFO, "For plugin ''{0}'', selected version {1} because newer than {2}",
-            new Object[] {selected.getName(), selected.getVersion().getVersion(), others});
+            new Object[] {selected.getCanonicalName(), selected.getVersion().getVersion(), others});
       } else {
         logger.log(Level.INFO, "For plugin ''{0}'', selected version {1} because alone",
-            new Object[] {selected.getName(), selected.getVersion().getVersion()});
+            new Object[] {selected.getCanonicalName(), selected.getVersion().getVersion()});
       }
     }
 

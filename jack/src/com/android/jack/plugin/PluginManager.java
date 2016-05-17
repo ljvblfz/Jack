@@ -17,6 +17,7 @@
 package com.android.jack.plugin;
 
 import com.android.jack.Jack;
+import com.android.jack.plugin.v01.Plugin;
 import com.android.sched.reflections.CompositeReflectionManager;
 import com.android.sched.reflections.ReflectionManager;
 import com.android.sched.util.config.id.ImplementationPropertyId;
@@ -89,7 +90,7 @@ public class PluginManager {
     if (plugin == null) {
       List<Plugin> plugins = new ArrayList<Plugin>();
       for (Plugin candidate : serviceLoader) {
-        if (candidate.getName().equals(name)) {
+        if (candidate.getCanonicalName().equals(name)) {
           if (candidate.isCompatibileWithJack(Jack.getVersion())) {
             if (filter.accept(candidate)) {
               plugins.add(candidate);
@@ -97,7 +98,7 @@ public class PluginManager {
           } else {
             logger.log(Level.INFO, "For plugin ''{0}'', "
                 + "rejected version {1} because not compatible with Jack version {2}",
-                new Object[] {candidate.getName(), candidate.getVersion().getVersion(),
+                new Object[] {candidate.getCanonicalName(), candidate.getVersion().getVersion(),
                     Jack.getVersion().getVersion()});
           }
         }

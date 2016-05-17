@@ -16,6 +16,7 @@
 
 package com.android.jack.plugin;
 
+import com.android.jack.plugin.v01.Plugin;
 import com.android.sched.util.codec.ImplementationName;
 
 import javax.annotation.Nonnull;

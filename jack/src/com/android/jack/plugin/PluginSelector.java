@@ -16,6 +16,8 @@
 
 package com.android.jack.plugin;
 
+import com.android.jack.plugin.v01.Plugin;
+
 import java.util.List;
 
 import javax.annotation.Nonnull;

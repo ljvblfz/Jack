@@ -18,11 +18,12 @@ package com.android.jack.coverage;
 
 import com.android.jack.cfg.CfgBuilder;
 import com.android.jack.cfg.CfgMarkerRemover;
-import com.android.jack.plugin.SchedAnnotationProcessorBasedPlugin;
+import com.android.jack.plugin.v01.SchedAnnotationProcessorBasedPlugin;
 import com.android.sched.item.Component;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.scheduler.FeatureSet;
 import com.android.sched.scheduler.ProductionSet;
+import com.android.sched.scheduler.Scheduler;
 import com.android.sched.util.SubReleaseKind;
 import com.android.sched.util.Version;
 import com.android.sched.util.config.Config;
@@ -40,7 +41,7 @@ import javax.annotation.Nonnull;
 public class CodeCoveragePlugin extends SchedAnnotationProcessorBasedPlugin {
   @Override
   @Nonnull
-  public String getName() {
+  public String getCanonicalName() {
     return CodeCoverage.class.getCanonicalName();
   }
 
@@ -64,12 +65,26 @@ public class CodeCoveragePlugin extends SchedAnnotationProcessorBasedPlugin {
 
   @Override
   @Nonnull
-  public void manageFeaturesAndProductions(@Nonnull Config config, @Nonnull FeatureSet features,
-      @Nonnull ProductionSet productions) {
+  public FeatureSet getFeatures(@Nonnull Config config, @Nonnull Scheduler scheduler) {
+    FeatureSet set = scheduler.createFeatureSet();
+
     if (config.get(CodeCoverage.CODE_COVERVAGE).booleanValue()) {
-      features.add(CodeCoverage.class);
-      productions.add(CodeCoverageMetadataFile.class);
+      set.add(CodeCoverage.class);
     }
+
+    return set;
+  }
+
+  @Override
+  @Nonnull
+  public ProductionSet getProductions(@Nonnull Config config, @Nonnull Scheduler scheduler) {
+    ProductionSet set = scheduler.createProductionSet();
+
+    if (config.get(CodeCoverage.CODE_COVERVAGE).booleanValue()) {
+      set.add(CodeCoverageMetadataFile.class);
+    }
+
+    return set;
   }
 
   @Override
