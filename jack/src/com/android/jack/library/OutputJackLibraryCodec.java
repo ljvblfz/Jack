@@ -23,6 +23,7 @@ import com.android.sched.util.codec.StringCodec;
 import com.android.sched.util.codec.ZipFSCodec;
 import com.android.sched.util.config.ConfigurationError;
 import com.android.sched.util.file.FileOrDirectory.Existence;
+import com.android.sched.util.file.OutputZipFile.Compression;
 import com.android.sched.vfs.VFS;
 
 import java.util.Collections;
@@ -39,7 +40,7 @@ public class OutputJackLibraryCodec implements StringCodec<OutputJackLibrary> {
   private final ZipFSCodec codec;
 
   public OutputJackLibraryCodec() {
-    codec = new ZipFSCodec(Existence.MAY_EXIST);
+    codec = new ZipFSCodec(Existence.MAY_EXIST, Compression.UNCOMPRESSED);
   }
 
   @Override

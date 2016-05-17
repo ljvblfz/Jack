@@ -23,11 +23,15 @@ import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
+import com.android.sched.vfs.DeflateFS.DeflateVDir;
+import com.android.sched.vfs.DeflateFS.DeflateVFile;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
@@ -40,14 +44,77 @@ import javax.annotation.Nonnull;
 /**
  * A {@link VFS} filter implementation which inflate/deflate individual file.
  */
-public class DeflateFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS{
+public class DeflateFS extends BaseVFS<DeflateVDir, DeflateVFile> implements VFS{
   @Nonnull
   private final BaseVFS<BaseVDir, BaseVFile> vfs;
+
+  static class DeflateVFile extends BaseVFile {
+
+    @Nonnull
+    private final BaseVFile wrappedFile;
+
+    public DeflateVFile(@Nonnull BaseVFS<DeflateVDir, DeflateVFile> vfs,
+        @Nonnull BaseVFile wrappedFile) {
+      super(vfs, wrappedFile.getName());
+      this.wrappedFile = wrappedFile;
+    }
+
+    @Override
+    @Nonnull
+    public Location getLocation() {
+      return wrappedFile.getLocation();
+    }
+
+    @Override
+    @Nonnull
+    public VPath getPath() {
+      return wrappedFile.getPath();
+    }
+
+    @Nonnull
+    public BaseVFile getWrappedFile() {
+      return wrappedFile;
+    }
+
+    @Override
+    @CheckForNull
+    public String getDigest() {
+      return wrappedFile.getDigest();
+    }
+  }
+
+  static class DeflateVDir extends BaseVDir {
+
+    @Nonnull
+    private final BaseVDir wrappedFile;
+
+    public DeflateVDir(@Nonnull BaseVFS<DeflateVDir, DeflateVFile> vfs,
+        @Nonnull BaseVDir wrappedFile) {
+      super(vfs, wrappedFile.getName());
+      this.wrappedFile = wrappedFile;
+    }
+
+    @Override
+    @Nonnull
+    public Location getLocation() {
+      return wrappedFile.getLocation();
+    }
+
+    @Override
+    @Nonnull
+    public VPath getPath() {
+      return wrappedFile.getPath();
+    }
+
+    @Nonnull
+    public BaseVDir getWrappedDir() {
+      return wrappedFile;
+    }
+  }
 
   @SuppressWarnings("unchecked")
   public DeflateFS(@Nonnull VFS vfs) {
     this.vfs = (BaseVFS<BaseVDir, BaseVFile>) vfs;
-    changeVFS(this.vfs.getRootDir());
   }
 
   @Override
@@ -81,93 +148,89 @@ public class DeflateFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS{
 
   @Override
   @Nonnull
-  public BaseVDir getRootDir() {
-    return vfs.getRootDir();
+  public DeflateVDir getRootDir() {
+    return new DeflateVDir(this, vfs.getRootDir());
   }
 
   @Override
   @Nonnull
-  InputStream openRead(@Nonnull BaseVFile file) throws WrongPermissionException {
-    return new InflaterInputStream(vfs.openRead(file), new Inflater());
+  InputStream openRead(@Nonnull DeflateVFile file) throws WrongPermissionException {
+    return new InflaterInputStream(vfs.openRead(file.getWrappedFile()), new Inflater());
   }
 
   @Override
   @Nonnull
-  OutputStream openWrite(@Nonnull BaseVFile file) throws WrongPermissionException {
+  OutputStream openWrite(@Nonnull DeflateVFile file) throws WrongPermissionException {
     return openWrite(file, false);
   }
 
   @Override
   @Nonnull
-  OutputStream openWrite(@Nonnull BaseVFile file, boolean append) throws WrongPermissionException {
-    return new DeflaterOutputStream(vfs.openWrite(file, append), new Deflater());
+  OutputStream openWrite(@Nonnull DeflateVFile file, boolean append)
+      throws WrongPermissionException {
+    return new DeflaterOutputStream(vfs.openWrite(file.getWrappedFile(), append), new Deflater());
   }
 
   @Override
   @Nonnull
-  void delete(@Nonnull BaseVFile file) throws CannotDeleteFileException {
-    vfs.delete(file);
+  void delete(@Nonnull DeflateVFile file) throws CannotDeleteFileException {
+    vfs.delete(file.getWrappedFile());
   }
 
   @Override
   @Nonnull
-  Collection<? extends BaseVElement> list(@Nonnull BaseVDir dir) {
-    Collection<? extends BaseVElement> elements = vfs.list(dir);
+  Collection<? extends BaseVElement> list(@Nonnull DeflateVDir dir) {
+    Collection<? extends BaseVElement> elements = vfs.list(dir.getWrappedDir());
+    List<BaseVElement> newElements = new ArrayList<BaseVElement>(elements.size());
     for (BaseVElement element : elements) {
-      element.changeVFS(this);
+      BaseVElement newElement;
+      if (element.isVDir()) {
+        newElement = new DeflateVDir(this, (BaseVDir) element);
+      } else {
+        newElement = new DeflateVFile(this, (BaseVFile) element);
+      }
+      newElements.add(newElement);
     }
 
-    return elements;
+    return newElements;
   }
 
   @Override
-  boolean isEmpty(@Nonnull BaseVDir dir) {
+  boolean isEmpty(@Nonnull DeflateVDir dir) {
     return vfs.isEmpty(dir);
   }
 
   @Override
-  long getLastModified(@Nonnull BaseVFile file) {
-    return vfs.getLastModified(file);
+  long getLastModified(@Nonnull DeflateVFile file) {
+    return vfs.getLastModified(file.getWrappedFile());
   }
 
   @Override
   @Nonnull
-  BaseVFile createVFile(@Nonnull BaseVDir parent, @Nonnull String name)
+  DeflateVFile createVFile(@Nonnull DeflateVDir parent, @Nonnull String name)
       throws CannotCreateFileException {
-    return changeVFS(vfs.createVFile(parent, name));
+    return new DeflateVFile(this, vfs.createVFile(parent.getWrappedDir(), name));
   }
 
   @Override
   @Nonnull
-  BaseVDir createVDir(@Nonnull BaseVDir parent, @Nonnull String name)
+  DeflateVDir createVDir(@Nonnull DeflateVDir parent, @Nonnull String name)
       throws CannotCreateFileException {
-    return changeVFS(vfs.createVDir(parent, name));
+    return new DeflateVDir(this, vfs.createVDir(parent.getWrappedDir(), name));
   }
 
   @Override
   @Nonnull
-  BaseVDir getVDir(@Nonnull BaseVDir parent, @Nonnull String name) throws NotDirectoryException,
-      NoSuchFileException {
-    return changeVFS(vfs.getVDir(parent, name));
+  DeflateVDir getVDir(@Nonnull DeflateVDir parent, @Nonnull String name)
+      throws NotDirectoryException, NoSuchFileException {
+    return new DeflateVDir(this, vfs.getVDir(parent.getWrappedDir(), name));
   }
 
   @Override
   @Nonnull
-  BaseVFile getVFile(@Nonnull BaseVDir parent, @Nonnull String name) throws NotFileException,
+  DeflateVFile getVFile(@Nonnull DeflateVDir parent, @Nonnull String name) throws NotFileException,
       NoSuchFileException {
-    return changeVFS(vfs.getVFile(parent, name));
-  }
-
-  @Nonnull
-  private BaseVFile changeVFS(@Nonnull BaseVFile file) {
-    file.changeVFS(this);
-    return file;
-  }
-
-  @Nonnull
-  private BaseVDir changeVFS(@Nonnull BaseVDir dir) {
-    dir.changeVFS(this);
-    return dir;
+    return new DeflateVFile(this, vfs.getVFile(parent.getWrappedDir(), name));
   }
 
   @Override
@@ -177,50 +240,50 @@ public class DeflateFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS{
 
   @Override
   @Nonnull
-  Location getVFileLocation(@Nonnull BaseVFile file) {
-    return vfs.getVFileLocation(file);
+  Location getVFileLocation(@Nonnull DeflateVFile file) {
+    return vfs.getVFileLocation(file.getWrappedFile());
   }
 
   @Override
   @Nonnull
-  Location getVFileLocation(@Nonnull BaseVDir parent, @Nonnull String name) {
-    return vfs.getVFileLocation(parent, name);
+  Location getVFileLocation(@Nonnull DeflateVDir parent, @Nonnull String name) {
+    return vfs.getVFileLocation(parent.getWrappedDir(), name);
   }
 
   @Override
   @Nonnull
-  Location getVDirLocation(@Nonnull BaseVDir dir) {
-    return vfs.getVDirLocation(dir);
+  Location getVDirLocation(@Nonnull DeflateVDir dir) {
+    return vfs.getVDirLocation(dir.getWrappedDir());
   }
 
   @Override
   @Nonnull
-  Location getVDirLocation(@Nonnull BaseVDir parent, @Nonnull String name) {
-    return vfs.getVDirLocation(parent, name);
+  Location getVDirLocation(@Nonnull DeflateVDir parent, @Nonnull String name) {
+    return vfs.getVDirLocation(parent.getWrappedDir(), name);
   }
 
   @Override
   @Nonnull
-  Location getVFileLocation(@Nonnull BaseVDir parent, @Nonnull VPath path) {
-    return vfs.getVFileLocation(parent, path);
+  Location getVFileLocation(@Nonnull DeflateVDir parent, @Nonnull VPath path) {
+    return vfs.getVFileLocation(parent.getWrappedDir(), path);
   }
 
   @Override
   @Nonnull
-  Location getVDirLocation(@Nonnull BaseVDir parent, @Nonnull VPath path) {
-    return vfs.getVDirLocation(parent, path);
+  Location getVDirLocation(@Nonnull DeflateVDir parent, @Nonnull VPath path) {
+    return vfs.getVDirLocation(parent.getWrappedDir(), path);
   }
 
   @Override
   @Nonnull
-  VPath getPathFromDir(@Nonnull BaseVDir parent, @Nonnull BaseVFile file) {
-    return vfs.getPathFromDir(parent, file);
+  VPath getPathFromDir(@Nonnull DeflateVDir parent, @Nonnull DeflateVFile file) {
+    return vfs.getPathFromDir(parent.getWrappedDir(), file);
   }
 
   @Override
   @Nonnull
-  VPath getPathFromRoot(@Nonnull BaseVFile file) {
-    return vfs.getPathFromRoot(file);
+  VPath getPathFromRoot(@Nonnull DeflateVFile file) {
+    return vfs.getPathFromRoot(file.getWrappedFile());
   }
 
   @Override

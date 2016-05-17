@@ -35,6 +35,7 @@ import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.log.LoggerFactory;
+import com.android.sched.vfs.DeflateFS;
 import com.android.sched.vfs.GenericInputOutputVFS;
 import com.android.sched.vfs.GenericInputVFS;
 import com.android.sched.vfs.GenericOutputVFS;
@@ -155,6 +156,11 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
         // if library is well formed this exception can not be triggered
         throw new AssertionError(e);
       }
+
+      if (fileType != FileType.LOG) {
+        outputVFS = new DeflateFS(outputVFS);
+      }
+
       currentSectionVFS = new GenericInputOutputVFS(outputVFS);
       sectionVFS.put(fileType, currentSectionVFS);
     }

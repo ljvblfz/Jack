@@ -41,9 +41,12 @@ public class ZipFSCodec extends FileOrDirCodec<VFS> {
 
   @Nonnull
   private final MessageDigestCodec messageDigestCodec = new MessageDigestCodec();
+  @Nonnull
+  private final Compression compression;
 
-  public ZipFSCodec(@Nonnull Existence existence) {
+  public ZipFSCodec(@Nonnull Existence existence, @Nonnull Compression compression) {
     super(existence, Permission.READ | Permission.WRITE);
+    this.compression = compression;
   }
 
   @Nonnull
@@ -101,7 +104,7 @@ public class ZipFSCodec extends FileOrDirCodec<VFS> {
       Service service = messageDigestCodec.checkString(context, "SHA");
       return new ReadWriteZipFS(
           new OutputZipFile(context.getWorkingDirectory(), string, hooks, existence, change,
-              Compression.COMPRESSED),
+              compression),
           /* numGroups = */ 1, /* groupSize = */ 2,
           new MessageDigestFactory(service), /* debug = */ false);
     } catch (IOException e) {
