@@ -23,6 +23,7 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNode;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.library.DumpInLibrary;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.shrob.shrink.NodeFinder;
@@ -34,6 +35,7 @@ import com.android.jack.shrob.spec.MethodSpecification;
 import com.android.jack.shrob.spec.Specification;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.ExclusiveAccess;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.HasKeyId;
@@ -52,6 +54,8 @@ import javax.annotation.Nonnull;
 @Description("Visitor that find seeds")
 @Constraint(need = OriginalNames.class)
 @Transform(add = SeedMarker.class)
+// This schedulable searches methods in the hierarchy
+@ExclusiveAccess(JSession.class)
 public class SeedFinder implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   public static final BooleanPropertyId SEARCH_SEEDS_IN_HIERARCHY = BooleanPropertyId

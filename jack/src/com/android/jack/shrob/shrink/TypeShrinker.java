@@ -19,10 +19,12 @@ package com.android.jack.shrob.shrink;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNode;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.transformations.TypeRemover;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.ExclusiveAccess;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.util.log.TracerFactory;
 
@@ -34,6 +36,8 @@ import javax.annotation.Nonnull;
 @Description("Removes all types not marked with the KeepMarker")
 @Synchronized
 @Constraint(need = KeepMarker.class, no = KeeperSchedulingSeparator.SeparatorTag.class)
+// This schedulable removes some types and updates the hierarchy
+@ExclusiveAccess(JSession.class)
 public class TypeShrinker extends TypeRemover {
 
   @Nonnull

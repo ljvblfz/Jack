@@ -19,6 +19,7 @@ package com.android.jack.transformations;
 import com.android.jack.Options;
 import com.android.jack.backend.dex.EnsureAndroidCompatibility;
 import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
+import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.transformations.lambda.DefaultBridgeIntoInterface;
@@ -28,6 +29,7 @@ import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.ExclusiveAccess;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
@@ -47,6 +49,8 @@ import javax.annotation.Nonnull;
 @Constraint(no = DefaultBridgeSeparator.SeparatorTag.class)
 @Transform(remove = DefaultBridgeIntoInterface.class)
 @Synchronized
+// This schedulable removes some methods
+@ExclusiveAccess(JDefinedClassOrInterface.class)
 public class BridgeInInterfaceRemover implements RunnableSchedulable<JMethod> {
 
   private final long androidMinApiLevel =

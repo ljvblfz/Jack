@@ -17,12 +17,14 @@
 package com.android.jack.shrob.shrink;
 
 import com.android.jack.Jack;
+import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.ExclusiveAccess;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.TracerFactory;
@@ -38,6 +40,8 @@ import javax.annotation.Nonnull;
 @Description("Removes all fields not marked with the KeepMarker")
 @Synchronized
 @Constraint(need = KeepMarker.class, no = KeeperSchedulingSeparator.SeparatorTag.class)
+// This schedulable removes some fields
+@ExclusiveAccess(JDefinedClassOrInterface.class)
 public class FieldShrinker implements RunnableSchedulable<JField> {
 
   @Nonnull
