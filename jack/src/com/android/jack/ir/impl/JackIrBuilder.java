@@ -933,23 +933,19 @@ public class JackIrBuilder {
             // JLS 8.8.7.1. Explicit Constructor Invocations
             // If the explicit constructor has a qualifier, we have to check for a null pointer
             // d.super(...) => new A((tmp = d, tmp.getClass(), super(...)));
-            List<JExpression> exprs = new ArrayList<JExpression>();
             JLocal tmp =
                 new JLocal(info, ".superInstanceQualifier" + superInstanceQualifierSuffix++,
                     qualifier.getType(), JModifier.FINAL | JModifier.SYNTHETIC, curMethod.body);
             JAsgOperation asg = new JAsgOperation(info, tmp.makeRef(info), qualifier);
-            exprs.add(asg);
             curMethod.body.addLocal(tmp);
 
             JMethodCall getClassCall =
                 makeMethodCall(info, tmp.makeRef(info), javaLangObject, getGetClassMethod());
-            exprs.add(getClassCall);
-
-            exprs.add(call);
 
             qualifier = tmp.makeRef(info);
 
-            JMultiExpression multiExpr = new JMultiExpression(info, exprs);
+            JMultiExpression multiExpr = new JMultiExpression(info,
+                asg, getClassCall, call);
             push(multiExpr.makeStatement());
           } else {
             push(call.makeStatement());
@@ -1447,20 +1443,15 @@ public class JackIrBuilder {
                   jParameter);
             }
 
-            List<JExpression> exprs = new ArrayList<JExpression>();
-
             JAsgOperation asg =
                 new JAsgOperation(sourceInfo, tmp.makeRef(sourceInfo), lhsExprOutsideLambdaMethod);
-            exprs.add(asg);
 
             // Null pointer exception on lhsExpr must be thrown as required by the JLS 15.3.3
             JMethodCall getClassCall = makeMethodCall(sourceInfo, tmp.makeRef(sourceInfo),
                 javaLangObject, getGetClassMethod());
-            exprs.add(getClassCall);
 
-            exprs.add(exprRepresentingLambda);
-
-            exprRepresentingLambda = new JMultiExpression(sourceInfo, exprs);
+            exprRepresentingLambda = new JMultiExpression(sourceInfo,
+                asg, getClassCall, exprRepresentingLambda);
           } else {
             assert lhsExprOutsideLambdaMethod != null || lambdaMethod.isStatic();
           }
@@ -3580,23 +3571,19 @@ public class JackIrBuilder {
             if (qualifier != null && argType == targetEnclosingType) {
               // If the constructor has a qualifier, we have to check for a null pointer
               // d.new A() => new A((tmp = d, tmp.getClass(), tmp));
-              List<JExpression> exprs = new ArrayList<JExpression>();
               SourceInfo sourceInfo = qualExpr.getSourceInfo();
               JLocal tmp = new JLocal(sourceInfo,
                   ".newInstanceQualifier" + newInstanceQualifierSuffix++, qualExpr.getType(),
                   JModifier.FINAL | JModifier.SYNTHETIC, curMethod.body);
               JAsgOperation asg = new JAsgOperation(sourceInfo, tmp.makeRef(sourceInfo),
                   new CloneExpressionVisitor().cloneExpression(qualExpr));
-              exprs.add(asg);
               curMethod.body.addLocal(tmp);
 
               JMethodCall getClassCall = makeMethodCall(sourceInfo, tmp.makeRef(sourceInfo),
                   javaLangObject, getGetClassMethod());
-              exprs.add(getClassCall);
 
-              exprs.add(tmp.makeRef(sourceInfo));
-
-              JMultiExpression multiExpr = new JMultiExpression(info, exprs);
+              JMultiExpression multiExpr = new JMultiExpression(info,
+                  asg, getClassCall, tmp.makeRef(sourceInfo));
               call.addArg(multiExpr);
             } else {
               // check supplementary error
@@ -3794,15 +3781,13 @@ public class JackIrBuilder {
       assert result instanceof JFieldRef;
       // a.x => (a.getClass(), constant)
 
-      List<JExpression> exprs = new ArrayList<JExpression>();
       SourceInfo sourceInfo = result.getSourceInfo();
 
       JMethodCall getClassCall = makeMethodCall(
           sourceInfo, ((JFieldRef) result).getInstance(), javaLangObject, getGetClassMethod());
-      exprs.add(getClassCall);
-      exprs.add(cst);
 
-      return (new JMultiExpression(sourceInfo, exprs));
+      return (new JMultiExpression(sourceInfo,
+          getClassCall, cst));
     }
 
     private void writeEnumValueOfMethod(JDefinedEnum type, JMethod method)

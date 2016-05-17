@@ -42,9 +42,6 @@ import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
 import com.android.sched.util.config.ThreadConfig;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import javax.annotation.Nonnull;
 
 /**
@@ -92,19 +89,16 @@ public class NestedAssignRemover implements RunnableSchedulable<JMethod> {
 
           JLocal tmp = localVarCreator.createTempLocal(rhsType, sourceInfo, tr);
 
-          List<JExpression> exprs = new LinkedList<JExpression>();
-
           // t = b
           JAsgOperation asg1 = new JAsgOperation(sourceInfo, tmp.makeRef(sourceInfo), rhs);
-          exprs.add(asg1);
           // a = t
           JAsgOperation asg2 = new JAsgOperation(sourceInfo, binOp.getLhs(),
               tmp.makeRef(sourceInfo));
-          exprs.add(asg2);
           // t
-          exprs.add(tmp.makeRef(sourceInfo));
+          JLocalRef tmpRef = tmp.makeRef(sourceInfo);
 
-          tr.append(new Replace(binOp, new JMultiExpression(sourceInfo, exprs)));
+          tr.append(new Replace(binOp, new JMultiExpression(sourceInfo,
+              asg1, asg2, tmpRef)));
           tr.commit();
       }
     }

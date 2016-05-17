@@ -58,8 +58,6 @@ import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
 import com.android.sched.util.config.ThreadConfig;
 
-import java.util.ArrayList;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
@@ -137,7 +135,6 @@ public class IncDecRemover implements RunnableSchedulable<JMethod> {
       if (newOperator != null) {
         SourceInfo sourceInfo = unary.getSourceInfo();
         JType binaryType = unary.getType();
-        ArrayList<JExpression> exprs = new ArrayList<JExpression>();
 
         assert extractor != null;
         JExpression argCopy = extractor.copyWithoutSideEffects(unary.getArg(), tr);
@@ -148,18 +145,15 @@ public class IncDecRemover implements RunnableSchedulable<JMethod> {
           JLocal idr0 = lvCreator.createTempLocal(binaryType, sourceInfo, tr);
           JLocalRef part1Lhs = idr0.makeRef(sourceInfo);
           JAsgOperation part1 = new JAsgOperation(sourceInfo, part1Lhs, unary.getArg());
-          exprs.add(part1);
 
           // a = $idr0 newOperator 1
           JBinaryOperation part2Rhs = JBinaryOperation.create(sourceInfo, newOperator,
               idr0.makeRef(sourceInfo), new JIntLiteral(sourceInfo, 1));
           JAsgOperation part2 = new JAsgOperation(sourceInfo, argCopy, part2Rhs);
-          exprs.add(part2);
 
           // $idr0
           JLocalRef part3 = idr0.makeRef(sourceInfo);
-          exprs.add(part3);
-          JMultiExpression me = new JMultiExpression(sourceInfo, exprs);
+          JMultiExpression me = new JMultiExpression(sourceInfo, part1, part2, part3);
           tr.append(new Replace(unary, me));
         } else {
           assert unary instanceof JPrefixOperation : "Not yet supported";

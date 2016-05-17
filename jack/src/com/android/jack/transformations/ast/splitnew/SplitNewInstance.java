@@ -20,7 +20,6 @@ import com.android.jack.Options;
 import com.android.jack.ir.ast.JAlloc;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JClass;
-import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JMethod;
@@ -44,9 +43,6 @@ import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
 import com.android.sched.util.config.ThreadConfig;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -103,11 +99,8 @@ public class SplitNewInstance implements RunnableSchedulable<JMethod> {
       // tmp
       JLocalRef result = tmp.makeRef(srcInfos);
 
-      List<JExpression> exprs = new ArrayList<JExpression>();
-      exprs.add(assign);
-      exprs.add(initCall);
-      exprs.add(result);
-      JMultiExpression splittedNewInstance = new JMultiExpression(srcInfos, exprs);
+      JMultiExpression splittedNewInstance = new JMultiExpression(srcInfos,
+          assign, initCall, result);
 
       request.append(new Replace(newInstance, splittedNewInstance));
 
