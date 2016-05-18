@@ -113,6 +113,9 @@ public abstract class AbstractTestTools {
     toolchainBuilders.put("jack-api-v02", new JackApiV02ToolchainBuilder());
     toolchainBuilders.put("jack-api-inc-v02", new JackApiV02IncrementalToolchainBuilder());
     toolchainBuilders.put("jack-api-2steps-v02", new JackApiV02TwoStepsToolchainBuilder());
+    toolchainBuilders.put("jack-api-v03", new JackApiV03ToolchainBuilder());
+    toolchainBuilders.put("jack-api-inc-v03", new JackApiV03IncrementalToolchainBuilder());
+    toolchainBuilders.put("jack-api-2steps-v03", new JackApiV03TwoStepsToolchainBuilder());
     toolchainBuilders.put("legacy", new LegacyToolchainBuilder());
     toolchainBuilders.put("jill-legacy", new EmbeddedJillBasedToolchainBuilder());
     toolchainBuilders.put("jill-api-v01", new JillApiV01ToolchainBuilder());
@@ -178,6 +181,16 @@ public abstract class AbstractTestTools {
     }
   }
 
+  private static class JackApiV03IncrementalToolchainBuilder implements ToolchainBuilder {
+
+    @Override
+    @Nonnull
+    public JackApiV03IncrementalToolchain build() {
+      File jackPrebuilt = isPrebuiltAvailable("jack") ? getPrebuilt("jack") : null;
+      return new JackApiV03IncrementalToolchain(jackPrebuilt);
+    }
+  }
+
   private static class JackApiV02TwoStepsToolchainBuilder implements ToolchainBuilder {
 
     @Override
@@ -188,6 +201,16 @@ public abstract class AbstractTestTools {
     }
   }
 
+  private static class JackApiV03TwoStepsToolchainBuilder implements ToolchainBuilder {
+
+    @Override
+    @Nonnull
+    public JackApiV03TwoStepsToolchain build() {
+      File jackPrebuilt = isPrebuiltAvailable("jack") ? getPrebuilt("jack") : null;
+      return new JackApiV03TwoStepsToolchain(jackPrebuilt);
+    }
+  }
+
   private static class JackApiV02ToolchainBuilder implements ToolchainBuilder {
 
     @Override
@@ -195,6 +218,16 @@ public abstract class AbstractTestTools {
     public JackApiV02Toolchain build() {
       File jackPrebuilt = isPrebuiltAvailable("jack") ? getPrebuilt("jack") : null;
       return new JackApiV02Toolchain(jackPrebuilt);
+    }
+  }
+
+  private static class JackApiV03ToolchainBuilder implements ToolchainBuilder {
+
+    @Override
+    @Nonnull
+    public JackApiV03Toolchain build() {
+      File jackPrebuilt = isPrebuiltAvailable("jack") ? getPrebuilt("jack") : null;
+      return new JackApiV03Toolchain(jackPrebuilt);
     }
   }
 
