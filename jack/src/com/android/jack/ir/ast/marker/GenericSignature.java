@@ -18,8 +18,9 @@ package com.android.jack.ir.ast.marker;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
+import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JVariable;
+import com.android.jack.ir.ast.JParameter;
 import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.SerializableMarker;
@@ -31,7 +32,8 @@ import javax.annotation.Nonnull;
  * This {@link Marker} holds generic signature retrieved from ecj.
  */
 @Description("Holds generic signature retrieved from ecj")
-@ValidOn({JDefinedClassOrInterface.class, JVariable.class, JMethod.class, JField.class})
+@ValidOn({JDefinedClassOrInterface.class, JLocal.class, JParameter.class, JMethod.class,
+    JField.class})
 public class GenericSignature implements SerializableMarker {
 
   @Nonnull

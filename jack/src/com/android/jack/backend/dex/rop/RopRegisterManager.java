@@ -90,6 +90,7 @@ class RopRegisterManager {
     Type dexRegType = RopHelper.convertTypeToDx(type);
     String name = jThis.getName();
     if (emitDebugInfo && name != null) {
+      assert jThis.getMarker(GenericSignature.class) == null;
       CstString cstSignature = null;
       ThisRefTypeInfo thisMarker = type.getMarker(ThisRefTypeInfo.class);
       if (thisMarker != null && !thisMarker.getGenericSignature().isEmpty()) {
