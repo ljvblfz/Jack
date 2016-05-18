@@ -16,6 +16,7 @@
 
 package com.android.jack.server.tasks;
 
+import com.android.jack.api.cli02.Cli02Config;
 import com.android.jack.api.v01.Cli01Config;
 import com.android.jack.server.JackHttpServer;
 import com.android.jack.server.type.CommandOutRaw;
@@ -47,6 +48,12 @@ public class JackTaskRawOut extends JackTask<CommandOutRaw> {
   protected CommandOutRaw createCommandOut(Response response, Charset outCharset)
       throws IOException {
     return new CommandOutRaw(response.getByteChannel(), Charset.defaultCharset(), outCharset);
+  }
+
+  @Override
+  protected void installJackOutErr(Cli02Config jack, CommandOutRaw commandOut) {
+    jack.setStandardError(commandOut.getErrPrintStream());
+    jack.setStandardOutput(commandOut.getOutPrintStream());
   }
 
 }
