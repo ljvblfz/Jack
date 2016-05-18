@@ -159,7 +159,7 @@ public class BoostLockedRegionPriority implements RunnableSchedulable<JMethod> {
       Jack.getSession()
           .getReporter()
           .report(Severity.FATAL, new BadBoostLockedRegionPriorityConfigurationException(prop, e));
-      Jack.getSession().abortEventually();
+      Jack.getSession().setAbortEventually(true);
       return null;
     }
   }
@@ -172,7 +172,7 @@ public class BoostLockedRegionPriority implements RunnableSchedulable<JMethod> {
       Jack.getSession()
           .getReporter()
           .report(Severity.FATAL, new BadBoostLockedRegionPriorityConfigurationException(prop, e));
-      Jack.getSession().abortEventually();
+      Jack.getSession().setAbortEventually(true);
       return null;
     }
   }
@@ -208,6 +208,7 @@ public class BoostLockedRegionPriority implements RunnableSchedulable<JMethod> {
 
     @Override
     public void endVisit(@Nonnull JSynchronizedBlock jSyncBock) {
+      assert lockClass != null;
       if (!jSyncBock.getLockExpr().getType().isSameType(lockClass)) {
         return;
       }
@@ -219,7 +220,7 @@ public class BoostLockedRegionPriority implements RunnableSchedulable<JMethod> {
     }
 
     private JExpressionStatement makeRequestCall(SourceInfo info) {
-      assert lockClass != null && requestMethodId != null;
+      assert requestClass != null && lockClass != null && requestMethodId != null;
       return new JExpressionStatement(
           info,
           new JMethodCall(
@@ -227,7 +228,7 @@ public class BoostLockedRegionPriority implements RunnableSchedulable<JMethod> {
     }
 
     private JExpressionStatement makeResetCall(SourceInfo info) {
-      assert lockClass != null && resetMethodId != null;
+      assert resetClass != null && lockClass != null && resetMethodId != null;
       return new JExpressionStatement(
           info,
           new JMethodCall(
