@@ -28,13 +28,10 @@ import com.android.sched.item.Name;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.stream.ByteStreamSucker;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.OutputVFile;
 import com.android.sched.vfs.VPath;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -59,19 +56,7 @@ public class LibraryResourceWriter implements RunnableSchedulable<JSession> {
         InputVFile inputFile = resource.getVFile();
         VPath path = resource.getPath();
         OutputVFile outputFile = ojl.createFile(FileType.RSC, path);
-        InputStream is = inputFile.getInputStream();
-        OutputStream os = outputFile.getOutputStream();
-        try {
-          ByteStreamSucker sucker = new ByteStreamSucker(is, os);
-          sucker.suck();
-        } finally {
-          if (is != null) {
-            is.close();
-          }
-          if (os != null) {
-            os.close();
-          }
-        }
+        outputFile.copy(inputFile);
       }
     }
   }

@@ -25,13 +25,11 @@ import com.android.jack.library.OutputJackLibrary;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.util.location.ZipLocation;
-import com.android.sched.util.stream.ByteStreamSucker;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.OutputVFile;
 import com.android.sched.vfs.VPath;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 
@@ -90,16 +88,6 @@ public class LibraryMetaWriter implements RunnableSchedulable<JSession> {
     InputVFile inputFile = meta.getVFile();
     VPath path = meta.getPath();
     OutputVFile outputFile = ojl.createFile(FileType.META, path);
-    InputStream is = null;
-    try {
-      is = inputFile.getInputStream();
-      ByteStreamSucker sucker = new ByteStreamSucker(is, outputFile.getOutputStream(),
-          true /* close */);
-      sucker.suck();
-    } finally {
-      if (is != null) {
-        is.close();
-      }
-    }
+    outputFile.copy(inputFile);
   }
 }

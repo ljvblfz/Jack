@@ -23,7 +23,9 @@ import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
+import com.android.sched.util.stream.ByteStreamSucker;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
@@ -125,5 +127,17 @@ abstract class BaseVFS<DIR extends BaseVDir, FILE extends BaseVFile> implements 
   @CheckForNull
   public String getDigest() {
     return null;
+  }
+
+  public void copy(@Nonnull VFile srcFile, @Nonnull FILE dstFile)
+      throws WrongPermissionException, IOException {
+    InputStream is = srcFile.getInputStream();
+    OutputStream os = dstFile.getOutputStream();
+    try {
+      new ByteStreamSucker(is, os).suck();
+    } finally {
+      os.close();
+      is.close();
+    }
   }
 }

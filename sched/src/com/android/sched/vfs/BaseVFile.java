@@ -20,6 +20,7 @@ import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -90,5 +91,10 @@ abstract class BaseVFile extends BaseVElement implements VFile {
   @Nonnull
   public String toString() {
     return getPathFromRoot().getPathAsString('/') + " (" + getLocation().getDescription() + ')';
+  }
+
+  @Override
+  public void copy(@Nonnull VFile vFile) throws WrongPermissionException, IOException {
+    vfs.copy(vFile, this);
   }
 }

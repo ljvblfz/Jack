@@ -296,4 +296,14 @@ public class DeflateFS extends BaseVFS<DeflateVDir, DeflateVFile> implements VFS
   public String toString() {
     return "deflateFS >> " + vfs.toString();
   }
+
+  @Override
+  public void copy(@Nonnull VFile srcFile, @Nonnull DeflateVFile dstFile)
+      throws WrongPermissionException, IOException {
+    if (srcFile instanceof DeflateVFile) { // copy without inflating/deflating
+      vfs.copy(((DeflateVFile) srcFile).getWrappedFile(), dstFile.getWrappedFile());
+    } else {
+      super.copy(srcFile, dstFile);
+    }
+  }
 }
