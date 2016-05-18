@@ -28,14 +28,17 @@ import com.android.jack.server.api.v01.LauncherHandle;
 import com.android.jack.server.api.v01.ServerException;
 import com.android.jack.server.router.AcceptContentTypeParameterRouter;
 import com.android.jack.server.router.AcceptContentTypeRouter;
+import com.android.jack.server.router.BooleanCodec;
 import com.android.jack.server.router.ContentTypeParameterRouter;
 import com.android.jack.server.router.ContentTypeRouter;
 import com.android.jack.server.router.ErrorContainer;
 import com.android.jack.server.router.MethodRouter;
 import com.android.jack.server.router.PartContentTypeParameterRouter;
 import com.android.jack.server.router.PartContentTypeRouter;
+import com.android.jack.server.router.PartParserRouter;
 import com.android.jack.server.router.PathRouter;
 import com.android.jack.server.router.RootContainer;
+import com.android.jack.server.router.TextPlainPartParser;
 import com.android.jack.server.tasks.GC;
 import com.android.jack.server.tasks.GetJackVersions;
 import com.android.jack.server.tasks.GetLauncherHome;
@@ -58,6 +61,7 @@ import com.android.jack.server.type.ExactCodeVersionFinder;
 import com.android.jack.server.type.TextPlain;
 import com.android.sched.util.FinalizerRunner;
 import com.android.sched.util.Version;
+import com.android.sched.util.codec.IntCodec;
 import com.android.sched.util.codec.PairCodec.Pair;
 import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.file.Directory;
@@ -746,7 +750,7 @@ public class JackHttpServer implements HasVersion {
         && "1".equals(versionType.getParameter("version"))) {
       return ExactCodeVersionFinder.parse(versionString);
     } else {
-      throw new TypeNotSupportedException("Unsupported version selection '" + versionString + "'");
+      throw new TypeNotSupportedException(versionString);
     }
   }
 
@@ -1036,10 +1040,9 @@ public class JackHttpServer implements HasVersion {
           .add(Method.PUT,
             new ContentTypeRouter()
               .add("multipart/form-data",
-                new PartContentTypeRouter("force")
-                  .add(TextPlain.CONTENT_TYPE_NAME,
-                    new PartContentTypeRouter("jar")
-                      .add("application/octet-stream", new InstallJack(this)))))
+                new PartParserRouter<>("force", new TextPlainPartParser<>(new BooleanCodec()),
+                  new PartContentTypeRouter("jar")
+                    .add("application/octet-stream", new InstallJack(this)))))
           .add(Method.HEAD,
             new ContentTypeRouter()
               .add(ExactCodeVersionFinder.SELECT_EXACT_VERSION_CONTENT_TYPE,
@@ -1054,10 +1057,9 @@ public class JackHttpServer implements HasVersion {
           .add(Method.PUT,
             new ContentTypeRouter()
               .add("multipart/form-data",
-                  new PartContentTypeRouter("force")
-                    .add(TextPlain.CONTENT_TYPE_NAME,
-                      new PartContentTypeRouter("jar")
-                        .add("application/octet-stream", new InstallServer(this)))))
+                  new PartParserRouter<>("force", new TextPlainPartParser<>(new BooleanCodec()),
+                    new PartContentTypeRouter("jar")
+                      .add("application/octet-stream", new InstallServer(this)))))
           .add(Method.HEAD,
             new ContentTypeRouter()
               .add(ExactCodeVersionFinder.SELECT_EXACT_VERSION_CONTENT_TYPE,
@@ -1094,10 +1096,11 @@ public class JackHttpServer implements HasVersion {
               .add("multipart/form-data",
                  new PartContentTypeRouter("level")
                    .add(TextPlain.CONTENT_TYPE_NAME,
-                     new PartContentTypeRouter("limit")
-                       .add(TextPlain.CONTENT_TYPE_NAME,
-                         new PartContentTypeRouter("count")
-                           .add(TextPlain.CONTENT_TYPE_NAME, new SetLoggerParameters(this)))))));
+                     new PartParserRouter<>("limit",
+                           new TextPlainPartParser<>(new IntCodec(0, Integer.MAX_VALUE)),
+                       new PartParserRouter<>("count",
+                             new TextPlainPartParser<>(new IntCodec(1, Integer.MAX_VALUE)),
+                         new SetLoggerParameters(this)))))));
   }
 
   @Nonnull

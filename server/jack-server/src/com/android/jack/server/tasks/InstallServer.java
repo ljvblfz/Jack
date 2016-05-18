@@ -50,12 +50,10 @@ public class InstallServer extends SynchronousAdministrativeTask {
     Part jarPart = request.getPart("jar");
     assert jarPart != null && jarPart.getContentType() != null
         && jarPart.getContentType().getType().equals("application/octet-stream");
-    Part forcePart = request.getPart("force");
-    assert forcePart != null;
+    boolean force = ((Boolean) request.getAttribute("force")).booleanValue();
 
     InputStream jarIn = null;
     try {
-      boolean force = "true".equals(forcePart.getContent());
       jarIn = jarPart.getInputStream();
       jackServer.shutdownServerOnly();
       jackServer.getLauncherHandle().replaceServer(

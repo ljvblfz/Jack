@@ -54,25 +54,9 @@ public class SetLoggerParameters extends SynchronousAdministrativeTask {
       Part levelPart = request.getPart("level");
       assert levelPart != null;
       logConfig.setLevel(levelPart.getContent());
-      Part limitPart = request.getPart("limit");
-      assert limitPart != null;
-      int limit = Integer.parseInt(limitPart.getContent());
-      if (limit < 0) {
-        logger.log(Level.WARNING, "Invalid limit value " + limit);
-        response.setStatus(Status.BAD_REQUEST);
-        return;
-      }
-      logConfig.setMaxLogFileSize(limit);
-      Part countPart = request.getPart("count");
-      assert countPart != null;
-      int count = Integer.parseInt(countPart.getContent());
-      if (count < 1) {
-        logger.log(Level.WARNING, "Invalid count value " + count);
-        response.setStatus(Status.BAD_REQUEST);
-        return;
-      }
-      logConfig.setLogFileCount(count);
-    } catch (ParsingException | NumberFormatException e) {
+      logConfig.setMaxLogFileSize(((Integer) request.getAttribute("limit")).intValue());
+      logConfig.setLogFileCount(((Integer) request.getAttribute("count")).intValue());
+    } catch (ParsingException e) {
       logger.log(Level.WARNING, "Failed to parse request", e);
       response.setStatus(Status.BAD_REQUEST);
       return;
