@@ -21,7 +21,7 @@ import com.android.jack.ExitStatus;
 import com.android.jack.IllegalOptionsException;
 import com.android.jack.Options;
 import com.android.jack.api.v01.Cli01CompilationTask;
-import com.android.jack.plugin.Plugin;
+import com.android.jack.plugin.v01.Plugin;
 import com.android.sched.util.log.LoggerFactory;
 
 import java.io.IOException;

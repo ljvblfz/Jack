@@ -117,8 +117,8 @@ import com.android.jack.optimizations.UnusedDefinitionRemover;
 import com.android.jack.optimizations.UseDefsChainsSimplifier;
 import com.android.jack.optimizations.tailrecursion.TailRecursionOptimization;
 import com.android.jack.optimizations.tailrecursion.TailRecursionOptimizer;
-import com.android.jack.plugin.Plugin;
 import com.android.jack.plugin.PluginManager;
+import com.android.jack.plugin.v01.Plugin;
 import com.android.jack.preprocessor.PreProcessor;
 import com.android.jack.preprocessor.PreProcessorApplier;
 import com.android.jack.reporting.ReportableIOException;
@@ -728,12 +728,10 @@ public abstract class Jack {
             planBuilder.append(LibraryMetaWriter.class);
           }
 
-          // Modify features and productions according to plugins
-          ProductionSet productions = request.getTargetProductions();
+          // Add features and productions according to plugins
           for (Plugin plugin : pluginManager.getPlugins()) {
-            plugin.manageFeaturesAndProductions(config, features, productions);
-            request.setFeatures(features);
-            request.setProductions(productions);
+            request.addFeatures(plugin.getFeatures(config, scheduler));
+            request.addProductions(plugin.getProductions(config, scheduler));
           }
 
           Plan<JSession> plan = null;
@@ -765,7 +763,7 @@ public abstract class Jack {
 
                 if (!amender.amendPlan(request, JSession.class, runners, ctor) || !ctor.isValid()) {
                   throw new JackUserException("Jack cannot insert plugin '"
-                      + plugin.getFriendlyName() + "' (" + plugin.getName() + ")");
+                      + plugin.getFriendlyName() + "' (" + plugin.getCanonicalName() + ")");
                 }
               }
 

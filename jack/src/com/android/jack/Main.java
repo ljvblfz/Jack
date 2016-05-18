@@ -17,7 +17,7 @@
 package com.android.jack;
 
 import com.android.jack.CLILogConfiguration.LogConfigurationException;
-import com.android.jack.plugin.Plugin;
+import com.android.jack.plugin.v01.Plugin;
 import com.android.sched.util.config.cli.TokenIterator;
 import com.android.sched.util.location.NoLocation;
 

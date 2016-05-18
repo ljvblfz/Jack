@@ -16,6 +16,7 @@
 
 package com.android.jack.plugin;
 
+import com.android.jack.plugin.v01.Plugin;
 import com.android.sched.util.location.Location;
 
 import javax.annotation.Nonnull;
@@ -34,7 +35,7 @@ public class PluginLocation implements Location {
   @Override
   @Nonnull
   public String getDescription() {
-    return "'" + plugin.getName() + "' plugin";
+    return "'" + plugin.getCanonicalName() + "' plugin";
   }
 
   @Nonnull
@@ -45,11 +46,11 @@ public class PluginLocation implements Location {
   @Override
   public boolean equals(Object obj) {
     return obj instanceof PluginLocation &&
-        plugin.getName().equals(((PluginLocation) obj).plugin.getName());
+        plugin.getCanonicalName().equals(((PluginLocation) obj).plugin.getCanonicalName());
   }
 
   @Override
   public int hashCode() {
-    return plugin.getName().hashCode();
+    return plugin.getCanonicalName().hashCode();
   }
 }

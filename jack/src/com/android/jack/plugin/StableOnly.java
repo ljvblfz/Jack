@@ -16,6 +16,7 @@
 
 package com.android.jack.plugin;
 
+import com.android.jack.plugin.v01.Plugin;
 import com.android.sched.util.SubReleaseKind;
 import com.android.sched.util.UncomparableSubReleaseKind;
 import com.android.sched.util.codec.ImplementationName;
@@ -42,16 +43,16 @@ public class StableOnly implements PluginFilter {
 
       if (accepted) {
         logger.log(Level.INFO, "For plugin ''{0}'', accepted version {1} because stable",
-            new Object[] {plugin.getName(), plugin.getVersion().getVersion()});
+            new Object[] {plugin.getCanonicalName(), plugin.getVersion().getVersion()});
       } else {
         logger.log(Level.INFO, "For plugin ''{0}'', rejected version {1} because not stable",
-            new Object[] {plugin.getName(), plugin.getVersion().getVersion()});
+            new Object[] {plugin.getCanonicalName(), plugin.getVersion().getVersion()});
       }
 
       return accepted;
     } catch (UncomparableSubReleaseKind e) {
       logger.log(Level.INFO, "For plugin ''{0}'', rejected version {1} because not stable",
-          new Object[] {plugin.getName(), plugin.getVersion().getVersion()});
+          new Object[] {plugin.getCanonicalName(), plugin.getVersion().getVersion()});
 
       return false;
     }
