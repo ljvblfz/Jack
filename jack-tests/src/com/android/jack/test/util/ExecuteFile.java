@@ -22,9 +22,7 @@ import com.android.sched.util.stream.ByteStreamSucker;
 import com.android.sched.util.stream.CharacterStreamSucker;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -56,34 +54,16 @@ public class ExecuteFile {
 
   @CheckForNull
   private InputStream inStream;
-  private boolean inToBeClose;
 
   @CheckForNull
   private OutputStream outStream;
-  private boolean outToBeClose;
 
   @CheckForNull
   private OutputStream errStream;
-  private boolean errToBeClose;
   private boolean verbose;
 
   @Nonnull
   private final Logger logger;
-
-  public void setErr(@Nonnull File file) throws FileNotFoundException {
-    errStream = new FileOutputStream(file);
-    errToBeClose = true;
-  }
-
-  public void setOut(@Nonnull File file) throws FileNotFoundException {
-    outStream = new FileOutputStream(file);
-    outToBeClose = true;
-  }
-
-  public void setIn(@Nonnull File file) throws FileNotFoundException {
-    inStream = new FileInputStream(file);
-    inToBeClose = true;
-  }
 
   public void setErr(@Nonnull OutputStream stream) {
     errStream = stream;
@@ -212,7 +192,7 @@ public class ExecuteFile {
       InputStream localInStream = inStream;
       if (localInStream != null) {
         suckIn = new Thread(
-            new ThreadBytesStreamSucker(localInStream, proc.getOutputStream(), inToBeClose));
+            new ThreadBytesStreamSucker(localInStream, proc.getOutputStream()));
       } else {
         proc.getOutputStream().close();
       }
@@ -221,10 +201,10 @@ public class ExecuteFile {
       if (localOutStream != null) {
         if (localOutStream instanceof PrintStream) {
           suckOut = new Thread(new ThreadCharactersStreamSucker(proc.getInputStream(),
-              (PrintStream) localOutStream, outToBeClose));
+              (PrintStream) localOutStream));
         } else {
           suckOut = new Thread(
-              new ThreadBytesStreamSucker(proc.getInputStream(), localOutStream, outToBeClose));
+              new ThreadBytesStreamSucker(proc.getInputStream(), localOutStream));
         }
       }
 
@@ -232,10 +212,10 @@ public class ExecuteFile {
       if (localErrStream != null) {
         if (localErrStream instanceof PrintStream) {
           suckErr = new Thread(new ThreadCharactersStreamSucker(proc.getErrorStream(),
-              (PrintStream) localErrStream, errToBeClose));
+              (PrintStream) localErrStream));
         } else {
           suckErr = new Thread(
-              new ThreadBytesStreamSucker(proc.getErrorStream(), localErrStream, errToBeClose));
+              new ThreadBytesStreamSucker(proc.getErrorStream(), localErrStream));
         }
       }
 
@@ -271,9 +251,8 @@ public class ExecuteFile {
 
   private static class ThreadBytesStreamSucker extends ByteStreamSucker implements Runnable {
 
-    public ThreadBytesStreamSucker(@Nonnull InputStream is, @Nonnull OutputStream os,
-        boolean toBeClose) {
-      super(is, os, toBeClose);
+    public ThreadBytesStreamSucker(@Nonnull InputStream is, @Nonnull OutputStream os) {
+      super(is, os);
     }
 
     @Override
@@ -289,9 +268,8 @@ public class ExecuteFile {
   private static class ThreadCharactersStreamSucker extends CharacterStreamSucker implements
       Runnable {
 
-    public ThreadCharactersStreamSucker(@Nonnull InputStream is, @Nonnull PrintStream ps,
-        boolean toBeClose) {
-      super(is, ps, toBeClose);
+    public ThreadCharactersStreamSucker(@Nonnull InputStream is, @Nonnull PrintStream ps) {
+      super(is, ps);
     }
 
     @Override

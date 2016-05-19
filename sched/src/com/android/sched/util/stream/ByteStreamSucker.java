@@ -41,34 +41,20 @@ public class ByteStreamSucker {
   @Nonnull
   private final OutputStream os;
 
-  private final boolean toBeClose;
-
-  public ByteStreamSucker(
-      @Nonnull InputStream is, @Nonnull OutputStream os, boolean toBeClose) {
+  public ByteStreamSucker(@Nonnull InputStream is, @Nonnull OutputStream os) {
     this.is = is;
     this.os = os;
-    this.toBeClose = toBeClose;
-  }
-
-  public ByteStreamSucker(@Nonnull InputStream is, @Nonnull OutputStream os) {
-    this(is, os, false);
   }
 
   public ByteStreamSucker(@Nonnull InputStream is) {
-    this(is, ByteStreams.nullOutputStream(), false);
+    this(is, ByteStreams.nullOutputStream());
   }
 
   public void suck() throws IOException {
-    try {
-      int bytesRead;
-      while ((bytesRead = is.read(buffer)) >= 0) {
-        os.write(buffer, 0, bytesRead);
-        os.flush();
-      }
-    } finally {
-      if (toBeClose) {
-        os.close();
-      }
+    int bytesRead;
+    while ((bytesRead = is.read(buffer)) >= 0) {
+      os.write(buffer, 0, bytesRead);
+      os.flush();
     }
   }
 }
