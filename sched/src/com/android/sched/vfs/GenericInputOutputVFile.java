@@ -99,4 +99,10 @@ public class GenericInputOutputVFile implements InputOutputVFile {
   public long getLastModified() {
     return file.getLastModified();
   }
+
+  @Override
+  @Nonnull
+  public VFile getVFile() {
+    return file;
+  }
 }

@@ -32,7 +32,7 @@ public class GenericInputVFile implements InputVFile {
   @Nonnull
   private final VFile file;
 
-  GenericInputVFile(@Nonnull VFile file) {
+  public GenericInputVFile(@Nonnull VFile file) {
     this.file = file;
   }
 
@@ -75,8 +75,9 @@ public class GenericInputVFile implements InputVFile {
     return file.getPathFromRoot();
   }
 
+  @Override
   @Nonnull
-  VFile getVFile() {
+  public VFile getVFile() {
     return file;
   }
 

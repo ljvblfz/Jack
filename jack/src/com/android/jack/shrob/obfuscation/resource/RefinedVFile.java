@@ -19,13 +19,13 @@ package com.android.jack.shrob.obfuscation.resource;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
-import com.android.sched.vfs.AbstractVElement;
-import com.android.sched.vfs.InputVFile;
+import com.android.sched.vfs.VFile;
 import com.android.sched.vfs.VPath;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.TreeSet;
@@ -35,12 +35,12 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
- * A {@code VFile} wrapping another {@code VFile} with refining data.
+ * A {@link VFile} wrapping another {@link VFile} with refining data.
  */
-public class RefinedVFile extends AbstractVElement implements InputVFile {
+public class RefinedVFile implements VFile {
 
   @Nonnull
-  private final InputVFile file;
+  private final VFile file;
 
   @Nonnull
   private final TreeSet<RefinedEntry> refinedEntries =
@@ -54,7 +54,7 @@ public class RefinedVFile extends AbstractVElement implements InputVFile {
 
       });
 
-  public RefinedVFile(@Nonnull InputVFile file) {
+  public RefinedVFile(@Nonnull VFile file) {
     this.file = file;
   }
 
@@ -286,6 +286,12 @@ public class RefinedVFile extends AbstractVElement implements InputVFile {
 
   @Override
   @Nonnull
+  public VPath getPath() {
+    return file.getPath();
+  }
+
+  @Override
+  @Nonnull
   public VPath getPathFromRoot() {
     return file.getPathFromRoot();
   }
@@ -293,5 +299,23 @@ public class RefinedVFile extends AbstractVElement implements InputVFile {
   @Override
   public long getLastModified() {
     return file.getLastModified();
+  }
+
+  @Override
+  @Nonnull
+  public OutputStream getOutputStream() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  @Nonnull
+  public OutputStream getOutputStream(boolean append) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  @CheckForNull
+  public String getDigest() {
+    return null;
   }
 }

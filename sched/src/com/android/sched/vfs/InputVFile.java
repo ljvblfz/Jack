@@ -31,4 +31,7 @@ public interface InputVFile extends InputVElement, InputStreamProvider  {
   VPath getPathFromRoot();
 
   long getLastModified();
+
+  @Nonnull
+  VFile getVFile();
 }
