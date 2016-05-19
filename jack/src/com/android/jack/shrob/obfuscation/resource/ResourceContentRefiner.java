@@ -33,6 +33,7 @@ import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.vfs.GenericInputVFile;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
 
@@ -66,7 +67,7 @@ public class ResourceContentRefiner implements RunnableSchedulable<JSession> {
           resName.getPathAsString(GrammarActions.SHROB_REGEX_PATH_SEPARATOR))) {
         InputStreamReader reader = null;
         InputVFile originalVFile = res.getVFile();
-        RefinedVFile refinedVFile = new RefinedVFile(originalVFile);
+        RefinedVFile refinedVFile = new RefinedVFile(originalVFile.getVFile());
         int position = 0;
         try {
           reader = new InputStreamReader(originalVFile.getInputStream());
@@ -101,7 +102,7 @@ public class ResourceContentRefiner implements RunnableSchedulable<JSession> {
             c = reader.read();
             position++;
           }
-          res.setVFile(refinedVFile);
+          res.setVFile(new GenericInputVFile(refinedVFile));
         } finally {
           if (reader != null) {
             reader.close();
