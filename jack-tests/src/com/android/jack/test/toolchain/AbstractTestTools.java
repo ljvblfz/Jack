@@ -580,27 +580,6 @@ public abstract class AbstractTestTools {
     }
   }
 
-  public static void appendMessageToFileContent(@Nonnull File file, @Nonnull File out,
-      @Nonnull String message) throws IOException {
-    PrintStream fos = new PrintStream(new FileOutputStream(out));
-    FileInputStream fis = new FileInputStream(file);
-
-    new ByteStreamSucker(fis, fos, /* toBeClose = */ false).suck();
-    fos.print(message);
-
-    fos.close();
-  }
-
-  public static void prependMessageToFileContent(@Nonnull File file, @Nonnull File out,
-      @Nonnull String message) throws IOException {
-    PrintStream fos = new PrintStream(new FileOutputStream(out));
-    FileInputStream fis = new FileInputStream(file);
-
-    fos.print(message);
-    new ByteStreamSucker(fis, fos, /* toBeClose = */ true).suck();
-
-  }
-
   public static void unzip(@Nonnull File jarfile, @Nonnull File outputFolder, boolean verbose) {
 
     String options = verbose ? "-o" : "-qo";

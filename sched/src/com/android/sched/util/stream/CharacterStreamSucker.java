@@ -36,34 +36,20 @@ public class CharacterStreamSucker {
   @Nonnull
   private final PrintStream os;
 
-  private final boolean toBeClose;
-
-  public CharacterStreamSucker(
-      @Nonnull InputStream is, @Nonnull PrintStream os, boolean toBeClose) {
+  public CharacterStreamSucker(@Nonnull InputStream is, @Nonnull PrintStream os) {
     this.ir = new BufferedReader(new InputStreamReader(is));
     this.os = os;
-    this.toBeClose = toBeClose;
-  }
-
-  public CharacterStreamSucker(@Nonnull InputStream is, @Nonnull PrintStream os) {
-    this(is, os, false);
   }
 
   public CharacterStreamSucker(@Nonnull InputStream is) {
-    this(is, new NullPrintStream(), false);
+    this(is, new NullPrintStream());
   }
 
   public void suck() throws IOException {
     String line;
 
-    try {
-      while ((line = ir.readLine()) != null) {
-        os.println(line);
-      }
-    } finally {
-      if (toBeClose) {
-        os.close();
-      }
+    while ((line = ir.readLine()) != null) {
+      os.println(line);
     }
   }
 }
