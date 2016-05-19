@@ -82,6 +82,7 @@ public enum Token {
   CONSTRUCTOR ("constructor"),
   CONTAINER_ANNOTATION("container-annotation"),
   CONTINUE_STATEMENT("continue"),
+  DEBUG_VARIABLE_INFORMATION("debug-var"),
   DIV_OPERATION("/"),
   DO_STATEMENT("do"),
   DOUBLE_LITERAL("double"),

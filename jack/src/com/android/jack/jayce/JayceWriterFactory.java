@@ -16,7 +16,7 @@
 
 package com.android.jack.jayce;
 
-import com.android.jack.jayce.v0003.io.JayceInternalWriterImpl;
+import com.android.jack.jayce.v0004.io.JayceInternalWriterImpl;
 import com.android.jack.library.FileType;
 import com.android.jack.library.OutputJackLibrary;
 
@@ -29,7 +29,7 @@ import javax.annotation.Nonnull;
  */
 public abstract class JayceWriterFactory {
 
-  public static final int DEFAULT_MAJOR_VERSION = 3;
+  public static final int DEFAULT_MAJOR_VERSION = 4;
 
   @Nonnull
   public static JayceInternalWriter get(@Nonnull OutputJackLibrary outputJackLibrary,

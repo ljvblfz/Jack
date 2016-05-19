@@ -17,6 +17,7 @@
 package com.android.jack.analysis.tracer;
 
 import com.android.jack.Jack;
+import com.android.jack.debug.DebugVariableInfoMarker;
 import com.android.jack.frontend.MethodIdDuplicateRemover.UniqMethodIds;
 import com.android.jack.ir.ast.Annotable;
 import com.android.jack.ir.ast.JAbstractMethodBody;
@@ -61,6 +62,7 @@ import com.android.jack.ir.ast.JReinterpretCastOperation;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeStringLiteral;
 import com.android.jack.ir.ast.JVariable;
+import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.lookup.JMethodLookupException;
@@ -535,6 +537,14 @@ public class Tracer extends JVisitor {
   @Override
   public void endVisit(@Nonnull JAbstractStringLiteral x) {
     trace(x.getType());
+  }
+
+  @Override
+  public void endVisit(@Nonnull JVariableRef x) {
+    DebugVariableInfoMarker debugInfo = x.getMarker(DebugVariableInfoMarker.class);
+    if (debugInfo != null) {
+      trace(debugInfo.getType());
+    }
   }
 
   @Override

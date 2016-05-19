@@ -19,6 +19,7 @@ package com.android.jack.optimizations;
 import com.android.jack.analysis.DefinitionMarker;
 import com.android.jack.cfg.BasicBlock;
 import com.android.jack.cfg.BasicBlockMarker;
+import com.android.jack.debug.DebugVariableInfoMarker;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JVariable;
@@ -45,7 +46,12 @@ public abstract class DefUsesAndUseDefsChainsSimplifier {
   @Nonnull
   protected JVariableRef getNewVarRef(@Nonnull JNode defExpr) {
     assert defExpr instanceof JVariableRef;
-    return ((JVariableRef) defExpr).getTarget().makeRef(defExpr.getSourceInfo());
+    JVariableRef newVarRef = ((JVariableRef) defExpr).getTarget().makeRef(defExpr.getSourceInfo());
+    DebugVariableInfoMarker debugInfo = defExpr.getMarker(DebugVariableInfoMarker.class);
+    if (debugInfo != null) {
+      newVarRef.addMarker(debugInfo);
+    }
+    return newVarRef;
   }
 
   protected boolean hasLocalDef(@Nonnull JVariable var, @Nonnull BasicBlock basicBlock,

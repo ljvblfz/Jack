@@ -443,6 +443,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
       }
       String id = "-e_" + (unusedVarCount++);
       declaringCatchVariable = new Variable(id, id, caughtType, null);
+      declaringCatchVariable.setSynthetic();
       catchBlockToCatchedVariable.put(tryCatchNode, declaringCatchVariable);
     }
   }
@@ -2492,7 +2493,35 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
       writer.writeKeyword(token);
       writer.writeOpen();
       writer.writeId(v.getId());
+
+      if (!v.isParameter()) {
+        writer.writeOpenNodeList();
+        writeDebugInformation(v);
+        writer.writeCloseNodeList();
+      }
+
       sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+      writer.writeClose();
+    }
+  }
+
+  private void writeDebugInformation(@Nonnull Variable v) throws IOException {
+
+    if (!v.hasLocalIndex()) {
+      return;
+    }
+
+    LocalVariableNode lvn = getLocalVariableNode(v.getLocalIndex());
+
+    if (lvn == null) {
+      // Variable is a local variable but there is no debug info.
+      v.setSynthetic();
+    } else {
+      writer.writeKeyword(Token.DEBUG_VARIABLE_INFORMATION);
+      writer.writeOpen();
+      writer.writeString(lvn.name);
+      writer.writeId(lvn.desc);
+      writer.writeString(lvn.signature);
       writer.writeClose();
     }
   }
@@ -2575,13 +2604,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     writer.writeId(v.getName());
     writer.writeOpenNodeList(); // Empty annotation set, annotations on locals are not kept
     writer.writeCloseNodeList();
-    writer.writeOpenNodeList();
-    if (v.hasSignature()) {
-      writer.writeKeyword(Token.GENERIC_SIGNATURE); // Marker generic signature
-      writer.writeOpen();
-      writer.writeString(v.getSignature());
-      writer.writeClose();
-    }
+    writer.writeOpenNodeList(); // Markers
     writer.writeCloseNodeList();
     // TODO(mikaelpeltier): Add debug information.
     sourceInfoWriter.writeUnknownDebugEnd();
@@ -2766,8 +2789,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
   private Variable getTempVarFromTopOfStackMinus1(@Nonnull Frame<BasicValue> frame) {
     Variable topOfStackBeforeInst = getStackVariable(frame, TOP_OF_STACK - 1);
     String tmpVarId = "-swap_tmp_" + typeToUntypedDesc(topOfStackBeforeInst.getType());
-    Variable tmpVariable =
-        getVariable(tmpVarId, tmpVarId, topOfStackBeforeInst.getType(), null);
+    Variable tmpVariable = getVariable(tmpVarId, tmpVarId, topOfStackBeforeInst.getType(), null);
     tmpVariable.setSynthetic();
     return tmpVariable;
   }
@@ -2783,43 +2805,32 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     if (!AsmHelper.isStatic(currentMethod)) {
       Type parameterType = Type.getObjectType(currentClass.name);
       LocalVariableNode lvn = getLocalVariableNode(parameterIdx);
-      if (lvn == null) {
-        String pid = getUnnamedParameterId(parameterIdx, parameterType);
-        Variable p = getVariable(pid, pid, parameterType, null);
-        p.setThis();
+      String pid = getUnnamedParameterId(parameterIdx, parameterType);
+      Variable p = getVariableWithLocalIndex(parameterIdx, pid, lvn != null ? lvn.name : pid,
+          parameterType, lvn != null ? lvn.signature : null);
+      p.setThis();
 
-        Type untypedParameter = typeToUntyped(parameterType);
-        String lid = getUnnamedLocalId(parameterIdx, untypedParameter);
-        Variable local = getVariable(lid, lid, untypedParameter, null);
+      Type untypedParameter = typeToUntyped(parameterType);
+      String lid = getUnnamedLocalId(parameterIdx, untypedParameter);
+      Variable local = getVariableWithLocalIndex(parameterIdx, lid, lid, untypedParameter, null);
 
-        parameter2Var.put(p, local);
-      } else {
-        assert parameterType.getDescriptor().equals(lvn.desc);
-        Variable p = getVariable(getNamedLocalId(lvn), lvn.name, parameterType, lvn.signature);
-        p.setThis();
-      }
+      parameter2Var.put(p, local);
       parameterIdx++;
     }
 
     for (Type paramType : Type.getArgumentTypes(currentMethod.desc)) {
       LocalVariableNode lvn = getLocalVariableNode(parameterIdx);
-      if (lvn == null) {
-        String pid = getUnnamedParameterId(parameterIdx, paramType);
-        Variable p = getVariable(pid, pid, paramType, null);
-        p.setParameter();
-        writeParameter(paramType, parameterIdx, p, parameterAnnotationIdx++);
+      String pid = getUnnamedParameterId(parameterIdx, paramType);
+      Variable p = getVariableWithLocalIndex(parameterIdx, pid, lvn != null ? lvn.name : pid,
+          paramType, lvn != null ? lvn.signature : null);
+      p.setParameter();
+      writeParameter(paramType, parameterIdx, p, parameterAnnotationIdx++);
 
-        Type untypedParameter = typeToUntyped(paramType);
-        String lid = getUnnamedLocalId(parameterIdx, untypedParameter);
-        Variable local = getVariable(lid, lid, untypedParameter, null);
+      Type untypedParameter = typeToUntyped(paramType);
+      String lid = getUnnamedLocalId(parameterIdx, untypedParameter);
+      Variable local = getVariableWithLocalIndex(parameterIdx, lid, lid, untypedParameter, null);
 
-        parameter2Var.put(p, local);
-      } else {
-        assert paramType.getDescriptor().equals(lvn.desc);
-        Variable p = getVariable(getNamedLocalId(lvn), lvn.name, paramType, lvn.signature);
-        p.setParameter();
-        writeParameter(paramType, parameterIdx, p, parameterAnnotationIdx++);
-      }
+      parameter2Var.put(p, local);
       parameterIdx += paramType.getSize();
     }
 
@@ -2836,7 +2847,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     writer.writeId(paramType.getDescriptor());
     writer.writeString(param.getName());
     annotWriter.writeAnnotations(currentMethod, parameterAnnotationIdx);
-    writer.writeOpenNodeList();
+    writer.writeOpenNodeList();  // Markers
     if (param.hasSignature()) {
       writer.writeKeyword(Token.GENERIC_SIGNATURE); // Marker generic signature
       writer.writeOpen();
@@ -2891,30 +2902,14 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
   }
 
   @Nonnull
-  private Variable getLocalVariable(@Nonnull Frame<BasicValue> frame, @Nonnegative int localIdx){
+  private Variable getLocalVariable(@Nonnull Frame<BasicValue> frame, @Nonnegative int localIdx) {
     BasicValue bv = frame.getLocal(localIdx);
     assert bv != BasicValue.UNINITIALIZED_VALUE;
-    LocalVariableNode lvn = getLocalVariableNode(localIdx);
-    String localName;
-    String id;
-    Type localType;
-    String signature;
     Variable v;
-    if (lvn == null) {
-      id = getUnnamedLocalId(localIdx, bv.getType());
-      localName = id;
-      localType = typeToUntyped(bv.getType());
-      signature = null;
-      v = getVariable(id, localName, localType, signature);
-      // Unnamed variable will be define as synthetic
-      v.setSynthetic();
-    } else {
-      id = getNamedLocalId(lvn);
-      localName = lvn.name;
-      localType = Type.getType(lvn.desc);
-      signature = lvn.signature;
-      v = getVariable(id, localName, localType, signature);
-    }
+    String id = getUnnamedLocalId(localIdx, bv.getType());
+    String localName = id;
+    Type localType = typeToUntyped(bv.getType());
+    v = getVariableWithLocalIndex(localIdx, id, localName, localType, null);
     return v;
   }
 
@@ -2952,6 +2947,19 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
 
     if (var == null) {
       var = new Variable(id, name, type, signature);
+      nameToVar.put(id, var);
+    }
+
+    return var;
+  }
+
+  @Nonnull
+  private Variable getVariableWithLocalIndex(@Nonnegative int localIdx, @Nonnull String id,
+      @Nonnull String name, @Nonnull Type type, @CheckForNull String signature) {
+    Variable var = nameToVar.get(id);
+
+    if (var == null) {
+      var = new Variable(id, name, type, signature, localIdx);
       nameToVar.put(id, var);
     }
 
