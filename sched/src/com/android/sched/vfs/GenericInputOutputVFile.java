@@ -20,6 +20,7 @@ import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -104,5 +105,10 @@ public class GenericInputOutputVFile implements InputOutputVFile {
   @Nonnull
   public VFile getVFile() {
     return file;
+  }
+
+  @Override
+  public void copy(@Nonnull InputVFile inputFile) throws WrongPermissionException, IOException {
+    file.copy(inputFile.getVFile());
   }
 }

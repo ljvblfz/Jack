@@ -19,6 +19,7 @@ package com.android.jack.shrob.obfuscation.resource;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
+import com.android.sched.util.stream.ByteStreamSucker;
 import com.android.sched.vfs.VFile;
 import com.android.sched.vfs.VPath;
 
@@ -317,5 +318,17 @@ public class RefinedVFile implements VFile {
   @CheckForNull
   public String getDigest() {
     return null;
+  }
+
+  @Override
+  public void copy(@Nonnull VFile vFile) throws WrongPermissionException, IOException {
+    InputStream is = getInputStream();
+    OutputStream os = vFile.getOutputStream();
+    try {
+      new ByteStreamSucker(is, os).suck();
+    } finally {
+      os.close();
+      is.close();
+    }
   }
 }

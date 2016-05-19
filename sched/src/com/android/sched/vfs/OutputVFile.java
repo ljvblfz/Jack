@@ -18,6 +18,7 @@ package com.android.sched.vfs;
 
 import com.android.sched.util.file.WrongPermissionException;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
@@ -33,5 +34,7 @@ public interface OutputVFile extends OutputVElement, OutputStreamProvider {
 
   @Nonnull
   PrintStream getPrintStream(boolean append) throws WrongPermissionException;
+
+  void copy(@Nonnull InputVFile inputFile) throws WrongPermissionException, IOException;
 
 }

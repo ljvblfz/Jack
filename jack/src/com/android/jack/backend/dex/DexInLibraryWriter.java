@@ -34,13 +34,11 @@ import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.location.Location;
-import com.android.sched.util.stream.ByteStreamSucker;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.OutputVFile;
 import com.android.sched.vfs.VPath;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 
 import javax.annotation.Nonnull;
@@ -80,13 +78,7 @@ public abstract class DexInLibraryWriter extends DexWriter implements
           vFile = outputLibrary.createFile(FileType.PREBUILT,
               new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
 
-          InputStream is = in.getInputStream();
-          OutputStream os = vFile.getOutputStream();
-          try {
-            new ByteStreamSucker(is, os, true).suck();
-          } finally {
-            is.close(); // is != null or check before
-          }
+          vFile.copy(in);
           return;
         } catch (FileTypeDoesNotExistException e) {
           // Pre-dex is not accessible, thus write dex file from type
