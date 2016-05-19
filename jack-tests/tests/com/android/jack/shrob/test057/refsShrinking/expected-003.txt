@@ -1,0 +1,3 @@
+Lcom/android/jack/shrob/test057/jack/CustomView;:
+<init>()V
+setFourFloats(FFFF)V

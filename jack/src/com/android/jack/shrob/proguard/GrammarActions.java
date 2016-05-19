@@ -124,20 +124,9 @@ public class GrammarActions {
 
   @Nonnull
   static String getSignature(@Nonnull String name, int dim) {
-    return getSignature(name, dim, false);
-  }
-
-
-  @Nonnull
-  static String getSignature(@Nonnull String name, int dim, boolean negator) {
     assert name != null;
 
     StringBuilder sig = new StringBuilder();
-
-    if (negator) {
-        // Use negative lookahead to discard matches.
-        sig.append("(?!");
-    }
 
     for (int i = 0; i < dim; i++) {
       sig.append("\\[");
@@ -151,7 +140,7 @@ public class GrammarActions {
       sig.append(".*");
       // % matches any primitive type ("boolean", "int", etc, but not "void")
     } else if (name.equals("%")) {
-      sig.append("(Z|B|C|S|I|F|D|L)");
+      sig.append("(B|C|D|F|I|J|S|Z)");
     } else if (name.equals("boolean")) {
       sig.append("Z");
     } else if (name.equals("byte")) {
@@ -172,12 +161,6 @@ public class GrammarActions {
       sig.append("V");
     } else {
       sig.append(convertNameToPattern(NamingTools.getTypeSignatureName(name)));
-    }
-
-    if (negator) {
-      // Close the negative lookahead section and match anything that didn't match the
-      // negated part.
-      sig.append(").*");
     }
 
     return sig.toString();

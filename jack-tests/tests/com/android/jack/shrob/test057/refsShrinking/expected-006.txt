@@ -1,0 +1,10 @@
+Lcom/android/jack/shrob/test057/jack/CustomView;:
+<init>()V
+getInt()I
+setInt(I)V
+setTwoFloats(FF)V
+setFourFloats(FFFF)V
+getLongArray()[J
+setLongArray([J)V
+getStringArray()[Ljava/lang/String;
+setStringArray([Ljava/lang/String;)V

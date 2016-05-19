@@ -366,6 +366,36 @@ public class ShrinkTests extends AbstractTest {
   }
 
   @Test
+  public void test57_001() throws Exception {
+    runTest("057", "001", "");
+  }
+
+  @Test
+  public void test57_002() throws Exception {
+    runTest("057", "002", "");
+  }
+
+  @Test
+  public void test57_003() throws Exception {
+    runTest("057", "003", "");
+  }
+
+  @Test
+  public void test57_004() throws Exception {
+    runTest("057", "004", "");
+  }
+
+  @Test
+  public void test57_005() throws Exception {
+    runTest("057", "005", "");
+  }
+
+  @Test
+  public void test57_006() throws Exception {
+    runTest("057", "006", "");
+  }
+
+  @Test
   public void test053() throws Exception {
     RuntimeTestInfo runtimeTestInfo = new RuntimeTestInfo(
         new File(shrobTestsDir, "test053"),

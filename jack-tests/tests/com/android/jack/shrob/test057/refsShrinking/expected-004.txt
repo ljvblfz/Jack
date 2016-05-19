@@ -1,0 +1,4 @@
+Lcom/android/jack/shrob/test057/jack/CustomView;:
+<init>()V
+getLongArray()[J
+setLongArray([J)V
