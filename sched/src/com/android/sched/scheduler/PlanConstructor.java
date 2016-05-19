@@ -426,12 +426,16 @@ public class PlanConstructor<T extends Component>  implements PlanCandidate<T> {
 
         // Manage adding and deleting component
         int level = runOn.size();
-        Class<? extends TagOrMarkerOrComponent> reason = null;
+        Class<? extends TagOrMarkerOrComponent> syncOn = null;
+        String reason = null;
         for (Class<? extends TagOrMarkerOrComponent> tag : runner.getAddedTags()) {
           for (int i = 0; i < level; i++) {
             if (runOn.get(i).isAssignableFrom(tag)) {
               level = i;
-              reason = runOn.get(level - 1);
+              if (logger.isLoggable(Level.FINE)) {
+                reason = "Pop adapters after " + runner.getName() + " to come back to "
+                    + runOn.get(level - 1).getName() + " because it adds " + tag.getName();
+              }
               break;
             }
           }
@@ -440,19 +444,22 @@ public class PlanConstructor<T extends Component>  implements PlanCandidate<T> {
           for (int i = 0; i < level; i++) {
             if (runOn.get(i).isAssignableFrom(tag)) {
               level = i;
-              reason = runOn.get(level - 1);
+              if (logger.isLoggable(Level.FINE)) {
+                reason = "Pop adapters after " + runner.getName() + " to come back to "
+                    + runOn.get(level - 1).getName() + " because it removes " + tag.getName();
+              }
               break;
             }
           }
         }
 
         if (reason != null) {
-          logger.log(Level.FINE, "Pop adapters after {0} to come back to {1}",
-              new Object[] {runner.getName(), reason.getName()});
-          while (adapters.size() > level) {
+          logger.log(Level.FINE, reason);
+        }
+
+        while (adapters.size() > level) {
             runOn.pop();
             adapters.pop();
-          }
         }
         // STOPSHIP ... Until here
       }
