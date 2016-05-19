@@ -20,6 +20,7 @@ import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 
 import org.junit.Test;
 
@@ -34,6 +35,7 @@ public class BoostLockedRegionPriorityTests extends RuntimeTest {
   @Test
   public void test001() throws Exception {
     new RuntimeTestHelper(TEST001)
+        .addIgnoredCandidateToolchain(JillBasedToolchain.class)
         .addProperty("jack.transformations.boost-locked-region-priority", "true")
         .addProperty(
             "jack.transformations.boost-locked-region-priority.classname",
