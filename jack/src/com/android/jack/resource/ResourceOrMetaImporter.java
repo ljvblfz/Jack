@@ -18,6 +18,7 @@ package com.android.jack.resource;
 
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.lookup.JLookup;
+import com.android.sched.util.location.Location;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVElement;
 import com.android.sched.vfs.InputVFS;
@@ -45,7 +46,8 @@ public abstract class ResourceOrMetaImporter {
   public void doImport(@Nonnull JSession session) throws ResourceReadingException {
     try {
       for (InputVFS resourceDir : resourceDirs) {
-        importResourceDirElement(resourceDir.getRootInputVDir().list(), session, "");
+        importResourceDirElement(resourceDir.getRootInputVDir().list(), session, "",
+            resourceDir.getLocation());
       }
     } catch (ResourceImportConflictException e) {
       throw new ResourceReadingException(e);
@@ -53,19 +55,21 @@ public abstract class ResourceOrMetaImporter {
   }
 
   private void importResourceDirElement(@Nonnull Collection<? extends InputVElement> elements,
-      @Nonnull JSession session, @Nonnull String currentPath)
+      @Nonnull JSession session, @Nonnull String currentPath, @Nonnull Location resourceDirLocation)
       throws ResourceImportConflictException {
     for (InputVElement element : elements) {
       String path = currentPath + element.getName();
       if (element.isVDir()) {
-        importResourceDirElement(((InputVDir) element).list(), session, path + VPATH_SEPARATOR);
+        importResourceDirElement(((InputVDir) element).list(), session, path + VPATH_SEPARATOR,
+            resourceDirLocation);
       } else {
         InputVFile file = (InputVFile) element;
-        addImportedResource(file, session, path);
+        addImportedResource(file, session, path, resourceDirLocation);
       }
     }
   }
 
   protected abstract void addImportedResource(@Nonnull InputVFile file, @Nonnull JSession session,
-      @Nonnull String currentPath) throws ResourceImportConflictException;
+      @Nonnull String currentPath, @Nonnull Location resourceDirLocation)
+      throws ResourceImportConflictException;
 }
