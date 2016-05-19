@@ -96,7 +96,7 @@ import javax.annotation.Nonnull;
      JMethodCall.class, JArrayRef.class, JArrayLength.class, JLocalRef.class, JField.class,
      JMethod.class, JMethodBody.class, JFieldRef.class, JNullLiteral.class, JLocal.class,
      JIfStatement.class, JReturnStatement.class, JBlock.class, JTryStatement.class,
-     JIntLiteral.class, JExpressionStatement.class, JNeqOperation.class,
+     JIntLiteral.class, JExpressionStatement.class, JNeqOperation.class, JDefinedClass.class,
      TryStatementSchedulingSeparator.SeparatorTag.class,
      EnumMappingSchedulingSeparator.SeparatorTag.class,
      InnerAccessorGeneratorSchedulingSeparator.SeparatorSwitchEnumSupportTag.class},

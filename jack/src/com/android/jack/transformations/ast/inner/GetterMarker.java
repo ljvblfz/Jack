@@ -71,15 +71,17 @@ public class GetterMarker implements Marker {
 
   @Name("InnerAccessorGetter")
   @Description("All JNodes created for a getter allowing to access an inner field.")
-  @ComposedOf({JMethodCall.class,
-      JParameter.class,
-      JParameterRef.class,
-      JFieldRef.class,
-      JReturnStatement.class,
-      JMethodBody.class,
-      JBlock.class})
-  static class InnerAccessorGetter implements AbstractComponent {
-  }
+  @ComposedOf({
+    JMethod.class,
+    JMethodCall.class,
+    JParameter.class,
+    JParameterRef.class,
+    JFieldRef.class,
+    JReturnStatement.class,
+    JMethodBody.class,
+    JBlock.class
+  })
+  static class InnerAccessorGetter implements AbstractComponent {}
 
   @Nonnull
   // TODO(delphinemartin): Warning: this is not thread-safe
