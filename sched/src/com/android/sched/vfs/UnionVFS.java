@@ -516,7 +516,7 @@ public class UnionVFS extends BaseVFS<UnionVDir, UnionVFile> implements VFS {
     } catch (UnsupportedOperationException e) {
       // deleting from an underlying zip may throw an UnsupportedOperationException. We could
       // support it in the future, but for now we chose not too.
-      throw new AssertionError(e);
+      throw new UnionVFSReadOnlyException(e);
     }
   }
 
