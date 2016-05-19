@@ -124,9 +124,20 @@ public class GrammarActions {
 
   @Nonnull
   static String getSignature(@Nonnull String name, int dim) {
+    return getSignature(name, dim, false);
+  }
+
+
+  @Nonnull
+  static String getSignature(@Nonnull String name, int dim, boolean negator) {
     assert name != null;
 
     StringBuilder sig = new StringBuilder();
+
+    if (negator) {
+        // Use negative lookahead to discard matches.
+        sig.append("(?!");
+    }
 
     for (int i = 0; i < dim; i++) {
       sig.append("\\[");
@@ -161,6 +172,12 @@ public class GrammarActions {
       sig.append("V");
     } else {
       sig.append(convertNameToPattern(NamingTools.getTypeSignatureName(name)));
+    }
+
+    if (negator) {
+      // Close the negative lookahead section and match anything that didn't match the
+      // negated part.
+      sig.append(").*");
     }
 
     return sig.toString();
@@ -263,7 +280,7 @@ public class GrammarActions {
       @CheckForNull ModifierSpecification modifier) {
     assert name != null;
     String fullName = "^" + convertNameToPattern(name);
-    fullName += signature.replace("(", "\\(").replace(")", "\\)");
+    fullName += signature;
     if (typeSig != null) {
       fullName += typeSig;
     } else {
@@ -286,7 +303,7 @@ public class GrammarActions {
           annotationType,
           getSignature("***", 0),
           "*",
-          "(" + getSignature("...", 0) + ")",
+          "\\(" + getSignature("...", 0) + "\\)",
           modifier);
     }
     field(classSpec, annotationType, typeSig, name, modifier);
