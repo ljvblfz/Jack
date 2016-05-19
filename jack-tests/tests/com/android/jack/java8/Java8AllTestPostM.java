@@ -34,6 +34,7 @@ import org.junit.runners.Suite.SuiteClasses;
     EcjInterfaceMethodsTest.class,
     EcjLambdaTestPostM.class,
     GwtTestPostM.class,
+    LambdaTestPostM.class,
     RetroLambdaTests.class,
     StaticMethodTest.class,
     })
