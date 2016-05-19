@@ -804,7 +804,7 @@ public class VFSTest {
         outputUnionVFS.getRootInputOutputVDir().getInputVFile(new VPath("dirB/dirBB/fileBB1", '/'))
             .delete();
         Assert.fail();
-      } catch (AssertionError e) {
+      } catch (UnionVFSReadOnlyException e) {
         // expected because not yet supported
       }
 
@@ -836,7 +836,7 @@ public class VFSTest {
       try {
         inputUnionVFS.getRootInputVDir().getInputVFile(new VPath("dirC/fileC1", '/')).delete();
         Assert.fail();
-      } catch (AssertionError e) {
+      } catch (UnionVFSReadOnlyException e) {
         // expected because not yet supported
       }
 
@@ -949,7 +949,7 @@ public class VFSTest {
         ioVFS.getRootInputOutputVDir().getInputVFile(new VPath("dirB/dirBB/fileBB1", '/'))
             .delete();
         Assert.fail();
-      } catch (AssertionError e) {
+      } catch (UnionVFSReadOnlyException e) {
         // expected because not yet supported
       }
 
@@ -981,7 +981,7 @@ public class VFSTest {
       try {
         inputVFS.getRootInputVDir().getInputVFile(new VPath("dirC/fileC1", '/')).delete();
         Assert.fail();
-      } catch (AssertionError e) {
+      } catch (UnionVFSReadOnlyException e) {
         // expected because not yet supported
       }
 
