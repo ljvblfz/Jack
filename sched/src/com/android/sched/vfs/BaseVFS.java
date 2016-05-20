@@ -23,7 +23,7 @@ import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
-import com.android.sched.util.stream.ByteStreamSucker;
+import com.android.sched.util.stream.LocationByteStreamSucker;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -134,7 +134,7 @@ abstract class BaseVFS<DIR extends BaseVDir, FILE extends BaseVFile> implements 
     InputStream is = srcFile.getInputStream();
     OutputStream os = dstFile.getOutputStream();
     try {
-      new ByteStreamSucker(is, os).suck();
+      new LocationByteStreamSucker(is, os, srcFile, dstFile).suck();
     } finally {
       os.close();
       is.close();

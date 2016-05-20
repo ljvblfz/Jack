@@ -56,15 +56,7 @@ public abstract class WithLocationIOException extends IOException {
   @Override
   @Nonnull
   public String getMessage() {
-    if (location != null) {
-      return createMessage(location.getDescription());
-    }
-
-    if (locationProvider != null) {
-      return createMessage(locationProvider.getLocation().getDescription());
-    }
-
-    throw new AssertionError();
+    return createMessage(getLocation().getDescription());
   }
 
   @Nonnull

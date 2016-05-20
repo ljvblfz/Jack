@@ -26,8 +26,9 @@ import javax.annotation.Nonnull;
 
 /**
  * Class that continuously read an {@link InputStream} and optionally could write the input in a
- * {@link OutputStream}.
+ * {@link OutputStream}. Deprecated, use {@link LocationByteStreamSucker}.
  */
+@Deprecated
 public class ByteStreamSucker {
 
   private static final int BUFFER_SIZE = 4096;

@@ -23,7 +23,7 @@ import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
-import com.android.sched.util.stream.ByteStreamSucker;
+import com.android.sched.util.stream.LocationByteStreamSucker;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -117,7 +117,7 @@ public class VFSToVFSWrapper extends BaseVFS<BaseVDir, BaseVFile> implements VFS
         try {
           is = ((VFile) element).getInputStream();
           os = file.getOutputStream();
-          ByteStreamSucker sucker = new ByteStreamSucker(is, os);
+          LocationByteStreamSucker sucker = new LocationByteStreamSucker(is, os, element, file);
           sucker.suck();
         } finally {
           if (is != null) {
