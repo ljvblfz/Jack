@@ -142,4 +142,14 @@ public class PluginManager {
       return composite;
     }
   }
+
+  @Nonnull
+  public Collection<Plugin> getAvailablePlugins() {
+    List<Plugin> plugins = new ArrayList<Plugin>();
+    for (Plugin plugin : serviceLoader) {
+      plugins.add(plugin);
+    }
+
+    return plugins;
+  }
 }

@@ -733,6 +733,9 @@ public class Options {
    * Plugin Manager
    */
 
+  @Option(name = "--list-plugins", usage = "display all available plugins")
+  private boolean listPlugins;
+
   @Option(name = "--pluginpath", usage = "jack plugin classpath", metaVar = "<PATH>")
   @Nonnull
   private String pluginPath = "";
@@ -832,6 +835,10 @@ public class Options {
 
   public boolean askForPropertiesHelp() {
     return helpProperties;
+  }
+
+  public boolean askForPluginsList() {
+    return listPlugins;
   }
 
   public void setInputSources(@Nonnull Collection<File> inputSources) {

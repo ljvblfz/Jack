@@ -17,7 +17,6 @@
 package com.android.jack;
 
 import com.android.jack.CLILogConfiguration.LogConfigurationException;
-import com.android.jack.plugin.v01.Plugin;
 import com.android.sched.util.config.cli.TokenIterator;
 import com.android.sched.util.location.NoLocation;
 
@@ -50,7 +49,6 @@ public abstract class Main extends CommandLine {
     }
 
     if (args.length == 0) {
-      printVersion(System.out);
       System.err.println("Try --help for help.");
       System.exit(ExitStatus.SUCCESS);
     }
@@ -74,12 +72,12 @@ public abstract class Main extends CommandLine {
       }
 
       if (options.askForVersion()) {
-        printVersion(System.out);
-        // STOPSHIP remove call
-        options.ensurePluginManager();
-        for (Plugin plugin : options.getPluginManager().getPlugins()) {
-          printVersion(System.out, plugin);
-        }
+        printVersion(System.out, options);
+        System.exit(ExitStatus.SUCCESS);
+      }
+
+      if (options.askForPluginsList()) {
+        printPluginsList(System.out, options);
         System.exit(ExitStatus.SUCCESS);
       }
 

@@ -426,7 +426,6 @@ public class PlanConstructor<T extends Component>  implements PlanCandidate<T> {
 
         // Manage adding and deleting component
         int level = runOn.size();
-        Class<? extends TagOrMarkerOrComponent> syncOn = null;
         String reason = null;
         for (Class<? extends TagOrMarkerOrComponent> tag : runner.getAddedTags()) {
           for (int i = 0; i < level; i++) {

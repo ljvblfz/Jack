@@ -21,7 +21,6 @@ import com.android.jack.ExitStatus;
 import com.android.jack.IllegalOptionsException;
 import com.android.jack.Options;
 import com.android.jack.api.v01.Cli01CompilationTask;
-import com.android.jack.plugin.v01.Plugin;
 import com.android.sched.util.log.LoggerFactory;
 
 import java.io.IOException;
@@ -58,7 +57,6 @@ class Cli01CompilationTaskImpl extends CommandLine implements Cli01CompilationTa
   public int run() {
 
     if (args.length == 0) {
-      printVersion(standardOutput);
       standardError.println("Try --help for help.");
       return ExitStatus.SUCCESS;
     }
@@ -82,14 +80,18 @@ class Cli01CompilationTaskImpl extends CommandLine implements Cli01CompilationTa
     }
 
     if (options.askForVersion()) {
-      printVersion(standardOutput);
       try {
-        // STOPSHIP remove call
-        options.ensurePluginManager();
-        for (Plugin plugin : options.getPluginManager().getPlugins()) {
-          printVersion(standardOutput, plugin);
-        }
+        printVersion(standardOutput, options);
+        return ExitStatus.SUCCESS;
+      } catch (IllegalOptionsException e) {
+        standardError.println(e.getMessage());
+        return ExitStatus.FAILURE_USAGE;
+      }
+    }
 
+    if (options.askForPluginsList()) {
+      try {
+        printPluginsList(standardOutput, options);
         return ExitStatus.SUCCESS;
       } catch (IllegalOptionsException e) {
         standardError.println(e.getMessage());

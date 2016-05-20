@@ -179,8 +179,14 @@ public abstract class CommandLine {
     }
   }
 
-  public static void printVersion(@Nonnull PrintStream printStream) {
+  public static void printVersion(@Nonnull PrintStream printStream, @Nonnull Options options)
+      throws IllegalOptionsException {
+    // STOPSHIP remove call
+    options.ensurePluginManager();
     printStream.println("Jack compiler: " + Jack.getVersion().getVerboseVersion() + '.');
+    for (Plugin plugin : options.getPluginManager().getPlugins()) {
+      printVersion(printStream, plugin);
+    }
   }
 
   public static void printVersion(@Nonnull PrintStream printStream, @Nonnull Plugin plugin) {
@@ -280,6 +286,15 @@ public abstract class CommandLine {
 
         printStream.println(sb);
       }
+    }
+  }
+
+  public static void printPluginsList(@Nonnull PrintStream printStream, @Nonnull Options options)
+      throws IllegalOptionsException {
+    // STOPSHIP remove call
+    options.ensurePluginManager();
+    for (Plugin plugin : options.getPluginManager().getAvailablePlugins()) {
+      printVersion(printStream, plugin);
     }
   }
 
