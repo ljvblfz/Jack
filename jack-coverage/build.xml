@@ -17,6 +17,14 @@
 
 <project name="jack-coverage" default="jack-coverage-lib">
 
+  <property name="jack-coverage-libs.dir" value="libs" />
+  <property name="jack-coverage-tools.dir" value="tools" />
+  <property name="jack-coverage-rsc.dir" value="rsc" />
+  <property name="jack-coverage-build.dir" value="build" />
+  <property name="jack-coverage-build-classes.dir" value="${jack-coverage-build.dir}/classes" />
+  <property name="jack-coverage-dist.dir" value="dist" />
+  <property name="jack-coverage.execname" value="jack-coverage.jar" />
+
   <target name="clean" description="deletes files produced by target 'jack-coverage-lib'">
     <delete dir="build"/>
     <delete dir="dist"/>
@@ -26,38 +34,44 @@
     <mkdir dir="libs"/>
     <mkdir dir="tools"/>
 
-    <copy file="../jack/dist/jack-lib.jar" todir="libs" />
-    <copy file="../sched/dist/sched-lib.jar" todir="libs" />
-    <copy file="../junit4/dist/junit4.jar" todir="libs" />
-    <copy file="../jsr305/dist/jsr305-lib.jar" todir="libs" />
-    <copy file="../sched/dist/sched-build.jar" todir="tools" />
+    <!-- Copy required libraries -->
+    <copy file="../jack/dist/jack-lib.jar" todir="${jack-coverage-libs.dir}" />
+    <copy file="../sched/dist/sched-lib.jar" todir="${jack-coverage-libs.dir}" />
+    <copy file="../junit4/dist/junit4.jar" todir="${jack-coverage-libs.dir}" />
+    <copy file="../jsr305/dist/jsr305-lib.jar" todir="${jack-coverage-libs.dir}" />
+
+    <!-- Copy required tools for packaging -->
+    <copy file="../sched/dist/sched-build.jar" todir="${jack-coverage-tools.dir}" />
 
   </target>
 
-  <target name="jack-coverage-lib" description="build Jack code coverage support">
+  <target name="jack-coverage-lib" description="build Jack code coverage support"
+      depends="update-libs">
 
-    <mkdir dir="build/classes"/>
-    <javac srcdir="src" destdir="build/classes"
+    <mkdir dir="${jack-coverage-build-classes.dir}"/>
+    <javac srcdir="src" destdir="${jack-coverage-build-classes.dir}"
       source="1.7" target="1.7"
       encoding="UTF-8" debug="true" includeantruntime="false" includeDestClasses="false">
       <classpath>
-        <filelist dir="libs">
+        <filelist dir="${jack-coverage-libs.dir}">
           <file name="jsr305-lib.jar"/>
           <file name="junit4.jar"/>
           <file name="sched-lib.jar"/>
           <file name="jack-lib.jar"/>
         </filelist>
       </classpath>
-      <compilerarg line="-processorpath tools/sched-build.jar" />
+      <compilerarg line="-processorpath ${jack-coverage-tools.dir}/sched-build.jar" />
       <compilerarg line="-processor com.android.sched.build.SchedAnnotationProcessor" />
     </javac>
 
-    <copy todir="build/classes">
-      <fileset dir="rsc"/>
+    <!-- copy resource files -->
+    <copy todir="${jack-coverage-build-classes.dir}">
+      <fileset dir="${jack-coverage-rsc.dir}"/>
     </copy>
 
-    <mkdir dir="dist"/>
-    <jar basedir="build/classes" destfile="dist/jack-coverage.jar"/>
+    <mkdir dir="${jack-coverage-dist.dir}"/>
+    <jar basedir="${jack-coverage-build-classes.dir}"
+      destfile="${jack-coverage-dist.dir}/${jack-coverage.execname}"/>
 
   </target>
 

@@ -24,10 +24,10 @@ import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.scheduler.FeatureSet;
 import com.android.sched.scheduler.ProductionSet;
 import com.android.sched.scheduler.Scheduler;
-import com.android.sched.util.SubReleaseKind;
 import com.android.sched.util.Version;
 import com.android.sched.util.config.Config;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -60,7 +60,11 @@ public class CodeCoveragePlugin extends SchedAnnotationProcessorBasedPlugin {
   @Override
   @Nonnull
   public Version getVersion() {
-    return new Version("Carnac", "1.2-b2", 3, 2, SubReleaseKind.ENGINEERING);
+    try {
+      return new Version("jack-coverage-plugin", CodeCoveragePlugin.class.getClassLoader());
+    } catch (IOException e) {
+      throw new AssertionError("Failed to find the version of the coverage plug-in", e);
+    }
   }
 
   @Override
