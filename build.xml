@@ -345,8 +345,7 @@
       includes="jack-jar-tools-version.properties"/>
 
     <jar destfile="${jack-top-dist.dir}/${jack-jacoco-reporter.name}" filesetmanifest="merge">
-      <zipfileset src="${jack-jacoco-reporter.dist.dir}/${jack-jacoco-reporter.name}"
-      excludes="jack-jacoco-reporter-version.properties"/>
+      <zipfileset src="${jack-jacoco-reporter.dist.dir}/${jack-jacoco-reporter.name}"/>
     </jar>
 
     <delete dir="${tools-dist.tmp}"/>
@@ -2749,6 +2748,7 @@
     <copy todir="${jack-jacoco-reporter.libs.dir}" flatten="true">
       <filelist dir="/" >
         <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
+        <file name="${schedlib.dist.dir}/${schedlib.libname}" />
         <file name="${args4j.dist.dir}/${args4j.libname}"/>
         <file name="${asm4.dist.dir}/${asm4.libname}"/>
         <file name="${gson.dist.dir}/${gson.libname}"/>
@@ -2763,6 +2763,7 @@
     <mkdir dir="${jack-jacoco-reporter.build.outdir}"/>
     <filelist id="jack-jacoco-reporter.static.libs.fileset" dir="/">
       <file name="${jack-jacoco-reporter.libs.dir}/${jsr305.libname}"/>
+      <file name="${jack-jacoco-reporter.libs.dir}/${schedlib.libname}"/>
       <file name="${jack-jacoco-reporter.libs.dir}/${args4j.libname}"/>
       <file name="${jack-jacoco-reporter.libs.dir}/${asm4.libname}"/>
       <file name="${jack-jacoco-reporter.libs.dir}/${gson.libname}"/>
