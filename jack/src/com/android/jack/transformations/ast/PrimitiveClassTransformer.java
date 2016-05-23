@@ -25,6 +25,7 @@ import com.android.jack.ir.ast.JFieldLookupException;
 import com.android.jack.ir.ast.JFieldRef;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JPrimitiveType;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
@@ -35,6 +36,7 @@ import com.android.jack.util.AnnotationSkipperVisitor;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.ExclusiveAccess;
 import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.Protect;
 import com.android.sched.schedulable.RunnableSchedulable;
@@ -55,6 +57,8 @@ import javax.annotation.Nonnull;
     add = {JFieldRef.class}, remove = {JPrimitiveClassLiteral.class, ThreeAddressCodeForm.class})
 @Protect(add = JClassLiteral.class, unprotect = @With(add = JPrimitiveClassLiteral.class))
 @Filter(TypeWithoutPrebuiltFilter.class)
+// Creates TYPE field in primitive wrapper classes.
+@ExclusiveAccess(JSession.class)
 public class PrimitiveClassTransformer implements RunnableSchedulable<JMethod> {
 
   @Nonnull

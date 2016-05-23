@@ -40,6 +40,7 @@ import com.android.jack.ir.ast.JPrimitiveType;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JReferenceType;
 import com.android.jack.ir.ast.JReturnStatement;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JUnaryOperation;
@@ -56,6 +57,7 @@ import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
+import com.android.sched.schedulable.Access;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
@@ -79,6 +81,8 @@ no = {SideEffectOperation.class, InitInNewArray.class,
 @Transform(add = {JMethodCall.class, JDynamicCastOperation.class},
     remove = {ImplicitCast.class, ImplicitBoxingAndUnboxing.class, ThreeAddressCodeForm.class})
 @Filter(TypeWithoutPrebuiltFilter.class)
+// Use getOrCreateMethodIdWide that scan hierarchy.
+@Access(JSession.class)
 public class TypeLegalizer implements RunnableSchedulable<JMethod> {
 
   @Nonnull

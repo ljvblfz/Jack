@@ -20,12 +20,14 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodIdWide;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.lookup.JMethodLookupException;
 import com.android.jack.reflection.MemberFinder;
 import com.android.jack.reflection.MultipleMethodsFoundException;
 import com.android.jack.shrob.obfuscation.OriginalNames;
+import com.android.sched.schedulable.Access;
 import com.android.sched.schedulable.Constraint;
 
 import java.util.ArrayList;
@@ -38,23 +40,26 @@ import javax.annotation.Nonnull;
  * Refine string parameter of call to getDeclaredMethod method of java.lang.Class
  */
 @Constraint(need = OriginalNames.class)
+// Access type name.
+@Access(JSession.class)
 public class GetDeclaredMethodParameterRefiner extends GetMethodParameterRefiner {
 
   @Nonnull
   private static final String GETDECLAREDMETHOD_METHOD_NAME = "getDeclaredMethod";
 
-  @CheckForNull
-  private JMethodIdWide getDeclaredMethodMethodId;
+  @Nonnull
+  private final JMethodIdWide getDeclaredMethodMethodId;
 
-  @Override
-  public boolean isApplicable(@Nonnull JMethodCall call) throws JMethodLookupException {
-    if (getDeclaredMethodMethodId == null) {
+  public GetDeclaredMethodParameterRefiner() {
       List<JType> parameterList = new ArrayList<JType>(2);
       parameterList.add(javaLangString);
       parameterList.add(javaLangClassArray);
       getDeclaredMethodMethodId = javaLangClass.getMethodIdWide(
           GETDECLAREDMETHOD_METHOD_NAME, parameterList, MethodKind.INSTANCE_VIRTUAL);
-    }
+  }
+
+  @Override
+  public boolean isApplicable(@Nonnull JMethodCall call) throws JMethodLookupException {
     if (call.getReceiverType().isSameType(javaLangClass)
         && call.getMethodId().equals(getDeclaredMethodMethodId)) {
       assert formatter.getName(call.getType()).equals(METHOD_CLASS_SIGNATURE);

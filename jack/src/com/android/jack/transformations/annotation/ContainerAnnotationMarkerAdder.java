@@ -27,7 +27,9 @@ import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNameValuePair;
 import com.android.jack.ir.ast.JParameter;
+import com.android.jack.ir.ast.JSession;
 import com.android.sched.item.Description;
+import com.android.sched.schedulable.Access;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
@@ -43,6 +45,9 @@ import javax.annotation.Nonnull;
  * same {@link JAnnotationType} are used on the same {@link Annotable}.
  */
 @Transform(add = {ContainerAnnotationMarker.class})
+// Reads retention policy of not visited ContainerAnnotationType and adds marker on JAnnotationType
+// while visiting annotated nodes.
+@Access(JSession.class)
 public class ContainerAnnotationMarkerAdder {
 
   /**

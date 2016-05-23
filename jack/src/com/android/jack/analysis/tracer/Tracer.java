@@ -59,6 +59,7 @@ import com.android.jack.ir.ast.JNewInstance;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JReinterpretCastOperation;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeStringLiteral;
 import com.android.jack.ir.ast.JVariable;
@@ -71,6 +72,7 @@ import com.android.jack.shrob.obfuscation.SubClassOrInterfaceMarker;
 import com.android.jack.shrob.shrink.PartialTypeHierarchy;
 import com.android.sched.item.Description;
 import com.android.sched.marker.LocalMarkerManager;
+import com.android.sched.schedulable.Access;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.TracerFactory;
@@ -86,6 +88,8 @@ import javax.annotation.Nonnull;
  */
 @Description("traces dependencies")
 @Constraint(need = UniqMethodIds.class)
+// Visit type hierarchy, access referenced types and depends on isAnonymous
+@Access(JSession.class)
 public class Tracer extends JVisitor {
 
   @Nonnull

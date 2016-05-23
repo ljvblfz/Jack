@@ -26,6 +26,7 @@ import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JMethodNameLiteral;
 import com.android.jack.ir.ast.JNewArray;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JStringLiteral;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.MethodKind;
@@ -34,6 +35,7 @@ import com.android.jack.reflection.MemberFinder;
 import com.android.jack.reflection.MultipleMethodsFoundException;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.transformations.ast.InitInNewArray;
+import com.android.sched.schedulable.Access;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Transform;
 
@@ -48,24 +50,27 @@ import javax.annotation.Nonnull;
  */
 @Constraint(need = {OriginalNames.class, InitInNewArray.class})
 @Transform(add = JMethodNameLiteral.class)
+// Access types name.
+@Access(JSession.class)
 public class GetMethodParameterRefiner extends CommonStringParameterRefiner implements
     StringParameterRefiner {
 
   @Nonnull
   private static final String GETMETHOD_METHOD_NAME = "getMethod";
 
-  @CheckForNull
-  private JMethodIdWide getMethodMethodId;
+  @Nonnull
+  private final JMethodIdWide getMethodMethodId;
+
+  public GetMethodParameterRefiner() {
+    List<JType> parameterList = new ArrayList<JType>(2);
+    parameterList.add(javaLangString);
+    parameterList.add(javaLangClassArray);
+    getMethodMethodId = javaLangClass.getMethodIdWide(
+        GETMETHOD_METHOD_NAME, parameterList, MethodKind.INSTANCE_VIRTUAL);
+  }
 
   @Override
   public boolean isApplicable(@Nonnull JMethodCall call) throws JMethodLookupException {
-    if (getMethodMethodId == null) {
-      List<JType> parameterList = new ArrayList<JType>(2);
-      parameterList.add(javaLangString);
-      parameterList.add(javaLangClassArray);
-      getMethodMethodId = javaLangClass.getMethodIdWide(
-          GETMETHOD_METHOD_NAME, parameterList, MethodKind.INSTANCE_VIRTUAL);
-    }
     if (call.getReceiverType().isSameType(javaLangClass)
         && call.getMethodId().equals(getMethodMethodId)) {
       assert formatter.getName(call.getType()).equals(METHOD_CLASS_SIGNATURE);

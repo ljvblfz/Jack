@@ -44,6 +44,7 @@ import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JParameterRef;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JReturnStatement;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JThis;
 import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JType;
@@ -66,6 +67,7 @@ import com.android.jack.util.NamingTools;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.ExclusiveAccess;
 import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
@@ -91,11 +93,13 @@ import javax.annotation.Nonnull;
         JFieldRef.class, JLocalRef.class, JMethod.class, JMethodBody.class, JMethodCall.class,
         JNewInstance.class, JParameter.class, JParameterRef.class, JReturnStatement.class,
         JThisRef.class})
+@Support(LambdaToAnonymousConverter.class)
 // Lambda converter must be synchronized, otherwise several schedulables can add member types to the
 // same class in the same time.
-@Support(LambdaToAnonymousConverter.class)
 @Synchronized
 @Filter(TypeWithoutPrebuiltFilter.class)
+// Adds anonymous inner to the outer class and adds type to JSession.typesToEmit.
+@ExclusiveAccess(JSession.class)
 public class LambdaConverter implements RunnableSchedulable<JMethod> {
 
   @Nonnull

@@ -28,6 +28,7 @@ import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JNameValuePair;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.lookup.JMethodWithReturnLookupException;
@@ -35,6 +36,7 @@ import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.item.Tag;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.ExclusiveAccess;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 
@@ -50,6 +52,8 @@ import javax.annotation.Nonnull;
     + " uniq ids")
 @Constraint(need = MethodIdMerged.class)
 @Transform(add = UniqMethodIds.class)
+// Calls getOrCreateMethodIdWide on receiver types that are not the visited type.
+@ExclusiveAccess(JSession.class)
 public class MethodIdDuplicateRemover implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   /**

@@ -41,6 +41,7 @@ import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JNameValuePair;
 import com.android.jack.ir.ast.JNullLiteral;
 import com.android.jack.ir.ast.JRetentionPolicy;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JStringLiteral;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
@@ -61,6 +62,7 @@ import com.android.jack.transformations.request.PutNameValuePair;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
+import com.android.sched.schedulable.Access;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.Optional;
@@ -92,6 +94,8 @@ import javax.annotation.Nonnull;
 @Optional(@ToSupport(feature = SourceVersion8.class,
     add = @Constraint(no = JAnnotation.RepeatedAnnotation.class)))
 @Filter(TypeWithoutPrebuiltFilter.class)
+// Access getSimpleName which may depend on TypeName that is accessing enclosing type name.
+@Access(JSession.class)
 public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   private static class Visitor extends JVisitor {

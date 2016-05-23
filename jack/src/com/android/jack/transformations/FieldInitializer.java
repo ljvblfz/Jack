@@ -16,6 +16,7 @@
 
 package com.android.jack.transformations;
 
+import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
@@ -30,6 +31,7 @@ import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.jack.util.NamingTools;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.ExclusiveAccess;
 import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
@@ -47,6 +49,8 @@ import javax.annotation.Nonnull;
 @Transform(remove = {InitializationExpression.class, ThreeAddressCodeForm.class})
 @Support(DynamicAssertionFeature.class)
 @Filter(TypeWithoutPrebuiltFilter.class)
+ // Modifies <clinit>
+@ExclusiveAccess(JDefinedClassOrInterface.class)
 public class FieldInitializer implements RunnableSchedulable<JField> {
 
   @Override

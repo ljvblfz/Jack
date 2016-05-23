@@ -84,6 +84,7 @@ import javax.annotation.Nonnull;
 @Filter(SourceTypeFilter.class)
 // This schedulable bypasses the classic visiting order by visiting outer classes first
 // and their inner classes afterwards.
+// Creates methods in outer classes.
 @ExclusiveAccess(JSession.class)
 public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClassOrInterface> {
 

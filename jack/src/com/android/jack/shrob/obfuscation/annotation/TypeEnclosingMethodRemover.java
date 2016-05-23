@@ -41,7 +41,7 @@ public class TypeEnclosingMethodRemover implements RunnableSchedulable<JDefinedC
   @Override
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
     if (type instanceof JDefinedClass) {
-      TransformationRequest tr = new TransformationRequest(type.getEnclosingPackage());
+      TransformationRequest tr = new TransformationRequest(type);
       tr.append(new RemoveEnclosingMethod((JDefinedClass) type));
       tr.commit();
     }
