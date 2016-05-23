@@ -207,8 +207,7 @@ public class PlanConstructor<T extends Component>  implements PlanCandidate<T> {
 
   @Nonnegative
   private int currentTagValidityIdx = 0;
-  // STOPSHIP Use this
-  @SuppressWarnings("unused")
+  @Nonnegative
   private int constraintTagValidityIdx = Integer.MAX_VALUE;
 
   @Nonnull
@@ -257,40 +256,48 @@ public class PlanConstructor<T extends Component>  implements PlanCandidate<T> {
   }
 
   private void ensureTagsAtIndex(@Nonnegative int atIdx) {
-    // assert atIdx > 0;
-    assert atIdx <= plan.size();
+    assert atIdx >= 0;
+    assert atIdx < plan.size();
 
-    for (int idx = currentTagValidityIdx + 1; idx <= atIdx; idx++) {
-      ((PlanConstructor<?>.DecoratedRunner) plan.get(idx))
-          .updateBeforeTags(plan.get(idx - 1).getAfterTags());
+    if (atIdx > currentTagValidityIdx) {
+      for (int idx = currentTagValidityIdx + 1; idx <= atIdx; idx++) {
+        ((PlanConstructor<?>.DecoratedRunner) plan.get(idx))
+            .updateBeforeTags(plan.get(idx - 1).getAfterTags());
+      }
+
+      currentTagValidityIdx = atIdx;
     }
-
-    currentTagValidityIdx = atIdx;
   }
 
   private void ensureConstraintsAtIndex(@Nonnegative int atIdx) {
-    assert atIdx > 0;
-    assert atIdx <= plan.size();
+    assert atIdx >= 0;
+    assert atIdx < plan.size() - 1;
 
-    for (int idx = plan.size() - 2; idx >= 0; idx--) {
-      plan.get(idx).updateNeedToAdd(plan.get(idx + 1).getNeedToAdd());
-      plan.get(idx).updateNeedToRemove(plan.get(idx + 1).getNeedToRemove());
+    if (atIdx < constraintTagValidityIdx) {
+      for (int idx = Math.min(constraintTagValidityIdx - 1, plan.size() - 2); idx >= atIdx; idx--) {
+        plan.get(idx).updateNeedToAdd(plan.get(idx + 1).getNeedToAdd());
+        plan.get(idx).updateNeedToRemove(plan.get(idx + 1).getNeedToRemove());
+      }
+
+      constraintTagValidityIdx = atIdx;
     }
-
-    constraintTagValidityIdx = atIdx;
   }
 
   @Override
   public boolean isValid() {
     ensureConstraintsAtIndex(0);
 
-    return plan.get(0).getNeedToAdd().containsAll(request.getInitialTags())
-        && plan.get(0).getNeedToRemove().containsNone(request.getInitialTags())
+    return request.getInitialTags().containsAll(plan.get(0).getNeedToAdd())
+        && request.getInitialTags().containsNone(plan.get(0).getNeedToRemove())
         && missingProductions.isEmpty();
   }
 
   public boolean isProductionValid(@Nonnull ManagedRunnable runner) {
-    return runner.getProductions().containsAll(missingProductions);
+    return missingProductions.containsAll(runner.getProductions());
+  }
+
+  public ProductionSet getSuperfluousProductions(@Nonnull ManagedRunnable runner) {
+    return (ProductionSet) runner.getProductions().clone().removeAll(missingProductions);
   }
 
   public boolean isConstraintValid(@Nonnegative int index, @Nonnull ManagedRunnable runner) {
@@ -302,6 +309,24 @@ public class PlanConstructor<T extends Component>  implements PlanCandidate<T> {
     return runner.isCompatible(features, plan.get(index).getAfterTags());
   }
 
+  @SuppressWarnings("unchecked")
+  public boolean isConstraintValid(@Nonnegative int index) {
+    // Skip initial state
+    index++;
+    // Take state from previous
+    index--;
+    ensureTagsAtIndex(index);
+    return ((PlanConstructor<T>.DecoratedRunner) (plan.get(index + 1))).getRunner()
+        .isCompatible(features, plan.get(index).getAfterTags());
+  }
+
+  @SuppressWarnings("unchecked")
+  public ManagedRunnable getRunnerAt(@Nonnegative int index) {
+    // Skip initial state
+    index++;
+    return ((PlanConstructor<T>.DecoratedRunner) (plan.get(index))).getRunner();
+  }
+
   public void insert(@Nonnegative int index, @Nonnull ManagedRunnable runner) {
     assert isConstraintValid(index, runner);
 
@@ -309,17 +334,20 @@ public class PlanConstructor<T extends Component>  implements PlanCandidate<T> {
     index++;
 
     plan.add(index, new DecoratedRunner(runner));
-    currentTagValidityIdx = index - 1;
-    constraintTagValidityIdx = index;
+    currentTagValidityIdx = Math.min(index - 1, currentTagValidityIdx);
+    constraintTagValidityIdx = Math.max(index + 1, constraintTagValidityIdx);
+    missingProductions.removeAll(runner.getProductions());
   }
 
   public void remove(@Nonnegative int index) {
     // Skip initial state
     index++;
 
-    plan.remove(index);
-    currentTagValidityIdx = index - 1;
-    constraintTagValidityIdx = index;
+    @SuppressWarnings("unchecked")
+    DecoratedRunner dr = (PlanConstructor<T>.DecoratedRunner) plan.remove(index);
+    currentTagValidityIdx = Math.min(index - 1, currentTagValidityIdx);
+    constraintTagValidityIdx = Math.max(index, constraintTagValidityIdx);
+    missingProductions.addAll(dr.getRunner().getProductions());
   }
 
   @Override
