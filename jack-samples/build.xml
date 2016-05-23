@@ -51,6 +51,7 @@
     <update-sample dir="my_plugin_directory"/>
     -->
     <update-sample dir="jack-structure-printer-plugin"/>
+    <update-sample dir="jack-visitor-plugin"/>
   </target>
 
 </project>
