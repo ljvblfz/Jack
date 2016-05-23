@@ -46,4 +46,9 @@ public abstract class AlphabeticalNameProvider implements NameProvider {
   }
 
   protected abstract char getFirstChar();
+
+  @Override
+  public boolean hasAlternativeName(@Nonnull String oldName) {
+    return true;
+  }
 }

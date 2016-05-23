@@ -106,4 +106,9 @@ public class DictionaryNameProvider implements NameProvider {
       br = null;
     }
   }
+
+  @Override
+  public boolean hasAlternativeName(@Nonnull String oldName) {
+    return br != null && defaultNameProvider.hasAlternativeName(oldName);
+  }
 }

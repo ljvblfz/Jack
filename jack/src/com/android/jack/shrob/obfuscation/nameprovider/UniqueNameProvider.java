@@ -49,4 +49,9 @@ public class UniqueNameProvider implements NameProvider {
     names.add(newName);
     return newName;
   }
+
+  @Override
+  public boolean hasAlternativeName(@Nonnull String oldName) {
+    return nameProvider.hasAlternativeName(oldName);
+  }
 }

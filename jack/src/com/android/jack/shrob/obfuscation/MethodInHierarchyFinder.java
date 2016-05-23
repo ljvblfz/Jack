@@ -47,6 +47,7 @@ public class MethodInHierarchyFinder extends OneTimeHierarchyVisitor {
         }
       }
     }
+    visit(type);
     visitSuperTypes(type);
     visitSubTypes(type);
   }
