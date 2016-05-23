@@ -23,6 +23,7 @@ import com.android.sched.item.MarkerOrComponent;
 import com.android.sched.item.Production;
 import com.android.sched.item.TagOrMarker;
 import com.android.sched.item.TagOrMarkerOrComponent;
+import com.android.sched.schedulable.Access;
 import com.android.sched.schedulable.ComponentFilter;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.ExclusiveAccess;
@@ -48,7 +49,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -104,8 +104,11 @@ public class ManagedRunnable extends ManagedSchedulable {
   private final ComponentFilterSet neededFilters;
 
   // @ExclusiveAccess
-  @CheckForNull
+  @Nonnull
   private Class<? extends Component> exclusiveAccess;
+  // @Access
+  @Nonnull
+  private Class<? extends Component> access;
 
   // @Use
   @Nonnull
@@ -139,7 +142,7 @@ public class ManagedRunnable extends ManagedSchedulable {
 
     extractUse(runnable);
     extractSchedulableOn(runnable);
-    extractExclusiveAccess(runnable);
+    extractAccesses(runnable);
 
     extractTransform(runnable);
     extractProduce(runnable);
@@ -444,18 +447,19 @@ public class ManagedRunnable extends ManagedSchedulable {
   }
 
   /**
-   * @return the {@link Component} needed as exclusive access
+   * @return the {@link Component} needed as access
    */
-  @CheckForNull
-  public Class<? extends Component> getExclusiveAccess() {
-    return exclusiveAccess;
+  @Nonnull
+  public Class<? extends Component> getAccess() {
+    return access;
   }
 
   /**
-   * @return if the runnable needs an exclusive access to a {@link Component}.
+   * @return the {@link Component} needed as exclusive access
    */
-  public boolean needsExclusiveAccess() {
-    return exclusiveAccess != null;
+  @Nonnull
+  public Class<? extends Component> getExclusiveAccess() {
+    return exclusiveAccess;
   }
 
   /**
@@ -571,11 +575,21 @@ public class ManagedRunnable extends ManagedSchedulable {
     }
   }
 
-  private void extractExclusiveAccess(@Nonnull Class<?> cls) {
-    ExclusiveAccess access = cls.getAnnotation(ExclusiveAccess.class);
+  private void extractAccesses(@Nonnull Class<?> cls) {
+    ExclusiveAccess exclusiveAccessAnnotation = cls.getAnnotation(ExclusiveAccess.class);
 
-    if (access != null) {
-      exclusiveAccess = access.value();
+    if (exclusiveAccessAnnotation != null) {
+      exclusiveAccess = exclusiveAccessAnnotation.value();
+    } else {
+      exclusiveAccess = getRunOn();
+    }
+
+    Access accessAnnotation = cls.getAnnotation(Access.class);
+
+    if (accessAnnotation != null) {
+      access = accessAnnotation.value();
+    } else {
+      access = getRunOn();
     }
   }
 
