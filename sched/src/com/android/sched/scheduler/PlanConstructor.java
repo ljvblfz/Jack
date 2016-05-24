@@ -20,6 +20,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
 
 import com.android.sched.item.Component;
+import com.android.sched.item.Items;
 import com.android.sched.item.TagOrMarkerOrComponent;
 import com.android.sched.util.findbugs.SuppressFBWarnings;
 import com.android.sched.util.log.Event;
@@ -342,18 +343,22 @@ public class PlanConstructor<T extends Component>  implements PlanCandidate<T> {
     }
   }
 
+  // STOPSHIP Check
   @Override
   @Nonnull
   public PlanBuilder<T> getPlanBuilder() throws IllegalRequestException {
     Event event = tracer.start(SchedEventType.PLANBUILDER);
 
     try {
+      // STOPSHIP Replace Stack
       Stack<Class<? extends Component>> runOn = new Stack<Class<? extends Component>>();
       Stack<SubPlanBuilder<? extends Component>> adapters =
           new Stack<SubPlanBuilder<? extends Component>>();
+      Stack<Class<? extends Component>> exclusiveAccess = new Stack<Class<? extends Component>>();
 
       runOn.push(rootRunOn);
       adapters.push(request.getPlanBuilder(rootRunOn));
+      exclusiveAccess.push(null);
 
       Iterator<Decorated> iter = plan.iterator();
       // Skip the initial state
@@ -361,66 +366,114 @@ public class PlanConstructor<T extends Component>  implements PlanCandidate<T> {
       ManagedRunnable oldRunner = null;
       while ((decorated = iter.next()) instanceof PlanConstructor.DecoratedRunner) {
         ManagedRunnable runner = ((PlanConstructor<?>.DecoratedRunner) decorated).getRunner();
+        Class<? extends Component> accessComponent = runner.getAccess();
+        Class<? extends Component> exclusiveComponent = runner.getExclusiveAccess();
+        if (request.getVisitors().containsAdapters(exclusiveComponent, accessComponent)) {
+          accessComponent = exclusiveComponent;
+        }
+        logger.log(Level.FINER, "Runner {0} run on {1}",
+            new Object[] {runner.getName(), Items.getName(runner.getRunOn())});
+        logger.log(Level.FINER, "Runner {0} has acces on {1}",
+            new Object[] {runner.getName(), Items.getName(accessComponent)});
+        logger.log(Level.FINER, "Runner {0} has exclusive acces on {1}",
+            new Object[] {runner.getName(), Items.getName(exclusiveComponent)});
 
-        // Manage exclusive access at the entry
-        // STOPSHIP To Be Rewritten from ...
-        if (runner.needsExclusiveAccess()) {
-          Class<? extends Component> component = runner.getExclusiveAccess();
-          assert component != null;
+        // Pop adapters for runOn
+        if (runOn.peek() != runner.getRunOn() && runOn.contains(runner.getRunOn())) {
+          logger.log(Level.FINE, "Pop adapters before {0} to run on {1}",
+              new Object[] {runner.getName(), Items.getName(runner.getRunOn())});
 
-          if (logger.isLoggable(Level.FINE)
-              && !request.getVisitors().containsAdapters(runOn.peek(), component)) {
-            logger.log(Level.FINE, "Pop adapters before {0} to gain exclusive access to {1}",
-                new Object[] {runner.getName(), component.getName()});
-          }
-          while (!request.getVisitors().containsAdapters(runOn.peek(), component)) {
+          while (runOn.peek() != runner.getRunOn()) {
             runOn.pop();
             adapters.pop();
+            exclusiveAccess.pop();
+            logger.log(Level.FINEST, "Pop adapter to be on {0}", Items.getName(runOn.peek()));
           }
         }
-        // STOPSHIP ... Until here
 
-        // Manage adapters
-        while (!runOn.isEmpty()) {
-          if (runOn.contains(runner.getRunOn())) {
-            while (runOn.peek() != runner.getRunOn()) {
-              runOn.pop();
-              adapters.pop();
+        // Manage exclusive access before
+        if (runOn.peek() != exclusiveComponent && runOn.contains(exclusiveComponent)) {
+          logger.log(Level.FINE, "Pop adapters before {0} to gain exclusive access to {1}",
+              new Object[] {runner.getName(), Items.getName(exclusiveComponent)});
+          while (runOn.peek() != exclusiveComponent) {
+            runOn.pop();
+            adapters.pop();
+            exclusiveAccess.pop();
+            logger.log(Level.FINEST, "Pop adapter to be on {0}", Items.getName(runOn.peek()));
+          }
+        }
+
+        // Manage access
+        Class<? extends Component> currentExclusiveAccess = exclusiveAccess.peek();
+        if (currentExclusiveAccess != null &&
+            accessComponent != currentExclusiveAccess &&
+            request.getVisitors().containsAdapters(accessComponent, currentExclusiveAccess)) {
+          logger.log(Level.FINE,
+              "Pop adapters before {0} to gain access to {1} after exclusive access {2}",
+              new Object[] {runner.getName(), Items.getName(accessComponent),
+                  Items.getName(currentExclusiveAccess)});
+          while (accessComponent != currentExclusiveAccess
+              && runOn.contains(currentExclusiveAccess)) {
+            runOn.pop();
+            adapters.pop();
+            exclusiveAccess.pop();
+            logger.log(Level.FINEST, "Pop adapter to be on {0}", Items.getName(runOn.peek()));
+
+            if (exclusiveAccess.peek() != null &&
+                exclusiveAccess.peek() != currentExclusiveAccess &&
+                request.getVisitors().containsAdapters(exclusiveAccess.peek(),
+                    currentExclusiveAccess) &&
+                exclusiveAccess.peek() != accessComponent &&
+                request.getVisitors().containsAdapters(accessComponent, exclusiveAccess.peek())) {
+              currentExclusiveAccess = exclusiveAccess.peek();
+              logger.log(Level.FINE,
+                  "Pop adapters before {0} to gain access to {1} after exclusive access {2}",
+                  new Object[] {runner.getName(), Items.getName(accessComponent),
+                      Items.getName(currentExclusiveAccess)});
+            }
+          }
+        }
+
+        // Push adapters to runOn
+        if (runner.getRunOn() != runOn.peek()) {
+          while (!runOn.isEmpty()) {
+            if (request.getVisitors().containsAdapters(runOn.peek(), runner.getRunOn())) {
+              logger.log(Level.FINE, "Push adapters before {0} to run on {1}",
+                  new Object[] {runner.getName(), Items.getName(runner.getRunOn())});
+
+              for (ManagedVisitor visitor : request.getVisitors().getAdapter(runOn.peek(),
+                  runner.getRunOn())) {
+                runOn.push(visitor.getRunOnAfter());
+                adapters.push(adapters.peek().appendSubPlan(visitor));
+                exclusiveAccess.push(null);
+                logger.log(Level.FINEST, "Push adapter to be on {0}", Items.getName(runOn.peek()));
+              }
+
+              break;
             }
 
-            break;
+            logger.log(Level.FINE, "Pop adapters before {0}", runner.getName());
+            runOn.pop();
+            adapters.pop();
+            exclusiveAccess.pop();
+            logger.log(Level.FINEST, "Pop adapter to be on {0}", Items.getName(runOn.peek()));
           }
-
-          if (request.getVisitors().containsAdapters(runOn.peek(), runner.getRunOn())) {
-            for (ManagedVisitor visitor : request.getVisitors().getAdapter(runOn.peek(),
-                runner.getRunOn())) {
-              runOn.push(visitor.getRunOnAfter());
-              adapters.push(adapters.peek().appendSubPlan(visitor));
-            }
-
-            break;
-          }
-          runOn.pop();
-          adapters.pop();
         }
 
         // Append the runner
         adapters.peek().append(runner);
+        exclusiveAccess.pop();
+        exclusiveAccess.push(exclusiveComponent);
 
-        // Manage exclusive access at the exit
-        // STOPSHIP To Be Rewritten from ...
-        if (runner.needsExclusiveAccess()) {
-          Class<? extends Component> component = runner.getExclusiveAccess();
-          assert component != null;
-
-          if (logger.isLoggable(Level.FINE)
-              && !request.getVisitors().containsAdapters(runOn.peek(), component)) {
-            logger.log(Level.FINE, "Pop adapters after {0} to keep exclusive access to {1}",
-                new Object[] {runner.getName(), component.getName()});
-          }
-          while (!request.getVisitors().containsAdapters(runOn.peek(), component)) {
+        // Manage exclusive access after
+        if (runOn.peek() != exclusiveComponent && runOn.contains(exclusiveComponent)) {
+          logger.log(Level.FINE, "Pop adapters after {0} to keep exclusive access to {1}",
+              new Object[] {runner.getName(), Items.getName(exclusiveComponent)});
+          while (runOn.peek() != exclusiveComponent) {
             runOn.pop();
             adapters.pop();
+            exclusiveAccess.pop();
+            logger.log(Level.FINEST, "Pop adapter to be on {0}", Items.getName(runOn.peek()));
           }
         }
 
@@ -433,7 +486,8 @@ public class PlanConstructor<T extends Component>  implements PlanCandidate<T> {
               level = i;
               if (logger.isLoggable(Level.FINE)) {
                 reason = "Pop adapters after " + runner.getName() + " to come back to "
-                    + runOn.get(level - 1).getName() + " because it adds " + tag.getName();
+                    + Items.getName(runOn.get(level - 1)) + " because it adds "
+                    + Items.getName(tag);
               }
               break;
             }
@@ -445,7 +499,8 @@ public class PlanConstructor<T extends Component>  implements PlanCandidate<T> {
               level = i;
               if (logger.isLoggable(Level.FINE)) {
                 reason = "Pop adapters after " + runner.getName() + " to come back to "
-                    + runOn.get(level - 1).getName() + " because it removes " + tag.getName();
+                    + Items.getName(runOn.get(level - 1)) + " because it removes "
+                    + Items.getName(tag);
               }
               break;
             }
@@ -455,17 +510,23 @@ public class PlanConstructor<T extends Component>  implements PlanCandidate<T> {
         if (reason != null) {
           logger.log(Level.FINE, reason);
         }
-
         while (adapters.size() > level) {
             runOn.pop();
             adapters.pop();
+            exclusiveAccess.pop();
+            logger.log(Level.FINEST, "Pop adapter to be on {0}", Items.getName(runOn.peek()));
         }
-        // STOPSHIP ... Until here
       }
 
-      while (runOn.peek() != rootRunOn) {
-        adapters.pop();
-        runOn.pop();
+      // Pop the end
+      if (runOn.peek() != rootRunOn) {
+        logger.log(Level.FINE, "Pop adapters to end on {0}", Items.getName(rootRunOn));
+        while (runOn.peek() != rootRunOn) {
+          adapters.pop();
+          runOn.pop();
+          exclusiveAccess.pop();
+          logger.log(Level.FINEST, "Pop adapter to be on {0}", Items.getName(runOn.peek()));
+        }
       }
 
       @SuppressWarnings("unchecked")
