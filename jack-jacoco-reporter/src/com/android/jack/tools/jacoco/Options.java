@@ -48,6 +48,9 @@ public class Options {
   @Option(name = "-h", aliases = "--help", usage = "show help", help = true)
   private boolean showHelp;
 
+  @Option(name = "--version", usage = "show version", help = true)
+  private boolean showVersion;
+
   @Option(name = "--source-dir", metaVar = "<dir>",
       usage = "a directory containing Java source files (repeatable)")
   @Nonnull
@@ -120,7 +123,11 @@ public class Options {
     return tabWidth;
   }
 
-  public boolean isHelpRequested() {
+  public boolean askForHelp() {
     return showHelp;
+  }
+
+  public boolean askForVersion() {
+    return showVersion;
   }
 }

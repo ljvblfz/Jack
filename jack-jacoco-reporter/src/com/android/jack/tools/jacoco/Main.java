@@ -16,6 +16,8 @@
 
 package com.android.jack.tools.jacoco;
 
+import com.android.sched.util.Version;
+
 import org.jacoco.core.analysis.CoverageBuilder;
 import org.jacoco.core.analysis.IBundleCoverage;
 import org.jacoco.core.tools.ExecFileLoader;
@@ -49,8 +51,10 @@ public class Main {
   public static void main(String[] args) {
     try {
       Options options = parseCommandLine(Arrays.asList(args));
-      if (options.isHelpRequested()) {
+      if (options.askForHelp()) {
         printUsage(System.out);
+      } else if (options.askForVersion()) {
+        printVersion(System.out);
       } else {
         createReport(options);
       }
@@ -65,6 +69,15 @@ public class Main {
     } catch (IOException e) {
       e.printStackTrace(System.err);
       printErrorAndExit(ErrorCode.INERNAL_ERROR, e.getMessage());
+    }
+  }
+
+  private static void printVersion(@Nonnull PrintStream out) {
+    try {
+      Version version = new Version("jack-jacoco-reporter", Main.class.getClassLoader());
+      out.println("Jack Jacoco reporter: " + version.getVerboseVersion());
+    } catch (IOException e) {
+      throw new AssertionError("Failed to find reporter version", e);
     }
   }
 
