@@ -51,6 +51,10 @@ public class UnaryTests extends RuntimeTest {
       AbstractTestTools.getTestRootDir("com.android.jack.unary.test006"),
       "com.android.jack.unary.test006.dx.Tests");
 
+  private RuntimeTestInfo TEST007 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.unary.test007"),
+      "com.android.jack.unary.test007.dx.Tests");
+
   @Test
   @Category(RuntimeRegressionTest.class)
   public void test001() throws Exception {
@@ -87,6 +91,12 @@ public class UnaryTests extends RuntimeTest {
     new RuntimeTestHelper(TEST006).compileAndRunTest();
   }
 
+  @Test
+  @Category(RuntimeRegressionTest.class)
+  public void test007() throws Exception {
+    new RuntimeTestHelper(TEST007).compileAndRunTest();
+  }
+
   @Override
   protected void fillRtTestInfos() {
     rtTestInfos.add(TEST001);
@@ -95,5 +105,6 @@ public class UnaryTests extends RuntimeTest {
     rtTestInfos.add(TEST004);
     rtTestInfos.add(TEST005);
     rtTestInfos.add(TEST006);
+    rtTestInfos.add(TEST007);
   }
 }

@@ -1157,12 +1157,8 @@ public abstract class Jack {
         if (features.contains(VisibilityBridge.class)) {
           typePlan2.append(VisibilityBridgeAdder.class);
         }
-        if (features.contains(Optimizations.NotSimplifier.class)
-            || features.contains(SourceVersion7.class)) {
+        if (features.contains(SourceVersion7.class)) {
           SubPlanBuilder<JMethod> methodPlan = typePlan2.appendSubPlan(JMethodAdapter.class);
-          if (features.contains(Optimizations.NotSimplifier.class)) {
-            methodPlan.append(NotSimplifier.class);
-          }
           if (features.contains(SourceVersion7.class)) {
             methodPlan.append(TryWithResourcesTransformer.class);
           }
@@ -1188,6 +1184,9 @@ public abstract class Jack {
           }
           methodPlan2.append(IncDecRemover.class);
           methodPlan2.append(CompoundAssignmentRemover.class);
+          if (features.contains(Optimizations.NotSimplifier.class)) {
+            methodPlan2.append(NotSimplifier.class);
+          }
           methodPlan2.append(ConcatRemover.class);
         }
       }

@@ -18,6 +18,7 @@ package com.android.jack.optimizations;
 
 import com.android.jack.Jack;
 import com.android.jack.Options;
+import com.android.jack.ir.CompoundAssignment;
 import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JAndOperation;
 import com.android.jack.ir.ast.JBinaryOperation;
@@ -59,7 +60,8 @@ import javax.annotation.Nonnull;
  * Simplify '!' operator when it is valuable.
  */
 @Description("Simplify '!' operator when it is valuable")
-@Constraint(need = {JPrefixNotOperation.class}, no = {ThreeAddressCodeForm.class})
+@Constraint(need = {JPrefixNotOperation.class},
+    no = {ThreeAddressCodeForm.class, CompoundAssignment.class})
 @Transform(add = {JPrefixNotOperation.class, JGteOperation.class, JGtOperation.class,
     JLteOperation.class, JLtOperation.class, JEqOperation.class, JNeqOperation.class,
     JAndOperation.class, JOrOperation.class, JBitAndOperation.class, JBitOrOperation.class})
