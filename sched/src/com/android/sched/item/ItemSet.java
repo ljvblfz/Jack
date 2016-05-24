@@ -298,7 +298,7 @@ public class ItemSet<T extends Item> implements Cloneable, Iterable<Class<? exte
 
     ItemIterator<Item> iter = new ItemIterator<Item>(this);
     while (iter.hasNext()) {
-      names.add(iter.next().getName());
+      names.add(Items.getName(iter.next()));
     }
 
     StringBuilder sb = new StringBuilder();
