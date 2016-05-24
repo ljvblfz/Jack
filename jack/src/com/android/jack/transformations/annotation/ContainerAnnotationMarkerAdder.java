@@ -58,6 +58,7 @@ public class ContainerAnnotationMarkerAdder {
       + "are on the same type")
   @Constraint(need = JAnnotation.RepeatedAnnotationOnType.class)
   @Use(ContainerAnnotationMarkerAdder.class)
+  @Access(JSession.class)
   public static class TypeContainerAnnotationMarkerAdder extends ContainerAnnotationMarkerAdder
       implements RunnableSchedulable<JDefinedClassOrInterface> {
     @Override
@@ -74,6 +75,7 @@ public class ContainerAnnotationMarkerAdder {
       + "are on the same field")
   @Constraint(need = JAnnotation.RepeatedAnnotationOnField.class)
   @Use(ContainerAnnotationMarkerAdder.class)
+  @Access(JSession.class)
   public static class FieldContainerAnnotationMarkerAdder extends ContainerAnnotationMarkerAdder
       implements RunnableSchedulable<JField> {
     @Override
@@ -90,6 +92,7 @@ public class ContainerAnnotationMarkerAdder {
       + "are on the same method or parameter")
   @Constraint(need = JAnnotation.RepeatedAnnotationOnMethod.class)
   @Use(ContainerAnnotationMarkerAdder.class)
+  @Access(JSession.class)
   public static class MethodContainerAnnotationMarkerAdder extends ContainerAnnotationMarkerAdder
       implements RunnableSchedulable<JMethod> {
     @Override

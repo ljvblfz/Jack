@@ -22,6 +22,7 @@ import com.android.jack.Options;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JStringLiteral;
 import com.android.jack.ir.ast.JTypeStringLiteral;
 import com.android.jack.ir.ast.JVisitor;
@@ -41,6 +42,7 @@ import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
+import com.android.sched.schedulable.Access;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
@@ -63,6 +65,7 @@ import javax.annotation.Nonnull;
     AtomicReferenceUpdaterParameterRefiner.class,
     GetMethodParameterRefiner.class,
     GetDeclaredMethodParameterRefiner.class})
+@Access(JSession.class)
 public class ReflectionStringLiteralRefiner implements RunnableSchedulable<JMethod> {
 
   @Nonnull

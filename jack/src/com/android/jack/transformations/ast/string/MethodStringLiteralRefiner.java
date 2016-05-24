@@ -17,8 +17,10 @@
 package com.android.jack.transformations.ast.string;
 
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
+import com.android.sched.schedulable.Access;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
@@ -30,6 +32,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Refine JStringLiteral in methods into more specific string literals.")
 @Use(StringLiteralRefinerVisitor.class)
+@Access(JSession.class)
 @Transform(add = StringLiteralRefined.Method.class)
 public class MethodStringLiteralRefiner implements RunnableSchedulable<JMethod> {
 

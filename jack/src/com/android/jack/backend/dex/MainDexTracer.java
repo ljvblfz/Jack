@@ -19,9 +19,11 @@ package com.android.jack.backend.dex;
 import com.android.jack.analysis.tracer.Tracer;
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.scheduling.feature.SourceVersion8;
 import com.android.jack.shrob.obfuscation.SubClassOrInterfaceMarker;
 import com.android.sched.item.Description;
+import com.android.sched.schedulable.Access;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Optional;
 import com.android.sched.schedulable.RunnableSchedulable;
@@ -35,6 +37,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Trace for main dex.")
 @Use({Tracer.class, MultiDexLegacyTracerBrush.class})
+@Access(JSession.class)
 @Constraint(need = SubClassOrInterfaceMarker.class)
 @Optional(@ToSupport(feature = SourceVersion8.class,
     add = @Constraint(need = JAnnotation.RepeatedAnnotation.class)))

@@ -54,7 +54,7 @@ import javax.annotation.Nonnull;
  * Add container annotations when they are needed.
  */
 @Transform(add = {JAnnotation.class, JNameValuePair.class, JArrayLiteral.class})
-// Uses etOrCreateMethodIdWide on container JAnnotationType of JAnnotation founds on Annotable.
+// Uses getOrCreateMethodIdWide on container JAnnotationType of JAnnotation founds on Annotable.
 @ExclusiveAccess(JSession.class)
 public class ContainerAnnotationAdder {
 
@@ -65,6 +65,7 @@ public class ContainerAnnotationAdder {
   @Constraint(need = ContainerAnnotationMarker.class)
   @Transform(remove = {JAnnotation.RepeatedAnnotationOnType.class})
   @Use(ContainerAnnotationAdder.class)
+  @ExclusiveAccess(JSession.class)
   @Filter(TypeWithoutPrebuiltFilter.class)
   public static class TypeContainerAnnotationAdder extends ContainerAnnotationAdder
       implements RunnableSchedulable<JDefinedClassOrInterface> {
@@ -85,6 +86,7 @@ public class ContainerAnnotationAdder {
   @Constraint(need = ContainerAnnotationMarker.class)
   @Transform(remove = {JAnnotation.RepeatedAnnotationOnField.class})
   @Use(ContainerAnnotationAdder.class)
+  @ExclusiveAccess(JSession.class)
   @Filter(TypeWithoutPrebuiltFilter.class)
   public static class FieldContainerAnnotationAdder extends ContainerAnnotationAdder
       implements RunnableSchedulable<JField> {
@@ -105,6 +107,7 @@ public class ContainerAnnotationAdder {
   @Constraint(need = ContainerAnnotationMarker.class)
   @Transform(remove = {JAnnotation.RepeatedAnnotationOnMethod.class})
   @Use(ContainerAnnotationAdder.class)
+  @ExclusiveAccess(JSession.class)
   @Filter(TypeWithoutPrebuiltFilter.class)
   public static class MethodContainerAnnotationAdder extends ContainerAnnotationAdder
       implements RunnableSchedulable<JMethod> {
