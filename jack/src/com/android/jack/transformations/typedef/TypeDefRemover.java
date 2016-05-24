@@ -22,6 +22,7 @@ import com.android.jack.ir.ast.JDefinedAnnotationType;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JRetentionPolicy;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.library.DumpInLibrary;
 import com.android.jack.reporting.Reportable;
 import com.android.jack.reporting.Reporter.Severity;
@@ -32,6 +33,7 @@ import com.android.sched.item.Description;
 import com.android.sched.item.Feature;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.ExclusiveAccess;
 import com.android.sched.schedulable.Optional;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
@@ -51,6 +53,8 @@ import javax.annotation.Nonnull;
 @HasKeyId
 @Optional(@ToSupport(feature = SourceVersion8.class,
     add = @Constraint(need = JAnnotation.RepeatedAnnotation.class)))
+// This schedulable removes some types and updates the hierarchy
+@ExclusiveAccess(JSession.class)
 public class TypeDefRemover extends TypeRemover {
 
   @Nonnull

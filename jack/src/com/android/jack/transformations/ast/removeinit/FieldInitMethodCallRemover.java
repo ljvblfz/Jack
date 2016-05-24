@@ -39,6 +39,7 @@ import com.android.jack.util.CloneStatementVisitor;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.ExclusiveAccess;
 import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
@@ -56,6 +57,8 @@ no = {JFieldInitializer.class, FlowNormalizerSchedulingSeparator.SeparatorTag.cl
 @Transform(remove = {FieldInitMethodCall.class, ThreeAddressCodeForm.class})
 @Use(CloneStatementVisitor.class)
 @Filter(SourceTypeFilter.class)
+// This schedulable clones the body of methods it does not visit.
+@ExclusiveAccess(JDefinedClassOrInterface.class)
 public class FieldInitMethodCallRemover implements RunnableSchedulable<JMethod> {
 
   private static class Visitor extends JVisitor {

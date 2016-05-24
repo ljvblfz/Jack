@@ -41,6 +41,7 @@ import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.ExclusiveAccess;
 import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.Optional;
 import com.android.sched.schedulable.RunnableSchedulable;
@@ -85,6 +86,8 @@ import javax.annotation.Nonnull;
 @Optional(@ToSupport(feature = SourceVersion8.class,
     add = @Constraint(no = JAnnotation.RepeatedAnnotation.class)))
 @Filter(TypeWithoutPrebuiltFilter.class)
+// Method default values are transformed in class annotations, while the schedulable runs on methods
+@ExclusiveAccess(JDefinedClassOrInterface.class)
 public class DefaultValueAnnotationAdder implements RunnableSchedulable<JMethod> {
 
   @Nonnull

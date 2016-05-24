@@ -45,6 +45,7 @@ import com.android.jack.ir.ast.JNewArray;
 import com.android.jack.ir.ast.JNullLiteral;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JReturnStatement;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JTryStatement;
 import com.android.jack.ir.ast.JType;
@@ -64,6 +65,7 @@ import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.ExclusiveAccess;
 import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
@@ -101,6 +103,8 @@ import javax.annotation.Nonnull;
  remove = {JSwitchStatement.SwitchWithEnum.class, ThreeAddressCodeForm.class})
 @Use(value = {LocalVarCreator.class})
 @Filter(SourceTypeFilter.class)
+// This schedulable modifies a class (that it added in a previous run) that it is not visiting.
+@ExclusiveAccess(JSession.class)
 public class OptimizedSwitchEnumSupport implements RunnableSchedulable<JMethod> {
   // switch map filler which will fills synthetic switch map field and initializer
   @Nonnull

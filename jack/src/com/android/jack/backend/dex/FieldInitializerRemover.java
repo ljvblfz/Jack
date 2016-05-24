@@ -22,6 +22,7 @@ import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JBinaryOperation;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JClassLiteral;
+import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JExpressionStatement;
 import com.android.jack.ir.ast.JField;
@@ -42,6 +43,7 @@ import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.ExclusiveAccess;
 import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
@@ -61,6 +63,8 @@ import javax.annotation.Nonnull;
 @Transform(add = {JAsgOperation.NonReusedAsg.class, JExpressionStatement.class},
     remove = {JFieldInitializer.class, ThreeAddressCodeForm.class})
 @Filter(SourceTypeFilter.class)
+// FieldInitializers are contained in the <init> or <clinit> method, which will thus be modified.
+@ExclusiveAccess(JDefinedClassOrInterface.class)
 public class FieldInitializerRemover implements RunnableSchedulable<JField> {
 
   @Nonnull

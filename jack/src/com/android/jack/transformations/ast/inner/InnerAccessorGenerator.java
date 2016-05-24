@@ -42,6 +42,7 @@ import com.android.jack.ir.ast.JNewInstance;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JNullLiteral;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
@@ -57,6 +58,7 @@ import com.android.jack.util.NamingTools;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.ExclusiveAccess;
 import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
@@ -80,6 +82,9 @@ import javax.annotation.Nonnull;
 @Constraint(no = {SideEffectOperation.class, JAlloc.class,
     InnerAccessorGeneratorSchedulingSeparator.SeparatorConcatRemoverTag.class})
 @Filter(SourceTypeFilter.class)
+// This schedulable bypasses the classic visiting order by visiting outer classes first
+// and their inner classes afterwards.
+@ExclusiveAccess(JSession.class)
 public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Nonnull

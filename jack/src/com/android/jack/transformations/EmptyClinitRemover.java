@@ -17,6 +17,7 @@
 package com.android.jack.transformations;
 
 import com.android.jack.Options;
+import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JReturnStatement;
@@ -26,6 +27,7 @@ import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.ExclusiveAccess;
 import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
@@ -41,6 +43,8 @@ import javax.annotation.Nonnull;
 @Constraint(no = {InitializationExpression.class})
 @Transform(remove = {EmptyClinit.class})
 @Filter(TypeWithoutPrebuiltFilter.class)
+// This schedulable removes some methods
+@ExclusiveAccess(JDefinedClassOrInterface.class)
 public class EmptyClinitRemover implements RunnableSchedulable<JMethod> {
 
   @Nonnull
