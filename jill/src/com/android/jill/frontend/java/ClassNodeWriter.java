@@ -185,7 +185,7 @@ public class ClassNodeWriter extends JillWriter {
   }
 
   private void writeGenericSignatureMarker(@Nonnull ClassNode cn) throws IOException {
-    if (AsmHelper.isGenericSignature(cn)) {
+    if (AsmHelper.hasValidGenericSignature(cn)) {
       writer.writeKeyword(Token.GENERIC_SIGNATURE);
       writer.writeOpen();
       writer.writeString(cn.signature);
@@ -201,7 +201,7 @@ public class ClassNodeWriter extends JillWriter {
   }
 
   private void writeGenericSignatureMarker(@Nonnull FieldNode fn) throws IOException {
-    if (fn.signature != null) {
+    if (AsmHelper.hasValidGenericSignature(fn)) {
       writer.writeKeyword(Token.GENERIC_SIGNATURE);
       writer.writeOpen();
       writer.writeString(fn.signature);

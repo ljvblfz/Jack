@@ -16,6 +16,8 @@
 
 package com.android.jill.frontend.java;
 
+import com.android.jill.signature.GenericSignatureParser;
+
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -26,6 +28,7 @@ import org.objectweb.asm.tree.InnerClassNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
+import java.lang.reflect.GenericSignatureFormatError;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,15 +45,38 @@ public class AsmHelper {
 
   private static final int JAVA_ACCESS_FLAGS_MASK = 0xFFFF;
 
-  @Nonnull
-  private static final String GENERIC_SIGNATURE_START = "<";
-  @Nonnull
-  private static final String GENERIC_SIGNATURE_END = ">";
+  public static boolean hasValidGenericSignature(@Nonnull ClassNode cn) {
+    if (cn.signature != null) {
+      try {
+        GenericSignatureParser.PARSER.parseClassSignature(cn.signature);
+        return true;
+      } catch (GenericSignatureFormatError e) {
+        // It is not a generic signature for a class
+      }
+    }
+    return false;
+  }
 
-  public static boolean isGenericSignature(@Nonnull ClassNode cn) {
-    if (cn.signature != null && cn.signature.contains(GENERIC_SIGNATURE_START)) {
-      assert cn.signature.contains(GENERIC_SIGNATURE_END);
-      return true;
+  public static boolean hasValidGenericSignature(@Nonnull FieldNode fn) {
+    if (fn.signature != null) {
+      try {
+        GenericSignatureParser.PARSER.parseFieldSignature(fn.signature);
+        return true;
+      } catch (GenericSignatureFormatError e) {
+        // It is not a generic signature for a field
+      }
+    }
+    return false;
+  }
+
+  public static boolean hasValidGenericSignature(@Nonnull MethodNode mn) {
+    if (mn.signature != null) {
+      try {
+        GenericSignatureParser.PARSER.parseMethodSignature(mn.signature);
+        return true;
+      } catch (GenericSignatureFormatError e) {
+        // It is not a generic signature for a method
+      }
     }
     return false;
   }

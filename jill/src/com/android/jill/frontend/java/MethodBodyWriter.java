@@ -360,7 +360,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
   }
 
   private void writeOriginalTypeInfoMarker() throws IOException {
-    if (currentMethod.signature != null) {
+    if (AsmHelper.hasValidGenericSignature(currentMethod)) {
       writer.writeKeyword(Token.GENERIC_SIGNATURE);
       writer.writeOpen();
       writer.writeString(currentMethod.signature);
