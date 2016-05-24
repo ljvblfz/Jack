@@ -48,16 +48,13 @@ public class GetFieldParameterRefiner extends CommonStringParameterRefiner imple
   @Nonnull
   private static final String GETFIELD_METHOD_NAME = "getField";
 
-  @CheckForNull
-  private JMethodIdWide getFieldMethodId;
+  @Nonnull
+  private final JMethodIdWide getFieldMethodId = javaLangClass.getMethodIdWide(
+          GETFIELD_METHOD_NAME, Collections.singletonList((JType) javaLangString),
+          MethodKind.INSTANCE_VIRTUAL);
 
   @Override
   public boolean isApplicable(@Nonnull JMethodCall call) throws JMethodLookupException {
-    if (getFieldMethodId == null) {
-      getFieldMethodId = javaLangClass.getMethodIdWide(
-          GETFIELD_METHOD_NAME, Collections.singletonList((JType) javaLangString),
-          MethodKind.INSTANCE_VIRTUAL);
-    }
     if (call.getReceiverType().isSameType(javaLangClass)
         && call.getMethodId().equals(getFieldMethodId)) {
       assert formatter.getName(call.getType()).equals(FIELD_CLASS_SIGNATURE);

@@ -17,6 +17,7 @@
 package com.android.jack.transformations.ast.string;
 
 import com.android.jack.Jack;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JStringLiteral;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeStringLiteral;
@@ -28,6 +29,7 @@ import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.NamingTools;
+import com.android.sched.schedulable.Access;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Transform;
 
@@ -39,6 +41,8 @@ import javax.annotation.Nonnull;
  */
 @Constraint(need = {JStringLiteral.class, OriginalNames.class})
 @Transform(add = JTypeStringLiteral.class)
+// Lookup classes from names found in string literals.
+@Access(JSession.class)
 public class StringLiteralRefinerVisitor extends JVisitor {
 
   @Nonnull

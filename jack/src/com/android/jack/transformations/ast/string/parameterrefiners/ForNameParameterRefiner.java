@@ -48,16 +48,13 @@ public class ForNameParameterRefiner extends CommonStringParameterRefiner implem
   @Nonnull
   private static final String FORNAME_METHOD_NAME = "forName";
 
-  @CheckForNull
-  private JMethodIdWide forNameMethodId;
+  @Nonnull
+  private final JMethodIdWide forNameMethodId = javaLangClass.getMethodIdWide(
+          FORNAME_METHOD_NAME, Collections.singletonList((JType) javaLangString),
+          MethodKind.STATIC);
 
   @Override
   public boolean isApplicable(@Nonnull JMethodCall call) throws JMethodLookupException {
-    if (forNameMethodId == null) {
-      forNameMethodId = javaLangClass.getMethodIdWide(
-          FORNAME_METHOD_NAME, Collections.singletonList((JType) javaLangString),
-          MethodKind.STATIC);
-    }
     if (call.getReceiverType().isSameType(javaLangClass)
         && call.getMethodId().equals(forNameMethodId)) {
       assert call.getType().isSameType(javaLangClass);

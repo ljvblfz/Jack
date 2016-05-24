@@ -23,9 +23,11 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JPackage;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.shrob.obfuscation.SubClassOrInterfaceMarker;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
+import com.android.sched.schedulable.Access;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 
@@ -39,6 +41,8 @@ import javax.annotation.Nonnull;
     "interfaces extending or implementing the marked type")
 @Synchronized
 @Transform(add = SubClassOrInterfaceMarker.class)
+// Visit hierarchy.
+@Access(JSession.class)
 public class SubClassOrInterfaceFinder implements RunnableSchedulable<JPackage> {
 
   private void addToSubClass(

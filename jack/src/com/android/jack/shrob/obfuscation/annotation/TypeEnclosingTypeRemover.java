@@ -19,10 +19,12 @@ package com.android.jack.shrob.obfuscation.annotation;
 import com.android.jack.backend.dex.annotations.tag.ReflectAnnotations;
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.transformations.request.RemoveEnclosingType;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.ExclusiveAccess;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
@@ -36,6 +38,8 @@ import javax.annotation.Nonnull;
 @Constraint(no = ReflectAnnotations.class)
 @Transform(modify = JDefinedClass.class)
 @Support(com.android.jack.shrob.obfuscation.annotation.RemoveEnclosingType.class)
+// Modify member types of enclosing type.
+@ExclusiveAccess(JSession.class)
 public class TypeEnclosingTypeRemover implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Override

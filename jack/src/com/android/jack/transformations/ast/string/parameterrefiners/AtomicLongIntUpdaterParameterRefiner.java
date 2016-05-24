@@ -23,11 +23,13 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JFieldNameLiteral;
 import com.android.jack.ir.ast.JMethodCall;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JStringLiteral;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.reflection.MemberFinder;
 import com.android.jack.reflection.MultipleFieldsFoundException;
 import com.android.jack.shrob.obfuscation.OriginalNames;
+import com.android.sched.schedulable.Access;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Transform;
 
@@ -40,6 +42,8 @@ import javax.annotation.Nonnull;
  */
 @Constraint(need = OriginalNames.class)
 @Transform(add = JFieldNameLiteral.class)
+// Access name of called method.
+@Access(JSession.class)
 public class AtomicLongIntUpdaterParameterRefiner extends CommonStringParameterRefiner implements
     StringParameterRefiner {
 

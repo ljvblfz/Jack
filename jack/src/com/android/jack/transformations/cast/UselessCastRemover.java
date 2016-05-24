@@ -23,6 +23,7 @@ import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNullLiteral;
 import com.android.jack.ir.ast.JReferenceType;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
@@ -30,6 +31,7 @@ import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
+import com.android.sched.schedulable.Access;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
@@ -45,6 +47,8 @@ import javax.annotation.Nonnull;
 @Constraint(need = JDynamicCastOperation.class, no = JCastOperation.WithIntersectionType.class)
 @Transform(remove = SourceCast.class)
 @Filter(TypeWithoutPrebuiltFilter.class)
+// Uses canBeSafelyUpcast which browse hierarchy.
+@Access(JSession.class)
 public class UselessCastRemover implements RunnableSchedulable<JMethod> {
 
   @Nonnull

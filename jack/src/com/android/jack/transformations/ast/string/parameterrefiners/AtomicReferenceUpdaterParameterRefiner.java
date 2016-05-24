@@ -19,9 +19,11 @@ package com.android.jack.transformations.ast.string.parameterrefiners;
 import com.android.jack.Jack;
 import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JMethodCall;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JStringLiteral;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.shrob.obfuscation.OriginalNames;
+import com.android.sched.schedulable.Access;
 import com.android.sched.schedulable.Constraint;
 
 import javax.annotation.CheckForNull;
@@ -31,6 +33,8 @@ import javax.annotation.Nonnull;
  * Refine string parameter of call to newUpdater method of AtomicReferenceFieldUpdater
  */
 @Constraint(need = OriginalNames.class)
+// Access name of called method.
+@Access(JSession.class)
 public class AtomicReferenceUpdaterParameterRefiner extends AtomicLongIntUpdaterParameterRefiner {
 
   @Nonnull

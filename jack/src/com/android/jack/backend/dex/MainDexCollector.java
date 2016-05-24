@@ -18,10 +18,12 @@ package com.android.jack.backend.dex;
 
 import com.android.jack.Options;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.shrob.shrink.KeepMarker;
 import com.android.jack.shrob.shrink.Shrinking;
 import com.android.sched.item.Description;
+import com.android.sched.schedulable.Access;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Optional;
 import com.android.sched.schedulable.RunnableSchedulable;
@@ -44,6 +46,8 @@ import javax.annotation.Nonnull;
     @ToSupport(
         feature = MultiDexLegacy.class,
         add = @Constraint(need = MultiDexLegacyTracerBrush.TracerMarker.class))})
+// Adds markers on referenced types.
+@Access(JSession.class)
 public class MainDexCollector extends TypeReferenceCollector
   implements RunnableSchedulable<JDefinedClassOrInterface> {
 

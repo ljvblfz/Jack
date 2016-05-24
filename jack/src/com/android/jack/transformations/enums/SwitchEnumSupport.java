@@ -55,6 +55,7 @@ import com.android.jack.ir.ast.JNewArray;
 import com.android.jack.ir.ast.JNullLiteral;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JReturnStatement;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JTryStatement;
@@ -83,6 +84,7 @@ import com.android.sched.item.Synchronized;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.ExclusiveAccess;
 import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
@@ -121,6 +123,8 @@ import javax.annotation.Nonnull;
 @Use(value = {LocalVarCreator.class})
 @HasKeyId
 @Filter(SourceTypeFilter.class)
+// Creates method ordinal in referenced Enum, modify enclosing type of the visited method.
+@ExclusiveAccess(JSession.class)
 public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
 
   @Nonnull

@@ -40,6 +40,7 @@ import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JNeqOperation;
 import com.android.jack.ir.ast.JNullLiteral;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JThrowStatement;
 import com.android.jack.ir.ast.JTryStatement;
@@ -60,6 +61,7 @@ import com.android.jack.util.NamingTools;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.ExclusiveAccess;
 import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
@@ -148,6 +150,8 @@ import javax.annotation.Nonnull;
 @Use({LocalVarCreator.class, SourceInfoFactory.class})
 @Support(SourceVersion7.class)
 @Filter(SourceTypeFilter.class)
+// Uses getMethodIdWide on potential phantom: scans hierarchy and create method.
+@ExclusiveAccess(JSession.class)
 public class TryWithResourcesTransformer implements RunnableSchedulable<JMethod> {
 
   @Nonnull

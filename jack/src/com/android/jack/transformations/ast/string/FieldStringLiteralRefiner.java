@@ -17,8 +17,10 @@
 package com.android.jack.transformations.ast.string;
 
 import com.android.jack.ir.ast.JField;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
+import com.android.sched.schedulable.Access;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
@@ -31,6 +33,8 @@ import javax.annotation.Nonnull;
 @Description("Refine JStringLiteral in fields into more specific string literals.")
 @Use(StringLiteralRefinerVisitor.class)
 @Transform(add = StringLiteralRefined.Field.class)
+// Uses StringLiteralRefinerVisitor which lookup types.
+@Access(JSession.class)
 public class FieldStringLiteralRefiner implements RunnableSchedulable<JField> {
 
   @Override

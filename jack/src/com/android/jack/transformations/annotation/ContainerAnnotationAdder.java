@@ -28,6 +28,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JNameValuePair;
 import com.android.jack.ir.ast.JParameter;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.sourceinfo.SourceInfo;
@@ -37,6 +38,7 @@ import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.ExclusiveAccess;
 import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
@@ -52,6 +54,8 @@ import javax.annotation.Nonnull;
  * Add container annotations when they are needed.
  */
 @Transform(add = {JAnnotation.class, JNameValuePair.class, JArrayLiteral.class})
+// Uses etOrCreateMethodIdWide on container JAnnotationType of JAnnotation founds on Annotable.
+@ExclusiveAccess(JSession.class)
 public class ContainerAnnotationAdder {
 
   /**

@@ -23,6 +23,7 @@ import com.android.jack.ir.ast.JDefinedEnum;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JPackage;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
@@ -31,6 +32,7 @@ import com.android.jack.transformations.enums.SwitchEnumSupport;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.item.Synchronized;
+import com.android.sched.schedulable.Access;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
@@ -56,7 +58,8 @@ import javax.annotation.Nonnull;
 @Constraint(need = {JSwitchStatement.class, JDefinedClass.class, JDefinedEnum.class})
 @Filter(SourceTypeFilter.class)
 @Transform(add = {SwitchEnumUsageMarker.class, EnumFieldMarker.class})
-
+// Access to a JPackage.
+@Access(JSession.class)
 public class SwitchEnumUsageCollector implements RunnableSchedulable<JMethod> {
   // the statistic counting the number of synthetic switch map initializer eliminated during
   // current compilation.

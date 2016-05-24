@@ -57,6 +57,7 @@ import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.ExclusiveAccess;
 import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
@@ -92,6 +93,8 @@ import javax.annotation.Nonnull;
     remove = {JAssertStatement.class, ThreeAddressCodeForm.class, NewInstanceRemoved.class})
 @Support(DynamicAssertionFeature.class)
 @Filter(TypeWithoutPrebuiltFilter.class)
+// Adds field to enclosing class.
+@ExclusiveAccess(JDefinedClassOrInterface.class)
 public class DynamicAssertionTransformer implements RunnableSchedulable<JMethod> {
 
   @Nonnull

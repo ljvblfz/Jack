@@ -44,6 +44,7 @@ import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
+import com.android.sched.schedulable.Access;
 import com.android.sched.schedulable.ExclusiveAccess;
 import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
@@ -67,6 +68,8 @@ import javax.annotation.Nonnull;
 @Filter(SourceTypeFilter.class)
 // This schedulable searches methods in the hierarchy
 @ExclusiveAccess(JSession.class)
+// Access super classes.
+@Access(JSession.class)
 public class VisibilityBridgeAdder implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Nonnull

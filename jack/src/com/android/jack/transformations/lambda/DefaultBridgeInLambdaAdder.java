@@ -39,6 +39,7 @@ import com.android.jack.reporting.Reportable;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.sched.item.Description;
+import com.android.sched.schedulable.Access;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
@@ -57,8 +58,11 @@ import javax.annotation.Nonnull;
 @Description("Add bridges into JLambda that comes from default bridges generated into interfaces")
 @Constraint(need = DefaultBridgeIntoInterface.class)
 @Transform(
-    add = {JLambda.DefaultBridgeAddedInLambda.class, DefaultBridgeSeparator.SeparatorTag.class})
+    add = {JLambda.DefaultBridgeAddedInLambda.class, DefaultBridgeSeparator.SeparatorTag.class},
+    modify = JLambda.class)
 @Filter(TypeWithoutPrebuiltFilter.class)
+// Access implements.
+@Access(JSession.class)
 public class DefaultBridgeInLambdaAdder implements RunnableSchedulable<JMethod> {
 
   private final long androidMinApiLevel =
