@@ -746,7 +746,8 @@ public abstract class Jack {
             }
           } catch (UnsupportedOperationException e) {
             // ... but use a manual one if not supported
-            if (pluginManager.hasPlugins()) {
+            // STOPSHIP
+            if (true) {
               // If there are some plugins, amend the handcrafted plan
               PlanConstructor<JSession> ctor =
                   new PlanConstructor<JSession>(request, JSession.class, planBuilder);
