@@ -744,8 +744,7 @@ public abstract class Jack {
             }
           } catch (UnsupportedOperationException e) {
             // ... but use a manual one if not supported
-            // STOPSHIP
-            if (true) {
+            if (pluginManager.hasPlugins()) {
               // If there are some plugins, amend the handcrafted plan
 
               // Add features and productions according to plugins
