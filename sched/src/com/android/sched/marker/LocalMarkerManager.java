@@ -42,7 +42,7 @@ public class LocalMarkerManager extends AbstractMarkerManager {
   @SuppressWarnings("unchecked")
   @Override
   public <T extends Marker> T addMarker(@Nonnull T marker) {
-    assert isValidMarker(marker.getClass()) : "Marker '" + Items.getName(marker.getClass())
+    assert isValidMarker(marker) : "Marker '" + Items.getName(marker.getClass())
         + "' is not supported for class '" + this.getClass().getName() + "'";
 
     ensureMap();
@@ -56,7 +56,7 @@ public class LocalMarkerManager extends AbstractMarkerManager {
     ensureMap();
 
     for (Marker marker : collection) {
-      assert isValidMarker(marker.getClass()) : "Marker '" + Items.getName(marker.getClass())
+      assert isValidMarker(marker) : "Marker '" + Items.getName(marker.getClass())
           + "' is not supported for class '" + this.getClass().getName() + "'";
       assert markers != null;
 
@@ -111,7 +111,7 @@ public class LocalMarkerManager extends AbstractMarkerManager {
   @Override
   @Nonnull
   public <T extends Marker> T getMarkerOrDefault(@Nonnull T defaultMarker) {
-    assert isValidMarker(defaultMarker.getClass()) : "Marker '"
+    assert isValidMarker(defaultMarker) : "Marker '"
         + Items.getName(defaultMarker.getClass()) + "' is not supported for class '"
         + this.getClass().getName() + "'";
 
@@ -134,7 +134,7 @@ public class LocalMarkerManager extends AbstractMarkerManager {
   @Override
   @CheckForNull
   public <T extends Marker> T addMarkerIfAbsent(@Nonnull T newMarker) {
-    assert isValidMarker(newMarker.getClass()) : "Marker '" + Items.getName(newMarker.getClass())
+    assert isValidMarker(newMarker) : "Marker '" + Items.getName(newMarker.getClass())
         + "' is not supported for class '" + this.getClass().getName() + "'";
 
     ensureMap();
