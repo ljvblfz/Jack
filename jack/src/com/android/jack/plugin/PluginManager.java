@@ -71,7 +71,8 @@ public class PluginManager {
 
   @SuppressFBWarnings("DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED")
   public PluginManager(@Nonnull List<URL> urls) {
-    this(new URLClassLoader(urls.toArray(new URL[urls.size()])));
+    this(new URLClassLoader(urls.toArray(new URL[urls.size()]),
+        PluginManager.class.getClassLoader()));
   }
 
   // STOPSHIP Use property
