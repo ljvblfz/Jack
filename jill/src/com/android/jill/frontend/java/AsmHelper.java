@@ -52,6 +52,12 @@ public class AsmHelper {
    */
   private static class DummyAction implements GenericSignatureAction<Object> {
 
+    @Nonnull
+    public static final DummyAction INSTANCE = new DummyAction();
+
+    private DummyAction() {
+    }
+
     @Override
     public void parsedSymbol(char symbol) {
     }
@@ -85,7 +91,7 @@ public class AsmHelper {
   public static boolean hasValidGenericSignature(@Nonnull ClassNode cn) {
     if (cn.signature != null) {
       try {
-        new GenericSignatureParser<Object>(new DummyAction()).parseClassSignature(cn.signature);
+        new GenericSignatureParser<Object>(DummyAction.INSTANCE).parseClassSignature(cn.signature);
         return true;
       } catch (GenericSignatureFormatError e) {
         // It is not a generic signature for a class
@@ -97,7 +103,7 @@ public class AsmHelper {
   public static boolean hasValidGenericSignature(@Nonnull FieldNode fn) {
     if (fn.signature != null) {
       try {
-        new GenericSignatureParser<Object>(new DummyAction()).parseFieldSignature(fn.signature);
+        new GenericSignatureParser<Object>(DummyAction.INSTANCE).parseFieldSignature(fn.signature);
         return true;
       } catch (GenericSignatureFormatError e) {
         // It is not a generic signature for a field
@@ -109,7 +115,7 @@ public class AsmHelper {
   public static boolean hasValidGenericSignature(@Nonnull MethodNode mn) {
     if (mn.signature != null) {
       try {
-        new GenericSignatureParser<Object>(new DummyAction()).parseMethodSignature(mn.signature);
+        new GenericSignatureParser<Object>(DummyAction.INSTANCE).parseMethodSignature(mn.signature);
         return true;
       } catch (GenericSignatureFormatError e) {
         // It is not a generic signature for a method
