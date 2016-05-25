@@ -16,6 +16,10 @@
 
 package com.android.jack;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Iterators;
+
 import com.android.jack.Options.AssertionPolicy;
 import com.android.jack.Options.SwitchEnumOptStrategy;
 import com.android.jack.abort.Aborter;
@@ -728,12 +732,6 @@ public abstract class Jack {
             planBuilder.append(LibraryMetaWriter.class);
           }
 
-          // Add features and productions according to plugins
-          for (Plugin plugin : pluginManager.getPlugins()) {
-            request.addFeatures(plugin.getFeatures(config, scheduler));
-            request.addProductions(plugin.getProductions(config, scheduler));
-          }
-
           Plan<JSession> plan = null;
           try {
             try {
@@ -749,9 +747,15 @@ public abstract class Jack {
             // STOPSHIP
             if (true) {
               // If there are some plugins, amend the handcrafted plan
+
+              // Add features and productions according to plugins
+              for (Plugin plugin : pluginManager.getPlugins()) {
+                request.addFeatures(plugin.getFeatures(config, scheduler));
+                request.addProductions(plugin.getProductions(config, scheduler));
+              }
+
               PlanConstructor<JSession> ctor =
                   new PlanConstructor<JSession>(request, JSession.class, planBuilder);
-
               EvenSimplerPlanAmender<JSession> amender = new EvenSimplerPlanAmender<JSession>();
               for (Plugin plugin : pluginManager.getPlugins()) {
                 Collection<Class<? extends RunnableSchedulable<? extends Component>>> classes =
@@ -762,10 +766,24 @@ public abstract class Jack {
                       (ManagedRunnable) scheduler.getSchedulableManager().getManagedSchedulable(c));
                 }
 
-                if (!amender.amendPlan(request, JSession.class, runners, ctor) || !ctor.isValid()) {
+                if (!amender.amendPlan(request, JSession.class, runners, ctor)) {
                   throw new JackUserException("Jack cannot insert plugin '"
                       + plugin.getFriendlyName() + "' (" + plugin.getCanonicalName() + ")");
                 }
+              }
+
+              if (!ctor.isValid()) {
+                String list = Joiner.on(", ")
+                    .appendTo(new StringBuilder(), Iterators.<Plugin, String>transform(
+                        pluginManager.getPlugins().iterator(), new Function<Plugin, String>() {
+                          @Override
+                          public String apply(Plugin plugin) {
+                            return "'" + plugin.getFriendlyName() + "' ("
+                                + plugin.getCanonicalName() + ")";
+                          }
+                        }))
+                    .toString();
+                throw new JackUserException("Jack cannot insert plugin(s) " + list);
               }
 
               try {
