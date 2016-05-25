@@ -16,6 +16,7 @@
 
 package com.android.jill.frontend.java;
 
+import com.android.jill.signature.GenericSignatureAction;
 import com.android.jill.signature.GenericSignatureParser;
 
 import org.objectweb.asm.Opcodes;
@@ -32,6 +33,7 @@ import java.lang.reflect.GenericSignatureFormatError;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -45,10 +47,45 @@ public class AsmHelper {
 
   private static final int JAVA_ACCESS_FLAGS_MASK = 0xFFFF;
 
+  /**
+   * Dummy actions, to be able to only parse signatures to check if they are valid.
+   */
+  private static class DummyAction implements GenericSignatureAction<Object> {
+
+    @Override
+    public void parsedSymbol(char symbol) {
+    }
+
+    @Override
+    public void parsedIdentifier(@Nonnull String identifier) {
+    }
+
+    @Override
+    @CheckForNull
+    public Object parsedTypeName(@Nonnull String name) {
+      return null;
+    }
+
+    @Override
+    @CheckForNull
+    public Object parsedInnerTypeName(@CheckForNull Object enclosingTypeName,
+        @Nonnull String name) {
+      return null;
+    }
+
+    @Override
+    public void start() {
+    }
+
+    @Override
+    public void stop() {
+    }
+  }
+
   public static boolean hasValidGenericSignature(@Nonnull ClassNode cn) {
     if (cn.signature != null) {
       try {
-        GenericSignatureParser.PARSER.parseClassSignature(cn.signature);
+        new GenericSignatureParser<Object>(new DummyAction()).parseClassSignature(cn.signature);
         return true;
       } catch (GenericSignatureFormatError e) {
         // It is not a generic signature for a class
@@ -60,7 +97,7 @@ public class AsmHelper {
   public static boolean hasValidGenericSignature(@Nonnull FieldNode fn) {
     if (fn.signature != null) {
       try {
-        GenericSignatureParser.PARSER.parseFieldSignature(fn.signature);
+        new GenericSignatureParser<Object>(new DummyAction()).parseFieldSignature(fn.signature);
         return true;
       } catch (GenericSignatureFormatError e) {
         // It is not a generic signature for a field
@@ -72,7 +109,7 @@ public class AsmHelper {
   public static boolean hasValidGenericSignature(@Nonnull MethodNode mn) {
     if (mn.signature != null) {
       try {
-        GenericSignatureParser.PARSER.parseMethodSignature(mn.signature);
+        new GenericSignatureParser<Object>(new DummyAction()).parseMethodSignature(mn.signature);
         return true;
       } catch (GenericSignatureFormatError e) {
         // It is not a generic signature for a method

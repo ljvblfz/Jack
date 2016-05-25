@@ -65,45 +65,6 @@ import javax.annotation.Nonnull;
  */
 public class GenericSignatureParser<T> {
 
-  /**
-   * Dummy actions, to be able to only parse signatures to check if they are valid.
-   */
-  private static class DummyAction implements GenericSignatureAction<Object> {
-
-    @Override
-    public void parsedSymbol(char symbol) {
-    }
-
-    @Override
-    public void parsedIdentifier(@Nonnull String identifier) {
-    }
-
-    @Override
-    @CheckForNull
-    public Object parsedTypeName(@Nonnull String name) {
-      return null;
-    }
-
-    @Override
-    @CheckForNull
-    public Object parsedInnerTypeName(@CheckForNull Object enclosingTypeName,
-        @Nonnull String name) {
-      return null;
-    }
-
-    @Override
-    public void start() {
-    }
-
-    @Override
-    public void stop() {
-    }
-  }
-
-  @Nonnull
-  public static final GenericSignatureParser<Object> PARSER =
-      new GenericSignatureParser<Object>(new DummyAction());
-
   @Nonnull
   private final GenericSignatureAction<T> actions;
 
@@ -128,7 +89,7 @@ public class GenericSignatureParser<T> {
   @Nonnegative
   private int pos;
 
-  private GenericSignatureParser(@Nonnull GenericSignatureAction<T> actions) {
+  public GenericSignatureParser(@Nonnull GenericSignatureAction<T> actions) {
     this.actions = actions;
   }
 
