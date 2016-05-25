@@ -157,7 +157,7 @@ public class EvenSimplerPlanAmender<T extends Component> implements PlanAmender<
       } else {
         // If productions are invalid, skip it and try to insert the next runner
         if (tracer.isTracing()) {
-          tracer.getStatistic(getRunnerSuperflous(runner)).incValue();
+          tracer.getStatistic(getRunnerSuperfluous(runner)).incValue();
         }
         if (logger.isLoggable(Level.FINER)) {
           logger.log(Level.FINER, "Rejecting runner ''{0}'' because produce superfluous {1}",
@@ -210,23 +210,24 @@ public class EvenSimplerPlanAmender<T extends Component> implements PlanAmender<
   }
 
   @CheckForNull
-  private static Map<ManagedRunnable, StatisticId<Counter>> runnerSuperflous;
+  private static Map<ManagedRunnable, StatisticId<Counter>> runnerSuperfluous;
 
   @Nonnull
-  private StatisticId<Counter> getRunnerSuperflous(@Nonnull ManagedRunnable runner) {
-    if (runnerSuperflous == null) {
-      runnerSuperflous = new HashMap<ManagedRunnable, StatisticId<Counter>>();
+  private StatisticId<Counter> getRunnerSuperfluous(@Nonnull ManagedRunnable runner) {
+    if (runnerSuperfluous == null) {
+      runnerSuperfluous = new HashMap<ManagedRunnable, StatisticId<Counter>>();
     }
 
-    assert runnerSuperflous != null;
-    StatisticId<Counter> id = runnerSuperflous.get(runner);
+    assert runnerSuperfluous != null;
+    StatisticId<Counter> id = runnerSuperfluous.get(runner);
     if (id == null) {
       String name = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_HYPHEN, runner.getName());
 
-      id = new StatisticId<Counter>("sched.amender.even-simper." + name + ".production.superflous",
+      id = new StatisticId<Counter>(
+          "sched.amender.even-simpler." + name + ".production.superfluous",
           "Number of times '" + name + "' has produced productions already produced",
           CounterImpl.class, Counter.class);
-      runnerSuperflous.put(runner, id);
+      runnerSuperfluous.put(runner, id);
     }
 
     return id;
