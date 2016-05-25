@@ -23,7 +23,7 @@
   <property name="jack-coverage-build.dir" value="build" />
   <property name="jack-coverage-build-classes.dir" value="${jack-coverage-build.dir}/classes" />
   <property name="jack-coverage-dist.dir" value="dist" />
-  <property name="jack-coverage.execname" value="jack-coverage.jar" />
+  <property name="jack-coverage.execname" value="jack-coverage-plugin.jar" />
 
   <target name="clean" description="deletes files produced by target 'jack-coverage-lib'">
     <delete dir="build"/>
