@@ -20,7 +20,6 @@ import com.android.jack.library.FileType;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.test.helper.IncrementalTestHelper;
-import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.IncrementalToolchain;
@@ -57,7 +56,6 @@ public class DependenciesTest016 {
    * - output Jack library at the same time as output dex
    */
   @Test
-  @KnownIssue
   public void testTouch() throws Exception {
 
     File lib1 = createLib("jack.lib1");
@@ -143,7 +141,6 @@ public class DependenciesTest016 {
   }
 
   @Test
-  @KnownIssue
   public void testDelete() throws Exception {
     File lib1 = createLib("jack.lib1");
     File lib2 = createLib("jack.lib2");

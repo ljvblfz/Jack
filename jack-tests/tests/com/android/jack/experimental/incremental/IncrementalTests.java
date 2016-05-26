@@ -19,7 +19,6 @@ package com.android.jack.experimental.incremental;
 import com.android.jack.Options;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.resource.ResourceTests;
-import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.IncrementalToolchain;
@@ -79,7 +78,6 @@ public class IncrementalTests {
    * Incremental test with import of a resource dir, compiling sources to a dex directly.
    */
   @Test
-  @KnownIssue
   public void testIncremental002ResourceImportToExe() throws Exception {
 
     File srcDir =
@@ -142,7 +140,6 @@ public class IncrementalTests {
   }
 
   @Test
-  @KnownIssue
   public void testIncremental002ResourceImportToLib() throws Exception {
 
     List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
@@ -213,7 +210,6 @@ public class IncrementalTests {
   }
 
   @Test
-  @KnownIssue
   public void testIncremental002ResourceImportToExePlusLib() throws Exception {
 
     List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
