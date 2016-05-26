@@ -201,8 +201,8 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
   @Nonnegative
   private int currentPc = 0;
 
-  private int startLine = -1;
-  private int endLine = -1;
+  private int startLine = SourceInfoWriter.NO_LINE;
+  private int endLine = SourceInfoWriter.NO_LINE;
 
   @Nonnull
   private final Options options;
@@ -412,7 +412,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
       if (insn instanceof LineNumberNode) {
         LineNumberNode lnn = (LineNumberNode) insn;
 
-        if (startLine == -1) {
+        if (startLine == SourceInfoWriter.NO_LINE) {
           startLine = lnn.line;
           endLine = lnn.line + 1;
           continue;
@@ -1050,7 +1050,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     writer.writeKeyword(Token.ADD_OPERATION);
     writer.writeOpen();
     writeLocalAccess(frame, iincInsn.var);
-    writeValue(iincInsn.incr);
+    writeValue(iincInsn.incr, currentClass, currentLine);
     sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
     writer.writeClose();
     sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
@@ -1072,11 +1072,11 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
 
     switch (intInsn.getOpcode()) {
       case BIPUSH: {
-        writeValue(intInsn.operand);
+        writeValue(intInsn.operand, currentClass, currentLine);
         break;
       }
       case SIPUSH: {
-        writeValue(intInsn.operand);
+        writeValue(intInsn.operand, currentClass, currentLine);
         break;
       }
       case NEWARRAY: {
@@ -1300,7 +1300,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
       writer.writeKeyword(Token.CASE_STATEMENT);
       writer.writeOpen();
       writer.writeId(c.caseId);
-      writeValue(c.key);
+      writeValue(c.key, currentClass, currentLine);
       sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
       writer.writeClose();
       // Open case block
@@ -1687,7 +1687,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         writer.writeKeyword(Token.ASG_OPERATION);
         writer.writeOpen();
         writeStackAccess(nextFrame, TOP_OF_STACK);
-        writeValue(insn.getOpcode() - ICONST_0);
+        writeValue(insn.getOpcode() - ICONST_0, currentClass, currentLine);
         sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
         writer.writeClose();
         sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
@@ -1704,7 +1704,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         writer.writeKeyword(Token.ASG_OPERATION);
         writer.writeOpen();
         writeStackAccess(nextFrame, TOP_OF_STACK);
-        writeValue();
+        writeValue(currentClass, currentLine);
         sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
         writer.writeClose();
         sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
@@ -1722,7 +1722,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         writer.writeKeyword(Token.ASG_OPERATION);
         writer.writeOpen();
         writeStackAccess(nextFrame, TOP_OF_STACK);
-        writeValue((long) (insn.getOpcode() - LCONST_0));
+        writeValue((long) (insn.getOpcode() - LCONST_0), currentClass, currentLine);
         sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
         writer.writeClose();
         sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
@@ -1741,7 +1741,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         writer.writeKeyword(Token.ASG_OPERATION);
         writer.writeOpen();
         writeStackAccess(nextFrame, TOP_OF_STACK);
-        writeValue((float) (insn.getOpcode() - FCONST_0));
+        writeValue((float) (insn.getOpcode() - FCONST_0), currentClass, currentLine);
         sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
         writer.writeClose();
         sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
@@ -1759,7 +1759,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         writer.writeKeyword(Token.ASG_OPERATION);
         writer.writeOpen();
         writeStackAccess(nextFrame, TOP_OF_STACK);
-        writeValue((double) (insn.getOpcode() - DCONST_0));
+        writeValue((double) (insn.getOpcode() - DCONST_0), currentClass, currentLine);
         sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
         writer.writeClose();
         sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
@@ -2187,7 +2187,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     writer.writeKeyword(Token.ASG_OPERATION);
     writer.writeOpen();
     writeStackAccess(nextFrame, TOP_OF_STACK);
-    writeValue(ldcInsn.cst);
+    writeValue(ldcInsn.cst, currentClass, currentLine);
     sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
     writer.writeClose();
     sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
@@ -2278,14 +2278,14 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
           writeStackAccess(frame, TOP_OF_STACK);
           Variable v = getStackVariable(frame, TOP_OF_STACK);
           if (v.getType().equals(Type.BOOLEAN_TYPE)) {
-            writeValue(false);
+            writeValue(false, currentClass, currentLine);
           } else if (v.getType().equals(Type.BYTE_TYPE)
                || v.getType().equals(Type.CHAR_TYPE)
                || v.getType().equals(Type.SHORT_TYPE)
                || v.getType().equals(Type.INT_TYPE)) {
-            writeValue(0);
+            writeValue(0, currentClass, currentLine);
           } else {
-            writeValue();
+            writeValue(currentClass, currentLine);
           }
           sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
           writer.writeClose();

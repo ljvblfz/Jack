@@ -37,10 +37,7 @@ public class SourceInfoWriter {
 
   /* debug infos */
   @Nonnegative
-  private static final int NO_START_LINE = 0;
-
-  @Nonnegative
-  private static final int NO_END_LINE = 0;
+  public static final int NO_LINE = 0;
 
   private static final String NO_FILENAME = null;
 
@@ -55,7 +52,7 @@ public class SourceInfoWriter {
   }
 
   public void writeDebugBegin(@Nonnull ClassNode cn) throws IOException {
-    writeDebugBegin(cn, NO_START_LINE);
+    writeDebugBegin(cn, NO_LINE);
   }
 
   public void writeDebugBegin(@Nonnull ClassNode cn, @Nonnull FieldNode fn)
@@ -73,7 +70,7 @@ public class SourceInfoWriter {
   }
 
   public void writeUnknwonDebugBegin() throws IOException {
-    writeDebugBeginInternal(NO_FILENAME, NO_START_LINE);
+    writeDebugBeginInternal(NO_FILENAME, NO_LINE);
   }
 
   private void writeDebugBeginInternal(@CheckForNull String sourceFile, int startLine)
@@ -84,7 +81,7 @@ public class SourceInfoWriter {
 
   public void writeDebugEnd(@Nonnull ClassNode cn)
       throws IOException {
-    writeDebugEnd(cn, NO_END_LINE);
+    writeDebugEnd(cn, NO_LINE);
   }
 
   public void writeDebugEnd(@Nonnull ClassNode cn, @Nonnull FieldNode fn)
@@ -101,7 +98,7 @@ public class SourceInfoWriter {
   }
 
   public void writeUnknownDebugEnd() throws IOException {
-    writeLineIfDifferentFromCurrent(NO_END_LINE, false);
+    writeLineIfDifferentFromCurrent(NO_LINE, false);
   }
 
   private void writeFileNameIfDifferentFromCurrent(@CheckForNull String fileName)

@@ -21,10 +21,13 @@ import com.android.jill.backend.jayce.JayceWriter;
 import com.android.jill.backend.jayce.Token;
 
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.ClassNode;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -45,44 +48,59 @@ public abstract class JillWriter {
     this.sourceInfoWriter = sourceInfoWriter;
   }
 
-  protected void writeValue(Object value)  throws IOException{
+  protected void writeValue(Object value, @CheckForNull ClassNode classNode,
+      @Nonnegative int currentLine)  throws IOException{
     if (value == null) {
       writer.writeNull();
     } else if (value instanceof Boolean) {
-      writeValue(((Boolean) value).booleanValue());
+      writeValue(((Boolean) value).booleanValue(), classNode, currentLine);
     } else if (value instanceof Integer) {
-      writeValue(((Integer) value).intValue());
+      writeValue(((Integer) value).intValue(), classNode, currentLine);
     } else if (value instanceof Long){
-      writeValue(((Long) value).longValue());
+      writeValue(((Long) value).longValue(), classNode, currentLine);
     } else if (value instanceof Float) {
-      writeValue(((Float) value).floatValue());
+      writeValue(((Float) value).floatValue(), classNode, currentLine);
     } else if (value instanceof Double) {
-      writeValue(((Double) value).doubleValue());
+      writeValue(((Double) value).doubleValue(), classNode, currentLine);
     } else if (value instanceof String) {
-      writeValue((String) value);
+      writeValue((String) value, classNode, currentLine);
     } else if (value instanceof Type) {
-      writeValue((Type) value);
+      writeValue((Type) value, classNode, currentLine);
     } else {
       throw new JillException("Unsupported object value.");
     }
   }
 
+  protected void writeValue(Object value)  throws IOException{
+    writeValue(value, /* classNode= */ null, SourceInfoWriter.NO_LINE);
+  }
+
   protected void writeValue(@Nonnull String value) throws IOException {
-    sourceInfoWriter.writeUnknwonDebugBegin();
+    writeValue(value, /* classNode= */ null, SourceInfoWriter.NO_LINE);
+  }
+
+  protected void writeValue(@Nonnull String value, @CheckForNull ClassNode classNode,
+      @Nonnegative int currentLine) throws IOException {
+    writeDebugBegin(classNode, currentLine);
     writer.writeKeyword(Token.STRING_LITERAL);
     writer.writeOpen();
     writer.writeString(value);
-    sourceInfoWriter.writeUnknownDebugEnd();
+    writeDebugEnd(classNode, currentLine);
+    writer.writeClose();
+  }
+
+  protected void writeValue(boolean value, @CheckForNull ClassNode classNode,
+      @Nonnegative int currenLine) throws IOException {
+    writeDebugBegin(classNode, currenLine);
+    writer.writeKeyword(Token.BOOLEAN_LITERAL);
+    writer.writeOpen();
+    writer.writeBoolean(value);
+    writeDebugEnd(classNode, currenLine);
     writer.writeClose();
   }
 
   protected void writeValue(boolean value) throws IOException {
-    sourceInfoWriter.writeUnknwonDebugBegin();
-    writer.writeKeyword(Token.BOOLEAN_LITERAL);
-    writer.writeOpen();
-    writer.writeBoolean(value);
-    sourceInfoWriter.writeUnknownDebugEnd();
-    writer.writeClose();
+    writeValue(value, /* classNode= */ null, SourceInfoWriter.NO_LINE);
   }
 
   protected void writeValue(byte value) throws IOException {
@@ -112,56 +130,86 @@ public abstract class JillWriter {
     writer.writeClose();
   }
 
-  protected void writeValue(int value) throws IOException {
-    sourceInfoWriter.writeUnknwonDebugBegin();
+  protected void writeValue(int value, @CheckForNull ClassNode classNode,
+      @Nonnegative int currentLine) throws IOException {
+    writeDebugBegin(classNode, currentLine);
     writer.writeKeyword(Token.INT_LITERAL);
     writer.writeOpen();
     writer.writeInt(value);
-    sourceInfoWriter.writeUnknownDebugEnd();
+    writeDebugEnd(classNode, currentLine);
     writer.writeClose();
   }
 
+  protected void writeValue(int value) throws IOException {
+    writeValue(value, /* classNode= */ null, SourceInfoWriter.NO_LINE);
+  }
+
   protected void writeValue(float value) throws IOException {
-    sourceInfoWriter.writeUnknwonDebugBegin();
+    writeValue(value, /* classNode= */ null, SourceInfoWriter.NO_LINE);
+  }
+
+  protected void writeValue(float value, @CheckForNull ClassNode classNode,
+      @Nonnegative int currentLine) throws IOException {
+    writeDebugBegin(classNode, currentLine);
     writer.writeKeyword(Token.FLOAT_LITERAL);
     writer.writeOpen();
     writer.writeFloat(value);
-    sourceInfoWriter.writeUnknownDebugEnd();
+    writeDebugEnd(classNode, currentLine);
     writer.writeClose();
   }
 
   protected void writeValue(double value) throws IOException {
-    sourceInfoWriter.writeUnknwonDebugBegin();
+    writeValue(value, /* classNode= */ null, SourceInfoWriter.NO_LINE);
+  }
+
+  protected void writeValue(double value, @CheckForNull ClassNode classNode,
+      @Nonnegative int currentLine) throws IOException {
+    writeDebugBegin(classNode, currentLine);
     writer.writeKeyword(Token.DOUBLE_LITERAL);
     writer.writeOpen();
     writer.writeDouble(value);
-    sourceInfoWriter.writeUnknownDebugEnd();
+    writeDebugEnd(classNode, currentLine);
     writer.writeClose();
   }
 
   protected void writeValue(long value) throws IOException {
-    sourceInfoWriter.writeUnknwonDebugBegin();
+    writeValue(value, /* classNode= */ null, SourceInfoWriter.NO_LINE);
+  }
+
+  protected void writeValue(long value, @CheckForNull ClassNode classNode,
+      @Nonnegative int currentLine) throws IOException {
+    writeDebugBegin(classNode, currentLine);
     writer.writeKeyword(Token.LONG_LITERAL);
     writer.writeOpen();
     writer.writeLong(value);
-    sourceInfoWriter.writeUnknownDebugEnd();
+    writeDebugEnd(classNode, currentLine);
     writer.writeClose();
   }
 
   protected void writeValue() throws IOException {
-    sourceInfoWriter.writeUnknwonDebugBegin();
+    writeValue(/* classNode= */ null, SourceInfoWriter.NO_LINE);
+  }
+
+  protected void writeValue(@CheckForNull ClassNode classNode,
+      @Nonnegative int currentLine) throws IOException {
+    writeDebugBegin(classNode, currentLine);
     writer.writeKeyword(Token.NULL_LITERAL);
     writer.writeOpen();
-    sourceInfoWriter.writeUnknownDebugEnd();
+    writeDebugEnd(classNode, currentLine);
     writer.writeClose();
   }
 
   protected void writeValue(@Nonnull Type value) throws IOException {
-    sourceInfoWriter.writeUnknwonDebugBegin();
+    writeValue(value, /* classNode= */ null, SourceInfoWriter.NO_LINE);
+  }
+
+  protected void writeValue(@Nonnull Type value, @CheckForNull ClassNode classNode,
+      @Nonnegative int currentLine) throws IOException {
+    writeDebugBegin(classNode, currentLine);
     writer.writeKeyword(Token.CLASS_LITERAL);
     writer.writeOpen();
     writer.writeId(value.getDescriptor());
-    sourceInfoWriter.writeUnknownDebugEnd();
+    writeDebugEnd(classNode, currentLine);
     writer.writeClose();
   }
 
@@ -191,5 +239,23 @@ public abstract class JillWriter {
     }
 
     return objectArray;
+  }
+
+  private void writeDebugBegin(@CheckForNull ClassNode classNode, @Nonnegative int currentLine)
+      throws IOException {
+    if (classNode != null && currentLine != SourceInfoWriter.NO_LINE) {
+      sourceInfoWriter.writeDebugBegin(classNode, currentLine);
+    } else {
+      sourceInfoWriter.writeUnknwonDebugBegin();
+    }
+  }
+
+  private void writeDebugEnd(@CheckForNull ClassNode classNode, @Nonnegative int currentLine)
+      throws IOException {
+    if (classNode != null && currentLine != SourceInfoWriter.NO_LINE) {
+      sourceInfoWriter.writeDebugEnd(classNode, currentLine + 1);
+    } else {
+      sourceInfoWriter.writeUnknownDebugEnd();
+    }
   }
 }
