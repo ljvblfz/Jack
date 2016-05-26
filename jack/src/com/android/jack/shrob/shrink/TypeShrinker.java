@@ -35,7 +35,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Removes all types not marked with the KeepMarker")
 @Synchronized
-@Constraint(need = KeepMarker.class, no = KeeperSchedulingSeparator.SeparatorTag.class)
+@Constraint(need = KeepMarker.class)
 // This schedulable removes some types and updates the hierarchy
 @ExclusiveAccess(JSession.class)
 public class TypeShrinker extends TypeRemover {

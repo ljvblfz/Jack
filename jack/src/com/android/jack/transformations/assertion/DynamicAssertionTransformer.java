@@ -76,7 +76,7 @@ import javax.annotation.Nonnull;
 @Name("DynamicAssertionTransformer")
 @Synchronized
 @Constraint(need = {JAssertStatement.class})
-@Transform(add = {AssertionTransformerSchedulingSeparator.SeparatorTag.class,
+@Transform(add = {
     BooleanTestOutsideIf.class,
     JIfStatement.class,
     JThrowStatement.class,

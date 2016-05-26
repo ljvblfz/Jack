@@ -44,8 +44,7 @@ import javax.annotation.Nonnull;
 @Transform(add = {GetterMarker.InnerAccessorGetter.class, SetterMarker.InnerAccessorSetter.class,
     WrapperMarker.InnerAccessorWrapper.class, InnerAccessor.class}, remove = {
     GetterMarker.class, SetterMarker.class, WrapperMarker.class, ThreeAddressCodeForm.class})
-@Constraint(need = {GetterMarker.class, SetterMarker.class, WrapperMarker.class},
-    no = InnerAccessorSchedulingSeparator.SeparatorTag.class)
+@Constraint(need = {GetterMarker.class, SetterMarker.class, WrapperMarker.class})
 @Filter(SourceTypeFilter.class)
 public class InnerAccessorAdder implements RunnableSchedulable<JDefinedClassOrInterface> {
 

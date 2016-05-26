@@ -76,11 +76,9 @@ import javax.annotation.Nonnull;
 @Synchronized
 @Transform(
     add = {GetterMarker.class, SetterMarker.class, WrapperMarker.class, JMethodCall.class,
-        JNewInstance.class, JNullLiteral.class, JExpressionStatement.class,
-        InnerAccessorSchedulingSeparator.SeparatorTag.class},
+        JNewInstance.class, JNullLiteral.class, JExpressionStatement.class},
     remove = {ThreeAddressCodeForm.class, NewInstanceRemoved.class})
-@Constraint(no = {SideEffectOperation.class, JAlloc.class,
-    InnerAccessorGeneratorSchedulingSeparator.SeparatorConcatRemoverTag.class})
+@Constraint(no = {SideEffectOperation.class, JAlloc.class})
 @Filter(SourceTypeFilter.class)
 // This schedulable bypasses the classic visiting order by visiting outer classes first
 // and their inner classes afterwards.

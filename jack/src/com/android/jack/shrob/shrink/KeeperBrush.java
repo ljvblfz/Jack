@@ -49,7 +49,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Marks all classes and members that will be kept when shrinking.")
 @Transform(
-  add = {KeepMarker.class, PartialTypeHierarchy.class, KeeperSchedulingSeparator.SeparatorTag.class}
+  add = {KeepMarker.class, PartialTypeHierarchy.class}
 )
 @Constraint(need = SeedMarker.class)
 @HasKeyId

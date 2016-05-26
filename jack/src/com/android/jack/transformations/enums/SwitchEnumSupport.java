@@ -70,8 +70,6 @@ import com.android.jack.lookup.JMethodLookupException;
 import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.transformations.LocalVarCreator;
-import com.android.jack.transformations.ast.inner.InnerAccessorGeneratorSchedulingSeparator;
-import com.android.jack.transformations.exceptions.TryStatementSchedulingSeparator;
 import com.android.jack.transformations.request.AppendField;
 import com.android.jack.transformations.request.AppendMethod;
 import com.android.jack.transformations.request.Replace;
@@ -115,10 +113,7 @@ import javax.annotation.Nonnull;
     JAsgOperation.NonReusedAsg.class, JMethodCall.class, JArrayRef.class, JArrayLength.class,
     JLocalRef.class, JField.class, JMethod.class, JMethodBody.class, JFieldRef.class,
     JNullLiteral.class, JLocal.class, JIfStatement.class, JReturnStatement.class, JBlock.class,
-    JTryStatement.class, JIntLiteral.class, JExpressionStatement.class, JNeqOperation.class,
-    TryStatementSchedulingSeparator.SeparatorTag.class,
-    EnumMappingSchedulingSeparator.SeparatorTag.class,
-    InnerAccessorGeneratorSchedulingSeparator.SeparatorSwitchEnumSupportTag.class},
+    JTryStatement.class, JIntLiteral.class, JExpressionStatement.class, JNeqOperation.class},
     remove = {JSwitchStatement.SwitchWithEnum.class, ThreeAddressCodeForm.class})
 @Use(value = {LocalVarCreator.class})
 @HasKeyId

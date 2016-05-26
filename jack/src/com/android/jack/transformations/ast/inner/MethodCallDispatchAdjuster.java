@@ -49,8 +49,7 @@ import javax.annotation.Nonnull;
 @Transform(add = {JParameterRef.class},
     modify = {JNewInstance.class, JMethodCall.class},
     remove = {NeedsRethising.class})
-@Constraint(need = {NeedsDispatchAdjustment.class, NeedsRethising.class},
-    no = {OptimizedInnerAccessorSchedulingSeparator.SeparatorTag.class})
+@Constraint(need = {NeedsDispatchAdjustment.class, NeedsRethising.class})
 @Filter(SourceTypeFilter.class)
 public class MethodCallDispatchAdjuster implements RunnableSchedulable<JMethod> {
 

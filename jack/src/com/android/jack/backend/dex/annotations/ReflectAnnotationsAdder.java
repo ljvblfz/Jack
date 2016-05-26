@@ -87,7 +87,7 @@ import javax.annotation.Nonnull;
 @Synchronized
 @Transform(add = {ReflectAnnotations.class, JAnnotation.class, JNameValuePair.class,
     JClassLiteral.class, JStringLiteral.class, JMethodLiteral.class, JArrayLiteral.class,
-    JNullLiteral.class, JIntLiteral.class, ClassAnnotationSchedulingSeparator.SeparatorTag.class})
+    JNullLiteral.class, JIntLiteral.class})
 @Constraint(need = {GenericSignature.class, SimpleName.class, FinalNames.class})
 @Protect(add = {GenericSignature.class, SimpleName.class},
     unprotect = @With(remove = ReflectAnnotations.class))

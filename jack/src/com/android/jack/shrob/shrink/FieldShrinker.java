@@ -39,7 +39,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Removes all fields not marked with the KeepMarker")
 @Synchronized
-@Constraint(need = KeepMarker.class, no = KeeperSchedulingSeparator.SeparatorTag.class)
+@Constraint(need = KeepMarker.class)
 // This schedulable removes some fields
 @ExclusiveAccess(JDefinedClassOrInterface.class)
 public class FieldShrinker implements RunnableSchedulable<JField> {

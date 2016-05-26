@@ -40,7 +40,6 @@ import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.jack.shrob.obfuscation.OriginalNames;
-import com.android.jack.transformations.ast.inner.InnerAccessorGeneratorSchedulingSeparator;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
@@ -65,8 +64,7 @@ import javax.annotation.Nonnull;
 @Constraint(no = JAsgConcatOperation.class, need = OriginalNames.class)
 @Transform(
     remove = {JConcatOperation.class, ThreeAddressCodeForm.class, NewInstanceRemoved.class},
-    add = {JNewInstance.class, JMethodCall.class, JDynamicCastOperation.class,
-        InnerAccessorGeneratorSchedulingSeparator.SeparatorConcatRemoverTag.class})
+    add = {JNewInstance.class, JMethodCall.class, JDynamicCastOperation.class})
 @Filter(SourceTypeFilter.class)
 public class ConcatRemover implements RunnableSchedulable<JMethod> {
 

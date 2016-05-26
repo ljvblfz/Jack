@@ -45,12 +45,10 @@ import javax.annotation.Nonnull;
     + "transforms collected methods to their uniquely named, package private versions.")
 @Transform(add = {NeedsDispatchAdjustment.class,
     JParameter.class,
-    NeedsRethising.class,
-    OptimizedInnerAccessorSchedulingSeparator.SeparatorTag.class},
+    NeedsRethising.class},
     modify = {JMethod.class},
     remove = {ReferencedFromInnerClassMarker.class})
-@Constraint(need = {ReferencedFromInnerClassMarker.class},
-    no = {InnerAccessorSchedulingSeparator.SeparatorTag.class})
+@Constraint(need = {ReferencedFromInnerClassMarker.class})
 @Filter(SourceTypeFilter.class)
 public class ReferencedOuterFieldsExposer implements RunnableSchedulable<JDefinedClassOrInterface> {
 

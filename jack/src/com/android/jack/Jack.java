@@ -60,7 +60,6 @@ import com.android.jack.backend.dex.MultiDex;
 import com.android.jack.backend.dex.MultiDexAnnotationsFinder;
 import com.android.jack.backend.dex.MultiDexLegacy;
 import com.android.jack.backend.dex.MultiDexWritingTool;
-import com.android.jack.backend.dex.annotations.ClassAnnotationSchedulingSeparator;
 import com.android.jack.backend.dex.annotations.DefaultValueAnnotationAdder;
 import com.android.jack.backend.dex.annotations.ReflectAnnotationsAdder;
 import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
@@ -186,7 +185,6 @@ import com.android.jack.shrob.seed.SeedFinder;
 import com.android.jack.shrob.seed.SeedPrinter;
 import com.android.jack.shrob.shrink.FieldShrinker;
 import com.android.jack.shrob.shrink.Keeper;
-import com.android.jack.shrob.shrink.KeeperSchedulingSeparator;
 import com.android.jack.shrob.shrink.MethodShrinker;
 import com.android.jack.shrob.shrink.ShrinkAndMainDexTracer;
 import com.android.jack.shrob.shrink.ShrinkStructurePrinter;
@@ -211,7 +209,6 @@ import com.android.jack.transformations.VisibilityBridgeAdder;
 import com.android.jack.transformations.annotation.ContainerAnnotationAdder;
 import com.android.jack.transformations.annotation.ContainerAnnotationMarkerAdder;
 import com.android.jack.transformations.assertion.AssertionRemover;
-import com.android.jack.transformations.assertion.AssertionTransformerSchedulingSeparator;
 import com.android.jack.transformations.assertion.DisabledAssertionFeature;
 import com.android.jack.transformations.assertion.DynamicAssertionFeature;
 import com.android.jack.transformations.assertion.DynamicAssertionTransformer;
@@ -238,11 +235,8 @@ import com.android.jack.transformations.ast.TypeLegalizer;
 import com.android.jack.transformations.ast.inner.AvoidSynthethicAccessors;
 import com.android.jack.transformations.ast.inner.InnerAccessorAdder;
 import com.android.jack.transformations.ast.inner.InnerAccessorGenerator;
-import com.android.jack.transformations.ast.inner.InnerAccessorGeneratorSchedulingSeparator;
-import com.android.jack.transformations.ast.inner.InnerAccessorSchedulingSeparator;
 import com.android.jack.transformations.ast.inner.MethodCallDispatchAdjuster;
 import com.android.jack.transformations.ast.inner.OptimizedInnerAccessorGenerator;
-import com.android.jack.transformations.ast.inner.OptimizedInnerAccessorSchedulingSeparator;
 import com.android.jack.transformations.ast.inner.ReferencedOuterFieldsExposer;
 import com.android.jack.transformations.ast.removeinit.FieldInitMethodCallRemover;
 import com.android.jack.transformations.ast.removeinit.FieldInitMethodRemover;
@@ -264,7 +258,6 @@ import com.android.jack.transformations.booleanoperators.ConditionalAndOrRemover
 import com.android.jack.transformations.booleanoperators.ConditionalAndOrRemoverChecker;
 import com.android.jack.transformations.cast.UselessCastRemover;
 import com.android.jack.transformations.enums.EnumMappingMarkerRemover;
-import com.android.jack.transformations.enums.EnumMappingSchedulingSeparator;
 import com.android.jack.transformations.enums.SwitchEnumSupport;
 import com.android.jack.transformations.enums.UsedEnumFieldCollector;
 import com.android.jack.transformations.enums.UsedEnumFieldMarkerRemover;
@@ -272,12 +265,10 @@ import com.android.jack.transformations.enums.opt.OptimizedSwitchEnumSupport;
 import com.android.jack.transformations.enums.opt.SwitchEnumUsageCollector;
 import com.android.jack.transformations.exceptions.ExceptionRuntimeValueAdder;
 import com.android.jack.transformations.exceptions.TryCatchRemover;
-import com.android.jack.transformations.exceptions.TryStatementSchedulingSeparator;
 import com.android.jack.transformations.finallyblock.FinallyRemover;
 import com.android.jack.transformations.flow.FlowNormalizer;
 import com.android.jack.transformations.flow.FlowNormalizerSchedulingSeparator;
 import com.android.jack.transformations.lambda.DefaultBridgeInLambdaAdder;
-import com.android.jack.transformations.lambda.DefaultBridgeSeparator;
 import com.android.jack.transformations.lambda.LambdaConverter;
 import com.android.jack.transformations.lambda.LambdaToAnonymousConverter;
 import com.android.jack.transformations.parent.AstChecker;
@@ -1062,7 +1053,6 @@ public abstract class Jack {
           typePlan.append(Keeper.class);
         }
       }
-      planBuilder.append(KeeperSchedulingSeparator.class);
       {
         SubPlanBuilder<JDefinedClassOrInterface> typePlan =
             planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
@@ -1231,7 +1221,6 @@ public abstract class Jack {
       // hasSanityCheck are both set
       planBuilder.append(AstChecker.class);
     }
-    planBuilder.append(InnerAccessorGeneratorSchedulingSeparator.class);
 
       // InnerAccessor visits inner types while running on outer
       // types and therefore should be alone in its plan.
@@ -1245,14 +1234,10 @@ public abstract class Jack {
       }
     }
 
-    planBuilder.append(InnerAccessorSchedulingSeparator.class);
-
     if (features.contains(AvoidSynthethicAccessors.class)) {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       typePlan.append(ReferencedOuterFieldsExposer.class);
-
-      planBuilder.append(OptimizedInnerAccessorSchedulingSeparator.class);
 
       SubPlanBuilder<JDefinedClassOrInterface> typePlan2 =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
@@ -1308,9 +1293,6 @@ public abstract class Jack {
 
     }
 
-    planBuilder.append(EnumMappingSchedulingSeparator.class);
-    planBuilder.append(TryStatementSchedulingSeparator.class);
-
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan = planBuilder.appendSubPlan(
           JDefinedClassOrInterfaceAdapter.class);
@@ -1345,8 +1327,6 @@ public abstract class Jack {
         SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
         methodPlan.append(DefaultBridgeInLambdaAdder.class);
       }
-
-      planBuilder.append(DefaultBridgeSeparator.class);
 
       {
         SubPlanBuilder<JDefinedClassOrInterface> typePlan =
@@ -1398,9 +1378,6 @@ public abstract class Jack {
       }
     }
 
-    if (features.contains(DynamicAssertionFeature.class)) {
-      planBuilder.append(AssertionTransformerSchedulingSeparator.class);
-    }
     {
       // After this point {@link JDcoiExcludeJackFileAdapter} must not be used since
       // schedulables are not executed into the Java to Jayce plan.
@@ -1480,7 +1457,7 @@ public abstract class Jack {
         methodPlan.append(DefaultValueAnnotationAdder.class);
       }
     }
-    planBuilder.append(ClassAnnotationSchedulingSeparator.class);
+
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);

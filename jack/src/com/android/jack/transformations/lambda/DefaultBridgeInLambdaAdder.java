@@ -58,7 +58,7 @@ import javax.annotation.Nonnull;
 @Description("Add bridges into JLambda that comes from default bridges generated into interfaces")
 @Constraint(need = DefaultBridgeIntoInterface.class)
 @Transform(
-    add = {JLambda.DefaultBridgeAddedInLambda.class, DefaultBridgeSeparator.SeparatorTag.class},
+    add = JLambda.DefaultBridgeAddedInLambda.class,
     modify = JLambda.class)
 @Filter(TypeWithoutPrebuiltFilter.class)
 // Access implements.

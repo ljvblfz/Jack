@@ -63,7 +63,7 @@ import javax.annotation.Nonnull;
 @Description("Replaces try/catch statement by lower exception support.")
 @Name("TryCatchRemover")
 @Constraint(need = {NoImplicitBlock.class, JTryStatement.class, InlinedFinallyMarker.class},
-    no = {JTryStatement.FinallyBlock.class, TryStatementSchedulingSeparator.SeparatorTag.class})
+    no = {JTryStatement.FinallyBlock.class})
 @Transform(
     add = {JLabel.class, JBlock.class, JLabeledStatement.class, JGoto.class},
     remove = {JTryStatement.class})

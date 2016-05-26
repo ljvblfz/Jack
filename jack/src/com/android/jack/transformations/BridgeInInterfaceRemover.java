@@ -23,12 +23,10 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.transformations.lambda.DefaultBridgeIntoInterface;
-import com.android.jack.transformations.lambda.DefaultBridgeSeparator;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
-import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.ExclusiveAccess;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
@@ -46,7 +44,6 @@ import javax.annotation.Nonnull;
 // This schedulable can be run in parallel on methods belonging to the same type that can lead to
 // remove several methods in the same time on the same type and it is not supported, thus this
 // schedulable must be synchronized
-@Constraint(no = DefaultBridgeSeparator.SeparatorTag.class)
 @Transform(remove = DefaultBridgeIntoInterface.class)
 @Synchronized
 // This schedulable removes some methods

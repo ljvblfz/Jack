@@ -17,7 +17,6 @@
 package com.android.jack.backend.dex;
 
 import com.android.jack.backend.dex.annotations.AnnotationMethodDefaultValue;
-import com.android.jack.backend.dex.annotations.ClassAnnotationSchedulingSeparator;
 import com.android.jack.dx.dex.file.ClassDefItem;
 import com.android.jack.dx.rop.annotation.Annotations;
 import com.android.jack.ir.ast.JAnnotation;
@@ -43,8 +42,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Builds the rop annotations of a JDeclaredType.")
 @Constraint(need = ClassDefItemMarker.class, no = AnnotationMethodDefaultValue.class)
-@Transform(add = ClassDefItemMarker.ClassAnnotation.class, modify = ClassDefItemMarker.class,
-    remove = ClassAnnotationSchedulingSeparator.SeparatorTag.class)
+@Transform(add = ClassDefItemMarker.ClassAnnotation.class, modify = ClassDefItemMarker.class)
 @Use(AnnotationBuilder.class)
 @Optional(@ToSupport(feature = SourceVersion8.class,
     add = @Constraint(no = JAnnotation.RepeatedAnnotation.class)))

@@ -59,8 +59,7 @@ import javax.annotation.Nonnull;
     JMethodCall.class,
     JNewInstance.class,
     JNullLiteral.class,
-    JExpressionStatement.class,
-    InnerAccessorSchedulingSeparator.SeparatorTag.class},
+    JExpressionStatement.class},
     remove = {ThreeAddressCodeForm.class, NewInstanceRemoved.class})
 @Constraint(no = {SideEffectOperation.class, JAlloc.class})
 @Filter(SourceTypeFilter.class)
