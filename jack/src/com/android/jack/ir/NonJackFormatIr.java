@@ -58,6 +58,7 @@ import com.android.sched.item.Name;
     JPrefixDecOperation.class,
     JPrefixIncOperation.class,
     JSwitchStatement.SwitchWithEnum.class,
+    JSwitchStatement.SwitchWithString.class,
     JWhileStatement.class,
     ReflectAnnotations.class,
     SwitchEnumSupport.UsedEnumField.class})

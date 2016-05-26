@@ -72,8 +72,10 @@ import javax.annotation.Nonnull;
  */
 @Description("Transforms switches using strings into \"if\" statements")
 @Constraint(need = {JSwitchStatement.class, JCaseStatement.class}, no = JBreakStatement.class)
-@Transform(add = {JLabeledStatement.class, JLabel.class, JBlock.class, JMethodCall.class,
-    JGoto.class, JIfStatement.class, JLocalRef.class, JAsgOperation.class})
+@Transform(
+    add = {JLabeledStatement.class, JLabel.class, JBlock.class, JMethodCall.class, JGoto.class,
+        JIfStatement.class, JLocalRef.class, JAsgOperation.class},
+    remove = JSwitchStatement.SwitchWithString.class)
 @Use(value = {LocalVarCreator.class})
 @Support(SourceVersion7.class)
 @Filter(SourceTypeFilter.class)

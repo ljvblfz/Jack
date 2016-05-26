@@ -40,6 +40,13 @@ public class JSwitchStatement extends JStatement {
   public static final class SwitchWithEnum implements Tag {
   }
 
+  /**
+   * A {@link Tag} meaning that a {@link JSwitchStatement} may use string.
+   */
+  @Description("A JSwitchStatement may use string.")
+  public static final class SwitchWithString implements Tag {
+  }
+
   @Nonnull
   private final JBlock body;
   @Nonnull

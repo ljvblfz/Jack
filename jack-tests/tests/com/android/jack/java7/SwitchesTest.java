@@ -48,6 +48,11 @@ public class SwitchesTest {
       AbstractTestTools.getTestRootDir("com.android.jack.java7.switches.test003"),
       "com.android.jack.java7.switches.test003.dx.Tests");
 
+  @Nonnull
+  private RuntimeTestInfo TEST004 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java7.switches.test004"),
+      "com.android.jack.java7.switches.test004.dx.Tests");
+
   @Test
   public void java7Switches001() throws Exception {
     new RuntimeTestHelper(TEST001).setSourceLevel(SourceLevel.JAVA_7).compileAndRunTest();
@@ -65,6 +70,11 @@ public class SwitchesTest {
 
   @Test
   public void java7Switches004() throws Exception {
+    new RuntimeTestHelper(TEST004).setSourceLevel(SourceLevel.JAVA_7).compileAndRunTest();
+  }
+
+  @Test
+  public void java7Switches001_bis() throws Exception {
 
     IToolchain toolchain =
         AbstractTestTools.getCandidateToolchain();
