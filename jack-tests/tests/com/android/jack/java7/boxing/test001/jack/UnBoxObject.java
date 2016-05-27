@@ -16,21 +16,23 @@
 
 package com.android.jack.java7.boxing.test001.jack;
 
-
 public class UnBoxObject {
 
   public static Object getObject(Object obj) {
     return obj;
   }
 
+  @SuppressWarnings("rawtypes")
   public static Comparable getComparable(Comparable obj) {
     return obj;
   }
 
+  @SuppressWarnings("boxing")
   public static int getIntFromObject(Object obj) {
     return (int) getObject(obj);
   }
 
+  @SuppressWarnings({"rawtypes", "boxing"})
   public static int getIntFromComparable(Comparable obj) {
     return (int) getComparable(obj);
   }
