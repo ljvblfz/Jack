@@ -139,7 +139,10 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
       jloInitMethodId = jlo.getMethodIdWide(NamingTools.INIT_NAME, Collections.<JType>emptyList(),
           MethodKind.INSTANCE_NON_VIRTUAL);
       currentMethod = method;
-      lambdaClassNamePrefix = NamingTools.getNonSourceConflictingName(
+      // '$Lambda$' prefix is mandatory for IntelliJ to be able to skip methods that are not
+      // synthetics when using 'step into' during a debug session, otherwise 'step into' stops on a
+      // method that is not the lambda body but the method that calls the lambda body.
+      lambdaClassNamePrefix = "$Lambda$" + NamingTools.getNonSourceConflictingName(
           IdentifierFormatter.getFormatter().getName(method) + "LambdaImpl");
     }
 
