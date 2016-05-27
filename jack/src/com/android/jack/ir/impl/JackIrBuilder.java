@@ -1751,8 +1751,11 @@ public class JackIrBuilder {
         }
         lambdaExpression.binding.modifiers |= ClassFileConstants.AccPrivate;
         lambdaExpression.binding.modifiers &= ~ClassFileConstants.AccStatic;
+        // 'lambda$' prefix is mandatory for IntelliJ to be able to 'step into' lambda
+        // implementation during debug session, otherwise 'step into' does not stop on synthetic
+        // method.
         lambdaMethod.getMethodIdWide()
-            .setName(ReferenceMapper.intern(NamingTools.getNonSourceConflictingName(
+            .setName("lambda$" + ReferenceMapper.intern(NamingTools.getNonSourceConflictingName(
                 BinaryQualifiedNameFormatter.getFormatter().getName(curClass.type)
                     + "_" + lambdaMethod.getMethodIdWide().getName())));
       } catch (JTypeLookupException e) {
