@@ -212,7 +212,6 @@ public class ReachingDefinitions implements RunnableSchedulable<JMethod> {
       @Nonnull List<DefinitionMarker> definitions, @Nonnull BitSet in) {
     List<DefinitionMarker> reachingDefs = new ArrayList<DefinitionMarker>();
     for (int i = in.nextSetBit(0); i >= 0; i = in.nextSetBit(i + 1)) {
-      assert !reachingDefs.contains(definitions.get(i));
       reachingDefs.add(definitions.get(i));
     }
     return (reachingDefs);
