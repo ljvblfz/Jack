@@ -1001,14 +1001,25 @@ public class Options {
           "Prebuilts from libraries are not use due to usage of shrinking or obfuscation");
 
       if (flags.obfuscate()) { // keepAttribute only makes sense when obfuscating
-        configBuilder.set(AnnotationRemover.EMIT_RUNTIME_INVISIBLE_ANNOTATION,
-            flags.keepAttribute("RuntimeInvisibleAnnotations"));
-        configBuilder.set(AnnotationRemover.EMIT_RUNTIME_VISIBLE_ANNOTATION,
+        boolean emitRuntimeInvisibleAnnotation = flags.keepAttribute("RuntimeInvisibleAnnotations");
+        configBuilder.set(
+            AnnotationRemover.EMIT_SOURCE_RETENTION_ANNOTATION, emitRuntimeInvisibleAnnotation);
+        configBuilder.set(
+            AnnotationRemover.EMIT_CLASS_RETENTION_ANNOTATION, emitRuntimeInvisibleAnnotation);
+        configBuilder.set(AnnotationRemover.EMIT_RUNTIME_RETENTION_ANNOTATION,
             flags.keepAttribute("RuntimeVisibleAnnotations"));
-        configBuilder.set(ParameterAnnotationRemover.EMIT_RUNTIME_VISIBLE_PARAMETER_ANNOTATION,
+
+        boolean emitRuntimeInvisibleParameterAnnotation =
+            flags.keepAttribute("RuntimeInvisibleParameterAnnotations");
+        configBuilder.set(
+            ParameterAnnotationRemover.EMIT_SOURCE_RETENTION_PARAMETER_ANNOTATION,
+            emitRuntimeInvisibleParameterAnnotation);
+        configBuilder.set(
+            ParameterAnnotationRemover.EMIT_CLASS_RETENTION_PARAMETER_ANNOTATION,
+            emitRuntimeInvisibleParameterAnnotation);
+        configBuilder.set(
+            ParameterAnnotationRemover.EMIT_RUNTIME_RETENTION_PARAMETER_ANNOTATION,
             flags.keepAttribute("RuntimeVisibleParameterAnnotations"));
-        configBuilder.set(ParameterAnnotationRemover.EMIT_RUNTIME_INVISIBLE_PARAMETER_ANNOTATION,
-            flags.keepAttribute("RuntimeInvisibleParameterAnnotations"));
 
         configBuilder.set(EMIT_LINE_NUMBER_DEBUG_INFO, flags.keepAttribute("LineNumberTable"));
         configBuilder.set(EMIT_LOCAL_DEBUG_INFO, flags.keepAttribute("LocalVariableTable"));

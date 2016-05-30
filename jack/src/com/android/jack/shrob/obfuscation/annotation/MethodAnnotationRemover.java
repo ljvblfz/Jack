@@ -51,8 +51,11 @@ public class MethodAnnotationRemover extends AnnotationRemover implements
   private static final Logger logger = LoggerFactory.getLogger();
 
   public MethodAnnotationRemover() {
-    super(ThreadConfig.get(EMIT_RUNTIME_VISIBLE_ANNOTATION).booleanValue(), ThreadConfig.get(
-        EMIT_RUNTIME_INVISIBLE_ANNOTATION).booleanValue(), true /* addSystemAnnotations */);
+    super(
+        ThreadConfig.get(EMIT_SOURCE_RETENTION_ANNOTATION).booleanValue(),
+        ThreadConfig.get(EMIT_CLASS_RETENTION_ANNOTATION).booleanValue(),
+        ThreadConfig.get(EMIT_RUNTIME_RETENTION_ANNOTATION).booleanValue(),
+        true /* keepSystemAnnotations */);
   }
 
   @Override

@@ -50,26 +50,35 @@ public class ParameterAnnotationRemover extends AnnotationRemover implements
     RunnableSchedulable<JMethod> {
 
   @Nonnull
-  public static final BooleanPropertyId EMIT_RUNTIME_VISIBLE_PARAMETER_ANNOTATION =
+  public static final BooleanPropertyId EMIT_SOURCE_RETENTION_PARAMETER_ANNOTATION =
       BooleanPropertyId
-          .create("jack.annotation.runtimevisible.parameter",
-              "Emit parameters annotations that are runtime visible")
+          .create("jack.annotation.parameter.source-retention",
+              "Emit parameters annotations that have a source retention")
           .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
 
   @Nonnull
-  public static final BooleanPropertyId EMIT_RUNTIME_INVISIBLE_PARAMETER_ANNOTATION =
+  public static final BooleanPropertyId EMIT_CLASS_RETENTION_PARAMETER_ANNOTATION =
       BooleanPropertyId
-          .create("jack.annotation.runtimeinvisible.parameter",
-              "Emit parameters annotations that are runtime invisible")
+          .create("jack.annotation.parameter.class-retention",
+              "Emit parameters annotations that have a class retention")
+          .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
+
+  @Nonnull
+  public static final BooleanPropertyId EMIT_RUNTIME_RETENTION_PARAMETER_ANNOTATION =
+      BooleanPropertyId
+          .create("jack.annotation.parameter.runtime-retention",
+              "Emit parameters annotations that have a runtime retention")
           .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
 
   @Nonnull
   private static final Logger logger = LoggerFactory.getLogger();
 
   public ParameterAnnotationRemover() {
-    super(ThreadConfig.get(EMIT_RUNTIME_VISIBLE_PARAMETER_ANNOTATION).booleanValue(), ThreadConfig
-        .get(EMIT_RUNTIME_INVISIBLE_PARAMETER_ANNOTATION).booleanValue(),
-        true /* addSystemAnnotations */);
+    super(
+        ThreadConfig.get(EMIT_SOURCE_RETENTION_ANNOTATION).booleanValue(),
+        ThreadConfig.get(EMIT_CLASS_RETENTION_ANNOTATION).booleanValue(),
+        ThreadConfig.get(EMIT_RUNTIME_RETENTION_ANNOTATION).booleanValue(),
+        true /* keepSystemAnnotations */);
   }
 
   private class Visitor extends JVisitor {

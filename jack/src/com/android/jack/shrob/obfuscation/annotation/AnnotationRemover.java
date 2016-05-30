@@ -30,36 +30,55 @@ import javax.annotation.Nonnull;
 public abstract class AnnotationRemover {
 
   @Nonnull
-  public static final
-      BooleanPropertyId EMIT_RUNTIME_INVISIBLE_ANNOTATION = BooleanPropertyId.create(
-          "jack.annotation.runtimeinvisible", "Emit annotations that are runtime invisible")
-          .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
+  public static final BooleanPropertyId EMIT_SOURCE_RETENTION_ANNOTATION =
+      BooleanPropertyId.create(
+              "jack.annotation.source-retention",
+              "Emit annotations that have a source retention")
+          .addDefaultValue(Boolean.TRUE)
+          .addCategory(DumpInLibrary.class);
 
   @Nonnull
-  public static final BooleanPropertyId EMIT_RUNTIME_VISIBLE_ANNOTATION = BooleanPropertyId.create(
-      "jack.annotation.runtimevisible", "Emit annotations that are runtime visible")
-      .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
+  public static final BooleanPropertyId EMIT_CLASS_RETENTION_ANNOTATION =
+      BooleanPropertyId.create(
+              "jack.annotation.class-retention",
+              "Emit annotations that have a class retention")
+          .addDefaultValue(Boolean.TRUE)
+          .addCategory(DumpInLibrary.class);
 
-  private final boolean addRuntimeVisibleAnnotations;
-  private final boolean addRuntimeInvisibleAnnotations;
-  private final boolean addSystemAnnotations;
+  @Nonnull
+  public static final BooleanPropertyId EMIT_RUNTIME_RETENTION_ANNOTATION =
+      BooleanPropertyId.create(
+              "jack.annotation.runtime-retention",
+              "Emit annotations that have a runtime retention")
+          .addDefaultValue(Boolean.TRUE)
+          .addCategory(DumpInLibrary.class);
 
-  protected AnnotationRemover(boolean addRuntimeVisibleAnnotations,
-      boolean addRuntimeInvisibleAnnotations, boolean addSystemAnnotations) {
-    this.addRuntimeVisibleAnnotations = addRuntimeVisibleAnnotations;
-    this.addRuntimeInvisibleAnnotations = addRuntimeInvisibleAnnotations;
-    this.addSystemAnnotations = addSystemAnnotations;
+  private final boolean keepSourceAnnotations;
+  private final boolean keepClassAnnotations;
+  private final boolean keepRuntimeAnnotations;
+  private final boolean keepSystemAnnotations;
+
+  protected AnnotationRemover(
+      boolean keepSourceAnnotations,
+      boolean keepClassAnntations,
+      boolean keepRuntimeAnnotations,
+      boolean keepSystemAnnotations) {
+    this.keepSourceAnnotations = keepSourceAnnotations;
+    this.keepClassAnnotations = keepClassAnntations;
+    this.keepRuntimeAnnotations = keepRuntimeAnnotations;
+    this.keepSystemAnnotations = keepSystemAnnotations;
   }
 
-  boolean mustBeKept(JAnnotation annotation) {
+  boolean mustBeKept(@Nonnull JAnnotation annotation) {
     switch (annotation.getRetentionPolicy()) {
-      case RUNTIME:
-        return addRuntimeVisibleAnnotations;
-      case CLASS:
       case SOURCE:
-        return addRuntimeInvisibleAnnotations;
+        return keepSourceAnnotations;
+      case CLASS:
+        return keepClassAnnotations;
+      case RUNTIME:
+        return keepRuntimeAnnotations;
       case SYSTEM:
-        return addSystemAnnotations;
+        return keepSystemAnnotations;
       default:
         throw new AssertionError();
     }
