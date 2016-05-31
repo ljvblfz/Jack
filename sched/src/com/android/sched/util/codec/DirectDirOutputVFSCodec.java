@@ -16,17 +16,13 @@
 
 package com.android.sched.util.codec;
 
-import com.android.sched.util.file.CannotChangePermissionException;
-import com.android.sched.util.file.CannotCreateFileException;
-import com.android.sched.util.file.Directory;
-import com.android.sched.util.file.FileAlreadyExistsException;
+import com.android.sched.util.config.ConfigurationError;
 import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.util.file.NoSuchFileException;
-import com.android.sched.util.file.NotDirectoryException;
-import com.android.sched.util.file.WrongPermissionException;
-import com.android.sched.vfs.DirectFS;
 import com.android.sched.vfs.GenericOutputVFS;
 import com.android.sched.vfs.OutputVFS;
+import com.android.sched.vfs.VFS;
+
+import java.util.List;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -35,50 +31,65 @@ import javax.annotation.Nonnull;
  * This {@link StringCodec} is used to create an instance of {@link OutputVFS} backed by a
  * filesystem directory.
  */
-public class DirectDirOutputVFSCodec extends OutputVFSCodec {
+public class DirectDirOutputVFSCodec implements StringCodec<OutputVFS> {
 
-  @CheckForNull
-  private String infoString;
+  private final DirectFSCodec directFSCodec;
 
   public DirectDirOutputVFSCodec(@Nonnull Existence existence) {
-    super(existence);
+    directFSCodec = new DirectFSCodec(existence).withoutCache();
   }
 
   @Override
   @Nonnull
   public String getUsage() {
-    return "a path to an output directory (" + getDetailedUsage() + ")";
+    return "a path to an output directory (" + directFSCodec.getDetailedUsage() + ")";
   }
 
   @Override
   @Nonnull
   public String getVariableName() {
-    return "dir";
+    return directFSCodec.getVariableName();
   }
 
   @Override
   @Nonnull
   public OutputVFS checkString(@Nonnull CodecContext context,
-      @Nonnull final String string) throws ParsingException {
+      @Nonnull String string) throws ParsingException {
+    VFS vfs = directFSCodec.checkString(context, string);
+    return new GenericOutputVFS(vfs);
+  }
+
+  @Override
+  @Nonnull
+  public OutputVFS parseString(@Nonnull CodecContext context, @Nonnull String string) {
     try {
-      DirectFS dirFS = new DirectFS(new Directory(context.getWorkingDirectory(),
-          string,
-          context.getRunnableHooks(),
-          existence,
-          permissions,
-          change), permissions);
-      dirFS.setInfoString(infoString);
-      return new GenericOutputVFS(dirFS);
-    } catch (CannotChangePermissionException | NotDirectoryException | WrongPermissionException
-        | NoSuchFileException | FileAlreadyExistsException | CannotCreateFileException e) {
-      throw new ParsingException(e.getMessage(), e);
+      return checkString(context, string);
+    } catch (ParsingException e) {
+      throw new ConfigurationError(e);
     }
   }
 
   @Nonnull
   public DirectDirOutputVFSCodec setInfoString(@CheckForNull String infoString) {
-    this.infoString = infoString;
+    directFSCodec.setInfoString(infoString);
     return this;
+  }
+
+  @Override
+  @Nonnull
+  public List<ValueDescription> getValueDescriptions() {
+    return directFSCodec.getValueDescriptions();
+  }
+
+  @Override
+  @Nonnull
+  public String formatValue(@Nonnull OutputVFS data) {
+    return directFSCodec.formatValue(data.getVFS());
+  }
+
+  @Override
+  public void checkValue(@Nonnull CodecContext context, @Nonnull OutputVFS data) {
+    directFSCodec.checkValue(context, data.getVFS());
   }
 
 }

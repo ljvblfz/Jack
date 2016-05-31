@@ -35,4 +35,6 @@ public interface OutputVFS extends HasLocation, AutoCloseable {
   void close() throws CannotCloseException;
 
   boolean isClosed();
+  @Nonnull
+  VFS getVFS();
 }

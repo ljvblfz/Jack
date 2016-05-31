@@ -67,6 +67,12 @@ public class GenericOutputVFS extends AbstractVFS implements OutputVFS {
 
   @Override
   @Nonnull
+  public VFS getVFS() {
+    return vfs;
+  }
+
+  @Override
+  @Nonnull
   public String toString() {
     return "outputFS >> " + vfs.toString();
   }

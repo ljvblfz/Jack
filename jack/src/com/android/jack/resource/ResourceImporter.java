@@ -54,9 +54,13 @@ public class ResourceImporter extends ResourceOrMetaImporter {
 
   @Nonnull
   public static final ListPropertyId<InputVFS> IMPORTED_RESOURCES =
-      new ListPropertyId<InputVFS>("jack.import.resource", "Resources to import",
-          new DirectoryInputVFSCodec().setInfoString("imported-rsc")).on(File.pathSeparator)
-              .minElements(0).addDefaultValue(Collections.<InputVFS>emptyList());
+      new ListPropertyId<InputVFS>(
+              "jack.import.resource",
+              "Resources to import",
+              new DirectoryInputVFSCodec().withoutCache().setInfoString("imported-rsc"))
+          .on(File.pathSeparator)
+          .minElements(0)
+          .addDefaultValue(Collections.<InputVFS>emptyList());
 
   @Nonnull
   private final CollisionPolicy resourceCollisionPolicy =
