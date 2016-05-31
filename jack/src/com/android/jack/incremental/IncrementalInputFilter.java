@@ -165,9 +165,11 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
 
     JSession session = Jack.getSession();
 
+    boolean mergingEnabled;
     if (incrementalInputLibrary != null) {
 
-      if (incrementalInputLibrary.canBeMerged(importedLibrariesFromCommandLine)) {
+      mergingEnabled = incrementalInputLibrary.canBeMerged(importedLibrariesFromCommandLine);
+      if (mergingEnabled) {
         incrementalInputLibrary.mergeInputLibraries(importedLibrariesFromCommandLine);
         importedLibraries = Collections.<InputLibrary>singletonList(incrementalInputLibrary);
       } else {
@@ -202,7 +204,8 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
       fillModifiedFileNames(modifiedFileNames);
       fillDeletedFileNames(deletedFileNames);
     } else {
-      if (session.getJackOutputLibrary().canBeMerged(importedLibrariesFromCommandLine)) {
+      mergingEnabled = session.getJackOutputLibrary().canBeMerged(importedLibrariesFromCommandLine);
+      if (mergingEnabled) {
         session.getJackOutputLibrary().mergeInputLibraries(importedLibrariesFromCommandLine);
       }
     }
@@ -234,6 +237,8 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
         incLog.writeStrings("deleted (" + deletedFileNames.size() + ")", deletedFileNames);
         incLog.writeStrings("modified (" + modifiedFileNames.size() + ")", modifiedFileNames);
         incLog.writeStrings("compiled (" + filesToRecompile.size() + ")", filesToRecompile);
+        incLog.writeString(
+            "imported libraries have " + (mergingEnabled ? "" : "not ") + "been unified");
         incLog.close();
       } catch (LibraryIOException e) {
         LibraryWritingException reportable = new LibraryWritingException(e);
