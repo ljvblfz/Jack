@@ -96,6 +96,7 @@ import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSession;
+import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.formatter.InternalFormatter;
 import com.android.jack.ir.formatter.TypePackageAndMethodFormatter;
 import com.android.jack.ir.formatter.UserFriendlyFormatter;
@@ -893,6 +894,9 @@ public abstract class Jack {
     set.add(JavaSourceIr.class);
     set.add(OriginalNames.class);
     set.add(SourceInfoCreation.class);
+    if (ThreadConfig.get(Options.JAVA_SOURCE_VERSION).compareTo(JavaVersion.JAVA_7) >= 0) {
+      set.add(JSwitchStatement.SwitchWithString.class);
+    }
     return set;
   }
 
@@ -1427,15 +1431,15 @@ public abstract class Jack {
         }
         methodPlan.append(NestedAssignRemover.class);
         methodPlan.append(IntersectionTypeRemover.class);
+        methodPlan.append(UselessCaseRemover.class);
+        if (hasSanityChecks) {
+          methodPlan.append(UselessCaseChecker.class);
+        }
+        methodPlan.append(UselessSwitchesRemover.class);
         methodPlan.append(TypeLegalizer.class);
         methodPlan.append(RopCastLegalizer.class);
         if (features.contains(CodeStats.class)) {
           methodPlan.append(BinaryOperationWithCst.class);
-        }
-        methodPlan.append(UselessCaseRemover.class);
-        methodPlan.append(UselessSwitchesRemover.class);
-        if (hasSanityChecks) {
-          methodPlan.append(UselessCaseChecker.class);
         }
         methodPlan.append(FinallyRemover.class);
         methodPlan.append(ExceptionRuntimeValueAdder.class);

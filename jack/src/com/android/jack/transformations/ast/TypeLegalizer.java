@@ -76,8 +76,8 @@ import javax.annotation.Nonnull;
 @Description("Make implicit casting, boxing and unboxing become explicit.")
 @Name("TypeLegalizer")
 @Constraint(
-no = {SideEffectOperation.class, InitInNewArray.class,
-    JSwitchStatement.SwitchWithEnum.class, JCastOperation.WithIntersectionType.class})
+    no = {SideEffectOperation.class, InitInNewArray.class, JSwitchStatement.SwitchWithEnum.class,
+        JCastOperation.WithIntersectionType.class, JSwitchStatement.SwitchWithString.class})
 @Transform(add = {JMethodCall.class, JDynamicCastOperation.class},
     remove = {ImplicitCast.class, ImplicitBoxingAndUnboxing.class, ThreeAddressCodeForm.class})
 @Filter(TypeWithoutPrebuiltFilter.class)

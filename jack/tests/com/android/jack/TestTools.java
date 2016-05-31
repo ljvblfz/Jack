@@ -19,6 +19,7 @@ package com.android.jack;
 import com.android.jack.Options.AssertionPolicy;
 import com.android.jack.backend.dex.DexInLibraryProduct;
 import com.android.jack.backend.jayce.JayceInLibraryProduct;
+import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JSession;
@@ -29,6 +30,8 @@ import com.android.jack.lookup.JMethodSignatureLookupException;
 import com.android.jack.optimizations.Optimizations;
 import com.android.jack.optimizations.tailrecursion.TailRecursionOptimization;
 import com.android.jack.scheduling.feature.DropMethodBody;
+import com.android.jack.scheduling.feature.SourceVersion7;
+import com.android.jack.scheduling.feature.SourceVersion8;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.shrob.spec.Flags;
@@ -373,6 +376,15 @@ public class TestTools {
 
     Scheduler scheduler = new Scheduler();
     Request request = Jack.createInitialRequest(scheduler);
+
+    JavaVersion sourceVersion = config.get(Options.JAVA_SOURCE_VERSION);
+    if (sourceVersion.compareTo(JavaVersion.JAVA_7) >= 0) {
+      request.addFeature(SourceVersion7.class);
+    }
+    if (sourceVersion.compareTo(JavaVersion.JAVA_8) >= 0) {
+      request.addFeature(SourceVersion8.class);
+    }
+
     request.addInitialTagsOrMarkers(Jack.getJavaSourceInitialTagSet(scheduler));
     request.addProduction(DexInLibraryProduct.class);
     if (ThreadConfig.get(Options.GENERATE_JAYCE_IN_LIBRARY).booleanValue()) {
