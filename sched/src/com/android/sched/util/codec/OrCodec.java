@@ -43,6 +43,8 @@ public class OrCodec<T> implements StringCodec<T> {
     this.codecList = codecList;
   }
 
+
+  @SafeVarargs
   public OrCodec(@Nonnull StringCodec<? extends T>... codecList) {
     assert codecList.length >= 2;
     this.codecList = Arrays.asList(codecList);
