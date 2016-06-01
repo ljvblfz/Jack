@@ -20,11 +20,13 @@ import com.android.jack.JackAbortException;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.backend.jayce.TypeImportConflictException;
 import com.android.jack.library.LibraryReadingException;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillApiToolchainBase;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 
 import junit.framework.Assert;
 
@@ -96,6 +98,7 @@ public class ImportTests {
   }
 
   @Test
+  @KnownIssue(candidate = JillBasedToolchain.class)
   public void testConflictingImport() throws Exception {
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     commonConflictingImport(errOut, false /* = verbose */ );
@@ -110,8 +113,8 @@ public class ImportTests {
     errOut.close();
     String errString = errOut.toString();
     Assert.assertTrue(errString
-        .contains("Ignoring import: Type com.android.jack.inner.test015.lib.A from directory"));
-    Assert.assertTrue(errString.contains("has already been imported from directory"));
+        .contains("Ignoring import: Type com.android.jack.inner.test015.lib.A from"));
+    Assert.assertTrue(errString.contains("has already been imported from"));
   }
 
   private void commonConflictingImport(@Nonnull ByteArrayOutputStream errorStream, boolean verbose)
