@@ -19,7 +19,7 @@ package com.android.jack.shrob.obfuscation.resource;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
-import com.android.sched.util.stream.ByteStreamSucker;
+import com.android.sched.util.stream.LocationByteStreamSucker;
 import com.android.sched.vfs.VFile;
 import com.android.sched.vfs.VPath;
 
@@ -325,7 +325,7 @@ public class RefinedVFile implements VFile {
     InputStream is = getInputStream();
     OutputStream os = vFile.getOutputStream();
     try {
-      new ByteStreamSucker(is, os).suck();
+      new LocationByteStreamSucker(is, os, this, vFile).suck();
     } finally {
       os.close();
       is.close();

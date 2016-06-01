@@ -23,7 +23,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * Exception when a file can not be read.
+ * Exception when a problem occurs while reading.
  */
 public class CannotReadException extends WithLocationIOException {
   private static final long serialVersionUID = 1L;
@@ -48,7 +48,7 @@ public class CannotReadException extends WithLocationIOException {
 
   @Override
   protected String createMessage(@Nonnull String description) {
-    String message = description + " cannot be read";
+    String message = description + " failed to be read";
     Throwable cause = getCause();
     if (cause != null) {
       String detail = cause.getMessage();

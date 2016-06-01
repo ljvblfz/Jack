@@ -23,7 +23,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * Exception when a file can not be written.
+ * Exception when a problem occurs while writing.
  */
 public class CannotWriteException extends WithLocationIOException {
   private static final long serialVersionUID = 1L;
@@ -48,7 +48,7 @@ public class CannotWriteException extends WithLocationIOException {
 
   @Override
   protected String createMessage(@Nonnull String description) {
-    String message = description + " cannot be written";
+    String message = description + " failed to be written";
     Throwable cause = getCause();
     if (cause != null) {
       String detail = cause.getMessage();
