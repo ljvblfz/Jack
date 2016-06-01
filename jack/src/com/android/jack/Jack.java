@@ -129,6 +129,9 @@ import com.android.jack.optimizations.Optimizations;
 import com.android.jack.optimizations.UnusedDefinitionRemover;
 import com.android.jack.optimizations.UseDefsChainsSimplifier;
 import com.android.jack.optimizations.common.DirectlyDerivedClassesProvider;
+import com.android.jack.optimizations.inlining.InlineAnnotatedMethods;
+import com.android.jack.optimizations.inlining.InlineAnnotationSanityCheck;
+import com.android.jack.optimizations.inlining.JMethodInliner;
 import com.android.jack.optimizations.modifiers.ClassFinalizer;
 import com.android.jack.optimizations.modifiers.FieldFinalizer;
 import com.android.jack.optimizations.modifiers.MethodFinalizer;
@@ -725,7 +728,9 @@ public abstract class Jack {
           if (config.get(Optimizations.WriteOnlyFieldRemoval.ENABLE).booleanValue()) {
             request.addFeature(Optimizations.WriteOnlyFieldRemoval.class);
           }
-
+          if (config.get(Optimizations.InlineAnnotatedMethods.ENABLE).booleanValue()) {
+            request.addFeature(Optimizations.InlineAnnotatedMethods.class);
+          }
           if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.ALWAYS) {
             request.addFeature(EnabledAssertionFeature.class);
           } else if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.RUNTIME) {
@@ -1448,6 +1453,9 @@ public abstract class Jack {
           .append(LambdaConverter.class);
     }
 
+    boolean enableInlineAnnotatedMethods =
+        features.contains(Optimizations.InlineAnnotatedMethods.class);
+
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
@@ -1549,6 +1557,18 @@ public abstract class Jack {
         }
         methodPlan.append(EmptyClinitRemover.class);
       }
+    }
+
+    if (enableInlineAnnotatedMethods) {
+
+      SubPlanBuilder<JMethod> methodPlan = planBuilder
+          .appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
+          .appendSubPlan(JMethodAdapter.class);
+      if (hasSanityChecks) {
+        methodPlan.append(InlineAnnotationSanityCheck.class);
+      }
+      methodPlan.append(InlineAnnotatedMethods.class);
+      methodPlan.append(JMethodInliner.class);
     }
 
     if (features.contains(DalvikProtectedInnerCheck.class)) {

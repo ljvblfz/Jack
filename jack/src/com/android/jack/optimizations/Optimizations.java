@@ -184,6 +184,22 @@ public class Optimizations {
   }
 
   /**
+   * A {@link Feature} that represents inlining of methods based on @ForceInline annotations.
+   */
+  @HasKeyId
+  @Description("Inline methods with @ForceInline annotation")
+  public static class InlineAnnotatedMethods implements Feature {
+    @Nonnull
+    public static final BooleanPropertyId ENABLE = BooleanPropertyId
+        .create("jack.optimization.inline-annotated-methods",
+            "Inline methods annotated with @ForceInline")
+        .addDefaultValue(Boolean.FALSE)
+        .addCategory(DumpInLibrary.class)
+        .addCategory(PrebuiltCompatibility.class)
+        .addCategory(Private.class);
+  }
+
+  /**
    * A {@link Feature} that represents field value propagation optimization.
    */
   @HasKeyId

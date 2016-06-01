@@ -77,7 +77,7 @@ import javax.annotation.Nonnull;
     JFieldInitializer.class})
 public class CloneStatementVisitor extends CloneExpressionVisitor {
   @CheckForNull
-  private JStatement statement;
+  protected JStatement statement;
 
   @Nonnull
   private Map<JLabeledStatement, JLabeledStatement> clonedLabeledStmts = Collections.emptyMap();
@@ -125,18 +125,19 @@ public class CloneStatementVisitor extends CloneExpressionVisitor {
 
   @Nonnull
   public <T extends JStatement> T cloneStatement(@Nonnull T stmt) {
-
     clonedLabeledStmts = new HashMap<JLabeledStatement, JLabeledStatement>();
     clonedLocals = new HashMap<JLocal, JLocal>();
     clonedGotos = new ArrayList<JGoto>();
     clonedStmts = new HashMap<JStatement, JStatement>();
     clonedMarkers = new ArrayList<Marker>();
     clonedCatchBlocks = new HashMap<JCatchBlock, JCatchBlock>();
-
     T statement = internalCloneStatement(stmt);
-
     fixGotos();
+    fixMarkers();
+    return statement;
+  }
 
+  protected void fixMarkers() {
     // TODO(mikaelpeltier) Think how to modify marker to reflect cloning
     for (Marker m : clonedMarkers) {
       if (m instanceof InlinedFinallyMarker) {
@@ -147,8 +148,6 @@ public class CloneStatementVisitor extends CloneExpressionVisitor {
         }
       }
     }
-
-    return statement;
   }
 
   private void fixGotos() {
@@ -163,7 +162,7 @@ public class CloneStatementVisitor extends CloneExpressionVisitor {
 
   @SuppressWarnings("unchecked")
   @Nonnull
-  private <T extends JStatement> T internalCloneStatement(@Nonnull T stmt) {
+  protected <T extends JStatement> T internalCloneStatement(@Nonnull T stmt) {
 
     JStatement alreadyCloned = clonedStmts.get(stmt);
     if (alreadyCloned != null) {
@@ -282,7 +281,11 @@ public class CloneStatementVisitor extends CloneExpressionVisitor {
     }
 
     JLocal clonedVar =
-        new JLocal(var.getSourceInfo(), var.getName(), var.getType(), var.getModifier(),
+        new JLocal(
+            var.getSourceInfo(),
+            cloneLocalName(var.getName()),
+            var.getType(),
+            var.getModifier(),
             methodBody);
 
     // If parent is JCatchBLock, cloned variable will be add into rather than into method body
@@ -292,6 +295,11 @@ public class CloneStatementVisitor extends CloneExpressionVisitor {
 
     clonedLocals.put(var, clonedVar);
     return clonedVar;
+  }
+
+  @Nonnull
+  protected String cloneLocalName(@Nonnull String orgName) {
+    return orgName;
   }
 
   @Override
@@ -312,7 +320,7 @@ public class CloneStatementVisitor extends CloneExpressionVisitor {
    * @return The cloned statement with the catch block list updated
    */
   @Nonnull
-  private JStatement updateCatchBlockList(@Nonnull JStatement clonedStmt,
+  protected JStatement updateCatchBlockList(@Nonnull JStatement clonedStmt,
       @Nonnull JStatement orignalStmt) {
     for (JCatchBlock catchBlocks : orignalStmt.getJCatchBlocks()) {
       clonedStmt.appendCatchBlock(cloneCatchBlock(catchBlocks));
