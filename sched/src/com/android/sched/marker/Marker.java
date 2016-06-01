@@ -22,6 +22,8 @@ import com.android.sched.item.TagOrMarkerOrComponent;
 import com.android.sched.item.onlyfor.Internal;
 import com.android.sched.item.onlyfor.OnlyFor;
 
+import javax.annotation.Nonnull;
+
 /**
  * An object linked with <i>data</i>. Can be added, removed or modified.
  * The {@link ValidOn} or {@link DynamicValidOn} annotations must be used to specify on which type
@@ -29,5 +31,18 @@ import com.android.sched.item.onlyfor.OnlyFor;
  */
 @OnlyFor(Internal.class)
 public interface Marker extends TagOrMarker, TagOrMarkerOrComponent, MarkerOrComponent {
+  /**
+   * Returns a marker with the same properties when this marker needs to be cloned. According
+   * to the implementation of the marker, the same instance may be returned, or a clone.
+   * <p>
+   * When a "marked" object is cloned, all its markers must be cloned too. Therefore the new
+   * "cloned" object is marked with all the "cloned" markers. It is possible to return the same
+   * instance if cloning this marker makes no sense regarding its purpose (like a marker that
+   * never changes its state).
+   * </p>
+   *
+   * @return this marker or a new one if needed
+   */
+  @Nonnull
   public Marker cloneIfNeeded();
 }
