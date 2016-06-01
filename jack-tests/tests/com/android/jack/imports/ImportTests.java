@@ -25,7 +25,6 @@ import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillApiToolchainBase;
-import com.android.jack.test.toolchain.JillBasedToolchain;
 
 import junit.framework.Assert;
 
@@ -35,6 +34,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.annotation.Nonnull;
 
 public class ImportTests {
 
@@ -96,6 +97,25 @@ public class ImportTests {
 
   @Test
   public void testConflictingImport() throws Exception {
+    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+    commonConflictingImport(errOut, false /* = verbose */ );
+    errOut.close();
+    Assert.assertEquals("", errOut.toString());
+  }
+
+  @Test
+  public void testConflictingImportVerbose() throws Exception {
+    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+    commonConflictingImport(errOut, true /* = verbose */ );
+    errOut.close();
+    String errString = errOut.toString();
+    Assert.assertTrue(errString
+        .contains("Ignoring import: Type com.android.jack.inner.test015.lib.A from directory"));
+    Assert.assertTrue(errString.contains("has already been imported from directory"));
+  }
+
+  private void commonConflictingImport(@Nonnull ByteArrayOutputStream errorStream, boolean verbose)
+      throws Exception {
     String testName = "com.android.jack.inner.test015";
     File lib = AbstractTestTools.createTempDir();
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
@@ -103,6 +123,8 @@ public class ImportTests {
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .setVerbose(verbose)
+    .setErrorStream(errorStream)
     .srcToLib(
         lib,
         /* zipFile = */ false,
@@ -110,9 +132,12 @@ public class ImportTests {
 
 
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
-    toolchain.addStaticLibs(lib);
+    // import twice the same lib
+    toolchain.addStaticLibs(lib, lib);
     toolchain.addProperty(JayceFileImporter.COLLISION_POLICY.getName(), "keep-first");
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .setVerbose(verbose)
+    .setErrorStream(errorStream)
     .srcToExe(
         AbstractTestTools.createTempFile("inner15", ".zip"),
         /* zipFile = */ true,
@@ -177,7 +202,7 @@ public class ImportTests {
         AbstractTestTools.getTestRootDir(testName + ".lib"));
 
     toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
-    // import twice the same lib
+
     toolchain.addStaticLibs(lib1, lib2);
     toolchain.addProperty(JayceFileImporter.COLLISION_POLICY.getName(), "fail");
 
