@@ -43,6 +43,7 @@ import com.android.jack.transformations.BoostLockedRegionPriorityFeature;
 import com.android.jack.transformations.request.AppendStatement;
 import com.android.jack.transformations.request.PrependStatement;
 import com.android.jack.transformations.request.TransformationRequest;
+import com.android.jack.util.MethodNameCodec.MethodNameValue;
 import com.android.jack.util.NamingTools;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
@@ -50,7 +51,6 @@ import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.config.id.PropertyId;
 
 import java.util.Collections;
 
@@ -117,48 +117,40 @@ public class BoostLockedRegionPriority implements RunnableSchedulable<JMethod> {
 
   public BoostLockedRegionPriority() {
     String className = ThreadConfig.get(BoostLockedRegionPriorityFeature.BOOST_LOCK_CLASSNAME);
-    String requestMethodFullName =
+    MethodNameValue requestMethodNameValue =
         ThreadConfig.get(BoostLockedRegionPriorityFeature.BOOST_LOCK_REQUEST_METHOD);
-    String resetMethodFullName =
+    MethodNameValue resetMethodNameValue =
         ThreadConfig.get(BoostLockedRegionPriorityFeature.BOOST_LOCK_RESET_METHOD);
-
-    int requestMethodSeperatorIdx = requestMethodFullName.indexOf('#');
-    int resetMethodSeperatorIdx = resetMethodFullName.indexOf('#');
 
     final JNodeLookup lookup = Jack.getSession().getLookup();
     lockClass =
         getClassOrReportFailure(
             lookup,
             NamingTools.getTypeSignatureName(className),
-            BoostLockedRegionPriorityFeature.BOOST_LOCK_CLASSNAME);
+            BoostLockedRegionPriorityFeature.BOOST_LOCK_CLASSNAME.getName());
     requestClass =
         getClassOrReportFailure(
             lookup,
-            NamingTools.getTypeSignatureName(
-                requestMethodFullName.substring(0, requestMethodSeperatorIdx)),
-            BoostLockedRegionPriorityFeature.BOOST_LOCK_REQUEST_METHOD);
+            NamingTools.getTypeSignatureName(requestMethodNameValue.getClassName()),
+            BoostLockedRegionPriorityFeature.BOOST_LOCK_REQUEST_METHOD.getName());
     resetClass =
         getClassOrReportFailure(
             lookup,
-            NamingTools.getTypeSignatureName(
-                resetMethodFullName.substring(0, resetMethodSeperatorIdx)),
-            BoostLockedRegionPriorityFeature.BOOST_LOCK_RESET_METHOD);
+            NamingTools.getTypeSignatureName(resetMethodNameValue.getClassName()),
+            BoostLockedRegionPriorityFeature.BOOST_LOCK_RESET_METHOD.getName());
     requestMethodId =
         getStaticMethodOrReportFailure(
             requestClass,
-            requestMethodFullName.substring(
-                requestMethodSeperatorIdx + 1, requestMethodFullName.length()),
-            BoostLockedRegionPriorityFeature.BOOST_LOCK_REQUEST_METHOD);
+            requestMethodNameValue.getMethodName(),
+            BoostLockedRegionPriorityFeature.BOOST_LOCK_REQUEST_METHOD.getName());
     resetMethodId =
         getStaticMethodOrReportFailure(
             resetClass,
-            resetMethodFullName.substring(
-                resetMethodSeperatorIdx + 1, resetMethodFullName.length()),
-            BoostLockedRegionPriorityFeature.BOOST_LOCK_RESET_METHOD);
+            resetMethodNameValue.getMethodName(),
+            BoostLockedRegionPriorityFeature.BOOST_LOCK_RESET_METHOD.getName());
   }
 
-  private static JClass getClassOrReportFailure(
-      JNodeLookup lookup, String name, PropertyId<String> prop) {
+  private static JClass getClassOrReportFailure(JNodeLookup lookup, String name, String prop) {
     try {
       return lookup.getClass(name);
     } catch (Throwable e) {
@@ -171,7 +163,7 @@ public class BoostLockedRegionPriority implements RunnableSchedulable<JMethod> {
   }
 
   private static JMethodIdWide getStaticMethodOrReportFailure(
-      JClass cls, String name, PropertyId<String> prop) {
+      JClass cls, String name, String prop) {
     try {
       return cls.getMethodIdWide(name, Collections.<JType>emptyList(), MethodKind.STATIC);
     } catch (Throwable e) {
@@ -268,17 +260,17 @@ public class BoostLockedRegionPriority implements RunnableSchedulable<JMethod> {
   private static class BadBoostLockedRegionPriorityConfigurationException
       extends ReportableException {
     private static final long serialVersionUID = 1L;
-    @Nonnull private final PropertyId<String> prop;
+    @Nonnull private final String prop;
 
     public BadBoostLockedRegionPriorityConfigurationException(
-        @Nonnull PropertyId<String> prop, @Nonnull Throwable cause) {
+        @Nonnull String prop, @Nonnull Throwable cause) {
       super(cause);
       this.prop = prop;
     }
 
     @Override
     public String getMessage() {
-      return getCause().getMessage() + " needed by property " + prop.getName();
+      return getCause().getMessage() + " needed by property " + prop;
     }
 
     @Override
