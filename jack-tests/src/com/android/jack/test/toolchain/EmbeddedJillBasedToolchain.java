@@ -218,7 +218,7 @@ public class EmbeddedJillBasedToolchain extends JackCliToolchain implements Jill
   }
 
   protected void compileWithExternalRefCompiler(@Nonnull File[] sources,
-      @Nonnull String classpath, @Nonnull File out) {
+      @Nonnull String classpath, @Nonnull File out) throws Exception {
 
     List<String> commandLine = new ArrayList<String>();
     commandLine.add(refCompilerPrebuilt.getPath());
@@ -239,7 +239,7 @@ public class EmbeddedJillBasedToolchain extends JackCliToolchain implements Jill
       commandLine.add(classpath);
     }
 
-    AbstractTestTools.addFile(commandLine, false, sources);
+    addSourceList(commandLine, sources);
 
     if (withDebugInfos) {
       commandLine.add("-g");
