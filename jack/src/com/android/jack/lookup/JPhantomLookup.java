@@ -23,7 +23,9 @@ import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JEnum;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JPackage;
+import com.android.jack.ir.ast.JPhantomClassOrInterface;
 import com.android.jack.ir.ast.JReferenceType;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.MissingJTypeLookupException;
@@ -37,7 +39,14 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * Phantom lookup.
+ * A class to lookup types in Jack.
+ *
+ * <p>Unlike {@link JNodeLookup} class, if the type being searched does not exist, Jack creates
+ * a <i>phantom</i> type (an instance of {@link JPhantomClassOrInterface}) in the model. Thus
+ * lookup methods of this class never throw {@link JTypeLookupException}.
+ *
+ * @see JSession#getPhantomLookup
+ * @see JNodeLookup
  */
 public class JPhantomLookup extends JLookup {
 

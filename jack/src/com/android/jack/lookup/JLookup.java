@@ -61,6 +61,9 @@ public abstract class JLookup {
         throws JPackageLookupException;
   }
 
+  /**
+   * A {@link Splitter} that splits a package name based on the package separator character
+   */
   @Nonnull
   protected static final Splitter packageBinaryNameSplitter =
     Splitter.on(JLookup.PACKAGE_SEPARATOR);
@@ -68,20 +71,31 @@ public abstract class JLookup {
   @Nonnull
   private final CommonTypesCache commonTypesCache = new CommonTypesCache(this);
 
+  /**
+   * The {@link JPackage} representing the top level package
+   */
   @Nonnull
   protected final JPackage topLevelPackage;
 
   @Nonnull
   private final Map<String, JPackage> packages = new HashMap<String, JPackage>();
 
+  /**
+   * The character used as package separator.
+   */
   public static final char PACKAGE_SEPARATOR = '/';
 
+  /**
+   * Constructor specifying the top level {@link JPackage} instance
+   *
+   * @param topLevelPackage the top level package
+   */
   protected JLookup(@Nonnull JPackage topLevelPackage) {
     this.topLevelPackage = topLevelPackage;
   }
 
   /**
-   * Finds the {@link JPackage} denoted by the given <code>packageName</code>. The name of
+   * Returns the {@link JPackage} denoted by the given {@code packageName}. The name of
    * the package must be of the form a/b/c.
    *
    * @param packageName the name of the package to lookup
@@ -104,8 +118,8 @@ public abstract class JLookup {
 
 
   /**
-   * Finds the {@link JPackage} denoted by the given <code>packageName</code> or creates it if
-   * it does not exist. The name of the package must be of the form a/b/c.
+   * Returns the {@link JPackage} denoted by the given {@code packageName}. The package is created
+   * if it does not exist yet. The name of the package must be of the form a/b/c.
    *
    * @param packageName the name of the package to lookup or create
    * @return the corresponding {@link JPackage}
@@ -125,47 +139,107 @@ public abstract class JLookup {
   }
 
   /**
-   * Find a {@link JType} from his name.
+   * Finds a {@link JType} for the given name
    *
-   * @param typeName Name of the searched type. The type name must have the following form
-   *        Ljava/jang/String;.
-   * @return The {@link JType} found.
+   * @param typeSignature the signature of the searched type (of the form
+   *        {@code Ljava/jang/String;})
+   * @return the {@link JType} found
+   * @throws JTypeLookupException if there is no {@link JType} for the given name
    */
   @Nonnull
-  public abstract JType getType(@Nonnull String typeName) throws JTypeLookupException;
+  public abstract JType getType(@Nonnull String typeSignature) throws JTypeLookupException;
 
+  /**
+   * Finds a {@link JClass} for the given name
+   *
+   * @param typeSignature the type signature of the searched class (of the form
+   *        {@code Ljava/jang/String;})
+   * @return the {@link JClass} found
+   * @throws JTypeLookupException if there is no {@link JClass} for the given name
+   */
   @Nonnull
-  public abstract JClass getClass(@Nonnull String typeName) throws JTypeLookupException;
+  public abstract JClass getClass(@Nonnull String typeSignature) throws JTypeLookupException;
 
+  /**
+   * Finds a {@link JEnum} for the given name
+   *
+   * @param typeSignature the signature of the searched enum (of the form
+   *        {@code Ljava/jang/String;})
+   * @return the {@link JEnum} found
+   * @throws JTypeLookupException if there is no {@link JEnum} for the given name
+   */
   @Nonnull
-  public abstract JEnum getEnum(@Nonnull String typeName) throws JTypeLookupException;
+  public abstract JEnum getEnum(@Nonnull String typeSignature) throws JTypeLookupException;
 
+  /**
+   * Finds a {@link JInterface} for the given name
+   *
+   * @param typeSignature the signature of the searched interface (of the form
+   * {@code Ljava/jang/String;})
+   * @return the {@link JInterface} found
+   * @throws JTypeLookupException if there is no {@link JInterface} for the given name
+   */
   @Nonnull
-  public abstract JInterface getInterface(@Nonnull String typeName) throws JTypeLookupException;
+  public abstract JInterface getInterface(@Nonnull String typeSignature)
+      throws JTypeLookupException;
 
+  /**
+   * Finds a {@link JAnnotationType} for the given {@code signature}
+   *
+   * @param signature the signature of the annotation type (like 'Lfoo/FooAnnotation;')
+   * @return the corresponding {@link JAnnotationType}
+   * @throws JTypeLookupException if no annotation type matches that signature
+   */
   @Nonnull
   public abstract JAnnotationType getAnnotationType(@Nonnull String signature)
       throws JTypeLookupException;
 
+  /**
+   * Removes the given {@link JType} from this lookup context.
+   *
+   * @param type the type to remove
+   */
   public abstract void removeType(@Nonnull JType type);
 
+  /**
+   * Finds a {@link JClass} for the given common type.
+   *
+   * @param type the common type to lookup
+   * @return an instance of {@link JClass}
+   * @throws JTypeLookupException if there is no {@link JClass} for this type.
+   */
   @Nonnull
   public JClass getClass(@Nonnull CommonType type) throws JTypeLookupException {
     return commonTypesCache.getClass(type);
   }
 
+  /**
+   * Finds a {@link JInterface} for the given common type.
+   *
+   * @param type the common type to lookup
+   * @return an instance of {@link JInterface}
+   * @throws JTypeLookupException if there is no {@link JInterface} for this type.
+   */
   @Nonnull
   public JInterface getInterface(@Nonnull CommonType type) throws JTypeLookupException {
     return commonTypesCache.getInterface(type);
   }
 
+  /**
+   * Finds a {@link JType} for the given common type.
+   *
+   * @param type the common type to lookup
+   * @return an instance of {@link JType}
+   * @throws JTypeLookupException if there is no {@link JType} for this type.
+   */
   @Nonnull
   public JType getType(@Nonnull CommonType type) throws JTypeLookupException {
      return commonTypesCache.getType(type);
   }
 
   /**
-   * Find a {@link JArrayType} from its leaf type and dimension.
+   * Finds a {@link JArrayType} from its leaf type and dimension.
+   *
    * @param leafType Requested leaf type
    * @param dimension Dimension for this array.
    * @return An instance of a {@code leafType} JArrayType of dimension {@code dimension}
@@ -203,20 +277,37 @@ public abstract class JLookup {
     return type;
   }
 
+  /**
+   * Finds a {@link JArrayType} for the given type name.
+   *
+   * @param typeSignature the signature of the array type (of the form
+   *        {@code '[Lfoo/Bar;'}, multiple '[' for multi-dimensional arrays)
+   * @return an instance of {@link JArrayType} for this type name
+   * @throws JTypeLookupException if there is no {@link JArrayType} for this type name
+   */
   @Nonnull
-  protected JArrayType findArrayType(@Nonnull String typeName) throws JTypeLookupException {
-    int typeNameLength = typeName.length();
-    assert typeNameLength > 0 && typeName.charAt(0) == '[';
+  protected JArrayType findArrayType(@Nonnull String typeSignature) throws JTypeLookupException {
+    int typeNameLength = typeSignature.length();
+    assert typeNameLength > 0 && typeSignature.charAt(0) == '[';
 
     int dim = 0;
     do {
       dim++;
       assert dim < typeNameLength;
-    } while (typeName.charAt(dim) == '[');
+    } while (typeSignature.charAt(dim) == '[');
 
-    return getArrayType(getType(typeName.substring(dim)), dim);
+    return getArrayType(getType(typeSignature.substring(dim)), dim);
   }
 
+  /**
+   * Finds a non-array {@link JReferenceType} for the given signature and adapter.
+   *
+   * @param <T> the expected {@link JReferenceType}
+   * @param signature the signature of the type of the form {@code Ljava/lang/String;}
+   * @param adapter an {@link Adapter} for this lookup
+   * @return the corresponding reference type.
+   * @throws MissingJTypeLookupException if there is no non-array type for this signature
+   */
   protected <T extends JReferenceType> T getNonArrayType(
       @Nonnull String signature,
       @Nonnull Adapter<T> adapter) throws MissingJTypeLookupException {
@@ -233,6 +324,14 @@ public abstract class JLookup {
     return type;
   }
 
+  /**
+   * Finds a {@link JPackage} for the given package name and adapter.
+   *
+   * @param packageName the name of the package (of the form {@code 'a/b/c'})
+   * @param adapter an {@link Adapter} for this lookup
+   * @return an instance of {@link JPackage}
+   * @throws JPackageLookupException if there is no corresponding {@link JPackage}
+   */
   @Nonnull
   protected JPackage getPackage(@Nonnull String packageName,
       @Nonnull Adapter<? extends JType> adapter)
@@ -259,6 +358,14 @@ public abstract class JLookup {
     }
   }
 
+  /**
+   * Finds a class or interface for the given signature and adapter.
+   *
+   * @param signature the type signature. It is of the form 'Ljava/lang/String;'
+   * @param adapter an {@link Adapter} for this lookup
+   * @return a class or interface, instance of a subclass of {@link JType}
+   * @throws MissingJTypeLookupException if there is no corresponding class or interface
+   */
   @Nonnull
   private <T extends JType> T findClassOrInterface(@Nonnull String signature,
       @Nonnull Adapter<T> adapter) throws MissingJTypeLookupException {

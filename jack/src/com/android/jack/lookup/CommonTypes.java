@@ -24,8 +24,10 @@ import javax.annotation.Nonnull;
 
 /**
  * This class lists common java types to lookup.
+ *
+ * @see JLookup
  */
-public class CommonTypes {
+public abstract class CommonTypes {
 
   private static final String JAVA_LANG_ASSERTION_ERROR_SIGNATURE = "Ljava/lang/AssertionError;";
   private static final String JAVA_UTIL_CONCURRENT_ATOMIC_ATOMICREFERENCEFIELDUPDATER_SIGNATURE =
@@ -53,6 +55,7 @@ public class CommonTypes {
   private static final String JAVA_LANG_LONG_SIGNATURE = "Ljava/lang/Long;";
   private static final String JAVA_LANG_VOID_SIGNATURE = "Ljava/lang/Void;";
 
+  @Nonnull
   private static final TypeFormatter formatter = Jack.getLookupFormatter();
 
   /** Common type identifier */
@@ -98,32 +101,102 @@ public class CommonTypes {
     }
   }
 
+  /** Common type for {@code java.lang.AssertionError} class. */
+  @Nonnull
   public static final CommonType JAVA_LANG_ASSERTION_ERROR = CommonType.ASSERTION_ERROR;
+
+  /** Common type for {@code java.util.concurrent.atomic.AtomicReferenceFieldUpdater} class. */
+  @Nonnull
   public static final CommonType JAVA_UTIL_CONCURRENT_ATOMIC_ATOMICREFERENCEFIELDUPDATER =
       CommonType.ATOMICREFERENCEFIELDUPDATER;
+
+  /** Common type for {@code java.util.concurrent.atomic.AtomicIntegerFieldUpdater} class. */
+  @Nonnull
   public static final CommonType JAVA_UTIL_CONCURRENT_ATOMIC_ATOMICINTEGERFIELDUPDATER =
       CommonType.ATOMIC_ATOMICINTEGERFIELDUPDATER;
+
+  /** Common type for {@code java.util.concurrent.atomic.AtomicLongFieldUpdater} class. */
+  @Nonnull
   public static final CommonType JAVA_UTIL_CONCURRENT_ATOMIC_ATOMICLONGFIELDUPDATER =
       CommonType.ATOMIC_ATOMICLONGFIELDUPDATER;
+
+  /** Common type for {@code java.lang.String} class. */
+  @Nonnull
   public static final CommonType JAVA_LANG_STRING = CommonType.STRING;
+
+  /** Common type for {@code java.lang.StringBuilder} class. */
+  @Nonnull
   public static final CommonType JAVA_LANG_STRING_BUILDER = CommonType.STRING_BUILDER;
+
+  /** Common type for {@code java.lang.NullPointerException} class. */
+  @Nonnull
   public static final CommonType JAVA_LANG_NULL_POINTER_EXCEPTION =
       CommonType.NULL_POINTER_EXCEPTION;
+
+  /** Common type for {@code java.lang.Class} class. */
+  @Nonnull
   public static final CommonType JAVA_LANG_CLASS = CommonType.CLASS;
+
+  /** Common type for {@code java.lang.Enum} class. */
+  @Nonnull
   public static final CommonType JAVA_LANG_ENUM = CommonType.ENUM;
+
+  /** Common type for {@code java.lang.Object} class. */
+  @Nonnull
   public static final CommonType JAVA_LANG_OBJECT = CommonType.OBJECT;
+
+  /** Common type for {@code java.io.Serializable} class. */
+  @Nonnull
   public static final CommonType JAVA_IO_SERIALIZABLE = CommonType.SERIALIZABLE;
+
+  /** Common type for {@code java.lang.Cloneable} class. */
+  @Nonnull
   public static final CommonType JAVA_LANG_CLONEABLE = CommonType.CLONEABLE;
+
+  /** Common type for {@code java.lang.Boolean} class. */
+  @Nonnull
   public static final CommonType JAVA_LANG_BOOLEAN = CommonType.BOOLEAN;
+
+  /** Common type for {@code java.lang.Byte} class. */
+  @Nonnull
   public static final CommonType JAVA_LANG_BYTE = CommonType.BYTE;
+
+  /** Common type for {@code java.lang.Character} class. */
+  @Nonnull
   public static final CommonType JAVA_LANG_CHAR = CommonType.CHAR;
+
+  /** Common type for {@code java.lang.Short} class. */
+  @Nonnull
   public static final CommonType JAVA_LANG_SHORT = CommonType.SHORT;
+
+  /** Common type for {@code java.lang.Integer} class. */
+  @Nonnull
   public static final CommonType JAVA_LANG_INTEGER = CommonType.INTEGER;
+
+  /** Common type for {@code java.lang.Float} class. */
+  @Nonnull
   public static final CommonType JAVA_LANG_FLOAT = CommonType.FLOAT;
+
+  /** Common type for {@code java.lang.Double} class. */
+  @Nonnull
   public static final CommonType JAVA_LANG_DOUBLE = CommonType.DOUBLE;
+
+  /** Common type for {@code java.lang.Long} class. */
+  @Nonnull
   public static final CommonType JAVA_LANG_LONG = CommonType.LONG;
+
+  /** Common type for {@code java.lang.Void} class. */
+  @Nonnull
   public static final CommonType JAVA_LANG_VOID = CommonType.VOID;
 
+
+  /**
+   * Indicates whether the given {@link CommonType} and {@link JType} represent the same type.
+   *
+   * @param commonType a {@link CommonType}
+   * @param type a {@link JType}
+   * @return {@code true} if they represent the same type, {@code false} otherwise.
+   */
   public static boolean isCommonType(@Nonnull CommonType commonType, @Nonnull JType type) {
     return commonType.getSignature().equals(formatter.getName(type));
   }

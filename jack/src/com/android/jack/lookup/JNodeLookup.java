@@ -26,6 +26,7 @@ import com.android.jack.ir.ast.JNullType;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JPackageLookupException;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.sched.util.log.Tracer;
@@ -40,7 +41,13 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 
 /**
- * Jack lookup.
+ * A class to lookup types in Jack.
+ *
+ * <p>A lookup succeeds if the type exists in Jack, either coming from the source files being
+ * compiled or from a library on the classpath or an imported library. Otherwise, the lookup fails
+ * by throwing a {@link JTypeLookupException}.
+ *
+ * @see JSession#getLookup
  */
 public class JNodeLookup extends JLookup {
   @Nonnull
@@ -106,11 +113,11 @@ public class JNodeLookup extends JLookup {
 
   @Override
   @Nonnull
-  public JType getType(@Nonnull String typeName) throws JTypeLookupException {
+  public JType getType(@Nonnull String typeSignature) throws JTypeLookupException {
 
     Percent statistic = tracer.getStatistic(SUCCESS_LOOKUP);
     statistic.addFalse();
-    JType result = getType(typeName, adapter);
+    JType result = getType(typeSignature, adapter);
     statistic.removeFalse();
     statistic.addTrue();
     return result;
@@ -118,8 +125,8 @@ public class JNodeLookup extends JLookup {
 
   @Override
   @Nonnull
-  public JDefinedClass getClass(@Nonnull String typeName) throws JTypeLookupException {
-    JType type = getType(typeName);
+  public JDefinedClass getClass(@Nonnull String typeSignature) throws JTypeLookupException {
+    JType type = getType(typeSignature);
     if (type instanceof JDefinedClass) {
       return (JDefinedClass) type;
     } else {
@@ -129,8 +136,8 @@ public class JNodeLookup extends JLookup {
 
   @Override
   @Nonnull
-  public JDefinedInterface getInterface(@Nonnull String typeName) throws JTypeLookupException {
-    JType type = getType(typeName);
+  public JDefinedInterface getInterface(@Nonnull String typeSignature) throws JTypeLookupException {
+    JType type = getType(typeSignature);
     if (type instanceof JDefinedInterface) {
       return (JDefinedInterface) type;
     } else {
@@ -144,9 +151,9 @@ public class JNodeLookup extends JLookup {
 
   @Override
   @Nonnull
-  public JDefinedAnnotationType getAnnotationType(@Nonnull String typeName)
+  public JDefinedAnnotationType getAnnotationType(@Nonnull String signature)
       throws JTypeLookupException {
-    JType type = getType(typeName);
+    JType type = getType(signature);
     if (type instanceof JDefinedAnnotationType) {
       return (JDefinedAnnotationType) type;
     } else {
@@ -156,8 +163,8 @@ public class JNodeLookup extends JLookup {
 
   @Override
   @Nonnull
-  public JDefinedEnum getEnum(@Nonnull String typeName) throws JTypeLookupException {
-    JType type = getType(typeName);
+  public JDefinedEnum getEnum(@Nonnull String typeSignature) throws JTypeLookupException {
+    JType type = getType(typeSignature);
     if (type instanceof JDefinedEnum) {
       return (JDefinedEnum) type;
     } else {

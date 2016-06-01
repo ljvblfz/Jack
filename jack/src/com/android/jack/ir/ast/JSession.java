@@ -164,11 +164,28 @@ public class JSession extends JNode {
     this.inputFilter = inputFilter;
   }
 
+  /**
+   * Returns the {@link JNodeLookup} instance for this session.
+   *
+   * It is recommended to use that lookup when searching a type must fail if that type does not
+   * exist in Jack.
+   *
+   * @return a {@link JNodeLookup} instance.
+   */
   @Nonnull
   public JNodeLookup getLookup() {
     return lookup;
   }
 
+  /**
+   * Returns the {@link JPhantomLookup} instance for this session.
+   *
+   * It is recommended to use that lookup when searching a type must never fail,
+   * even if that type does not exist in Jack. In that case, a {@link JPhantomClassOrInterface}
+   * will be created to represent this type.
+   *
+   * @return a {@link JPhantomLookup} instance.
+   */
   @Nonnull
   public JPhantomLookup getPhantomLookup() {
     return phantomLookup;
