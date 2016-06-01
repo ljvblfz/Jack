@@ -615,6 +615,12 @@ public class ReferenceMapper {
     return bindingSignature.equals(lookupFormater.getName(method));
   }
 
+  static SourceInfo makeSourceInfo(@Nonnull CudInfo cuInfo, @Nonnull AbstractMethodDeclaration x,
+      @Nonnull SourceInfoFactory factory) {
+    return JackIrBuilder.makeSourceInfo(cuInfo, x.declarationSourceStart, x.declarationSourceEnd,
+        factory);
+  }
+
   static SourceInfo makeSourceInfo(@Nonnull CudInfo cuInfo, @Nonnull ASTNode x,
       @Nonnull SourceInfoFactory factory) {
     return JackIrBuilder.makeSourceInfo(cuInfo, x.sourceStart, x.sourceEnd, factory);
