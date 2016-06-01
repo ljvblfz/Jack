@@ -1203,8 +1203,6 @@ public class Options {
       // be enabled because it will generates non-deterministic code. This has to be done after
       // -D options are set
       configBuilder.set(OPTIMIZED_ENUM_SWITCH.getName(), SwitchEnumOptStrategy.NEVER);
-      LoggerFactory.getLogger().log(
-          Level.WARNING, "Switch enum optimization is disabled due to incremental compilation");
     }
 
     configBuilder.processEnvironmentVariables("JACK_CONFIG_");

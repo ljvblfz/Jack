@@ -683,15 +683,13 @@ public abstract class Jack {
             request.addFeature(TypeDefRemover.RemoveTypeDef.class);
           }
 
-          // TODO(jack-team): Remove this hack
           List<InputLibrary> importedLibraries = session.getImportedLibraries();
-          boolean preDexing = !importedLibraries.isEmpty();
           for (InputLibrary il : importedLibraries) {
             if (!il.containsFileType(FileType.PREBUILT)) {
-              preDexing = false;
+              logger.log(Level.INFO,
+                  il.getLocation().getDescription() + " does not have prebuilts.");
             }
           }
-          logger.log(Level.INFO, "Jack pre-dexing is " + (preDexing ? "enabled" : "disabled"));
 
           Percent incompatiblePredexStatistic = tracer.getStatistic(INCOMPATIBLE_PREDEX);
           boolean usePrebuilt = config.get(Options.USE_PREBUILT_FROM_LIBRARY).booleanValue();
