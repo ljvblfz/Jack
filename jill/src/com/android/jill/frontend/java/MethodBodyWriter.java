@@ -942,6 +942,19 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         // variable is not possible since type could be lost due to merging.
         Variable declaringCatchVariable = catchBlockToCatchedVariable.get(tryCatchNode);
 
+        // Compute line of catch block, currentLine contains the end of catch block but Jill needs
+        // the line that start the catch block. Go ahead on pseudo instructions to find the line
+        // number of the first instruction that belongs to the catch block, Opcode == -1 means
+        // pseudo instruction (LineNumber, Frame, Label). Keep the current line unchanged if
+        // no line number found before the first concrete instruction.
+        AbstractInsnNode insnIntoCatch = tryCatchNode.handler.getNext();
+        while (insnIntoCatch != null && insnIntoCatch.getOpcode() == -1) {
+          if (insnIntoCatch instanceof LineNumberNode) {
+            currentLine = ((LineNumberNode) insnIntoCatch).line;
+          }
+          insnIntoCatch = insnIntoCatch.getNext();
+        }
+
         sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
         writer.writeCatchBlockIds(currentCatchList);
         writer.writeKeyword(Token.CATCH_BLOCK);
