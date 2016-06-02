@@ -16,6 +16,7 @@
 
 package com.android.jack.server.tasks;
 
+import com.android.jack.api.cli02.Cli02Config;
 import com.android.jack.api.v01.Cli01Config;
 import com.android.jack.server.JackHttpServer;
 import com.android.jack.server.type.CommandOutBase64;
@@ -48,6 +49,12 @@ public class JackTaskBase64Out extends JackTask<CommandOutBase64> {
   protected CommandOutBase64 createCommandOut(Response response, Charset outCharset)
       throws IOException {
     return new CommandOutBase64(response.getPrintStream(), outCharset);
+  }
+
+  @Override
+  protected void installJackOutErr(Cli02Config jack, CommandOutBase64 commandOut) {
+    jack.setStandardError(commandOut.getErr());
+    jack.setStandardOutput(commandOut.getOut());
   }
 
 }

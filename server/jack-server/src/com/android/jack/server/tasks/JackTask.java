@@ -20,6 +20,8 @@ import com.google.common.base.Splitter;
 
 import com.android.jack.api.ConfigNotSupportedException;
 import com.android.jack.api.JackProvider;
+import com.android.jack.api.cli02.Cli02Config;
+import com.android.jack.api.v01.Cli01CompilationTask;
 import com.android.jack.api.v01.Cli01Config;
 import com.android.jack.api.v01.ConfigurationException;
 import com.android.jack.api.v01.UnrecoverableException;
@@ -109,7 +111,6 @@ abstract class JackTask<T extends CommandOut> extends SynchronousServiceTask {
       return;
     }
 
-    Cli01Config jack;
     Program<JackProvider> program;
     try {
       program = jackServer.selectJack(versionFinder);
@@ -117,20 +118,6 @@ abstract class JackTask<T extends CommandOut> extends SynchronousServiceTask {
       logger.log(Level.SEVERE, "Failed to load Jack", e);
       response.setContentLength(0);
       response.setStatus(Status.BAD_REQUEST);
-      return;
-    }
-    try {
-      JackProvider jackProvider = jackServer.getProvider(program);
-      jack = jackProvider.createConfig(Cli01Config.class);
-    } catch (ConfigNotSupportedException e) {
-      logger.log(Level.SEVERE, e.getMessage(), e);
-      response.setContentLength(0);
-      response.setStatus(Status.BAD_REQUEST);
-      return;
-    } catch (UnsupportedProgramException e) {
-      logger.log(Level.SEVERE, e.getMessage(), e);
-      response.setContentLength(0);
-      response.setStatus(Status.INTERNAL_SERVER_ERROR);
       return;
     }
 
@@ -162,10 +149,39 @@ abstract class JackTask<T extends CommandOut> extends SynchronousServiceTask {
         logger.log(Level.INFO, "Run Compilation #" + taskId + " with Jack "
             + version.getVerboseVersion()
             + " (" + version.getReleaseCode() + "." + version.getSubReleaseCode() + ")");
-        installJackOutErr(jack, commandOut);
-        jack.setWorkingDirectory(pwd);
+
+        Cli01CompilationTask jackTask;
+        try {
+          JackProvider jackProvider = jackServer.getProvider(program);
+          try {
+          Cli02Config jack = jackProvider.createConfig(Cli02Config.class);
+          installJackOutErr(jack, commandOut);
+          jack.setWorkingDirectory(pwd);
+          jackTask = jack.getTask(command);
+        } catch (ConfigNotSupportedException e) {
+          try {
+          Cli01Config jack = jackProvider.createConfig(Cli01Config.class);
+          installJackOutErr(jack, commandOut);
+          jack.setWorkingDirectory(pwd);
+          jackTask = jack.getTask(command);
+          } catch (ConfigNotSupportedException e2) {
+
+          logger.log(Level.SEVERE, e2.getMessage(), e2);
+          response.setContentLength(0);
+          response.setStatus(Status.BAD_REQUEST);
+          return;
+          }
+        }
+        } catch (UnsupportedProgramException e) {
+          logger.log(Level.SEVERE, e.getMessage(), e);
+          response.setContentLength(0);
+          response.setStatus(Status.INTERNAL_SERVER_ERROR);
+          return;
+        }
+
+
         start = System.currentTimeMillis();
-        commandStatus = jack.getTask(command).run();
+        commandStatus = jackTask.run();
       } catch (ConfigurationException e) {
         err.println("ERROR: Configuration: " + e.getMessage());
       } catch (IllegalStateException e) {
@@ -192,6 +208,10 @@ abstract class JackTask<T extends CommandOut> extends SynchronousServiceTask {
     }
     response.setStatus(Status.OK);
   }
+
+  protected abstract void installJackOutErr(
+      @Nonnull Cli02Config jack,
+      @Nonnull T commandOut);
 
   protected abstract void installJackOutErr(
       @Nonnull Cli01Config jack,
