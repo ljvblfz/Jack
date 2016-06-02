@@ -23,8 +23,9 @@ import com.android.sched.transform.TransformStep;
 import javax.annotation.Nonnull;
 
 /**
- * A {@code TransformationStep} allowing to add a {@link JNameValuePair}
- * in a {@link JAnnotation}.
+ * A {@link TransformationStep} allowing to add a {@link JNameValuePair} in a {@link JAnnotation}.
+ *
+ * @see PutNameValuePair
  */
 public class AddNameValuePair implements TransformationStep, TransformStep {
   @Nonnull
@@ -32,6 +33,12 @@ public class AddNameValuePair implements TransformationStep, TransformStep {
   @Nonnull
   private final JNameValuePair pair;
 
+  /**
+   * Constructor specifying a name-value pair to add to an annotation.
+   *
+   * @param annotation the annotation to update
+   * @param nameValuePair the name-value pair to add to the annotation
+   */
   public AddNameValuePair(@Nonnull JAnnotation annotation,
       @Nonnull JNameValuePair nameValuePair) {
     this.annotation = annotation;

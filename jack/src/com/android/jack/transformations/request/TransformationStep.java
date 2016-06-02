@@ -21,7 +21,11 @@ package com.android.jack.transformations.request;
  * A transformation that can be scheduled in a {@link TransformationRequest}
  */
 public interface TransformationStep {
-
+  /**
+   * Applies this transformation step.
+   *
+   * @throws UnsupportedOperationException if the transformation cannot be applied
+   */
   void apply() throws UnsupportedOperationException;
 
 }

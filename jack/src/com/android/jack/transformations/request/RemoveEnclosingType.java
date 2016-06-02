@@ -22,7 +22,7 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import javax.annotation.Nonnull;
 
 /**
- * A {@code TransformationStep} allowing to remove the enclosing type of a
+ * A {@link TransformationStep} allowing to remove the enclosing type of a
  * {@link JDefinedClassOrInterface}.
  */
 public class RemoveEnclosingType implements TransformationStep {
@@ -30,6 +30,11 @@ public class RemoveEnclosingType implements TransformationStep {
   @Nonnull
   private final JDefinedClassOrInterface type;
 
+  /**
+   * Constructor specifying the {@code type} whose enclosing type is removed.
+   *
+   * @param type the type to update
+   */
   public RemoveEnclosingType(@Nonnull JDefinedClassOrInterface type) {
     this.type = type;
   }

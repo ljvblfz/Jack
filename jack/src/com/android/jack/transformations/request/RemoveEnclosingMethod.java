@@ -21,7 +21,7 @@ import com.android.jack.ir.ast.JDefinedClass;
 import javax.annotation.Nonnull;
 
 /**
- * A {@code TransformationStep} allowing to remove the enclosing method of a
+ * A {@link TransformationStep} allowing to remove the enclosing method of a
  * {@link JDefinedClass}.
  */
 public class RemoveEnclosingMethod implements TransformationStep {
@@ -29,6 +29,11 @@ public class RemoveEnclosingMethod implements TransformationStep {
   @Nonnull
   private final JDefinedClass type;
 
+  /**
+   * Constructor specifying the {@code type} whose enclosing method is removed.
+   *
+   * @param type the type to update
+   */
   public RemoveEnclosingMethod(@Nonnull JDefinedClass type) {
     this.type = type;
   }

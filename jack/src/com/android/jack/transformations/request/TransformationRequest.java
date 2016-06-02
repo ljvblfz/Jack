@@ -16,6 +16,8 @@
 
 package com.android.jack.transformations.request;
 
+import com.android.jack.ir.ast.JDefinedClassOrInterface;
+import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNode;
 
 import java.util.Collection;
@@ -33,10 +35,30 @@ public class TransformationRequest {
   @CheckForNull
   private List<TransformationStep> requests = new LinkedList<TransformationStep>();
 
+  /**
+   * Constructor specifying the root node of the transformations. The root node should be the most
+   * common parent to the transformations.
+   *
+   * Here are some examples of root nodes:
+   * <ul>
+   * <li>When transformations apply on code, the root node should be the {@link JMethod} that is
+   * affected by these transformations.</li>
+   * <li>When adding fields or methods to a class, the root node should be the
+   * {@link JDefinedClassOrInterface} that is affected.</li>
+   * </ul>
+   *
+   * @param root a non-null {@link JNode}
+   */
   public TransformationRequest(@Nonnull JNode root) {
     assert root != null;
   }
 
+  /**
+   * Appends a {@link TransformationStep} to this request.
+   *
+   * @param step a transformation step
+   * @throws IllegalStateException if the request has already been applied with {@link #commit}
+   */
   public void append(@Nonnull TransformationStep step) {
     if (requests == null) {
       throw new IllegalStateException("The request has already been applied");
@@ -45,6 +67,12 @@ public class TransformationRequest {
     requests.add(step);
   }
 
+  /**
+   * Appends a collection of {@link TransformationStep} to this request.
+   *
+   * @param steps a collection of transformation steps
+   * @throws IllegalStateException if the request has already been applied with {@link #commit}
+   */
   public void appendAll(Collection<TransformationStep> steps) {
     if (requests == null) {
       throw new IllegalStateException("The request has already been applied");
@@ -54,7 +82,11 @@ public class TransformationRequest {
   }
 
   /**
-   * @Throws {@link UnsupportedOperationException} if a transformation can not be applied.
+   * Applies each {@link TransformationStep} added to this transformation request. The
+   * transformation steps are applied in the order that they have been added. After the
+   * commit, the transformation request cannot be used.
+   *
+   * @throws UnsupportedOperationException if a transformation cannot be applied.
    */
   public void commit() throws UnsupportedOperationException {
     if (requests == null) {

@@ -22,8 +22,10 @@ import com.android.sched.transform.TransformStep;
 import javax.annotation.Nonnull;
 
 /**
- * A {@code TransformationStep} allowing to insert a {@code JNode} just before an existing
- * {@code JNode} in the existing {@code JNode} parent.
+ * A {@link TransformationStep} allowing to insert a {@link JNode} just before an existing
+ * {@link JNode} in the existing {@link JNode} parent.
+ *
+ * @see PrependAfter
  */
 public class AppendBefore implements TransformationStep, TransformStep {
   @Nonnull
@@ -32,6 +34,12 @@ public class AppendBefore implements TransformationStep, TransformStep {
   @Nonnull
   private final JNode newNode;
 
+  /**
+   * Constructor specifying the new node to insert before the existing node.
+   *
+   * @param existingNode the existing node that will follow the new node
+   * @param newNode the new node to be inserted before the existing node
+   */
   public AppendBefore(@Nonnull JNode existingNode, @Nonnull JNode newNode) {
     assert existingNode != null;
     assert newNode != null;

@@ -24,7 +24,7 @@ import javax.annotation.Nonnull;
 
 /**
  * A {@link TransformationStep} allowing to insert a {@link JLocal} in the given {@link JMethodBody}
- * and set the {@code JMethodBody} as the {@code JLocal}'s parent.
+ * and set the {@link JMethodBody} as the {@link JLocal}'s parent.
  */
 public class AddJLocalInMethodBody implements TransformationStep, TransformStep {
 
@@ -33,6 +33,12 @@ public class AddJLocalInMethodBody implements TransformationStep, TransformStep 
   @Nonnull
   private final JMethodBody methodBody;
 
+  /**
+   * Constructor specifying the {@link JLocal} to add into the {@link JMethodBody}.
+   *
+   * @param local the local variable to add to the method body
+   * @param methodBody the body of the method to update
+   */
   public AddJLocalInMethodBody(@Nonnull JLocal local, @Nonnull JMethodBody methodBody) {
     this.local = local;
     this.methodBody = methodBody;
