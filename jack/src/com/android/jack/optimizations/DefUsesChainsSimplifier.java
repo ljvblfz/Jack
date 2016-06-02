@@ -434,7 +434,8 @@ public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
     TransformationRequest tr = new TransformationRequest(method);
 
     for (DefinitionMarker aDef : info.aVarInfo.defs) {
-      JVariableRef bRefNew = getNewVarRef(bDef.getDefinedExpr());
+      JVariableRef bRefNew =
+          getNewVarRef(bDef.getDefinedExpr(), aDef.getDefinedExpr().getSourceInfo());
       tr.append(new Replace(aDef.getDefinedExpr(), bRefNew));
 
       // Definition of 'a' is becoming a definition of 'b'

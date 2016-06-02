@@ -125,7 +125,7 @@ public class UseDefsChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
             }
 
             JVariableRef varRefb = (JVariableRef) defOfa.getValue();
-            JVariableRef newVarRefb = getNewVarRef(varRefb);
+            JVariableRef newVarRefb = getNewVarRef(varRefb, varRefOfa.getSourceInfo());
 
             UseDefsMarker udmOfNewVarRefb = new UseDefsMarker();
             udmOfNewVarRefb.addUsedDefinitions(OptimizationTools.getUsedDefinitions(varRefb),

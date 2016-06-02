@@ -24,6 +24,7 @@ import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVariableRef;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.util.ThreeAddressCodeFormUtils;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
@@ -44,9 +45,10 @@ import javax.annotation.Nonnull;
 public abstract class DefUsesAndUseDefsChainsSimplifier {
 
   @Nonnull
-  protected JVariableRef getNewVarRef(@Nonnull JNode defExpr) {
+  protected JVariableRef getNewVarRef(@Nonnull JNode defExpr, @Nonnull SourceInfo sourceInfo) {
     assert defExpr instanceof JVariableRef;
-    JVariableRef newVarRef = ((JVariableRef) defExpr).getTarget().makeRef(defExpr.getSourceInfo());
+    JVariableRef newVarRef =
+        ((JVariableRef) defExpr).getTarget().makeRef(sourceInfo);
     DebugVariableInfoMarker debugInfo = defExpr.getMarker(DebugVariableInfoMarker.class);
     if (debugInfo != null) {
       newVarRef.addMarker(debugInfo);
