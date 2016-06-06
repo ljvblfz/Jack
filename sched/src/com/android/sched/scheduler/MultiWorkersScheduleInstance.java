@@ -730,19 +730,22 @@ public class MultiWorkersScheduleInstance<T extends Component>
 
       if (deadlockedThreadIds != null && deadlockedThreadIds.length > 0) {
         if (activeWorkers.size() > 0) {
-          // Remove deadlocked threads or thread waiting for deadlocked threads from active workers
+          // Browse active workers ...
           Iterator<Worker> iter = activeWorkers.iterator();
           while (iter.hasNext()) {
             Worker worker = iter.next();
 
             for (long id : deadlockedThreadIds) {
+              // ... to remove deadlocked threads from active workers
               if (worker.getId() == id) {
                 blockedWorkers.add(worker);
                 iter.remove();
                 break;
               }
 
-              if (threadManager.getThreadInfo(worker.getId()).getLockOwnerId() == id) {
+              // ... to remove thread waiting for deadlocked threads from active workers
+              ThreadInfo ti = threadManager.getThreadInfo(worker.getId());
+              if (ti != null && ti.getLockOwnerId() == id) {
                 blockedWorkers.add(worker);
                 iter.remove();
                 break;
