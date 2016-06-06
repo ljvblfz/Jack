@@ -41,16 +41,12 @@ public class NoInputFilter extends CommonFilter implements InputFilter {
   private final Set<String> fileNamesToCompile;
 
   @Nonnull
-  private final Options options;
-
-  @Nonnull
   private final List<? extends InputLibrary> importedLibrariesFromCommandLine;
 
   @Nonnull
   private final List<? extends InputLibrary> librariesOnClasspathFromCommandLine;
 
   public NoInputFilter(@Nonnull Options options) {
-    this.options = options;
     this.fileNamesToCompile = getJavaFileNamesSpecifiedOnCommandLine(options);
     JSession session = Jack.getSession();
     session.setFileDependencies(new FileDependencies());

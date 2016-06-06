@@ -112,9 +112,6 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   "jack.incremental.source", "Source files to compile",
   CounterImpl.class, Counter.class);
 
-  @Nonnull
-  private final Options options;
-
   @CheckForNull
   private final InputJackLibrary incrementalInputLibrary;
 
@@ -154,7 +151,6 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   public IncrementalInputFilter(@Nonnull Options options) {
     Config config = ThreadConfig.getConfig();
 
-    this.options = options;
     incrementalInputLibrary = getIncrementalInternalLibrary();
 
     fileNamesOnCmdLine = getJavaFileNamesSpecifiedOnCommandLine(options);
