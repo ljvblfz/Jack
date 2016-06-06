@@ -18,14 +18,18 @@ package com.android.sched.util.codec;
 
 
 import com.android.sched.util.config.ConfigurationError;
+import com.android.sched.util.file.CannotChangePermissionException;
+import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.Directory;
+import com.android.sched.util.file.FileAlreadyExistsException;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotDirectoryException;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.vfs.CachedDirectFS;
 import com.android.sched.vfs.VFS;
-
-import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
@@ -98,7 +102,8 @@ public class DirectFSCodec extends FileOrDirCodec<VFS> {
     try {
       return new CachedDirectFS(new Directory(context.getWorkingDirectory(), string,
           context.getRunnableHooks(), existence, permissions, change), permissions);
-    } catch (IOException e) {
+    } catch (CannotChangePermissionException | NotDirectoryException | WrongPermissionException
+        | NoSuchFileException | FileAlreadyExistsException | CannotCreateFileException e) {
       throw new ParsingException(e);
     }
   }

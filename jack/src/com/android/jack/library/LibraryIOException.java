@@ -19,8 +19,6 @@ package com.android.jack.library;
 import com.android.jack.LibraryException;
 import com.android.sched.util.location.Location;
 
-import java.io.IOException;
-
 import javax.annotation.Nonnull;
 
 /**
@@ -33,7 +31,7 @@ public class LibraryIOException extends LibraryException {
   @Nonnull
   private final Location location;
 
-  public LibraryIOException(@Nonnull Location location, @Nonnull IOException cause) {
+  public LibraryIOException(@Nonnull Location location, @Nonnull Exception cause) {
     super(cause);
     this.location = location;
   }

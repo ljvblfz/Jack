@@ -30,6 +30,8 @@ import com.android.jack.test.TestsProperties;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.util.ExecFileException;
 import com.android.jack.test.util.ExecuteFile;
+import com.android.sched.util.file.CannotChangePermissionException;
+import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.findbugs.SuppressFBWarnings;
 
 import java.io.BufferedReader;
@@ -310,7 +312,7 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
         throw new RuntimeRunnerException(e);
       } catch (ShellCommandUnresponsiveException e) {
         throw new RuntimeRunnerException(e);
-      } catch (IOException e) {
+      } catch (CannotChangePermissionException | CannotCreateFileException | IOException e) {
         throw new RuntimeRunnerException(e);
       } catch (SyncException e) {
         throw new RuntimeRunnerException(e);

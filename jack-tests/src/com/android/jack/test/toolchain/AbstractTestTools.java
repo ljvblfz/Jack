@@ -346,7 +346,7 @@ public abstract class AbstractTestTools {
 
   @Nonnull
   public static File createTempDir() throws CannotCreateFileException,
-      CannotChangePermissionException, WrongPermissionException, IOException {
+      CannotChangePermissionException, IOException {
     try {
       final File tmpDir = Files.createTempDir(TMP_PREFIX);
       Runtime.getRuntime().addShutdownHook(new Thread() {

@@ -21,6 +21,7 @@ import com.android.jill.Options;
 import com.android.jill.api.v01.Cli01Config;
 import com.android.jill.api.v01.Cli01TranslationTask;
 import com.android.jill.api.v01.ConfigurationException;
+import com.android.sched.util.file.WithLocationIOException;
 
 import org.kohsuke.args4j.CmdLineException;
 
@@ -52,7 +53,7 @@ public class Cli01ConfigImpl implements Cli01Config {
       return new Cli01TranslationTaskImpl(options);
     } catch (CmdLineException e) {
       throw new ConfigurationException(e.getMessage(), e);
-    } catch (IOException e) {
+    } catch (IOException | WithLocationIOException e) {
       throw new ConfigurationException(e.getMessage(), e);
     }
   }

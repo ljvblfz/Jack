@@ -86,7 +86,10 @@ import com.android.sched.util.config.id.ListPropertyId;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.config.id.ReflectFactoryPropertyId;
+import com.android.sched.util.file.CannotChangePermissionException;
+import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.Directory;
+import com.android.sched.util.file.FileAlreadyExistsException;
 import com.android.sched.util.file.FileOrDirectory;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
@@ -1385,7 +1388,9 @@ public class Options {
           ChangePermission.NOCHANGE);
       hooks.addHook(new TempDirDeleter(dir));
       return dir;
-    } catch (IOException e) {
+    } catch (CannotChangePermissionException | CannotCreateFileException
+        | FileAlreadyExistsException | NotDirectoryException | NoSuchFileException
+        | WrongPermissionException e) {
       throw new JackUserException(e);
     }
   }

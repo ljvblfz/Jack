@@ -16,20 +16,22 @@
 
 package com.android.sched.vfs;
 
+import com.android.sched.util.file.CannotCloseInputException;
+import com.android.sched.util.file.CannotCloseOutputException;
 import com.android.sched.util.location.HasLocation;
-
-import java.io.Closeable;
 
 import javax.annotation.Nonnull;
 
 /**
  * An output VFS.
  */
-public interface OutputVFS extends HasLocation, Closeable {
+public interface OutputVFS extends HasLocation, AutoCloseable {
   @Nonnull
   String getPath();
   @Nonnull
   OutputVDir getRootOutputVDir();
 
   boolean needsSequentialWriting();
+  @Override
+  void close() throws CannotCloseOutputException, CannotCloseInputException;
 }

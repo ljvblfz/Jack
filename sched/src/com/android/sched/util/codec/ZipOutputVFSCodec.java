@@ -17,15 +17,20 @@
 package com.android.sched.util.codec;
 
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.file.CannotChangePermissionException;
+import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.FileAlreadyExistsException;
 import com.android.sched.util.file.FileOrDirectory.Existence;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.OutputZipFile;
 import com.android.sched.util.file.OutputZipFile.Compression;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.GenericOutputVFS;
 import com.android.sched.vfs.OutputVFS;
 import com.android.sched.vfs.WriteZipFS;
 
-import java.io.IOException;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
@@ -64,7 +69,8 @@ public class ZipOutputVFSCodec extends OutputVFSCodec {
       WriteZipFS vfs = new WriteZipFS(new OutputZipFile(context.getWorkingDirectory(), string,
           hooks, existence, change, Compression.COMPRESSED));
       return new GenericOutputVFS(vfs);
-    } catch (IOException e) {
+    } catch (CannotCreateFileException | NotFileException | WrongPermissionException
+        | CannotChangePermissionException | NoSuchFileException | FileAlreadyExistsException e) {
       throw new ParsingException(e.getMessage(), e);
     }
   }

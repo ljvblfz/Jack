@@ -16,6 +16,8 @@
 
 package com.android.sched.util;
 
+import com.android.sched.util.file.CannotChangePermissionException;
+import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.findbugs.SuppressFBWarnings;
 
 import junit.framework.Assert;
@@ -82,7 +84,8 @@ public class VersionTest {
   }
 
   @Test
-  public void testBuild() throws IOException {
+  public void testBuild()
+      throws IOException, CannotCreateFileException, CannotChangePermissionException {
     Version v;
 
     v = new Version(NAME, "3.1-a", 3, 1, SubReleaseKind.ALPHA, RELEASER, BUILD, SHA);
@@ -192,7 +195,8 @@ public class VersionTest {
 
   // FINDBUGS Best effort on delete
   @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
-  private void testStoreLoad(Version v1) throws IOException {
+  private void testStoreLoad(Version v1)
+      throws IOException, CannotCreateFileException, CannotChangePermissionException {
     File file = null;
 
     try {

@@ -18,12 +18,16 @@ package com.android.sched.util.codec;
 
 
 import com.android.sched.util.config.ConfigurationError;
+import com.android.sched.util.file.CannotChangePermissionException;
+import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.Directory;
+import com.android.sched.util.file.FileAlreadyExistsException;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
-
-import java.io.IOException;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotDirectoryException;
+import com.android.sched.util.file.WrongPermissionException;
 
 import javax.annotation.Nonnull;
 
@@ -75,7 +79,8 @@ public class DirectoryCodec extends FileOrDirCodec<Directory> {
           existence,
           permissions,
           change);
-    } catch (IOException e) {
+    } catch (CannotCreateFileException | NotDirectoryException | WrongPermissionException
+        | CannotChangePermissionException | NoSuchFileException | FileAlreadyExistsException e) {
       throw new ParsingException(e.getMessage(), e);
     }
   }

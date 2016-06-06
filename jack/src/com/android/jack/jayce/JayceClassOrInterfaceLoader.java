@@ -36,6 +36,7 @@ import com.android.jack.load.JackLoadingException;
 import com.android.jack.lookup.JLookupException;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.util.NamingTools;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.Tracer;
@@ -192,7 +193,7 @@ public class JayceClassOrInterfaceLoader extends AbstractClassOrInterfaceLoader 
         NodeLevel loadLevel = getLevelForLoading(minimumLevel);
         type = JayceReaderFactory.get(inputJackLibrary, in).readType(loadLevel);
         nnode = new SoftReference<DeclaredTypeNode>(type);
-      } catch (IOException e) {
+      } catch (IOException | WrongPermissionException e) {
         throw new LibraryIOException(inputJackLibrary.getLocation(), e);
       } catch (JayceFormatException e) {
         logger.log(Level.SEVERE,

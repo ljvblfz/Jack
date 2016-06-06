@@ -21,6 +21,9 @@ import com.android.jack.library.v0003.OutputJackLibraryImpl;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.MessageDigestPropertyId;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotFileOrDirectoryException;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.GenericInputVFS;
@@ -123,7 +126,8 @@ public abstract class JackLibraryFactory {
           }
         }
       }
-    } catch (IOException e) {
+    } catch (IOException | NotFileOrDirectoryException | NoSuchFileException
+        | WrongPermissionException e) {
       throw new NotJackLibraryException(vfs.getLocation());
     }
 

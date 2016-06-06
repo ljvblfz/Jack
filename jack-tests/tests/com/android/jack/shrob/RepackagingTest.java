@@ -28,6 +28,8 @@ import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.DummyToolchain;
 import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
+import com.android.sched.util.file.CannotChangePermissionException;
+import com.android.sched.util.file.CannotCreateFileException;
 
 import org.junit.Test;
 
@@ -76,7 +78,8 @@ public class RepackagingTest extends AbstractTest {
 
   @Nonnull
   private static File replaceRepackageClassesValue(@Nonnull File inFlags,
-      @Nonnull String flagNumber) throws IOException {
+      @Nonnull String flagNumber)
+      throws IOException, CannotCreateFileException, CannotChangePermissionException {
     File result = AbstractTestTools.createTempFile("proguard" + flagNumber, ".flags" + flagNumber);
 
     List<String> lines = Files.readLines(inFlags, UTF8);

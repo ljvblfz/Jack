@@ -18,6 +18,10 @@ package com.android.jack;
 
 import com.android.jack.CLILogConfiguration.LogConfigurationException;
 import com.android.sched.util.config.cli.TokenIterator;
+import com.android.sched.util.file.CannotReadException;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotFileOrDirectoryException;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.NoLocation;
 
 import org.kohsuke.args4j.CmdLineException;
@@ -93,7 +97,8 @@ public abstract class Main extends CommandLine {
       }
 
       System.exit(ExitStatus.FAILURE_USAGE);
-    } catch (IOException e) {
+    } catch (IOException | CannotReadException | WrongPermissionException
+        | NotFileOrDirectoryException | NoSuchFileException e) {
       System.err.println(e.getMessage());
 
       System.exit(ExitStatus.FAILURE_USAGE);

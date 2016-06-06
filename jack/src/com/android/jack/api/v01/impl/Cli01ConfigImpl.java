@@ -21,6 +21,10 @@ import com.android.jack.api.v01.Cli01CompilationTask;
 import com.android.jack.api.v01.Cli01Config;
 import com.android.jack.api.v01.ConfigurationException;
 import com.android.sched.util.config.cli.TokenIterator;
+import com.android.sched.util.file.CannotReadException;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotFileOrDirectoryException;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.NoLocation;
 
 import org.kohsuke.args4j.CmdLineException;
@@ -28,7 +32,6 @@ import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.ParserProperties;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +72,8 @@ public class Cli01ConfigImpl implements Cli01Config {
 
     } catch (CmdLineException e) {
       throw new ConfigurationException(e.getMessage(), e);
-    } catch (IOException e) {
+    } catch (WrongPermissionException | NotFileOrDirectoryException | CannotReadException
+        | NoSuchFileException e) {
       throw new ConfigurationException(e.getMessage(), e);
     }
 

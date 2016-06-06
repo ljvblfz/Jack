@@ -25,6 +25,8 @@ import com.android.jack.test.comparator.ComparatorDiff;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.sched.scheduler.ScheduleInstance;
+import com.android.sched.util.file.CannotChangePermissionException;
+import com.android.sched.util.file.CannotCreateFileException;
 
 import java.io.File;
 import java.io.IOException;
@@ -68,7 +70,7 @@ public class JackDexMergerTestHelper extends SourceToDexComparisonTestHelper {
       toolchain.addProperty(ScheduleInstance.DEFAULT_RUNNER.getName(), "single-threaded");
       toolchain.addProperty(Options.LIBRARY_OUTPUT_DIR.getName(),
         internalJackOutputLib.getAbsolutePath());
-    } catch (IOException e) {
+    } catch (CannotChangePermissionException | IOException | CannotCreateFileException e) {
       throw new AssertionError(e);
     }
     return toolchain;

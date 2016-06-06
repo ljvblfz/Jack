@@ -16,8 +16,12 @@
 
 package com.android.sched.vfs;
 
+import com.android.sched.util.file.CannotCloseInputException;
+import com.android.sched.util.file.CannotCloseOutputException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
+import com.android.sched.util.file.CannotReadException;
+import com.android.sched.util.file.CannotWriteException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
@@ -130,14 +134,17 @@ abstract class BaseVFS<DIR extends BaseVDir, FILE extends BaseVFile> implements 
   }
 
   public void copy(@Nonnull VFile srcFile, @Nonnull FILE dstFile)
-      throws WrongPermissionException, IOException {
-    InputStream is = srcFile.getInputStream();
-    OutputStream os = dstFile.getOutputStream();
-    try {
-      new LocationByteStreamSucker(is, os, srcFile, dstFile).suck();
-    } finally {
-      os.close();
-      is.close();
+      throws WrongPermissionException, CannotCloseInputException, CannotCloseOutputException,
+      CannotReadException, CannotWriteException {
+
+    try (InputStream is = srcFile.getInputStream()) {
+      try (OutputStream os = dstFile.getOutputStream()) {
+        new LocationByteStreamSucker(is, os, srcFile, dstFile).suck();
+      } catch (IOException e) {
+        throw new CannotCloseOutputException(dstFile, e);
+      }
+    } catch (IOException e) {
+      throw new CannotCloseInputException(srcFile, e);
     }
   }
 }

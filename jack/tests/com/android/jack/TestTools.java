@@ -170,7 +170,7 @@ public class TestTools {
       inBr.close();
 
       return sourcelistWithAbsPath;
-    } catch (IOException e) {
+    } catch (IOException | CannotCreateFileException | CannotChangePermissionException e) {
       throw new AssertionError("Failed to build sourcelist for \"" + fileName + "\".");
     }
   }
@@ -275,13 +275,15 @@ public class TestTools {
   }
 
   @Nonnull
-  public static Options buildCommandLineArgs(@Nonnull File fileOrSourcelist) throws IOException {
+  public static Options buildCommandLineArgs(@Nonnull File fileOrSourcelist)
+      throws CannotCreateFileException, CannotChangePermissionException {
     return buildCommandLineArgs(fileOrSourcelist, Collections.<File>emptyList());
   }
 
   @Nonnull
   public static Options buildCommandLineArgs(@Nonnull File fileOrSourcelist,
-      @Nonnull List<File> jarjarRules) throws IOException {
+      @Nonnull List<File> jarjarRules)
+      throws CannotCreateFileException, CannotChangePermissionException {
     Options options = buildCommandLineArgs(null /* classpath */, new File[] {fileOrSourcelist});
     options.setJarjarRulesFiles(jarjarRules);
 
@@ -290,19 +292,21 @@ public class TestTools {
 
   @Nonnull
   public static Options buildCommandLineArgs(@Nonnull File[] filesOrSourcelists)
-      throws IOException {
+      throws CannotCreateFileException, CannotChangePermissionException {
     return buildCommandLineArgs(null /* classpath */, filesOrSourcelists);
   }
 
   @Nonnull
   public static Options buildCommandLineArgs(@CheckForNull File[] classpath,
-      @Nonnull File fileOrSourcelist) throws IOException {
+      @Nonnull File fileOrSourcelist)
+      throws CannotCreateFileException, CannotChangePermissionException {
     return buildCommandLineArgs(classpath, new File[] {fileOrSourcelist});
   }
 
   @Nonnull
   public static Options buildCommandLineArgs(@CheckForNull File[] classpath,
-      @Nonnull File[] filesOrSourceDirs) throws IOException {
+      @Nonnull File[] filesOrSourceDirs)
+      throws CannotCreateFileException, CannotChangePermissionException {
     Options options = new Options();
 
     String classpathStr = getDefaultClasspathString();

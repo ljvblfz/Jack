@@ -16,6 +16,7 @@
 
 package com.android.sched.vfs;
 
+import com.android.sched.util.file.CannotCloseOutputException;
 import com.android.sched.util.file.OutputZipFile;
 import com.android.sched.util.file.StreamFileStatus;
 import com.android.sched.util.location.Location;
@@ -140,10 +141,14 @@ public class WriteZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
   }
 
   @Override
-  public synchronized void close() throws IOException {
+  public synchronized void close() throws CannotCloseOutputException {
     if (!closed) {
       if (zipFile.getStatus() == StreamFileStatus.OPEN) {
-        zipFile.getOutputStream().close();
+        try {
+          zipFile.getOutputStream().close();
+        } catch (IOException e) {
+          throw new CannotCloseOutputException(this, e);
+        }
       }
       closed = true;
     }

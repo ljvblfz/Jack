@@ -24,6 +24,8 @@ import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
+import com.android.sched.util.file.CannotChangePermissionException;
+import com.android.sched.util.file.CannotCreateFileException;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -54,7 +56,8 @@ public abstract class AbstractTest {
       @Nonnull String mappingNumber)
       throws Exception;
 
-  protected ProguardFlags generateApplyMapping(@Nonnull File mappingFile) throws IOException {
+  protected ProguardFlags generateApplyMapping(@Nonnull File mappingFile)
+      throws IOException, CannotCreateFileException, CannotChangePermissionException {
     File applyMapping = AbstractTestTools.createTempFile("mapping.flags", null);
     BufferedWriter writer = new BufferedWriter(new FileWriter(applyMapping));
     writer.append("-applymapping ");
@@ -63,7 +66,8 @@ public abstract class AbstractTest {
     return new ProguardFlags(applyMapping);
   }
 
-  protected ProguardFlags generateInjars(@Nonnull File injar) throws IOException {
+  protected ProguardFlags generateInjars(@Nonnull File injar)
+      throws IOException, CannotCreateFileException, CannotChangePermissionException {
     File injarFlags = AbstractTestTools.createTempFile("injars", ".flags");
     BufferedWriter writer = new BufferedWriter(new FileWriter(injarFlags));
     writer.append("-injars ");
@@ -74,7 +78,8 @@ public abstract class AbstractTest {
 
   @Nonnull
   protected File addOptionsToFlagsFile(@Nonnull File flagsFile, @Nonnull File baseDirectory,
-      @Nonnull String options) throws IOException {
+      @Nonnull String options)
+      throws IOException, CannotCreateFileException, CannotChangePermissionException {
 
     File result = AbstractTestTools.createTempFile("proguard", ".flags");
 

@@ -16,7 +16,11 @@
 
 package com.android.jack.shrob.obfuscation.resource;
 
+import com.android.sched.util.file.CannotCloseInputException;
+import com.android.sched.util.file.CannotCloseOutputException;
 import com.android.sched.util.file.CannotDeleteFileException;
+import com.android.sched.util.file.CannotReadException;
+import com.android.sched.util.file.CannotWriteException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.stream.LocationByteStreamSucker;
@@ -321,14 +325,17 @@ public class RefinedVFile implements VFile {
   }
 
   @Override
-  public void copy(@Nonnull VFile vFile) throws WrongPermissionException, IOException {
-    InputStream is = getInputStream();
-    OutputStream os = vFile.getOutputStream();
-    try {
-      new LocationByteStreamSucker(is, os, this, vFile).suck();
-    } finally {
-      os.close();
-      is.close();
+  public void copy(@Nonnull VFile vFile) throws WrongPermissionException, CannotCloseInputException,
+      CannotCloseOutputException, CannotReadException, CannotWriteException {
+
+    try (InputStream is = getInputStream()) {
+      try (OutputStream os = vFile.getOutputStream()) {
+        new LocationByteStreamSucker(is, os, this, vFile).suck();
+      } catch (IOException e) {
+        throw new CannotCloseOutputException(vFile, e);
+      }
+    } catch (IOException e) {
+      throw new CannotCloseInputException(this, e);
     }
   }
 }

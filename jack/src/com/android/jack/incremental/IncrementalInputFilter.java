@@ -47,6 +47,7 @@ import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.CannotReadException;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
 import com.android.sched.util.log.stats.Counter;
@@ -474,9 +475,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
     try {
       fileReader = new InputStreamReader(dependenciesVFile.getInputStream());
       dependency.read(fileReader);
-    } catch (NoSuchElementException e) {
-      throw new CannotReadException(dependenciesVFile, e);
-    } catch (IOException e) {
+    } catch (NoSuchElementException | WrongPermissionException | IOException e) {
       throw new CannotReadException(dependenciesVFile, e);
     } finally {
       if (fileReader != null) {

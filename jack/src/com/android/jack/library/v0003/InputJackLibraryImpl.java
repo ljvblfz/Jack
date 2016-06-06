@@ -34,6 +34,8 @@ import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.file.CannotCloseInputException;
+import com.android.sched.util.file.CannotCloseOutputException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
@@ -50,7 +52,6 @@ import com.android.sched.vfs.VFS;
 import com.android.sched.vfs.VPath;
 import com.android.sched.vfs.WrongVFSFormatException;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Iterator;
@@ -214,7 +215,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
             currentSectionVFS.close();
           }
           vfs.close();
-        } catch (IOException e) {
+        } catch (CannotCloseOutputException | CannotCloseInputException e) {
           throw new LibraryIOException(getLocation(), e);
         }
       }

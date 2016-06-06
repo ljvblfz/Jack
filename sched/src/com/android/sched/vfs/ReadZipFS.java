@@ -18,6 +18,7 @@ package com.android.sched.vfs;
 
 import com.google.common.base.Splitter;
 
+import com.android.sched.util.file.CannotCloseInputException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.InputZipFile;
@@ -176,9 +177,13 @@ public class ReadZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
   }
 
   @Override
-  public synchronized void close() throws IOException {
+  public synchronized void close() throws CannotCloseInputException {
     if (!closed) {
-      zipFile.close();
+      try {
+        zipFile.close();
+      } catch (IOException e) {
+        throw new CannotCloseInputException(this, e);
+      }
       closed = true;
     }
   }

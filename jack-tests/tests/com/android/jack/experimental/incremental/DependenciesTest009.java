@@ -23,6 +23,7 @@ import com.android.jack.library.InputJackLibrary;
 import com.android.jack.test.helper.IncrementalTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.sched.util.file.CannotReadException;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.vfs.InputVFile;
 
 import junit.framework.Assert;
@@ -93,7 +94,7 @@ public class DependenciesTest009 {
 
   @Nonnull
   private static TypeDependencies readTypeDependencies(InputJackLibrary inputJackLibrary)
-      throws FileTypeDoesNotExistException, CannotReadException {
+      throws FileTypeDoesNotExistException, CannotReadException, WrongPermissionException {
     TypeDependencies typeDependencies = new TypeDependencies();
     InputVFile typeDependenciesVFile =
         inputJackLibrary.getFile(FileType.DEPENDENCIES, TypeDependencies.vpath);

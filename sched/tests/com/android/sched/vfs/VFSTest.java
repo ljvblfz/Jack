@@ -21,6 +21,8 @@ import com.android.sched.util.config.ConfigurationException;
 import com.android.sched.util.config.MessageDigestFactory;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.CannotChangePermissionException;
+import com.android.sched.util.file.CannotCloseInputException;
+import com.android.sched.util.file.CannotCloseOutputException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.Directory;
@@ -37,6 +39,7 @@ import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.file.OutputZipFile;
 import com.android.sched.util.file.OutputZipFile.Compression;
 import com.android.sched.util.file.WrongPermissionException;
+import com.android.sched.util.file.ZipException;
 import com.android.sched.util.location.DirectoryLocation;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.ZipLocation;
@@ -69,13 +72,9 @@ public class VFSTest {
 
   @Test
   public void testDirectFS()
-      throws NotDirectoryException,
-      CannotCreateFileException,
-      WrongPermissionException,
-      CannotChangePermissionException,
-      NoSuchFileException,
-      FileAlreadyExistsException,
-      IOException {
+      throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
+      NoSuchFileException, FileAlreadyExistsException, IOException, CannotDeleteFileException,
+      NotFileOrDirectoryException, CannotCloseOutputException, CannotCloseInputException {
     File file = null;
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
@@ -113,13 +112,9 @@ public class VFSTest {
 
   @Test
   public void testCachedDirectFS()
-      throws NotDirectoryException,
-      CannotCreateFileException,
-      WrongPermissionException,
-      CannotChangePermissionException,
-      NoSuchFileException,
-      FileAlreadyExistsException,
-      IOException {
+      throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
+      NoSuchFileException, FileAlreadyExistsException, IOException, CannotDeleteFileException,
+      NotFileOrDirectoryException, CannotCloseOutputException, CannotCloseInputException {
     File file = null;
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
@@ -162,13 +157,9 @@ public class VFSTest {
 
   @Test
   public void testDeflateFS()
-      throws NotDirectoryException,
-      CannotCreateFileException,
-      WrongPermissionException,
-      CannotChangePermissionException,
-      NoSuchFileException,
-      FileAlreadyExistsException,
-      IOException {
+      throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
+      NoSuchFileException, FileAlreadyExistsException, IOException, CannotDeleteFileException,
+      NotFileOrDirectoryException, CannotCloseOutputException, CannotCloseInputException {
     File file = null;
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
@@ -210,13 +201,9 @@ public class VFSTest {
 
   @Test
   public void testCaseInsensitiveFS()
-      throws NotDirectoryException,
-      CannotCreateFileException,
-      WrongPermissionException,
-      CannotChangePermissionException,
-      NoSuchFileException,
-      FileAlreadyExistsException,
-      IOException {
+      throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
+      NoSuchFileException, FileAlreadyExistsException, IOException, CannotDeleteFileException,
+      NotFileOrDirectoryException, CannotCloseOutputException, CannotCloseInputException {
     File file = null;
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
@@ -256,13 +243,9 @@ public class VFSTest {
 
   @Test
   public void testMessageDigestFS()
-      throws NotDirectoryException,
-      CannotCreateFileException,
-      WrongPermissionException,
-      CannotChangePermissionException,
-      NoSuchFileException,
-      FileAlreadyExistsException,
-      IOException {
+      throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
+      NoSuchFileException, FileAlreadyExistsException, IOException, CannotDeleteFileException,
+      NotFileOrDirectoryException, CannotCloseOutputException, CannotCloseInputException {
     File file = null;
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
@@ -317,13 +300,9 @@ public class VFSTest {
 
   @Test
   public void testMessageDigestFSWithCaseInsensitiveFS()
-      throws NotDirectoryException,
-      CannotCreateFileException,
-      WrongPermissionException,
-      CannotChangePermissionException,
-      NoSuchFileException,
-      FileAlreadyExistsException,
-      IOException {
+      throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
+      NoSuchFileException, FileAlreadyExistsException, IOException, CannotDeleteFileException,
+      NotFileOrDirectoryException, CannotCloseOutputException, CannotCloseInputException {
     File file = null;
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
@@ -385,13 +364,9 @@ public class VFSTest {
 
   @Test
   public void testDeflatePrefixedCaseInsensitiveDirectFS()
-      throws NotDirectoryException,
-      CannotCreateFileException,
-      WrongPermissionException,
-      CannotChangePermissionException,
-      NoSuchFileException,
-      FileAlreadyExistsException,
-      IOException {
+      throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
+      NoSuchFileException, FileAlreadyExistsException, IOException, CannotDeleteFileException,
+      NotFileOrDirectoryException, CannotCloseInputException, CannotCloseOutputException {
     File file = null;
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
@@ -437,13 +412,9 @@ public class VFSTest {
 
   @Test
   public void testMessageDigestFSWithCachedDirectFS()
-      throws NotDirectoryException,
-      CannotCreateFileException,
-      WrongPermissionException,
-      CannotChangePermissionException,
-      NoSuchFileException,
-      FileAlreadyExistsException,
-      IOException {
+      throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
+      NoSuchFileException, FileAlreadyExistsException, IOException, CannotDeleteFileException,
+      NotFileOrDirectoryException, CannotCloseOutputException, CannotCloseInputException {
     File file = null;
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
@@ -509,13 +480,9 @@ public class VFSTest {
 
   @Test
   public void testPrefixedFSWithDirectFS()
-      throws NotDirectoryException,
-      CannotCreateFileException,
-      WrongPermissionException,
-      CannotChangePermissionException,
-      NoSuchFileException,
-      FileAlreadyExistsException,
-      IOException {
+      throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
+      NoSuchFileException, FileAlreadyExistsException, IOException, NotFileOrDirectoryException,
+      CannotDeleteFileException, CannotCloseOutputException, CannotCloseInputException {
     File file = null;
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
@@ -557,13 +524,9 @@ public class VFSTest {
 
   @Test
   public void testPrefixedFSWithZip()
-      throws NotDirectoryException,
-      CannotCreateFileException,
-      WrongPermissionException,
-      CannotChangePermissionException,
-      NoSuchFileException,
-      FileAlreadyExistsException,
-      IOException {
+      throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
+      NoSuchFileException, FileAlreadyExistsException, IOException, ZipException,
+      NotFileOrDirectoryException, CannotCloseOutputException, CannotCloseInputException {
     String prefix = "stuff";
     File file = null;
     InputOutputVFS ioVFS1 = null;
@@ -605,13 +568,9 @@ public class VFSTest {
 
   @Test
   public void testPrefixedFSWithCaseInsensitiveFS()
-      throws NotDirectoryException,
-      CannotCreateFileException,
-      WrongPermissionException,
-      CannotChangePermissionException,
-      NoSuchFileException,
-      FileAlreadyExistsException,
-      IOException {
+      throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
+      NoSuchFileException, FileAlreadyExistsException, IOException, CannotDeleteFileException,
+      NotFileOrDirectoryException, CannotCloseInputException, CannotCloseOutputException {
     File file = null;
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
@@ -655,13 +614,9 @@ public class VFSTest {
 
   @Test
   public void testMessageDigestFSWithPrefixedFSAndCaseInsensitiveFS()
-      throws NotDirectoryException,
-      CannotCreateFileException,
-      WrongPermissionException,
-      CannotChangePermissionException,
-      NoSuchFileException,
-      FileAlreadyExistsException,
-      IOException {
+      throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
+      NoSuchFileException, FileAlreadyExistsException, IOException, CannotDeleteFileException,
+      NotFileOrDirectoryException, CannotCloseInputException, CannotCloseOutputException {
     File file = null;
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
@@ -717,13 +672,9 @@ public class VFSTest {
 
   @Test
   public void testWriteZipVFS()
-      throws NotDirectoryException,
-      CannotCreateFileException,
-      WrongPermissionException,
-      CannotChangePermissionException,
-      NoSuchFileException,
-      FileAlreadyExistsException,
-      IOException {
+      throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
+      NoSuchFileException, FileAlreadyExistsException, IOException, ZipException,
+      NotFileOrDirectoryException, CannotCloseOutputException, CannotCloseInputException {
     File file = null;
     InputOutputVFS ioVFS1 = null;
     InputVFS iVFS2 = null;
@@ -753,7 +704,10 @@ public class VFSTest {
 
   @SuppressWarnings("resource")
   @Test
-  public void testUnionVFS() throws IOException {
+  public void testUnionVFS() throws IOException, WrongPermissionException,
+      CannotChangePermissionException, NoSuchFileException, FileAlreadyExistsException,
+      CannotCreateFileException, ZipException, NotFileOrDirectoryException,
+      CannotDeleteFileException, CannotCloseOutputException, CannotCloseInputException {
     File zipFile = null;
     File dir = null;
     try {
@@ -877,7 +831,10 @@ public class VFSTest {
 
   @SuppressWarnings("resource")
   @Test
-  public void testIncrementalStack() throws IOException {
+  public void testIncrementalStack() throws IOException, CannotCreateFileException,
+      WrongPermissionException, CannotChangePermissionException, NoSuchFileException,
+      FileAlreadyExistsException, ZipException, NotFileOrDirectoryException,
+      CannotDeleteFileException, CannotCloseOutputException, CannotCloseInputException {
     final VPath prefix = new VPath("pre", '/');
     File inputZipFile = null;
     File outputZipFile = null;
@@ -1025,7 +982,7 @@ public class VFSTest {
   }
 
   private void testOutputVFS(@Nonnull InputOutputVFS outputVFS) throws NotDirectoryException,
-      CannotCreateFileException, IOException {
+      CannotCreateFileException, IOException, WrongPermissionException {
 
     // create stuff from root dir
     InputOutputVDir dirA = (InputOutputVDir) outputVFS.getRootInputOutputVDir().createOutputVDir(
@@ -1062,8 +1019,8 @@ public class VFSTest {
     writeToFile(fileAAB1, "dirA/dirAA/dirAAB/fileAAB1");
   }
 
-  private void testInputVFS(@Nonnull InputVFS inputVFS) throws NotFileException,
-      NoSuchFileException, IOException {
+  private void testInputVFS(@Nonnull InputVFS inputVFS) throws NoSuchFileException, IOException,
+      NotFileOrDirectoryException, WrongPermissionException {
     InputVFile file1 = inputVFS.getRootInputVDir().getInputVFile(new VPath("file1", '/'));
     Assert.assertEquals("file1", readFromFile(file1));
     Assert.assertTrue(file1.getPathFromRoot().equals(new VPath("file1", '/')));
@@ -1095,13 +1052,10 @@ public class VFSTest {
 
   @Test
   public void testReadWriteZipFSAndReadZipFS()
-      throws NotDirectoryException,
-      CannotCreateFileException,
-      WrongPermissionException,
-      CannotChangePermissionException,
-      NoSuchFileException,
-      FileAlreadyExistsException,
-      IOException {
+      throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
+      NoSuchFileException, FileAlreadyExistsException, IOException, CannotDeleteFileException,
+      NotFileOrDirectoryException, ZipException, CannotCloseOutputException,
+      CannotCloseInputException {
     File file = null;
     InputOutputVFS zipVFS = null;
     InputVFS inputZipVFS = null;
@@ -1138,13 +1092,10 @@ public class VFSTest {
 
   @Test
   public void testDeflateFSWithMessageDigestFS()
-      throws NotDirectoryException,
-      CannotCreateFileException,
-      WrongPermissionException,
-      CannotChangePermissionException,
-      NoSuchFileException,
-      FileAlreadyExistsException,
-      IOException {
+      throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
+      NoSuchFileException, FileAlreadyExistsException, IOException, CannotDeleteFileException,
+      NotFileOrDirectoryException, ZipException, CannotCloseOutputException,
+      CannotCloseInputException {
     File file = null;
     InputOutputVFS ioVFS1 = null;
     InputVFS ioVFS2 = null;
@@ -1197,11 +1148,8 @@ public class VFSTest {
   }
 
   private void testDelete(@Nonnull InputOutputVFS ioVFS)
-      throws NoSuchFileException,
-      CannotDeleteFileException,
-      NotFileOrDirectoryException,
-      CannotCreateFileException,
-      IOException {
+      throws NoSuchFileException, CannotDeleteFileException, NotFileOrDirectoryException,
+      CannotCreateFileException, IOException, WrongPermissionException {
 
     // let's delete "dirA/dirAA/dirAAB/fileAAB1"
     InputOutputVDir dirA = ioVFS.getRootInputOutputVDir().getInputVDir(new VPath("dirA", '/'));
@@ -1345,7 +1293,8 @@ public class VFSTest {
   }
 
   private boolean containsFile(@Nonnull Collection<? extends InputVElement> elements,
-      @Nonnull String fileSimpleName, @Nonnull String fileContent) throws IOException {
+      @Nonnull String fileSimpleName, @Nonnull String fileContent)
+      throws IOException, WrongPermissionException {
     for (VElement element : elements) {
       if (element.getName().equals(fileSimpleName)) {
         return !element.isVDir()
@@ -1367,14 +1316,16 @@ public class VFSTest {
     return false;
   }
 
-  private void writeToFile(@Nonnull OutputVFile file, @Nonnull String string) throws IOException {
+  private void writeToFile(@Nonnull OutputVFile file, @Nonnull String string)
+      throws IOException, WrongPermissionException {
     OutputStreamWriter writer = new OutputStreamWriter(file.getOutputStream());
     writer.write(string);
     writer.close();
   }
 
   @Nonnull
-  private String readFromFile(@Nonnull InputVFile file) throws IOException {
+  private String readFromFile(@Nonnull InputVFile file)
+      throws IOException, WrongPermissionException {
     BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
     String string = reader.readLine();
     Assert.assertNull(reader.readLine());

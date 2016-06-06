@@ -38,6 +38,7 @@ import com.android.sched.util.codec.VariableName;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotReadException;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.InputVFile;
@@ -136,7 +137,7 @@ public abstract class DexWritingTool {
           os.close();
         }
       }
-    } catch (IOException e) {
+    } catch (IOException | WrongPermissionException e) {
       throw new DexWritingException(e);
     }
   }
@@ -147,7 +148,7 @@ public abstract class DexWritingTool {
     try {
       inputStream = inputDex.getInputStream();
       merger.addDexFile(new DexBuffer(inputStream));
-    } catch (IOException e) {
+    } catch (IOException | WrongPermissionException e) {
       throw new DexWritingException(new CannotReadException(inputDex, e));
     } finally {
       if (inputStream != null) {

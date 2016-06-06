@@ -34,6 +34,7 @@ import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JackCliToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
@@ -593,7 +594,8 @@ public class FileConflictTests {
   }
 
   private void checkResourceContent(@Nonnull InputJackLibrary lib, @Nonnull VPath path,
-      @Nonnull String expectedContent) throws IOException, FileTypeDoesNotExistException {
+      @Nonnull String expectedContent)
+      throws IOException, FileTypeDoesNotExistException, WrongPermissionException {
     BufferedReader reader = null;
     try {
       reader = new BufferedReader(

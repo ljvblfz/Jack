@@ -19,15 +19,13 @@ package com.android.sched.util.file;
 import com.android.sched.util.location.HasLocation;
 import com.android.sched.util.location.Location;
 
-import java.io.IOException;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * Common superclass for IOExceptions which are related to a specific location.
+ * Common superclass for I/O exceptions which are related to a specific location.
  */
-public abstract class WithLocationIOException extends IOException {
+public abstract class WithLocationIOException extends Exception {
   private static final long serialVersionUID = 1L;
 
   @CheckForNull

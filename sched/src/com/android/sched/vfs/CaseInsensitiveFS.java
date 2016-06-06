@@ -23,6 +23,8 @@ import com.android.sched.util.config.expression.LongExpression;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.IntegerPropertyId;
 import com.android.sched.util.config.id.MessageDigestPropertyId;
+import com.android.sched.util.file.CannotCloseInputException;
+import com.android.sched.util.file.CannotCloseOutputException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
@@ -307,21 +309,25 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
   }
 
   @Override
-  public synchronized void close() throws IOException {
+  public synchronized void close() throws CannotCloseInputException, CannotCloseOutputException {
     if (!closed) {
-      PrintStream printer =
-          new PrintStream(vfs.getRootDir().createVFile(INDEX_NAME).getOutputStream());
+      try {
+        PrintStream printer =
+            new PrintStream(vfs.getRootDir().createVFile(INDEX_NAME).getOutputStream());
 
-      printIndex(printer, getRootDir());
-      printer.flush();
-      printer.close();
-
-      if (debug) {
-        printer = new PrintStream(vfs.getRootDir().createVFile(DEBUG_NAME).getOutputStream());
-
-        printDebug(printer, getRootDir());
+        printIndex(printer, getRootDir());
         printer.flush();
         printer.close();
+
+        if (debug) {
+          printer = new PrintStream(vfs.getRootDir().createVFile(DEBUG_NAME).getOutputStream());
+
+          printDebug(printer, getRootDir());
+          printer.flush();
+          printer.close();
+        }
+      } catch (WrongPermissionException | CannotCreateFileException e) {
+        throw new CannotCloseOutputException(this, e);
       }
 
       vfs.close();

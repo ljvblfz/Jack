@@ -315,6 +315,8 @@ import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.ReflectFactoryPropertyId;
+import com.android.sched.util.file.CannotCloseInputException;
+import com.android.sched.util.file.CannotCloseOutputException;
 import com.android.sched.util.file.CannotWriteException;
 import com.android.sched.util.log.Event;
 import com.android.sched.util.log.LoggerFactory;
@@ -853,7 +855,7 @@ public abstract class Jack {
             }
           } catch (LibraryIOException e) {
             throw new AssertionError(e);
-          } catch (IOException e) {
+          } catch (CannotCloseOutputException | CannotCloseInputException e) {
             throw new AssertionError(e);
           }
         }

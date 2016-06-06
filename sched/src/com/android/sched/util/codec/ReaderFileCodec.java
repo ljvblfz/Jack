@@ -19,11 +19,13 @@ package com.android.sched.util.codec;
 import com.android.sched.util.config.ConfigurationError;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.ReaderFile;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.StandardInputLocation;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
 
 import javax.annotation.Nonnegative;
@@ -134,7 +136,7 @@ public class ReaderFileCodec extends FileCodec<ReaderFile> {
       try {
         return new ReaderFile(context.getWorkingDirectory(), string,
             getCharset(context, localCharset), bufferSize);
-      } catch (IOException e) {
+      } catch (NoSuchFileException | NotFileException | WrongPermissionException e) {
         throw new ParsingException(e.getMessage(), e);
       }
     }

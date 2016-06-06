@@ -33,6 +33,7 @@ import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.location.Location;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.OutputVFile;
@@ -98,7 +99,7 @@ public abstract class DexInLibraryWriter extends DexWriter implements
     try {
       vFile = outputLibrary.createFile(FileType.PREBUILT,
           new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
-    } catch (IOException e) {
+    } catch (CannotCreateFileException e) {
       throw new JackIOException("Could not create Dex file in output "
           + outputLibrary.getLocation().getDescription() + " for type "
           + Jack.getUserFriendlyFormatter().getName(type), e);

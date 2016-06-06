@@ -24,12 +24,17 @@ import com.android.jack.library.MetaInInputLibraryLocation;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.util.file.CannotCloseInputException;
+import com.android.sched.util.file.CannotCloseOutputException;
+import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.CannotReadException;
+import com.android.sched.util.file.CannotWriteException;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.ZipLocation;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.OutputVFile;
 import com.android.sched.vfs.VPath;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
@@ -84,7 +89,8 @@ public class LibraryMetaWriter implements RunnableSchedulable<JSession> {
   }
 
   private void addMetaToOutputJackLib(@Nonnull Meta meta, @Nonnull OutputJackLibrary ojl)
-      throws IOException {
+      throws CannotCreateFileException, WrongPermissionException, CannotCloseInputException,
+      CannotCloseOutputException, CannotReadException, CannotWriteException {
     InputVFile inputFile = meta.getVFile();
     VPath path = meta.getPath();
     OutputVFile outputFile = ojl.createFile(FileType.META, path);

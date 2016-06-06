@@ -16,10 +16,13 @@
 
 package com.android.sched.vfs;
 
+import com.android.sched.util.file.CannotCloseInputException;
+import com.android.sched.util.file.CannotCloseOutputException;
 import com.android.sched.util.file.CannotDeleteFileException;
+import com.android.sched.util.file.CannotReadException;
+import com.android.sched.util.file.CannotWriteException;
 import com.android.sched.util.file.WrongPermissionException;
 
-import java.io.IOException;
 import java.io.OutputStream;
 
 import javax.annotation.CheckForNull;
@@ -44,5 +47,6 @@ public interface VFile extends VElement, InputStreamProvider, OutputStreamProvid
   @Nonnull
   VPath getPathFromRoot();
 
-  void copy(@Nonnull VFile vFile) throws WrongPermissionException, IOException;
+  void copy(@Nonnull VFile vFile) throws WrongPermissionException, CannotCloseInputException,
+      CannotCloseOutputException, CannotReadException, CannotWriteException;
 }

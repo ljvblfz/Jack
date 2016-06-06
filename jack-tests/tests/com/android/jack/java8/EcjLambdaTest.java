@@ -25,6 +25,8 @@ import com.android.jack.test.toolchain.JackApiV01;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
+import com.android.sched.util.file.CannotChangePermissionException;
+import com.android.sched.util.file.CannotCreateFileException;
 
 import junit.framework.Assert;
 import junit.framework.JUnit4TestAdapter;
@@ -204,7 +206,8 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
   }
 
   @Nonnull
-  private File buildSourceFolder(@Nonnull String[] srcDescription) throws IOException {
+  private File buildSourceFolder(@Nonnull String[] srcDescription)
+      throws IOException, CannotCreateFileException, CannotChangePermissionException {
     assert srcDescription.length % 2 == 0;
     File sourceFolder = AbstractTestTools.createTempDir();
 

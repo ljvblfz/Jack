@@ -27,6 +27,7 @@ import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillApiToolchainBase;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
 
@@ -414,8 +415,9 @@ public class ResourceTests {
     }
   }
 
-  public static void checkResourceContentFromLib(@Nonnull InputJackLibrary lib, @Nonnull String path,
-      @Nonnull String expectedContent) throws IOException, FileTypeDoesNotExistException {
+  public static void checkResourceContentFromLib(@Nonnull InputJackLibrary lib,
+      @Nonnull String path, @Nonnull String expectedContent)
+      throws IOException, FileTypeDoesNotExistException, WrongPermissionException {
     InputVFile rescFile = lib.getFile(FileType.RSC, new VPath(path, '/'));
     BufferedReader candidateReader = null;
     BufferedReader referenceReader = null;
@@ -457,7 +459,7 @@ public class ResourceTests {
 
 
   private static void checkResourceContent(@Nonnull InputVFile candidateFile,
-      @Nonnull File referenceFile) throws IOException {
+      @Nonnull File referenceFile) throws IOException, WrongPermissionException {
     BufferedReader candidateReader = null;
     BufferedReader referenceReader = null;
     try {

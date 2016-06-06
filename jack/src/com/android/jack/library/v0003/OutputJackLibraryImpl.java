@@ -29,11 +29,14 @@ import com.android.jack.library.OutputJackLibrary;
 import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.file.CannotCloseInputException;
+import com.android.sched.util.file.CannotCloseOutputException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.DeflateFS;
 import com.android.sched.vfs.GenericInputOutputVFS;
@@ -212,10 +215,10 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
         for (InputOutputVFS intputOutputVFS : sectionVFS.values()) {
           intputOutputVFS.close();
         }
-      } catch (IOException e) {
+      } catch (CannotCloseOutputException | CannotCloseInputException e) {
         throw new LibraryIOException(getLocation(), e);
       }
-    } catch (CannotCreateFileException e) {
+    } catch (WrongPermissionException | CannotCreateFileException e) {
       throw new LibraryIOException(getLocation(), e);
     } catch (IOException e) {
       throw new LibraryIOException(getLocation(), e);
@@ -224,7 +227,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
         if (goVFS != null) {
           goVFS.close();
         }
-      } catch (IOException e) {
+      } catch (CannotCloseOutputException | CannotCloseInputException e) {
         throw new LibraryIOException(getLocation(), e);
       }
     }
@@ -314,7 +317,8 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
   }
 
   @Nonnull
-  private void loadLibraryProperties(@Nonnull InputVFS vfs) throws NoSuchFileException {
+  private void loadLibraryProperties(@Nonnull InputVFS vfs)
+      throws NoSuchFileException {
     InputVFile libProp;
     try {
       libProp = vfs.getRootInputVDir().getInputVFile(JackLibrary.LIBRARY_PROPERTIES_VPATH);
@@ -326,8 +330,10 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
     try {
       is = libProp.getInputStream();
       libraryProperties.load(is);
+    } catch (WrongPermissionException e) {
+      throw new AssertionError(e);
     } catch (IOException e) {
-      throw new AssertionError();
+      throw new AssertionError(e);
     } finally {
       if (is != null) {
         try {

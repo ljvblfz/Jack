@@ -17,6 +17,8 @@
 package com.android.jack.test.helper;
 
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.sched.util.file.CannotChangePermissionException;
+import com.android.sched.util.file.CannotCreateFileException;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,7 +39,8 @@ public class ErrorTestHelper {
   @Nonnull
   private final File outputDexFolder;
 
-  public ErrorTestHelper() throws IOException {
+  public ErrorTestHelper()
+      throws IOException, CannotCreateFileException, CannotChangePermissionException {
     this.testingFolder = AbstractTestTools.createTempDir();
     this.sourceFolder = new File(testingFolder, "src");
     if (!this.sourceFolder.mkdirs()) {

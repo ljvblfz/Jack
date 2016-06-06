@@ -16,8 +16,12 @@
 
 package com.android.sched.vfs;
 
+import com.android.sched.util.file.CannotCloseInputException;
+import com.android.sched.util.file.CannotCloseOutputException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
+import com.android.sched.util.file.CannotReadException;
+import com.android.sched.util.file.CannotWriteException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
@@ -94,17 +98,23 @@ public class VFSToVFSWrapper extends BaseVFS<BaseVDir, BaseVFile> implements VFS
   }
 
   @Override
-  public void close() throws CannotCreateFileException, WrongPermissionException, IOException {
+  public void close() throws CannotCloseOutputException {
     if (!closed) {
-      dumpToDir(getRootDir(), finalVFS.getRootDir());
-      finalVFS.close();
-      workVFS.close();
-      closed = true;
+      try {
+        dumpToDir(getRootDir(), finalVFS.getRootDir());
+        finalVFS.close();
+        workVFS.close();
+        closed = true;
+      } catch (CannotCloseInputException | CannotCloseOutputException | CannotReadException
+          | CannotWriteException | CannotCreateFileException | WrongPermissionException e) {
+        throw new CannotCloseOutputException(this, e);
+      }
     }
   }
 
-  private void dumpToDir(VDir srcRootDir, VDir destRootDir) throws CannotCreateFileException,
-      WrongPermissionException, IOException {
+  private void dumpToDir(VDir srcRootDir, VDir destRootDir)
+      throws CannotCreateFileException, WrongPermissionException, CannotCloseInputException,
+      CannotCloseOutputException, CannotReadException, CannotWriteException {
     for (VElement element : srcRootDir.list()) {
       String elementName = element.getName();
       if (element.isVDir()) {
@@ -112,20 +122,15 @@ public class VFSToVFSWrapper extends BaseVFS<BaseVDir, BaseVFile> implements VFS
         dumpToDir((VDir) element, dir);
       } else {
         VFile file = destRootDir.createVFile(elementName);
-        InputStream is = null;
-        OutputStream os = null;
-        try {
-          is = ((VFile) element).getInputStream();
-          os = file.getOutputStream();
-          LocationByteStreamSucker sucker = new LocationByteStreamSucker(is, os, element, file);
-          sucker.suck();
-        } finally {
-          if (is != null) {
-            is.close();
+
+        try (InputStream is = ((VFile) element).getInputStream()) {
+          try (OutputStream os = file.getOutputStream()) {
+            new LocationByteStreamSucker(is, os, element, file).suck();
+          } catch (IOException e) {
+            throw new CannotCloseOutputException(file, e);
           }
-          if (os != null) {
-            os.close();
-          }
+        } catch (IOException e) {
+          throw new CannotCloseInputException(element, e);
         }
       }
     }

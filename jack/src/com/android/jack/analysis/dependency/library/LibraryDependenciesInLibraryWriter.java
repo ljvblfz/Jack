@@ -29,8 +29,8 @@ import com.android.sched.item.Description;
 import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.WrongPermissionException;
 
-import java.io.IOException;
 import java.io.PrintStream;
 
 import javax.annotation.Nonnull;
@@ -58,7 +58,7 @@ public class LibraryDependenciesInLibraryWriter implements RunnableSchedulable<J
       IncrementalException incrementalException = new IncrementalException(e);
       Jack.getSession().getReporter().report(Severity.FATAL, incrementalException);
       throw new JackAbortException(incrementalException);
-    } catch (IOException e) {
+    } catch (WrongPermissionException e) {
       IncrementalException incrementalException = new IncrementalException(e);
       Jack.getSession().getReporter().report(Severity.FATAL, incrementalException);
       throw new JackAbortException(incrementalException);

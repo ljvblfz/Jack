@@ -17,13 +17,17 @@
 package com.android.sched.util.codec;
 
 
+import com.android.sched.util.file.CannotChangePermissionException;
+import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.Directory;
+import com.android.sched.util.file.FileAlreadyExistsException;
 import com.android.sched.util.file.FileOrDirectory.Existence;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotDirectoryException;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.vfs.CachedDirectFS;
 import com.android.sched.vfs.GenericInputOutputVFS;
 import com.android.sched.vfs.InputOutputVFS;
-
-import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
@@ -63,7 +67,8 @@ public class DirectDirInputOutputVFSCodec extends InputOutputVFSCodec
               existence,
               permissions,
               change), permissions));
-    } catch (IOException e) {
+    } catch (CannotChangePermissionException | NotDirectoryException | WrongPermissionException
+        | NoSuchFileException | FileAlreadyExistsException | CannotCreateFileException e) {
       throw new ParsingException(e);
     }
   }

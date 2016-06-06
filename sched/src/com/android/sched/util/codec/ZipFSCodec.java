@@ -20,15 +20,21 @@ package com.android.sched.util.codec;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.config.ConfigurationError;
 import com.android.sched.util.config.MessageDigestFactory;
+import com.android.sched.util.file.CannotChangePermissionException;
+import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.FileAlreadyExistsException;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotDirectoryException;
+import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.OutputZipFile;
 import com.android.sched.util.file.OutputZipFile.Compression;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.vfs.ReadWriteZipFS;
 import com.android.sched.vfs.VFS;
 
-import java.io.IOException;
 import java.security.Provider.Service;
 
 import javax.annotation.Nonnull;
@@ -107,7 +113,9 @@ public class ZipFSCodec extends FileOrDirCodec<VFS> {
               compression),
           /* numGroups = */ 1, /* groupSize = */ 2,
           new MessageDigestFactory(service), /* debug = */ false);
-    } catch (IOException e) {
+    } catch (CannotCreateFileException | NotDirectoryException | NotFileException
+        | WrongPermissionException | CannotChangePermissionException | NoSuchFileException
+        | FileAlreadyExistsException e) {
       throw new ParsingException(e.getMessage(), e);
     }
   }

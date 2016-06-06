@@ -22,6 +22,8 @@ import com.android.jack.TestTools;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.config.ConfigurationException;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.file.CannotChangePermissionException;
+import com.android.sched.util.file.CannotCreateFileException;
 
 import junit.framework.Assert;
 
@@ -109,8 +111,8 @@ public class EscapeStringTest {
   }
 
   @Nonnull
-  private String writeStringAndReadItAfter(@Nonnull String stringToWrite)
-      throws IOException, IllegalOptionsException {
+  private String writeStringAndReadItAfter(@Nonnull String stringToWrite) throws IOException,
+      IllegalOptionsException, CannotCreateFileException, CannotChangePermissionException {
     File tmp = TestTools.createTempFile("tmp", "");
     RunnableHooks hooks = new RunnableHooks();
     try {

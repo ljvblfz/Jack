@@ -17,6 +17,11 @@
 package com.android.jill;
 
 import com.android.sched.util.config.cli.TokenIterator;
+import com.android.sched.util.file.CannotReadException;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotFileOrDirectoryException;
+import com.android.sched.util.file.WithLocationIOException;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.NoLocation;
 
 import org.kohsuke.args4j.CmdLineException;
@@ -27,6 +32,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import javax.annotation.Nonnull;
 
@@ -65,7 +71,7 @@ public class Main {
         System.err.println("Try --help for help");
       }
       System.exit(ExitStatus.FAILURE_USAGE);
-    } catch (IOException e) {
+    } catch (IOException | WithLocationIOException e) {
       System.err.println(e.getMessage());
 
       System.exit(ExitStatus.FAILURE_USAGE);
@@ -91,7 +97,9 @@ public class Main {
   }
 
   @Nonnull
-  public static Options getOptions(@Nonnull String[] args) throws CmdLineException, IOException {
+  public static Options getOptions(@Nonnull String[] args)
+      throws CmdLineException, IOException, NoSuchElementException, WrongPermissionException,
+      NoSuchFileException, NotFileOrDirectoryException, CannotReadException {
     Options options = new Options();
 
 
