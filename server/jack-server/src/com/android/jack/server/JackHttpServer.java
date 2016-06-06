@@ -124,7 +124,6 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -249,9 +248,6 @@ public class JackHttpServer implements HasVersion {
 
   @Nonnull
   private static final String DELETED_SUFFIX = ".deleted";
-
-  @Nonnegative
-  private static final int MINIMAL_TIMEOUT = 60 * 60 * 24 * 7 * 2;
 
   @Nonnull
   private static final String DELETED_JAR_SUFFIX = JAR_SUFFIX + DELETED_SUFFIX;
@@ -509,9 +505,6 @@ public class JackHttpServer implements HasVersion {
     portService = config.getServicePort();
     portAdmin = config.getAdminPort();
     timeout = config.getTimeout();
-    if (timeout != ConfigFile.TIMEOUT_DISABLED) {
-       timeout = Math.max(timeout, MINIMAL_TIMEOUT);
-    }
     maxJarSize = config.getMaxJarSize();
 
     maxServices = config.getMaxServices();
