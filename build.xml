@@ -776,7 +776,7 @@
     <copy file="${sched-build.dist.dir}/${sched-build.execname}" todir="${jackunittests.tools.dir}" />
     <!-- compile -->
     <javac encoding="UTF-8" srcdir="${jack.dir}/tests" destdir="${jackunittests.build.outdir}"
-      source="1.6" target="1.6" debug="true"
+      source="1.7" target="1.7" debug="true"
       includeantruntime="false"  includeDestClasses="false" nowarn="true">
       <classpath>
         <filelist refid="jackunittests.link.libs.fileset"/>
@@ -884,11 +884,6 @@
           <exclude name="com/android/jack/frontend/test016/jack/WithDuplicated.java"/>
           <exclude name="com/android/jack/frontend/test017/jack/InvalidQualification.java"/>
           <exclude name="com/android/jack/nopackage/jack/**"/>
-          <exclude name="com/android/jack/java7/boxing/**"/>
-          <exclude name="com/android/jack/java7/switches/**"/>
-          <exclude name="com/android/jack/java7/exceptions/**"/>
-          <exclude name="com/android/jack/java7/trywithresources/**"/>
-          <exclude name="com/android/jack/java7/parser/**"/>
           <exclude name="com/android/jack/java8/lambda/**"/>
           <exclude name="com/android/jack/java8/defaultmethod/**"/>
           <exclude name="com/android/jack/java8/staticmethod/**"/>
@@ -930,7 +925,7 @@
     <javac
       encoding="UTF-8"
       destdir="${jack-tests.build.outdir}"
-      source="1.6" target="1.6"
+      source="1.7" target="1.7"
       debug="true" includeantruntime="false" nowarn="true">
       <src path="${jack-tests.dir}/src"/>
       <src path="${jack-tests.dir}/tests"/>
@@ -949,11 +944,6 @@
       <exclude name="com/android/jack/frontend/test016/jack/WithDuplicated.java"/>
       <exclude name="com/android/jack/frontend/test017/jack/InvalidQualification.java"/>
       <exclude name="com/android/jack/nopackage/jack/**"/>
-      <exclude name="com/android/jack/java7/boxing/**"/>
-      <exclude name="com/android/jack/java7/switches/**"/>
-      <exclude name="com/android/jack/java7/exceptions/**"/>
-      <exclude name="com/android/jack/java7/trywithresources/**"/>
-      <exclude name="com/android/jack/java7/parser/**"/>
       <exclude name="com/android/jack/java8/lambda/**"/>
       <exclude name="com/android/jack/java8/defaultmethod/**"/>
       <exclude name="com/android/jack/java8/staticmethod/**"/>
@@ -1744,7 +1734,7 @@
     <javac encoding="UTF-8"
       srcdir="${sched.dir}/tests"
       destdir="${schedtests.build.outdir}"
-      source="1.6" target="1.6"
+      source="1.7" target="1.7"
       debug="true" includeantruntime="false"  includeDestClasses="false">
       <compilerarg line="-Xlint:-options"/>
       <classpath>
