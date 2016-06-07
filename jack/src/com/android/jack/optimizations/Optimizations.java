@@ -106,6 +106,8 @@ public class Optimizations {
         .create("jack.optimization.class-finalizer",
             "Detect effectively final classes, add modifiers when possible")
         .addDefaultValue(Boolean.FALSE)
+        .addCategory(DumpInLibrary.class)
+        .addCategory(PrebuiltCompatibility.class)
         .addCategory(Private.class);
 
     @Nonnull
@@ -114,6 +116,8 @@ public class Optimizations {
             "Preserve JSL during class finalizer optimization")
         .addDefaultValue(Boolean.TRUE)
         .requiredIf(ENABLE.getValue().isTrue())
+        .addCategory(DumpInLibrary.class)
+        .addCategory(PrebuiltCompatibility.class)
         .addCategory(Private.class);
 
     @Nonnull
@@ -122,6 +126,8 @@ public class Optimizations {
             "Preserve reflections during class finalizer optimization")
         .addDefaultValue(Boolean.FALSE)
         .requiredIf(ENABLE.getValue().isTrue())
+        .addCategory(DumpInLibrary.class)
+        .addCategory(PrebuiltCompatibility.class)
         .addCategory(Private.class);
   }
 
@@ -136,6 +142,8 @@ public class Optimizations {
         .create("jack.optimization.method-finalizer",
             "Detect effectively final methods, add modifiers when possible")
         .addDefaultValue(Boolean.FALSE)
+        .addCategory(DumpInLibrary.class)
+        .addCategory(PrebuiltCompatibility.class)
         .addCategory(Private.class);
 
     @Nonnull
@@ -144,6 +152,8 @@ public class Optimizations {
             "Preserve JSL during method finalizer optimization")
         .addDefaultValue(Boolean.TRUE)
         .requiredIf(ENABLE.getValue().isTrue())
+        .addCategory(DumpInLibrary.class)
+        .addCategory(PrebuiltCompatibility.class)
         .addCategory(Private.class);
 
     @Nonnull
@@ -152,6 +162,8 @@ public class Optimizations {
             "Preserve reflections during method finalizer optimization")
         .addDefaultValue(Boolean.FALSE)
         .requiredIf(ENABLE.getValue().isTrue())
+        .addCategory(DumpInLibrary.class)
+        .addCategory(PrebuiltCompatibility.class)
         .addCategory(Private.class);
   }
 
@@ -166,6 +178,8 @@ public class Optimizations {
         .create("jack.optimization.field-finalizer",
             "Detect effectively final fields, add modifiers when possible")
         .addDefaultValue(Boolean.FALSE)
+        .addCategory(DumpInLibrary.class)
+        .addCategory(PrebuiltCompatibility.class)
         .addCategory(Private.class);
 
     @Nonnull
@@ -174,6 +188,8 @@ public class Optimizations {
             "Preserve JSL during field finalizer optimization")
         .addDefaultValue(Boolean.TRUE)
         .requiredIf(ENABLE.getValue().isTrue())
+        .addCategory(DumpInLibrary.class)
+        .addCategory(PrebuiltCompatibility.class)
         .addCategory(Private.class);
 
     @Nonnull
@@ -182,6 +198,8 @@ public class Optimizations {
             "Preserve reflections during field finalizer optimization")
         .addDefaultValue(Boolean.FALSE)
         .requiredIf(ENABLE.getValue().isTrue())
+        .addCategory(DumpInLibrary.class)
+        .addCategory(PrebuiltCompatibility.class)
         .addCategory(Private.class);
   }
 

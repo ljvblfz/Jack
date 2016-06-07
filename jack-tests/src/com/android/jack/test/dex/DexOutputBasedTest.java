@@ -20,6 +20,7 @@ import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.optimizations.Optimizations;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 
 import org.jf.dexlib.DexFile;
 
@@ -81,6 +82,13 @@ public abstract class DexOutputBasedTest {
           .with(Optimizations.FieldFinalizer.PRESERVE_REFLECTIONS.getName(),
               Boolean.valueOf(value));
     }
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  public boolean usingLegacyCompiler() {
+    return AbstractTestTools
+        .getCandidateToolchain(JackBasedToolchain.class) instanceof JillBasedToolchain;
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
