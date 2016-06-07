@@ -53,9 +53,9 @@ class ConfigFile extends Properties {
   @Nonnull
   private static Logger logger = Logger.getLogger(ConfigFile.class.getName());
 
-  static final int CURRENT_CONFIG_VERSION = 2;
+  static final int CURRENT_CONFIG_VERSION = 3;
 
-  static final int TIMEOUT_DISABLED = -1;
+  static final int TIME_DISABLED_VALUE = -1;
 
   @Nonnull
   private static final Charset CONFIG_CHARSET = StandardCharsets.UTF_8;
@@ -73,6 +73,10 @@ class ConfigFile extends Properties {
   private static final String MAX_SERVICE_BY_MEM_PROPERTY = "jack.server.max-service.by-mem";
   @Nonnull
   private static final String TIME_OUT_PROPERTY = "jack.server.time-out";
+  @Nonnull
+  private static final String IDLE_PROPERTY = "jack.server.idle";
+  @Nonnull
+  private static final String DEEP_IDLE_PROPERTY = "jack.server.deep-idle";
   @Nonnull
   private static final String CONFIG_VERSION_PROPERTY = "jack.server.config.version";
   @Nonnull
@@ -191,14 +195,15 @@ class ConfigFile extends Properties {
   }
 
   public int getTimeout() {
-    int timeout = getProperty(ConfigFile.TIME_OUT_PROPERTY, Integer.valueOf(7200), new IntCodec())
-        .intValue();
-    if (timeout < 0 && timeout != TIMEOUT_DISABLED) {
-      logger.log(Level.WARNING,
-          "Invalid config value for " + ConfigFile.TIME_OUT_PROPERTY + ": " + timeout);
-      timeout = TIMEOUT_DISABLED;
-    }
-    return timeout;
+    return getDelay(ConfigFile.TIME_OUT_PROPERTY, 2 * 60 * 60);
+  }
+
+  public int getIdleDelay() {
+    return getDelay(ConfigFile.IDLE_PROPERTY, 3 * 60);
+  }
+
+  public int getDeepIdleDelay() {
+    return getDelay(ConfigFile.DEEP_IDLE_PROPERTY, 15 * 60);
   }
 
   public long getMaxJarSize() {
@@ -233,6 +238,17 @@ class ConfigFile extends Properties {
         .setSeparator(":"));
 
     return list;
+  }
+
+  private int getDelay(String property, int defaultValue) {
+    int delay = getProperty(property, Integer.valueOf(defaultValue), new IntCodec())
+        .intValue();
+    if (delay < 0 && delay != TIME_DISABLED_VALUE) {
+      logger.log(Level.WARNING,
+          "Invalid config value for " + property + ": " + delay);
+      delay = TIME_DISABLED_VALUE;
+    }
+    return delay;
   }
 
   @Nonnull
