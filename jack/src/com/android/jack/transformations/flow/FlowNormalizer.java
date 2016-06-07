@@ -71,8 +71,7 @@ import javax.annotation.Nonnull;
 @Name("FlowNormalizer")
 @Constraint(need = NoImplicitBlock.class)
 @Transform(
-    add = {JGoto.class, JIfStatement.class, JBlock.class, JLabel.class, JLabeledStatement.class,
-        FlowNormalizerSchedulingSeparator.SeparatorTag.class},
+    add = {JGoto.class, JIfStatement.class, JBlock.class, JLabel.class, JLabeledStatement.class},
     remove = {
         JLoop.class, JBreakStatement.class, JContinueStatement.class, ThreeAddressCodeForm.class})
 @Filter(SourceTypeFilter.class)

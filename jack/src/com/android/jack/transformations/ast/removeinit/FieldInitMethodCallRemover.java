@@ -30,7 +30,6 @@ import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.lookup.JMethodLookupException;
 import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.jack.shrob.obfuscation.OriginalNames;
-import com.android.jack.transformations.flow.FlowNormalizerSchedulingSeparator;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
@@ -53,7 +52,7 @@ import javax.annotation.Nonnull;
 @Description("Remove call to method initializing field values.")
 @Name("FieldInitMethodCallRemover")
 @Constraint(need = {JMethodCall.class, FieldInitMethod.class, OriginalNames.class},
-no = {JFieldInitializer.class, FlowNormalizerSchedulingSeparator.SeparatorTag.class})
+no = JFieldInitializer.class)
 @Transform(remove = {FieldInitMethodCall.class, ThreeAddressCodeForm.class})
 @Use(CloneStatementVisitor.class)
 @Filter(SourceTypeFilter.class)

@@ -273,7 +273,6 @@ import com.android.jack.transformations.exceptions.ExceptionRuntimeValueAdder;
 import com.android.jack.transformations.exceptions.TryCatchRemover;
 import com.android.jack.transformations.finallyblock.FinallyRemover;
 import com.android.jack.transformations.flow.FlowNormalizer;
-import com.android.jack.transformations.flow.FlowNormalizerSchedulingSeparator;
 import com.android.jack.transformations.lambda.DefaultBridgeInLambdaAdder;
 import com.android.jack.transformations.lambda.LambdaConverter;
 import com.android.jack.transformations.lambda.LambdaToAnonymousConverter;
@@ -1280,7 +1279,6 @@ public abstract class Jack {
         }
       }
 
-      typePlan4.append(FlowNormalizerSchedulingSeparator.class);
       {
         SubPlanBuilder<JMethod> methodPlan3 =
             typePlan4.appendSubPlan(JMethodAdapter.class);
