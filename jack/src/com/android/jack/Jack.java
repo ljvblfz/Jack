@@ -653,13 +653,13 @@ public abstract class Jack {
           if (config.get(BoostLockedRegionPriorityFeature.ENABLE).booleanValue()) {
             request.addFeature(BoostLockedRegionPriorityFeature.class);
           }
-          if (config.get(Optimizations.ClassFinalizer.ENABLE)) {
+          if (config.get(Optimizations.ClassFinalizer.ENABLE).booleanValue()) {
             request.addFeature(Optimizations.ClassFinalizer.class);
           }
-          if (config.get(Optimizations.MethodFinalizer.ENABLE)) {
+          if (config.get(Optimizations.MethodFinalizer.ENABLE).booleanValue()) {
             request.addFeature(Optimizations.MethodFinalizer.class);
           }
-          if (config.get(Optimizations.FieldFinalizer.ENABLE)) {
+          if (config.get(Optimizations.FieldFinalizer.ENABLE).booleanValue()) {
             request.addFeature(Optimizations.FieldFinalizer.class);
           }
 

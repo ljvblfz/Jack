@@ -24,6 +24,8 @@ import com.android.jack.test.dex.DexOutputBasedTest;
 import com.android.jack.test.dex.DexTypeFieldsValidator;
 import com.android.jack.test.dex.DexTypeFinalValidator;
 import com.android.jack.test.dex.DexTypeMethodsValidator;
+import com.android.jack.test.junit.KnownIssue;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 
 import org.junit.Test;
 
@@ -139,7 +141,13 @@ public class ModifiersTighteningTests extends DexOutputBasedTest {
     mBase.update("g(Ljava/lang/String;)Ljava/util/AbstractList;", isFinal);
     mBase.update("g(Ljava/lang/String;)Ljava/util/ArrayList;", isFinal);
 
-    mD1.update("foo()Ljava/lang/Object;", isFinal);
+    // NOTE: the legacy compiler create this method in 'D2' as well,
+    //       thus this one is not marked as final in 'D1'.
+    if (!usingLegacyCompiler()) {
+      mD1.update("foo()Ljava/lang/Object;", isFinal);
+    } else {
+      mD2.insert("foo()Ljava/lang/Object;", isFinal);
+    }
 
     mD2.update("bar()Ljava/lang/Object;", isFinal);
     mD2.update("foo()Lcom/android/jack/optimizations/modifiers/test002/Base;", isFinal);
@@ -149,6 +157,7 @@ public class ModifiersTighteningTests extends DexOutputBasedTest {
   }
 
   @Test
+  @KnownIssue(candidate = JillBasedToolchain.class)
   public void test003() throws Exception {
     String testPackage = "com.android.jack.optimizations.modifiers.test003";
 
