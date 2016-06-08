@@ -57,14 +57,9 @@ public class PropertiesConfigPrinter implements ConfigPrinter {
 
       // Print properties
       for (PropertyId<?> property : properties) {
-        StringBuilder sb = new StringBuilder();
-
-        String value = config.getAsString(property);
-        sb.append(property.getName());
-        sb.append(" = ");
-        sb.append(value);
-
-        printer.println(sb);
+        if (config.hasValue(property)) {
+          printer.println(property.getName() + " = " + config.getAsString(property));
+        }
       }
     } finally {
       printer.close();

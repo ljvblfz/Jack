@@ -35,6 +35,7 @@ public interface Config {
   @Nonnull
   public <T> T parseAs(@Nonnull String string, @Nonnull PropertyId<T> propertyId)
       throws ParsingException;
+  public <T> boolean hasValue(@Nonnull PropertyId<T> propertyId);
   @Nonnull
   public <T> String getAsString(@Nonnull PropertyId<T> propertyId);
   @Nonnull

@@ -121,6 +121,11 @@ class ConfigImpl implements Config, InternalConfig {
   }
 
   @Override
+  public <T> boolean hasValue(@Nonnull PropertyId<T> propertyId) {
+    return valuesById.get(propertyId) != null;
+  }
+
+  @Override
   @Nonnull
   public <T> String getAsString(@Nonnull PropertyId<T> propertyId) {
     @SuppressWarnings({"unchecked", "rawtypes"})
