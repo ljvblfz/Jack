@@ -218,9 +218,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
       } catch (CannotCloseOutputException | CannotCloseInputException e) {
         throw new LibraryIOException(getLocation(), e);
       }
-    } catch (WrongPermissionException | CannotCreateFileException e) {
-      throw new LibraryIOException(getLocation(), e);
-    } catch (IOException e) {
+    } catch (WrongPermissionException | CannotCreateFileException | IOException e) {
       throw new LibraryIOException(getLocation(), e);
     } finally {
       try {
@@ -267,11 +265,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
     try {
       return getSectionVFS(fileType).getRootInputOutputVDir()
           .getInputVFile(buildFileVPath(fileType, typePath));
-    } catch (NotFileOrDirectoryException e) {
-      throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
-    } catch (NoSuchFileException e) {
-      throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
-    } catch (CannotCreateFileException e) {
+    } catch (CannotCreateFileException | NoSuchFileException | NotFileOrDirectoryException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
     }
   }
@@ -284,11 +278,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
     try {
       getSectionVFS(fileType).getRootInputOutputVDir()
           .getInputVFile(buildFileVPath(fileType, typePath)).delete();
-    } catch (NotFileOrDirectoryException e) {
-      throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
-    } catch (CannotCreateFileException e) {
-      throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
-    } catch (NoSuchFileException e) {
+    } catch (CannotCreateFileException | NoSuchFileException | NotFileOrDirectoryException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
     }
   }
@@ -330,9 +320,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
     try {
       is = libProp.getInputStream();
       libraryProperties.load(is);
-    } catch (WrongPermissionException e) {
-      throw new AssertionError(e);
-    } catch (IOException e) {
+    } catch (WrongPermissionException | IOException e) {
       throw new AssertionError(e);
     } finally {
       if (is != null) {
