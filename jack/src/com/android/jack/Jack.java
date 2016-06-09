@@ -107,6 +107,7 @@ import com.android.jack.library.InputLibrary;
 import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.LibraryReadingException;
+import com.android.jack.library.LibraryWritingException;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.meta.LibraryMetaWriter;
@@ -824,41 +825,44 @@ public abstract class Jack {
           assert plan != null;
           plan.getScheduleInstance().process(session);
         } finally {
-          try {
             if (outputJackLibrary != null) {
-              outputJackLibrary.close();
+              try {
+                outputJackLibrary.close();
+              } catch (LibraryIOException e) {
+                LibraryWritingException reportable = new LibraryWritingException(e);
+                Jack.getSession().getReporter().report(Severity.FATAL, reportable);
+                throw new JackAbortException(reportable);
+              }
             }
 
             // TODO(jack-team): auto-close
             if (config.get(Options.GENERATE_DEX_FILE).booleanValue()
                 && config.get(Options.DEX_OUTPUT_CONTAINER_TYPE) == Container.ZIP) {
-              config.get(Options.DEX_OUTPUT_ZIP).close();
+              try {
+                config.get(Options.DEX_OUTPUT_ZIP).close();
+              } catch (CannotCloseOutputException | CannotCloseInputException e) {
+                ReportableIOException ioReportable = new ReportableIOException("Dex output", e);
+                throw new JackAbortException(ioReportable);
+              }
             }
 
             for (InputLibrary importedLibrary : session.getImportedLibraries()) {
               try {
                 importedLibrary.close();
               } catch (LibraryIOException e) {
-                // ignore and log I/O errors when closing
-                logger.log(Level.FINE, "Cannot close input jack library "
-                    + importedLibrary.getLocation().getDescription());
+                session.getReporter().report(Severity.FATAL, new LibraryReadingException(e));
+                session.abortEventually();
               }
             }
             for (InputLibrary classpathLibrary : session.getLibraryOnClasspath()) {
               try {
                 classpathLibrary.close();
               } catch (LibraryIOException e) {
-                // ignore and log I/O errors when closing
-                logger.log(Level.FINE, "Cannot close input jack library "
-                    + classpathLibrary.getLocation().getDescription());
+                session.getReporter().report(Severity.FATAL, new LibraryReadingException(e));
+                session.abortEventually();
               }
             }
-          } catch (LibraryIOException e) {
-            throw new AssertionError(e);
-          } catch (CannotCloseOutputException | CannotCloseInputException e) {
-            throw new AssertionError(e);
           }
-        }
       } finally {
         event.end();
       }
