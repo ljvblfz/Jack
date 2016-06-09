@@ -66,10 +66,15 @@ import com.android.sched.util.Version;
 import com.android.sched.util.codec.IntCodec;
 import com.android.sched.util.codec.PairCodec.Pair;
 import com.android.sched.util.codec.ParsingException;
+import com.android.sched.util.file.CannotChangePermissionException;
+import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.Directory;
+import com.android.sched.util.file.FileAlreadyExistsException;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.findbugs.SuppressFBWarnings;
@@ -353,7 +358,9 @@ public class JackHttpServer implements HasVersion {
   }
 
   JackHttpServer(@Nonnull LauncherHandle launcherHandle)
-      throws IOException, ServerLogConfigurationException {
+      throws IOException, ServerLogConfigurationException, NotFileException,
+      WrongPermissionException, FileAlreadyExistsException, CannotCreateFileException,
+      CannotChangePermissionException, NoSuchFileException {
     this.launcherHandle = launcherHandle;
     serverDir = launcherHandle.getServerDir();
 
@@ -382,7 +389,9 @@ public class JackHttpServer implements HasVersion {
         serverDir.getAbsolutePath().replace(File.separatorChar, '/') + '/' + LOG_FILE_PATTERN);
   }
 
-  private void buildInstalledJackCache() throws IOException {
+  private void buildInstalledJackCache() throws IOException, NotDirectoryException,
+      WrongPermissionException, CannotChangePermissionException, NoSuchFileException,
+      FileAlreadyExistsException, CannotCreateFileException {
     Cache<VersionKey, Program<JackProvider>> previousInstalledJack = installedJack;
     installedJack = CacheBuilder.newBuilder()
         .weigher(new Weigher<VersionKey, Program<JackProvider>>() {
@@ -448,7 +457,9 @@ public class JackHttpServer implements HasVersion {
         + jack.getJar().getPath());
   }
 
-  private void loadInstalledJacks() throws IOException {
+  private void loadInstalledJacks() throws IOException, NotDirectoryException,
+      WrongPermissionException, CannotChangePermissionException, NoSuchFileException,
+      FileAlreadyExistsException, CannotCreateFileException {
     File jackDir = new File(serverDir, "jack");
     new Directory(jackDir.getPath(), null, Existence.MAY_EXIST,
         Permission.READ | Permission.WRITE | Permission.EXECUTE, ChangePermission.NOCHANGE);
@@ -478,22 +489,26 @@ public class JackHttpServer implements HasVersion {
   }
 
   public void reloadConfig() throws IOException, WrongPermissionException, NotFileException,
-      ServerException {
+      ServerException, FileAlreadyExistsException, CannotCreateFileException,
+      CannotChangePermissionException, NoSuchFileException {
     shutdownConnections();
     try {
       checkAccess(serverDir, EnumSet.of(PosixFilePermission.OWNER_READ,
           PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE));
 
       loadConfig();
-    } catch (IOException e) {
+    } catch (CannotCreateFileException | CannotChangePermissionException
+        | FileAlreadyExistsException | IOException | NoSuchFileException | NotFileException
+        | WrongPermissionException e) {
       shutdown();
       throw e;
     }
     start(new HashMap<String, Object>());
   }
 
-  private void loadConfig() throws IOException,
-      WrongPermissionException, NotFileException {
+  private void loadConfig()
+      throws IOException, WrongPermissionException, NotFileException, FileAlreadyExistsException,
+      CannotCreateFileException, CannotChangePermissionException, NoSuchFileException {
 
     logger.log(Level.INFO, "Loading config of jack server version: "
         + getVersion().getVerboseVersion());
@@ -533,7 +548,9 @@ public class JackHttpServer implements HasVersion {
 
     try {
       buildInstalledJackCache();
-    } catch (IOException e) {
+    } catch (IOException | NotDirectoryException | WrongPermissionException
+        | CannotChangePermissionException | NoSuchFileException | FileAlreadyExistsException
+        | CannotCreateFileException e) {
       throw new ServerException("Problem while loading installed Jack", e);
     }
 

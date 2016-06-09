@@ -20,6 +20,12 @@ import com.android.jack.server.ServerLogConfiguration.ServerLogConfigurationExce
 import com.android.jack.server.api.v01.JackServer;
 import com.android.jack.server.api.v01.LauncherHandle;
 import com.android.jack.server.api.v01.ServerException;
+import com.android.sched.util.file.CannotChangePermissionException;
+import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.FileAlreadyExistsException;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotFileException;
+import com.android.sched.util.file.WrongPermissionException;
 
 import java.io.IOException;
 import java.util.Map;
@@ -61,7 +67,9 @@ public class JackServerImpl implements JackServer {
       jackServer = new JackHttpServer(launcherHandle);
       jackServer.start(parameters);
       jackServer.waitServerShutdown();
-    } catch (IOException | ServerLogConfigurationException e) {
+    } catch (CannotCreateFileException | CannotChangePermissionException
+        | FileAlreadyExistsException | IOException | NoSuchFileException | NotFileException
+        | WrongPermissionException | ServerLogConfigurationException e) {
       throw new ServerException(e.getMessage(), e);
     } catch (InterruptedException e) {
       jackServer.shutdown();
