@@ -25,7 +25,7 @@ import javax.annotation.Nonnull;
 /**
  * Exception when a file or directory can not be created.
  */
-public class CannotCreateFileException extends WithLocationIOException {
+public class CannotCreateFileException extends SchedIOException {
   private static final long serialVersionUID = 1L;
 
   public CannotCreateFileException(@Nonnull Location location) {

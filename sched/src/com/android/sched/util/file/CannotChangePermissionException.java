@@ -27,7 +27,7 @@ import javax.annotation.Nonnull;
 /**
  * Exception when the permissions of a file or directory cannot be changed.
  */
-public class CannotChangePermissionException extends WithLocationIOException {
+public class CannotChangePermissionException extends SchedIOException {
 
   /**
    * Represents whether the permission should be set or cleared.

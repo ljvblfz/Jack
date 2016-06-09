@@ -25,7 +25,7 @@ import javax.annotation.Nonnull;
 /**
  * Exception when a problem occurs while reading.
  */
-public class CannotReadException extends WithLocationIOException {
+public class CannotReadException extends SchedIOException {
   private static final long serialVersionUID = 1L;
 
   public CannotReadException(@Nonnull Location location) {

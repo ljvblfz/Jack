@@ -25,7 +25,7 @@ import javax.annotation.Nonnull;
 /**
  * Common superclass for I/O exceptions which are related to a specific location.
  */
-public abstract class WithLocationIOException extends Exception {
+public abstract class SchedIOException extends Exception {
   private static final long serialVersionUID = 1L;
 
   @CheckForNull
@@ -36,14 +36,14 @@ public abstract class WithLocationIOException extends Exception {
   @Nonnull
   protected abstract String createMessage(@Nonnull String description);
 
-  protected WithLocationIOException(@Nonnull Location location, @CheckForNull Throwable cause) {
+  protected SchedIOException(@Nonnull Location location, @CheckForNull Throwable cause) {
     super("", cause);
     assert location != null;
     this.location = location;
     this.locationProvider = null;
   }
 
-  protected WithLocationIOException(@Nonnull HasLocation locationProvider,
+  protected SchedIOException(@Nonnull HasLocation locationProvider,
       @CheckForNull Throwable cause) {
     super("", cause);
     assert locationProvider != null;

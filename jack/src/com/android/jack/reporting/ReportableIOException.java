@@ -16,7 +16,7 @@
 
 package com.android.jack.reporting;
 
-import com.android.sched.util.file.WithLocationIOException;
+import com.android.sched.util.file.SchedIOException;
 import com.android.sched.util.location.Location;
 
 import java.io.IOException;
@@ -33,7 +33,7 @@ public class ReportableIOException extends ReportableException {
   @Nonnull
   private final String module;
 
-  public ReportableIOException(@Nonnull String module, @Nonnull WithLocationIOException cause) {
+  public ReportableIOException(@Nonnull String module, @Nonnull SchedIOException cause) {
     super(cause);
     this.location = cause.getLocation();
     this.module = module;

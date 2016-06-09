@@ -29,7 +29,7 @@ import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
-import com.android.sched.util.file.WithLocationIOException;
+import com.android.sched.util.file.SchedIOException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.ColumnAndLineLocation;
 import com.android.sched.util.location.Location;
@@ -79,7 +79,7 @@ public class TokenIterator {
   @Nonnull
   private Entry current = NULL;
   @CheckForNull
-  private WithLocationIOException pending = null;
+  private SchedIOException pending = null;
 
   private class Sources {
     private class Source {
@@ -203,7 +203,7 @@ public class TokenIterator {
         next = getNext();
       } catch (NoSuchElementException e) {
         return false;
-      } catch (WithLocationIOException e) {
+      } catch (SchedIOException e) {
         pending = e;
       }
     }
@@ -232,7 +232,7 @@ public class TokenIterator {
       } catch (NoSuchElementException e) {
         current = NULL;
         throw e;
-      } catch (WithLocationIOException e) {
+      } catch (SchedIOException e) {
         current = NULL;
         pending = e;
         throwIfPending();

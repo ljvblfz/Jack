@@ -25,7 +25,7 @@ import javax.annotation.Nonnull;
 /**
  * An I/O exception that occurs when closing an output.
  */
-public class CannotCloseOutputException extends WithLocationIOException {
+public class CannotCloseOutputException extends SchedIOException {
 
   private static final long serialVersionUID = 1L;
 

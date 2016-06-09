@@ -25,7 +25,7 @@ import javax.annotation.Nonnull;
 /**
  * Exception when a problem occurs while writing.
  */
-public class CannotWriteException extends WithLocationIOException {
+public class CannotWriteException extends SchedIOException {
   private static final long serialVersionUID = 1L;
 
   public CannotWriteException(@Nonnull Location location) {

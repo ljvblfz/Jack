@@ -27,7 +27,7 @@ import javax.annotation.Nonnull;
 /**
  * An I/O exception that occurs when closing an input.
  */
-public class CannotCloseInputException extends WithLocationIOException {
+public class CannotCloseInputException extends SchedIOException {
 
   private static final long serialVersionUID = 1L;
 

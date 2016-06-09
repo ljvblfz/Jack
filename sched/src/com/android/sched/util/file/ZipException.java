@@ -26,7 +26,7 @@ import javax.annotation.Nonnull;
  * An Exception designed to wrap a {@link java.util.zip.ZipException} while adding {@link Location}
  * info.
  */
-public class ZipException extends WithLocationIOException {
+public class ZipException extends SchedIOException {
   private static final long serialVersionUID = 1L;
 
   @SuppressFBWarnings("NP_METHOD_PARAMETER_TIGHTENS_ANNOTATION") // we don't want cause to be null

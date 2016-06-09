@@ -20,7 +20,7 @@ import com.android.sched.util.config.cli.TokenIterator;
 import com.android.sched.util.file.CannotReadException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
-import com.android.sched.util.file.WithLocationIOException;
+import com.android.sched.util.file.SchedIOException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.NoLocation;
 
@@ -71,7 +71,7 @@ public class Main {
         System.err.println("Try --help for help");
       }
       System.exit(ExitStatus.FAILURE_USAGE);
-    } catch (IOException | WithLocationIOException e) {
+    } catch (IOException | SchedIOException e) {
       System.err.println(e.getMessage());
 
       System.exit(ExitStatus.FAILURE_USAGE);

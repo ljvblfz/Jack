@@ -25,7 +25,7 @@ import javax.annotation.Nonnull;
 /**
  * Exception when a file or directory does not exist.
  */
-public class NoSuchFileException extends WithLocationIOException {
+public class NoSuchFileException extends SchedIOException {
   private static final long serialVersionUID = 1L;
 
   public NoSuchFileException(@Nonnull Location location) {

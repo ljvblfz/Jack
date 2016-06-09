@@ -25,7 +25,7 @@ import javax.annotation.Nonnull;
 /**
  * Exception when a path is not from the expected file or directory kind.
  */
-public abstract class NotFileOrDirectoryException extends WithLocationIOException {
+public abstract class NotFileOrDirectoryException extends SchedIOException {
   private static final long serialVersionUID = 1L;
 
   public NotFileOrDirectoryException(@Nonnull Location location, @CheckForNull Throwable cause) {
