@@ -310,5 +310,9 @@ by Joshua Bloch in his book Effective Java -->
     -->
 
   </module>
+
+  <module name="SuppressionFilter">
+    <property name="file" value="${config_loc}/jackstyleSuppressions.xml"/>
+  </module>
 </module>
 
