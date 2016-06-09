@@ -19,8 +19,8 @@ package com.android.sched.scheduler.genetic;
 import com.google.common.base.Joiner;
 
 import com.android.sched.item.Component;
-import com.android.sched.scheduler.GroupPlanCandidate;
 import com.android.sched.scheduler.FitnessPlanCandidate;
+import com.android.sched.scheduler.GroupPlanCandidate;
 import com.android.sched.scheduler.Planner;
 import com.android.sched.scheduler.Request;
 import com.android.sched.util.codec.ImplementationName;

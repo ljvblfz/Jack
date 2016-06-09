@@ -34,7 +34,6 @@ import com.android.sched.util.codec.CodecContext;
 import com.android.sched.util.file.CannotChangePermissionException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.Files;
-import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.stream.ByteStreamSucker;
 

@@ -16,8 +16,8 @@
 
 package com.android.sched.scheduler;
 
-import com.android.sched.item.Feature;
 import com.android.sched.item.AbstractItemManager;
+import com.android.sched.item.Feature;
 import com.android.sched.item.ItemSet;
 
 import javax.annotation.Nonnull;

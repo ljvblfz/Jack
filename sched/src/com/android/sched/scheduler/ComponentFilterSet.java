@@ -16,9 +16,9 @@
 
 package com.android.sched.scheduler;
 
+import com.android.sched.item.AbstractItemManager;
 import com.android.sched.item.Component;
 import com.android.sched.item.ComposedOf;
-import com.android.sched.item.AbstractItemManager;
 import com.android.sched.item.ItemSet;
 import com.android.sched.schedulable.ComponentFilter;
 

@@ -20,10 +20,10 @@ import com.google.common.collect.Iterators;
 
 import com.android.sched.filter.ManagedComponentFilter;
 import com.android.sched.item.AbstractComponent;
+import com.android.sched.item.AbstractItemManager;
 import com.android.sched.item.Component;
 import com.android.sched.item.Feature;
 import com.android.sched.item.Item;
-import com.android.sched.item.AbstractItemManager;
 import com.android.sched.item.Items;
 import com.android.sched.item.ManagedItem;
 import com.android.sched.item.Production;

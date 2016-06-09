@@ -18,8 +18,6 @@ package com.android.jack.test.dex;
 
 import junit.framework.Assert;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.TreeSet;
 import javax.annotation.Nonnull;
 
