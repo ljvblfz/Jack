@@ -18,7 +18,7 @@ package com.android.sched.vfs;
 
 import com.android.sched.util.config.MessageDigestFactory;
 import com.android.sched.util.file.CannotChangePermissionException;
-import com.android.sched.util.file.CannotCloseOutputException;
+import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.Directory;
@@ -85,14 +85,14 @@ public class ReadWriteZipFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS 
   }
 
   @Override
-  public void close() throws CannotCloseOutputException {
+  public void close() throws CannotCloseException {
     vfs.close();
     try {
       if (dir.exists()) {
         FileUtils.deleteDir(dir);
       }
     } catch (IOException e) {
-      throw new CannotCloseOutputException(new DirectoryLocation(dir), e);
+      throw new CannotCloseException(new DirectoryLocation(dir), e);
     }
   }
 

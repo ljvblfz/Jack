@@ -17,8 +17,7 @@
 package com.android.sched.vfs;
 
 import com.android.sched.util.HasDescription;
-import com.android.sched.util.file.CannotCloseInputException;
-import com.android.sched.util.file.CannotCloseOutputException;
+import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.location.HasLocation;
 
 import java.util.Set;
@@ -47,5 +46,5 @@ public interface VFS extends HasLocation, AutoCloseable, HasDescription {
   boolean isClosed();
 
   @Override
-  void close() throws CannotCloseOutputException, CannotCloseInputException;
+  void close() throws CannotCloseException;
 }

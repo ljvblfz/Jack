@@ -16,8 +16,7 @@
 
 package com.android.sched.vfs;
 
-import com.android.sched.util.file.CannotCloseInputException;
-import com.android.sched.util.file.CannotCloseOutputException;
+import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.CannotReadException;
@@ -139,7 +138,7 @@ public class DeflateFS extends BaseVFS<DeflateVDir, DeflateVFile> implements VFS
   }
 
   @Override
-  public void close() throws CannotCloseOutputException, CannotCloseInputException {
+  public void close() throws CannotCloseException {
     vfs.close();
   }
 
@@ -302,7 +301,7 @@ public class DeflateFS extends BaseVFS<DeflateVDir, DeflateVFile> implements VFS
 
   @Override
   public void copy(@Nonnull VFile srcFile, @Nonnull DeflateVFile dstFile)
-      throws WrongPermissionException, CannotCloseInputException, CannotCloseOutputException,
+      throws WrongPermissionException, CannotCloseException,
       CannotReadException, CannotWriteException {
     if (srcFile instanceof DeflateVFile) { // copy without inflating/deflating
       vfs.copy(((DeflateVFile) srcFile).getWrappedFile(), dstFile.getWrappedFile());

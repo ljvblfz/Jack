@@ -316,8 +316,7 @@ import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.ReflectFactoryPropertyId;
-import com.android.sched.util.file.CannotCloseInputException;
-import com.android.sched.util.file.CannotCloseOutputException;
+import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.file.CannotWriteException;
 import com.android.sched.util.log.Event;
 import com.android.sched.util.log.LoggerFactory;
@@ -840,7 +839,7 @@ public abstract class Jack {
                 && config.get(Options.DEX_OUTPUT_CONTAINER_TYPE) == Container.ZIP) {
               try {
                 config.get(Options.DEX_OUTPUT_ZIP).close();
-              } catch (CannotCloseOutputException | CannotCloseInputException e) {
+              } catch (CannotCloseException e) {
                 ReportableIOException ioReportable = new ReportableIOException("Dex output", e);
                 throw new JackAbortException(ioReportable);
               }
