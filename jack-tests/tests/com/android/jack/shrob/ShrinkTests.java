@@ -23,6 +23,7 @@ import com.android.jack.test.category.SlowTests;
 import com.android.jack.test.comparator.ComparatorMapping;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
+import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.DummyToolchain;
@@ -396,6 +397,7 @@ public class ShrinkTests extends AbstractTest {
   }
 
   @Test
+  @Runtime
   public void test053() throws Exception {
     RuntimeTestInfo runtimeTestInfo = new RuntimeTestInfo(
         new File(shrobTestsDir, "test053"),

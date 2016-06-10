@@ -51,6 +51,7 @@ import com.android.jack.string.StringTests;
 import com.android.jack.switchstatement.SwitchstatementTests;
 import com.android.jack.synchronize.SynchronizeTests;
 import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.threeaddress.ThreeaddressTests;
@@ -113,6 +114,7 @@ public class RegressionTests {
 
 
   @Test
+  @Runtime
   public void runRegressionTests() throws Exception {
     List<RuntimeTestInfo> rtTestInfos = new ArrayList<RuntimeTestInfo>();
 

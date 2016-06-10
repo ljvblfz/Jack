@@ -25,6 +25,7 @@ import com.android.jack.test.helper.FileChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
 import com.android.jack.test.junit.KnownIssue;
+import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -190,60 +191,70 @@ public class InnerTests extends RuntimeTest {
       "com.android.jack.inner.test032.dx.Tests");
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test001() throws Exception {
     new RuntimeTestHelper(TEST001).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test002() throws Exception {
     new RuntimeTestHelper(TEST002).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test003() throws Exception {
     new RuntimeTestHelper(TEST003).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test004() throws Exception {
     new RuntimeTestHelper(TEST004).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test005() throws Exception {
     new RuntimeTestHelper(TEST005).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test006() throws Exception {
     new RuntimeTestHelper(TEST006).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test007() throws Exception {
     new RuntimeTestHelper(TEST007).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test008() throws Exception {
     new RuntimeTestHelper(TEST008).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test009() throws Exception {
     new RuntimeTestHelper(TEST009).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test010() throws Exception {
     new RuntimeTestHelper(TEST010).compileAndRunTest();
@@ -256,78 +267,91 @@ public class InnerTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test012() throws Exception {
     new RuntimeTestHelper(TEST012).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test013() throws Exception {
     new RuntimeTestHelper(TEST013).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test014() throws Exception {
     new RuntimeTestHelper(TEST014).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test015() throws Exception {
     new RuntimeTestHelper(TEST015).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test016() throws Exception {
     new RuntimeTestHelper(TEST016).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test017() throws Exception {
     new RuntimeTestHelper(TEST017).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test018() throws Exception {
     new RuntimeTestHelper(TEST018).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test019() throws Exception {
     new RuntimeTestHelper(TEST019).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test020() throws Exception {
     new RuntimeTestHelper(TEST020).compileAndRunTest(true);
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test021() throws Exception {
     new RuntimeTestHelper(TEST021).compileAndRunTest(true);
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test022() throws Exception {
     new RuntimeTestHelper(TEST022).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test023() throws Exception {
     new RuntimeTestHelper(TEST023).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test024() throws Exception {
     new RuntimeTestHelper(TEST024).compileAndRunTest();
@@ -344,24 +368,28 @@ public class InnerTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   public void test026() throws Exception {
     new RuntimeTestHelper(TEST026).addIgnoredCandidateToolchain(JillBasedToolchain.class)
         .compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test027() throws Exception {
     new RuntimeTestHelper(TEST027).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test028() throws Exception {
     new RuntimeTestHelper(TEST028).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   @KnownIssue
   public void test029() throws Exception {
@@ -382,11 +410,13 @@ public class InnerTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   public void test030() throws Exception {
     new RuntimeTestHelper(TEST030).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @KnownIssue
   public void test032() throws Exception {
     new RuntimeTestHelper(TEST032).compileAndRunTest();
@@ -399,6 +429,7 @@ public class InnerTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   public void test031() throws Exception {
     new RuntimeTestHelper(TEST031).compileAndRunTest();
   }

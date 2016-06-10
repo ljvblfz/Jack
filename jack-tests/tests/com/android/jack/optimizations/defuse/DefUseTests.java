@@ -19,6 +19,7 @@ package com.android.jack.optimizations.defuse;
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.junit.KnownIssue;
+import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -41,6 +42,7 @@ public class DefUseTests extends RuntimeTest {
       "com.android.jack.optimizations.defuse.test004.dx.Tests");
 
   @Test
+  @Runtime
   public void test001() throws Exception {
     // Debug informations must be disabled to increase the number of synthetic variables and to
     // increase the variable reuse in order to raise the problem.
@@ -51,18 +53,21 @@ public class DefUseTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test002() throws Exception {
     new RuntimeTestHelper(TEST002).compileAndRunTest(/* checkStructure  = */ false);
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test003() throws Exception {
     new RuntimeTestHelper(TEST003).compileAndRunTest(/* checkStructure  = */ false);
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test004() throws Exception {
     new RuntimeTestHelper(TEST004).compileAndRunTest(/* checkStructure  = */ false);

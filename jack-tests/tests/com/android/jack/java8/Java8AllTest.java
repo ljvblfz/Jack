@@ -17,18 +17,36 @@
 package com.android.jack.java8;
 
 
-import com.android.jack.test.junit.JackTestRunner;
-
 import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 /**
  * JUnit test for compilation of Java 8 features
  */
-@RunWith(JackTestRunner.class)
-@SuiteClasses(value = {
-    Java8AllTestPreN.class,
-    Java8AllTestPostM.class
-    })
-public class Java8AllTest {
-}
+@RunWith(Suite.class)
+@SuiteClasses(
+  value = {
+    // PostM tests
+    BridgeTestPostM.class,
+    DefaultMethodTest.class,
+    EcjInterfaceMethodsTest.class,
+    EcjLambdaTestPostM.class,
+    GwtTestPostM.class,
+    LambdaTestPostM.class,
+    RetroLambdaTests.class,
+    StaticMethodTest.class,
+
+    // PreN tests
+    AnnotationTest.class,
+    BridgeTestPreN.class,
+    EcjLambdaTest.class,
+    GwtTest.class,
+    IntersectionTypeTest.class,
+    LambdaTest.class,
+    MethodRefTest.class,
+    TypeInferenceTest.class,
+    VariableTest.class
+  }
+)
+public class Java8AllTest {}

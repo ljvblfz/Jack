@@ -22,7 +22,7 @@ import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.test.TestsProperties;
 import com.android.jack.test.helper.RuntimeTestHelper;
-import com.android.jack.test.junit.KnownIssue;
+import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runner.RuntimeRunner;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -74,12 +74,14 @@ public class JarjarTests {
       "com.android.jack.jarjar.test005.dx.Tests");
 
   @Test
+  @Runtime
   public void jarjar001() throws Exception {
     new RuntimeTestHelper(JARJAR001)
     .compileAndRunTest();
   }
 
   @Test
+  @Runtime
   public void jarjar003() throws Exception {
     new RuntimeTestHelper(JARJAR003)
     .compileAndRunTest();
@@ -106,6 +108,7 @@ public class JarjarTests {
   }
 
   @Test
+  @Runtime
   public void jarjar004() throws Exception {
 
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
@@ -268,6 +271,7 @@ public class JarjarTests {
    * classpath
    */
   @Test
+  @Runtime
   public void jarjar006_1() throws Exception {
     File testRootDir = AbstractTestTools.getTestRootDir("com.android.jack.jarjar.test006");
 
@@ -353,6 +357,7 @@ public class JarjarTests {
    * Same as jarjar006_1 but jarjar operation is made with classpath
    */
   @Test
+  @Runtime
   public void jarjar006_2() throws Exception {
     File testRootDir = AbstractTestTools.getTestRootDir("com.android.jack.jarjar.test006");
 

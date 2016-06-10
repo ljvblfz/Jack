@@ -18,6 +18,7 @@ package com.android.jack.optimizations.tailrecursion;
 
 import com.android.jack.Options;
 import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -37,6 +38,7 @@ public class TailRecursionTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   public void test001() throws Exception {
     createHelper(TEST001).compileAndRunTest();
   }

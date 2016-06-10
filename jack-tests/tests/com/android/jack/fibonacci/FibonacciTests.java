@@ -21,6 +21,7 @@ import com.android.jack.test.comparator.ComparatorDex;
 import com.android.jack.test.helper.CheckDexStructureTestHelper;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
+import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -39,6 +40,7 @@ public class FibonacciTests extends RuntimeTest {
 
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test001() throws Exception {
     new RuntimeTestHelper(TEST001).compileAndRunTest();
