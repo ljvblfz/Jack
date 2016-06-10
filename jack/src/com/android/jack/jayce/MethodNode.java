@@ -22,6 +22,7 @@ import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.lookup.JMethodLookupException;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -33,7 +34,12 @@ public interface MethodNode extends Node {
   JAbstractMethodBody loadBody(@Nonnull JMethod loading) throws JTypeLookupException,
       JMethodLookupException;
 
+  void loadAnnotations(@Nonnull JMethod loading);
+
   @Nonnull
   NodeLevel getLevel();
+
+  @Nonnull
+  ParameterNode getParameterNode(@Nonnegative int parameterNodeIndex);
 
 }

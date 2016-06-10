@@ -16,9 +16,16 @@
 
 package com.android.jack.jayce.v0003.nodes;
 
+import com.android.jack.Jack;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JTypeLookupException;
+import com.android.jack.jayce.FieldNode;
+import com.android.jack.jayce.JayceClassOrInterfaceLoader;
+import com.android.jack.jayce.JayceFieldLoader;
+import com.android.jack.jayce.NodeLevel;
 import com.android.jack.jayce.v0003.NNode;
 import com.android.jack.jayce.v0003.io.ExportSession;
 import com.android.jack.jayce.v0003.io.ImportHelper;
@@ -37,10 +44,12 @@ import javax.annotation.Nonnull;
 /**
  * Java field definition.
  */
-public class NField extends NNode implements HasSourceInfo {
+public class NField extends NNode implements HasSourceInfo, FieldNode {
 
   @Nonnull
   public static final Token TOKEN = Token.FIELD;
+
+  protected static final int INDEX_UNKNOWN = -1;
 
   public int modifiers;
 
@@ -62,6 +71,8 @@ public class NField extends NNode implements HasSourceInfo {
   @CheckForNull
   public NSourceInfo sourceInfo;
 
+  protected int fieldNodeIndex = INDEX_UNKNOWN;
+
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JField jField = (JField) node;
@@ -78,10 +89,16 @@ public class NField extends NNode implements HasSourceInfo {
   @Nonnull
   public JField exportAsJast(@Nonnull ExportSession exportSession) throws JTypeLookupException,
       JMethodLookupException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Nonnull
+  public JField exportAsJast(@Nonnull ExportSession exportSession,
+      @Nonnull JayceClassOrInterfaceLoader enclosingLoader) throws JTypeLookupException,
+      JMethodLookupException {
     assert sourceInfo != null;
     assert name != null;
     assert type != null;
-
     JDefinedClassOrInterface enclosingType = exportSession.getCurrentType();
     assert enclosingType != null;
     JField jField = new JField(
@@ -89,14 +106,15 @@ public class NField extends NNode implements HasSourceInfo {
         name,
         enclosingType,
         exportSession.getLookup().getType(type),
-        modifiers);
+        modifiers,
+        new JayceFieldLoader(this, fieldNodeIndex, enclosingLoader));
+
+    assert name != null;
+    assert type != null;
     exportSession.getFieldInitializerFieldResolver().addTarget(getResolverFieldId(name, type),
         jField);
     if (initialValue != null) {
       jField.setInitialValue(initialValue.exportAsJast(exportSession));
-    }
-    for (NAnnotation annotation : annotations) {
-      jField.addAnnotation(annotation.exportAsJast(exportSession));
     }
     for (NMarker marker : markers) {
       jField.addMarker(marker.exportAsJast(exportSession));
@@ -143,8 +161,26 @@ public class NField extends NNode implements HasSourceInfo {
     this.sourceInfo = sourceInfo;
   }
 
+  @Override
+  public void setIndex(int index) {
+    fieldNodeIndex = index;
+  }
+
   @Nonnull
   static String getResolverFieldId(@Nonnull String name, @Nonnull String type) {
     return name + "-" + type;
   }
+
+  @Override
+  public void loadAnnotations(@Nonnull JField loading) {
+    JSession session = Jack.getSession();
+    ExportSession exportSession = new ExportSession(session.getPhantomLookup(), session,
+        NodeLevel.STRUCTURE);
+    for (NAnnotation annotation : annotations) {
+      JAnnotation annote = annotation.exportAsJast(exportSession);
+      loading.addAnnotation(annote);
+      annote.updateParents(loading);
+    }
+  }
+
 }

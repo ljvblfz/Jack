@@ -25,7 +25,6 @@ import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.JayceClassOrInterfaceLoader;
 import com.android.jack.jayce.JayceMethodLoader;
-import com.android.jack.jayce.NodeLevel;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
@@ -74,20 +73,15 @@ public class NConstructor extends NMethod {
     SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JDefinedClass enclosingType = (JDefinedClass) exportSession.getCurrentType();
     assert enclosingType != null;
+    JayceMethodLoader methodLoader = new JayceMethodLoader(this, methodNodeIndex, enclosingLoader);
     JConstructor jConstructor = new JConstructor(jSourceInfo,
-        enclosingType, modifier, new JayceMethodLoader(this, methodNodeIndex, enclosingLoader));
+        enclosingType, modifier, methodLoader);
     exportSession.setCurrentMethod(jConstructor);
     for (NParameter parameter : parameters) {
-      JParameter jParam = parameter.exportAsJast(exportSession);
+      JParameter jParam = parameter.exportAsJast(exportSession, methodLoader);
       jConstructor.addParam(jParam);
       JMethodIdWide id = jConstructor.getMethodIdWide();
       id.addParam(jParam.getType());
-    }
-    for (NAnnotation annotationLiteral : annotations) {
-      jConstructor.addAnnotation(annotationLiteral.exportAsJast(exportSession));
-    }
-    if (body != null && exportSession.getNodeLevel() == NodeLevel.FULL) {
-      jConstructor.setBody(body.exportAsJast(exportSession));
     }
     for (NMarker marker : markers) {
       jConstructor.addMarker(marker.exportAsJast(exportSession));

@@ -92,9 +92,6 @@ public class NAnnotationMethod extends NMethod {
         modifier,
         new JayceMethodLoader(this, methodNodeIndex, enclosingLoader));
     exportSession.setCurrentMethod(jAnnotationMethod);
-    for (NAnnotation annotationLiteral : annotations) {
-      jAnnotationMethod.addAnnotation(annotationLiteral.exportAsJast(exportSession));
-    }
     if (defaultValue != null) {
       jAnnotationMethod.setDefaultValue(defaultValue.exportAsJast(exportSession));
     }

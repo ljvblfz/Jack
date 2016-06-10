@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,31 +16,34 @@
 
 package com.android.jack.load;
 
-import com.android.jack.ir.ast.JAnnotationType;
-import com.android.jack.ir.ast.JMethod;
-import com.android.sched.marker.Marker;
+import com.android.jack.ir.ast.JField;
 import com.android.sched.util.location.Location;
+import com.android.sched.util.location.NoLocation;
 
 import javax.annotation.Nonnull;
 
 /**
- * Loader for method.
+ * A {@link FieldLoader} doing nothing.
  */
-public interface MethodLoader {
-
-  public void ensureMarkers(@Nonnull JMethod loaded);
-
-  public void ensureMarker(@Nonnull JMethod loaded,
-      @Nonnull Class<? extends Marker> cls);
-
-  public void ensureAnnotations(@Nonnull JMethod loaded);
-
-  public void ensureAnnotation(@Nonnull JMethod loaded,
-      @Nonnull JAnnotationType annotation);
-
-  public void ensureBody(@Nonnull JMethod loaded);
+public class NopFieldLoader extends AbstractFieldLoader {
 
   @Nonnull
-  public Location getLocation(@Nonnull JMethod loaded);
+  public static final FieldLoader INSTANCE = new NopFieldLoader();
+  @Nonnull
+  private static final NoLocation NO_LOCATION = new NoLocation();
 
+  private NopFieldLoader() {
+    // Nothing to do
+  }
+
+  @Override
+  @Nonnull
+  public Location getLocation(@Nonnull JField loaded) {
+    return NO_LOCATION;
+  }
+
+  @Override
+  protected void ensureAll(@Nonnull JField loaded) {
+    // Nothing to do
+  }
 }

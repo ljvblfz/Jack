@@ -17,9 +17,13 @@
 package com.android.jack.jayce.v0002.nodes;
 
 import com.android.jack.Jack;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.formatter.TypeAndMethodFormatter;
 import com.android.jack.jayce.DeclaredTypeNode;
+import com.android.jack.jayce.FieldNode;
+import com.android.jack.jayce.JayceClassOrInterfaceLoader;
 import com.android.jack.jayce.MethodNode;
 import com.android.jack.jayce.NodeLevel;
 import com.android.jack.jayce.v0002.NNode;
@@ -41,6 +45,13 @@ public abstract class NDeclaredType extends NNode implements HasSourceInfo, Decl
 
   @Nonnull
   public List<NMethod> methods = Collections.emptyList();
+
+  @Nonnull
+  public List<NField> fields = Collections.emptyList();
+
+  @Nonnull
+  public List<NAnnotation> annotations = Collections.emptyList();
+
   @Nonnull
   private final TypeAndMethodFormatter lookupFormatter = Jack.getLookupFormatter();
 
@@ -56,17 +67,41 @@ public abstract class NDeclaredType extends NNode implements HasSourceInfo, Decl
   }
 
   @Override
+  public void loadAnnotations(@Nonnull JDefinedClassOrInterface loading,
+      @Nonnull JayceClassOrInterfaceLoader classOrInterfaceLoader) {
+    JSession session = Jack.getSession();
+    ExportSession exportSession = new ExportSession(session.getPhantomLookup(), session,
+        NodeLevel.STRUCTURE);
+    for (NAnnotation annotation : annotations) {
+      JAnnotation annotationLiteral = annotation.exportAsJast(exportSession);
+      loading.addAnnotation(annotationLiteral);
+      annotationLiteral.updateParents(loading);
+    }
+  }
+
+  @Override
+  @Nonnull
+  public FieldNode getFieldNode(int fieldNodeIndex) {
+    return fields.get(fieldNodeIndex);
+  }
+
+  @Override
   @Nonnull
   public MethodNode getMethodNode(@Nonnull int methodNodeIndex) {
     return methods.get(methodNodeIndex);
   }
 
-  protected boolean areMethodIndicesValid() {
+  protected boolean areIndicesValid() {
     boolean allValid = true;
     int size = methods.size();
     for (int i = 0; (i < size) && allValid; i++) {
       allValid &= (i == methods.get(i).methodNodeIndex);
     }
+    size = fields.size();
+    for (int i = 0; (i < size) && allValid; i++) {
+      allValid &= (i == fields.get(i).fieldNodeIndex);
+    }
+
     return allValid;
   }
 

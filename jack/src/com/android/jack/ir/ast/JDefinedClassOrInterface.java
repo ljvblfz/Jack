@@ -172,6 +172,26 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
     return super.removeMarker(cls);
   }
 
+  @Nonnull
+  @Override
+  public <T extends Marker> T getMarkerOrDefault(@Nonnull T defaultMarker) {
+    loader.ensureMarker(this, defaultMarker.getClass());
+    return super.getMarkerOrDefault(defaultMarker);
+  }
+
+  @Override
+  @CheckForNull
+  public <T extends Marker> T addMarkerIfAbsent(@Nonnull T marker) {
+    loader.ensureMarker(this, marker.getClass());
+    return super.addMarkerIfAbsent(marker);
+  }
+
+  @Override
+  public void addAllMarkers(@Nonnull Collection<Marker> collection) {
+    loader.ensureMarkers(this);
+    super.addAllMarkers(collection);
+  }
+
   @Override
   @Nonnull
   public List<JInterface> getImplements() {

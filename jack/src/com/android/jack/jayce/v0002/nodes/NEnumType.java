@@ -25,7 +25,6 @@ import com.android.jack.ir.ast.JDefinedEnum;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JPackage;
-import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.JayceClassOrInterfaceLoader;
 import com.android.jack.jayce.NodeLevel;
@@ -87,9 +86,8 @@ public class NEnumType extends NClassType {
   }
 
   @Override
-  public void updateToStructure(@Nonnull JDefinedClassOrInterface loading,
-      @Nonnull JayceClassOrInterfaceLoader loader) throws JTypeLookupException,
-      JMethodLookupException {
+  public void loadStructure(@Nonnull JDefinedClassOrInterface loading,
+      @Nonnull JayceClassOrInterfaceLoader loader) {
     assert sourceInfo != null;
     assert signature != null;
     JDefinedEnum jEnumType = (JDefinedEnum) loading;
@@ -128,15 +126,12 @@ public class NEnumType extends NClassType {
           (JClassOrInterface) exportSession.getLookup().getType(memberType));
     }
     for (NField field : fields) {
-      JField jField = field.exportAsJast(exportSession);
+      JField jField = field.exportAsJast(exportSession, loader);
       jEnumType.addField(jField);
     }
     for (NMethod method : methods) {
       JMethod jMethod = method.exportAsJast(exportSession, loader);
       jEnumType.addMethod(jMethod);
-    }
-    for (NAnnotation annotation : annotations) {
-      jEnumType.addAnnotation(annotation.exportAsJast(exportSession));
     }
     for (NMarker marker : markers) {
       jEnumType.addMarker(marker.exportAsJast(exportSession));
@@ -175,7 +170,7 @@ public class NEnumType extends NClassType {
       inners = in.readIds();
       fields = in.readNodes(NField.class);
       methods = in.readNodes(NMethod.class);
-      assert areMethodIndicesValid();
+      assert areIndicesValid();
       annotations = in.readNodes(NAnnotation.class);
       markers = in.readNodes(NMarker.class);
     }

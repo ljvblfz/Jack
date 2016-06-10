@@ -18,9 +18,12 @@ package com.android.jack.ir.ast;
 import com.android.jack.Jack;
 import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.load.FieldLoader;
+import com.android.jack.load.NopFieldLoader;
 import com.android.jack.util.AnnotationUtils;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
+import com.android.sched.marker.Marker;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 
@@ -54,12 +57,25 @@ public class JField extends JNode implements HasName, HasType, JVisitable, CanBe
   @CheckForNull
   private JLiteral initialValue;
 
+  @Nonnull
+  private final FieldLoader loader;
+
   public JField(
       @Nonnull SourceInfo info,
       @Nonnull String name,
       @Nonnull JDefinedClassOrInterface enclosingType,
       @Nonnull JType type,
       int modifier) {
+    this(info, name, enclosingType, type, modifier, NopFieldLoader.INSTANCE);
+  }
+
+    public JField(
+        @Nonnull SourceInfo info,
+        @Nonnull String name,
+        @Nonnull JDefinedClassOrInterface enclosingType,
+        @Nonnull JType type,
+        int modifier,
+        @Nonnull FieldLoader loader) {
     super(info);
     assert JModifier.isFieldModifier(modifier) : "Wrong field modifier.";
     assert JModifier.isValidFieldModifier(modifier);
@@ -67,6 +83,7 @@ public class JField extends JNode implements HasName, HasType, JVisitable, CanBe
     this.enclosingType = enclosingType;
     this.fieldId = new JFieldId(name, type,
         JModifier.isStatic(modifier) ? FieldKind.STATIC : FieldKind.INSTANCE, this);
+    this.loader = loader;
   }
 
   @CheckForNull
@@ -153,6 +170,9 @@ public class JField extends JNode implements HasName, HasType, JVisitable, CanBe
   @Override
   public void traverse(@Nonnull JVisitor visitor) {
     if (visitor.visit(this)) {
+      if (visitor.needLoading()) {
+        loader.ensureAnnotations(this);
+      }
       visitor.accept(annotations);
     }
     visitor.endVisit(this);
@@ -249,6 +269,7 @@ public class JField extends JNode implements HasName, HasType, JVisitable, CanBe
   @Override
   @Nonnull
   public List<JAnnotation> getAnnotations(@Nonnull JAnnotationType annotationType) {
+    loader.ensureAnnotation(this, annotationType);
     return Jack.getUnmodifiableCollections().getUnmodifiableList(
         AnnotationUtils.getAnnotation(annotations, annotationType));
   }
@@ -256,12 +277,14 @@ public class JField extends JNode implements HasName, HasType, JVisitable, CanBe
   @Override
   @Nonnull
   public Collection<JAnnotation> getAnnotations() {
+    loader.ensureAnnotations(this);
     return Jack.getUnmodifiableCollections().getUnmodifiableCollection(annotations);
   }
 
   @Override
   @Nonnull
   public Set<JAnnotationType> getAnnotationTypes() {
+    loader.ensureAnnotations(this);
     return Jack.getUnmodifiableCollections().getUnmodifiableSet(
         AnnotationUtils.getAnnotationTypes(annotations));
   }
@@ -279,5 +302,51 @@ public class JField extends JNode implements HasName, HasType, JVisitable, CanBe
     if (!(parent instanceof JDefinedClassOrInterface)) {
       throw new JNodeInternalError(this, "Invalid parent");
     }
+  }
+
+  @Override
+  @CheckForNull
+  public <T extends Marker> T getMarker(@Nonnull Class<T> cls) {
+    loader.ensureMarker(this, cls);
+    return super.getMarker(cls);
+  }
+
+  @Override
+  @Nonnull
+  public Collection<Marker> getAllMarkers() {
+    loader.ensureMarkers(this);
+    return super.getAllMarkers();
+  }
+
+  @Override
+  public <T extends Marker> boolean containsMarker(@Nonnull Class<T> cls) {
+    loader.ensureMarker(this, cls);
+    return super.containsMarker(cls);
+  }
+
+  @Override
+  public <T extends Marker> T removeMarker(@Nonnull Class<T> cls) {
+    loader.ensureMarker(this, cls);
+    return super.removeMarker(cls);
+  }
+
+  @Nonnull
+  @Override
+  public <T extends Marker> T getMarkerOrDefault(@Nonnull T defaultMarker) {
+    loader.ensureMarker(this, defaultMarker.getClass());
+    return super.getMarkerOrDefault(defaultMarker);
+  }
+
+  @Override
+  @CheckForNull
+  public <T extends Marker> T addMarkerIfAbsent(@Nonnull T marker) {
+    loader.ensureMarker(this, marker.getClass());
+    return super.addMarkerIfAbsent(marker);
+  }
+
+  @Override
+  public void addAllMarkers(@Nonnull Collection<Marker> collection) {
+    loader.ensureMarkers(this);
+    super.addAllMarkers(collection);
   }
 }

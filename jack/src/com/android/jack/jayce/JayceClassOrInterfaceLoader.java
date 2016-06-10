@@ -90,6 +90,8 @@ public class JayceClassOrInterfaceLoader extends AbstractClassOrInterfaceLoader 
 
   private boolean structureLoaded = false;
 
+  private boolean annotationLoaded = false;
+
   @Nonnull
   private final JPhantomLookup lookup;
 
@@ -98,9 +100,6 @@ public class JayceClassOrInterfaceLoader extends AbstractClassOrInterfaceLoader 
 
   @Nonnegative
   private int loadCount = 0;
-
-  @Nonnegative
-  private int methodNotLoadedCount = Integer.MAX_VALUE;
 
   @Nonnull
   private final InputJackLibrary inputJackLibrary;
@@ -113,6 +112,9 @@ public class JayceClassOrInterfaceLoader extends AbstractClassOrInterfaceLoader 
 
   @Nonnull
   private final Location location;
+
+  @Nonnull
+  private final Object annotationLock = new Object();
 
   @Nonnull
   final Tracer tracer = TracerFactory.getTracer();
@@ -153,6 +155,30 @@ public class JayceClassOrInterfaceLoader extends AbstractClassOrInterfaceLoader 
   @Override
   public void ensureModifier(@Nonnull JDefinedClassOrInterface loaded) {
     // done at creation
+  }
+
+  @Override
+  public void ensureAnnotations(@Nonnull JDefinedClassOrInterface loaded) {
+    ensureStructure(loaded);
+    synchronized (annotationLock) {
+      if (!annotationLoaded) {
+        annotationLoaded = true;
+        DeclaredTypeNode type;
+        try {
+          type = getNNode(NodeLevel.STRUCTURE);
+        } catch (LibraryException e) {
+          throw new JackLoadingException(getLocation(), e);
+        }
+        try {
+          type.loadAnnotations(loaded, this);
+        } catch (JLookupException e) {
+          throw new JackLoadingException(getLocation(), e);
+        }
+        ParentSetter parentSetter = new ParentSetter();
+        parentSetter.accept(loaded);
+        loaded.removeLoader();
+      }
+    }
   }
 
   @Nonnull
@@ -217,6 +243,10 @@ public class JayceClassOrInterfaceLoader extends AbstractClassOrInterfaceLoader 
 
   @Override
   protected void ensureAll(@Nonnull JDefinedClassOrInterface loaded) {
+    ensureStructure(loaded);
+  }
+
+  private void ensureStructure(@Nonnull JDefinedClassOrInterface loaded) {
     synchronized (this) {
       if (!structureLoaded) {
         structureLoaded = true;
@@ -227,26 +257,14 @@ public class JayceClassOrInterfaceLoader extends AbstractClassOrInterfaceLoader 
           throw new JackLoadingException(getLocation(), e);
         }
         try {
-          type.updateToStructure(loaded, this);
+          type.loadStructure(loaded, this);
         } catch (JLookupException e) {
           throw new JackLoadingException(getLocation(), e);
         }
         ParentSetter parentSetter = new ParentSetter();
         parentSetter.accept(loaded);
         tracer.getStatistic(STRUCTURE_LOAD).incValue();
-        methodNotLoadedCount = loaded.getMethods().size();
-        if (methodNotLoadedCount == 0) {
-          loaded.removeLoader();
-        }
       }
-    }
-  }
-
-  synchronized void notifyMethodLoaded(@Nonnull JDefinedClassOrInterface loaded) {
-    assert structureLoaded;
-    methodNotLoadedCount--;
-    if (methodNotLoadedCount == 0) {
-      loaded.removeLoader();
     }
   }
 

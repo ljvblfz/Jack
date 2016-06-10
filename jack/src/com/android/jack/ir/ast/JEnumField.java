@@ -18,6 +18,8 @@ package com.android.jack.ir.ast;
 
 import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.load.FieldLoader;
+import com.android.jack.load.NopFieldLoader;
 import com.android.sched.item.Description;
 import com.android.sched.transform.TransformRequest;
 
@@ -35,8 +37,14 @@ public class JEnumField extends JField {
 
   public JEnumField(@Nonnull SourceInfo info, @Nonnull String name, int ordinal,
       @Nonnull JDefinedEnum enclosingType, @Nonnull JDefinedClass type) {
+    this(info, name, ordinal, enclosingType, type, NopFieldLoader.INSTANCE);
+  }
+
+    public JEnumField(@Nonnull SourceInfo info, @Nonnull String name, int ordinal,
+        @Nonnull JDefinedEnum enclosingType, @Nonnull JDefinedClass type,
+        @Nonnull FieldLoader fieldLoader) {
     super(info, name, enclosingType, type, JModifier.STATIC
-        | JModifier.FINAL | JModifier.ENUM | JModifier.PUBLIC);
+        | JModifier.FINAL | JModifier.ENUM | JModifier.PUBLIC, fieldLoader);
     this.ordinal = ordinal;
   }
 

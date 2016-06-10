@@ -20,6 +20,7 @@ import com.android.jack.Jack;
 import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.load.MethodLoader;
+import com.android.jack.load.NopMethodLoader;
 import com.android.jack.util.AnnotationUtils;
 import com.android.jack.util.NamingTools;
 import com.android.sched.item.Component;
@@ -281,6 +282,7 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
   @Override
   @Nonnull
   public Set<JAnnotationType> getAnnotationTypes() {
+    loader.ensureAnnotations(this);
     return Jack.getUnmodifiableCollections().getUnmodifiableSet(
         AnnotationUtils.getAnnotationTypes(annotations));
   }
@@ -309,6 +311,26 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
   public <T extends Marker> T removeMarker(@Nonnull Class<T> cls) {
     loader.ensureMarker(this, cls);
     return super.removeMarker(cls);
+  }
+
+  @Nonnull
+  @Override
+  public <T extends Marker> T getMarkerOrDefault(@Nonnull T defaultMarker) {
+    loader.ensureMarker(this, defaultMarker.getClass());
+    return super.getMarkerOrDefault(defaultMarker);
+  }
+
+  @Override
+  @CheckForNull
+  public <T extends Marker> T addMarkerIfAbsent(@Nonnull T marker) {
+    loader.ensureMarker(this, marker.getClass());
+    return super.addMarkerIfAbsent(marker);
+  }
+
+  @Override
+  public void addAllMarkers(@Nonnull Collection<Marker> collection) {
+    loader.ensureMarkers(this);
+    super.addAllMarkers(collection);
   }
 
   protected void visitChildren(@Nonnull JVisitor visitor) {
