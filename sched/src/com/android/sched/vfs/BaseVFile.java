@@ -16,8 +16,7 @@
 
 package com.android.sched.vfs;
 
-import com.android.sched.util.file.CannotCloseInputException;
-import com.android.sched.util.file.CannotCloseOutputException;
+import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.CannotReadException;
 import com.android.sched.util.file.CannotWriteException;
@@ -97,8 +96,8 @@ abstract class BaseVFile extends BaseVElement implements VFile {
   }
 
   @Override
-  public void copy(@Nonnull VFile vFile) throws WrongPermissionException, CannotCloseInputException,
-      CannotCloseOutputException, CannotReadException, CannotWriteException {
+  public void copy(@Nonnull VFile vFile) throws WrongPermissionException,
+      CannotCloseException, CannotReadException, CannotWriteException {
     vfs.copy(vFile, this);
   }
 }

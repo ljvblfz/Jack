@@ -23,8 +23,7 @@ import com.android.sched.util.config.expression.LongExpression;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.IntegerPropertyId;
 import com.android.sched.util.config.id.MessageDigestPropertyId;
-import com.android.sched.util.file.CannotCloseInputException;
-import com.android.sched.util.file.CannotCloseOutputException;
+import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
@@ -309,7 +308,7 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
   }
 
   @Override
-  public synchronized void close() throws CannotCloseInputException, CannotCloseOutputException {
+  public synchronized void close() throws CannotCloseException {
     if (!closed) {
       try {
         PrintStream printer =
@@ -327,7 +326,7 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
           printer.close();
         }
       } catch (WrongPermissionException | CannotCreateFileException e) {
-        throw new CannotCloseOutputException(this, e);
+        throw new CannotCloseException(this, e);
       }
 
       vfs.close();

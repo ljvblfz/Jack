@@ -16,8 +16,7 @@
 
 package com.android.sched.vfs;
 
-import com.android.sched.util.file.CannotCloseInputException;
-import com.android.sched.util.file.CannotCloseOutputException;
+import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.location.Location;
 
 import javax.annotation.Nonnull;
@@ -52,7 +51,7 @@ public class GenericOutputVFS extends AbstractVFS implements OutputVFS {
   }
 
   @Override
-  public void close() throws CannotCloseOutputException, CannotCloseInputException {
+  public void close() throws CannotCloseException {
     vfs.close();
   }
 

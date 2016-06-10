@@ -19,32 +19,30 @@ package com.android.sched.util.file;
 import com.android.sched.util.location.HasLocation;
 import com.android.sched.util.location.Location;
 
-import java.io.IOException;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * An I/O exception that occurs when closing an input.
+ * An I/O exception that occurs when closing.
  */
-public class CannotCloseInputException extends SchedIOException {
+public class CannotCloseException extends SchedIOException {
 
   private static final long serialVersionUID = 1L;
 
-  public CannotCloseInputException(@Nonnull HasLocation locationProvider,
-      @CheckForNull IOException cause) {
+  public CannotCloseException(@Nonnull HasLocation locationProvider,
+      @CheckForNull Exception cause) {
     super(locationProvider, cause);
   }
 
-  public CannotCloseInputException(@Nonnull Location location,
-      @CheckForNull IOException cause) {
+  public CannotCloseException(@Nonnull Location location,
+      @CheckForNull Exception cause) {
     super(location, cause);
   }
 
   @Override
   @Nonnull
   protected String createMessage(@Nonnull String description) {
-    String message = "failed to close input " + description;
+    String message = description + " failed to be closed";
     if (getCause() != null) {
       message += ": " + getCause().getMessage();
     }

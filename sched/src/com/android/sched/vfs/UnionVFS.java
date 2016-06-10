@@ -20,8 +20,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
-import com.android.sched.util.file.CannotCloseInputException;
-import com.android.sched.util.file.CannotCloseOutputException;
+import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
@@ -288,7 +287,7 @@ public class UnionVFS extends BaseVFS<UnionVDir, UnionVFile> implements VFS {
   }
 
   @Override
-  public void close() throws CannotCloseOutputException, CannotCloseInputException {
+  public void close() throws CannotCloseException {
     if (!closed) {
       for (VFS vfs : vfsList) {
         vfs.close();

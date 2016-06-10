@@ -19,8 +19,7 @@ package com.android.sched.vfs;
 import com.google.common.io.ByteStreams;
 
 import com.android.sched.util.config.MessageDigestFactory;
-import com.android.sched.util.file.CannotCloseInputException;
-import com.android.sched.util.file.CannotCloseOutputException;
+import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.CannotReadException;
@@ -293,13 +292,13 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
   }
 
   @Override
-  public synchronized void close() throws CannotCloseOutputException, CannotCloseInputException {
+  public synchronized void close() throws CannotCloseException {
     if (!closed) {
       if (vfs.getCapabilities().contains(Capabilities.WRITE)) {
         try {
           printDigest(vfs.getRootDir().createVFile(DIGEST_FILE_NAME).getOutputStream());
         } catch (WrongPermissionException | CannotCreateFileException e) {
-          throw new CannotCloseOutputException(this, e);
+          throw new CannotCloseException(this, e);
         }
       }
       vfs.close();

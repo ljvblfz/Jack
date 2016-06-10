@@ -29,8 +29,7 @@ import com.android.jack.library.LibraryFormatException;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.LibraryVersionException;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.file.CannotCloseInputException;
-import com.android.sched.util.file.CannotCloseOutputException;
+import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
@@ -180,7 +179,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
         currentSectionVFS.close();
       }
       vfs.close();
-    } catch (CannotCloseOutputException | CannotCloseInputException e) {
+    } catch (CannotCloseException e) {
       throw new LibraryIOException(getLocation(), e);
     }
   }

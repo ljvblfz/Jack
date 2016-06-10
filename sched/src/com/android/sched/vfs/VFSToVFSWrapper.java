@@ -16,8 +16,7 @@
 
 package com.android.sched.vfs;
 
-import com.android.sched.util.file.CannotCloseInputException;
-import com.android.sched.util.file.CannotCloseOutputException;
+import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.CannotReadException;
@@ -98,23 +97,22 @@ public class VFSToVFSWrapper extends BaseVFS<BaseVDir, BaseVFile> implements VFS
   }
 
   @Override
-  public void close() throws CannotCloseOutputException {
+  public void close() throws CannotCloseException {
     if (!closed) {
       try {
         dumpToDir(getRootDir(), finalVFS.getRootDir());
         finalVFS.close();
         workVFS.close();
         closed = true;
-      } catch (CannotCloseInputException | CannotCloseOutputException | CannotReadException
+      } catch (CannotCloseException | CannotReadException
           | CannotWriteException | CannotCreateFileException | WrongPermissionException e) {
-        throw new CannotCloseOutputException(this, e);
+        throw new CannotCloseException(this, e);
       }
     }
   }
 
-  private void dumpToDir(VDir srcRootDir, VDir destRootDir)
-      throws CannotCreateFileException, WrongPermissionException, CannotCloseInputException,
-      CannotCloseOutputException, CannotReadException, CannotWriteException {
+  private void dumpToDir(VDir srcRootDir, VDir destRootDir) throws CannotCreateFileException,
+      WrongPermissionException, CannotCloseException, CannotReadException, CannotWriteException {
     for (VElement element : srcRootDir.list()) {
       String elementName = element.getName();
       if (element.isVDir()) {
@@ -127,10 +125,10 @@ public class VFSToVFSWrapper extends BaseVFS<BaseVDir, BaseVFile> implements VFS
           try (OutputStream os = file.getOutputStream()) {
             new LocationByteStreamSucker(is, os, element, file).suck();
           } catch (IOException e) {
-            throw new CannotCloseOutputException(file, e);
+            throw new CannotCloseException(file, e);
           }
         } catch (IOException e) {
-          throw new CannotCloseInputException(element, e);
+          throw new CannotCloseException(element, e);
         }
       }
     }

@@ -16,8 +16,7 @@
 
 package com.android.sched.vfs;
 
-import com.android.sched.util.file.CannotCloseInputException;
-import com.android.sched.util.file.CannotCloseOutputException;
+import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.file.CannotReadException;
 import com.android.sched.util.file.CannotWriteException;
 import com.android.sched.util.file.WrongPermissionException;
@@ -75,9 +74,8 @@ public class GenericOutputVFile implements OutputVFile {
   }
 
   @Override
-  public void copy(@Nonnull InputVFile inputFile)
-      throws WrongPermissionException, CannotCloseInputException, CannotCloseOutputException,
-      CannotReadException, CannotWriteException {
+  public void copy(@Nonnull InputVFile inputFile) throws WrongPermissionException,
+      CannotCloseException, CannotReadException, CannotWriteException {
     file.copy(inputFile.getVFile());
   }
 }
