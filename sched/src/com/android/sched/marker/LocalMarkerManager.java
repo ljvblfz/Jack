@@ -52,7 +52,7 @@ public class LocalMarkerManager extends AbstractMarkerManager {
   }
 
   @Override
-  public void addAllMarker(@Nonnull Collection<Marker> collection) {
+  public void addAllMarkers(@Nonnull Collection<Marker> collection) {
     ensureMap();
 
     for (Marker marker : collection) {
