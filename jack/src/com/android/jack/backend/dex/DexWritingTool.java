@@ -54,6 +54,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -180,7 +181,7 @@ public abstract class DexWritingTool {
   }
 
   protected void fillDexLists(@Nonnull Set<MatchableInputVFile> mainDexList,
-      @Nonnull List<InputVFile> anyDexList) {
+      @Nonnull List<MatchableInputVFile> anyDexList) {
     final OutputJackLibrary jackOutputLibrary = Jack.getSession().getJackOutputLibrary();
     Collection<JDefinedClassOrInterface> typesToEmit = Jack.getSession().getTypesToEmit();
 
@@ -201,10 +202,10 @@ public abstract class DexWritingTool {
         return FORMATTER.getName(first).compareTo(FORMATTER.getName(second));
       }});
     for (JDefinedClassOrInterface type : anyTypeList) {
-      anyDexList.add(getDexInputVFileOfType(jackOutputLibrary, type));
+      anyDexList.add(new MatchableInputVFile(getDexInputVFileOfType(jackOutputLibrary, type)));
     }
 
-    addOrphanDexFiles(mainDexList);
+    addOrphanDexFiles(mainDexList, new HashSet<MatchableInputVFile>(anyDexList));
   }
 
   @Nonnull
@@ -234,12 +235,16 @@ public abstract class DexWritingTool {
     return inputVFile;
   }
 
+  protected void addOrphanDexFiles(@Nonnull Set<MatchableInputVFile> mainDexToMerge) {
+    addOrphanDexFiles(mainDexToMerge, Collections.<MatchableInputVFile>emptySet());
+  }
+
   /**
    * Orphan dex file is a dex file without an associated Jayce file.
-   * @return a list of orphan dex files.
    */
   @Nonnull
-  protected void addOrphanDexFiles(@Nonnull Set<MatchableInputVFile> dexToMerge) {
+  protected void addOrphanDexFiles(@Nonnull Set<MatchableInputVFile> mainDexToMerge,
+      @Nonnull Set<MatchableInputVFile> othersDexToMerge) {
     if (usePrebuilts) {
       for (InputLibrary inputLibrary : Jack.getSession().getImportedLibraries()) {
         if (inputLibrary instanceof InputJackLibrary) {
@@ -256,7 +261,10 @@ public abstract class DexWritingTool {
               try {
                 inputJackLibrary.getFile(FileType.JAYCE, new VPath(type, '/'));
               } catch (FileTypeDoesNotExistException e) {
-                dexToMerge.add(new MatchableInputVFile(dexFile));
+                MatchableInputVFile orphanDex = new MatchableInputVFile(dexFile);
+                if (!othersDexToMerge.contains(orphanDex)) {
+                  mainDexToMerge.add(orphanDex);
+                }
               }
             }
           }

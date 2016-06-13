@@ -19,7 +19,6 @@ package com.android.jack.backend.dex;
 import com.android.jack.tools.merger.JackMerger;
 import com.android.jack.tools.merger.MergingOverflowException;
 import com.android.sched.util.codec.ImplementationName;
-import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.OutputVFS;
 import com.android.sched.vfs.OutputVFile;
 
@@ -44,7 +43,7 @@ public class MinimalMultiDexWritingTool extends DexWritingTool implements MultiD
     JackMerger merger = new JackMerger(createDexFile());
     OutputVFile outputDex = getOutputDex(outputVDir, dexCount++);
     Set<MatchableInputVFile> mainDexList = new HashSet<MatchableInputVFile>();
-    List<InputVFile> anyDexList = new ArrayList<InputVFile>();
+    List<MatchableInputVFile> anyDexList = new ArrayList<MatchableInputVFile>();
     fillDexLists(mainDexList, anyDexList);
 
     for (MatchableInputVFile currentDex : mainDexList) {
@@ -59,15 +58,15 @@ public class MinimalMultiDexWritingTool extends DexWritingTool implements MultiD
     outputDex = getOutputDex(outputVDir, dexCount++);
     merger = new JackMerger(createDexFile());
 
-    for (InputVFile currentDex : anyDexList) {
+    for (MatchableInputVFile currentDex : anyDexList) {
       try {
-        mergeDex(merger, currentDex);
+        mergeDex(merger, currentDex.getInputVFile());
       } catch (MergingOverflowException e) {
         finishMerge(merger, outputDex);
         outputDex = getOutputDex(outputVDir, dexCount++);
         merger = new JackMerger(createDexFile());
         try {
-          mergeDex(merger, currentDex);
+          mergeDex(merger, currentDex.getInputVFile());
         } catch (MergingOverflowException e1) {
           // This should not happen, the type is not too big, we've just read it from a dex.
           throw new AssertionError(e1);
