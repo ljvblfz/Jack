@@ -69,4 +69,9 @@ public class JFloatLiteral extends JNumberValueLiteral implements JNumberLiteral
   public Number getNumber() {
     return new Number(Float.valueOf(value));
   }
+
+  @Override
+  public boolean isTypeValue() {
+    return value == 0f;
+  }
 }

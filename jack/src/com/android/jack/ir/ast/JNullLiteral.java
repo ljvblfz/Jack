@@ -66,4 +66,9 @@ public class JNullLiteral extends JValueLiteral {
       super.checkValidity();
     }
   }
+
+  @Override
+  public boolean isTypeValue() {
+    return true;
+  }
 }

@@ -89,4 +89,9 @@ public class JByteLiteral extends JNumberValueLiteral
       super.checkValidity();
     }
   }
+
+  @Override
+  public boolean isTypeValue() {
+    return value == 0;
+  }
 }

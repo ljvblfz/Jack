@@ -69,4 +69,9 @@ public class JLongLiteral extends JNumberValueLiteral implements JNumberLiteral 
   public Number getNumber() {
     return new Number(Long.valueOf(value));
   }
+
+  @Override
+  public boolean isTypeValue() {
+    return value == 0;
+  }
 }

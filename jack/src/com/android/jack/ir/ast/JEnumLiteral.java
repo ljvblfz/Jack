@@ -86,4 +86,9 @@ public class JEnumLiteral extends JValueLiteral {
       super.checkValidity();
     }
   }
+
+  @Override
+  public boolean isTypeValue() {
+    return false;
+  }
 }
