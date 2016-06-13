@@ -359,8 +359,7 @@ public class JackHttpServer implements HasVersion {
 
   JackHttpServer(@Nonnull LauncherHandle launcherHandle)
       throws IOException, ServerLogConfigurationException, NotFileException,
-      WrongPermissionException, FileAlreadyExistsException, CannotCreateFileException,
-      CannotChangePermissionException, NoSuchFileException {
+      WrongPermissionException, CannotCreateFileException {
     this.launcherHandle = launcherHandle;
     serverDir = launcherHandle.getServerDir();
 
@@ -489,16 +488,14 @@ public class JackHttpServer implements HasVersion {
   }
 
   public void reloadConfig() throws IOException, WrongPermissionException, NotFileException,
-      ServerException, FileAlreadyExistsException, CannotCreateFileException,
-      CannotChangePermissionException, NoSuchFileException {
+      ServerException, CannotCreateFileException {
     shutdownConnections();
     try {
       checkAccess(serverDir, EnumSet.of(PosixFilePermission.OWNER_READ,
           PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE));
 
       loadConfig();
-    } catch (CannotCreateFileException | CannotChangePermissionException
-        | FileAlreadyExistsException | IOException | NoSuchFileException | NotFileException
+    } catch (CannotCreateFileException | IOException | NotFileException
         | WrongPermissionException e) {
       shutdown();
       throw e;
@@ -506,9 +503,8 @@ public class JackHttpServer implements HasVersion {
     start(new HashMap<String, Object>());
   }
 
-  private void loadConfig()
-      throws IOException, WrongPermissionException, NotFileException, FileAlreadyExistsException,
-      CannotCreateFileException, CannotChangePermissionException, NoSuchFileException {
+  private void loadConfig() throws IOException, WrongPermissionException, NotFileException,
+      CannotCreateFileException {
 
     logger.log(Level.INFO, "Loading config of jack server version: "
         + getVersion().getVerboseVersion());

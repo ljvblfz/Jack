@@ -24,11 +24,7 @@ import com.android.sched.util.codec.PairCodec;
 import com.android.sched.util.codec.PairCodec.Pair;
 import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.codec.StringCodec;
-import com.android.sched.util.file.CannotChangePermissionException;
 import com.android.sched.util.file.CannotCreateFileException;
-import com.android.sched.util.file.FileAlreadyExistsException;
-import com.android.sched.util.file.FileOrDirectory.ChangePermission;
-import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.InputStreamFile;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileException;
@@ -148,14 +144,12 @@ class ConfigFile extends Properties {
     modified = false;
   }
 
-  public void store()
-      throws WrongPermissionException, NotFileException, IOException, FileAlreadyExistsException,
-      CannotCreateFileException, CannotChangePermissionException, NoSuchFileException {
+  public void store() throws WrongPermissionException, NotFileException, IOException,
+      CannotCreateFileException {
     setProperty(ConfigFile.CONFIG_VERSION_PROPERTY,
         Integer.toString(CURRENT_CONFIG_VERSION));  // FINDBUGS
 
-    new OutputStreamFile(storageFile.getPath(), null, Existence.MAY_EXIST,
-        ChangePermission.NOCHANGE, /* append = */ false);
+    new OutputStreamFile(storageFile.getPath(), /* hooks = */ null);
     File tmpOut = File.createTempFile("jackserver-" + storageFile.getName(), ".tmp",
         storageFile.getParentFile());
     try {
