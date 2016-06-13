@@ -133,7 +133,6 @@ import org.junit.runners.Suite.SuiteClasses;
     NoPackageTests.class,
     OrderTests.class,
     OpcodesTests.class,
-    ParserTest.class,
     PreProcessorTests.class,
     ReflectTests.class,
     ReturnstatementTests.class,
