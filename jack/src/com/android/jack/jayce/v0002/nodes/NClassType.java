@@ -171,7 +171,6 @@ public class NClassType extends NDeclaredType {
     }
     for (NMethod method : methods) {
       JMethod jMethod = method.exportAsJast(exportSession, loader);
-      jMethod.setEnclosingType(jClassType);
       jClassType.addMethod(jMethod);
     }
     for (NAnnotation annotation : annotations) {

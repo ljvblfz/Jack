@@ -37,7 +37,7 @@ public class JAnnotationMethod extends JMethod {
   public JAnnotationMethod(
       @Nonnull SourceInfo info,
       @Nonnull JMethodId id,
-      @CheckForNull JDefinedClassOrInterface enclosingType,
+      @Nonnull JDefinedClassOrInterface enclosingType,
       int modifier) {
     super(info, id, enclosingType, modifier);
   }
@@ -45,7 +45,7 @@ public class JAnnotationMethod extends JMethod {
   public JAnnotationMethod(
       @Nonnull SourceInfo info,
       @Nonnull JMethodId id,
-      @CheckForNull JDefinedClassOrInterface enclosingType,
+      @Nonnull JDefinedClassOrInterface enclosingType,
       int modifier,
       @Nonnull MethodLoader loader) {
     super(info, id, enclosingType, modifier, loader);

@@ -48,8 +48,8 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
    */
   @CheckForNull
   private JAbstractMethodBody body = null;
-  @CheckForNull
-  private JDefinedClassOrInterface enclosingType;
+  @Nonnull
+  private final JDefinedClassOrInterface enclosingType;
   private int modifier;
 
   @Nonnull
@@ -69,14 +69,14 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
 
   public JMethod(@Nonnull SourceInfo info,
       @Nonnull JMethodId methodId,
-      @CheckForNull JDefinedClassOrInterface enclosingType,
+      @Nonnull JDefinedClassOrInterface enclosingType,
       int modifier) {
     this(info, methodId, enclosingType, modifier, NopMethodLoader.INSTANCE);
   }
 
   public JMethod(@Nonnull SourceInfo info,
         @Nonnull JMethodId methodId,
-        @CheckForNull JDefinedClassOrInterface enclosingType,
+        @Nonnull JDefinedClassOrInterface enclosingType,
         int modifier,
         @Nonnull MethodLoader loader) {
     super(info);
@@ -149,7 +149,6 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
   @Nonnull
   @Override
   public JDefinedClassOrInterface getEnclosingType() {
-    assert enclosingType != null;
     return enclosingType;
   }
 
@@ -238,10 +237,6 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
     if (body != null) {
       body.setMethod(this);
     }
-  }
-
-  public void setEnclosingType(@CheckForNull JDefinedClassOrInterface enclosingType) {
-    this.enclosingType = enclosingType;
   }
 
   @Override
