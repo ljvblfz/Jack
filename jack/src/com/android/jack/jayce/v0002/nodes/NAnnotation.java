@@ -77,7 +77,7 @@ public class NAnnotation extends NLiteral {
     JAnnotationType type = exportSession.getLookup().getAnnotationType(annotationType);
     JAnnotation jAnnotation = new JAnnotation(jSourceInfo, retentionPolicy, type);
     for (NNameValuePair valuePair : elements) {
-      jAnnotation.put(valuePair.exportAsJast(exportSession, type));
+      jAnnotation.put(valuePair.exportAsJast(exportSession));
     }
     return jAnnotation;
   }
