@@ -16,7 +16,6 @@
 
 package com.android.jack.reporting;
 
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.reporting.Reportable.ProblemLevel;
 import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.location.ColumnAndLineLocation;
@@ -43,16 +42,13 @@ public class DefaultReporter extends CommonReporter {
     if (location != null) {
 
       String filePath = null;
-      int startLine = SourceInfo.UNKNOWN_LINE_NUMBER;
 
       Location currentLocation = location;
+      ColumnAndLineLocation call = null;
 
       if (currentLocation instanceof ColumnAndLineLocation) {
-        ColumnAndLineLocation call = (ColumnAndLineLocation) currentLocation;
+        call = (ColumnAndLineLocation) currentLocation;
         currentLocation = call.getParentLocation();
-        if (call.hasStartLine()) {
-          startLine = call.getStartLine();
-        }
       }
 
       if (currentLocation instanceof FileOrDirLocation) {
@@ -62,9 +58,36 @@ public class DefaultReporter extends CommonReporter {
       if (filePath != null) {
         messageBuffer.append(": ");
         messageBuffer.append(filePath);
-        if (startLine > 0) {
-          messageBuffer.append(":");
-          messageBuffer.append(startLine);
+        if (call != null) {
+          if (call.hasStartLine()) {
+            messageBuffer.append(':');
+            messageBuffer.append(call.getStartLine());
+
+            if (call.hasStartColumn()) {
+              messageBuffer.append('.');
+              messageBuffer.append(call.getStartColumn());
+
+              if (!call.hasEndLine() && call.hasEndColumn()) {
+                messageBuffer.append('-');
+                messageBuffer.append(call.getEndColumn());
+              }
+            }
+
+            if (call.hasEndLine()) {
+              messageBuffer.append('-');
+              messageBuffer.append(call.getEndLine());
+
+              if (call.hasStartColumn()) {
+                if (call.hasEndColumn()) {
+                  messageBuffer.append('.');
+                  messageBuffer.append(call.getEndColumn());
+                } else { // there's an "end line" but no "end column", use the "start column"
+                  messageBuffer.append('.');
+                  messageBuffer.append(call.getStartColumn());
+                }
+              }
+            }
+          }
         }
       }
     }
