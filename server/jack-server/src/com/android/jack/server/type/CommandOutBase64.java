@@ -16,7 +16,7 @@
 
 package com.android.jack.server.type;
 
-import org.simpleframework.common.encode.Base64Encoder;
+import com.google.common.io.BaseEncoding;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -136,7 +136,7 @@ public class CommandOutBase64 implements CommandOut {
 
     @Override
     public synchronized void write(byte[] buf, int off, int len) {
-      String encoded = new String(Base64Encoder.encode(buf, off, len));
+      String encoded = BaseEncoding.base64().encode(buf, off, len);
       synchronized (out) {
         out.print(prefix);
         out.print(encoded);
