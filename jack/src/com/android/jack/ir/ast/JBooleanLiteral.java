@@ -80,4 +80,9 @@ public class JBooleanLiteral extends JValueLiteral {
       throw new JNodeInternalError(this, "Invalid parent");
     }
   }
+
+  @Override
+  public boolean isTypeValue() {
+    return !value;
+  }
 }

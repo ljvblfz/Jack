@@ -87,4 +87,9 @@ public class JIntLiteral extends JNumberValueLiteral implements JIntegralConstan
       super.checkValidity();
     }
   }
+
+  @Override
+  public boolean isTypeValue() {
+    return value == 0;
+  }
 }

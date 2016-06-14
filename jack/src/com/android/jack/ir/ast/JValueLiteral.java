@@ -18,13 +18,28 @@ package com.android.jack.ir.ast;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Description;
 
+import javax.annotation.Nonnull;
+
 /**
  * Base class for any Java literal expression.
  */
 @Description("Java literal expression")
-public abstract class JValueLiteral extends JLiteral {
+public abstract class JValueLiteral extends JLiteral implements Cloneable {
 
   public JValueLiteral(SourceInfo sourceInfo) {
     super(sourceInfo);
   }
+
+  @Override
+  @Nonnull
+  public Object clone() {
+    try {
+      return super.clone();
+    } catch (CloneNotSupportedException e) {
+      throw new AssertionError();
+    }
+  }
+
+  /** Does the literal represent default type value, i.e. it is zero, false or null */
+  public abstract boolean isTypeValue();
 }

@@ -69,4 +69,9 @@ public class JDoubleLiteral extends JNumberValueLiteral implements JNumberLitera
   public Number getNumber() {
     return new Number(Double.valueOf(value));
   }
+
+  @Override
+  public boolean isTypeValue() {
+    return value == 0d;
+  }
 }

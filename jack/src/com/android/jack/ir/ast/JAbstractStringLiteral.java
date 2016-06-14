@@ -27,7 +27,7 @@ import javax.annotation.Nonnull;
  * Common part of literal expression that evaluates to a string.
  */
 @Description("Commmon part of literal expression that evaluates to a string")
-public abstract class JAbstractStringLiteral extends JValueLiteral implements Cloneable {
+public abstract class JAbstractStringLiteral extends JValueLiteral {
 
   protected JAbstractStringLiteral(@Nonnull SourceInfo sourceInfo) {
     super(sourceInfo);
@@ -48,16 +48,6 @@ public abstract class JAbstractStringLiteral extends JValueLiteral implements Cl
   }
 
   @Override
-  @Nonnull
-  public Object clone() {
-    try {
-      return super.clone();
-    } catch (CloneNotSupportedException e) {
-      throw new AssertionError();
-    }
-  }
-
-  @Override
   public void checkValidity() {
     if (!(parent instanceof JExpression
         || parent instanceof JNameValuePair
@@ -70,5 +60,10 @@ public abstract class JAbstractStringLiteral extends JValueLiteral implements Cl
         || parent instanceof JSynchronizedBlock)) {
       throw new JNodeInternalError(this, "Invalid parent");
     }
+  }
+
+  @Override
+  public boolean isTypeValue() {
+    return false;
   }
 }

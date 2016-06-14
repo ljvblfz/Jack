@@ -87,4 +87,9 @@ public class JCharLiteral extends JNumberValueLiteral
       super.checkValidity();
     }
   }
+
+  @Override
+  public boolean isTypeValue() {
+    return value == 0;
+  }
 }
