@@ -61,8 +61,6 @@ public abstract class JackLibraryFactory {
   @Nonnull
   private static Logger logger = LoggerFactory.getLogger();
 
-  public static final int DEFAULT_MAJOR_VERSION = 1;
-
   @Nonnull
   private static final String VERSION_FORMAT = "%04d";
 
