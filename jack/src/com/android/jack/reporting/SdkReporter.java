@@ -74,13 +74,13 @@ public class SdkReporter extends CommonReporter {
         messageBuffer.append("\"file\":\"").append(escapedFileName).append("\",");
         messageBuffer.append("\"position\":{");
 
-        // Convert unknown values to match sdk expectations
-        int sdkStartLine = SDK_UNKNOWN_VALUE;
-        int sdkStartColumn = SDK_UNKNOWN_VALUE;
-        int sdkEndLine = SDK_UNKNOWN_VALUE;
-        int sdkEndColumn = SDK_UNKNOWN_VALUE;
-
         if (call != null) {
+          // Convert unknown values to match sdk expectations
+          int sdkStartLine = SDK_UNKNOWN_VALUE;
+          int sdkStartColumn = SDK_UNKNOWN_VALUE;
+          int sdkEndLine = SDK_UNKNOWN_VALUE;
+          int sdkEndColumn = SDK_UNKNOWN_VALUE;
+
           if (call.hasStartLine()) {
             sdkStartLine = call.getStartLine();
           }
@@ -100,14 +100,14 @@ public class SdkReporter extends CommonReporter {
           } else {
             sdkEndColumn = sdkStartColumn;
           }
-        }
 
-        messageBuffer.append("\"startLine\":").append(sdkStartLine).append(',');
-        messageBuffer.append("\"startColumn\":").append(sdkStartColumn).append(',');
-        messageBuffer.append("\"startOffset\":").append(SDK_UNKNOWN_VALUE).append(',');
-        messageBuffer.append("\"endLine\":").append(sdkEndLine).append(',');
-        messageBuffer.append("\"endColumn\":").append(sdkEndColumn).append(',');
-        messageBuffer.append("\"endOffset\":").append(SDK_UNKNOWN_VALUE);
+          messageBuffer.append("\"startLine\":").append(sdkStartLine).append(',');
+          messageBuffer.append("\"startColumn\":").append(sdkStartColumn).append(',');
+          messageBuffer.append("\"startOffset\":").append(SDK_UNKNOWN_VALUE).append(',');
+          messageBuffer.append("\"endLine\":").append(sdkEndLine).append(',');
+          messageBuffer.append("\"endColumn\":").append(sdkEndColumn).append(',');
+          messageBuffer.append("\"endOffset\":").append(SDK_UNKNOWN_VALUE);
+        }
 
         messageBuffer.append('}');
       }

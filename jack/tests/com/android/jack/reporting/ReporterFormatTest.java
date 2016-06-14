@@ -125,6 +125,7 @@ public class ReporterFormatTest {
     try {
       FileLocation fileLoc = new FileLocation("/my/file");
 
+      reporter.printFilteredProblem(ProblemLevel.WARNING, "message", /* location = */ null);
       reporter.printFilteredProblem(ProblemLevel.WARNING, "message", fileLoc);
       reporter.printFilteredProblem(ProblemLevel.ERROR, "message",
           new ColumnAndLineLocation(fileLoc, 2));

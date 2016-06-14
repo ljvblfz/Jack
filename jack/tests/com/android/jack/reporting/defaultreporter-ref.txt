@@ -1,3 +1,4 @@
+WARNING: message
 WARNING: /my/file: message
 ERROR: /my/file:2: message
 ERROR: /my/file:2-3: message
