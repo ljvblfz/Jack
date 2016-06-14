@@ -67,9 +67,8 @@ public class DependenciesTest009 {
 
     ite.incrementalBuildFromFolder();
 
-    InputJackLibrary inputJackLibrary = null;
-    try {
-      inputJackLibrary = AbstractTestTools.getInputJackLibrary(ite.getCompilerStateFolder());
+    try (InputJackLibrary inputJackLibrary =
+        AbstractTestTools.getInputJackLibrary(ite.getCompilerStateFolder())) {
 
       TypeDependencies typeDependencies = readTypeDependencies(inputJackLibrary);
 
@@ -85,10 +84,6 @@ public class DependenciesTest009 {
 
       assert dependencies1.equals(dependencies2);
       Assert.assertEquals(dependencies1, dependencies2);
-    } finally {
-      if (inputJackLibrary != null) {
-        inputJackLibrary.close();
-      }
     }
   }
 

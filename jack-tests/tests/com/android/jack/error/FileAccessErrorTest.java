@@ -180,9 +180,7 @@ public class FileAccessErrorTest {
 
     jackApiToolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
-    InputJackLibrary jackLib = null;
-    try {
-      jackLib = AbstractTestTools.getInputJackLibrary(te.getJackFolder());
+    try (InputJackLibrary jackLib = AbstractTestTools.getInputJackLibrary(te.getJackFolder())) {
       Iterator<InputVFile> jackFileIter = jackLib.iterator(FileType.JAYCE);
       while (jackFileIter.hasNext()) {
         InputVFile vFile = jackFileIter.next();
@@ -203,9 +201,6 @@ public class FileAccessErrorTest {
           "Library reading phase: I/O error when accessing ")); // user reporting
       Assert.assertTrue(errOutput.contains("is not readable")); // user reporting too
     } finally {
-      if (jackLib != null) {
-        jackLib.close();
-      }
       for (File jackFile : AbstractTestTools.getFiles(te.getJackFolder(), JayceFileImporter.JAYCE_FILE_EXTENSION)) {
         if (!jackFile.setReadable(true)) {
           Assert.fail("Fails to change file permissions of " + jackFile.getAbsolutePath());

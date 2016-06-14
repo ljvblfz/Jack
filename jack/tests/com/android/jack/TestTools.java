@@ -426,13 +426,12 @@ public class TestTools {
       request.addFeature(DisabledAssertionFeature.class);
     }
 
-    OutputJackLibrary outputLibrary = null;
-    try {
-      outputLibrary = JackLibraryFactory.getOutputLibrary(new CachedDirectFS(new Directory(
-          TestTools.createTempDir("unused").getPath(), hooks, Existence.MUST_EXIST,
-          Permission.READ | Permission.WRITE, ChangePermission.NOCHANGE),
-          Permission.READ | Permission.WRITE),
-          Jack.getEmitterId(), Jack.getVersion().getVerboseVersion());
+    try (OutputJackLibrary outputLibrary = JackLibraryFactory.getOutputLibrary(
+        new CachedDirectFS(
+            new Directory(TestTools.createTempDir("unused").getPath(), hooks, Existence.MUST_EXIST,
+                Permission.READ | Permission.WRITE, ChangePermission.NOCHANGE),
+            Permission.READ | Permission.WRITE),
+        Jack.getEmitterId(), Jack.getVersion().getVerboseVersion())) {
       session.setJackOutputLibrary(outputLibrary);
 
       PlanBuilder<JSession> planBuilder = request.getPlanBuilder(JSession.class);
@@ -440,10 +439,6 @@ public class TestTools {
       request.addTargetIncludeTagOrMarker(ClassDefItemMarker.Complete.class);
 
       planBuilder.getPlan().getScheduleInstance().process(session);
-    } finally {
-      if (outputLibrary != null) {
-        outputLibrary.close();
-      }
     }
 
     return (session);

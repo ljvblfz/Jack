@@ -24,7 +24,8 @@ import javax.annotation.Nonnull;
 /**
  * Common interface for libraries used as input and as output.
  */
-public interface Library extends HasLocation {
+public interface Library extends HasLocation, AutoCloseable {
+  @Override
   void close() throws LibraryIOException;
   @Nonnegative
   int getMinorVersion();

@@ -125,11 +125,11 @@ public class ClasspathTests {
 
     {
       // delete unused inner in classpath and check we can still compile with it
-      InputJackLibrary lib = AbstractTestTools.getInputJackLibrary(libOut);
-      lib.getFile(FileType.JAYCE,
-          new VPath("com/android/jack/classpath/test003/lib/HasInnersClasses$InnerToDelete", '/'))
-          .delete();
-      lib.close();
+      try (InputJackLibrary lib = AbstractTestTools.getInputJackLibrary(libOut)) {
+        lib.getFile(FileType.JAYCE,
+            new VPath("com/android/jack/classpath/test003/lib/HasInnersClasses$InnerToDelete", '/'))
+            .delete();
+      }
       toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeList);
       File testOut = AbstractTestTools.createTempDir();
       File testSrc = new File(testDir, "jack");
