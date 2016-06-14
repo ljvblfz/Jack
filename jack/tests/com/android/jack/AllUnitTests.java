@@ -27,6 +27,7 @@ import com.android.jack.optimizations.ExpressionSimplifierTest;
 import com.android.jack.optimizations.tailrecursion.TailRecursionTest;
 import com.android.jack.preprocessor.PreProcessorTest;
 import com.android.jack.reporting.ProblemLevelTest;
+import com.android.jack.reporting.ReporterFormatTest;
 import com.android.jack.shrob.obfuscation.nameprovider.DictionaryNameProviderTest;
 import com.android.jack.tracer.TracingTest;
 import com.android.jack.transformations.ast.string.StringSplittingTest;
@@ -65,6 +66,7 @@ import org.junit.runners.Suite.SuiteClasses;
     PrototypeTest.class,
 //    ReachingDefsTest.class,
     ReferenceMapperTest.class,
+    ReporterFormatTest.class,
     RopRegisterManagerTest.class,
     StaticValuesTest.class,
     StringSplittingTest.class,

@@ -46,6 +46,9 @@ public class ColumnAndLineLocation implements Location {
 
   public ColumnAndLineLocation(@Nonnull Location parentLocation, int startLine, int endLine) {
     assert startLine != UNKNOWN;
+    if (endLine == startLine) {
+      endLine = UNKNOWN;
+    }
     this.parentLocation = parentLocation;
     this.startLine = startLine;
     this.endLine = endLine;
@@ -55,6 +58,12 @@ public class ColumnAndLineLocation implements Location {
       int startColumn, int endColumn) {
     assert startLine != UNKNOWN;
     assert !(startColumn == UNKNOWN && endColumn != UNKNOWN);
+    if (endLine == startLine) {
+      endLine = UNKNOWN;
+    }
+    if (endColumn == startColumn) {
+      endColumn = UNKNOWN;
+    }
     this.parentLocation = parentLocation;
     this.startLine = startLine;
     this.endLine = endLine;

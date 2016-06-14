@@ -1,0 +1,7 @@
+WARNING: /my/file: message
+ERROR: /my/file:2: message
+ERROR: /my/file:2-3: message
+ERROR: /my/file:2.4-3.5: message
+ERROR: /my/file:2.4-5: message
+ERROR: /my/file:2.4: message
+ERROR: /my/file:2.4-3.4: message
