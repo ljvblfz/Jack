@@ -164,8 +164,9 @@ public class BridgeTestPreN {
     }
 
     String errString = errorStream.toString();
+    Assert.assertTrue(errString.contains("ERROR: Tests.java:26"));
     Assert.assertTrue(errString.contains(
-        "ERROR: Tests.java:26: Lambda coming from jar file need their interfaces on the classpath "
+        "Lambda coming from jar file need their interfaces on the classpath "
         + "to be compiled, unknown interfaces are com.android.jack.java8.bridges.test007.jack.B"));
   }
 }
