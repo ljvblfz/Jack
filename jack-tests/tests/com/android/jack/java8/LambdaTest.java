@@ -453,9 +453,10 @@ public class LambdaTest {
         AbstractTestTools.createTempDir(), /* zipFile = */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test037.jack"));
     String errString = err.toString();
-    Assert.assertTrue(errString.contains("Tests.java:34: Serializable lambda is not supported"));
-    Assert.assertTrue(errString.contains("Tests.java:43: Serializable lambda is not supported"));
-    Assert.assertTrue(errString.contains("Tests.java:55: Serializable lambda is not supported"));
+    Assert.assertTrue(errString.contains("Tests.java:34"));
+    Assert.assertTrue(errString.contains("Tests.java:43"));
+    Assert.assertTrue(errString.contains("Tests.java:55"));
+    Assert.assertTrue(errString.contains("Serializable lambda is not supported"));
   }
 
   /**
@@ -492,9 +493,10 @@ public class LambdaTest {
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath()).libToExe(lib,
         AbstractTestTools.createTempDir(), /* zipFile = */ false);
     errString = err.toString();
-    Assert.assertTrue(errString.contains("Tests.java:34: Serializable lambda is not supported"));
-    Assert.assertTrue(errString.contains("Tests.java:43: Serializable lambda is not supported"));
-    Assert.assertTrue(errString.contains("Tests.java:55: Serializable lambda is not supported"));
+    Assert.assertTrue(errString.contains("Tests.java:34"));
+    Assert.assertTrue(errString.contains("Tests.java:43"));
+    Assert.assertTrue(errString.contains("Tests.java:55"));
+    Assert.assertTrue(errString.contains("Serializable lambda is not supported"));
   }
 
   /**
@@ -528,9 +530,10 @@ public class LambdaTest {
           /* zipFile = */ true,
           AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test037.jack"));
       String errString = err.toString();
-      Assert.assertTrue(errString.contains("Tests.java:34: Serializable lambda is not supported"));
-      Assert.assertTrue(errString.contains("Tests.java:43: Serializable lambda is not supported"));
-      Assert.assertTrue(errString.contains("Tests.java:55: Serializable lambda is not supported"));
+      Assert.assertTrue(errString.contains("Tests.java:34"));
+      Assert.assertTrue(errString.contains("Tests.java:43"));
+      Assert.assertTrue(errString.contains("Tests.java:55"));
+      Assert.assertTrue(errString.contains("Serializable lambda is not supported"));
     }
 
     // lib to dex
