@@ -67,26 +67,29 @@ public class MethodIdMerger implements RunnableSchedulable<JSession> {
 
     @Override
     public boolean visit(@Nonnull JDefinedClass node) {
-      if (node.getMarker(VirtualMethodsMarker.class) == null) {
-        handleDefinedClassOrInterface(node);
+      if (node.getMarker(VirtualMethodsMarker.class) != null) {
+        return false;
       }
-      return false;
+      handleDefinedClassOrInterface(node);
+      return super.visit(node);
     }
 
     @Override
     public boolean visit(@Nonnull JDefinedInterface node) {
-      if (node.getMarker(VirtualMethodsMarker.class) == null) {
-        handleDefinedClassOrInterface(node);
+      if (node.getMarker(VirtualMethodsMarker.class) != null) {
+        return false;
       }
-      return false;
+      handleDefinedClassOrInterface(node);
+      return super.visit(node);
     }
 
     @Override
     public boolean visit(@Nonnull JPhantomClassOrInterface node) {
-      if (node.getMarker(VirtualMethodsMarker.class) == null) {
-        ensureHierarchyVisited(node);
+      if (node.getMarker(VirtualMethodsMarker.class) != null) {
+        return false;
       }
-      return false;
+      ensureHierarchyVisited(node);
+      return super.visit(node);
     }
 
     private void ensureHierarchyVisited(@Nonnull JClassOrInterface node) {
