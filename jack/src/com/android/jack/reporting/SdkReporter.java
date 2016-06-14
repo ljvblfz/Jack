@@ -18,7 +18,6 @@ package com.android.jack.reporting;
 
 import com.google.common.base.Strings;
 
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.reporting.Reportable.ProblemLevel;
 import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.location.ColumnAndLineLocation;
@@ -38,6 +37,8 @@ import javax.annotation.Nonnull;
 @ImplementationName(iface = Reporter.class, name = "sdk")
 public class SdkReporter extends CommonReporter {
 
+  private static final int SDK_UNKNOWN_VALUE = -1;
+
   @Override
   protected void printFilteredProblem(@Nonnull ProblemLevel problemLevel,
       @Nonnull String message, @CheckForNull Location location) {
@@ -52,27 +53,12 @@ public class SdkReporter extends CommonReporter {
     if (location != null) {
 
       String filePath = null;
-      int startLine = SourceInfo.UNKNOWN_LINE_NUMBER;
-      int endLine = SourceInfo.UNKNOWN_LINE_NUMBER;
-      int startColumn = SourceInfo.UNKNOWN_LINE_NUMBER;
-      int endColumn = SourceInfo.UNKNOWN_LINE_NUMBER;
+      ColumnAndLineLocation call = null;
 
       Location currentLocation = location;
 
       if (currentLocation instanceof ColumnAndLineLocation) {
-        ColumnAndLineLocation call = (ColumnAndLineLocation) currentLocation;
-        if (call.hasStartLine()) {
-          startLine = call.getStartLine();
-        }
-        if (call.hasEndLine()) {
-          endLine = call.getEndLine();
-        }
-        if (call.hasStartColumn()) {
-          startColumn = call.getStartColumn();
-        }
-        if (call.hasEndColumn()) {
-          endColumn = call.getEndColumn();
-        }
+        call = (ColumnAndLineLocation) currentLocation;
         currentLocation = call.getParentLocation();
       }
 
@@ -89,18 +75,39 @@ public class SdkReporter extends CommonReporter {
         messageBuffer.append("\"position\":{");
 
         // Convert unknown values to match sdk expectations
-        int sdkStartLine = startLine == SourceInfo.UNKNOWN_LINE_NUMBER ? -1 : startLine;
-        int sdkStartColumn = startColumn == SourceInfo.UNKNOWN_COLUMN_NUMBER ? -1 : startColumn;
-        int sdkEndLine = endLine == SourceInfo.UNKNOWN_LINE_NUMBER ? sdkStartLine : endLine;
-        int sdkEndColumn =
-            endColumn == SourceInfo.UNKNOWN_COLUMN_NUMBER ? sdkStartColumn : endColumn;
+        int sdkStartLine = SDK_UNKNOWN_VALUE;
+        int sdkStartColumn = SDK_UNKNOWN_VALUE;
+        int sdkEndLine = SDK_UNKNOWN_VALUE;
+        int sdkEndColumn = SDK_UNKNOWN_VALUE;
+
+        if (call != null) {
+          if (call.hasStartLine()) {
+            sdkStartLine = call.getStartLine();
+          }
+
+          if (call.hasEndLine()) {
+            sdkEndLine = call.getEndLine();
+          } else {
+            sdkEndLine = sdkStartLine;
+          }
+
+          if (call.hasStartColumn()) {
+            sdkStartColumn = call.getStartColumn();
+          }
+
+          if (call.hasEndColumn()) {
+            sdkEndColumn = call.getEndColumn();
+          } else {
+            sdkEndColumn = sdkStartColumn;
+          }
+        }
 
         messageBuffer.append("\"startLine\":").append(sdkStartLine).append(',');
         messageBuffer.append("\"startColumn\":").append(sdkStartColumn).append(',');
-        messageBuffer.append("\"startOffset\":-1,");
+        messageBuffer.append("\"startOffset\":").append(SDK_UNKNOWN_VALUE).append(',');
         messageBuffer.append("\"endLine\":").append(sdkEndLine).append(',');
         messageBuffer.append("\"endColumn\":").append(sdkEndColumn).append(',');
-        messageBuffer.append("\"endOffset\":-1");
+        messageBuffer.append("\"endOffset\":").append(SDK_UNKNOWN_VALUE);
 
         messageBuffer.append('}');
       }
