@@ -16,14 +16,28 @@
 
 package com.android.jack.unary;
 
+import com.android.jack.TestTools;
 import com.android.jack.test.category.RuntimeRegressionTest;
+import com.android.jack.test.helper.FileChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 
+import junit.framework.Assert;
+
+import org.jf.dexlib.ClassDataItem.EncodedMethod;
+import org.jf.dexlib.CodeItem;
+import org.jf.dexlib.DexFile;
+import org.jf.dexlib.Code.Instruction;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+
+import java.io.File;
+
+import javax.annotation.Nonnull;
 
 public class UnaryTests extends RuntimeTest {
 
@@ -45,7 +59,47 @@ public class UnaryTests extends RuntimeTest {
 
   private RuntimeTestInfo TEST005 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.unary.test005"),
-      "com.android.jack.unary.test005.dx.Tests");
+      "com.android.jack.unary.test005.dx.Tests").addFileChecker(new FileChecker() {
+        @Override
+        public void check(@Nonnull File file) throws Exception {
+          DexFile dexFile = new DexFile(file);
+          EncodedMethod em =
+              TestTools.getEncodedMethod(dexFile,
+                  "Lcom/android/jack/unary/test005/jack/UnaryNot;", "flipBooleans",
+                  "(I)Z");
+          Assert.assertTrue(hasXor(em.codeItem));
+        }
+      }).addFileChecker(new FileChecker() {
+        @Override
+        public void check(@Nonnull File file) throws Exception {
+          DexFile dexFile = new DexFile(file);
+          EncodedMethod em =
+              TestTools.getEncodedMethod(dexFile,
+                  "Lcom/android/jack/unary/test005/jack/UnaryNot;", "flipBooleansTwice",
+                  "(I)Z");
+          Assert.assertTrue(!hasXor(em.codeItem));
+        }
+      }).addFileChecker(new FileChecker() {
+        @Override
+        public void check(@Nonnull File file) throws Exception {
+          DexFile dexFile = new DexFile(file);
+          EncodedMethod em =
+              TestTools.getEncodedMethod(dexFile,
+                  "Lcom/android/jack/unary/test005/jack/UnaryNot;", "flipBooleansWithDep",
+                  "(I)Z");
+          Assert.assertTrue(hasXor(em.codeItem));
+        }
+      }).addFileChecker(new FileChecker() {
+        @Override
+        public void check(@Nonnull File file) throws Exception {
+          DexFile dexFile = new DexFile(file);
+          EncodedMethod em =
+              TestTools.getEncodedMethod(dexFile,
+                  "Lcom/android/jack/unary/test005/jack/UnaryNot;", "flipBooleansTwiceWithDep",
+                  "(I)Z");
+          Assert.assertTrue(!hasXor(em.codeItem));
+        }
+      });
 
   private RuntimeTestInfo TEST006 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.unary.test006"),
@@ -81,8 +135,11 @@ public class UnaryTests extends RuntimeTest {
 
   @Test
   @Category(RuntimeRegressionTest.class)
+  @KnownIssue(candidate=JillBasedToolchain.class)
   public void test005() throws Exception {
-    new RuntimeTestHelper(TEST005).compileAndRunTest();
+    new RuntimeTestHelper(TEST005)
+        .addIgnoredCandidateToolchain(JillBasedToolchain.class)
+        .compileAndRunTest();
   }
 
   @Test
@@ -106,5 +163,27 @@ public class UnaryTests extends RuntimeTest {
     rtTestInfos.add(TEST005);
     rtTestInfos.add(TEST006);
     rtTestInfos.add(TEST007);
+  }
+
+  /**
+   * Check if there is at least one XOR_INT instruction.
+   *
+   * Depending on how constants are lifted, reused..etc. We are not sure how the backend will
+   * generate the XOR instruction. This method just check if there is at least one XOR instruction
+   * of any kind in the code item.
+   */
+  private boolean hasXor(@Nonnull CodeItem codeItem) {
+    for (Instruction inst : codeItem.getInstructions()) {
+      switch (inst.opcode) {
+        case XOR_INT:
+        case XOR_INT_LIT8:
+        case XOR_INT_LIT16:
+        case XOR_INT_2ADDR:
+          return true;
+        default:
+          continue;
+      }
+    }
+    return false;
   }
 }

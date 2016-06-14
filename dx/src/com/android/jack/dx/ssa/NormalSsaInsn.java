@@ -233,6 +233,7 @@ public final class NormalSsaInsn extends SsaInsn implements Cloneable {
       case RegOps.MOVE_RESULT:
       case RegOps.MOVE:
       case RegOps.CONST:
+      case RegOps.XOR:
         return hasLocalSideEffect;
       default:
         return true;

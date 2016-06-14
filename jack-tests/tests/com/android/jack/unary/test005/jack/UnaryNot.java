@@ -38,5 +38,43 @@ public class UnaryNot {
       return 2;
     }
   }
+
+  public static boolean flipBooleans(int count) {
+    boolean result = true;
+    for (int i = 0; i < count; i++) {
+      result = !result;
+    }
+    return result;
+  }
+
+  public static boolean flipBooleansTwice(int count) {
+    boolean result = true;
+    for (int i = 0; i < count; i++) {
+      result = !result;
+      result = !result;
+    }
+    return result;
+  }
+
+  public static boolean flipBooleansWithDep(int count) {
+    boolean result = true;
+    for (int i = 0; i < count; i++) {
+      if (result) {
+        result = !result;
+      }
+    }
+    return result;
+  }
+
+  public static boolean flipBooleansTwiceWithDep(int count) {
+    boolean result = true;
+    for (int i = 0; i < count; i++) {
+      if (result) {
+        result = !result;
+        result = !result;
+      }
+    }
+    return result;
+  }
 }
 
