@@ -88,7 +88,6 @@ import com.android.jack.ir.ast.JMethodCall.DispatchKind;
 import com.android.jack.ir.ast.JNewArray;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JNullLiteral;
-import com.android.jack.ir.ast.JParameterRef;
 import com.android.jack.ir.ast.JPrefixNotOperation;
 import com.android.jack.ir.ast.JPrimitiveType;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
@@ -98,7 +97,6 @@ import com.android.jack.ir.ast.JReturnStatement;
 import com.android.jack.ir.ast.JShortLiteral;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JSwitchStatement;
-import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JThrowStatement;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JUnaryOperation;
@@ -212,18 +210,6 @@ class RopBuilderVisitor extends JVisitor {
     }
 
     @Override
-    public boolean visit(@Nonnull JLocalRef localRef) {
-      buildAssignVariableRef(destReg, localRef, sourcePosition);
-      return false;
-    }
-
-    @Override
-    public boolean visit(@Nonnull JParameterRef paramRef) {
-      buildAssignVariableRef(destReg, paramRef, sourcePosition);
-      return false;
-    }
-
-    @Override
     public boolean visit(@Nonnull JLambda lambda) {
       throw new AssertionError();
     }
@@ -235,12 +221,11 @@ class RopBuilderVisitor extends JVisitor {
     }
 
     @Override
-    public boolean visit(@Nonnull JThisRef thisRef) {
-      RegisterSpec valueReg = ropReg.getOrCreateRegisterSpec(thisRef);
+    public boolean visit(@Nonnull JVariableRef varRef) {
+      RegisterSpec valueReg = ropReg.getOrCreateRegisterSpec(varRef);
       RegisterSpecList sources = RegisterSpecList.make(valueReg);
-      addInstruction(new PlainInsn(
-          Rops.opMove(valueReg.getTypeBearer()), sourcePosition,
-          destReg, sources));
+      addInstruction(
+          new PlainInsn(Rops.opMove(valueReg.getTypeBearer()), sourcePosition, destReg, sources));
       return false;
     }
 
@@ -391,14 +376,6 @@ class RopBuilderVisitor extends JVisitor {
             new ThrowingCstInsn(rop, sourcePosition, sources, getCatchTypes(), cstField));
       }
       addMoveResultPseudoAsExtraInstruction(destReg, sourcePosition);
-    }
-
-    private void buildAssignVariableRef(@Nonnull RegisterSpec destReg, @Nonnull JVariableRef vRef,
-        @Nonnull SourcePosition sourcePosition) {
-      RegisterSpec valueReg = ropReg.getOrCreateRegisterSpec(vRef);
-      RegisterSpecList sources = RegisterSpecList.make(valueReg);
-      addInstruction(
-          new PlainInsn(Rops.opMove(valueReg.getTypeBearer()), sourcePosition, destReg, sources));
     }
   }
 
