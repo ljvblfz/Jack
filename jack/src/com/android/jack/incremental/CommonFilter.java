@@ -35,6 +35,8 @@ import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.library.JarLibrary;
 import com.android.jack.library.LibraryReadingException;
 import com.android.jack.library.NotJackLibraryException;
+import com.android.jack.meta.Meta;
+import com.android.jack.meta.MetaImporter;
 import com.android.jack.reporting.Reportable;
 import com.android.jack.reporting.ReportableException;
 import com.android.jack.reporting.Reporter.Severity;
@@ -434,5 +436,10 @@ public abstract class CommonFilter {
       throw new JackAbortException(e);
     }
     return resources;
+  }
+
+  @Nonnull
+  protected List<Meta> importStandaloneMetas() {
+    return new MetaImporter(ThreadConfig.get(MetaImporter.IMPORTED_META)).getImports();
   }
 }

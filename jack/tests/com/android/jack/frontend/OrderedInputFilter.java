@@ -26,6 +26,7 @@ import com.android.jack.incremental.InputFilter;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.Resource;
 import com.android.jack.library.InputLibrary;
+import com.android.jack.meta.Meta;
 import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ThreadConfig;
@@ -110,5 +111,11 @@ public class OrderedInputFilter extends CommonFilter implements InputFilter {
   @Nonnull
   public List<? extends Resource> getImportedResources() {
     return importStandaloneResources();
+  }
+
+  @Override
+  @Nonnull
+  public List<? extends Meta> getImportedMetas() {
+    return importStandaloneMetas();
   }
 }

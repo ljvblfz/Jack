@@ -113,7 +113,6 @@ import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.meta.LibraryMetaWriter;
 import com.android.jack.meta.Meta;
-import com.android.jack.meta.MetaImporter;
 import com.android.jack.optimizations.ConstantRefinerAndVariableRemover;
 import com.android.jack.optimizations.DefUsesChainsSimplifier;
 import com.android.jack.optimizations.ExpressionSimplifier;
@@ -950,12 +949,6 @@ public abstract class Jack {
       }
     }
 
-    MetaImporter metaImporter = new MetaImporter(config.get(MetaImporter.IMPORTED_META));
-    for (Meta meta : metaImporter.getImports()) {
-      session.addMeta(meta);
-    }
-
-
     List<InputJackLibrary> inputJackLibraries = new ArrayList<InputJackLibrary>();
     for (InputLibrary library : inputFilter.getImportedLibraries()) {
       if (library instanceof InputJackLibrary) {
@@ -1006,6 +999,10 @@ public abstract class Jack {
     assert session.getResources().isEmpty();
     for (Resource resource : inputFilter.getImportedResources()) {
       session.addResource(resource);
+    }
+
+    for (Meta meta : inputFilter.getImportedMetas()) {
+      session.addMeta(meta);
     }
 
     try {

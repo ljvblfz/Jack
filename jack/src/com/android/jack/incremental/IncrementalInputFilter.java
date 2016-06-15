@@ -40,6 +40,7 @@ import com.android.jack.library.LibraryVersionException;
 import com.android.jack.library.LibraryWritingException;
 import com.android.jack.library.NotJackLibraryException;
 import com.android.jack.library.OutputJackLibrary;
+import com.android.jack.meta.Meta;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.config.Config;
@@ -151,6 +152,9 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   private final List<Resource> importedResources;
 
   @Nonnull
+  private final List<Meta> importedMetas;
+
+  @Nonnull
   private final List<? extends InputLibrary> librariesOnClasspath;
 
   public IncrementalInputFilter(@Nonnull Options options) {
@@ -220,6 +224,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
     filesToRecompile = getInternalFileNamesToCompile();
 
     importedResources = importStandaloneResources();
+    importedMetas = importStandaloneMetas();
 
     if (config.get(INCREMENTAL_LOG).booleanValue()) {
       IncrementalLogWriter incLog;
@@ -503,5 +508,11 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   @Nonnull
   public List<? extends Resource> getImportedResources() {
     return importedResources;
+  }
+
+  @Override
+  @Nonnull
+  public List<? extends Meta> getImportedMetas() {
+    return importedMetas;
   }
 }
