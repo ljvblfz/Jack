@@ -21,7 +21,6 @@ import com.android.jack.Options.AssertionPolicy;
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.junit.KnownIssue;
-import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -53,7 +52,6 @@ public class AssertionTests extends RuntimeTest {
       "com.android.jack.assertion.test005.dx.Tests");
 
   @Test
-  @Runtime
   // this test must be run with assertions enabled (for now, use dalvik)
   @Category(RuntimeRegressionTest.class)
   @KnownIssue
@@ -62,21 +60,18 @@ public class AssertionTests extends RuntimeTest {
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test002() throws Exception {
     new RuntimeTestHelper(TEST002).compileAndRunTest();
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test003() throws Exception {
     new RuntimeTestHelper(TEST003).compileAndRunTest();
   }
 
   @Test
-  @Runtime
   public void test004() throws Exception {
     new RuntimeTestHelper(TEST004)
         .addIgnoredCandidateToolchain(JillBasedToolchain.class)
@@ -85,7 +80,6 @@ public class AssertionTests extends RuntimeTest {
   }
 
   @Test
-  @Runtime
   public void test005() throws Exception {
     new RuntimeTestHelper(TEST005)
         .addIgnoredCandidateToolchain(JillBasedToolchain.class)

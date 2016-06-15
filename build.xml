@@ -2432,6 +2432,38 @@
 
   </target>
 
+  <target name="test-jack-java8-pre-n-dump" depends="tests-check-config">
+    <mkdir dir="${jack-tests.dir}/dump"/>
+
+    <java fork="true" failonerror="true"
+      output="${jack-tests.dir}/dump/Java8AllTestPreN.js"
+      classname="com.android.jack.test.junit.JackJUnitLauncher">
+      <jvmarg value="-Dtests.dump=true" />
+      <jvmarg value="-Dtests.config=${tests.config}"/>
+      <classpath>
+       <filelist refid="jack.junit.tests.classpath" />
+      </classpath>
+      <arg value="com.android.jack.java8.Java8AllTestPreN"/>
+    </java>
+
+  </target>
+
+  <target name="test-jack-java8-post-m-dump" depends="tests-check-config">
+    <mkdir dir="${jack-tests.dir}/dump"/>
+
+    <java fork="true" failonerror="true"
+      output="${jack-tests.dir}/dump/Java8AllTestPostM.js"
+      classname="com.android.jack.test.junit.JackJUnitLauncher">
+      <jvmarg value="-Dtests.dump=true" />
+      <jvmarg value="-Dtests.config=${tests.config}"/>
+      <classpath>
+       <filelist refid="jack.junit.tests.classpath" />
+      </classpath>
+      <arg value="com.android.jack.java8.Java8AllTestPostM"/>
+    </java>
+
+  </target>
+
   <target name="test-sched-dump" depends="tests-check-config">
     <mkdir dir="${jack-tests.dir}/dump"/>
 

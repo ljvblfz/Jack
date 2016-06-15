@@ -18,7 +18,6 @@ package com.android.jack.string;
 
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.RuntimeTestHelper;
-import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -54,21 +53,18 @@ public class StringTests extends RuntimeTest {
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void concat001() throws Exception {
     new RuntimeTestHelper(CONCAT001).compileAndRunTest();
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void concat002() throws Exception {
     new RuntimeTestHelper(CONCAT002).compileAndRunTest();
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void concat003() throws Exception {
     new RuntimeTestHelper(CONCAT003).compileAndRunTest();

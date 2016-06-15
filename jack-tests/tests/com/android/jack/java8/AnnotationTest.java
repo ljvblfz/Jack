@@ -21,7 +21,6 @@ import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.test.TestsProperties;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.junit.KnownIssue;
-import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runner.RuntimeRunner;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -56,21 +55,18 @@ public class AnnotationTest {
       "com.android.jack.java8.annotation.test003.jack.Tests");
 
   @Test
-  @Runtime
   @KnownIssue
   public void testAnnotation001() throws Exception {
     compileAndRun(ANNOTATION001);
   }
 
   @Test
-  @Runtime
   @KnownIssue
   public void testAnnotation002() throws Exception {
     compileAndRun(ANNOTATION002);
   }
 
   @Test
-  @Runtime
   @KnownIssue
   public void testAnnotation003() throws Exception {
     compileAndRun(ANNOTATION003);
@@ -82,7 +78,6 @@ public class AnnotationTest {
    * through a jack library where the predex is used on the flow jack library -> dex file.
    */
   @Test
-  @Runtime
   @KnownIssue
   public void testAnnotation004() throws Exception {
     JackBasedToolchain toolchain =
@@ -130,7 +125,6 @@ public class AnnotationTest {
    * through a jack library where the predex is not used on the flow jack library -> dex file.
    */
   @Test
-  @Runtime
   @KnownIssue
   public void testAnnotation005() throws Exception {
     JackBasedToolchain toolchain =
