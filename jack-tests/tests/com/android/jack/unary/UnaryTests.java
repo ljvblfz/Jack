@@ -160,7 +160,6 @@ public class UnaryTests extends RuntimeTest {
     rtTestInfos.add(TEST002);
     rtTestInfos.add(TEST003);
     rtTestInfos.add(TEST004);
-    rtTestInfos.add(TEST005);
     rtTestInfos.add(TEST006);
     rtTestInfos.add(TEST007);
   }
