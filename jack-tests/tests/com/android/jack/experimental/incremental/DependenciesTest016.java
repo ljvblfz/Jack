@@ -25,6 +25,7 @@ import com.android.jack.test.helper.IncrementalTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.IncrementalToolchain;
+import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.TwoStepsToolchain;
@@ -92,7 +93,7 @@ public class DependenciesTest016 {
     File rsc4 = new File(sourceDir, "rsc4");
     writeToRsc(rsc4, "rsc4");
 
-    JackBasedToolchain toolchain = getIncrementalToolchain();
+    JackBasedToolchain toolchain = getIncrementalToolchain(JackBasedToolchain.class);
     File[] defaultClasspath = toolchain.getDefaultBootClasspath();
     toolchain.addStaticLibs(lib1, lib2);
     toolchain.setIncrementalFolder(helper.getCompilerStateFolder());
@@ -118,7 +119,7 @@ public class DependenciesTest016 {
 
     helper.snapshotJackFilesModificationDate();
 
-    toolchain = getIncrementalToolchain();
+    toolchain = getIncrementalToolchain(JackBasedToolchain.class);
     toolchain.addStaticLibs(lib1, lib2);
     toolchain.setIncrementalFolder(helper.getCompilerStateFolder());
     toolchain.setOutputJack(outputJack, /* zipFiles = */ true);
@@ -176,7 +177,7 @@ public class DependenciesTest016 {
     File rsc4 = new File(sourceDir, "rsc4");
     writeToRsc(rsc4, "rsc4");
 
-    JackBasedToolchain toolchain = getIncrementalToolchain();
+    JackBasedToolchain toolchain = getIncrementalToolchain(JackBasedToolchain.class);
     File[] defaultClasspath = toolchain.getDefaultBootClasspath();
     toolchain.addStaticLibs(lib1, lib2);
     toolchain.setIncrementalFolder(helper.getCompilerStateFolder());
@@ -201,7 +202,7 @@ public class DependenciesTest016 {
     AbstractTestTools.deleteFile(rsc4);
     helper.snapshotJackFilesModificationDate();
 
-    toolchain = getIncrementalToolchain();
+    toolchain = getIncrementalToolchain(JackBasedToolchain.class);
     toolchain.addStaticLibs(lib1, lib2);
     toolchain.setIncrementalFolder(helper.getCompilerStateFolder());
     toolchain.setOutputJack(outputJack, /* zipFiles = */ true);
@@ -226,7 +227,7 @@ public class DependenciesTest016 {
   @Test
   public void testConflictsKeepFirst() throws Exception {
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
-    runTestConflict("keep-first", errOut);
+    runTestConflict("keep-first", errOut, JackBasedToolchain.class);
     Assert.assertEquals("", errOut.toString());
   }
 
@@ -234,7 +235,8 @@ public class DependenciesTest016 {
   public void testConflictsFail() throws Exception {
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     try {
-      runTestConflict("fail", errOut);
+      // API only because we check errors
+      runTestConflict("fail", errOut, JackApiToolchainBase.class);
       Assert.fail();
     } catch (JackAbortException e) {
       // expected
@@ -244,8 +246,8 @@ public class DependenciesTest016 {
     }
   }
 
-  public void runTestConflict(@Nonnull String collisionPolicy,
-      @Nonnull OutputStream errorStream) throws Exception {
+  public void runTestConflict(@Nonnull String collisionPolicy, @Nonnull OutputStream errorStream,
+      @Nonnull Class<? extends JackBasedToolchain> baseToolchain) throws Exception {
 
     File rscDirLib1 = AbstractTestTools.createTempDir();
     {
@@ -289,7 +291,7 @@ public class DependenciesTest016 {
 
     /* 1st step: import an empty resource dir */
 
-    JackBasedToolchain toolchain = getIncrementalToolchain();
+    JackBasedToolchain toolchain = getIncrementalToolchain(baseToolchain);
     File[] defaultClasspath = toolchain.getDefaultBootClasspath();
     toolchain.addStaticLibs(lib1, lib2);
     toolchain.setIncrementalFolder(helper.getCompilerStateFolder());
@@ -319,7 +321,7 @@ public class DependenciesTest016 {
     File rsc1 = new File(standaloneRscDir, "rsc1");
     writeToRsc(rsc1, "rsc1sa");
 
-    toolchain = getIncrementalToolchain();
+    toolchain = getIncrementalToolchain(baseToolchain);
     toolchain.addStaticLibs(lib1, lib2);
     toolchain.setIncrementalFolder(helper.getCompilerStateFolder());
     toolchain.setOutputJack(outputJack, /* zipFiles = */ true);
@@ -355,7 +357,7 @@ public class DependenciesTest016 {
     File rsc4 = new File(subRscDir, "rsc4");
     writeToRsc(rsc4, "rsc4sa");
 
-    toolchain = getIncrementalToolchain();
+    toolchain = getIncrementalToolchain(baseToolchain);
     toolchain.addStaticLibs(lib1, lib2);
     toolchain.setIncrementalFolder(helper.getCompilerStateFolder());
     toolchain.setOutputJack(outputJack, /* zipFiles = */ true);
@@ -390,7 +392,7 @@ public class DependenciesTest016 {
     AbstractTestTools.deleteFile(rsc4);
     helper.snapshotJackFilesModificationDate();
 
-    toolchain = getIncrementalToolchain();
+    toolchain = getIncrementalToolchain(baseToolchain);
     toolchain.addStaticLibs(lib1, lib2);
     toolchain.setIncrementalFolder(helper.getCompilerStateFolder());
     toolchain.setOutputJack(outputJack, /* zipFiles = */ true);
@@ -449,13 +451,14 @@ public class DependenciesTest016 {
   }
 
   @Nonnull
-  private static JackBasedToolchain getIncrementalToolchain() {
+  private static JackBasedToolchain getIncrementalToolchain(
+      @Nonnull Class<? extends JackBasedToolchain> baseToolchain) {
     List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(3);
     excludeList.add(JillBasedToolchain.class);
     excludeList.add(IncrementalToolchain.class);
     excludeList.add(TwoStepsToolchain.class);
     JackBasedToolchain jackToolchain =
-        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeList);
+        AbstractTestTools.getCandidateToolchain(baseToolchain, excludeList);
     return jackToolchain;
   }
 
