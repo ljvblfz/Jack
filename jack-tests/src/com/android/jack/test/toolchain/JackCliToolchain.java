@@ -27,6 +27,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +59,11 @@ public class JackCliToolchain extends JackBasedToolchain {
   protected File outputJack;
 
   boolean zipOutputJackFiles;
+
+  @Nonnull
+  List<String> pluginNames = Collections.emptyList();
+  @Nonnull
+  List<File> pluginPath = Collections.emptyList();
 
   JackCliToolchain(@Nonnull File prebuilt) {
     this.jackPrebuilt = prebuilt;
@@ -174,6 +180,9 @@ public class JackCliToolchain extends JackBasedToolchain {
 
     addAnnotationProcessorArgs(commandLine);
 
+    addPluginPath(commandLine);
+    addPluginNames(commandLine);
+
     for (File staticLib : staticLibs) {
       commandLine.add("--import");
       commandLine.add(staticLib.getAbsolutePath());
@@ -265,6 +274,9 @@ public class JackCliToolchain extends JackBasedToolchain {
     if (withDebugInfos) {
       commandLine.add("-g");
     }
+
+    addPluginPath(commandLine);
+    addPluginNames(commandLine);
 
     libToImportStaticLibs(commandLine, in);
 
@@ -368,6 +380,32 @@ public class JackCliToolchain extends JackBasedToolchain {
     if (processorPath != null) {
         commandLine.add("--processorpath");
         commandLine.add(processorPath);
+    }
+  }
+
+  @Nonnull
+  public JackCliToolchain setPluginNames(@Nonnull List<String> pluginNames) throws Exception {
+    this.pluginNames = pluginNames;
+    return this;
+  }
+
+  private void addPluginNames(@Nonnull List<String> commandLine) {
+    if (pluginNames.size() > 0) {
+      commandLine.add("--plugin");
+      commandLine.add(Joiner.on(File.pathSeparator).join(pluginNames));
+    }
+  }
+
+  @Nonnull
+  public JackCliToolchain setPluginPath(@Nonnull List<File> pluginPath) throws Exception {
+    this.pluginPath = pluginPath;
+    return this;
+  }
+
+  private void addPluginPath(@Nonnull List<String> commandLine) {
+    if (pluginPath.size() > 0) {
+      commandLine.add("--pluginpath");
+      commandLine.add(Joiner.on(',').join(pluginPath));
     }
   }
 
