@@ -34,7 +34,8 @@ import org.junit.runners.Suite.SuiteClasses;
     IntersectionTypeTest.class,
     LambdaTest.class,
     MethodRefTest.class,
-    TypeInferenceTest.class
+    TypeInferenceTest.class,
+    VariableTest.class
     })
 public class Java8AllTestPreN {
 }
