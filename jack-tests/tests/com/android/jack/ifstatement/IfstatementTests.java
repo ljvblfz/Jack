@@ -18,7 +18,6 @@ package com.android.jack.ifstatement;
 
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.RuntimeTestHelper;
-import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -46,28 +45,24 @@ public class IfstatementTests extends RuntimeTest {
 
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void advancedTest() throws Exception {
     new RuntimeTestHelper(ADVANCEDTEST).compileAndRunTest();
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void cfgTest() throws Exception {
     new RuntimeTestHelper(CFGTEST).compileAndRunTest();
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void fastpath() throws Exception {
     new RuntimeTestHelper(FASTPATH).compileAndRunTest();
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void simpleTest() throws Exception {
     new RuntimeTestHelper(SIMPLETEST).compileAndRunTest();

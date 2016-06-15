@@ -18,7 +18,6 @@ package com.android.jack.tryfinally;
 
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.RuntimeTestHelper;
-import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -46,28 +45,24 @@ public class TryfinallyTests extends RuntimeTest {
 
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void finally002() throws Exception {
     new RuntimeTestHelper(FINALLY002).compileAndRunTest();
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void finally003() throws Exception {
     new RuntimeTestHelper(FINALLY003).compileAndRunTest();
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void finally004() throws Exception {
     new RuntimeTestHelper(FINALLY004).compileAndRunTest();
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void finallyblock() throws Exception {
     new RuntimeTestHelper(FINALLYBLOCK).compileAndRunTest();

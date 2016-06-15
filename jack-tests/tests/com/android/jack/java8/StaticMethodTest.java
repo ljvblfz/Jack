@@ -23,8 +23,6 @@ import javax.annotation.Nonnull;
 import com.android.jack.Options;
 import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
-import com.android.jack.test.junit.Runtime;
-import com.android.jack.test.junit.RuntimeVersion;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackApiV01;
@@ -50,19 +48,16 @@ public class StaticMethodTest {
       "com.android.jack.java8.staticmethod.test003.jack.Tests");
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void testStaticMethod001() throws Exception {
     run(STATICTMETHOD001);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void testStaticMethod002() throws Exception {
     run(STATICTMETHOD002);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void testStaticMethod003() throws Exception {
     run(STATICTMETHOD003);
   }

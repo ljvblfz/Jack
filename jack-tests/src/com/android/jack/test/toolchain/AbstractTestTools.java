@@ -702,17 +702,9 @@ public abstract class AbstractTestTools {
       }
     }
 
-    if (runtimes.size() == 0) {
-      if (Boolean.parseBoolean(System.getProperty("jack.test.runtime.tolerant", "false"))) {
-        if (!hasRuntimeWarningBeenEmitted) {
-          System.err.println("WARNING: no runtime has been provided");
-          hasRuntimeWarningBeenEmitted = true;
-        }
-      } else {
-        throw new TestConfigurationException(
-            "No runtime has been provided. Set property 'jack.test.runtime.tolerant' to 'true'"
-            + " to allow it.");
-      }
+    if (!hasRuntimeWarningBeenEmitted && runtimes.size() == 0) {
+      System.err.println("WARNING: no runtime has been provided");
+      hasRuntimeWarningBeenEmitted = true;
     }
 
     return runtimes;

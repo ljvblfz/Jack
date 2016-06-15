@@ -18,7 +18,6 @@ package com.android.jack.verify;
 
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.RuntimeTestHelper;
-import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -42,14 +41,12 @@ public class VerifyTests extends RuntimeTest {
 
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test001() throws Exception {
     new RuntimeTestHelper(TEST001).compileAndRunTest();
   }
 
   @Test
-  @Runtime
   public void test002() throws Exception {
     new RuntimeTestHelper(TEST002)
     .addProperty("jack.optimization.def-use-simplifier", "false")
@@ -57,7 +54,6 @@ public class VerifyTests extends RuntimeTest {
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test003() throws Exception {
     new RuntimeTestHelper(TEST003)
@@ -65,7 +61,6 @@ public class VerifyTests extends RuntimeTest {
   }
 
   @Test
-  @Runtime
   public void test003_2() throws Exception {
     new RuntimeTestHelper(TEST003)
     .addProperty("jack.optimization.def-use-simplifier", "false")

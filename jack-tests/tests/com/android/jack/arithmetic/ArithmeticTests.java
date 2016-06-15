@@ -18,7 +18,6 @@ package com.android.jack.arithmetic;
 
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.RuntimeTestHelper;
-import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -45,28 +44,24 @@ public class ArithmeticTests extends RuntimeTest {
     "com.android.jack.arithmetic.test004.dx.Tests");
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test001() throws Exception {
     new RuntimeTestHelper(TEST001).compileAndRunTest();
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test002() throws Exception {
     new RuntimeTestHelper(TEST002).compileAndRunTest();
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test003() throws Exception {
     new RuntimeTestHelper(TEST003).compileAndRunTest();
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test004() throws Exception {
     new RuntimeTestHelper(TEST004).compileAndRunTest();

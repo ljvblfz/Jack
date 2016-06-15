@@ -21,7 +21,6 @@ import com.android.jack.test.comparator.ComparatorDex;
 import com.android.jack.test.helper.CheckDexStructureTestHelper;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
-import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -68,56 +67,48 @@ public class FieldTests extends RuntimeTest {
 
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void instance001() throws Exception {
     new RuntimeTestHelper(INSTANCE001).compileAndRunTest();
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void instance002() throws Exception {
     new RuntimeTestHelper(INSTANCE002).compileAndRunTest();
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void instance003() throws Exception {
     new RuntimeTestHelper(INSTANCE003).compileAndRunTest();
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void instance004() throws Exception {
     new RuntimeTestHelper(INSTANCE004).compileAndRunTest();
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void static001() throws Exception {
     new RuntimeTestHelper(STATIC001).compileAndRunTest();
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void static002() throws Exception {
     new RuntimeTestHelper(STATIC002).compileAndRunTest();
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void static004() throws Exception {
     new RuntimeTestHelper(STATIC004).compileAndRunTest();
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void static005() throws Exception {
     new RuntimeTestHelper(STATIC005).compileAndRunTest();

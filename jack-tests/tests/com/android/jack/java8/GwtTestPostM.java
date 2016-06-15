@@ -20,8 +20,6 @@ import com.android.jack.Options;
 import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.junit.KnownIssue;
-import com.android.jack.test.junit.Runtime;
-import com.android.jack.test.junit.RuntimeVersion;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
@@ -114,116 +112,97 @@ public class GwtTestPostM {
       "com.android.jack.java8.gwt.test051.jack.Java8Test");
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void testDefaultInterfaceMethod() throws Exception {
     run(GWT_LAMBDA_TEST_28);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   @KnownIssue
   public void testDefaultInterfaceMethodVirtualUpRef() throws Exception {
     run(GWT_LAMBDA_TEST_29);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void DefaultInterfaceImplVirtualUpRefTwoInterfaces() throws Exception {
     run(GWT_LAMBDA_TEST_30);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void testDefenderMethodByInterfaceInstance() throws Exception {
     run(GWT_LAMBDA_TEST_31);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void testDefaultMethodReference() throws Exception {
     run(GWT_LAMBDA_TEST_32);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void testThisRefInDefenderMethod() throws Exception {
     run(GWT_LAMBDA_TEST_33);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void testClassImplementsTwoInterfacesWithSameDefenderMethod() throws Exception {
     run(GWT_LAMBDA_TEST_34);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void testAbstractClassImplementsInterface() throws Exception {
     run(GWT_LAMBDA_TEST_35);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void testSuperRefInDefenderMethod() throws Exception {
     run(GWT_LAMBDA_TEST_36);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void testSuperThisRefsInDefenderMethod() throws Exception {
     run(GWT_LAMBDA_TEST_37);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void testNestedInterfaceClass() throws Exception {
     run(GWT_LAMBDA_TEST_38);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void testBaseIntersectionCast() throws Exception {
     run(GWT_LAMBDA_TEST_39);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void testIntersectionCastWithLambdaExpr() throws Exception {
     run(GWT_LAMBDA_TEST_40);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void testIntersectionCastPolymorphism() throws Exception {
     run(GWT_LAMBDA_TEST_41);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void testMultipleDefaults_fromInterfaces_left() throws Exception {
     run(GWT_LAMBDA_TEST_47);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void testMultipleDefaults_fromInterfaces_right() throws Exception {
     run(GWT_LAMBDA_TEST_48);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void testMultipleDefaults_superclass_left() throws Exception {
     run(GWT_LAMBDA_TEST_49);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void testMultipleDefaults_superclass_right() throws Exception {
     run(GWT_LAMBDA_TEST_50);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void testInterfaceThis() throws Exception {
     run(GWT_LAMBDA_TEST_51);
   }

@@ -19,8 +19,6 @@ package com.android.jack.java8;
 import com.android.jack.Options;
 import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
-import com.android.jack.test.junit.Runtime;
-import com.android.jack.test.junit.RuntimeVersion;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackApiV01;
@@ -215,193 +213,161 @@ public class RetroLambdaTests {
           "com.android.jack.java8.retrolambda.interfacestaticmethods.test004.jack.Tests");
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaDefaultMethodsTest001() throws Exception {
     run(RETROLAMBDA_DEFAULTMETHODS_001);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaDefaultMethodsTest002() throws Exception {
     run(RETROLAMBDA_DEFAULTMETHODS_002);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaDefaultMethodsTest003() throws Exception {
     run(RETROLAMBDA_DEFAULTMETHODS_003);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaDefaultMethodsTest004() throws Exception {
     run(RETROLAMBDA_DEFAULTMETHODS_004);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaDefaultMethodsTest005() throws Exception {
     run(RETROLAMBDA_DEFAULTMETHODS_005);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaDefaultMethodsTest006() throws Exception {
     run(RETROLAMBDA_DEFAULTMETHODS_006);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaDefaultMethodsTest007() throws Exception {
     run(RETROLAMBDA_DEFAULTMETHODS_007);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaDefaultMethodsTest008() throws Exception {
     run(RETROLAMBDA_DEFAULTMETHODS_008);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaDefaultMethodsTest009() throws Exception {
     run(RETROLAMBDA_DEFAULTMETHODS_009);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaDefaultMethodsTest010() throws Exception {
     run(RETROLAMBDA_DEFAULTMETHODS_010);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaDefaultMethodsTest011() throws Exception {
     run(RETROLAMBDA_DEFAULTMETHODS_011);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaDefaultMethodsTest012() throws Exception {
     run(RETROLAMBDA_DEFAULTMETHODS_012);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaDefaultMethodsTest013() throws Exception {
     run(RETROLAMBDA_DEFAULTMETHODS_013);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaDefaultMethodsTest014() throws Exception {
     run(RETROLAMBDA_DEFAULTMETHODS_014);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaDefaultMethodsTest015() throws Exception {
     run(RETROLAMBDA_DEFAULTMETHODS_015);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaDefaultMethodsTest016() throws Exception {
     run(RETROLAMBDA_DEFAULTMETHODS_016);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaDefaultMethodsTest017() throws Exception {
     run(RETROLAMBDA_DEFAULTMETHODS_017);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaDefaultMethodsTest018() throws Exception {
     run(RETROLAMBDA_DEFAULTMETHODS_018);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaDefaultMethodsTest019() throws Exception {
     run(RETROLAMBDA_DEFAULTMETHODS_019);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaDefaultMethodsTest020() throws Exception {
     run(RETROLAMBDA_DEFAULTMETHODS_020);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaDefaultMethodsTest021() throws Exception {
     run(RETROLAMBDA_DEFAULTMETHODS_021);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaDefaultMethodsTest022() throws Exception {
     run(RETROLAMBDA_DEFAULTMETHODS_022);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaDefaultMethodsTest023() throws Exception {
     run(RETROLAMBDA_DEFAULTMETHODS_023);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaDefaultMethodsTest024() throws Exception {
     run(RETROLAMBDA_DEFAULTMETHODS_024);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaDefaultMethodsTest025() throws Exception {
     run(RETROLAMBDA_DEFAULTMETHODS_025);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaDefaultMethodsTest026() throws Exception {
     run(RETROLAMBDA_DEFAULTMETHODS_026);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaDefaultMethodsTest027() throws Exception {
     run(RETROLAMBDA_DEFAULTMETHODS_027);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaInterfaceBridgeMethodsTest001() throws Exception {
     run(RETROLAMBDA_INTERFACE_BRIDGE_METHODS_001);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaInterfaceStaticMethodsTest001() throws Exception {
     run(RETROLAMBDA_INTERFACE_STATICMETHODS_001);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaInterfaceStaticMethodsTest002() throws Exception {
     run(RETROLAMBDA_INTERFACE_STATICMETHODS_002);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaInterfaceStaticMethodsTest003() throws Exception {
     run(RETROLAMBDA_INTERFACE_STATICMETHODS_003);
   }
 
   @Test
-  @Runtime(from=RuntimeVersion.N)
   public void retroLambdaInterfaceStaticMethodsTest004() throws Exception {
     run(RETROLAMBDA_INTERFACE_STATICMETHODS_004);
   }

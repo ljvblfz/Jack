@@ -20,7 +20,6 @@ import org.junit.Test;
 
 import com.android.jack.optimizations.Optimizations;
 import com.android.jack.test.helper.RuntimeTestHelper;
-import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 
@@ -36,7 +35,6 @@ public class TypeTests {
 
 
   @Test
-  @Runtime
   public void test001() throws Exception {
     new RuntimeTestHelper(TEST001)
         .addProperty(Optimizations.UseDefSimplifier.ENABLE.getName(), "true")
@@ -45,7 +43,6 @@ public class TypeTests {
   }
 
   @Test
-  @Runtime
   public void test002() throws Exception {
     new RuntimeTestHelper(TEST002)
         .addProperty(Optimizations.IfSimplifier.ENABLE.getName(), "true")

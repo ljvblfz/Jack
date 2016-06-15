@@ -17,7 +17,6 @@
 package com.android.jack.experimental.incremental;
 
 import com.android.jack.test.helper.IncrementalTestHelper;
-import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.toolchain.AbstractTestTools;
 
 import junit.framework.Assert;
@@ -37,7 +36,6 @@ public class DependenciesTest005 {
    * Check that runtime is correct after incremental compilation due to a constant modification.
    */
   @Test
-  @Runtime
   public void testDependency001() throws Exception {
     IncrementalTestHelper ite =
         new IncrementalTestHelper(AbstractTestTools.createTempDir());
@@ -78,7 +76,6 @@ public class DependenciesTest005 {
    * Check that runtime is correct after incremental compilation due to a constant modification.
    */
   @Test
-  @Runtime
   public void testDependency002() throws Exception {
     IncrementalTestHelper ite =
         new IncrementalTestHelper(AbstractTestTools.createTempDir());
@@ -119,7 +116,6 @@ public class DependenciesTest005 {
    * Check that runtime is correct after incremental compilation due to a constant modification.
    */
   @Test
-  @Runtime
   public void testDependency003() throws Exception {
     IncrementalTestHelper ite =
         new IncrementalTestHelper(AbstractTestTools.createTempDir());
@@ -163,7 +159,6 @@ public class DependenciesTest005 {
    * Check that runtime is correct after incremental compilation due to a constant modification.
    */
   @Test
-  @Runtime
   public void testDependency004() throws Exception {
     IncrementalTestHelper ite =
         new IncrementalTestHelper(AbstractTestTools.createTempDir());

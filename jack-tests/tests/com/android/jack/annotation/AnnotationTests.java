@@ -28,7 +28,6 @@ import com.android.jack.test.category.SlowTests;
 import com.android.jack.test.helper.CheckDexStructureTestHelper;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.junit.KnownIssue;
-import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -94,7 +93,6 @@ public class AnnotationTests extends RuntimeTest {
       AbstractTestTools.getTestRootDir("com.android.jack.annotation.test001.jack");
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test001() throws Exception {
     new RuntimeTestHelper(TEST001).compileAndRunTest(/* checkStructure = */ true);
@@ -114,14 +112,12 @@ public class AnnotationTests extends RuntimeTest {
 
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test002() throws Exception {
     new RuntimeTestHelper(TEST002).compileAndRunTest(/* checkStructure = */ true);
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test003() throws Exception {
     new RuntimeTestHelper(TEST003).compileAndRunTest(/* checkStructure = */ true);
@@ -151,7 +147,6 @@ public class AnnotationTests extends RuntimeTest {
   }
 
   @Test
-  @Runtime
   // Annotation on package are not supported in dex format: http://code.google.com/p/android/issues/detail?id=16149
   @Category(RuntimeRegressionTest.class)
   @KnownIssue
@@ -167,28 +162,24 @@ public class AnnotationTests extends RuntimeTest {
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test006() throws Exception {
     new RuntimeTestHelper(TEST006).compileAndRunTest(/* checkStructure = */ true);
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test007() throws Exception {
     new RuntimeTestHelper(TEST007).compileAndRunTest(/* checkStructure = */ true);
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test008() throws Exception {
     new RuntimeTestHelper(TEST008).compileAndRunTest(/* checkStructure = */ true);
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test009() throws Exception {
     new RuntimeTestHelper(TEST009).compileAndRunTest(/* checkStructure = */ true);
@@ -421,7 +412,6 @@ public class AnnotationTests extends RuntimeTest {
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test018() throws Exception {
     new RuntimeTestHelper(TEST018).compileAndRunTest();
@@ -431,7 +421,6 @@ public class AnnotationTests extends RuntimeTest {
    * Test about type annotations and type parameter annotations.
    */
   @Test
-  @Runtime
   @KnownIssue
   @Category(RuntimeRegressionTest.class)
   public void test019() throws Exception {

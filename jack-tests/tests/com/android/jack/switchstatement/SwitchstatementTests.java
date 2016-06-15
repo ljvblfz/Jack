@@ -22,7 +22,6 @@ import com.android.jack.TestTools;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.RuntimeTestHelper;
-import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -170,14 +169,12 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test001() throws Exception {
     new RuntimeTestHelper(TEST001).compileAndRunTest();
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test002() throws Exception {
     new RuntimeTestHelper(TEST002).compileAndRunTest();
@@ -207,42 +204,36 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test003() throws Exception {
     new RuntimeTestHelper(TEST003).compileAndRunTest();
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test004() throws Exception {
     new RuntimeTestHelper(TEST004).compileAndRunTest();
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test005() throws Exception {
     new RuntimeTestHelper(TEST005).compileAndRunTest();
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test006() throws Exception {
     new RuntimeTestHelper(TEST006).compileAndRunTest();
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test007() throws Exception {
     new RuntimeTestHelper(TEST007).compileAndRunTest();
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test008() throws Exception {
     new RuntimeTestHelper(TEST008).compileAndRunTest();
@@ -283,14 +274,12 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test010() throws Exception {
     new RuntimeTestHelper(TEST010).compileAndRunTest();
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void test011() throws Exception {
     new RuntimeTestHelper(TEST011).compileAndRunTest();
@@ -338,7 +327,6 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  @Runtime
   public void testRun012() throws Exception {
     runTestCase(TEST012);
   }
@@ -387,7 +375,6 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  @Runtime
   public void testRun013() throws Exception {
     runTestCase(TEST013);
   }
@@ -445,7 +432,6 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  @Runtime
   public void testRun014() throws Exception {
     runTestCase(TEST014);
   }
@@ -505,7 +491,6 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  @Runtime
   public void testRun015() throws Exception {
     runTestCase(TEST015);
   }
@@ -551,7 +536,6 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  @Runtime
   public void testRun016() throws Exception {
     runTestCase(TEST016);
   }
@@ -591,7 +575,6 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  @Runtime
   public void testRun017() throws Exception {
     runTestCase(TEST017);
   }
@@ -641,7 +624,6 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  @Runtime
   public void testRun018() throws Exception {
     runTestCase(TEST018);
   }
@@ -687,7 +669,6 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  @Runtime
   public void testRun019() throws Exception {
     runTestCase(TEST019);
   }
@@ -719,7 +700,6 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  @Runtime
   public void testRun020() throws Exception {
     runTestCase(TEST020);
   }
@@ -747,7 +727,6 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  @Runtime
   public void testRun021() throws Exception {
     runTestCase(TEST021);
   }
@@ -771,7 +750,6 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  @Runtime
   public void testRun022() throws Exception {
     runTestCase(TEST022);
   }
@@ -827,7 +805,6 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  @Runtime
   public void testRun023() throws Exception {
     runTestCase(TEST023);
   }
@@ -881,7 +858,6 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  @Runtime
   public void testRun024() throws Exception {
     runTestCase(TEST024);
   }
@@ -926,7 +902,6 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  @Runtime
   public void testRun025() throws Exception {
     runTestCase(TEST025);
   }
@@ -965,7 +940,6 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  @Runtime
   public void testRun026() throws Exception {
     runTestCase(TEST026);
   }
@@ -1023,7 +997,6 @@ public class SwitchstatementTests extends RuntimeTest {
   }
 
   @Test
-  @Runtime
   public void testRun027() throws Exception {
     runTestCase(TEST027);
   }

@@ -39,7 +39,6 @@ import com.android.jack.instance.InstanceTest;
 import com.android.jack.invoke.InvokeTests;
 import com.android.jack.jarjar.JarjarTests;
 import com.android.jack.java7.Java7AllTest;
-import com.android.jack.java8.Java8AllTest;
 import com.android.jack.jill.JillTests;
 import com.android.jack.label.LabelTest;
 import com.android.jack.library.LibraryTests;
@@ -120,7 +119,6 @@ import org.junit.runners.Suite.SuiteClasses;
     ImportTests.class,
     InvokeTests.class,
     Java7AllTest.class,
-    Java8AllTest.class,
     JillTests.class,
     LabelTest.class,
     LibraryTests.class,

@@ -24,7 +24,7 @@ import junit.framework.TestCase;
 public class Assign002 extends TestCase {
 
   public static void test() {
-    int i = 0;
+    int i;
     assertTrue((i = 2) == 2);
     assertTrue(i == 2);
   }

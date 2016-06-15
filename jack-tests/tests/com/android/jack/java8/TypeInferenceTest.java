@@ -17,7 +17,6 @@
 package com.android.jack.java8;
 
 import com.android.jack.test.helper.RuntimeTestHelper;
-import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackApiV01;
@@ -43,19 +42,16 @@ public class TypeInferenceTest {
       "com.android.jack.java8.inference.test003.jack.Tests");
 
   @Test
-  @Runtime
   public void testTypeInference001() throws Exception {
     run(INFERENCE001);
   }
 
   @Test
-  @Runtime
   public void testTypeInference002() throws Exception {
     run(INFERENCE002);
   }
 
   @Test
-  @Runtime
   public void testTypeInference003() throws Exception {
     run(INFERENCE003);
   }

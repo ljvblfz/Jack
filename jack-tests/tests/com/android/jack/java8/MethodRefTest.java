@@ -17,7 +17,6 @@
 package com.android.jack.java8;
 
 import com.android.jack.test.helper.RuntimeTestHelper;
-import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackApiV01;
@@ -95,85 +94,71 @@ public class MethodRefTest {
       "com.android.jack.java8.methodref.test015.jack.Tests");
 
   @Test
-  @Runtime
   public void testMethodRef001() throws Exception {
     run(METHODREF001);
   }
 
   @Test
-  @Runtime
   public void testMethodRef002() throws Exception {
     run(METHODREF002);
   }
 
   @Test
-  @Runtime
   public void testMethodRef003() throws Exception {
     run(METHODREF003);
   }
 
   @Test
-  @Runtime
   public void testMethodRef004() throws Exception {
     run(METHODREF004);
   }
 
   @Test
-  @Runtime
   public void testMethodRef005() throws Exception {
     run(METHODREF005);
   }
 
   @Test
-  @Runtime
   public void testMethodRef006() throws Exception {
     run(METHODREF006);
   }
 
   @Test
-  @Runtime
   public void testMethodRef007() throws Exception {
     run(METHODREF007);
   }
 
   @Test
-  @Runtime
   public void testMethodRef008() throws Exception {
     run(METHODREF008);
   }
 
   @Test
-  @Runtime
   public void testMethodRef009() throws Exception {
     run(METHODREF009);
   }
 
   @Test
-  @Runtime
   public void testMethodRef010() throws Exception {
     run(METHODREF010);
   }
 
   @Test
-  @Runtime
   public void testMethodRef011() throws Exception {
     run(METHODREF011);
   }
 
   @Test
-  @Runtime
   public void testMethodRef012() throws Exception {
     run(METHODREF012);
   }
 
   @Test
-  @Runtime
   public void testMethodRef013() throws Exception {
     run(METHODREF013);
   }
 
   @Test
-  @Runtime
   public void testMethodRef014() throws Exception {
     new RuntimeTestHelper(METHODREF014)
         .setSourceLevel(SourceLevel.JAVA_8)
@@ -184,7 +169,6 @@ public class MethodRefTest {
   }
 
   @Test
-  @Runtime
   public void testMethodRef015() throws Exception {
     run(METHODREF015);
   }

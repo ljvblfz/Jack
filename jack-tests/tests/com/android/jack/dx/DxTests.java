@@ -22,7 +22,6 @@ import com.android.jack.dx.dex.DexFormat;
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.FileChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
-import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -96,21 +95,18 @@ public class DxTests extends RuntimeTest {
     });
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void compiler() throws Exception {
     new RuntimeTestHelper(COMPILER).compileAndRunTest();
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void optimizer() throws Exception {
     new RuntimeTestHelper(OPTIMIZER).compileAndRunTest();
   }
 
   @Test
-  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void overlapping() throws Exception {
     new RuntimeTestHelper(OVERLAPPING)
