@@ -52,6 +52,7 @@
     -->
     <update-sample dir="jack-structure-printer-plugin"/>
     <update-sample dir="jack-visitor-plugin"/>
+    <update-sample dir="jack-transform-plugin"/>
   </target>
 
 </project>
