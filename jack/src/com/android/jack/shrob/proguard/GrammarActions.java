@@ -76,6 +76,30 @@ public class GrammarActions {
   private static final TypePackageAndMethodFormatter sourceFormatter =
       SourceFormatter.getFormatter();
 
+  enum FilterSeparator {
+    GENERAL(".", "[^./]*"),
+    FILE(".", "[^/]*"),
+    CLASS("[^.]", "[^.]*"),
+    ATTRIBUTE(".", ".*");
+
+    /**
+     * Represents the pattern equivalent to Proguard's "?"
+     */
+    @Nonnull
+    private final String singleCharWilcard;
+
+    /**
+     * Represents the pattern equivalent to Proguard's "*"
+     */
+    @Nonnull
+    private final String multipleCharWildcard;
+
+    FilterSeparator(@Nonnull String singleCharWilcard, @Nonnull String multipleCharWildcard) {
+      this.singleCharWilcard = singleCharWilcard;
+      this.multipleCharWildcard = multipleCharWildcard;
+    }
+  }
+
   private GrammarActions() {
   }
 
@@ -160,22 +184,22 @@ public class GrammarActions {
     } else if (name.equals("void")) {
       sig.append("V");
     } else {
-      sig.append(convertNameToPattern(NamingTools.getTypeSignatureName(name)));
+      sig.append(
+          convertNameToPattern(NamingTools.getTypeSignatureName(name), FilterSeparator.CLASS));
     }
 
     return sig.toString();
   }
 
   @Nonnull
-  private static String convertNameToPattern(@Nonnull String name) {
+  private static String convertNameToPattern(
+      @Nonnull String name, @Nonnull FilterSeparator separator) {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < name.length(); i++) {
       char c = name.charAt(i);
-      switch(c) {
+      switch (c) {
         case '?':
-          // ? matches any single character in a name
-          // but not the package separator
-          sb.append("[^/]");
+          sb.append(separator.singleCharWilcard);
           break;
         case '*':
           int j = i + 1;
@@ -187,7 +211,7 @@ public class GrammarActions {
           } else {
             // * matches any part of a name not containing
             // the package separator or directory separator
-            sb.append("[^/]*");
+            sb.append(separator.multipleCharWildcard);
           }
           break;
         case '$':
@@ -202,10 +226,10 @@ public class GrammarActions {
   }
 
   @Nonnull
-  static NameSpecification name(/*@Nonnull*/ String name) {
+  static NameSpecification name(/*@Nonnull*/ String name, @Nonnull FilterSeparator separator) {
     assert name != null;
     String transformedName = "^" +
-        convertNameToPattern(name) + "$";
+        convertNameToPattern(name, separator) + "$";
 
     Pattern pattern = Pattern.compile(transformedName);
     return new NameSpecification(pattern);
@@ -228,7 +252,7 @@ public class GrammarActions {
   static InheritanceSpecification createInheritance(
       /*@Nonnull*/ String className, boolean hasNameNegator,
       @CheckForNull AnnotationSpecification annotationType) {
-    NameSpecification nameSpec = name(className);
+    NameSpecification nameSpec = name(className, FilterSeparator.CLASS);
     nameSpec.setNegator(hasNameNegator);
     return new InheritanceSpecification(nameSpec, annotationType);
   }
@@ -236,7 +260,7 @@ public class GrammarActions {
   @Nonnull
   static AnnotationSpecification annotation(/*@Nonnull*/ String annotationName,
       boolean hasNameNegator) {
-    NameSpecification name = name(annotationName);
+    NameSpecification name = name(annotationName, FilterSeparator.CLASS);
     name.setNegator(hasNameNegator);
     return new AnnotationSpecification(name);
   }
@@ -247,9 +271,9 @@ public class GrammarActions {
       AnnotationSpecification annotation, @Nonnull ModifierSpecification modifier) {
     NameSpecification nameSpec;
     if (name.equals("*")) {
-      nameSpec = name("**");
+      nameSpec = name("**", FilterSeparator.CLASS);
     } else {
-      nameSpec = name(name);
+      nameSpec = name(name, FilterSeparator.CLASS);
     }
     nameSpec.setNegator(hasNameNegator);
     ClassSpecification classSpec = new ClassSpecification(nameSpec, classType, annotation);
@@ -262,7 +286,7 @@ public class GrammarActions {
       @CheckForNull String typeSig, /*@Nonnull*/ String name, @Nonnull String signature,
       @CheckForNull ModifierSpecification modifier) {
     assert name != null;
-    String fullName = "^" + convertNameToPattern(name);
+    String fullName = "^" + convertNameToPattern(name, FilterSeparator.CLASS);
     fullName += signature;
     if (typeSig != null) {
       fullName += typeSig;
@@ -298,11 +322,13 @@ public class GrammarActions {
     assert name != null;
     NameSpecification typeSignature = null;
     if (typeSig != null) {
-      typeSignature = name(typeSig);
+      typeSignature = name(typeSig, FilterSeparator.CLASS);
     } else {
       assert name.equals("*");
     }
-    classSpec.add(new FieldSpecification(name(name), modifier, typeSignature, annotationType));
+    classSpec.add(
+        new FieldSpecification(
+            name(name, FilterSeparator.GENERAL), modifier, typeSignature, annotationType));
   }
 
   @CheckForNull
@@ -386,9 +412,12 @@ public class GrammarActions {
   }
 
   static void filter(
-      @Nonnull FilterSpecification filter, boolean negator, /*@Nonnull*/ String filterName) {
+      @Nonnull FilterSpecification filter,
+      boolean negator, /*@Nonnull*/
+      String filterName,
+      @Nonnull FilterSeparator separator) {
     assert filterName != null;
-    filter.addElement(name(filterName), negator);
+    filter.addElement(name(filterName, separator), negator);
   }
 
   static void attributeFilter(
@@ -477,7 +506,7 @@ public class GrammarActions {
       newPackage = "";
     }
     flags.setPackageForRenamedClasses(newPackage);
-    flags.addKeepPackageNames(name(newPackage), false);
+    flags.addKeepPackageNames(name(newPackage, FilterSeparator.GENERAL), false);
   }
 
   static void flattenPackageHierarchy(
@@ -487,7 +516,7 @@ public class GrammarActions {
       newPackage = "";
     }
     flags.setPackageForFlatHierarchy(newPackage);
-    flags.addKeepPackageNames(name(newPackage), false);
+    flags.addKeepPackageNames(name(newPackage, FilterSeparator.GENERAL), false);
   }
 
   static void dontUseMixedCaseClassnames(@Nonnull Flags flags) {
