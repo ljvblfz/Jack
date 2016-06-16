@@ -49,7 +49,7 @@ public class AnnotationBuilder {
       BooleanPropertyId.create(
               "jack.dex.annotation.class-retention",
               "Emit annotations with class retention in the final dex")
-          .addDefaultValue(Boolean.FALSE)
+          .addDefaultValue(Boolean.TRUE)
           .addCategory(PrebuiltCompatibility.class)
           .addCategory(DumpInLibrary.class);
 
