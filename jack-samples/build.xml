@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   Copyright (C) 2016 The Android Open Source Project
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<project name="jack" default="update-all">
+
+  <description>
+    This buildfile is used to update all Jack sample code projects (libraries and tools) until
+    they can be downloaded from a repository by gradle (rather than having local copies)
+  </description>
+
+  <!-- Macro to update libs and tools of the given plugin directory -->
+  <macrodef name="update-sample">
+    <attribute name="dir"/>
+    <sequential>
+      <echo message="Updating sample code directory @{dir}"/>
+
+      <!-- Update libs -->
+      <copy verbose="true" todir="@{dir}/libs" flatten="true">
+        <fileset dir="${basedir}/..">
+          <include name="jack/dist/jack-lib.jar"/>
+          <include name="sched/dist/sched-lib.jar"/>
+        </fileset>
+      </copy>
+
+      <!-- Update build tool to package with sched-lib -->
+      <copy verbose="true" todir="@{dir}/tools" flatten="true">
+        <fileset dir="${basedir}/..">
+          <include name="sched/dist/sched-build.jar"/>
+        </fileset>
+      </copy>
+    </sequential>
+  </macrodef>
+
+  <target name="update-all">
+    <!--
+      Each sample can be updated with the line below
+    <update-sample dir="my_plugin_directory"/>
+    -->
+  </target>
+
+</project>
