@@ -56,7 +56,7 @@ public class PartialTypeHierarchy implements Marker, Reportable {
 
   @DynamicValidOn
   public boolean isValidOn(@Nonnull JDefinedClassOrInterface type) {
-    return !type.isExternal();
+    return type.isToEmit();
   }
 
   @Override

@@ -271,7 +271,6 @@ public class SyntheticClassManager {
 
     syntheticSwitchmapClass.setSuperClass(
         session.getLookup().getClass(CommonTypes.JAVA_LANG_OBJECT));
-    syntheticSwitchmapClass.setExternal(false);
     // make sure the future instrumentation knows this class
     session.addTypeToEmit(syntheticSwitchmapClass);
 

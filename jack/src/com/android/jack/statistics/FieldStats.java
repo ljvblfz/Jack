@@ -53,7 +53,7 @@ public class FieldStats implements RunnableSchedulable<JField> {
 
   @Override
   public void run(@Nonnull JField field) throws Exception {
-    if (field.isExternal()) {
+    if (!field.getEnclosingType().isToEmit()) {
       return;
     }
     Tracer tracer = TracerFactory.getTracer();

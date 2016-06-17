@@ -69,7 +69,7 @@ public class KeeperBrush extends AbstractTracerBrush<KeepMarker> {
 
   @Override
   protected boolean mustTraceOverridingMethod(@Nonnull JMethod method) {
-    if (method.getEnclosingType().isExternal()) {
+    if (!method.getEnclosingType().isToEmit()) {
       return true;
     } else {
       return super.mustTraceOverridingMethod(method);
@@ -85,10 +85,10 @@ public class KeeperBrush extends AbstractTracerBrush<KeepMarker> {
   @Override
   protected boolean isMarked(@Nonnull JNode node) {
     if (node instanceof JDefinedClassOrInterface
-        && ((JDefinedClassOrInterface) node).isExternal()) {
+        && !((JDefinedClassOrInterface) node).isToEmit()) {
       return true;
     } else if (node instanceof JMethod
-        && ((JMethod) node).getEnclosingType().isExternal()) {
+        && !((JMethod) node).getEnclosingType().isToEmit()) {
       return true;
     } else {
       return super.isMarked(node);
@@ -96,7 +96,7 @@ public class KeeperBrush extends AbstractTracerBrush<KeepMarker> {
   }
   @Override
   public void setMustTraceOverridingMethods(@Nonnull JMethod method) {
-    if (!method.getEnclosingType().isExternal()) {
+    if (method.getEnclosingType().isToEmit()) {
       super.setMustTraceOverridingMethods(method);
     }
   }
@@ -111,7 +111,7 @@ public class KeeperBrush extends AbstractTracerBrush<KeepMarker> {
       jdcoi = node.getParent(JDefinedClassOrInterface.class);
     }
 
-    if (jdcoi.isExternal()) {
+    if (!jdcoi.isToEmit()) {
       return false;
     }
 

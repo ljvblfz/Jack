@@ -45,7 +45,7 @@ public class TypeShrinker extends TypeRemover {
 
   @Override
   protected boolean mustBeRemoved(@Nonnull JDefinedClassOrInterface type) {
-    return !type.isExternal() && !((JNode) type).containsMarker(KeepMarker.class);
+    return type.isToEmit() && !((JNode) type).containsMarker(KeepMarker.class);
   }
 
   @Override
@@ -56,6 +56,7 @@ public class TypeShrinker extends TypeRemover {
 
   @Override
   protected boolean isPlannedForRemoval(@Nonnull JMethod method) {
-    return !method.isExternal() && !((JNode) method).containsMarker(KeepMarker.class);
+    return method.getEnclosingType().isToEmit()
+        && !((JNode) method).containsMarker(KeepMarker.class);
   }
 }

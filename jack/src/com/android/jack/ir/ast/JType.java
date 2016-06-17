@@ -32,11 +32,6 @@ public interface JType extends HasName, HasSourceInfo, JVisitable, Component {
   @Nonnull
   JExpression createDefaultValue(@Nonnull SourceInfo sourceInfo);
 
-  /**
-   * True if this type is defined in the bootclasspath or the classpath but not in a sourcepath.
-   */
-  boolean isExternal();
-
   @Nonnull
   JArrayType getArray();
 

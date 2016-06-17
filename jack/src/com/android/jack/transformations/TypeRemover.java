@@ -125,7 +125,7 @@ public abstract class TypeRemover implements RunnableSchedulable<JDefinedClassOr
   private void updateEnclosingType(@Nonnull JDefinedClassOrInterface type) {
     JClassOrInterface enclosingType = type.getEnclosingType();
     while (enclosingType instanceof JDefinedClassOrInterface) {
-      if (!mustBeRemovedInternal(enclosingType) || enclosingType.isExternal()) {
+      if (!mustBeRemovedInternal(enclosingType) || !enclosingType.isToEmit()) {
         break;
       }
       enclosingType = ((JDefinedClassOrInterface) enclosingType).getEnclosingType();
@@ -136,7 +136,7 @@ public abstract class TypeRemover implements RunnableSchedulable<JDefinedClassOr
   private void updateEnclosingMethod(@Nonnull JDefinedClass type) {
     JMethod enclosingMethod = type.getEnclosingMethod();
     if (enclosingMethod != null && isPlannedForRemoval(enclosingMethod)) {
-      assert !enclosingMethod.isExternal();
+      assert enclosingMethod.getEnclosingType().isToEmit();
       type.setEnclosingMethod(null);
     }
   }

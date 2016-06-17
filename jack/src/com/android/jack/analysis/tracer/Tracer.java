@@ -317,7 +317,7 @@ public class Tracer extends JVisitor {
           trace(throwException);
         }
       }
-      if (!m.isExternal()) {
+      if (m.getEnclosingType().isToEmit()) {
         JAbstractMethodBody body = m.getBody();
         if (body != null) {
           accept(body);
@@ -359,7 +359,7 @@ public class Tracer extends JVisitor {
     if (receiverType instanceof JDefinedClass) {
       implementationOrDefinition = findImplementationOrDefinition(
           methodId, returnType, (JDefinedClass) receiverType);
-      if (implementationOrDefinition == null && !receiverType.isExternal()) {
+      if (implementationOrDefinition == null && receiverType.isToEmit()) {
         logger.log(Level.WARNING,
             "No implementation or definition found for method {0} in {1} or its super types",
             new Object[] {Jack.getUserFriendlyFormatter().getName(methodId.getName(),
@@ -369,7 +369,7 @@ public class Tracer extends JVisitor {
     } else if (receiverType instanceof JDefinedInterface) {
       implementationOrDefinition =
           findDefinition(methodId, returnType, (JDefinedClassOrInterface) receiverType);
-      if (implementationOrDefinition == null && !receiverType.isExternal()) {
+      if (implementationOrDefinition == null && receiverType.isToEmit()) {
         logger.log(Level.WARNING,
             "No implementation or definition found for method {0} in {1} or its super types",
             new Object[] {Jack.getUserFriendlyFormatter().getName(methodId.getName(),

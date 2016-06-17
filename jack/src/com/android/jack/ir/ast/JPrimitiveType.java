@@ -144,11 +144,6 @@ public abstract class JPrimitiveType extends JNode implements JType {
   }
 
   @Override
-  public boolean isExternal() {
-    return false;
-  }
-
-  @Override
   public String getName() {
     return name;
   }

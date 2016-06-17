@@ -102,11 +102,9 @@ public class SourceGenerationVisitor extends BaseGenerationVisitor {
   @Override
   public boolean visit(@Nonnull JSession x) {
     for (JDefinedClassOrInterface type : x.getTypesToEmit()) {
-      if (!type.isExternal()) {
-        accept(type);
-        newline();
-        newline();
-      }
+      accept(type);
+      newline();
+      newline();
     }
     return false;
   }

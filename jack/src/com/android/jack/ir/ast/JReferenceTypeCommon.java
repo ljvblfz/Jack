@@ -61,11 +61,6 @@ abstract class JReferenceTypeCommon extends JNode implements JReferenceType, Can
     return new JNullLiteral(sourceInfo);
   }
 
-  @Override
-  public boolean isExternal() {
-    return false;
-  }
-
   protected boolean isTrivialCast(@Nonnull JReferenceType castTo) {
     if (this.isSameType(castTo) || castTo.isSameType(
         Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT))) {

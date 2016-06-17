@@ -92,8 +92,8 @@ public class JPhantomClassOrInterface extends JReferenceTypeCommon implements JC
   }
 
   @Override
-  public boolean isExternal() {
-    return true;
+  public boolean isToEmit() {
+    return false;
   }
 
   @Override

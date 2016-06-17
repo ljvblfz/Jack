@@ -128,4 +128,9 @@ public interface JClassOrInterface extends JReferenceType, HasEnclosingPackage {
    */
   @CheckForNull
   public JPrimitiveType getWrappedType();
+
+  /**
+   * Returns true if the type is to be included in outputs.
+   */
+  boolean isToEmit();
 }

@@ -113,13 +113,13 @@ public class MultiTracerBrush implements TracerBrush {
   @Override
   public boolean traceMarked(@Nonnull JNode node) {
     if (node instanceof JDefinedClassOrInterface
-        && ((JDefinedClassOrInterface) node).isExternal()) {
+        && !((JDefinedClassOrInterface) node).isToEmit()) {
       return true;
     } else if (node instanceof JMethod
-        && ((JMethod) node).getEnclosingType().isExternal()) {
+        && !((JMethod) node).getEnclosingType().isToEmit()) {
       return true;
     } else if (node instanceof JField
-        && ((JField) node).getEnclosingType().isExternal()) {
+        && !((JField) node).getEnclosingType().isToEmit()) {
       return true;
     }
     return isMarked(node);
@@ -185,7 +185,7 @@ public class MultiTracerBrush implements TracerBrush {
 
   @Override
   public void setMustTraceOverridingMethods(@Nonnull JMethod method) {
-    if ((!method.getEnclosingType().isExternal()) && !isForcedMark(method)) {
+    if ((method.getEnclosingType().isToEmit()) && !isForcedMark(method)) {
       synchronized (method) {
         MultiTracerMarker marker = method.getMarker(MultiTracerMarker.class);
         assert marker != null && marker.isSet(id);

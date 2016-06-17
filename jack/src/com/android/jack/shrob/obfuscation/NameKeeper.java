@@ -112,7 +112,7 @@ public class NameKeeper implements RunnableSchedulable<JPackage> {
 
     @Override
     public boolean visit(@Nonnull JDefinedClassOrInterface clOrI) {
-      if (clOrI.isExternal()) {
+      if (!clOrI.isToEmit()) {
         keepName(clOrI);
         for (JMethod m : clOrI.getMethods()) {
           keepName(m);
