@@ -121,7 +121,7 @@ else
 fi
 
 # Check base64 availability
-BASE64_CHECK=$(echo amFjay1zZXJ2ZXIK | base64 --decode 2>&1)
+BASE64_CHECK=$((echo amFjaw==;echo LXNlcnZlcg==) | base64 --decode 2>&1)
 
 # Launch compilation
 exec 3>&1
