@@ -39,4 +39,9 @@ public class DexMethod {
   public String getId() {
     return item.method.getShortMethodString();
   }
+
+  @Nonnull
+  String getSource() {
+    return DexCodeItemPrinter.print(item.method, item.codeItem);
+  }
 }

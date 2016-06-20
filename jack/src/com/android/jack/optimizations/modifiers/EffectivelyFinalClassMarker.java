@@ -31,6 +31,7 @@ public enum EffectivelyFinalClassMarker implements Marker {
   Final;
 
   @Override
+  @Nonnull
   public Marker cloneIfNeeded() {
     return this;
   }

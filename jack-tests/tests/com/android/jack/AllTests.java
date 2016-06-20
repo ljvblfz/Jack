@@ -55,6 +55,7 @@ import com.android.jack.optimizations.sideeffect.SideEffectTests;
 import com.android.jack.optimizations.unuseddef.UnusedDefTest;
 import com.android.jack.optimizations.usedef.UseDefTests;
 import com.android.jack.optimizations.uselesscopy.UselessVariableCopyTest;
+import com.android.jack.optimizations.valuepropagation.ValuePropagationTests;
 import com.android.jack.order.OrderTests;
 import com.android.jack.preprocessor.PreProcessorTests;
 import com.android.jack.reflect.ReflectTests;
@@ -152,6 +153,7 @@ import org.junit.runners.Suite.SuiteClasses;
     UnusedDefTest.class,
     UseDefTests.class,
     UselessVariableCopyTest.class,
+    ValuePropagationTests.class,
     VerifyTests.class,
     WithPhantomTests.class,
   })

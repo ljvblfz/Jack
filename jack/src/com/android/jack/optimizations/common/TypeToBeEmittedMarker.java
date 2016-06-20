@@ -42,6 +42,7 @@ public enum TypeToBeEmittedMarker implements Marker {
   }
 
   @Override
+  @Nonnull
   public Marker cloneIfNeeded() {
     return this;
   }

@@ -203,10 +203,102 @@ public class Optimizations {
         .addCategory(Private.class);
   }
 
+  /**
+   * A {@link Feature} that represents field value propagation optimization.
+   */
+  @HasKeyId
+  @Description("Apply field value propagation optimization")
+  public static class FieldValuePropagation implements Feature {
+    @Nonnull
+    public static final BooleanPropertyId ENABLE = BooleanPropertyId
+        .create("jack.optimization.field-value-propagation",
+            "Apply field value propagation optimization")
+        .addDefaultValue(Boolean.FALSE)
+        .addCategory(DumpInLibrary.class)
+        .addCategory(PrebuiltCompatibility.class)
+        .addCategory(Private.class);
+
+    @Nonnull
+    public static final BooleanPropertyId PRESERVE_JLS = BooleanPropertyId
+        .create("jack.optimization.field-value-propagation.preserve-jls",
+            "Preserve JSL during field value propagation optimization")
+        .addDefaultValue(Boolean.TRUE)
+        .requiredIf(ENABLE.getValue().isTrue())
+        .addCategory(DumpInLibrary.class)
+        .addCategory(PrebuiltCompatibility.class)
+        .addCategory(Private.class);
+
+    @Nonnull
+    public static final BooleanPropertyId PRESERVE_REFLECTIONS = BooleanPropertyId
+        .create("jack.optimization.field-value-propagation.preserve-reflections",
+            "Preserve reflections during field value propagation optimization")
+        .addDefaultValue(Boolean.FALSE)
+        .requiredIf(ENABLE.getValue().isTrue())
+        .addCategory(DumpInLibrary.class)
+        .addCategory(PrebuiltCompatibility.class)
+        .addCategory(Private.class);
+
+    @Nonnull
+    public static final BooleanPropertyId REMOVE_NULL_CHECKS = BooleanPropertyId
+        .create("jack.optimization.field-value-propagation.remove-null-checks",
+            "Removes null checks when a value of the instance field is propagated")
+        .addDefaultValue(Boolean.TRUE)
+        .requiredIf(ENABLE.getValue().isTrue())
+        .addCategory(DumpInLibrary.class)
+        .addCategory(PrebuiltCompatibility.class)
+        .addCategory(Private.class);
+
+    @Nonnull
+    public static final BooleanPropertyId ENSURE_TYPE_INITIALIZERS = BooleanPropertyId
+        .create("jack.optimization.field-value-propagation.ensure-type-initializers",
+            "Ensures type initializers are called if caused by field access")
+        .addDefaultValue(Boolean.FALSE)
+        .requiredIf(ENABLE.getValue().isTrue())
+        .addCategory(DumpInLibrary.class)
+        .addCategory(PrebuiltCompatibility.class)
+        .addCategory(Private.class);
+  }
+
+  /**
+   * A {@link Feature} that represents argument value propagation optimization.
+   */
+  @HasKeyId
+  @Description("Apply method argument value propagation optimization")
+  public static class ArgumentValuePropagation implements Feature {
+    @Nonnull
+    public static final BooleanPropertyId ENABLE = BooleanPropertyId
+        .create("jack.optimization.argument-value-propagation",
+            "Apply method argument value propagation optimization")
+        .addDefaultValue(Boolean.FALSE)
+        .addCategory(DumpInLibrary.class)
+        .addCategory(PrebuiltCompatibility.class)
+        .addCategory(Private.class);
+
+    @Nonnull
+    public static final BooleanPropertyId PRESERVE_JLS = BooleanPropertyId
+        .create("jack.optimization.argument-value-propagation.preserve-jls",
+            "Preserve JSL during argument value propagation optimization")
+        .addDefaultValue(Boolean.TRUE)
+        .requiredIf(ENABLE.getValue().isTrue())
+        .addCategory(DumpInLibrary.class)
+        .addCategory(PrebuiltCompatibility.class)
+        .addCategory(Private.class);
+
+    @Nonnull
+    public static final BooleanPropertyId PRESERVE_REFLECTIONS = BooleanPropertyId
+        .create("jack.optimization.argument-value-propagation.preserve-reflections",
+            "Preserve reflections during argument value propagation optimization")
+        .addDefaultValue(Boolean.FALSE)
+        .requiredIf(ENABLE.getValue().isTrue())
+        .addCategory(DumpInLibrary.class)
+        .addCategory(PrebuiltCompatibility.class)
+        .addCategory(Private.class);
+  }
+
   @Nonnull
   public static final BooleanPropertyId ENABLE_NULL_INSTANCEOF =
       BooleanPropertyId.create(
-              "jack.optimization.null-instanceof-simplifier", "Optimize null instanceof")
+          "jack.optimization.null-instanceof-simplifier", "Optimize null instanceof")
           .addDefaultValue(Boolean.FALSE)
           .addCategory(DumpInLibrary.class)
           .addCategory(PrebuiltCompatibility.class);

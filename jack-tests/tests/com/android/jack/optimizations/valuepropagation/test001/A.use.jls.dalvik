@@ -1,0 +1,20 @@
+method: Lcom/android/jack/optimizations/valuepropagation/test001/A;->use(I)I
+registers: 4, in/out: 2/0
+instructions: 17
+    | iget v0, v2, Lcom/android/jack/optimizations/valuepropagation/test001/A;->initialized1_reassigned_with_same_value:I
+    | add-int/2addr v0, v3
+    | iget v1, v2, Lcom/android/jack/optimizations/valuepropagation/test001/A;->initialized2_reassigned_with_different_value:I
+    | add-int/2addr v0, v1
+    | iget v1, v2, Lcom/android/jack/optimizations/valuepropagation/test001/A;->initialized3_definitely_reassigned_with_different_value:I
+    | add-int/2addr v0, v1
+    | iget v1, v2, Lcom/android/jack/optimizations/valuepropagation/test001/A;->not_initialized1_definitely_assigned_different_value:I
+    | add-int/2addr v0, v1
+    | iget v1, v2, Lcom/android/jack/optimizations/valuepropagation/test001/A;->not_initialized2_definitely_assigned_same_value:I
+    | add-int/2addr v0, v1
+    | iget v1, v2, Lcom/android/jack/optimizations/valuepropagation/test001/A;->not_initialized3_partially_assigned_default_value:I
+    | add-int/2addr v0, v1
+    | iget v1, v2, Lcom/android/jack/optimizations/valuepropagation/test001/A;->not_initialized4_partially_assigned_different_value:I
+    | add-int/2addr v0, v1
+    | iget v1, v2, Lcom/android/jack/optimizations/valuepropagation/test001/A;->not_initialized5_not_assigned:I
+    | add-int/2addr v0, v1
+    | return v0

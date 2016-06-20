@@ -1,0 +1,7 @@
+method: Lcom/android/jack/optimizations/valuepropagation/test004/A;->check()I
+registers: 2, in/out: 1/1
+instructions: 4
+    | invoke-virtual v0, v1, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test004/A;->get()Lcom/android/jack/optimizations/valuepropagation/test004/A;
+    | invoke-virtual v0, v1, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test004/A;->get()Lcom/android/jack/optimizations/valuepropagation/test004/A;
+    | const/16 v0, 1414
+    | return v0

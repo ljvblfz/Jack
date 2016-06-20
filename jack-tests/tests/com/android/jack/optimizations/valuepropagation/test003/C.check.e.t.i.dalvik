@@ -1,0 +1,14 @@
+method: Lcom/android/jack/optimizations/valuepropagation/test003/C;->check()Ljava/lang/String;
+registers: 3, in/out: 1/2
+instructions: 11
+    | new-instance v0, type_id_item: Ljava/lang/StringBuilder;
+    | invoke-direct v0, v0, v0, v0, v0, method_id_item: Ljava/lang/StringBuilder;-><init>()V
+    | sget-object v1, Lcom/android/jack/optimizations/valuepropagation/test003/B;->str3:Ljava/lang/String;
+    | invoke-virtual v0, v0, v1, v0, v0, method_id_item: Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    | move-result-object v0
+    | sget-object v1, Lcom/android/jack/optimizations/valuepropagation/test003/B;->str4:Ljava/lang/String;
+    | invoke-virtual v0, v0, v1, v0, v0, method_id_item: Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    | move-result-object v0
+    | invoke-virtual v0, v0, v0, v0, v0, method_id_item: Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    | move-result-object v0
+    | return-object v0

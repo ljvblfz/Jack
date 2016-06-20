@@ -42,6 +42,7 @@ import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
+import com.android.sched.schedulable.Access;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
@@ -73,6 +74,7 @@ public class FieldFinalizer {
     NOT_EFFECTIVELY_FINAL;
 
     @Override
+    @Nonnull
     public Marker cloneIfNeeded() {
       throw new AssertionError();
     }
@@ -147,6 +149,7 @@ public class FieldFinalizer {
   @Description("Field finalizer, analyze constructors if needs to preserve JLS")
   @Constraint(need = ControlFlowGraph.class,
       no = JFieldInitializer.class)
+  @Access(JDefinedClassOrInterface.class)
   @Transform(add = NotEffectivelyFinalField.class)
   public static class ConstructorsAnalysisPhase
       implements RunnableSchedulable<JMethod> {

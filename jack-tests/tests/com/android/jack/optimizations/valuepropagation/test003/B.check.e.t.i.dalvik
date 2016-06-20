@@ -1,0 +1,20 @@
+method: Lcom/android/jack/optimizations/valuepropagation/test003/B;->check()Ljava/lang/String;
+registers: 3, in/out: 1/2
+instructions: 17
+    | new-instance v0, type_id_item: Ljava/lang/StringBuilder;
+    | invoke-direct v0, v0, v0, v0, v0, method_id_item: Ljava/lang/StringBuilder;-><init>()V
+    | const-string/jumbo v1, string_id_item: 111
+    | invoke-virtual v0, v0, v1, v0, v0, method_id_item: Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    | move-result-object v0
+    | const-string/jumbo v1, string_id_item: 222
+    | invoke-virtual v0, v0, v1, v0, v0, method_id_item: Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    | move-result-object v0
+    | const-string/jumbo v1, string_id_item: 333
+    | invoke-virtual v0, v0, v1, v0, v0, method_id_item: Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    | move-result-object v0
+    | const-string/jumbo v1, string_id_item: 444
+    | invoke-virtual v0, v0, v1, v0, v0, method_id_item: Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    | move-result-object v0
+    | invoke-virtual v0, v0, v0, v0, v0, method_id_item: Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    | move-result-object v0
+    | return-object v0
