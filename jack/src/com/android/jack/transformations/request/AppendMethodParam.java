@@ -42,6 +42,7 @@ public class AppendMethodParam implements TransformationStep, TransformStep {
   @Override
   public void apply() throws UnsupportedOperationException {
     method.addParam(parameter);
+    method.getMethodIdWide().addParam(parameter.getType());
     parameter.updateParents(method);
   }
 

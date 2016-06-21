@@ -296,7 +296,7 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClass
       marker = new SetterMarker();
       accessorClass.addMarker(marker);
     }
-    JMethod setter = marker.getOrCreateSetter(field, (JDefinedClass) accessorClass);
+    JMethod setter = marker.getOrCreateSetter(field, (JDefinedClass) accessorClass, tr);
 
     // this.this$0.field = $value => $set<id>(this.this$0, $value)
     JBinaryOperation binOp = (JBinaryOperation) fieldRef.getParent();
@@ -312,7 +312,6 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClass
       setterCall.addArg(instance);
     }
     setterCall.addArg(binOp.getRhs());
-    assert setterCall.getArgs().size() == setter.getParams().size();
 
     tr.append(new Replace(binOp, setterCall));
   }
@@ -326,7 +325,7 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClass
       marker = new GetterMarker();
       accessorClass.addMarker(marker);
     }
-    JMethod getter = marker.getOrCreateGetter(field, (JDefinedClass) accessorClass);
+    JMethod getter = marker.getOrCreateGetter(field, (JDefinedClass) accessorClass, tr);
 
     // this.this$0.field => $get<id>(this.this$0)
     JMethodIdWide getterId = getter.getMethodIdWide();
@@ -338,8 +337,6 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClass
       assert instance != null;
       getterCall.addArg(instance);
     }
-
-    assert getterCall.getArgs().size() == getter.getParams().size();
 
     tr.append(new Replace(fieldRef, getterCall));
   }
