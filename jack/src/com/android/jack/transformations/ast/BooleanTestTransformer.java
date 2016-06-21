@@ -27,8 +27,6 @@ import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JLoop;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNode;
-import com.android.jack.ir.ast.JUnaryOperation;
-import com.android.jack.ir.ast.JUnaryOperator;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
@@ -92,11 +90,6 @@ public class BooleanTestTransformer implements RunnableSchedulable<JMethod> {
           break;
       }
       super.endVisit(binOp);
-    }
-
-    private boolean needReplacement(@Nonnull JUnaryOperation unaryOp) {
-      return unaryOp.getOp() == JUnaryOperator.NOT
-          && !(isIfCondition(unaryOp) || isConditionalCondition(unaryOp));
     }
 
     private boolean needReplacement(@Nonnull JBinaryOperation binOp) {
