@@ -72,16 +72,10 @@ public class SeedFinder implements RunnableSchedulable<JDefinedClassOrInterface>
   private final boolean searchInHierarchy =
       ThreadConfig.get(SEARCH_SEEDS_IN_HIERARCHY).booleanValue();
 
-  private synchronized void markIfNecessary(@Nonnull JNode node,
-      @Nonnull KeepModifier modifier) {
-    SeedMarker marker = node.getMarker(SeedMarker.class);
-    if (marker == null) {
-      node.addMarker(new SeedMarker(modifier));
-    } else {
-      KeepModifier previousModifier = marker.getModifier();
-      if (previousModifier != modifier) {
-        marker.setModifier(new KeepModifier());
-      }
+  private void markIfNecessary(@Nonnull JNode node, @Nonnull KeepModifier modifier) {
+    SeedMarker marker = node.addMarkerIfAbsent(new SeedMarker(modifier));
+    if (marker != null) {
+      marker.getModifier().mergeModifier(modifier);
     }
   }
 
