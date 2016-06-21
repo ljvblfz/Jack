@@ -20,6 +20,7 @@ import com.android.jack.library.DumpInLibrary;
 import com.android.jack.transformations.ast.BoostLockedRegionPriority;
 import com.android.jack.util.ClassNameCodec;
 import com.android.jack.util.MethodNameCodec;
+import com.android.jack.util.MethodNameCodec.MethodNameValue;
 import com.android.sched.item.Description;
 import com.android.sched.item.Feature;
 import com.android.sched.item.Name;
@@ -57,7 +58,7 @@ public final class BoostLockedRegionPriorityFeature implements Feature {
           .addCategory(DumpInLibrary.class);
 
   @Nonnull
-  public static final PropertyId<String> BOOST_LOCK_REQUEST_METHOD =
+  public static final PropertyId<MethodNameValue> BOOST_LOCK_REQUEST_METHOD =
       PropertyId.create(
               "jack.transformations.boost-locked-region-priority.request",
               "Static method in the specified class that can boost a thread's prioirty",
@@ -67,7 +68,7 @@ public final class BoostLockedRegionPriorityFeature implements Feature {
           .addCategory(DumpInLibrary.class);
 
   @Nonnull
-  public static final PropertyId<String> BOOST_LOCK_RESET_METHOD =
+  public static final PropertyId<MethodNameValue> BOOST_LOCK_RESET_METHOD =
       PropertyId.create(
               "jack.transformations.boost-locked-region-priority.reset",
               "Static method in the specified class that can reset a thread's prioirty",

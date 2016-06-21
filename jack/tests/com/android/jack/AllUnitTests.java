@@ -49,6 +49,7 @@ import org.junit.runners.Suite.SuiteClasses;
     com.android.jack.gwt.AllTests.class,
     com.android.jack.shrob.AllTests.class,
     com.android.jack.transformations.ast.AllTests.class,
+    com.android.jack.util.AllTests.class,
     ConditionalTest.class,
     DictionaryNameProviderTest.class,
     EscapeStringTest.class,
