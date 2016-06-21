@@ -416,11 +416,8 @@ public class MappingApplier {
             NewMethodSignatureMarker marker =
                 methodWithSameIdEnclosingType.getMarker(NewMethodSignatureMarker.class);
             if (marker == null) {
-              NewMethodSignatureMarker newMarker = new NewMethodSignatureMarker();
-              marker = methodWithSameIdEnclosingType.addMarker(newMarker);
-              if (marker == null) {
-                marker = newMarker;
-              }
+              marker = new NewMethodSignatureMarker();
+              methodWithSameIdEnclosingType.addMarker(marker);
             }
             assert marker != null;
             marker.add(methodId, newSignature);

@@ -78,11 +78,8 @@ public class OptimizedInnerAccessorGenerator extends InnerAccessorGenerator {
     ReferencedFromInnerClassMarker marker =
         accessorClass.getMarker(ReferencedFromInnerClassMarker.class);
     if (marker == null) {
-      ReferencedFromInnerClassMarker newMarker = new ReferencedFromInnerClassMarker();
-      marker = accessorClass.addMarkerIfAbsent(newMarker);
-      if (marker == null) {
-        marker = newMarker;
-      }
+      marker = new ReferencedFromInnerClassMarker();
+      accessorClass.addMarker(marker);
     }
     return marker;
   }

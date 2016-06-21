@@ -123,8 +123,8 @@ public class BlockStatistics implements RunnableSchedulable<JMethod> {
     JSession session = Jack.getSession();
     BlockCountMarker bcm = session.getMarker(BlockCountMarker.class);
     if (bcm == null) {
-      BlockCountMarker newbcm = new BlockCountMarker();
-      bcm = session.addMarker(newbcm);
+      bcm = new BlockCountMarker();
+      session.addMarker(bcm);
     }
 
     BlockStatisticsVisitor statistics = new BlockStatisticsVisitor(bcm);

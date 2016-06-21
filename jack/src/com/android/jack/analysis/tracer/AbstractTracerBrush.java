@@ -117,15 +117,24 @@ public abstract class AbstractTracerBrush<M extends BaseTracerMarker> implements
   public void endTraceMarked(@Nonnull JNode node) {
   }
 
+
   protected boolean markIfNecessary(@Nonnull JNode node) {
-    return (node.addMarkerIfAbsent(createMarkerFor(node)) == null);
+    synchronized (node) {
+      if (!node.containsMarker(markerClass)) {
+        node.addMarker(createMarkerFor(node));
+        return true;
+      }
+    }
+    return false;
   }
 
   @Nonnull
   protected abstract M createMarkerFor(@Nonnull JNode node);
 
   protected boolean isMarked(@Nonnull JNode node) {
-    return node.containsMarker(markerClass);
+    synchronized (node) {
+      return node.containsMarker(markerClass);
+    }
   }
 
   protected boolean isSeed(@Nonnull JNode node) {
@@ -133,18 +142,22 @@ public abstract class AbstractTracerBrush<M extends BaseTracerMarker> implements
   }
 
   protected boolean mustTraceOverridingMethod(@Nonnull JMethod method) {
-    BaseTracerMarker marker = method.getMarker(markerClass);
-    if (marker != null) {
-      return marker.mustTraceOverridingMethods();
+    synchronized (method) {
+      BaseTracerMarker marker = method.getMarker(markerClass);
+      if (marker != null) {
+        return marker.mustTraceOverridingMethods();
+      }
     }
     return false;
   }
 
   @Override
   public void setMustTraceOverridingMethods(@Nonnull JMethod method) {
-    BaseTracerMarker marker = method.getMarker(markerClass);
-    assert marker != null;
-    marker.setMustTraceOverridingMethods(true);
+    synchronized (method) {
+      BaseTracerMarker marker = method.getMarker(markerClass);
+      assert marker != null;
+      marker.setMustTraceOverridingMethods(true);
+    }
   }
 
   @Override

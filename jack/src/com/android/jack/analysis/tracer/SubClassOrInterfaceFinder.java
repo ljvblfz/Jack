@@ -26,6 +26,7 @@ import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.shrob.obfuscation.SubClassOrInterfaceMarker;
 import com.android.sched.item.Description;
+import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Access;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
@@ -38,6 +39,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Fills the marker SubClassOrInterfaceMarker with the list of all classes and " +
     "interfaces extending or implementing the marked type")
+@Synchronized
 @Transform(add = SubClassOrInterfaceMarker.class)
 // Visit hierarchy.
 @Access(JSession.class)
@@ -45,16 +47,12 @@ public class SubClassOrInterfaceFinder implements RunnableSchedulable<JPackage> 
 
   private void addToSubClass(
       @Nonnull JDefinedClassOrInterface subClass, @Nonnull JClassOrInterface superClOrI) {
-    JNode castedSuperClOrI = (JNode) superClOrI;
-    SubClassOrInterfaceMarker marker = castedSuperClOrI.getMarker(SubClassOrInterfaceMarker.class);
+    SubClassOrInterfaceMarker marker =
+        ((JNode) superClOrI).getMarker(SubClassOrInterfaceMarker.class);
     if (marker == null) {
-      SubClassOrInterfaceMarker newMarker = new SubClassOrInterfaceMarker();
-      marker = castedSuperClOrI.addMarkerIfAbsent(newMarker);
-      if (marker == null) {
-        marker = newMarker;
-      }
+      marker = new SubClassOrInterfaceMarker();
+      ((JNode) superClOrI).addMarker(marker);
     }
-    assert marker != null;
     marker.addSubClassOrInterface(subClass);
     if (superClOrI instanceof JDefinedClassOrInterface) {
       if (superClOrI instanceof JDefinedClass) {
@@ -70,7 +68,7 @@ public class SubClassOrInterfaceFinder implements RunnableSchedulable<JPackage> 
   }
 
   @Override
-  public void run(@Nonnull JPackage pack) throws Exception {
+  public synchronized void run(@Nonnull JPackage pack) throws Exception {
     for (JClassOrInterface type : pack.getTypes()) {
 
       if (type instanceof JDefinedClassOrInterface) {
