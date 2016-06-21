@@ -59,8 +59,8 @@ public class DefinitionMarkerAdder implements RunnableSchedulable<JMethod> {
     public boolean visit(@Nonnull JMethod jmethod) {
       JVariable thisVar = jmethod.getThis();
       if (thisVar != null) {
-        if (!thisVar.containsMarker(DefinitionMarker.class)) {
-          thisVar.addMarkerIfAbsent(new DefinitionMarker(thisVar));
+        if (thisVar.getMarker(DefinitionMarker.class) == null) {
+          thisVar.addMarker(new DefinitionMarker(thisVar));
         }
       }
       return super.visit(jmethod);

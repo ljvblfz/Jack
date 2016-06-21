@@ -33,7 +33,7 @@ import javax.annotation.Nonnull;
 @Description("Indicates that a node is a seed")
 public class SeedMarker implements Marker {
   @Nonnull
-  private final KeepModifier modifier;
+  private KeepModifier modifier;
 
   public SeedMarker(@Nonnull KeepModifier modifier) {
     this.modifier = modifier;
@@ -42,6 +42,10 @@ public class SeedMarker implements Marker {
   @Nonnull
   public KeepModifier getModifier() {
     return modifier;
+  }
+
+  public void setModifier(@Nonnull KeepModifier modifier) {
+    this.modifier = modifier;
   }
 
   @Override

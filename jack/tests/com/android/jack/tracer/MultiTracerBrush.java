@@ -137,11 +137,8 @@ public class MultiTracerBrush implements TracerBrush {
     synchronized (node) {
       MultiTracerMarker marker = node.getMarker(MultiTracerMarker.class);
       if (marker == null) {
-        MultiTracerMarker newMarker = new MultiTracerMarker();
-        marker = node.addMarkerIfAbsent(newMarker);
-        if (marker == null) {
-          marker = newMarker;
-        }
+        marker = new MultiTracerMarker();
+        node.addMarker(marker);
       }
       if (!marker.isSet(id)) {
         marker.set(id);

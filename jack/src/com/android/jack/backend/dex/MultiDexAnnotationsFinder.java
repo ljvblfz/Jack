@@ -97,7 +97,9 @@ public class MultiDexAnnotationsFinder implements RunnableSchedulable<JDefinedCl
     }
   }
 
-  private void markIfNecessary(@Nonnull JNode node) {
-    node.addMarkerIfAbsent(MultiDexInstallerMarker.INSTANCE);
+  private synchronized void markIfNecessary(@Nonnull JNode node) {
+    if (!node.containsMarker(MultiDexInstallerMarker.class)) {
+      node.addMarker(MultiDexInstallerMarker.INSTANCE);
+    }
   }
 }

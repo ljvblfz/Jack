@@ -293,11 +293,8 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClass
     assert(field != null);
     SetterMarker marker = accessorClass.getMarker(SetterMarker.class);
     if (marker == null) {
-      SetterMarker newMarker = new SetterMarker();
-      marker = accessorClass.addMarkerIfAbsent(newMarker);
-      if (marker == null) {
-        marker = newMarker;
-      }
+      marker = new SetterMarker();
+      accessorClass.addMarker(marker);
     }
     JMethod setter = marker.getOrCreateSetter(field, (JDefinedClass) accessorClass);
 
@@ -326,11 +323,8 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClass
     assert(field != null);
     GetterMarker marker = accessorClass.getMarker(GetterMarker.class);
     if (marker == null) {
-      GetterMarker newMarker = new GetterMarker();
-      marker = accessorClass.addMarkerIfAbsent(newMarker);
-      if (marker == null) {
-        marker = newMarker;
-      }
+      marker = new GetterMarker();
+      accessorClass.addMarker(marker);
     }
     JMethod getter = marker.getOrCreateGetter(field, (JDefinedClass) accessorClass);
 
@@ -355,11 +349,8 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClass
       @Nonnull JDefinedClassOrInterface accessorClass, boolean isSuper) {
     WrapperMarker marker = accessorClass.getMarker(WrapperMarker.class);
     if (marker == null) {
-      WrapperMarker newMarker = new WrapperMarker();
-      marker = accessorClass.addMarkerIfAbsent(newMarker);
-      if (marker == null) {
-        marker = newMarker;
-      }
+      marker = new WrapperMarker();
+      accessorClass.addMarker(marker);
     }
 
     JMethod wrapper = marker.getOrCreateWrapper(method, (JDefinedClass) accessorClass,

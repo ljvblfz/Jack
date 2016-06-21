@@ -61,11 +61,8 @@ public class SubTreeMarkersCollector<T extends Marker> {
       SubTreeMarkers<T> collectedMarkers = node.getMarker(subTreeMarkersClass);
 
       if (collectedMarkers == null) {
-        SubTreeMarkers<T> newCollectedMarkers = subTreeMarkersFactory.create();
-        collectedMarkers = node.addMarkerIfAbsent(newCollectedMarkers);
-        if (collectedMarkers == null) {
-          collectedMarkers = newCollectedMarkers;
-        }
+        collectedMarkers = subTreeMarkersFactory.create();
+        node.addMarker(collectedMarkers);
       }
 
       if (!collectedMarkers.isCompletelyAnalyzed()) {

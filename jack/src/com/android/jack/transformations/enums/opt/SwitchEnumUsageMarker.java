@@ -65,8 +65,7 @@ public final class SwitchEnumUsageMarker implements Marker {
    *
    * @return true if userClass is never counted yet, otherwise return false
    */
-  public synchronized boolean addEnumUsage(
-      @Nonnull JDefinedClass userClass, @Nonnull JDefinedEnum enumType) {
+  public boolean addEnumUsage(@Nonnull JDefinedClass userClass, @Nonnull JDefinedEnum enumType) {
     return userClasses.put(userClass, enumType);
   }
   /**
@@ -76,7 +75,7 @@ public final class SwitchEnumUsageMarker implements Marker {
    * @return the total number of enum uses
    */
   @Nonnegative
-  public synchronized int getUses() {
+  public int getUses() {
     return userClasses.size();
   }
 
@@ -84,7 +83,7 @@ public final class SwitchEnumUsageMarker implements Marker {
    * Get the set of used enums type.
    * @return the set of enums used in switch statement
    */
-  public synchronized Set<JDefinedEnum> getUsedEnumsType() {
+  public Set<JDefinedEnum> getUsedEnumsType() {
     Set<JDefinedEnum> usedEnumsType = Sets.newHashSet();
     for (JDefinedEnum enumType : userClasses.values()) {
       usedEnumsType.add(enumType);
