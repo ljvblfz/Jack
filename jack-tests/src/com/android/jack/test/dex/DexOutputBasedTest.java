@@ -83,6 +83,8 @@ public abstract class DexOutputBasedTest {
               Boolean.valueOf(value))
           .with(Optimizations.FieldFinalizer.PRESERVE_JLS.getName(),
               Boolean.valueOf(value))
+          .with(Optimizations.WriteOnlyFieldRemoval.PRESERVE_JLS.getName(),
+              Boolean.valueOf(value))
           .with(Optimizations.FieldValuePropagation.PRESERVE_JLS.getName(),
               Boolean.valueOf(value))
           .with(Optimizations.ArgumentValuePropagation.PRESERVE_JLS.getName(),
@@ -97,6 +99,8 @@ public abstract class DexOutputBasedTest {
           .with(Optimizations.MethodFinalizer.PRESERVE_REFLECTIONS.getName(),
               Boolean.valueOf(value))
           .with(Optimizations.FieldFinalizer.PRESERVE_REFLECTIONS.getName(),
+              Boolean.valueOf(value))
+          .with(Optimizations.WriteOnlyFieldRemoval.PRESERVE_REFLECTIONS.getName(),
               Boolean.valueOf(value))
           .with(Optimizations.FieldValuePropagation.PRESERVE_REFLECTIONS.getName(),
               Boolean.valueOf(value))

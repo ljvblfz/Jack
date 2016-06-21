@@ -1,0 +1,8 @@
+method: Lcom/android/jack/optimizations/wofr/test001/C;->test(Ljava/lang/String;I)V
+registers: 4, in/out: 3/1
+instructions: 5
+    | const-string/jumbo v0, string_id_item: Blah
+    | const-string/jumbo v0, string_id_item: Blah
+    | new-instance v0, type_id_item: Ljava/lang/Object;
+    | invoke-direct v0, v0, v0, v0, v0, method_id_item: Ljava/lang/Object;-><init>()V
+    | return-void

@@ -29,7 +29,6 @@ import com.android.jack.fileconflict.FileConflictTests;
 import com.android.jack.flow.FlowTests;
 import com.android.jack.frontend.DuplicateSourceTest;
 import com.android.jack.frontend.FrontEndTests;
-import com.android.jack.frontend.ParserTest;
 import com.android.jack.generic.GenericTests;
 import com.android.jack.ifstatement.IfstatementTests;
 import com.android.jack.imports.ImportTests;
@@ -56,6 +55,7 @@ import com.android.jack.optimizations.unuseddef.UnusedDefTest;
 import com.android.jack.optimizations.usedef.UseDefTests;
 import com.android.jack.optimizations.uselesscopy.UselessVariableCopyTest;
 import com.android.jack.optimizations.valuepropagation.ValuePropagationTests;
+import com.android.jack.optimizations.wofr.WriteOnlyFieldRemovalTests;
 import com.android.jack.order.OrderTests;
 import com.android.jack.preprocessor.PreProcessorTests;
 import com.android.jack.reflect.ReflectTests;
@@ -156,5 +156,6 @@ import org.junit.runners.Suite.SuiteClasses;
     ValuePropagationTests.class,
     VerifyTests.class,
     WithPhantomTests.class,
+    WriteOnlyFieldRemovalTests.class,
   })
 public class AllTests {}

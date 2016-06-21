@@ -136,6 +136,9 @@ import com.android.jack.optimizations.valuepropagation.argument.AvpComputeMethod
 import com.android.jack.optimizations.valuepropagation.argument.AvpPropagateArgumentValues;
 import com.android.jack.optimizations.valuepropagation.field.FvpCollectFieldAssignments;
 import com.android.jack.optimizations.valuepropagation.field.FvpPropagateFieldValues;
+import com.android.jack.optimizations.wofr.WofrCollectFieldAccesses;
+import com.android.jack.optimizations.wofr.WofrRemoveFieldWrites;
+import com.android.jack.optimizations.wofr.WofrRemoveFields;
 import com.android.jack.plugin.PluginManager;
 import com.android.jack.plugin.v01.Plugin;
 import com.android.jack.preprocessor.PreProcessor;
@@ -676,6 +679,9 @@ public abstract class Jack {
           }
           if (config.get(Optimizations.ArgumentValuePropagation.ENABLE).booleanValue()) {
             request.addFeature(Optimizations.ArgumentValuePropagation.class);
+          }
+          if (config.get(Optimizations.WriteOnlyFieldRemoval.ENABLE).booleanValue()) {
+            request.addFeature(Optimizations.WriteOnlyFieldRemoval.class);
           }
 
           if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.ALWAYS) {
@@ -1565,6 +1571,9 @@ public abstract class Jack {
 
     boolean enableFieldValuePropagation =
         features.contains(Optimizations.FieldValuePropagation.class);
+    boolean enableWriteOnlyFieldRemoval =
+        features.contains(Optimizations.WriteOnlyFieldRemoval.class);
+
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan5 =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
@@ -1605,6 +1614,9 @@ public abstract class Jack {
           if (enableArgumentValuePropagation) {
             methodPlan4.append(AvpCollectMethodCallArguments.class);
           }
+          if (enableWriteOnlyFieldRemoval) {
+            methodPlan4.append(WofrCollectFieldAccesses.class);
+          }
           methodPlan4.append(DefUsesAndUseDefsChainRemover.class);
           methodPlan4.append(DefinitionMarkerRemover.class);
           methodPlan4.append(UsedVariableRemover.class);
@@ -1628,12 +1640,17 @@ public abstract class Jack {
         {
           SubPlanBuilder<JMethod> methodPlan5 =
               typePlan6.appendSubPlan(JMethodAdapter.class);
-          if (enableFieldValuePropagation || enableArgumentValuePropagation) {
+          if (enableFieldValuePropagation ||
+              enableArgumentValuePropagation ||
+              enableWriteOnlyFieldRemoval) {
             if (enableFieldValuePropagation) {
               methodPlan5.append(FvpPropagateFieldValues.class);
             }
             if (enableArgumentValuePropagation) {
               methodPlan5.append(AvpPropagateArgumentValues.class);
+            }
+            if (enableWriteOnlyFieldRemoval) {
+              methodPlan5.append(WofrRemoveFieldWrites.class);
             }
             methodPlan5.append(CfgMarkerRemover.class);
             methodPlan5.append(CfgBuilder.class);
@@ -1646,6 +1663,11 @@ public abstract class Jack {
           if (features.contains(DropMethodBody.class)) {
             methodPlan5.append(MethodBodyRemover.class);
           }
+        }
+        if (enableWriteOnlyFieldRemoval) {
+          typePlan6
+              .appendSubPlan(JFieldAdapter.class)
+              .append(WofrRemoveFields.class);
         }
         {
           SubPlanBuilder<JField> fieldPlan2 =
