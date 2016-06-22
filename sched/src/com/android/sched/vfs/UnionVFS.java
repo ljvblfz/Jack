@@ -48,6 +48,11 @@ import javax.annotation.Nonnull;
  */
 public class UnionVFS extends BaseVFS<UnionVDir, UnionVFile> implements VFS {
 
+  /**
+   * Only delete the VFile that is on top, do not delete those that are under.
+   */
+  private static final boolean SHALLOW_DELETE = true;
+
   static class UnionVFile extends ParentVFile {
 
     @Nonnull
@@ -186,6 +191,9 @@ public class UnionVFS extends BaseVFS<UnionVDir, UnionVFile> implements VFS {
           try {
             BaseVFile vFile = wrappedDir.getVFile(name);
             wrappedDir.delete(vFile);
+            if (SHALLOW_DELETE) {
+              return;
+            }
           } catch (NotFileException e) {
             // ignore
           } catch (NoSuchFileException e) {
