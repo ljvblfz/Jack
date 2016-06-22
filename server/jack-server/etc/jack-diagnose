@@ -157,7 +157,7 @@ checkBase64() {
     return 255
   fi
 
-  BASE64_CHECK=$(echo amFjay1zZXJ2ZXIK | base64 --decode 2>&1)
+  BASE64_CHECK=$((echo amFjaw==;echo LXNlcnZlcg==) | "$BASE64_COMMAND" --decode 2>&1)
   if [ "$BASE64_CHECK" != jack-server ]; then
     echo "'$BASE64_COMMAND' is not a supported version"
     return 255
