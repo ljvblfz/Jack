@@ -164,20 +164,32 @@ checkBase64() {
   fi
 }
 
+STATUS=0
 
-checkCurl
+if ! checkCurl ; then
+  STATUS=1
+fi
 
-checkJava
+if ! checkJava ; then
+  STATUS=1
+fi
+if ! checkKeytool ; then
+  STATUS=1
+fi
 
-checkKeytool
-
-checkport $SERVER_PORT_ADMIN
-checkport $SERVER_PORT_SERVICE
+if ! checkport $SERVER_PORT_ADMIN ; then
+  STATUS=1
+fi
+if ! checkport $SERVER_PORT_SERVICE ; then
+  STATUS=1
+fi
 
 if ! checkBase64 ; then
   echo "base64 is not mandatory but installing a supported version can help with standard output and standard error problems"
 fi
 
+if [ $STATUS -eq 0 ] ; then
+  echo "Diagnostic completed without error."
+fi
 # Exit
-
-exit 0
+exit $STATUS
