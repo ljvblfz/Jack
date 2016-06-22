@@ -198,9 +198,7 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
           new JMethodCall(SourceInfo.UNKNOWN, thisOfConstructor.makeRef(SourceInfo.UNKNOWN),
               jlo, jloInitMethodId, JPrimitiveTypeEnum.VOID.getType(), false).makeStatement());
 
-      for (JExpression capturedVar : lambdaExpr.getCapturedVariables()) {
-        createFieldAndAssignment(lambdaImplCons, capturedVar);
-      }
+      createFieldsAndAssignmentsOfCapturedVars(lambdaImplCons, lambdaExpr);
 
       delegateCall(mthToImplement, lambdaMethod, lambdaExpr.getMethodIdWithoutErasure(),
           lambdaExpr.getCapturedVariables(), null, lambdaInnerClass);
@@ -223,43 +221,48 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
     }
 
     @Nonnull
-    private void createFieldAndAssignment(@Nonnull JConstructor constructor,
-        @Nonnull JExpression capturedVar) {
+    private void createFieldsAndAssignmentsOfCapturedVars(@Nonnull JConstructor constructor,
+        @Nonnull JLambda lambdaExpr) {
       JDefinedClass lambdaImplClass = constructor.getEnclosingType();
       JMethodBody body = constructor.getBody();
       assert body != null;
       JBlock constructorBody = body.getBlock();
       JThis thisOfConstructor = constructor.getThis();
       assert thisOfConstructor != null;
-      String name = null;
-      if (capturedVar instanceof JVariableRef) {
-        name = ((JVariableRef) capturedVar).getTarget().getName();
-      } else {
-        if (capturedVar instanceof JFieldRef) {
-          JField field = ((JFieldRef) capturedVar).getFieldId().getField();
-          if (field != null) {
-            name = field.getName();
+      int nameIdx = 0;
+
+      for (JExpression capturedVar : lambdaExpr.getCapturedVariables()) {
+        String name = null;
+        if (capturedVar instanceof JVariableRef) {
+          name = ((JVariableRef) capturedVar).getTarget().getName();
+        } else {
+          if (capturedVar instanceof JFieldRef) {
+            JField field = ((JFieldRef) capturedVar).getFieldId().getField();
+            if (field != null) {
+              name = field.getName();
+            }
+          }
+          if (name == null) {
+            name = "arg" + nameIdx;
+            nameIdx++;
           }
         }
-        if (name == null) {
-          name = "arg" + constructor.getParams().size();
-        }
+
+        JField field = new JField(SourceInfo.UNKNOWN, "val$" + name, lambdaImplClass,
+            capturedVar.getType(), JModifier.PRIVATE | JModifier.SYNTHETIC);
+        tr.append(new AppendField(lambdaImplClass, field));
+        captureVar2InnerPath.put(capturedVar, field);
+
+        JParameter parameter = new JParameter(SourceInfo.UNKNOWN, name, capturedVar.getType(),
+            JModifier.SYNTHETIC, constructor);
+        tr.append(new AppendMethodParam(constructor, parameter));
+
+        JAsgOperation asg = new JAsgOperation(
+            SourceInfo.UNKNOWN, new JFieldRef(SourceInfo.UNKNOWN,
+                thisOfConstructor.makeRef(SourceInfo.UNKNOWN), field.getId(), lambdaImplClass),
+            parameter.makeRef(SourceInfo.UNKNOWN));
+        constructorBody.addStmt(asg.makeStatement());
       }
-
-      JField field = new JField(SourceInfo.UNKNOWN, "val$" + name, lambdaImplClass,
-          capturedVar.getType(), JModifier.PRIVATE | JModifier.SYNTHETIC);
-      tr.append(new AppendField(lambdaImplClass, field));
-      captureVar2InnerPath.put(capturedVar, field);
-
-      JParameter parameter = new JParameter(SourceInfo.UNKNOWN, name, capturedVar.getType(),
-          JModifier.SYNTHETIC, constructor);
-      tr.append(new AppendMethodParam(constructor, parameter));
-
-      JAsgOperation asg = new JAsgOperation(
-          SourceInfo.UNKNOWN, new JFieldRef(SourceInfo.UNKNOWN,
-              thisOfConstructor.makeRef(SourceInfo.UNKNOWN), field.getId(), lambdaImplClass),
-          parameter.makeRef(SourceInfo.UNKNOWN));
-      constructorBody.addStmt(asg.makeStatement());
     }
 
     @Nonnull
