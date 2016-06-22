@@ -33,10 +33,10 @@ import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JParameter;
-import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JRetentionPolicy;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeLookupException;
+import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.ast.MissingJTypeLookupException;
 import com.android.jack.ir.ast.marker.GenericSignature;
@@ -69,6 +69,7 @@ import org.eclipse.jdt.internal.compiler.lookup.SyntheticArgumentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SyntheticMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
 import java.util.ArrayList;
@@ -251,28 +252,16 @@ public class ReferenceMapper {
       method = new JConstructor(info, (JDefinedClass) enclosingType, flags);
       if (declaringClass.isEnum()) {
         // Enums have hidden arguments for name and value
-        method.getMethodIdWide().addParam(getJavaLangString());
-        method.addParam(new JParameter(info, "enum$name", getJavaLangString(),
-            JModifier.FINAL | JModifier.SYNTHETIC, method));
-        method.getMethodIdWide().addParam(JPrimitiveTypeEnum.INT.getType());
-        method.addParam(new JParameter(info, "enum$ordinal", JPrimitiveTypeEnum.INT.getType(),
-            JModifier.FINAL | JModifier.SYNTHETIC, method));
+        createParameter(info, method, "enum$name",
+            lookupEnvironment.getType(TypeConstants.JAVA_LANG_STRING),
+            JModifier.FINAL | JModifier.SYNTHETIC);
+        createParameter(info, method, "enum$ordinal", TypeBinding.INT,
+            JModifier.FINAL | JModifier.SYNTHETIC);
       }
       // add synthetic args for outer this
       if (isNested) {
         NestedTypeBinding nestedBinding = (NestedTypeBinding) declaringClass;
-        if (nestedBinding.enclosingInstances != null) {
-          for (int i = 0; i < nestedBinding.enclosingInstances.length; ++i) {
-            SyntheticArgumentBinding arg = nestedBinding.enclosingInstances[i];
-            String argName = String.valueOf(arg.name);
-            if (alreadyNamedVariables.contains(argName)) {
-              argName += "_" + i;
-            }
-            argName = intern(argName);
-            createParameter(info, arg, argName, method);
-            alreadyNamedVariables.add(argName);
-          }
-        }
+        createParameters(nestedBinding.enclosingInstances, info, method, alreadyNamedVariables);
       }
     } else {
       JType returnType = get(b.returnType);
@@ -304,17 +293,7 @@ public class ReferenceMapper {
         // add synthetic args for locals
         NestedTypeBinding nestedBinding = (NestedTypeBinding) declaringClass;
         // add synthetic args for outer this and locals
-        if (nestedBinding.outerLocalVariables != null) {
-          for (int i = 0; i < nestedBinding.outerLocalVariables.length; ++i) {
-            SyntheticArgumentBinding arg = nestedBinding.outerLocalVariables[i];
-            String argName = String.valueOf(arg.name);
-            if (alreadyNamedVariables.contains(argName)) {
-              argName += "_" + i;
-            }
-            createParameter(info, arg, argName, method);
-            alreadyNamedVariables.add(argName);
-          }
-        }
+        createParameters(nestedBinding.outerLocalVariables, info, method, alreadyNamedVariables);
       }
     }
 
@@ -358,23 +337,20 @@ public class ReferenceMapper {
     return declaration;
   }
 
-  private void createParameter(@Nonnull SourceInfo info, @Nonnull LocalVariableBinding binding,
-      @Nonnull String name, @Nonnull JMethod method) throws JTypeLookupException {
-    JType type = get(binding.type);
-    JParameter param =
-        new JParameter(info, name, type,
-            binding.isFinal() ? JModifier.FINAL : JModifier.DEFAULT, method);
-    char[] genericTypeSignature = binding.type.genericTypeSignature();
-    if (genericTypeSignature != null) {
-      String genericSignature = new String(genericTypeSignature);
-      // Check if the generic signature really contains generic types i.e. is different from the
-      // non-generic signature
-      if (!genericSignature.equals(Jack.getLookupFormatter().getName(type))) {
-        param.addMarker(new GenericSignature(intern(genericSignature)));
+  private void createParameters(@CheckForNull SyntheticArgumentBinding[] sab,
+      @Nonnull SourceInfo info, @Nonnull JMethod method,
+      @Nonnull Set<String> alreadyNamedVariables) {
+    if (sab != null) {
+      for (int i = 0; i < sab.length; ++i) {
+        SyntheticArgumentBinding arg = sab[i];
+        String argName = String.valueOf(arg.name);
+        if (alreadyNamedVariables.contains(argName)) {
+          argName += "_" + i;
+        }
+        createParameter(info, method, argName, arg.type, getModifier(arg));
+        alreadyNamedVariables.add(argName);
       }
     }
-    method.addParam(param);
-    method.getMethodIdWide().addParam(type);
   }
 
   private void createParameters(@Nonnull JMethod method, @Nonnull AbstractMethodDeclaration x,
@@ -383,14 +359,49 @@ public class ReferenceMapper {
       for (Argument argument : x.arguments) {
         SourceInfo info = makeSourceInfo(cuInfo, argument, sourceInfoFactory);
         LocalVariableBinding binding = argument.binding;
-        createParameter(info, binding, method);
+        createParameter(info, method, intern(binding.name), binding.type, getModifier(binding));
       }
     }
   }
 
-  private void createParameter(@Nonnull SourceInfo info, @Nonnull LocalVariableBinding binding,
-      @Nonnull JMethod method) throws JTypeLookupException {
-    createParameter(info, binding, intern(binding.name), method);
+  private int getModifier(@Nonnull LocalVariableBinding lvBinding) {
+    return lvBinding.isFinal() ? JModifier.FINAL : JModifier.DEFAULT;
+  }
+
+  @Nonnull
+  public JParameter createParameter(@Nonnull SourceInfo info, @Nonnull JMethod method,
+      @Nonnull String name, @Nonnull TypeBinding typeBinding, int modifier) {
+    return createParameter(info, method, name, typeBinding, modifier, method.getParams().size());
+  }
+
+  @Nonnull
+  public JParameter createParameter(@Nonnull SourceInfo info, @Nonnull JMethod method,
+      @Nonnull String name, @Nonnull TypeBinding typeBinding, int modifier, int paramIndex)
+      throws JTypeLookupException {
+    JType type = get(typeBinding);
+    JParameter param =
+        new JParameter(info, name, type, modifier, method);
+
+    method.getParams().add(paramIndex, param);
+    method.getMethodIdWide().getParamTypes().add(paramIndex, type);
+
+    addGenericSignatureMarker(typeBinding, param);
+
+    return param;
+  }
+
+  public void addGenericSignatureMarker(@Nonnull TypeBinding typeBinding,
+      @Nonnull JVariable variable) {
+    char[] genericTypeSignature = typeBinding.genericTypeSignature();
+    if (genericTypeSignature != null) {
+      char[] signature = typeBinding.signature();
+      char[] genericSignature = typeBinding.genericTypeSignature();
+      // Check if the generic signature really contains generic types i.e. is different from the
+      // non-generic signature
+      if (!CharOperation.equals(signature, genericSignature)) {
+        variable.addMarker(new GenericSignature(intern(genericSignature)));
+      }
+    }
   }
 
   @Nonnull
@@ -432,16 +443,6 @@ public class ReferenceMapper {
   }
 
   @Nonnull
-  private JParameter createParameter(@Nonnull SourceInfo info, @Nonnull TypeBinding paramType,
-      @Nonnull JMethod enclosingMethod, @Nonnull String name) throws JTypeLookupException {
-    JType type = get(paramType);
-    JParameter param = new JParameter(info, name, type, JModifier.FINAL, enclosingMethod);
-    enclosingMethod.addParam(param);
-    enclosingMethod.getMethodIdWide().addParam(type);
-    return param;
-  }
-
-  @Nonnull
   static JRetentionPolicy getRetentionPolicy(long tagBits) {
     JRetentionPolicy result;
     long annotBits = tagBits & TagBits.AnnotationRetentionMASK;
@@ -480,7 +481,7 @@ public class ReferenceMapper {
     if (binding.parameters != null) {
       ensureArgNames(argPosition + binding.parameters.length);
       for (TypeBinding argType : binding.parameters) {
-        createParameter(info, argType, method, argNames.get(argPosition++));
+        createParameter(info, method, argNames.get(argPosition++), argType, JModifier.DEFAULT);
       }
     }
     return argPosition;

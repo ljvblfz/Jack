@@ -121,7 +121,6 @@ import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.ir.ast.JWhileStatement;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.ast.Number;
-import com.android.jack.ir.ast.marker.GenericSignature;
 import com.android.jack.ir.ast.marker.ThisRefTypeInfo;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfo;
@@ -1372,11 +1371,8 @@ public class JackIrBuilder {
 
       int pIndex = 0;
       for (TypeBinding argType : lambdaMethodBinding.parameters) {
-        JType type = getTypeMap().get(argType);
-        JParameter param =
-            new JParameter(info, "arg" + (pIndex++), type, JModifier.SYNTHETIC, lambdaMethod);
-        lambdaMethod.addParam(param);
-        lambdaMethod.getMethodIdWide().addParam(type);
+        getTypeMap().createParameter(info, lambdaMethod, "arg" + (pIndex++), argType,
+            JModifier.SYNTHETIC);
       }
 
       JMethodBody lambdaMethodBody = new JMethodBody(info, new JBlock(info));
@@ -1428,14 +1424,16 @@ public class JackIrBuilder {
 
           if (!csc.shouldCaptureInstance && lhsExprOutsideLambdaMethod != null) {
             JType lhsJType = getTypeMap().get(referenceExpression.lhs.resolvedType);
-            JLocal tmp = new JLocal(sourceInfo, "-lambdaCtx", lhsJType,
+            String tmpName = "-lambdaCtx";
+            JLocal tmp = new JLocal(sourceInfo, tmpName, lhsJType,
                 JModifier.FINAL | JModifier.SYNTHETIC, curMethod.body);
             curMethod.body.addLocal(tmp);
 
-            JParameter jParameter = new JParameter(SourceInfo.UNKNOWN, tmp.getName(), tmp.getType(),
-                JModifier.SYNTHETIC | JModifier.FINAL | JModifier.CAPTURED_VARIABLE, lambdaMethod);
-            lambdaMethod.getParams().add(0, jParameter);
-            lambdaMethod.getMethodIdWide().getParamTypes().add(0, tmp.getType());
+            JParameter jParameter = getTypeMap().createParameter(SourceInfo.UNKNOWN, lambdaMethod,
+                tmpName, referenceExpression.lhs.resolvedType,
+                JModifier.SYNTHETIC | JModifier.FINAL | JModifier.CAPTURED_VARIABLE,
+                /* paramIndex= */ 0);
+
             ((JLambda) exprRepresentingLambda).addCapturedVariable(tmp.makeRef(sourceInfo));
 
             if (referenceExpression.lhs.localVariableBinding() != null) {
@@ -1551,12 +1549,11 @@ public class JackIrBuilder {
             assert paths.length == 1;
             JExpression exprPath = generateEmulationPath(sourceInfo, paths);
 
-            JParameter jParameter = new JParameter(SourceInfo.UNKNOWN,
-                new String(synthArg.actualOuterLocalVariable.name), exprPath.getType(),
-                JModifier.SYNTHETIC | JModifier.FINAL | JModifier.CAPTURED_VARIABLE, lambdaMethod);
+            JParameter jParameter = getTypeMap().createParameter(SourceInfo.UNKNOWN, lambdaMethod,
+                new String(synthArg.actualOuterLocalVariable.name), paths[0].type,
+                JModifier.SYNTHETIC | JModifier.FINAL | JModifier.CAPTURED_VARIABLE, captureCount);
+
             lambdaMethodInfo.addVariableMapping(synthArg.actualOuterLocalVariable, jParameter);
-            lambdaMethod.getParams().add(captureCount, jParameter);
-            lambdaMethod.getMethodIdWide().getParamTypes().add(captureCount, exprPath.getType());
 
             if (exprPath instanceof JVariableRef) {
               JVariable var = curMethod.getJVariable(synthArg.actualOuterLocalVariable);
@@ -3180,13 +3177,8 @@ public class JackIrBuilder {
           new JLocal(info, ReferenceMapper.intern(x.name), localType, b.isFinal() ? JModifier.FINAL
               : JModifier.DEFAULT, curMethod.body);
 
-      char[] signature = b.type.signature();
-      char[] genericSignature = b.type.genericTypeSignature();
-      // Check if the generic signature really contains generic types i.e. is different from the
-      // non-generic signature
-      if (!CharOperation.equals(signature, genericSignature)) {
-        newLocal.addMarker(new GenericSignature(ReferenceMapper.intern(genericSignature)));
-      }
+      typeMap.addGenericSignatureMarker(b.type, newLocal);
+
       curMethod.addVariableMapping(b, newLocal);
       return newLocal;
     }
