@@ -67,9 +67,9 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
   private final List<JClassOrInterface> inners = new ArrayList<JClassOrInterface>();
 
   /**
-   * True if this type is defined in the bootclasspath or the classpath but not in a sourcepath.
+   * True if the type is to be included in outputs.
    */
-  private boolean isExternal = true;
+  private boolean isToEmit = false;
 
   /**
    * This type's modifier.
@@ -273,8 +273,8 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
   }
 
   @Override
-  public boolean isExternal() {
-    return isExternal;
+  public boolean isToEmit() {
+    return isToEmit;
   }
 
   /**
@@ -286,8 +286,8 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
     this.enclosingType = enclosingType;
   }
 
-  public void setExternal(boolean isExternal) {
-    this.isExternal = isExternal;
+  public void setToEmit(boolean isToEmit) {
+    this.isToEmit = isToEmit;
   }
 
   @Override

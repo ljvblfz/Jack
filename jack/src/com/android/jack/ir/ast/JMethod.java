@@ -177,10 +177,6 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
     return JModifier.isAbstract(modifier);
   }
 
-  public boolean isExternal() {
-    return getEnclosingType().isExternal();
-  }
-
   @Override
   public boolean isFinal() {
     return JModifier.isFinal(modifier);

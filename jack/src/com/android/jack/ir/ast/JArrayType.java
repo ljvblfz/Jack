@@ -79,11 +79,6 @@ public class JArrayType extends JDefinedReferenceType {
   }
 
   @Override
-  public boolean isExternal() {
-    return elementType.isExternal();
-  }
-
-  @Override
   public void traverse(@Nonnull JVisitor visitor) {
     if (visitor.visit(this)) {
     }

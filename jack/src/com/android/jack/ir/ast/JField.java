@@ -94,10 +94,6 @@ public class JField extends JNode implements HasName, HasType, JVisitable, CanBe
     return null;
   }
 
-  public boolean isExternal() {
-    return getEnclosingType().isExternal();
-  }
-
   public boolean isPublic() {
     return (JModifier.isPublic(modifier));
   }

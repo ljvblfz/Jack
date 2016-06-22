@@ -33,16 +33,16 @@ public class KeepMarker extends BaseTracerMarker {
 
   @DynamicValidOn
   public boolean isValidOn(@Nonnull JDefinedClassOrInterface type) {
-    return !type.isExternal();
+    return type.isToEmit();
   }
 
   @DynamicValidOn
   public boolean isValidOn(@Nonnull JMethod method) {
-    return !method.getEnclosingType().isExternal();
+    return method.getEnclosingType().isToEmit();
   }
 
   @DynamicValidOn
   public boolean isValidOn(@Nonnull JField field) {
-    return !field.getEnclosingType().isExternal();
+    return field.getEnclosingType().isToEmit();
   }
 }

@@ -220,7 +220,7 @@ public class Renamer implements RunnableSchedulable<JSession> {
 
     @Override
     public boolean visit(@Nonnull JDefinedClassOrInterface type) {
-      if (!type.isExternal()) {
+      if (type.isToEmit()) {
         NameProvider fieldNameProvider = nameProviderFactory.getFieldNameProvider();
         for (JField field : type.getFields()) {
           JFieldId fieldId = field.getId();
