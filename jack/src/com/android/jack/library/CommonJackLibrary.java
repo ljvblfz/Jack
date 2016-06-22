@@ -172,6 +172,7 @@ public abstract class CommonJackLibrary implements JackLibrary {
     for (InputLibrary inputLib : inputLibraries) {
       inputLibVfsList.add(((InputJackLibrary) inputLib).getVfs());
       locationList.add(inputLib.getLocation());
+      fileTypes.addAll(((InputJackLibrary) inputLib).getFileTypes());
     }
 
     if (vfs instanceof ReadWriteZipFS) {
