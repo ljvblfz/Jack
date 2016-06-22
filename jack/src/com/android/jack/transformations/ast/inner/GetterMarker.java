@@ -32,6 +32,8 @@ import com.android.jack.ir.ast.JParameterRef;
 import com.android.jack.ir.ast.JReturnStatement;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.transformations.request.AppendMethodParam;
+import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.NamingTools;
 import com.android.sched.item.AbstractComponent;
 import com.android.sched.item.ComposedOf;
@@ -86,7 +88,8 @@ public class GetterMarker implements Marker {
   @Nonnull
   // TODO(delphinemartin): Warning: this is not thread-safe
   JMethod getOrCreateGetter(@Nonnull JField field,
-      @Nonnull JDefinedClass accessorClass) {
+      @Nonnull JDefinedClass accessorClass,
+      @Nonnull TransformationRequest tr) {
     // $get<id>($this) {
     //   return $this.field;
     // }
@@ -106,8 +109,7 @@ public class GetterMarker implements Marker {
         JParameter thisParam = new JParameter(
             sourceInfo, InnerAccessorGenerator.THIS_PARAM_NAME, accessorClass, JModifier.SYNTHETIC,
             getter);
-        getter.addParam(thisParam);
-        id.getMethodIdWide().addParam(accessorClass);
+        tr.append(new AppendMethodParam(getter, thisParam));
         instance = thisParam.makeRef(sourceInfo);
       }
 

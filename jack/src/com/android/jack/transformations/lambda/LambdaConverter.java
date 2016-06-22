@@ -61,6 +61,7 @@ import com.android.jack.lookup.JLookup;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.request.AppendField;
 import com.android.jack.transformations.request.AppendMethod;
+import com.android.jack.transformations.request.AppendMethodParam;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.NamingTools;
@@ -252,8 +253,7 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
 
       JParameter parameter = new JParameter(SourceInfo.UNKNOWN, name, capturedVar.getType(),
           JModifier.SYNTHETIC, constructor);
-      constructor.addParam(parameter);
-      constructor.getMethodIdWide().addParam(parameter.getType());
+      tr.append(new AppendMethodParam(constructor, parameter));
 
       JAsgOperation asg = new JAsgOperation(
           SourceInfo.UNKNOWN, new JFieldRef(SourceInfo.UNKNOWN,

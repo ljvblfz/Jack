@@ -34,6 +34,8 @@ import com.android.jack.ir.ast.JReturnStatement;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.transformations.request.AppendMethodParam;
+import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.NamingTools;
 import com.android.sched.item.AbstractComponent;
 import com.android.sched.item.ComposedOf;
@@ -91,7 +93,8 @@ public class SetterMarker implements Marker {
   @Nonnull
   // TODO(delphinemartin): Warning: this is not thread-safe
   JMethod getOrCreateSetter(@Nonnull JField field,
-      @Nonnull JDefinedClass accessorClass) {
+      @Nonnull JDefinedClass accessorClass,
+      @Nonnull TransformationRequest tr) {
     // $set<id>($this, $value) {
     //   $this.field = $value;
     //   return $value;
@@ -115,15 +118,13 @@ public class SetterMarker implements Marker {
         JParameter thisParam =
             new JParameter(sourceInfo, InnerAccessorGenerator.THIS_PARAM_NAME, accessorClass,
                 JModifier.FINAL | JModifier.SYNTHETIC, setter);
-        setter.addParam(thisParam);
-        id.addParam(accessorClass);
+        tr.append(new AppendMethodParam(setter, thisParam));
         instance = thisParam.makeRef(sourceInfo);
       }
 
       JParameter value = new JParameter(sourceInfo, VALUE_PARAM_NAME, fieldType,
           JModifier.FINAL | JModifier.SYNTHETIC, setter);
-      setter.addParam(value);
-      id.addParam(fieldType);
+      tr.append(new AppendMethodParam(setter, value));
       JFieldRef lhs = new JFieldRef(sourceInfo, instance, field.getId(), accessorClass);
 
       JAsgOperation asgOperation = new JAsgOperation(sourceInfo, lhs, value.makeRef(sourceInfo));
