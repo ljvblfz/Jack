@@ -618,6 +618,14 @@ case $COMMAND in
     echo "\$ jack-admin server-stat" >>"$REPORT_INFO"
              "$0"       server-stat  >>"$REPORT_INFO" 2>&1
 
+    echo "Collecting base64 info..."
+    echo >>"$REPORT_INFO"
+    echo "\$ base64 --version" >>"$REPORT_INFO"
+             base64 --version  >>"$REPORT_INFO" 2>&1
+    echo >>"$REPORT_INFO"
+    echo "\$ (echo amFjaw==;echo LXNlcnZlcg==) | base64 --decode" >>"$REPORT_INFO"
+             (echo amFjaw==;echo LXNlcnZlcg==) | base64 --decode >>"$REPORT_INFO" 2>&1
+
     echo "Zipping Jack server installation dir except keys and certificates..."
     (cd "$JACK_HOME"; zip --exclude \*.pem \*.jks --recurse-paths "$REPORT_PATH" .) >/dev/null
     echo "Jack server report saved in '$REPORT'. Consider reviewing content before publishing."
