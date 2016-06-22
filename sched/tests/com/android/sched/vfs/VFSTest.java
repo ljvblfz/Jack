@@ -785,13 +785,11 @@ public class VFSTest {
         // expected
       }
 
-      // try to delete a file that is in the dir and the zip (which is not yet supported)
-      try {
-        inputUnionVFS.getRootInputVDir().getInputVFile(new VPath("dirC/fileC1", '/')).delete();
-        Assert.fail();
-      } catch (UnionVFSReadOnlyException e) {
-        // expected because not yet supported
-      }
+      // try to delete a file that is in the dir and the zip, then check that the one from the zip
+      // remains
+      inputUnionVFS.getRootInputVDir().getInputVFile(new VPath("dirC/fileC1", '/')).delete();
+      Assert.assertEquals("dirC/fileC1", readFromFile(
+          inputUnionVFS.getRootInputVDir().getInputVFile(new VPath("dirC/fileC1", '/'))));
 
       // list contents of "dirB/dirBA", which has files in the dir and in the zip
       InputVDir dirBA = inputUnionVFS.getRootInputVDir().getInputVDir(new VPath("dirB/dirBA", '/'));
@@ -933,13 +931,11 @@ public class VFSTest {
         // expected
       }
 
-      // try to delete a file that is in the dir and the zip (which is not yet supported)
-      try {
-        inputVFS.getRootInputVDir().getInputVFile(new VPath("dirC/fileC1", '/')).delete();
-        Assert.fail();
-      } catch (UnionVFSReadOnlyException e) {
-        // expected because not yet supported
-      }
+      // try to delete a file that is in the dir and the zip, then check that the one from the zip
+      // remains
+      inputVFS.getRootInputVDir().getInputVFile(new VPath("dirC/fileC1", '/')).delete();
+      Assert.assertEquals("dirC/fileC1", readFromFile(
+          inputVFS.getRootInputVDir().getInputVFile(new VPath("dirC/fileC1", '/'))));
 
       // list contents of "dirB/dirBA", which has files in the dir and in the zip
       InputVDir dirBA = inputVFS.getRootInputVDir().getInputVDir(new VPath("dirB/dirBA", '/'));
