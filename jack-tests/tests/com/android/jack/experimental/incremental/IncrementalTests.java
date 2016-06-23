@@ -29,6 +29,8 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.nio.file.Files;
+import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -110,6 +112,7 @@ public class IncrementalTests {
     ResourceTests.checkResourceContentFromDir(dexDir, "pack/resource2.txt", "resource2");
 
     // modify resources and rebuild
+    Thread.sleep(1000); // "lastModified()" lacks precision...
     FileWriter writer1 = new FileWriter(rscDestFile1);
     try {
       writer1.write("resource1.1");
@@ -178,6 +181,7 @@ public class IncrementalTests {
     }
 
     // modify resources and rebuild
+    Thread.sleep(1000); // "lastModified()" lacks precision...
     FileWriter writer1 = new FileWriter(rscDestFile1);
     try {
       writer1.write("resource1.1");
@@ -257,6 +261,7 @@ public class IncrementalTests {
     }
 
     // modify resources and rebuild
+    Thread.sleep(1000); // "lastModified()" lacks precision...
     FileWriter writer1 = new FileWriter(rscDestFile1);
     try {
       writer1.write("resource1.1");
