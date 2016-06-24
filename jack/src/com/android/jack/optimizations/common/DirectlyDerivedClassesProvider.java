@@ -20,7 +20,6 @@ import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.sched.item.Description;
-import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 
@@ -28,7 +27,6 @@ import javax.annotation.Nonnull;
 
 /** Provides DirectlyDerivedClassesMarker on defined classes */
 @Description("Provides DirectlyDerivedClassesMarker on defined classes")
-@Constraint(need = TypeToBeEmittedMarker.class)
 @Transform(add = DirectlyDerivedClassesMarker.class)
 public class DirectlyDerivedClassesProvider
     implements RunnableSchedulable<JDefinedClassOrInterface> {
@@ -39,7 +37,7 @@ public class DirectlyDerivedClassesProvider
       JDefinedClass thisClass = (JDefinedClass) type;
       JClass superClass = thisClass.getSuperClass();
       if (superClass instanceof JDefinedClass) {
-        if (TypeToBeEmittedMarker.isToBeEmitted(superClass)) {
+        if (superClass.isToEmit()) {
           DirectlyDerivedClassesMarker.
               markDirectlyDerivedClass((JDefinedClass) superClass, thisClass);
         }

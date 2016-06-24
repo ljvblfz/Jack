@@ -22,7 +22,6 @@ import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JValueLiteral;
 import com.android.jack.optimizations.common.ConcurrentLiteralValueTracker;
-import com.android.jack.optimizations.common.TypeToBeEmittedMarker;
 import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
@@ -66,7 +65,7 @@ public class FieldSingleValueMarker implements Marker {
   private static FieldSingleValueMarker create(@Nonnull JField field) {
     JDefinedClassOrInterface type = field.getEnclosingType();
     // Only fields of types to be emitted are supposed to be tracked
-    assert TypeToBeEmittedMarker.isToBeEmitted(type);
+    assert type.isToEmit();
 
     FieldSingleValueMarker marker = new FieldSingleValueMarker();
 

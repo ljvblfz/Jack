@@ -70,7 +70,7 @@ public class DirectlyDerivedClassesMarker implements Marker {
   public static void markDirectlyDerivedClass(
       @Nonnull JDefinedClass clazz, @Nonnull JDefinedClass derived) {
     // Note that 'clazz' is only set on types to be emitted
-    assert TypeToBeEmittedMarker.isToBeEmitted(clazz);
+    assert clazz.isToEmit();
 
     DirectlyDerivedClassesMarker marker =
         clazz.getMarker(DirectlyDerivedClassesMarker.class);

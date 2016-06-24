@@ -23,10 +23,8 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JPhantomClassOrInterface;
 import com.android.jack.ir.ast.MethodKind;
-import com.android.jack.optimizations.common.TypeToBeEmittedMarker;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
-import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 
@@ -34,7 +32,6 @@ import javax.annotation.Nonnull;
 
 /** Calculate tainted methods on types to be emitted */
 @Description("Argument value propagation, calculate tainted methods on types to be emitted")
-@Constraint(need = TypeToBeEmittedMarker.class)
 @Transform(add = TaintedVirtualMethodsMarker.class)
 @Name("ArgumentValuePropagation: AvpCalculateTaintedMethods")
 public class AvpCalculateTaintedMethods extends AvpSchedulable
@@ -101,7 +98,7 @@ public class AvpCalculateTaintedMethods extends AvpSchedulable
     }
 
     // If this is NOT a type to be emitted, add its methods as well
-    if (!TypeToBeEmittedMarker.isToBeEmitted(type)) {
+    if (!type.isToEmit()) {
       for (JMethod method : type.getMethods()) {
         JMethodIdWide idWide = method.getMethodIdWide();
         // Tainted method should be a virtual method with at

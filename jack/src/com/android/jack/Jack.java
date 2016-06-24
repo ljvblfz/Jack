@@ -122,7 +122,6 @@ import com.android.jack.optimizations.Optimizations;
 import com.android.jack.optimizations.UnusedDefinitionRemover;
 import com.android.jack.optimizations.UseDefsChainsSimplifier;
 import com.android.jack.optimizations.common.DirectlyDerivedClassesProvider;
-import com.android.jack.optimizations.common.TypeToBeEmittedProvider;
 import com.android.jack.optimizations.modifiers.ClassFinalizer;
 import com.android.jack.optimizations.modifiers.FieldFinalizer;
 import com.android.jack.optimizations.modifiers.MethodFinalizer;
@@ -1385,28 +1384,12 @@ public abstract class Jack {
       methodPlan.append(LambdaConverter.class);
     }
 
-    boolean enableClassFinalizer = features.contains(Optimizations.ClassFinalizer.class);
-    boolean enableMethodFinalizer = features.contains(Optimizations.MethodFinalizer.class);
-    boolean enableFieldFinalizer = features.contains(Optimizations.FieldFinalizer.class);
-
-    boolean enableFieldValuePropagation =
-        features.contains(Optimizations.FieldValuePropagation.class);
-    boolean enableArgumentValuePropagation =
-        features.contains(Optimizations.ArgumentValuePropagation.class);
-
-    boolean needTypeToBeEmittedMarker =
-        enableClassFinalizer | enableMethodFinalizer | enableFieldFinalizer |
-            enableFieldValuePropagation | enableArgumentValuePropagation;
-
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       if (productions.contains(DependencyInLibraryProduct.class)) {
         typePlan.append(TypeDependenciesCollector.class);
         typePlan.append(FileDependenciesCollector.class);
-      }
-      if (needTypeToBeEmittedMarker) {
-        typePlan.append(TypeToBeEmittedProvider.class);
       }
     }
 
@@ -1426,6 +1409,9 @@ public abstract class Jack {
         methodPlan.append(AssertionRemover.class);
       }
     }
+
+    boolean enableClassFinalizer = features.contains(Optimizations.ClassFinalizer.class);
+    boolean enableMethodFinalizer = features.contains(Optimizations.MethodFinalizer.class);
 
     if (enableClassFinalizer || enableMethodFinalizer) {
       // Dependencies
@@ -1513,6 +1499,10 @@ public abstract class Jack {
     if (productions.contains(StructurePrinting.class)) {
       planBuilder.append(ShrinkStructurePrinter.class);
     }
+
+    boolean enableArgumentValuePropagation =
+        features.contains(Optimizations.ArgumentValuePropagation.class);
+
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
@@ -1535,7 +1525,7 @@ public abstract class Jack {
       typePlan.append(ClassAnnotationBuilder.class);
     }
 
-    if (enableFieldFinalizer) {
+    if (features.contains(Optimizations.FieldFinalizer.class)) {
       // Phase 1: field assignment information collection
       planBuilder
           .appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
@@ -1559,6 +1549,8 @@ public abstract class Jack {
           .append(FieldFinalizer.FinalizingPhase.class);
     }
 
+    boolean enableFieldValuePropagation =
+        features.contains(Optimizations.FieldValuePropagation.class);
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan5 =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
