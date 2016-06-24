@@ -17,11 +17,19 @@ package com.android.jack.ir.ast;
 
 import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.load.NopParameterLoader;
+import com.android.jack.load.ParameterLoader;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
+import com.android.sched.marker.Marker;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -30,15 +38,35 @@ import javax.annotation.Nonnull;
 @Description("Java method parameter definition")
 public class JParameter extends JVariable implements HasEnclosingMethod {
 
+  @Nonnull
   private final JMethod enclosingMethod;
 
-  public JParameter(SourceInfo info, String name, JType type, int modifier,
-      JMethod enclosingMethod) {
+  @Nonnull
+  private ParameterLoader loader;
+
+  public JParameter(
+      @Nonnull SourceInfo info,
+      @Nonnull String name,
+      @Nonnull JType type,
+      int modifier,
+      @Nonnull JMethod enclosingMethod) {
+    this(info, name, type, modifier, enclosingMethod, NopParameterLoader.INSTANCE);
+  }
+
+  public JParameter(
+      @Nonnull SourceInfo info,
+      @Nonnull String name,
+      @Nonnull JType type,
+      int modifier,
+      @Nonnull JMethod enclosingMethod,
+      @Nonnull ParameterLoader loader) {
     super(info, name, type, modifier);
     assert JModifier.isParameterModifier(modifier);
     this.enclosingMethod = enclosingMethod;
+    this.loader = loader;
   }
 
+  @Nonnull
   @Override
   public JMethod getEnclosingMethod() {
     return enclosingMethod;
@@ -47,6 +75,9 @@ public class JParameter extends JVariable implements HasEnclosingMethod {
   @Override
   public void traverse(@Nonnull JVisitor visitor) {
     if (visitor.visit(this)) {
+      if (visitor.needLoading()) {
+        loader.ensureAnnotations(this);
+      }
       visitor.accept(annotations);
     }
     visitor.endVisit(this);
@@ -67,6 +98,27 @@ public class JParameter extends JVariable implements HasEnclosingMethod {
   }
 
   @Override
+  @Nonnull
+  public List<JAnnotation> getAnnotations(@Nonnull JAnnotationType annotationType) {
+    loader.ensureAnnotation(this, annotationType);
+    return super.getAnnotations(annotationType);
+  }
+
+  @Override
+  @Nonnull
+  public Collection<JAnnotation> getAnnotations() {
+    loader.ensureAnnotations(this);
+    return super.getAnnotations();
+  }
+
+  @Override
+  @Nonnull
+  public Set<JAnnotationType> getAnnotationTypes() {
+    loader.ensureAnnotations(this);
+    return super.getAnnotationTypes();
+  }
+
+  @Override
   public void checkValidity() {
     if (!(parent instanceof JMethod)) {
       throw new JNodeInternalError(this, "Invalid parent");
@@ -76,10 +128,39 @@ public class JParameter extends JVariable implements HasEnclosingMethod {
     }
   }
 
-
   @Override
   @Nonnull
   public JParameterRef makeRef(@Nonnull SourceInfo info) {
     return new JParameterRef(info, this);
+  }
+
+  @Override
+  @CheckForNull
+  public <T extends Marker> T getMarker(@Nonnull Class<T> cls) {
+    loader.ensureMarker(this, cls);
+    return super.getMarker(cls);
+  }
+
+  @Override
+  @Nonnull
+  public Collection<Marker> getAllMarkers() {
+    loader.ensureMarkers(this);
+    return super.getAllMarkers();
+  }
+
+  @Override
+  public <T extends Marker> boolean containsMarker(@Nonnull Class<T> cls) {
+    loader.ensureMarker(this, cls);
+    return super.containsMarker(cls);
+  }
+
+  @Override
+  public <T extends Marker> T removeMarker(@Nonnull Class<T> cls) {
+    loader.ensureMarker(this, cls);
+    return super.removeMarker(cls);
+  }
+
+  public void removeLoader() {
+    loader = NopParameterLoader.INSTANCE;
   }
 }

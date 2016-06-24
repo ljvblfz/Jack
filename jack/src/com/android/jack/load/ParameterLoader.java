@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,30 +17,28 @@
 package com.android.jack.load;
 
 import com.android.jack.ir.ast.JAnnotationType;
-import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JParameter;
 import com.android.sched.marker.Marker;
 import com.android.sched.util.location.Location;
 
 import javax.annotation.Nonnull;
 
 /**
- * Loader for method.
+ * Loader for parameter.
  */
-public interface MethodLoader {
+public interface ParameterLoader {
 
-  public void ensureMarkers(@Nonnull JMethod loaded);
+  public void ensureMarkers(@Nonnull JParameter loaded);
 
-  public void ensureMarker(@Nonnull JMethod loaded,
+  public void ensureMarker(@Nonnull JParameter loaded,
       @Nonnull Class<? extends Marker> cls);
 
-  public void ensureAnnotations(@Nonnull JMethod loaded);
+  public void ensureAnnotations(@Nonnull JParameter loaded);
 
-  public void ensureAnnotation(@Nonnull JMethod loaded,
+  public void ensureAnnotation(@Nonnull JParameter loaded,
       @Nonnull JAnnotationType annotation);
 
-  public void ensureBody(@Nonnull JMethod loaded);
-
   @Nonnull
-  public Location getLocation(@Nonnull JMethod loaded);
+  public Location getLocation(@Nonnull JParameter loaded);
 
 }

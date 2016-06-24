@@ -18,9 +18,8 @@ package com.android.jack.jayce;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPackage;
-import com.android.jack.ir.ast.JTypeLookupException;
-import com.android.jack.lookup.JMethodLookupException;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -28,9 +27,15 @@ import javax.annotation.Nonnull;
  */
 public interface DeclaredTypeNode extends Node {
 
-  void updateToStructure(@Nonnull JDefinedClassOrInterface loaded,
-      @Nonnull JayceClassOrInterfaceLoader classOrInterfaceLoader) throws JTypeLookupException,
-      JMethodLookupException;
+  /**
+   * Loads super class, super interfaces, enclosing and inners, members and marker of the given
+   * {@link JDefinedClassOrInterface}.
+   */
+  void loadStructure(@Nonnull JDefinedClassOrInterface loaded,
+      @Nonnull JayceClassOrInterfaceLoader classOrInterfaceLoader);
+
+  void loadAnnotations(@Nonnull JDefinedClassOrInterface loaded,
+      @Nonnull JayceClassOrInterfaceLoader classOrInterfaceLoader);
 
   @Nonnull
   JDefinedClassOrInterface create(
@@ -40,7 +45,10 @@ public interface DeclaredTypeNode extends Node {
   String getSignature();
 
   @Nonnull
-  MethodNode getMethodNode(@Nonnull int methodNodeIndex);
+  FieldNode getFieldNode(@Nonnegative int fieldNodeIndex);
+
+  @Nonnull
+  MethodNode getMethodNode(@Nonnegative int methodNodeIndex);
 
   @Nonnull
   NodeLevel getLevel();

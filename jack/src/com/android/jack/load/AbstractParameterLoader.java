@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,43 +17,37 @@
 package com.android.jack.load;
 
 import com.android.jack.ir.ast.JAnnotationType;
-import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JParameter;
 import com.android.sched.marker.Marker;
 
 import javax.annotation.Nonnull;
 
 /**
- * Loader for method.
+ * Loader for parameter.
  */
-public abstract class AbstractMethodLoader implements MethodLoader {
+public abstract class AbstractParameterLoader implements ParameterLoader {
 
   @Override
-  public void ensureMarkers(@Nonnull JMethod loaded) {
+  public void ensureMarkers(@Nonnull JParameter loaded) {
     ensureAll(loaded);
   }
 
   @Override
-  public void ensureMarker(@Nonnull JMethod loaded,
+  public void ensureMarker(@Nonnull JParameter loaded,
       @Nonnull Class<? extends Marker> cls) {
     ensureMarkers(loaded);
   }
 
   @Override
-  public void ensureAnnotations(@Nonnull JMethod loaded) {
+  public void ensureAnnotations(@Nonnull JParameter loaded) {
     ensureAll(loaded);
   }
 
   @Override
-  public void ensureAnnotation(@Nonnull JMethod loaded,
+  public void ensureAnnotation(@Nonnull JParameter loaded,
       @Nonnull JAnnotationType annotation) {
     ensureAnnotations(loaded);
   }
 
-  @Override
-  public void ensureBody(@Nonnull JMethod loaded) {
-    ensureAll(loaded);
-  }
-
-
-  protected abstract void ensureAll(@Nonnull JMethod loaded);
+  protected abstract void ensureAll(@Nonnull JParameter loaded);
 }

@@ -48,12 +48,14 @@ public class JayceMethodLoader extends AbstractMethodLoader implements HasInputL
   private final JayceClassOrInterfaceLoader enclosingClassLoader;
 
   @Nonnull
-  private final SoftReference<MethodNode> nnode;
+  private SoftReference<MethodNode> nnode;
 
   @Nonnull
   private final int methodNodeIndex;
 
-  private boolean isLoaded = false;
+  private boolean isBodyLoaded = false;
+
+  private boolean isAnnotationsLoaded = false;
 
   public JayceMethodLoader(@Nonnull MethodNode nnode, int methodNodeIndex,
       @Nonnull JayceClassOrInterfaceLoader enclosingClassLoader) {
@@ -65,12 +67,12 @@ public class JayceMethodLoader extends AbstractMethodLoader implements HasInputL
   @Override
   public void ensureBody(@Nonnull JMethod loaded) {
     synchronized (this) {
-      if (isLoaded) {
+      if (isBodyLoaded) {
         return;
       }
       MethodNode methodNode;
       try {
-        methodNode = getNNode();
+        methodNode = getNNode(NodeLevel.FULL);
       } catch (LibraryException e) {
         throw new JackLoadingException(getLocation(loaded), e);
       }
@@ -83,24 +85,42 @@ public class JayceMethodLoader extends AbstractMethodLoader implements HasInputL
       if (body != null) {
         body.updateParents(loaded);
       }
-      isLoaded = true;
+      isBodyLoaded = true;
       enclosingClassLoader.tracer.getStatistic(BODY_LOAD_COUNT).incValue();
+      if (isAnnotationsLoaded) {
+        loaded.removeLoader();
+      }
     }
-    loaded.removeLoader();
-    enclosingClassLoader.notifyMethodLoaded(loaded.getEnclosingType());
   }
 
-  public void loadFully(@Nonnull JMethod loaded) {
-    ensureBody(loaded);
+  @Override
+  public void ensureAnnotations(@Nonnull JMethod loaded) {
+    synchronized (this) {
+      if (isAnnotationsLoaded) {
+        return;
+      }
+      MethodNode node;
+      try {
+        node = getNNode(NodeLevel.STRUCTURE);
+        node.loadAnnotations(loaded);
+      } catch (LibraryException e) {
+        throw new JackLoadingException(getLocation(loaded), e);
+      }
+      isAnnotationsLoaded = true;
+      if (isBodyLoaded) {
+        loaded.removeLoader();
+      }
+    }
   }
 
   @Nonnull
-  private MethodNode getNNode() throws LibraryFormatException,
+  MethodNode getNNode(@Nonnull NodeLevel minimumLevel) throws LibraryFormatException,
       LibraryIOException {
     MethodNode methodNode = nnode.get();
-    if (methodNode == null || methodNode.getLevel() != NodeLevel.FULL) {
-      DeclaredTypeNode declaredTypeNode = enclosingClassLoader.getNNode(NodeLevel.FULL);
+    if (methodNode == null || !methodNode.getLevel().keep(minimumLevel)) {
+      DeclaredTypeNode declaredTypeNode = enclosingClassLoader.getNNode(minimumLevel);
       methodNode = declaredTypeNode.getMethodNode(methodNodeIndex);
+      nnode = new SoftReference<MethodNode>(methodNode);
     }
     return methodNode;
   }
@@ -112,8 +132,14 @@ public class JayceMethodLoader extends AbstractMethodLoader implements HasInputL
   }
 
   @Override
+  public void ensureMarkers(@Nonnull JMethod loaded) {
+    // Nothing to do, markers are loaded at creation.
+  }
+
+  @Override
   protected void ensureAll(@Nonnull JMethod loaded) {
-    // nothing to do, only body is lazily loaded and ensureBody is handling that.
+    // ensureMarkers, ensureBody and ensureAnnotations are implemented, should never be called.
+    throw new UnsupportedOperationException();
   }
 
   @Override

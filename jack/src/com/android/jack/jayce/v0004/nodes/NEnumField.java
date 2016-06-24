@@ -20,6 +20,8 @@ import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedEnum;
 import com.android.jack.ir.ast.JEnumField;
 import com.android.jack.ir.ast.JTypeLookupException;
+import com.android.jack.jayce.JayceClassOrInterfaceLoader;
+import com.android.jack.jayce.JayceFieldLoader;
 import com.android.jack.jayce.v0004.io.ExportSession;
 import com.android.jack.jayce.v0004.io.ImportHelper;
 import com.android.jack.jayce.v0004.io.JayceInternalReaderImpl;
@@ -57,7 +59,8 @@ public class NEnumField extends NField {
 
   @Override
   @Nonnull
-  public JEnumField exportAsJast(@Nonnull ExportSession exportSession) throws JTypeLookupException,
+  public JEnumField exportAsJast(@Nonnull ExportSession exportSession,
+      @Nonnull JayceClassOrInterfaceLoader enclosingLoader) throws JTypeLookupException,
       JMethodLookupException {
     assert sourceInfo != null;
     assert name != null;
@@ -69,8 +72,11 @@ public class NEnumField extends NField {
         name,
         ordinal,
         enclosingType,
-        (JDefinedClass) exportSession.getLookup().getType(type));
+        (JDefinedClass) exportSession.getLookup().getType(type),
+        new JayceFieldLoader(this, fieldNodeIndex, enclosingLoader));
 
+    assert name != null;
+    assert type != null;
     exportSession.getFieldInitializerFieldResolver().addTarget(getResolverFieldId(name, type),
         jField);
 
@@ -78,9 +84,6 @@ public class NEnumField extends NField {
       jField.setInitialValue(initialValue.exportAsJast(exportSession));
     }
 
-    for (NAnnotation annotation : annotations) {
-      jField.addAnnotation(annotation.exportAsJast(exportSession));
-    }
     for (NMarker marker : markers) {
       jField.addMarker(marker.exportAsJast(exportSession));
     }

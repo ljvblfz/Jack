@@ -18,6 +18,7 @@ package com.android.jack.jayce.v0004.nodes;
 
 import com.android.jack.Jack;
 import com.android.jack.ir.ast.JAbstractMethodBody;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodId;
@@ -32,6 +33,7 @@ import com.android.jack.jayce.JayceClassOrInterfaceLoader;
 import com.android.jack.jayce.JayceMethodLoader;
 import com.android.jack.jayce.MethodNode;
 import com.android.jack.jayce.NodeLevel;
+import com.android.jack.jayce.ParameterNode;
 import com.android.jack.jayce.v0004.NNode;
 import com.android.jack.jayce.v0004.io.ExportSession;
 import com.android.jack.jayce.v0004.io.ImportHelper;
@@ -46,6 +48,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -130,20 +133,15 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
     assert enclosingType != null;
     JMethodIdWide id = new JMethodIdWide(name, methodKind);
     JType returnJType = exportSession.getLookup().getType(returnType);
+    JayceMethodLoader methodLoader = new JayceMethodLoader(this, methodNodeIndex, enclosingLoader);
     JMethod jMethod = new JMethod(
         info, new JMethodId(id, returnJType), enclosingType,
-        modifier, new JayceMethodLoader(this, methodNodeIndex, enclosingLoader));
+        modifier, methodLoader);
     exportSession.setCurrentMethod(jMethod);
     for (NParameter parameter : parameters) {
-      JParameter jParam = parameter.exportAsJast(exportSession);
+      JParameter jParam = parameter.exportAsJast(exportSession, methodLoader);
       jMethod.addParam(jParam);
       id.addParam(jParam.getType());
-    }
-    for (NAnnotation annotationLiteral : annotations) {
-      jMethod.addAnnotation(annotationLiteral.exportAsJast(exportSession));
-    }
-    if (body != null && exportSession.getNodeLevel() == NodeLevel.FULL) {
-      jMethod.setBody(body.exportAsJast(exportSession));
     }
     for (NMarker marker : markers) {
       jMethod.addMarker(marker.exportAsJast(exportSession));
@@ -171,26 +169,6 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
       JAbstractMethodBody jBody = body.exportAsJast(exportSession);
       method.setBody(jBody);
       clearBodyResolvers(exportSession);
-      return jBody;
-    }
-    return null;
-  }
-
-  @CheckForNull
-  public JAbstractMethodBody loadBody(@Nonnull JMethod method, @Nonnull ExportSession exportSession)
-      throws JTypeLookupException, JMethodLookupException {
-    if (body != null) {
-      exportSession.setCurrentMethod(method);
-      exportSession.setCurrentType(method.getEnclosingType());
-
-      Iterator<JParameter> iter = method.getParams().iterator();
-      for (NParameter parameter : parameters) {
-        assert parameter.id != null;
-        exportSession.getVariableResolver().addTarget(parameter.id, iter.next());
-      }
-
-      JAbstractMethodBody jBody = body.exportAsJast(exportSession);
-      method.setBody(jBody);
       return jBody;
     }
     return null;
@@ -250,5 +228,24 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
     exportSession.getCaseResolver().clear();
     exportSession.getCatchBlockResolver().clear();
     exportSession.getLabelResolver().clear();
+  }
+
+  @Override
+  public void loadAnnotations(@Nonnull JMethod loading) {
+    JSession session = Jack.getSession();
+    ExportSession exportSession = new ExportSession(session.getPhantomLookup(), session,
+        NodeLevel.STRUCTURE);
+    for (NAnnotation annotation : annotations) {
+      JAnnotation annote = annotation.exportAsJast(exportSession);
+      loading.addAnnotation(annote);
+      annote.updateParents(loading);
+    }
+  }
+
+  @Override
+  @Nonnull
+  public ParameterNode getParameterNode(@Nonnegative int parameterNodeIndex) {
+    assert parameters != null;
+    return parameters.get(parameterNodeIndex);
   }
 }

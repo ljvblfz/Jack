@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.jack.ir.ast;
+package com.android.jack.load;
 
-import com.android.jack.load.AbstractMethodLoader;
-import com.android.jack.load.MethodLoader;
+import com.android.jack.ir.ast.JMethod;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.NoLocation;
 

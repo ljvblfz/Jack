@@ -16,14 +16,20 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
+import com.android.jack.Jack;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JParameter;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JTypeLookupException;
+import com.android.jack.jayce.JayceMethodLoader;
+import com.android.jack.jayce.JayceParameterLoader;
+import com.android.jack.jayce.NodeLevel;
+import com.android.jack.jayce.ParameterNode;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
 import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
-import com.android.jack.lookup.JMethodLookupException;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -35,10 +41,12 @@ import javax.annotation.Nonnull;
 /**
  * Java method parameter definition.
  */
-public class NParameter extends NVariable {
+public class NParameter extends NVariable implements ParameterNode {
 
   @Nonnull
   public static final Token TOKEN = Token.PARAMETER;
+
+  protected static final int INDEX_UNKNOWN = -1;
 
   @CheckForNull
   public String id;
@@ -61,6 +69,8 @@ public class NParameter extends NVariable {
   @CheckForNull
   public NSourceInfo sourceInfo;
 
+  protected int parameterNodeIndex = INDEX_UNKNOWN;
+
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JParameter jParameter = (JParameter) node;
@@ -75,24 +85,28 @@ public class NParameter extends NVariable {
 
   @Override
   @Nonnull
-  public JParameter exportAsJast(@Nonnull ExportSession exportSession) throws JTypeLookupException,
-      JMethodLookupException {
+  public JParameter exportAsJast(@Nonnull ExportSession exportSession) throws JTypeLookupException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Nonnull
+  public JParameter exportAsJast(@Nonnull ExportSession exportSession,
+      @Nonnull JayceMethodLoader enclosingMethodLoader) throws JTypeLookupException {
     assert sourceInfo != null;
     assert type != null;
+    assert name != null;
     JParameter jParameter = new JParameter(
         sourceInfo.exportAsJast(exportSession),
         name,
         exportSession.getLookup().getType(type),
         modifiers,
-        exportSession.getCurrentMethod());
+        exportSession.getCurrentMethod(),
+        new JayceParameterLoader(this, parameterNodeIndex, enclosingMethodLoader));
 
     manageSynthetic(jParameter);
 
     assert id != null;
     exportSession.getParameterResolver().addTarget(id, jParameter);
-    for (NAnnotation annotation : annotations) {
-      jParameter.addAnnotation(annotation.exportAsJast(exportSession));
-    }
     for (NMarker marker : markers) {
       jParameter.addMarker(marker.exportAsJast(exportSession));
     }
@@ -118,7 +132,6 @@ public class NParameter extends NVariable {
     name = in.readId();
     annotations = in.readNodes(NAnnotation.class);
     markers = in.readNodes(NMarker.class);
-
   }
 
   @Override
@@ -138,4 +151,22 @@ public class NParameter extends NVariable {
   public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
     this.sourceInfo = sourceInfo;
   }
+
+  @Override
+  public void setIndex(int index) {
+    parameterNodeIndex = index;
+  }
+
+  @Override
+  public void loadAnnotations(@Nonnull JParameter loading) {
+    JSession session = Jack.getSession();
+    ExportSession exportSession = new ExportSession(session.getPhantomLookup(), session,
+        NodeLevel.STRUCTURE);
+    for (NAnnotation annotation : annotations) {
+      JAnnotation annote = annotation.exportAsJast(exportSession);
+      loading.addAnnotation(annote);
+      annote.updateParents(loading);
+    }
+  }
+
 }

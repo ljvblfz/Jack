@@ -23,7 +23,6 @@ import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JPackage;
-import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.JayceClassOrInterfaceLoader;
 import com.android.jack.jayce.NodeLevel;
@@ -32,7 +31,6 @@ import com.android.jack.jayce.v0004.io.ImportHelper;
 import com.android.jack.jayce.v0004.io.JayceInternalReaderImpl;
 import com.android.jack.jayce.v0004.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0004.io.Token;
-import com.android.jack.lookup.JMethodLookupException;
 import com.android.jack.util.NamingTools;
 
 import java.io.IOException;
@@ -63,12 +61,6 @@ public class NInterfaceType extends NDeclaredType {
 
   @Nonnull
   public List<String> inners = Collections.emptyList();
-
-  @Nonnull
-  public List<NField> fields = Collections.emptyList();
-
-  @Nonnull
-  public List<NAnnotation> annotations = Collections.emptyList();
 
   @Nonnull
   public List<NMarker> markers = Collections.emptyList();
@@ -110,9 +102,8 @@ public class NInterfaceType extends NDeclaredType {
   }
 
   @Override
-  public void updateToStructure(@Nonnull JDefinedClassOrInterface loading,
-      @Nonnull JayceClassOrInterfaceLoader loader) throws JTypeLookupException,
-      JMethodLookupException {
+  public void loadStructure(@Nonnull JDefinedClassOrInterface loading,
+      @Nonnull JayceClassOrInterfaceLoader loader) {
     assert sourceInfo != null;
     assert signature != null;
     JDefinedInterface jInterfaceType = (JDefinedInterface) loading;
@@ -133,16 +124,13 @@ public class NInterfaceType extends NDeclaredType {
           (JClassOrInterface) exportSession.getLookup().getType(memberType));
     }
     for (NField field : fields) {
-      JField jField = field.exportAsJast(exportSession);
+      JField jField = field.exportAsJast(exportSession, loader);
       jField.setEnclosingType(jInterfaceType);
       jInterfaceType.addField(jField);
     }
     for (NMethod method : methods) {
       JMethod jMethod = method.exportAsJast(exportSession, loader);
       jInterfaceType.addMethod(jMethod);
-    }
-    for (NAnnotation annotation : annotations) {
-      jInterfaceType.addAnnotation(annotation.exportAsJast(exportSession));
     }
     for (NMarker marker : markers) {
       jInterfaceType.addMarker(marker.exportAsJast(exportSession));
@@ -174,7 +162,7 @@ public class NInterfaceType extends NDeclaredType {
       inners = in.readIds();
       fields = in.readNodes(NField.class);
       methods = in.readNodes(NMethod.class);
-      assert areMethodIndicesValid();
+      assert areIndicesValid();
       annotations = in.readNodes(NAnnotation.class);
       markers = in.readNodes(NMarker.class);
     }
@@ -204,5 +192,4 @@ public class NInterfaceType extends NDeclaredType {
   public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
     this.sourceInfo = sourceInfo;
   }
-
 }

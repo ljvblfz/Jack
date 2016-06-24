@@ -25,7 +25,6 @@ import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JPackage;
-import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.JayceClassOrInterfaceLoader;
 import com.android.jack.jayce.NodeLevel;
@@ -76,12 +75,6 @@ public class NClassType extends NDeclaredType {
   public List<String> superInterfaces = Collections.emptyList();
 
   @Nonnull
-  public List<NField> fields = Collections.emptyList();
-
-  @Nonnull
-  public List<NAnnotation> annotations = Collections.emptyList();
-
-  @Nonnull
   public List<NMarker> markers = Collections.emptyList();
 
   @CheckForNull
@@ -125,9 +118,8 @@ public class NClassType extends NDeclaredType {
   }
 
   @Override
-  public void updateToStructure(@Nonnull JDefinedClassOrInterface loading,
-      @Nonnull JayceClassOrInterfaceLoader loader) throws JTypeLookupException,
-      JMethodLookupException {
+  public void loadStructure(@Nonnull JDefinedClassOrInterface loading,
+      @Nonnull JayceClassOrInterfaceLoader loader) {
     assert sourceInfo != null;
     assert signature != null;
     JDefinedClass jClassType = (JDefinedClass) loading;
@@ -165,16 +157,13 @@ public class NClassType extends NDeclaredType {
           (JClassOrInterface) exportSession.getLookup().getType(memberType));
     }
     for (NField field : fields) {
-      JField jField = field.exportAsJast(exportSession);
+      JField jField = field.exportAsJast(exportSession, loader);
       jField.setEnclosingType(jClassType);
       jClassType.addField(jField);
     }
     for (NMethod method : methods) {
       JMethod jMethod = method.exportAsJast(exportSession, loader);
       jClassType.addMethod(jMethod);
-    }
-    for (NAnnotation annotation : annotations) {
-      jClassType.addAnnotation(annotation.exportAsJast(exportSession));
     }
     for (NMarker marker : markers) {
       jClassType.addMarker(marker.exportAsJast(exportSession));
@@ -212,7 +201,7 @@ public class NClassType extends NDeclaredType {
       inners = in.readIds();
       fields = in.readNodes(NField.class);
       methods = in.readNodes(NMethod.class);
-      assert areMethodIndicesValid();
+      assert areIndicesValid();
       annotations = in.readNodes(NAnnotation.class);
       markers = in.readNodes(NMarker.class);
     }
