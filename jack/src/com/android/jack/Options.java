@@ -873,6 +873,7 @@ public class Options {
 
     GatherConfigBuilder configBuilder = new GatherConfigBuilder(sanityChecks,
         getPluginManager().getReflectionManager(ReflectionFactory.getManager()));
+    assert codecContext != null; // ensured by ensurePluginManager()
     configBuilder.setCodecContext(codecContext);
     String resourceName = "/config.properties";
 

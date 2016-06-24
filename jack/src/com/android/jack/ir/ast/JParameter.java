@@ -38,7 +38,7 @@ import javax.annotation.Nonnull;
 @Description("Java method parameter definition")
 public class JParameter extends JVariable implements HasEnclosingMethod {
 
-  @Nonnull
+  @CheckForNull
   private final JMethod enclosingMethod;
 
   @Nonnull
@@ -46,7 +46,7 @@ public class JParameter extends JVariable implements HasEnclosingMethod {
 
   public JParameter(
       @Nonnull SourceInfo info,
-      @Nonnull String name,
+      @CheckForNull String name,
       @Nonnull JType type,
       int modifier,
       @Nonnull JMethod enclosingMethod) {
@@ -55,7 +55,7 @@ public class JParameter extends JVariable implements HasEnclosingMethod {
 
   public JParameter(
       @Nonnull SourceInfo info,
-      @Nonnull String name,
+      @CheckForNull String name,
       @Nonnull JType type,
       int modifier,
       @Nonnull JMethod enclosingMethod,
@@ -66,9 +66,20 @@ public class JParameter extends JVariable implements HasEnclosingMethod {
     this.loader = loader;
   }
 
+  JParameter(
+      @Nonnull SourceInfo info,
+      @CheckForNull String name,
+      @Nonnull JType type,
+      int modifier) {
+    super(info, name, type, modifier);
+    enclosingMethod = null;
+    this.loader = NopParameterLoader.INSTANCE;
+  }
+
   @Nonnull
   @Override
   public JMethod getEnclosingMethod() {
+    assert enclosingMethod != null;
     return enclosingMethod;
   }
 

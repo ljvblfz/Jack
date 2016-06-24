@@ -172,7 +172,7 @@ class RopRegisterManager {
   /**
    * Get or create a {@link RegisterSpec} from a {@link JParameter}.
    *
-   * @param var The {@link JParameter} we want the {@link RegisterSpec} for.
+   * @param parameter The {@link JParameter} we want the {@link RegisterSpec} for.
    * @return The built {@link RegisterSpec}.
    */
   @Nonnull

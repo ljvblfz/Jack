@@ -36,7 +36,12 @@ import java.util.ServiceLoader;
  * This sample requires jack.jar on classpath.
  */
 public class WithServiceLoader {
-  public static void main(String[] args) throws SecurityException, IllegalArgumentException {
+  /**
+   * Main method.
+   * @param args arguments
+   * @throws SecurityException indicate a security violation.
+   */
+  public static void main(String[] args) throws SecurityException {
     if (args.length != 3) {
       System.out.println(
           "Usage: <jack-core-library> <source-files-directory> <output-dex-files-directory>");
