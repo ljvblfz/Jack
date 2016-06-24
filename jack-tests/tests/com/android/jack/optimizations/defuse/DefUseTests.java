@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.android.jack.optimizations.defuse.test001;
+package com.android.jack.optimizations.defuse;
 
 import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 
@@ -25,6 +26,7 @@ import org.junit.Test;
 public class DefUseTests {
 
   @Test
+  @Runtime
   public void test001() throws Exception {
     // Debug informations must be disabled to increase the number of synthetic variables and to
     // increase the variable reuse in order to raise the problem.

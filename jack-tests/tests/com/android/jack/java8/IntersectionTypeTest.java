@@ -21,6 +21,7 @@ import org.junit.Test;
 import com.android.jack.Options;
 import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackApiV01;
@@ -62,6 +63,7 @@ public class IntersectionTypeTest {
       "com.android.jack.java8.intersectiontype.test006.jack.Tests");
 
   @Test
+  @Runtime
   public void testIntersectionType001() throws Exception {
     new RuntimeTestHelper(INTERSECTION_TYPE_001)
     .setSourceLevel(SourceLevel.JAVA_8)
@@ -71,6 +73,7 @@ public class IntersectionTypeTest {
   }
 
   @Test
+  @Runtime
   public void testIntersectionType002() throws Exception {
     new RuntimeTestHelper(INTERSECTION_TYPE_002)
     .setSourceLevel(SourceLevel.JAVA_8)
@@ -80,6 +83,7 @@ public class IntersectionTypeTest {
   }
 
   @Test
+  @Runtime
   public void testIntersectionType003() throws Exception {
     new RuntimeTestHelper(INTERSECTION_TYPE_003)
     .setSourceLevel(SourceLevel.JAVA_8)
@@ -89,6 +93,7 @@ public class IntersectionTypeTest {
   }
 
   @Test
+  @Runtime
   public void testIntersectionType004() throws Exception {
     try {
       new RuntimeTestHelper(INTERSECTION_TYPE_004).setSourceLevel(SourceLevel.JAVA_8)
@@ -103,6 +108,7 @@ public class IntersectionTypeTest {
   }
 
   @Test
+  @Runtime
   public void testIntersectionType005() throws Exception {
     try {
       new RuntimeTestHelper(INTERSECTION_TYPE_005).setSourceLevel(SourceLevel.JAVA_8)
@@ -117,6 +123,7 @@ public class IntersectionTypeTest {
   }
 
   @Test
+  @Runtime
   public void testIntersectionType006() throws Exception {
     new RuntimeTestHelper(INTERSECTION_TYPE_006)
     .setSourceLevel(SourceLevel.JAVA_8)

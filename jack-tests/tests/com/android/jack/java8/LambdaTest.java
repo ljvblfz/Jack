@@ -20,6 +20,7 @@ import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
 import com.android.jack.test.helper.FileChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.junit.KnownIssue;
+import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
@@ -207,96 +208,115 @@ public class LambdaTest {
       "com.android.jack.java8.lambda.test038.jack.Tests");
 
   @Test
+  @Runtime
   public void testLamba001() throws Exception {
     run(LAMBDA001);
   }
 
   @Test
+  @Runtime
   public void testLamba002() throws Exception {
     run(LAMBDA002);
   }
 
   @Test
+  @Runtime
   public void testLamba003() throws Exception {
     run(LAMBDA003);
   }
 
   @Test
+  @Runtime
   public void testLamba004() throws Exception {
     run(LAMBDA004);
   }
 
   @Test
+  @Runtime
   public void testLamba005() throws Exception {
     run(LAMBDA005);
   }
 
   @Test
+  @Runtime
   public void testLamba006() throws Exception {
     run(LAMBDA006);
   }
 
   @Test
+  @Runtime
   public void testLamba007() throws Exception {
     run(LAMBDA007);
   }
 
   @Test
+  @Runtime
   public void testLamba008() throws Exception {
     run(LAMBDA008);
   }
 
   @Test
+  @Runtime
   public void testLamba009() throws Exception {
     run(LAMBDA009);
   }
 
   @Test
+  @Runtime
   public void testLamba010() throws Exception {
     run(LAMBDA010);
   }
 
   @Test
+  @Runtime
   public void testLamba011() throws Exception {
     run(LAMBDA011);
   }
 
   @Test
+  @Runtime
   public void testLamba012() throws Exception {
     run(LAMBDA012);
   }
 
   @Test
+  @Runtime
   public void testLamba013() throws Exception {
     run(LAMBDA013);
   }
 
   @Test
+  @Runtime
   public void testLamba014() throws Exception {
     run(LAMBDA014);
   }
 
   @Test
+  @Runtime
   public void testLamba015() throws Exception {
     run(LAMBDA015);
   }
 
   @Test
+  @Runtime
   public void testLamba016() throws Exception {
     run(LAMBDA016);
   }
 
   @Test
+  @Runtime
   public void testLamba017() throws Exception {
     run(LAMBDA017);
   }
 
   @Test
+  @Runtime
   public void testLamba018() throws Exception {
     run(LAMBDA018);
   }
 
   @Test
+  @Runtime
   public void testLamba019() throws Exception {
     new RuntimeTestHelper(LAMBDA019)
     .setSourceLevel(SourceLevel.JAVA_8)
@@ -308,37 +328,44 @@ public class LambdaTest {
   }
 
   @Test
+  @Runtime
   public void testLamba020() throws Exception {
     run(LAMBDA020);
   }
 
   @Test
+  @Runtime
   public void testLamba021() throws Exception {
     run(LAMBDA021);
   }
 
   @Test
+  @Runtime
   public void testLamba022() throws Exception {
     run(LAMBDA022);
   }
 
 
   @Test
+  @Runtime
   public void testLamba023() throws Exception {
     run(LAMBDA023);
   }
 
   @Test
+  @Runtime
   public void testLamba024() throws Exception {
     run(LAMBDA024);
   }
 
   @Test
+  @Runtime
   public void testLamba025() throws Exception {
     run(LAMBDA025);
   }
 
   @Test
+  @Runtime
   public void testLamba026() throws Exception {
     run(LAMBDA026);
   }
@@ -381,51 +408,61 @@ public class LambdaTest {
   }
 
   @Test
+  @Runtime
   public void testLamba027() throws Exception {
     run(LAMBDA027);
   }
 
   @Test
+  @Runtime
   public void testLamba028() throws Exception {
     run(LAMBDA028);
   }
 
   @Test
+  @Runtime
   public void testLamba029() throws Exception {
     run(LAMBDA029);
   }
 
   @Test
+  @Runtime
   public void testLamba030() throws Exception {
     run(LAMBDA030);
   }
 
   @Test
+  @Runtime
   public void testLamba031() throws Exception {
     run(LAMBDA031);
   }
 
   @Test
+  @Runtime
   public void testLamba032() throws Exception {
     run(LAMBDA032);
   }
 
   @Test
+  @Runtime
   public void testLamba033() throws Exception {
     run(LAMBDA033);
   }
 
   @Test
+  @Runtime
   public void testLamba034() throws Exception {
     run(LAMBDA034);
   }
 
   @Test
+  @Runtime
   public void testLamba035() throws Exception {
     run(LAMBDA035);
   }
 
   @Test
+  @Runtime
   public void testLamba036() throws Exception {
     run(LAMBDA036);
   }
@@ -547,6 +584,7 @@ public class LambdaTest {
   }
 
   @Test
+  @Runtime
   public void testLamba038() throws Exception {
     run(LAMBDA038);
   }

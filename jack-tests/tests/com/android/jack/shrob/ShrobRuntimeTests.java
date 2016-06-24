@@ -18,6 +18,7 @@ package com.android.jack.shrob;
 
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.junit.KnownIssue;
+import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -69,42 +70,49 @@ public class ShrobRuntimeTests extends RuntimeTest {
           .setLibDirName("lib");
 
   @Test
+  @Runtime
   public void test011_1() throws Exception {
     new RuntimeTestHelper(TEST011_1)
     .compileAndRunTest();
   }
 
   @Test
+  @Runtime
   public void test011_2() throws Exception {
     new RuntimeTestHelper(TEST011_2).addIgnoredCandidateToolchain(JillBasedToolchain.class)
      .compileAndRunTest();
   }
 
   @Test
+  @Runtime
   public void test016() throws Exception {
     new RuntimeTestHelper(TEST016)
     .compileAndRunTest();
   }
 
   @Test
+  @Runtime
   public void test025() throws Exception {
     new RuntimeTestHelper(TEST025)
     .compileAndRunTest();
   }
 
   @Test
+  @Runtime
   public void test030() throws Exception {
     new RuntimeTestHelper(TEST030)
     .compileAndRunTest();
   }
 
   @Test
+  @Runtime
   public void test046() throws Exception {
     new RuntimeTestHelper(TEST046)
     .compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @KnownIssue
   public void testAnnotatedMethod1() throws Exception {
     new RuntimeTestHelper(ANNOTATEDMETHOD1)
@@ -116,6 +124,7 @@ public class ShrobRuntimeTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   public void test048() throws Exception {
     new RuntimeTestHelper(TEST048)
     .compileAndRunTest();
