@@ -18,6 +18,7 @@ package com.android.jack.experimental.incremental;
 
 import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.test.helper.IncrementalTestHelper;
+import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.toolchain.AbstractTestTools;
 
 import junit.framework.Assert;
@@ -38,6 +39,7 @@ public class DependenciesTest006 {
    * Check that runtime is correct after class renaming.
    */
   @Test
+  @Runtime
   public void testDependency001() throws Exception {
     IncrementalTestHelper ite =
         new IncrementalTestHelper(AbstractTestTools.createTempDir());
