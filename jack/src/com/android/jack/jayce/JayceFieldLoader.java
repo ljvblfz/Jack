@@ -17,13 +17,15 @@
 package com.android.jack.jayce;
 
 import com.android.jack.LibraryException;
+import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.library.HasInputLibrary;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.library.LibraryFormatException;
 import com.android.jack.library.LibraryIOException;
-import com.android.jack.load.AbstractFieldLoader;
+import com.android.jack.load.FieldLoader;
 import com.android.jack.load.JackLoadingException;
+import com.android.sched.marker.Marker;
 import com.android.sched.util.location.Location;
 
 import java.lang.ref.SoftReference;
@@ -34,7 +36,7 @@ import javax.annotation.Nonnull;
 /**
  * A loader for method loaded from a jayce file.
  */
-public class JayceFieldLoader extends AbstractFieldLoader implements HasInputLibrary {
+public class JayceFieldLoader implements FieldLoader, HasInputLibrary {
 
   @Nonnull
   private final JayceClassOrInterfaceLoader enclosingClassLoader;
@@ -79,12 +81,6 @@ public class JayceFieldLoader extends AbstractFieldLoader implements HasInputLib
   }
 
   @Override
-  protected void ensureAll(@Nonnull JField loaded) {
-    // ensureMarkers and ensureAnnotations are implemented, should never be called.
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public void ensureAnnotations(@Nonnull JField loaded) {
     synchronized (this) {
       if (isAnnotationsLoaded) {
@@ -105,5 +101,15 @@ public class JayceFieldLoader extends AbstractFieldLoader implements HasInputLib
   @Nonnull
   public InputLibrary getInputLibrary() {
     return enclosingClassLoader.getInputLibrary();
+  }
+
+  @Override
+  public void ensureMarker(@Nonnull JField loaded, @Nonnull Class<? extends Marker> cls) {
+    ensureMarkers(loaded);
+  }
+
+  @Override
+  public void ensureAnnotation(@Nonnull JField loaded, @Nonnull JAnnotationType annotation) {
+    ensureAnnotations(loaded);
   }
 }

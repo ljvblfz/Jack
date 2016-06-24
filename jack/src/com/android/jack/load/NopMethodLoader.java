@@ -16,7 +16,9 @@
 
 package com.android.jack.load;
 
+import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JMethod;
+import com.android.sched.marker.Marker;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.NoLocation;
 
@@ -25,7 +27,7 @@ import javax.annotation.Nonnull;
 /**
  * A {@link MethodLoader} doing nothing.
  */
-public class NopMethodLoader extends AbstractMethodLoader {
+public class NopMethodLoader implements MethodLoader {
 
   @Nonnull
   public static final MethodLoader INSTANCE = new NopMethodLoader();
@@ -43,7 +45,28 @@ public class NopMethodLoader extends AbstractMethodLoader {
   }
 
   @Override
-  protected void ensureAll(@Nonnull JMethod loaded) {
+  public void ensureMarkers(@Nonnull JMethod loaded) {
     // Nothing to do
   }
+
+  @Override
+  public void ensureMarker(@Nonnull JMethod loaded, @Nonnull Class<? extends Marker> cls) {
+    // Nothing to do
+  }
+
+  @Override
+  public void ensureAnnotations(@Nonnull JMethod loaded) {
+    // Nothing to do
+  }
+
+  @Override
+  public void ensureAnnotation(@Nonnull JMethod loaded, @Nonnull JAnnotationType annotation) {
+    // Nothing to do
+  }
+
+  @Override
+  public void ensureBody(@Nonnull JMethod loaded) {
+    // Nothing to do
+ }
+
 }

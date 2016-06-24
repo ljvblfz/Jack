@@ -17,13 +17,15 @@
 package com.android.jack.jayce;
 
 import com.android.jack.LibraryException;
+import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.library.HasInputLibrary;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.library.LibraryFormatException;
 import com.android.jack.library.LibraryIOException;
-import com.android.jack.load.AbstractParameterLoader;
 import com.android.jack.load.JackLoadingException;
+import com.android.jack.load.ParameterLoader;
+import com.android.sched.marker.Marker;
 import com.android.sched.util.location.Location;
 
 import java.lang.ref.SoftReference;
@@ -34,7 +36,7 @@ import javax.annotation.Nonnull;
 /**
  * A loader for parameter loaded from a jayce file.
  */
-public class JayceParameterLoader extends AbstractParameterLoader implements HasInputLibrary {
+public class JayceParameterLoader implements ParameterLoader, HasInputLibrary {
 
   @Nonnull
   private final JayceMethodLoader enclosingMethodLoader;
@@ -74,12 +76,6 @@ public class JayceParameterLoader extends AbstractParameterLoader implements Has
   }
 
   @Override
-  protected void ensureAll(@Nonnull JParameter loaded) {
-    // ensureMarkers and ensureAnnotations are implemented, ensureAll, should never be called.
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public void ensureMarkers(@Nonnull JParameter loaded) {
     // Nothing to do, markers are loaded at creation.
   }
@@ -106,5 +102,15 @@ public class JayceParameterLoader extends AbstractParameterLoader implements Has
   @Nonnull
   public InputLibrary getInputLibrary() {
     return enclosingMethodLoader.getInputLibrary();
+  }
+
+  @Override
+  public void ensureMarker(@Nonnull JParameter loaded, @Nonnull Class<? extends Marker> cls) {
+    ensureMarkers(loaded);
+  }
+
+  @Override
+  public void ensureAnnotation(@Nonnull JParameter loaded, @Nonnull JAnnotationType annotation) {
+    ensureAnnotations(loaded);
   }
 }

@@ -16,16 +16,22 @@
 
 package com.android.jack.load;
 
+import com.android.jack.ir.ast.JAnnotationType;
+import com.android.jack.ir.ast.JDefinedAnnotationType;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
+import com.android.jack.ir.ast.JType;
+import com.android.sched.marker.Marker;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.NoLocation;
+
+import java.util.List;
 
 import javax.annotation.Nonnull;
 
 /**
  * A {@link ClassOrInterfaceLoader} doing nothing.
  */
-public class NopClassOrInterfaceLoader extends AbstractClassOrInterfaceLoader {
+public class NopClassOrInterfaceLoader implements ClassOrInterfaceLoader {
 
   @Nonnull
   private static final NoLocation NO_LOCATION = new NoLocation();
@@ -44,7 +50,76 @@ public class NopClassOrInterfaceLoader extends AbstractClassOrInterfaceLoader {
   }
 
   @Override
-  protected void ensureAll(@Nonnull JDefinedClassOrInterface loaded) {
+  public void ensureHierarchy(@Nonnull JDefinedClassOrInterface loaded) {
     // Nothing to do
   }
+
+  @Override
+  public void ensureMarkers(@Nonnull JDefinedClassOrInterface loaded) {
+    // Nothing to do
+  }
+
+  @Override
+  public void ensureMarker(@Nonnull JDefinedClassOrInterface loaded,
+      @Nonnull Class<? extends Marker> cls) {
+    // Nothing to do
+  }
+
+  @Override
+  public void ensureEnclosing(@Nonnull JDefinedClassOrInterface loaded) {
+    // Nothing to do
+  }
+
+  @Override
+  public void ensureInners(@Nonnull JDefinedClassOrInterface loaded) {
+    // Nothing to do
+  }
+
+  @Override
+  public void ensureAnnotations(@Nonnull JDefinedClassOrInterface loaded) {
+    // Nothing to do
+  }
+
+  @Override
+  public void ensureAnnotation(@Nonnull JDefinedClassOrInterface loaded,
+      @Nonnull JAnnotationType annotation) {
+    // Nothing to do
+  }
+
+  @Override
+  public void ensureMethods(@Nonnull JDefinedClassOrInterface loaded) {
+    // Nothing to do
+  }
+
+  @Override
+  public void ensureMethod(@Nonnull JDefinedClassOrInterface loaded, @Nonnull String name,
+      @Nonnull List<? extends JType> args, @Nonnull JType returnType) {
+    // Nothing to do
+  }
+
+  @Override
+  public void ensureFields(@Nonnull JDefinedClassOrInterface loaded) {
+    // Nothing to do
+  }
+
+  @Override
+  public void ensureFields(@Nonnull JDefinedClassOrInterface loaded, @Nonnull String fieldName) {
+    // Nothing to do
+  }
+
+  @Override
+  public void ensureModifier(@Nonnull JDefinedClassOrInterface loaded) {
+    // Nothing to do
+  }
+
+  @Override
+  public void ensureRetentionPolicy(@Nonnull JDefinedAnnotationType loaded) {
+    // Nothing to do
+  }
+
+  @Override
+  public void ensureSourceInfo(@Nonnull JDefinedClassOrInterface loaded) {
+    // Nothing to do
+  }
+
 }

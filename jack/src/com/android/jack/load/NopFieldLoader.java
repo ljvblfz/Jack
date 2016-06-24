@@ -16,7 +16,9 @@
 
 package com.android.jack.load;
 
+import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JField;
+import com.android.sched.marker.Marker;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.NoLocation;
 
@@ -25,7 +27,7 @@ import javax.annotation.Nonnull;
 /**
  * A {@link FieldLoader} doing nothing.
  */
-public class NopFieldLoader extends AbstractFieldLoader {
+public class NopFieldLoader implements FieldLoader {
 
   @Nonnull
   public static final FieldLoader INSTANCE = new NopFieldLoader();
@@ -43,7 +45,23 @@ public class NopFieldLoader extends AbstractFieldLoader {
   }
 
   @Override
-  protected void ensureAll(@Nonnull JField loaded) {
+  public void ensureMarkers(@Nonnull JField loaded) {
     // Nothing to do
   }
+
+  @Override
+  public void ensureMarker(@Nonnull JField loaded, @Nonnull Class<? extends Marker> cls) {
+    // Nothing to do
+  }
+
+  @Override
+  public void ensureAnnotations(@Nonnull JField loaded) {
+    // Nothing to do
+  }
+
+  @Override
+  public void ensureAnnotation(@Nonnull JField loaded, @Nonnull JAnnotationType annotation) {
+    // Nothing to do
+  }
+
 }

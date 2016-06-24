@@ -19,10 +19,12 @@ package com.android.jack.jayce;
 import com.android.jack.Jack;
 import com.android.jack.LibraryException;
 import com.android.jack.frontend.ParentSetter;
+import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JDefinedAnnotationType;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSession;
+import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.formatter.TypePackageAndMethodFormatter;
 import com.android.jack.library.HasInputLibrary;
 import com.android.jack.library.InputJackLibrary;
@@ -30,12 +32,12 @@ import com.android.jack.library.InputLibrary;
 import com.android.jack.library.LibraryFormatException;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.TypeInInputLibraryLocation;
-import com.android.jack.load.AbstractClassOrInterfaceLoader;
 import com.android.jack.load.ClassOrInterfaceLoader;
 import com.android.jack.load.JackLoadingException;
 import com.android.jack.lookup.JLookupException;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.util.NamingTools;
+import com.android.sched.marker.Marker;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
@@ -53,6 +55,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -62,8 +65,7 @@ import javax.annotation.Nonnull;
 /**
  * {@link ClassOrInterfaceLoader} for jayce files.
  */
-public class JayceClassOrInterfaceLoader extends AbstractClassOrInterfaceLoader implements
-    HasInputLibrary {
+public class JayceClassOrInterfaceLoader implements ClassOrInterfaceLoader, HasInputLibrary {
 
   @Nonnull
   private static final StatisticId<Counter> NNODE_MINI_LOAD = new StatisticId<
@@ -181,6 +183,64 @@ public class JayceClassOrInterfaceLoader extends AbstractClassOrInterfaceLoader 
     }
   }
 
+  @Override
+  public void ensureHierarchy(@Nonnull JDefinedClassOrInterface loaded) {
+    ensureStructure(loaded);
+  }
+
+  @Override
+  public void ensureMarkers(@Nonnull JDefinedClassOrInterface loaded) {
+    ensureStructure(loaded);
+  }
+
+  @Override
+  public void ensureMarker(@Nonnull JDefinedClassOrInterface loaded,
+      @Nonnull Class<? extends Marker> cls) {
+    ensureMarkers(loaded);
+  }
+
+  @Override
+  public void ensureEnclosing(@Nonnull JDefinedClassOrInterface loaded) {
+    ensureStructure(loaded);
+  }
+
+  @Override
+  public void ensureInners(@Nonnull JDefinedClassOrInterface loaded) {
+    ensureStructure(loaded);
+  }
+
+  @Override
+  public void ensureAnnotation(@Nonnull JDefinedClassOrInterface loaded,
+      @Nonnull JAnnotationType annotation) {
+    ensureAnnotations(loaded);
+  }
+
+  @Override
+  public void ensureMethods(@Nonnull JDefinedClassOrInterface loaded) {
+    ensureStructure(loaded);
+  }
+
+  @Override
+  public void ensureMethod(@Nonnull JDefinedClassOrInterface loaded, @Nonnull String name,
+      @Nonnull List<? extends JType> args, @Nonnull JType returnType) {
+    ensureMethods(loaded);
+  }
+
+  @Override
+  public void ensureFields(@Nonnull JDefinedClassOrInterface loaded) {
+    ensureStructure(loaded);
+  }
+
+  @Override
+  public void ensureFields(@Nonnull JDefinedClassOrInterface loaded, @Nonnull String fieldName) {
+    ensureFields(loaded);
+  }
+
+  @Override
+  public void ensureSourceInfo(@Nonnull JDefinedClassOrInterface loaded) {
+    ensureStructure(loaded);
+  }
+
   @Nonnull
   Location getLocation() {
     return location;
@@ -239,11 +299,6 @@ public class JayceClassOrInterfaceLoader extends AbstractClassOrInterfaceLoader 
       loadCount++;
     }
     return type;
-  }
-
-  @Override
-  protected void ensureAll(@Nonnull JDefinedClassOrInterface loaded) {
-    ensureStructure(loaded);
   }
 
   private void ensureStructure(@Nonnull JDefinedClassOrInterface loaded) {

@@ -16,7 +16,9 @@
 
 package com.android.jack.load;
 
+import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JParameter;
+import com.android.sched.marker.Marker;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.NoLocation;
 
@@ -25,7 +27,7 @@ import javax.annotation.Nonnull;
 /**
  * A {@link ParameterLoader} doing nothing.
  */
-public class NopParameterLoader extends AbstractParameterLoader {
+public class NopParameterLoader implements ParameterLoader {
 
   @Nonnull
   public static final ParameterLoader INSTANCE = new NopParameterLoader();
@@ -43,7 +45,23 @@ public class NopParameterLoader extends AbstractParameterLoader {
   }
 
   @Override
-  protected void ensureAll(@Nonnull JParameter loaded) {
+  public void ensureMarkers(@Nonnull JParameter loaded) {
     // Nothing to do
   }
+
+  @Override
+  public void ensureMarker(@Nonnull JParameter loaded, @Nonnull Class<? extends Marker> cls) {
+    // Nothing to do
+  }
+
+  @Override
+  public void ensureAnnotations(@Nonnull JParameter loaded) {
+    // Nothing to do
+  }
+
+  @Override
+  public void ensureAnnotation(@Nonnull JParameter loaded, @Nonnull JAnnotationType annotation) {
+    // Nothing to do
+  }
+
 }

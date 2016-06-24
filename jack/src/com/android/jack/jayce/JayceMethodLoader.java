@@ -17,15 +17,17 @@
 package com.android.jack.jayce;
 
 import com.android.jack.LibraryException;
+import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.library.HasInputLibrary;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.library.LibraryFormatException;
 import com.android.jack.library.LibraryIOException;
-import com.android.jack.load.AbstractMethodLoader;
 import com.android.jack.load.JackLoadingException;
+import com.android.jack.load.MethodLoader;
 import com.android.jack.lookup.JLookupException;
+import com.android.sched.marker.Marker;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.log.stats.Counter;
 import com.android.sched.util.log.stats.CounterImpl;
@@ -38,7 +40,7 @@ import javax.annotation.Nonnull;
 /**
  * A loader for method loaded from a jayce file.
  */
-public class JayceMethodLoader extends AbstractMethodLoader implements HasInputLibrary {
+public class JayceMethodLoader implements MethodLoader, HasInputLibrary {
   @Nonnull
   private static final StatisticId<Counter> BODY_LOAD_COUNT = new StatisticId<Counter>(
       "jayce.body.load", "Body loaded from a NNode in a JNode",
@@ -137,14 +139,18 @@ public class JayceMethodLoader extends AbstractMethodLoader implements HasInputL
   }
 
   @Override
-  protected void ensureAll(@Nonnull JMethod loaded) {
-    // ensureMarkers, ensureBody and ensureAnnotations are implemented, should never be called.
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   @Nonnull
   public InputLibrary getInputLibrary() {
     return enclosingClassLoader.getInputLibrary();
+  }
+
+  @Override
+  public void ensureMarker(@Nonnull JMethod loaded, @Nonnull Class<? extends Marker> cls) {
+    ensureMarkers(loaded);
+  }
+
+  @Override
+  public void ensureAnnotation(@Nonnull JMethod loaded, @Nonnull JAnnotationType annotation) {
+    ensureAnnotations(loaded);
   }
 }
