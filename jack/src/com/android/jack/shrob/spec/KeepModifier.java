@@ -16,6 +16,7 @@
 
 package com.android.jack.shrob.spec;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -29,6 +30,14 @@ public class KeepModifier {
   private static final int ALLOW_OBFUSCATION      = 0x0002;
 
   private int modifier = NONE;
+
+  public KeepModifier() {
+
+  }
+
+  private KeepModifier(@Nonnegative int modifier) {
+    this.modifier = modifier;
+  }
 
   public boolean allowShrinking() {
     return ((modifier & ALLOW_SHRINKING) == ALLOW_SHRINKING);
@@ -48,5 +57,11 @@ public class KeepModifier {
   public KeepModifier setAllowObfuscation() {
     modifier |= ALLOW_OBFUSCATION;
     return this;
+  }
+
+  @Nonnull
+  public static KeepModifier combineModifiers(
+      @Nonnull KeepModifier modifier1, @Nonnull KeepModifier modifier2) {
+    return new KeepModifier(modifier1.modifier & modifier2.modifier);
   }
 }

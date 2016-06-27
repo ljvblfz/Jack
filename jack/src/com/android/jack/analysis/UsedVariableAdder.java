@@ -102,8 +102,11 @@ public class UsedVariableAdder implements RunnableSchedulable<JMethod> {
       for (JStatement stmt : bb.getStatements()) {
         UsedVariableMarker readVarMarker = stmt.getMarker(UsedVariableMarker.class);
         if (readVarMarker == null) {
-          readVarMarker = new UsedVariableMarker();
-          stmt.addMarker(readVarMarker);
+          UsedVariableMarker newReadVarMarker = new UsedVariableMarker();
+          readVarMarker = stmt.addMarker(newReadVarMarker);
+          if (readVarMarker == null) {
+            readVarMarker = newReadVarMarker;
+          }
         }
         ComputeReadVariables cuv = new ComputeReadVariables(readVarMarker);
         cuv.accept(stmt);

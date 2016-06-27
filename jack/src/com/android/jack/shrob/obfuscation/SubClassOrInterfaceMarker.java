@@ -45,11 +45,11 @@ public class SubClassOrInterfaceMarker implements Marker, Iterable<JDefinedClass
   @Nonnull
   private final Set<JDefinedInterface> subInterfaces = new HashSet<JDefinedInterface>();
 
-  public void addSubClass(@Nonnull JDefinedClass subClass) {
+  public synchronized void addSubClass(@Nonnull JDefinedClass subClass) {
     subClasses.add(subClass);
   }
 
-  public void addSubInterface(@Nonnull JDefinedInterface subInterface) {
+  public synchronized void addSubInterface(@Nonnull JDefinedInterface subInterface) {
     subInterfaces.add(subInterface);
   }
 
