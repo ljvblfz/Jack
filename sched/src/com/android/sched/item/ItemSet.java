@@ -142,7 +142,7 @@ public class ItemSet<T extends Item> implements Cloneable, Iterable<Class<? exte
 
   @Override
   @SuppressWarnings("unchecked")
-  public boolean equals(@CheckForNull Object obj) {
+  public final boolean equals(@CheckForNull Object obj) {
     if (obj == this) {
       return true;
     }
@@ -150,13 +150,13 @@ public class ItemSet<T extends Item> implements Cloneable, Iterable<Class<? exte
     if (obj instanceof ItemSet<?>) {
       ItemSet<T> set = (ItemSet<T>) obj;
 
-      return equals(set.bitmap);
+      return bitmapEquals(set.bitmap);
     } else {
       return false;
     }
   }
 
-  private boolean equals(@Nonnull long[] bitmap) {
+  private boolean bitmapEquals(@Nonnull long[] bitmap) {
     assert this.bitmap.length == bitmap.length;
 
     for (int i = 0; i < this.bitmap.length; i++) {
@@ -169,7 +169,7 @@ public class ItemSet<T extends Item> implements Cloneable, Iterable<Class<? exte
   }
 
   @Override
-  public int hashCode() {
+  public final int hashCode() {
     int hashCode = 0;
 
     for (long element : this.bitmap) {
