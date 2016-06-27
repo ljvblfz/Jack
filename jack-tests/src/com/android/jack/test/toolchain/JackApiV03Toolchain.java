@@ -25,7 +25,6 @@ import com.android.jack.api.v01.ConfigurationException;
 import com.android.jack.api.v01.DebugInfoLevel;
 import com.android.jack.api.v01.ReporterKind;
 import com.android.jack.api.v01.VerbosityLevel;
-import com.android.jack.api.v02.Api02Config;
 import com.android.jack.api.v02.JavaSourceVersion;
 import com.android.jack.api.v03.Api03Config;
 import com.android.jack.test.TestConfigurationException;
