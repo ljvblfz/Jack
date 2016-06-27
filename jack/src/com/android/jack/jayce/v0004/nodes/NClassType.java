@@ -78,7 +78,19 @@ public class NClassType extends NDeclaredType {
   public List<NMarker> markers = Collections.emptyList();
 
   @CheckForNull
-  public NSourceInfo sourceInfo;
+  protected SourceInfo sourceInfo;
+
+  @Override
+  @Nonnull
+  public SourceInfo getSourceInfos() {
+    assert sourceInfo != null;
+    return sourceInfo;
+  }
+
+  @Override
+  public void setSourceInfos(@Nonnull SourceInfo sourceInfo) {
+    this.sourceInfo = sourceInfo;
+  }
 
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
@@ -95,7 +107,7 @@ public class NClassType extends NDeclaredType {
     methods = loader.load(NMethod.class, jClassType.getMethods());
     annotations = loader.load(NAnnotation.class, jClassType.getAnnotations());
     markers = loader.load(NMarker.class, jClassType.getAllMarkers());
-    sourceInfo = loader.load(jClassType.getSourceInfo());
+    sourceInfo = jClassType.getSourceInfo();
   }
 
   @Nonnull
@@ -126,7 +138,7 @@ public class NClassType extends NDeclaredType {
     ExportSession exportSession = new ExportSession(loader.getLookup(), Jack.getSession(),
         NodeLevel.STRUCTURE);
     exportSession.setCurrentType(jClassType);
-    loading.setSourceInfo(sourceInfo.exportAsJast(exportSession));
+    loading.setSourceInfo(sourceInfo);
     if (superClass != null) {
       jClassType.setSuperClass(exportSession.getLookup().getClass(superClass));
     }
@@ -219,17 +231,4 @@ public class NClassType extends NDeclaredType {
     assert signature != null;
     return signature;
   }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
-  }
-
 }

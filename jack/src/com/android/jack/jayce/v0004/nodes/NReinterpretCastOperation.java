@@ -20,7 +20,6 @@ import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JReinterpretCastOperation;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeLookupException;
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0004.io.ExportSession;
 import com.android.jack.jayce.v0004.io.ImportHelper;
 import com.android.jack.jayce.v0004.io.JayceInternalReaderImpl;
@@ -47,15 +46,12 @@ public class NReinterpretCastOperation extends NExpression {
   @CheckForNull
   public NExpression expr;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JReinterpretCastOperation jReinterpretCastOperation = (JReinterpretCastOperation) node;
     castType = ImportHelper.getSignatureName(jReinterpretCastOperation.getType());
     expr = (NExpression) loader.load(jReinterpretCastOperation.getExpr());
-    sourceInfo = loader.load(jReinterpretCastOperation.getSourceInfo());
+    sourceInfo = jReinterpretCastOperation.getSourceInfo();
   }
 
   @Override
@@ -67,9 +63,8 @@ public class NReinterpretCastOperation extends NExpression {
     assert expr != null;
     JType jType = exportSession.getLookup().getType(castType);
     JExpression jExpr = expr.exportAsJast(exportSession);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JReinterpretCastOperation jReinterpretCastOperation =
-        new JReinterpretCastOperation(jSourceInfo, jType, jExpr);
+        new JReinterpretCastOperation(sourceInfo, jType, jExpr);
     return jReinterpretCastOperation;
   }
 
@@ -90,17 +85,5 @@ public class NReinterpretCastOperation extends NExpression {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

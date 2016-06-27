@@ -20,7 +20,6 @@ import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JRetentionPolicy;
 import com.android.jack.ir.ast.JTypeLookupException;
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0004.io.ExportSession;
 import com.android.jack.jayce.v0004.io.ImportHelper;
 import com.android.jack.jayce.v0004.io.JayceInternalReaderImpl;
@@ -54,9 +53,6 @@ public class NAnnotation extends NLiteral {
   @Nonnull
   public List<NNameValuePair> elements = Collections.emptyList();
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Nonnull
   public List<NMarker> markers = Collections.emptyList();
 
@@ -66,7 +62,7 @@ public class NAnnotation extends NLiteral {
     retentionPolicy = jAnnotation.getRetentionPolicy();
     annotationType = ImportHelper.getSignatureName(jAnnotation.getType());
     elements = loader.load(NNameValuePair.class, jAnnotation.getNameValuePairs());
-    sourceInfo = loader.load(jAnnotation.getSourceInfo());
+    sourceInfo = jAnnotation.getSourceInfo();
     markers = loader.load(NMarker.class, jAnnotation.getAllMarkers());
   }
 
@@ -77,9 +73,8 @@ public class NAnnotation extends NLiteral {
     assert retentionPolicy != null;
     assert sourceInfo != null;
     assert annotationType != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JAnnotationType type = exportSession.getLookup().getAnnotationType(annotationType);
-    JAnnotation jAnnotation = new JAnnotation(jSourceInfo, retentionPolicy, type);
+    JAnnotation jAnnotation = new JAnnotation(sourceInfo, retentionPolicy, type);
     for (NNameValuePair valuePair : elements) {
       jAnnotation.put(valuePair.exportAsJast(exportSession, type));
     }
@@ -110,17 +105,5 @@ public class NAnnotation extends NLiteral {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

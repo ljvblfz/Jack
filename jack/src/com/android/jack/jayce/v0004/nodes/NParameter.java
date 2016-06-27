@@ -66,9 +66,6 @@ public class NParameter extends NVariable implements ParameterNode {
   @Nonnull
   public List<NMarker> markers = Collections.emptyList();
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   protected int parameterNodeIndex = INDEX_UNKNOWN;
 
   @Override
@@ -80,7 +77,7 @@ public class NParameter extends NVariable implements ParameterNode {
     name = jParameter.getName();
     annotations = loader.load(NAnnotation.class, jParameter.getAnnotations());
     markers = loader.load(NMarker.class, jParameter.getAllMarkers());
-    sourceInfo = loader.load(jParameter.getSourceInfo());
+    sourceInfo = jParameter.getSourceInfo();
   }
 
   @Override
@@ -96,7 +93,7 @@ public class NParameter extends NVariable implements ParameterNode {
     assert type != null;
     assert name != null;
     JParameter jParameter = new JParameter(
-        sourceInfo.exportAsJast(exportSession),
+        sourceInfo,
         name,
         exportSession.getLookup().getType(type),
         modifiers,
@@ -135,18 +132,6 @@ public class NParameter extends NVariable implements ParameterNode {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 
   @Override

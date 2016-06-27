@@ -64,7 +64,7 @@ public class NEnumType extends NClassType {
     methods = loader.load(NMethod.class, jEnumType.getMethods());
     annotations = loader.load(NAnnotation.class, jEnumType.getAnnotations());
     markers = loader.load(NMarker.class, jEnumType.getAllMarkers());
-    sourceInfo = loader.load(jEnumType.getSourceInfo());
+    sourceInfo = jEnumType.getSourceInfo();
   }
 
   @Nonnull
@@ -94,7 +94,7 @@ public class NEnumType extends NClassType {
     ExportSession exportSession = new ExportSession(loader.getLookup(), Jack.getSession(),
         NodeLevel.STRUCTURE);
     exportSession.setCurrentType(jEnumType);
-    loading.setSourceInfo(sourceInfo.exportAsJast(exportSession));
+    loading.setSourceInfo(sourceInfo);
 
     if (superClass != null) {
       jEnumType.setSuperClass(exportSession.getLookup().getClass(superClass));

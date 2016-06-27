@@ -56,9 +56,6 @@ public class NTryStatement extends NStatement {
   @CheckForNull
   public NBlock finallyBlock;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JTryStatement jTryStatement = (JTryStatement) node;
@@ -66,7 +63,7 @@ public class NTryStatement extends NStatement {
     tryBlock = (NBlock) loader.load(jTryStatement.getTryBlock());
     catchBlocks = loader.load(NCatchBlock.class, jTryStatement.getCatchBlocks());
     finallyBlock = (NBlock) loader.load(jTryStatement.getFinallyBlock());
-    sourceInfo = loader.load(jTryStatement.getSourceInfo());
+    sourceInfo = jTryStatement.getSourceInfo();
   }
 
   @Override
@@ -86,7 +83,7 @@ public class NTryStatement extends NStatement {
       jResourcesDeclaration.add(stmt.exportAsJast(exportSession));
     }
 
-    JTryStatement jTryStatement = new JTryStatement(sourceInfo.exportAsJast(exportSession),
+    JTryStatement jTryStatement = new JTryStatement(sourceInfo,
         jResourcesDeclaration,
         tryBlock.exportAsJast(exportSession),
         jCatchBlocks,
@@ -116,18 +113,6 @@ public class NTryStatement extends NStatement {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 
   @Override

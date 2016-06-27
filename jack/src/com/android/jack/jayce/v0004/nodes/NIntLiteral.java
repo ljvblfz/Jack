@@ -17,7 +17,6 @@
 package com.android.jack.jayce.v0004.nodes;
 
 import com.android.jack.ir.ast.JIntLiteral;
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0004.io.ExportSession;
 import com.android.jack.jayce.v0004.io.ImportHelper;
 import com.android.jack.jayce.v0004.io.JayceInternalReaderImpl;
@@ -26,7 +25,6 @@ import com.android.jack.jayce.v0004.io.Token;
 
 import java.io.IOException;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -39,22 +37,18 @@ public class NIntLiteral extends NLiteral {
 
   public int value;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JIntLiteral jIntLiteral = (JIntLiteral) node;
     value = jIntLiteral.getIntValue();
-    sourceInfo = loader.load(jIntLiteral.getSourceInfo());
+    sourceInfo = jIntLiteral.getSourceInfo();
   }
 
   @Override
   @Nonnull
   public JIntLiteral exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
-    JIntLiteral jIntLiteral = new JIntLiteral(jSourceInfo, value);
+    JIntLiteral jIntLiteral = new JIntLiteral(sourceInfo, value);
     return jIntLiteral;
   }
 
@@ -66,24 +60,12 @@ public class NIntLiteral extends NLiteral {
   @Override
   public void readContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
     value = in.readInt();
-    
+
   }
 
   @Override
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

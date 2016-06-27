@@ -19,7 +19,6 @@ package com.android.jack.jayce.v0004.nodes;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JMultiExpression;
 import com.android.jack.ir.ast.JTypeLookupException;
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0004.io.ExportSession;
 import com.android.jack.jayce.v0004.io.ImportHelper;
 import com.android.jack.jayce.v0004.io.JayceInternalReaderImpl;
@@ -32,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -46,14 +44,11 @@ public class NMultiExpression extends NExpression {
   @Nonnull
   public List<NExpression> exprs = Collections.emptyList();
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JMultiExpression jMultiExpression = (JMultiExpression) node;
     exprs = loader.load(NExpression.class, jMultiExpression.getExprs());
-    sourceInfo = loader.load(jMultiExpression.getSourceInfo());
+    sourceInfo = jMultiExpression.getSourceInfo();
   }
 
   @Override
@@ -61,12 +56,11 @@ public class NMultiExpression extends NExpression {
   public JMultiExpression exportAsJast(@Nonnull ExportSession exportSession)
       throws JMethodLookupException, JTypeLookupException {
     assert sourceInfo != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     List<JExpression> jExprs = new ArrayList<JExpression>(exprs.size());
     for (NExpression expr : exprs) {
       jExprs.add(expr.exportAsJast(exportSession));
     }
-    JMultiExpression jMultiExpression = new JMultiExpression(jSourceInfo, jExprs);
+    JMultiExpression jMultiExpression = new JMultiExpression(sourceInfo, jExprs);
     return jMultiExpression;
   }
 
@@ -85,17 +79,5 @@ public class NMultiExpression extends NExpression {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

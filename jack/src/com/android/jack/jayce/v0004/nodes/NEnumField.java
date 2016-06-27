@@ -54,7 +54,7 @@ public class NEnumField extends NField {
     ordinal = jEnumField.ordinal();
     annotations = loader.load(NAnnotation.class, jEnumField.getAnnotations());
     markers = loader.load(NMarker.class, jEnumField.getAllMarkers());
-    sourceInfo = loader.load(jEnumField.getSourceInfo());
+    sourceInfo = jEnumField.getSourceInfo();
   }
 
   @Override
@@ -68,7 +68,7 @@ public class NEnumField extends NField {
     JDefinedEnum enclosingType = (JDefinedEnum) exportSession.getCurrentType();
     assert enclosingType != null;
     JEnumField jField = new JEnumField(
-        sourceInfo.exportAsJast(exportSession),
+        sourceInfo,
         name,
         ordinal,
         enclosingType,

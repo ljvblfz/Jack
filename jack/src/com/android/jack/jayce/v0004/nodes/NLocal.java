@@ -57,10 +57,6 @@ public class NLocal extends NVariable {
   @Nonnull
   public List<NMarker> markers = Collections.emptyList();
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JLocal jLocal = (JLocal) node;
@@ -70,7 +66,7 @@ public class NLocal extends NVariable {
     name = jLocal.getName();
     annotationSet = loader.load(NAnnotation.class, jLocal.getAnnotations());
     markers = loader.load(NMarker.class, jLocal.getAllMarkers());
-    sourceInfo = loader.load(jLocal.getSourceInfo());
+    sourceInfo = jLocal.getSourceInfo();
   }
 
   @Override
@@ -81,7 +77,7 @@ public class NLocal extends NVariable {
     assert type != null;
     assert id != null;
     JLocal jLocal = new JLocal(
-        sourceInfo.exportAsJast(exportSession),
+        sourceInfo,
         name,
         exportSession.getLookup().getType(type),
         modifiers,
@@ -121,17 +117,5 @@ public class NLocal extends NVariable {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

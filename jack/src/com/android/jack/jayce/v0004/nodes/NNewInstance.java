@@ -21,7 +21,6 @@ import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JNewInstance;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.MethodKind;
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0004.io.ExportSession;
 import com.android.jack.jayce.v0004.io.ImportHelper;
 import com.android.jack.jayce.v0004.io.JayceInternalReaderImpl;
@@ -51,7 +50,7 @@ public class NNewInstance extends NMethodCall {
     receiverType = ImportHelper.getSignatureName(jNewInstance.getReceiverType());
     methodArgsType = ImportHelper.getMethodArgsSignature(jNewInstance.getMethodId());
     args = loader.load(NExpression.class, jNewInstance.getArgs());
-    sourceInfo = loader.load(jNewInstance.getSourceInfo());
+    sourceInfo = jNewInstance.getSourceInfo();
   }
 
   @Override
@@ -70,8 +69,7 @@ public class NNewInstance extends NMethodCall {
     JMethodIdWide methodId = jReceiverType.getOrCreateMethodIdWide(INIT_NAME,
         exportSession.getTypeListFromSignatureList(methodArgsType),
         MethodKind.INSTANCE_NON_VIRTUAL);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
-    JNewInstance jNewInstance = new JNewInstance(jSourceInfo, jReceiverType, methodId);
+    JNewInstance jNewInstance = new JNewInstance(sourceInfo, jReceiverType, methodId);
     for (NExpression arg : args) {
       jNewInstance.addArg(arg.exportAsJast(exportSession));
     }

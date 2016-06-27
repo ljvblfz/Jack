@@ -22,6 +22,7 @@ import com.android.jack.ir.ast.JMethodCall.DispatchKind;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JRetentionPolicy;
 import com.android.jack.ir.ast.MethodKind;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.JayceInternalWriter;
 import com.android.jack.jayce.v0004.NNode;
 import com.android.jack.jayce.v0004.NodeFactory;
@@ -30,7 +31,6 @@ import com.android.jack.jayce.v0004.nodes.HasCatchBlockIds;
 import com.android.jack.jayce.v0004.nodes.HasSourceInfo;
 import com.android.jack.jayce.v0004.nodes.NMethod;
 import com.android.jack.jayce.v0004.nodes.NMethodCall.ReceiverKind;
-import com.android.jack.jayce.v0004.nodes.NSourceInfo;
 import com.android.jack.jayce.v0004.util.DispatchKindIdHelper;
 import com.android.jack.jayce.v0004.util.FieldRefKindIdHelper;
 import com.android.jack.jayce.v0004.util.MethodKindIdHelper;
@@ -91,16 +91,16 @@ public class JayceInternalWriterImpl implements JayceInternalWriter {
 
   private void writeSourceInfoBegin(@Nonnull NNode node) throws IOException {
     if (node instanceof HasSourceInfo) {
-      NSourceInfo sourceInfo = ((HasSourceInfo) node).getSourceInfos();
-      writeFileNameIfDifferentFromCurrent(sourceInfo.fileName);
-      writeLineIfDifferentFromCurrent(sourceInfo.startLine);
+      SourceInfo sourceInfo = ((HasSourceInfo) node).getSourceInfos();
+      writeFileNameIfDifferentFromCurrent(sourceInfo.getFileName());
+      writeLineIfDifferentFromCurrent(sourceInfo.getStartLine());
     }
   }
 
   private void writeSourceInfoEnd(@Nonnull NNode node) throws IOException {
     if (node instanceof HasSourceInfo) {
       writeLineIfDifferentFromCurrent(
-          ((HasSourceInfo) node).getSourceInfos().endLine);
+          ((HasSourceInfo) node).getSourceInfos().getEndLine());
     }
   }
 

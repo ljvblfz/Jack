@@ -17,7 +17,6 @@
 package com.android.jack.jayce.v0004.nodes;
 
 import com.android.jack.ir.ast.JNativeMethodBody;
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0004.io.ExportSession;
 import com.android.jack.jayce.v0004.io.ImportHelper;
 import com.android.jack.jayce.v0004.io.JayceInternalReaderImpl;
@@ -26,7 +25,6 @@ import com.android.jack.jayce.v0004.io.Token;
 
 import java.io.IOException;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -37,21 +35,17 @@ public class NNativeMethodBody extends NAbstractMethodBody {
   @Nonnull
   public static final Token TOKEN = Token.NATIVE_METHOD_BODY;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JNativeMethodBody jNativeMethodBody = (JNativeMethodBody) node;
-    sourceInfo = loader.load(jNativeMethodBody.getSourceInfo());
+    sourceInfo = jNativeMethodBody.getSourceInfo();
   }
 
   @Override
   @Nonnull
   public JNativeMethodBody exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
-    JNativeMethodBody jNativeMethodBody = new JNativeMethodBody(jSourceInfo);
+    JNativeMethodBody jNativeMethodBody = new JNativeMethodBody(sourceInfo);
     return jNativeMethodBody;
   }
 
@@ -72,17 +66,4 @@ public class NNativeMethodBody extends NAbstractMethodBody {
   public Token getToken() {
     return TOKEN;
   }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
-  }
-
 }

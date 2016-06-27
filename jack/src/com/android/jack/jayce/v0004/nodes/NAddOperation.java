@@ -44,15 +44,12 @@ public class NAddOperation extends NExpression {
   @CheckForNull
   public NExpression rhs;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JAddOperation add = (JAddOperation) node;
     lhs = (NExpression) loader.load(add.getLhs());
     rhs = (NExpression) loader.load(add.getRhs());
-    sourceInfo = loader.load(add.getSourceInfo());
+    sourceInfo = add.getSourceInfo();
   }
 
   @Override
@@ -62,7 +59,7 @@ public class NAddOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JAddOperation(sourceInfo.exportAsJast(exportSession),
+    return new JAddOperation(sourceInfo,
         lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
   }
@@ -83,17 +80,5 @@ public class NAddOperation extends NExpression {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

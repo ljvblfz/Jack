@@ -44,15 +44,12 @@ public class NOrOperation extends NExpression {
   @CheckForNull
   public NExpression rhs;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JOrOperation or = (JOrOperation) node;
     lhs = (NExpression) loader.load(or.getLhs());
     rhs = (NExpression) loader.load(or.getRhs());
-    sourceInfo = loader.load(or.getSourceInfo());
+    sourceInfo = or.getSourceInfo();
   }
 
   @Override
@@ -62,8 +59,7 @@ public class NOrOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JOrOperation(sourceInfo.exportAsJast(exportSession),
-        lhs.exportAsJast(exportSession),
+    return new JOrOperation(sourceInfo, lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
   }
 
@@ -83,17 +79,5 @@ public class NOrOperation extends NExpression {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

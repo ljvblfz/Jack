@@ -22,6 +22,7 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JTypeLookupException;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.FieldNode;
 import com.android.jack.jayce.JayceClassOrInterfaceLoader;
 import com.android.jack.jayce.JayceFieldLoader;
@@ -69,7 +70,7 @@ public class NField extends NNode implements HasSourceInfo, FieldNode {
   public List<NMarker> markers = Collections.emptyList();
 
   @CheckForNull
-  public NSourceInfo sourceInfo;
+  public SourceInfo sourceInfo;
 
   protected int fieldNodeIndex = INDEX_UNKNOWN;
 
@@ -82,7 +83,7 @@ public class NField extends NNode implements HasSourceInfo, FieldNode {
     initialValue = (NLiteral) loader.load(jField.getInitialValue());
     annotations = loader.load(NAnnotation.class, jField.getAnnotations());
     markers = loader.load(NMarker.class, jField.getAllMarkers());
-    sourceInfo = loader.load(jField.getSourceInfo());
+    sourceInfo = jField.getSourceInfo();
   }
 
   @Override
@@ -102,7 +103,7 @@ public class NField extends NNode implements HasSourceInfo, FieldNode {
     JDefinedClassOrInterface enclosingType = exportSession.getCurrentType();
     assert enclosingType != null;
     JField jField = new JField(
-        sourceInfo.exportAsJast(exportSession),
+        sourceInfo,
         name,
         enclosingType,
         exportSession.getLookup().getType(type),
@@ -151,13 +152,13 @@ public class NField extends NNode implements HasSourceInfo, FieldNode {
 
   @Override
   @Nonnull
-  public NSourceInfo getSourceInfos() {
+  public SourceInfo getSourceInfos() {
     assert sourceInfo != null;
     return sourceInfo;
   }
 
   @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
+  public void setSourceInfos(@Nonnull SourceInfo sourceInfo) {
     this.sourceInfo = sourceInfo;
   }
 

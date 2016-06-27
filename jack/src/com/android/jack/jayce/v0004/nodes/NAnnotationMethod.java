@@ -62,7 +62,7 @@ public class NAnnotationMethod extends NMethod {
     annotations = loader.load(NAnnotation.class, jAnnotationMethod.getAnnotations());
     defaultValue = (NLiteral) loader.load(jAnnotationMethod.getDefaultValue());
     markers = loader.load(NMarker.class, jAnnotationMethod.getAllMarkers());
-    sourceInfo = loader.load(jAnnotationMethod.getSourceInfo());
+    sourceInfo = jAnnotationMethod.getSourceInfo();
   }
 
   @Override
@@ -81,7 +81,7 @@ public class NAnnotationMethod extends NMethod {
     assert sourceInfo != null;
     assert body == null;
     assert methodNodeIndex != INDEX_UNKNOWN;
-    SourceInfo info = sourceInfo.exportAsJast(exportSession);
+    SourceInfo info = sourceInfo;
     JDefinedClassOrInterface enclosingType = exportSession.getCurrentType();
     assert enclosingType != null;
     JType returnJType = exportSession.getLookup().getType(returnType);

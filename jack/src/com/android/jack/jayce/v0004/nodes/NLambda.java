@@ -26,7 +26,6 @@ import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JMethodIdRef;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.MethodKind;
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0004.io.ExportSession;
 import com.android.jack.jayce.v0004.io.ImportHelper;
 import com.android.jack.jayce.v0004.io.JayceInternalReaderImpl;
@@ -69,9 +68,6 @@ public class NLambda extends NExpression {
   @CheckForNull
   private String typeSig;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Nonnull
   private List<String> boundsIds = Collections.emptyList();
 
@@ -109,7 +105,7 @@ public class NLambda extends NExpression {
     receiverKind = methodIdRef.getEnclosingType() instanceof JClass ? ReceiverKind.CLASS
         : ReceiverKind.INTERFACE;
     typeSig = ImportHelper.getSignatureName(lambda.getType());
-    sourceInfo = loader.load(lambda.getSourceInfo());
+    sourceInfo = lambda.getSourceInfo();
     boundsIds = ImportHelper.getSignatureNameList(lambda.getInterfaceBounds());
     mthIdWithErasure = (NMethodId) loader.load(lambda.getMethodIdWithErasure());
     mthIdWithoutErasure = (NMethodId) loader.load(lambda.getMethodIdWithoutErasure());
@@ -161,9 +157,8 @@ public class NLambda extends NExpression {
     JMethodId jmthIdToEnforce =
         (JMethodId) mthIdWithoutErasure.exportAsJast(exportSession);
 
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
-    JLambda lambda = new JLambda(jSourceInfo, mthIdToImplements,
-        new JMethodIdRef(jSourceInfo, (JDefinedClassOrInterface) jEnclosingType, methodId),
+    JLambda lambda = new JLambda(sourceInfo, mthIdToImplements,
+        new JMethodIdRef(sourceInfo, (JDefinedClassOrInterface) jEnclosingType, methodId),
         lambdaType, jBounds, jmthIdToEnforce);
 
     for (NMethodId bridge : bridges) {
@@ -222,18 +217,6 @@ public class NLambda extends NExpression {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
   }
 }
 

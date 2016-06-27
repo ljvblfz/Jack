@@ -19,7 +19,6 @@ package com.android.jack.jayce.v0004.nodes;
 import com.android.jack.ir.ast.JAlloc;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JTypeLookupException;
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0004.io.ExportSession;
 import com.android.jack.jayce.v0004.io.ImportHelper;
 import com.android.jack.jayce.v0004.io.JayceInternalReaderImpl;
@@ -41,14 +40,11 @@ public class NAlloc extends NExpression {
   @CheckForNull
   public String instanceType;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JAlloc alloc = (JAlloc) node;
     instanceType = ImportHelper.getSignatureName(alloc.getInstanceType());
-    sourceInfo = loader.load(alloc.getSourceInfo());
+    sourceInfo = alloc.getSourceInfo();
   }
 
   @Override
@@ -57,8 +53,7 @@ public class NAlloc extends NExpression {
     assert sourceInfo != null;
     assert instanceType != null;
     JClass jType = exportSession.getLookup().getClass(instanceType);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
-    JAlloc jAlloc = new JAlloc(jSourceInfo, jType);
+    JAlloc jAlloc = new JAlloc(sourceInfo, jType);
     return jAlloc;
   }
 
@@ -76,17 +71,5 @@ public class NAlloc extends NExpression {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

@@ -51,16 +51,13 @@ public class NWhileStatement extends NStatement {
   @Nonnull
   public List<String> catchBlockIds = Collections.emptyList();
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JWhileStatement jWhileStatement = (JWhileStatement) node;
     testExpression = (NExpression) loader.load(jWhileStatement.getTestExpr());
     body = (NStatement) loader.load(jWhileStatement.getBody());
     catchBlockIds = loader.getIds(loader.getCatchBlockSymbols(), jWhileStatement.getJCatchBlocks());
-    sourceInfo = loader.load(jWhileStatement.getSourceInfo());
+    sourceInfo = jWhileStatement.getSourceInfo();
   }
 
   @Override
@@ -71,7 +68,7 @@ public class NWhileStatement extends NStatement {
     assert sourceInfo != null;
     JStatement jBody = body != null ? body.exportAsJast(exportSession) : null;
     JWhileStatement jWhileStatement = new JWhileStatement(
-        sourceInfo.exportAsJast(exportSession), testExpression.exportAsJast(exportSession), jBody);
+        sourceInfo, testExpression.exportAsJast(exportSession), jBody);
     for (String catchId : catchBlockIds) {
       exportSession.getCatchBlockResolver().addLink(catchId, new CatchBlockLinker(jWhileStatement));
     }
@@ -94,18 +91,6 @@ public class NWhileStatement extends NStatement {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 
   @Override

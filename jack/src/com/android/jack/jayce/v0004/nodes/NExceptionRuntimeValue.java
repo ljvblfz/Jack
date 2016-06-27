@@ -40,14 +40,11 @@ public class NExceptionRuntimeValue extends NExpression {
   @CheckForNull
   public String catchedType;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JExceptionRuntimeValue jExceptionRuntime = (JExceptionRuntimeValue) node;
     catchedType = ImportHelper.getSignatureName(jExceptionRuntime.getType());
-    sourceInfo = loader.load(jExceptionRuntime.getSourceInfo());
+    sourceInfo = jExceptionRuntime.getSourceInfo();
   }
 
   @Override
@@ -56,8 +53,7 @@ public class NExceptionRuntimeValue extends NExpression {
       throws JTypeLookupException {
     assert sourceInfo != null;
     assert catchedType != null;
-    return new JExceptionRuntimeValue(
-        sourceInfo.exportAsJast(exportSession),
+    return new JExceptionRuntimeValue(sourceInfo,
         (JClassOrInterface) exportSession.getLookup().getType(catchedType));
   }
 
@@ -76,17 +72,4 @@ public class NExceptionRuntimeValue extends NExpression {
   public Token getToken() {
     return TOKEN;
   }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
-  }
-
 }

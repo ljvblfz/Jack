@@ -17,7 +17,6 @@
 package com.android.jack.jayce.v0004.nodes;
 
 import com.android.jack.ir.ast.JNullLiteral;
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0004.io.ExportSession;
 import com.android.jack.jayce.v0004.io.ImportHelper;
 import com.android.jack.jayce.v0004.io.JayceInternalReaderImpl;
@@ -26,7 +25,6 @@ import com.android.jack.jayce.v0004.io.Token;
 
 import java.io.IOException;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -37,21 +35,17 @@ public class NNullLiteral extends NLiteral {
   @Nonnull
   public static final Token TOKEN = Token.NULL_LITERAL;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JNullLiteral jNullLiteral = (JNullLiteral) node;
-    sourceInfo = loader.load(jNullLiteral.getSourceInfo());
+    sourceInfo = jNullLiteral.getSourceInfo();
   }
 
   @Override
   @Nonnull
   public JNullLiteral exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
-    JNullLiteral jNullLiteral = new JNullLiteral(jSourceInfo);
+    JNullLiteral jNullLiteral = new JNullLiteral(sourceInfo);
     return jNullLiteral;
   }
 
@@ -69,17 +63,5 @@ public class NNullLiteral extends NLiteral {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

@@ -53,9 +53,6 @@ public class NCatchBlock extends NStatement {
   @Nonnull
   public List<String> catchBlockIds = Collections.emptyList();
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Nonnull
   public List<String> catchTypes = Collections.emptyList();
 
@@ -71,7 +68,7 @@ public class NCatchBlock extends NStatement {
     catchVar = (NLocal) loader.load(catchBlock.getCatchVar());
     statements = loader.load(NStatement.class, catchBlock.getStatements());
     catchBlockIds = loader.getIds(loader.getCatchBlockSymbols(), catchBlock.getJCatchBlocks());
-    sourceInfo = loader.load(catchBlock.getSourceInfo());
+    sourceInfo = catchBlock.getSourceInfo();
   }
 
   @Override
@@ -86,8 +83,7 @@ public class NCatchBlock extends NStatement {
 
     assert catchVar != null;
     JLocal jCatchVar = catchVar.exportAsJast(exportSession);
-    final JCatchBlock jCatchBlock =
-        new JCatchBlock(sourceInfo.exportAsJast(exportSession), jCatchTypes, jCatchVar);
+    final JCatchBlock jCatchBlock = new JCatchBlock(sourceInfo, jCatchTypes, jCatchVar);
 
     for (NStatement nStatement : statements) {
       jCatchBlock.addStmt(nStatement.exportAsJast(exportSession));
@@ -122,18 +118,6 @@ public class NCatchBlock extends NStatement {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 
   @Override

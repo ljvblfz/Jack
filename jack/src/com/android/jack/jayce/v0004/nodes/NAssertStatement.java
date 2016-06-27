@@ -51,9 +51,6 @@ public class NAssertStatement extends NStatement {
   @Nonnull
   public List<String> catchBlockIds = Collections.emptyList();
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JAssertStatement jAssertStatement = (JAssertStatement) node;
@@ -61,7 +58,7 @@ public class NAssertStatement extends NStatement {
     arg = (NExpression) loader.load(jAssertStatement.getArg());
     catchBlockIds = loader.getIds(loader.getCatchBlockSymbols(),
         jAssertStatement.getJCatchBlocks());
-    sourceInfo = loader.load(jAssertStatement.getSourceInfo());
+    sourceInfo = jAssertStatement.getSourceInfo();
   }
 
   @Override
@@ -74,8 +71,8 @@ public class NAssertStatement extends NStatement {
     if (arg != null) {
       jArg = arg.exportAsJast(exportSession);
     }
-    JAssertStatement jAssertStatement = new JAssertStatement(
-        sourceInfo.exportAsJast(exportSession), testExpression.exportAsJast(exportSession), jArg);
+    JAssertStatement jAssertStatement =
+        new JAssertStatement(sourceInfo, testExpression.exportAsJast(exportSession), jArg);
     for (String catchId : catchBlockIds) {
       exportSession.getCatchBlockResolver().addLink(catchId,
           new CatchBlockLinker(jAssertStatement));
@@ -99,18 +96,6 @@ public class NAssertStatement extends NStatement {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 
   @Override

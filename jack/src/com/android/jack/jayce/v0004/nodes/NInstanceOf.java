@@ -20,7 +20,6 @@ import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JInstanceOf;
 import com.android.jack.ir.ast.JReferenceType;
 import com.android.jack.ir.ast.JTypeLookupException;
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0004.io.ExportSession;
 import com.android.jack.jayce.v0004.io.ImportHelper;
 import com.android.jack.jayce.v0004.io.JayceInternalReaderImpl;
@@ -46,15 +45,12 @@ public class NInstanceOf extends NExpression {
   @CheckForNull
   public String testType;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JInstanceOf jInstanceOf = (JInstanceOf) node;
     expr = (NExpression) loader.load(jInstanceOf.getExpr());
     testType = ImportHelper.getSignatureName(jInstanceOf.getTestType());
-    sourceInfo = loader.load(jInstanceOf.getSourceInfo());
+    sourceInfo = jInstanceOf.getSourceInfo();
   }
 
   @Override
@@ -66,8 +62,7 @@ public class NInstanceOf extends NExpression {
     assert testType != null;
     JExpression jExpr = expr.exportAsJast(exportSession);
     JReferenceType jType = (JReferenceType) exportSession.getLookup().getType(testType);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
-    JInstanceOf jInstanceOf = new JInstanceOf(jSourceInfo, jType, jExpr);
+    JInstanceOf jInstanceOf = new JInstanceOf(sourceInfo, jType, jExpr);
     return jInstanceOf;
   }
 
@@ -88,17 +83,5 @@ public class NInstanceOf extends NExpression {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

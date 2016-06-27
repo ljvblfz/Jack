@@ -51,9 +51,6 @@ public class NCaseStatement extends NStatement {
   @Nonnull
   public List<String> catchBlockIds = Collections.emptyList();
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JCaseStatement caseStatement = (JCaseStatement) node;
@@ -61,7 +58,7 @@ public class NCaseStatement extends NStatement {
     id = loader.getCaseSymbols().getId(caseStatement);
     expr = (NLiteral) loader.load(caseStatement.getExpr());
     catchBlockIds = loader.getIds(loader.getCatchBlockSymbols(), caseStatement.getJCatchBlocks());
-    sourceInfo = loader.load(caseStatement.getSourceInfo());
+    sourceInfo = caseStatement.getSourceInfo();
   }
 
   @Override
@@ -71,7 +68,7 @@ public class NCaseStatement extends NStatement {
     assert sourceInfo != null;
     assert id != null;
     JLiteral jExpr = expr != null ? expr.exportAsJast(exportSession) : null;
-    JCaseStatement jCase = new JCaseStatement(sourceInfo.exportAsJast(exportSession), jExpr);
+    JCaseStatement jCase = new JCaseStatement(sourceInfo, jExpr);
     exportSession.getCaseResolver().addTarget(id, jCase);
     for (String catchId : catchBlockIds) {
       exportSession.getCatchBlockResolver().addLink(catchId, new CatchBlockLinker(jCase));
@@ -95,18 +92,6 @@ public class NCaseStatement extends NStatement {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 
   @Override

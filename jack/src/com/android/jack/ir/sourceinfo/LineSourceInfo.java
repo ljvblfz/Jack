@@ -24,14 +24,14 @@ import javax.annotation.Nonnull;
 /**
  * Describes where a SourceInfo's node came from.
  */
-class LineSourceInfo extends SourceInfo {
+public class LineSourceInfo extends SourceInfo {
 
   @Nonnull
   private final FileSourceInfo fileSourceInfo;
   @Nonnegative
   private final int startLine;
   @Nonnegative
-  private final int endLine;
+  private int endLine;
 
   LineSourceInfo(
       @Nonnull FileSourceInfo location, @Nonnegative int startLine, @Nonnegative int endLine) {
@@ -66,6 +66,11 @@ class LineSourceInfo extends SourceInfo {
   @Nonnegative
   public int getEndLine() {
     return endLine;
+  }
+
+  @Nonnegative
+  public void setEndLine(@Nonnegative int endLine) {
+    this.endLine = endLine;
   }
 
   @Override

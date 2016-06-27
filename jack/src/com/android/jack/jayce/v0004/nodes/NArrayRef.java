@@ -19,7 +19,6 @@ package com.android.jack.jayce.v0004.nodes;
 import com.android.jack.ir.ast.JArrayRef;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JTypeLookupException;
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0004.io.ExportSession;
 import com.android.jack.jayce.v0004.io.ImportHelper;
 import com.android.jack.jayce.v0004.io.JayceInternalReaderImpl;
@@ -46,15 +45,12 @@ public class NArrayRef extends NExpression {
   @CheckForNull
   public NExpression index;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JArrayRef jArrayRef = (JArrayRef) node;
     instance = (NExpression) loader.load(jArrayRef.getInstance());
     index = (NExpression) loader.load(jArrayRef.getIndexExpr());
-    sourceInfo = loader.load(jArrayRef.getSourceInfo());
+    sourceInfo = jArrayRef.getSourceInfo();
   }
 
   @Override
@@ -64,10 +60,9 @@ public class NArrayRef extends NExpression {
     assert sourceInfo != null;
     assert instance != null;
     assert index != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JExpression jInstance = instance.exportAsJast(exportSession);
     JExpression jIndex = index.exportAsJast(exportSession);
-    JArrayRef jArrayRef = new JArrayRef(jSourceInfo, jInstance, jIndex);
+    JArrayRef jArrayRef = new JArrayRef(sourceInfo, jInstance, jIndex);
     return jArrayRef;
   }
 
@@ -87,17 +82,5 @@ public class NArrayRef extends NExpression {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

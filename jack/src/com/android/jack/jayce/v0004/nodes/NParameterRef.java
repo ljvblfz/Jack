@@ -41,14 +41,11 @@ public class NParameterRef extends NExpression {
   @CheckForNull
   public String localId;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JParameterRef jRef = (JParameterRef) node;
     localId = loader.getVariableSymbols().getId(jRef.getParameter());
-    sourceInfo = loader.load(jRef.getSourceInfo());
+    sourceInfo = jRef.getSourceInfo();
   }
 
   @Override
@@ -56,8 +53,7 @@ public class NParameterRef extends NExpression {
   public JParameterRef exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
     assert localId != null;
-    JParameterRef jRef =
-        JParameterUnresolved.INSTANCE.makeRef(sourceInfo.exportAsJast(exportSession));
+    JParameterRef jRef = JParameterUnresolved.INSTANCE.makeRef(sourceInfo);
     exportSession.getVariableResolver().addLink(localId, new VariableRefLinker(jRef));
     return jRef;
   }
@@ -76,17 +72,5 @@ public class NParameterRef extends NExpression {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

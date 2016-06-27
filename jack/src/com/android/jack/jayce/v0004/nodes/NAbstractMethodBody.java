@@ -18,10 +18,12 @@ package com.android.jack.jayce.v0004.nodes;
 
 import com.android.jack.ir.ast.JAbstractMethodBody;
 import com.android.jack.ir.ast.JTypeLookupException;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0004.NNode;
 import com.android.jack.jayce.v0004.io.ExportSession;
 import com.android.jack.lookup.JMethodLookupException;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -29,6 +31,21 @@ import javax.annotation.Nonnull;
  */
 public abstract class NAbstractMethodBody extends NNode
                                           implements HasSourceInfo {
+
+  @CheckForNull
+  protected SourceInfo sourceInfo;
+
+  @Override
+  @Nonnull
+  public SourceInfo getSourceInfos() {
+    assert sourceInfo != null;
+    return sourceInfo;
+  }
+
+  @Override
+  public void setSourceInfos(@Nonnull SourceInfo sourceInfo) {
+    this.sourceInfo = sourceInfo;
+  }
 
   @Override
   @Nonnull

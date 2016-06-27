@@ -20,7 +20,6 @@ import com.android.jack.ir.ast.JDynamicCastOperation;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeLookupException;
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0004.io.ExportSession;
 import com.android.jack.jayce.v0004.io.ImportHelper;
 import com.android.jack.jayce.v0004.io.JayceInternalReaderImpl;
@@ -49,15 +48,12 @@ public class NDynamicCastOperation extends NExpression {
   @CheckForNull
   public NExpression expr;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JDynamicCastOperation jMultiCastOperation = (JDynamicCastOperation) node;
     castTypes = ImportHelper.getSignatureNameList(jMultiCastOperation.getTypes());
     expr = (NExpression) loader.load(jMultiCastOperation.getExpr());
-    sourceInfo = loader.load(jMultiCastOperation.getSourceInfo());
+    sourceInfo = jMultiCastOperation.getSourceInfo();
   }
 
   @Override
@@ -72,8 +68,7 @@ public class NDynamicCastOperation extends NExpression {
       jTypes.add(exportSession.getLookup().getType(types));
     }
     JExpression jExpr = expr.exportAsJast(exportSession);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
-    JDynamicCastOperation castOperation = new JDynamicCastOperation(jSourceInfo, jExpr, jTypes);
+    JDynamicCastOperation castOperation = new JDynamicCastOperation(sourceInfo, jExpr, jTypes);
     return castOperation;
   }
 
@@ -94,17 +89,5 @@ public class NDynamicCastOperation extends NExpression {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

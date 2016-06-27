@@ -41,14 +41,11 @@ public class NPrefixIncOperation extends NExpression {
   @CheckForNull
   public NExpression arg;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JPrefixIncOperation prefixInc = (JPrefixIncOperation) node;
     arg = (NExpression) loader.load(prefixInc.getArg());
-    sourceInfo = loader.load(prefixInc.getSourceInfo());
+    sourceInfo = prefixInc.getSourceInfo();
   }
 
   @Override
@@ -57,8 +54,7 @@ public class NPrefixIncOperation extends NExpression {
       throws JMethodLookupException, JTypeLookupException {
     assert sourceInfo != null;
     assert arg != null;
-    return new JPrefixIncOperation(sourceInfo.exportAsJast(exportSession),
-        arg.exportAsJast(exportSession));
+    return new JPrefixIncOperation(sourceInfo, arg.exportAsJast(exportSession));
   }
 
   @Override
@@ -76,17 +72,5 @@ public class NPrefixIncOperation extends NExpression {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

@@ -25,7 +25,6 @@ import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.MethodKind;
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0004.io.ExportSession;
 import com.android.jack.jayce.v0004.io.ImportHelper;
 import com.android.jack.jayce.v0004.io.JayceInternalReaderImpl;
@@ -82,9 +81,6 @@ public class NMethodCall extends NExpression {
   @CheckForNull
   public JMethodCall.DispatchKind dispatchKind;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JMethodCall jMethodCall = (JMethodCall) node;
@@ -97,7 +93,7 @@ public class NMethodCall extends NExpression {
     returnType = ImportHelper.getSignatureName(jMethodCall.getType());
     args = loader.load(NExpression.class, jMethodCall.getArgs());
     dispatchKind = jMethodCall.getDispatchKind();
-    sourceInfo = loader.load(jMethodCall.getSourceInfo());
+    sourceInfo = jMethodCall.getSourceInfo();
   }
 
   private ReceiverKind getReceiverKind(JMethodCall jMethodCall) {
@@ -127,8 +123,7 @@ public class NMethodCall extends NExpression {
     JMethodIdWide methodId = jReceiverType.getOrCreateMethodIdWide(methodName,
         exportSession.getTypeListFromSignatureList(methodArgsType), methodKind);
     JType jReturnType = exportSession.getLookup().getType(returnType);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
-    JMethodCall jMethodCall = new JMethodCall(jSourceInfo, jInstance, jReceiverType, methodId,
+    JMethodCall jMethodCall = new JMethodCall(sourceInfo, jInstance, jReceiverType, methodId,
         jReturnType, dispatchKind == DispatchKind.VIRTUAL /* isVirtualDispatch */);
     for (NExpression arg : args) {
       jMethodCall.addArg(arg.exportAsJast(exportSession));
@@ -173,17 +168,5 @@ public class NMethodCall extends NExpression {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

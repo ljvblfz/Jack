@@ -25,11 +25,9 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVariable;
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.linker.SymbolManager;
 import com.android.jack.jayce.v0004.NNode;
 import com.android.jack.jayce.v0004.NodeFactory;
-import com.android.jack.jayce.v0004.nodes.NSourceInfo;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.SerializableMarker;
 
@@ -109,19 +107,6 @@ public class ImportHelper {
       assert jElement instanceof Marker && !(jElement instanceof SerializableMarker);
     }
     return node;
-  }
-
-  @CheckForNull
-  public NSourceInfo load(@CheckForNull SourceInfo sourceInfo) {
-    if (sourceInfo == null) {
-      return null;
-    }
-    if (sourceInfo == SourceInfo.UNKNOWN) {
-      return NSourceInfo.UNKNOWN;
-    }
-    NSourceInfo nSourceInfo = new NSourceInfo();
-    nSourceInfo.importFromJast(sourceInfo);
-    return nSourceInfo;
   }
 
   @Nonnull

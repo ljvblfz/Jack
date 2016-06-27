@@ -53,7 +53,7 @@ public class NNameValuePair extends NNode implements HasSourceInfo {
   public NLiteral value;
 
   @CheckForNull
-  public NSourceInfo sourceInfo;
+  public SourceInfo sourceInfo;
 
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
@@ -61,7 +61,7 @@ public class NNameValuePair extends NNode implements HasSourceInfo {
     name = jNameValuePair.getName();
     value = (NLiteral) loader.load(jNameValuePair.getValue());
     assert value != null;
-    sourceInfo = loader.load(jNameValuePair.getSourceInfo());
+    sourceInfo = jNameValuePair.getSourceInfo();
   }
 
   @Override
@@ -79,10 +79,9 @@ public class NNameValuePair extends NNode implements HasSourceInfo {
     assert value != null;
     assert name != null;
     JLiteral jValue = value.exportAsJast(exportSession);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JMethodIdWide methodId = receiver.getOrCreateMethodIdWide(name, Collections.<JType>emptyList(),
         MethodKind.INSTANCE_VIRTUAL);
-    JNameValuePair jNameValuePair = new JNameValuePair(jSourceInfo, methodId, jValue);
+    JNameValuePair jNameValuePair = new JNameValuePair(sourceInfo, methodId, jValue);
     return jNameValuePair;
   }
 
@@ -107,13 +106,13 @@ public class NNameValuePair extends NNode implements HasSourceInfo {
 
   @Override
   @Nonnull
-  public NSourceInfo getSourceInfos() {
+  public SourceInfo getSourceInfos() {
     assert sourceInfo != null;
     return sourceInfo;
   }
 
   @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
+  public void setSourceInfos(@Nonnull SourceInfo sourceInfo) {
     this.sourceInfo = sourceInfo;
   }
 }

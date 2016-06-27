@@ -48,16 +48,13 @@ public class NReturnStatement extends NStatement {
   @Nonnull
   public List<String> catchBlockIds = Collections.emptyList();
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JReturnStatement jStatement = (JReturnStatement) node;
     expr = (NExpression) loader.load(jStatement.getExpr());
-    catchBlockIds =
-        loader.getIds(loader.getCatchBlockSymbols(), jStatement.getJCatchBlocks());
-    sourceInfo = loader.load(jStatement.getSourceInfo());  }
+    catchBlockIds = loader.getIds(loader.getCatchBlockSymbols(), jStatement.getJCatchBlocks());
+    sourceInfo = jStatement.getSourceInfo();
+  }
 
   @Override
   @Nonnull
@@ -65,8 +62,7 @@ public class NReturnStatement extends NStatement {
       throws JMethodLookupException, JTypeLookupException {
     assert sourceInfo != null;
     JExpression jExpr = expr != null ? expr.exportAsJast(exportSession) : null;
-    JReturnStatement statement =
-        new JReturnStatement(sourceInfo.exportAsJast(exportSession), jExpr);
+    JReturnStatement statement = new JReturnStatement(sourceInfo, jExpr);
     for (String catchId : catchBlockIds) {
       exportSession.getCatchBlockResolver().addLink(catchId, new CatchBlockLinker(statement));
     }
@@ -87,18 +83,6 @@ public class NReturnStatement extends NStatement {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 
   @Override

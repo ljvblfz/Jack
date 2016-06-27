@@ -19,7 +19,6 @@ package com.android.jack.jayce.v0004.nodes;
 import com.android.jack.ir.ast.JArrayLength;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JTypeLookupException;
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0004.io.ExportSession;
 import com.android.jack.jayce.v0004.io.ImportHelper;
 import com.android.jack.jayce.v0004.io.JayceInternalReaderImpl;
@@ -43,14 +42,11 @@ public class NArrayLength extends NExpression {
   @CheckForNull
   public NExpression instance;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JArrayLength jArrayLength = (JArrayLength) node;
     instance = (NExpression) loader.load(jArrayLength.getInstance());
-    sourceInfo = loader.load(jArrayLength.getSourceInfo());
+    sourceInfo = jArrayLength.getSourceInfo();
   }
 
   @Override
@@ -60,8 +56,7 @@ public class NArrayLength extends NExpression {
     assert sourceInfo != null;
     assert instance != null;
     JExpression jInstance = instance.exportAsJast(exportSession);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
-    JArrayLength jArrayLength = new JArrayLength(jSourceInfo, jInstance);
+    JArrayLength jArrayLength = new JArrayLength(sourceInfo, jInstance);
     return jArrayLength;
   }
 
@@ -79,17 +74,5 @@ public class NArrayLength extends NExpression {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

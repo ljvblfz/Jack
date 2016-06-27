@@ -44,15 +44,12 @@ public class NShruOperation extends NExpression {
   @CheckForNull
   public NExpression rhs;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JShruOperation operation = (JShruOperation) node;
     lhs = (NExpression) loader.load(operation.getLhs());
     rhs = (NExpression) loader.load(operation.getRhs());
-    sourceInfo = loader.load(operation.getSourceInfo());
+    sourceInfo = operation.getSourceInfo();
   }
 
   @Override
@@ -62,8 +59,7 @@ public class NShruOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JShruOperation(sourceInfo.exportAsJast(exportSession),
-        lhs.exportAsJast(exportSession),
+    return new JShruOperation(sourceInfo, lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
   }
 
@@ -83,17 +79,5 @@ public class NShruOperation extends NExpression {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

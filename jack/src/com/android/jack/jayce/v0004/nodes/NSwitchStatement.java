@@ -56,9 +56,6 @@ public class NSwitchStatement extends NStatement {
   @Nonnull
   public List<String> catchBlockIds = Collections.emptyList();
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JSwitchStatement switchStatement = (JSwitchStatement) node;
@@ -72,7 +69,7 @@ public class NSwitchStatement extends NStatement {
     cases = loader.getIds(loader.getCaseSymbols(), fullCaseList);
     body = (NBlock) loader.load(switchStatement.getBody());
     catchBlockIds = loader.getIds(loader.getCatchBlockSymbols(), switchStatement.getJCatchBlocks());
-    sourceInfo = loader.load(switchStatement.getSourceInfo());
+    sourceInfo = switchStatement.getSourceInfo();
   }
 
   @Override
@@ -82,7 +79,7 @@ public class NSwitchStatement extends NStatement {
     assert sourceInfo != null;
     assert expr != null;
     assert body != null;
-    final JSwitchStatement jSwitch = new JSwitchStatement(sourceInfo.exportAsJast(exportSession),
+    final JSwitchStatement jSwitch = new JSwitchStatement(sourceInfo,
         expr.exportAsJast(exportSession),
         body.exportAsJast(exportSession),
         new ArrayList<JCaseStatement>(1),
@@ -115,18 +112,6 @@ public class NSwitchStatement extends NStatement {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 
   @Override

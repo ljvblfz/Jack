@@ -44,15 +44,12 @@ public class NBitXorOperation extends NExpression {
   @CheckForNull
   public NExpression rhs;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JBitXorOperation bitXor = (JBitXorOperation) node;
     lhs = (NExpression) loader.load(bitXor.getLhs());
     rhs = (NExpression) loader.load(bitXor.getRhs());
-    sourceInfo = loader.load(bitXor.getSourceInfo());
+    sourceInfo = bitXor.getSourceInfo();
   }
 
   @Override
@@ -62,8 +59,7 @@ public class NBitXorOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JBitXorOperation(sourceInfo.exportAsJast(exportSession),
-        lhs.exportAsJast(exportSession),
+    return new JBitXorOperation(sourceInfo, lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
   }
 
@@ -83,17 +79,5 @@ public class NBitXorOperation extends NExpression {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

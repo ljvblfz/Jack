@@ -18,7 +18,6 @@ package com.android.jack.jayce.v0004.nodes;
 
 import com.android.jack.ir.ast.JDoubleLiteral;
 import com.android.jack.ir.ast.JLiteral;
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0004.io.ExportSession;
 import com.android.jack.jayce.v0004.io.ImportHelper;
 import com.android.jack.jayce.v0004.io.JayceInternalReaderImpl;
@@ -27,7 +26,6 @@ import com.android.jack.jayce.v0004.io.Token;
 
 import java.io.IOException;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -40,22 +38,18 @@ public class NDoubleLiteral extends NLiteral {
 
   public double value;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JDoubleLiteral jDoubleLiteral = (JDoubleLiteral) node;
     value = jDoubleLiteral.getValue();
-    sourceInfo = loader.load(jDoubleLiteral.getSourceInfo());
+    sourceInfo = jDoubleLiteral.getSourceInfo();
   }
 
   @Override
   @Nonnull
   public JLiteral exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
-    JDoubleLiteral jDoubleLiteral = new JDoubleLiteral(jSourceInfo, value);
+    JDoubleLiteral jDoubleLiteral = new JDoubleLiteral(sourceInfo, value);
     return jDoubleLiteral;
   }
 
@@ -67,24 +61,12 @@ public class NDoubleLiteral extends NLiteral {
   @Override
   public void readContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
     value = in.readDouble();
-    
+
   }
 
   @Override
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

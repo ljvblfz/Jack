@@ -19,7 +19,6 @@ package com.android.jack.jayce.v0004.nodes;
 import com.android.jack.ir.ast.JConditionalExpression;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JTypeLookupException;
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0004.io.ExportSession;
 import com.android.jack.jayce.v0004.io.ImportHelper;
 import com.android.jack.jayce.v0004.io.JayceInternalReaderImpl;
@@ -49,16 +48,13 @@ public class NConditionalExpression extends NExpression {
   @CheckForNull
   public NExpression elseExpr;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JConditionalExpression jConditionalExpression = (JConditionalExpression) node;
     ifTest = (NExpression) loader.load(jConditionalExpression.getIfTest());
     thenExpr = (NExpression) loader.load(jConditionalExpression.getThenExpr());
     elseExpr = (NExpression) loader.load(jConditionalExpression.getElseExpr());
-    sourceInfo = loader.load(jConditionalExpression.getSourceInfo());
+    sourceInfo = jConditionalExpression.getSourceInfo();
   }
 
   @Override
@@ -72,9 +68,8 @@ public class NConditionalExpression extends NExpression {
     JExpression jIf = ifTest.exportAsJast(exportSession);
     JExpression jThen = thenExpr.exportAsJast(exportSession);
     JExpression jElse = elseExpr.exportAsJast(exportSession);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JConditionalExpression jConditionalExpression =
-        new JConditionalExpression(jSourceInfo, jIf, jThen, jElse);
+        new JConditionalExpression(sourceInfo, jIf, jThen, jElse);
     return jConditionalExpression;
   }
 
@@ -98,17 +93,4 @@ public class NConditionalExpression extends NExpression {
   public Token getToken() {
     return TOKEN;
   }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
-  }
-
 }

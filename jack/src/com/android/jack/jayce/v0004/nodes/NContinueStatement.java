@@ -18,7 +18,6 @@ package com.android.jack.jayce.v0004.nodes;
 
 import com.android.jack.ir.ast.JContinueStatement;
 import com.android.jack.ir.ast.JLabel;
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.linker.CatchBlockLinker;
 import com.android.jack.jayce.v0004.io.ExportSession;
 import com.android.jack.jayce.v0004.io.ImportHelper;
@@ -46,25 +45,21 @@ public class NContinueStatement extends NStatement {
   @Nonnull
   public List<String> catchBlockIds = Collections.emptyList();
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JContinueStatement jContinueStatement = (JContinueStatement) node;
     label = ImportHelper.getLabelName(jContinueStatement.getLabel());
     catchBlockIds =
         loader.getIds(loader.getCatchBlockSymbols(), jContinueStatement.getJCatchBlocks());
-    sourceInfo = loader.load(jContinueStatement.getSourceInfo());
+    sourceInfo = jContinueStatement.getSourceInfo();
   }
 
   @Override
   @Nonnull
   public JContinueStatement exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
-    JLabel jLabel = (label == null) ? null : new JLabel(jSourceInfo, label);
-    JContinueStatement jContinueStatement = new JContinueStatement(jSourceInfo, jLabel);
+    JLabel jLabel = (label == null) ? null : new JLabel(sourceInfo, label);
+    JContinueStatement jContinueStatement = new JContinueStatement(sourceInfo, jLabel);
     for (String catchId : catchBlockIds) {
       exportSession.getCatchBlockResolver()
           .addLink(catchId, new CatchBlockLinker(jContinueStatement));
@@ -86,18 +81,6 @@ public class NContinueStatement extends NStatement {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 
   @Override

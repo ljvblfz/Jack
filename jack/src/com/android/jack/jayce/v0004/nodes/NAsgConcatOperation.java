@@ -44,15 +44,12 @@ public class NAsgConcatOperation extends NExpression {
   @CheckForNull
   public NExpression rhs;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JAsgConcatOperation asgConcat = (JAsgConcatOperation) node;
     lhs = (NExpression) loader.load(asgConcat.getLhs());
     rhs = (NExpression) loader.load(asgConcat.getRhs());
-    sourceInfo = loader.load(asgConcat.getSourceInfo());
+    sourceInfo = asgConcat.getSourceInfo();
   }
 
   @Override
@@ -62,7 +59,7 @@ public class NAsgConcatOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JAsgConcatOperation(sourceInfo.exportAsJast(exportSession),
+    return new JAsgConcatOperation(sourceInfo,
         lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
   }
@@ -83,17 +80,5 @@ public class NAsgConcatOperation extends NExpression {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

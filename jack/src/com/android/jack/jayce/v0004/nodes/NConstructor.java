@@ -22,7 +22,6 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JTypeLookupException;
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.JayceClassOrInterfaceLoader;
 import com.android.jack.jayce.JayceMethodLoader;
 import com.android.jack.jayce.v0004.io.ExportSession;
@@ -53,7 +52,7 @@ public class NConstructor extends NMethod {
     annotations = loader.load(NAnnotation.class, jConstructor.getAnnotations());
     body = (NAbstractMethodBody) loader.load(jConstructor.getBody());
     markers = loader.load(NMarker.class, jConstructor.getAllMarkers());
-    sourceInfo = loader.load(jConstructor.getSourceInfo());
+    sourceInfo = jConstructor.getSourceInfo();
   }
 
   @Override
@@ -67,15 +66,13 @@ public class NConstructor extends NMethod {
   public JMethod exportAsJast(@Nonnull ExportSession exportSession,
       @Nonnull JayceClassOrInterfaceLoader enclosingLoader) throws JTypeLookupException,
       JMethodLookupException {
-    assert sourceInfo != null;
     assert methodNodeIndex != INDEX_UNKNOWN;
     exportSession.getVariableResolver().clear();
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JDefinedClass enclosingType = (JDefinedClass) exportSession.getCurrentType();
     assert enclosingType != null;
     JayceMethodLoader methodLoader = new JayceMethodLoader(this, methodNodeIndex, enclosingLoader);
-    JConstructor jConstructor = new JConstructor(jSourceInfo,
-        enclosingType, modifier, methodLoader);
+    assert sourceInfo != null;
+    JConstructor jConstructor = new JConstructor(sourceInfo, enclosingType, modifier, methodLoader);
     exportSession.setCurrentMethod(jConstructor);
     for (NParameter parameter : parameters) {
       JParameter jParam = parameter.exportAsJast(exportSession, methodLoader);

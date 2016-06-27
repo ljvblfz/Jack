@@ -44,15 +44,12 @@ public class NAsgShrOperation extends NExpression {
   @CheckForNull
   public NExpression rhs;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JAsgShrOperation asgShr = (JAsgShrOperation) node;
     lhs = (NExpression) loader.load(asgShr.getLhs());
     rhs = (NExpression) loader.load(asgShr.getRhs());
-    sourceInfo = loader.load(asgShr.getSourceInfo());
+    sourceInfo = asgShr.getSourceInfo();
   }
 
   @Override
@@ -62,8 +59,7 @@ public class NAsgShrOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JAsgShrOperation(sourceInfo.exportAsJast(exportSession),
-        lhs.exportAsJast(exportSession),
+    return new JAsgShrOperation(sourceInfo, lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
   }
 
@@ -83,17 +79,5 @@ public class NAsgShrOperation extends NExpression {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

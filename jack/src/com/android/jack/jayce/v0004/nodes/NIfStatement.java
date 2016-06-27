@@ -54,9 +54,6 @@ public class NIfStatement extends NStatement {
   @Nonnull
   public List<String> catchBlockIds = Collections.emptyList();
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JIfStatement jIfStatement = (JIfStatement) node;
@@ -64,7 +61,7 @@ public class NIfStatement extends NStatement {
     thenStatement = (NStatement) loader.load(jIfStatement.getThenStmt());
     elseStatement = (NStatement) loader.load(jIfStatement.getElseStmt());
     catchBlockIds = loader.getIds(loader.getCatchBlockSymbols(), jIfStatement.getJCatchBlocks());
-    sourceInfo = loader.load(jIfStatement.getSourceInfo());
+    sourceInfo = jIfStatement.getSourceInfo();
   }
 
   @Override
@@ -78,9 +75,9 @@ public class NIfStatement extends NStatement {
     if (elseStatement != null) {
       jElseStatement = elseStatement.exportAsJast(exportSession);
     }
-    JIfStatement jIfStatement = new JIfStatement(
-        sourceInfo.exportAsJast(exportSession), ifExpression.exportAsJast(exportSession),
-        thenStatement.exportAsJast(exportSession), jElseStatement);
+    JIfStatement jIfStatement =
+        new JIfStatement(sourceInfo, ifExpression.exportAsJast(exportSession),
+            thenStatement.exportAsJast(exportSession), jElseStatement);
     for (String catchId : catchBlockIds) {
       exportSession.getCatchBlockResolver().addLink(catchId, new CatchBlockLinker(jIfStatement));
     }
@@ -105,18 +102,6 @@ public class NIfStatement extends NStatement {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 
   @Override
