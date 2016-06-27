@@ -33,7 +33,7 @@ public class JParameterUnresolved extends JParameter implements HasEnclosingMeth
   public static final JParameterUnresolved INSTANCE = new JParameterUnresolved();
 
   private JParameterUnresolved() {
-    super(SourceInfo.UNKNOWN, "-unresolved-", JPrimitiveTypeEnum.DOUBLE.getType(), 0, null);
+    super(SourceInfo.UNKNOWN, "-unresolved-", JPrimitiveTypeEnum.DOUBLE.getType(), 0);
   }
 
   @Override
