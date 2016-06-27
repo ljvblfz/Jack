@@ -16,9 +16,11 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
+import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JLiteral;
 import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JNameValuePair;
+import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.sourceinfo.SourceInfo;
@@ -31,6 +33,7 @@ import com.android.jack.jayce.v0002.io.Token;
 import com.android.jack.lookup.JMethodLookupException;
 
 import java.io.IOException;
+import java.util.Collections;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -65,12 +68,20 @@ public class NNameValuePair extends NNode implements HasSourceInfo {
   @Nonnull
   public JNameValuePair exportAsJast(@Nonnull ExportSession exportSession)
       throws JMethodLookupException, JTypeLookupException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Nonnull
+  public JNameValuePair exportAsJast(@Nonnull ExportSession exportSession,
+      @Nonnull JAnnotationType receiver)
+      throws JMethodLookupException, JTypeLookupException {
     assert sourceInfo != null;
     assert value != null;
     assert name != null;
     JLiteral jValue = value.exportAsJast(exportSession);
     SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
-    JMethodIdWide methodId = new JMethodIdWide(name, MethodKind.INSTANCE_VIRTUAL);
+    JMethodIdWide methodId = receiver.getOrCreateMethodIdWide(name, Collections.<JType>emptyList(),
+        MethodKind.INSTANCE_VIRTUAL);
     JNameValuePair jNameValuePair = new JNameValuePair(jSourceInfo, methodId, jValue);
     return jNameValuePair;
   }

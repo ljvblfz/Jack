@@ -149,8 +149,14 @@ public class NLambda extends NExpression {
       jBounds.add(exportSession.getLookup().getInterface(bound));
     }
 
-    JMethodId mthIdToImplements =
-        (JMethodId) mthIdWithErasure.exportAsJast(exportSession);
+    JInterface lambdaType = exportSession.getLookup().getInterface(typeSig);
+
+    JMethodId unlinkedMthId = (JMethodId) mthIdWithErasure.exportAsJast(exportSession);
+    JMethodId mthIdToImplements = lambdaType.getOrCreateMethodId(
+        unlinkedMthId.getMethodIdWide().getName(),
+        unlinkedMthId.getMethodIdWide().getParamTypes(),
+        MethodKind.INSTANCE_VIRTUAL,
+        unlinkedMthId.getType());
 
     JMethodId jmthIdToEnforce =
         (JMethodId) mthIdWithoutErasure.exportAsJast(exportSession);
@@ -158,7 +164,7 @@ public class NLambda extends NExpression {
     SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JLambda lambda = new JLambda(jSourceInfo, mthIdToImplements,
         new JMethodIdRef(jSourceInfo, (JDefinedClassOrInterface) jEnclosingType, methodId),
-        exportSession.getLookup().getInterface(typeSig), jBounds, jmthIdToEnforce);
+        lambdaType, jBounds, jmthIdToEnforce);
 
     for (NMethodId bridge : bridges) {
       lambda.addBridgeMethodId((JMethodId) bridge.exportAsJast(exportSession));
