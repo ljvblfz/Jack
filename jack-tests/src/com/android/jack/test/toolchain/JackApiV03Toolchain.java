@@ -49,7 +49,7 @@ public class JackApiV03Toolchain extends JackApiToolchainBase implements JackApi
   private Api03Config apiV03Config;
 
   JackApiV03Toolchain(@Nonnull File jackPrebuilt) {
-    super(jackPrebuilt, Api02Config.class);
+    super(jackPrebuilt, Api03Config.class);
     apiV03Config = (Api03Config) config;
     addProperty(Options.USE_DEFAULT_LIBRARIES.getName(), "false");
   }
