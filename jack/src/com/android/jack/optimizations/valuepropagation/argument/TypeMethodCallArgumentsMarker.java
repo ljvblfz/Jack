@@ -23,7 +23,6 @@ import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.optimizations.common.ConcurrentLiteralValueListTracker;
 import com.android.jack.optimizations.common.LiteralValueListTracker;
-import com.android.jack.optimizations.common.TypeToBeEmittedMarker;
 import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
@@ -88,7 +87,7 @@ public class TypeMethodCallArgumentsMarker implements Marker {
 
     // Only track calls on types to be emitted
     JClassOrInterface receiverType = call.getReceiverType();
-    if (!TypeToBeEmittedMarker.isToBeEmitted(receiverType)) {
+    if (!receiverType.isToEmit()) {
       return;
     }
     assert receiverType instanceof JDefinedClassOrInterface;

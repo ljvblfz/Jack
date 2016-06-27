@@ -37,7 +37,6 @@ import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.optimizations.Optimizations;
-import com.android.jack.optimizations.common.TypeToBeEmittedMarker;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
@@ -128,8 +127,7 @@ public class FieldFinalizer {
         if (field != null && isAssignment(fieldRef)) {
           JDefinedClassOrInterface enclosingType = field.getEnclosingType();
           // Only for fields of types to be emitted
-          if (!field.isVolatile() && !field.isFinal() &&
-              TypeToBeEmittedMarker.isToBeEmitted(enclosingType)) {
+          if (!field.isVolatile() && !field.isFinal() && enclosingType.isToEmit()) {
             boolean isAllowedReference =
                 constructor != null &&  // we are inside a constructor of the same type
                     constructor.getEnclosingType() == enclosingType &&

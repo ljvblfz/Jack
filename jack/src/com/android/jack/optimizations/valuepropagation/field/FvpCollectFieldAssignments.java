@@ -36,7 +36,6 @@ import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JValueLiteral;
 import com.android.jack.optimizations.common.OptimizerUtils;
-import com.android.jack.optimizations.common.TypeToBeEmittedMarker;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Access;
@@ -56,7 +55,6 @@ import javax.annotation.Nonnull;
  */
 @Description("Field value propagation, field value collection")
 @Constraint(need = { ControlFlowGraph.class,
-                     TypeToBeEmittedMarker.class,
                      UseDefsMarker.class })
 @Transform(add = FieldSingleValueMarker.class)
 @Access(JDefinedClassOrInterface.class)
@@ -133,8 +131,7 @@ public class FvpCollectFieldAssignments extends FvpSchedulable
           if (lhs instanceof JFieldRef) {
             JFieldRef fieldRef = (JFieldRef) lhs;
             JField field = fieldRef.getFieldId().getField();
-            if (field == null ||
-                !TypeToBeEmittedMarker.isToBeEmitted(field.getEnclosingType())) {
+            if (field == null || !field.getEnclosingType().isToEmit()) {
               return;
             }
 
@@ -218,8 +215,7 @@ public class FvpCollectFieldAssignments extends FvpSchedulable
             JExpression lhs = assignment.getLhs();
             if (lhs instanceof JFieldRef) {
               JField field = ((JFieldRef) lhs).getFieldId().getField();
-              if (field != null &&
-                  TypeToBeEmittedMarker.isToBeEmitted(field.getEnclosingType())) {
+              if (field != null && field.getEnclosingType().isToEmit()) {
                 // The field is being assigned outside its construction,
                 // just mark the field assignment
                 FieldSingleValueMarker.markValue(field, assignment.getRhs());

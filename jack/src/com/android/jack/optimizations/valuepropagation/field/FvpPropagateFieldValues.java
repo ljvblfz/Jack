@@ -31,7 +31,6 @@ import com.android.jack.optimizations.Optimizations;
 import com.android.jack.optimizations.common.ExpressionReplaceHelper;
 import com.android.jack.optimizations.common.JlsNullabilityChecker;
 import com.android.jack.optimizations.common.OptimizerUtils;
-import com.android.jack.optimizations.common.TypeToBeEmittedMarker;
 import com.android.jack.transformations.LocalVarCreator;
 import com.android.jack.transformations.request.AppendBefore;
 import com.android.jack.transformations.request.TransformationRequest;
@@ -55,8 +54,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Field value propagation, field reads substitution")
 @Constraint(need = { FieldSingleValueMarker.class,
-                     ThreeAddressCodeForm.class,
-                     TypeToBeEmittedMarker.class })
+                     ThreeAddressCodeForm.class })
 @Transform(add = JValueLiteral.class)
 @Use({ ExpressionReplaceHelper.class,
        JlsNullabilityChecker.class })
@@ -116,7 +114,7 @@ public class FvpPropagateFieldValues extends FvpSchedulable
 
       // Only process fields of types to be emitted
       JDefinedClassOrInterface type = field.getEnclosingType();
-      if (!TypeToBeEmittedMarker.isToBeEmitted(type)) {
+      if (!type.isToEmit()) {
         return;
       }
 

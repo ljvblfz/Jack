@@ -29,7 +29,6 @@ import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.formatter.TypePackageAndMethodFormatter;
 import com.android.jack.optimizations.Optimizations;
 import com.android.jack.optimizations.common.DirectlyDerivedClassesMarker;
-import com.android.jack.optimizations.common.TypeToBeEmittedMarker;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
@@ -72,9 +71,7 @@ public class MethodFinalizer
     // We want to analyze class hierarchies (trees) consisting from the classes
     // that are going to be emitted
     JClass superClass = type.getSuperClass();
-    if (!(type instanceof JDefinedClass) ||
-        superClass == null ||
-        TypeToBeEmittedMarker.isToBeEmitted(superClass)) {
+    if (!(type instanceof JDefinedClass) || superClass == null || superClass.isToEmit()) {
       // It is either not a class or a class which base class
       // is also a type to be emitted, skip it.
       return;

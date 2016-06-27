@@ -25,7 +25,6 @@ import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.optimizations.common.LiteralValueListTracker;
 import com.android.jack.optimizations.common.SimpleLiteralValueListTracker;
-import com.android.jack.optimizations.common.TypeToBeEmittedMarker;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.marker.Marker;
@@ -49,8 +48,7 @@ import javax.annotation.Nonnull;
 /** Propagates single-valued arguments */
 @Description("Argument value propagation, propagation of single-valued arguments")
 @Constraint(need = { TaintedVirtualMethodsMarker.class,
-                     TypeMethodCallArgumentsMarker.class,
-                     TypeToBeEmittedMarker.class })
+                     TypeMethodCallArgumentsMarker.class })
 @Transform(add = { MethodCallArgumentsMarker.class,
                    AvpSchedulable.TaintedMethodMarker.class })
 @Name("ArgumentValuePropagation: ComputeMethodArgumentsValues")
@@ -112,7 +110,7 @@ public class AvpComputeMethodArgumentsValues extends AvpSchedulable
 
       // Add calls from super, if the type exists
       JClass superClass = type.getSuperClass();
-      if (superClass != null && TypeToBeEmittedMarker.isToBeEmitted(superClass)) {
+      if (superClass != null && superClass.isToEmit()) {
         // NOTE: the marker must be computed by this time
         CumulativeArguments marker =
             ((JDefinedClassOrInterface) superClass).getMarker(CumulativeArguments.class);
@@ -122,7 +120,7 @@ public class AvpComputeMethodArgumentsValues extends AvpSchedulable
 
       // Add calls from implemented interfaces, if any
       for (JInterface impl : type.getImplements()) {
-        if (TypeToBeEmittedMarker.isToBeEmitted(impl)) {
+        if (impl.isToEmit()) {
           // NOTE: the marker must be computed by this time
           CumulativeArguments marker =
               ((JDefinedClassOrInterface) impl).getMarker(CumulativeArguments.class);
@@ -238,7 +236,7 @@ public class AvpComputeMethodArgumentsValues extends AvpSchedulable
 
     private void mergeWith(@Nonnull JType type) {
       if (type instanceof JDefinedClassOrInterface) {
-        if (TypeToBeEmittedMarker.isToBeEmitted(type)) {
+        if (((JDefinedClassOrInterface) type).isToEmit()) {
           // This is a type to be emitted, its method table must
           // exist by this time.
           TypeMethodTable other =
@@ -358,12 +356,12 @@ public class AvpComputeMethodArgumentsValues extends AvpSchedulable
     // Count downstream links: super class and interfaces
     for (JDefinedClassOrInterface type : types) {
       JClass superClass = type.getSuperClass();
-      if (superClass != null && TypeToBeEmittedMarker.isToBeEmitted(superClass)) {
+      if (superClass != null && superClass.isToEmit()) {
         TypeRefCounter.inc((JDefinedClassOrInterface) superClass);
       }
 
       for (JInterface impl : type.getImplements()) {
-        if (TypeToBeEmittedMarker.isToBeEmitted(impl)) {
+        if (impl.isToEmit()) {
           TypeRefCounter.inc((JDefinedClassOrInterface) impl);
         }
       }
@@ -384,7 +382,7 @@ public class AvpComputeMethodArgumentsValues extends AvpSchedulable
       sortedTypes.add(type);
 
       JClass superClass = type.getSuperClass();
-      if (superClass != null && TypeToBeEmittedMarker.isToBeEmitted(superClass)) {
+      if (superClass != null && superClass.isToEmit()) {
         if (TypeRefCounter.dec((JDefinedClassOrInterface) superClass)) {
           queue.offer((JDefinedClassOrInterface) superClass);
         }
@@ -392,7 +390,7 @@ public class AvpComputeMethodArgumentsValues extends AvpSchedulable
 
       // Count downstream links: interfaces
       for (JInterface impl : type.getImplements()) {
-        if (TypeToBeEmittedMarker.isToBeEmitted(impl)) {
+        if (impl.isToEmit()) {
           if (TypeRefCounter.dec((JDefinedClassOrInterface) impl)) {
             queue.offer((JDefinedClassOrInterface) impl);
           }
