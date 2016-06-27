@@ -164,7 +164,7 @@ public class PackageRenamer implements RunnableSchedulable<JSession>{
   }
 
   @Override
-  public void run(@Nonnull JSession session) throws Exception {
+  public void run(@Nonnull JSession session) {
     List<PatternElement> result = new ArrayList<PatternElement>();
     for (ReaderFile jarjarFile : jarjarRulesFiles) {
       try {

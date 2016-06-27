@@ -39,7 +39,7 @@ import javax.annotation.Nonnull;
 public class TypeEnclosingMethodRemover implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface type) {
     if (type instanceof JDefinedClass) {
       TransformationRequest tr = new TransformationRequest(type);
       tr.append(new RemoveEnclosingMethod((JDefinedClass) type));

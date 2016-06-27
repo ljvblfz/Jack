@@ -127,7 +127,7 @@ public class AvpCalculateTaintedMethods extends AvpSchedulable
   }
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface type) {
     getOrCreateMarker(type);
   }
 }

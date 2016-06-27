@@ -54,7 +54,7 @@ public class OriginDigestAdder implements RunnableSchedulable<JDefinedClassOrInt
           OriginDigestElement.PROTECTED_NAME, OriginDigestElement.PUBLIC_NAME);
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface type) {
     MessageDigest digest = digestFactory.create();
     new SourceGenerationVisitor(new DigestOutput(digest)).accept(type);
     OriginDigestMarker marker = new OriginDigestMarker(descriptor,

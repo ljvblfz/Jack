@@ -39,7 +39,7 @@ public class JFieldAdapter implements AdapterSchedulable<JDefinedClassOrInterfac
    */
   @Override
   @Nonnull
-  public Iterator<JField> adapt(@Nonnull JDefinedClassOrInterface declaredType) throws Exception {
+  public Iterator<JField> adapt(@Nonnull JDefinedClassOrInterface declaredType) {
     return new ArrayList<JField>(declaredType.getFields()).iterator();
   }
 }

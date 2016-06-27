@@ -70,7 +70,7 @@ public class SubClassOrInterfaceFinder implements RunnableSchedulable<JPackage> 
   }
 
   @Override
-  public void run(@Nonnull JPackage pack) throws Exception {
+  public void run(@Nonnull JPackage pack) {
     for (JClassOrInterface type : pack.getTypes()) {
 
       if (type instanceof JDefinedClassOrInterface) {

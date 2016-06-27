@@ -34,8 +34,7 @@ import javax.annotation.Nonnull;
 public class VisitorError1 implements AdapterSchedulable<Component2, Component2> {
   @Override
   @Nonnull
-  public Iterator<Component2> adapt(@Nonnull Component2 v)
-      throws Exception {
+  public Iterator<Component2> adapt(@Nonnull Component2 v) {
     return Iterators.emptyIterator();
   }
 }

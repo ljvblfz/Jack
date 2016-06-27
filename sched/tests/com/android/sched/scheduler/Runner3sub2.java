@@ -35,7 +35,7 @@ import javax.annotation.Nonnull;
 @Transform(add = Tag3.class)
 public class Runner3sub2 extends RunnerTest implements RunnableSchedulable<Component3> {
   @Override
-  public void run(@Nonnull Component3 i) throws Exception {
+  public void run(@Nonnull Component3 i) {
     need(Tag2.class);
     add(Tag3.class);
   }

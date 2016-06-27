@@ -71,7 +71,7 @@ public class AstChecker implements RunnableSchedulable<JSession> {
   }
 
   @Override
-  public void run(@Nonnull JSession session) throws Exception {
+  public void run(@Nonnull JSession session) {
     AstCheckerVisitor checker = new AstCheckerVisitor();
     checker.accept(session);
   }

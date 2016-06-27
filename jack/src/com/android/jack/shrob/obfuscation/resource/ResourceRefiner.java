@@ -113,7 +113,7 @@ public class ResourceRefiner implements RunnableSchedulable<JSession>{
   }
 
   @Override
-  public void run(@Nonnull JSession session) throws Exception {
+  public void run(@Nonnull JSession session) {
     List<FilterSpecification> adaptResourceFileNames = flags.getAdaptResourceFileNames();
     if (!adaptResourceFileNames.isEmpty()) {
       for (Resource res : session.getResources()) {

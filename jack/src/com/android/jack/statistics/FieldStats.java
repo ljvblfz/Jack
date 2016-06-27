@@ -52,7 +52,7 @@ public class FieldStats implements RunnableSchedulable<JField> {
       CounterImpl.class, Counter.class);
 
   @Override
-  public void run(@Nonnull JField field) throws Exception {
+  public void run(@Nonnull JField field) {
     if (!field.getEnclosingType().isToEmit()) {
       return;
     }

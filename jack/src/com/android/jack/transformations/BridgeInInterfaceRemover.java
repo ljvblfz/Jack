@@ -58,7 +58,7 @@ public class BridgeInInterfaceRemover implements RunnableSchedulable<JMethod> {
       ThreadConfig.get(Options.METHOD_FILTER);
 
   @Override
-  public void run(@Nonnull JMethod method) throws Exception {
+  public void run(@Nonnull JMethod method) {
     if (androidMinApiLevel < AndroidCompatibilityChecker.N_API_LEVEL) {
       if (method.getEnclosingType() instanceof JInterface && method.isBridge()) {
         TransformationRequest tr = new TransformationRequest(method.getEnclosingType());

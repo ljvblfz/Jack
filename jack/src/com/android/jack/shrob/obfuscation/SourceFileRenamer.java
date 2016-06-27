@@ -53,7 +53,7 @@ public class SourceFileRenamer implements RunnableSchedulable<JSession> {
   private final File newSourceFileName = ThreadConfig.get(NEW_SOURCEFILE_NAME);
 
   @Override
-  public void run(@Nonnull JSession session) throws Exception {
+  public void run(@Nonnull JSession session) {
     for (FileSourceInfo info : session.getSourceInfoFactory().getFileSourceInfos()) {
       info.setFileName(newSourceFileName.getPath());
     }

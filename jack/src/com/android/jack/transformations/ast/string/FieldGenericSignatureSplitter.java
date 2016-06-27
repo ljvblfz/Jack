@@ -38,7 +38,7 @@ import javax.annotation.Nonnull;
 public class FieldGenericSignatureSplitter implements RunnableSchedulable<JField> {
 
   @Override
-  public void run(@Nonnull JField field) throws Exception {
+  public void run(@Nonnull JField field) {
     GenericSignature marker = field.getMarker(GenericSignature.class);
     if (marker != null) {
       String oldSignature = marker.getGenericSignature();

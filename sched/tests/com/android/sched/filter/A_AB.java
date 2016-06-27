@@ -31,8 +31,7 @@ import javax.annotation.Nonnull;
 public class A_AB implements AdapterSchedulable<C_A, C_B> {
   @Override
   @Nonnull
-  public Iterator<C_B> adapt(@Nonnull C_A a)
-      throws Exception {
+  public Iterator<C_B> adapt(@Nonnull C_A a) {
     R_Common.adapterCount++;
 
     return Iterators.forArray(new C_B(a.getString() + "/B.1"), new C_B(a.getString() + "/B.2"),

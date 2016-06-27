@@ -61,7 +61,7 @@ public class CodeCoverageSelector implements RunnableSchedulable<JDefinedClassOr
           ThreadConfig.get(CodeCoverage.COVERAGE_JACOCO_EXCLUDES));
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface t) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface t) {
     if (needsCoverage(t)) {
       t.addMarker(new CodeCoverageMarker());
     }

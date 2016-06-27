@@ -218,7 +218,7 @@ public class DynamicAssertionTransformer implements RunnableSchedulable<JMethod>
   }
 
   @Override
-  public synchronized void run(@Nonnull JMethod method) throws Exception {
+  public synchronized void run(@Nonnull JMethod method) {
     if (method.isNative() || method.isAbstract() || !filter.accept(this.getClass(), method)) {
       return;
     }

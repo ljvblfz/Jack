@@ -34,7 +34,11 @@ import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.CannotReadException;
+import com.android.sched.util.file.CannotWriteException;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.log.Event;
 import com.android.sched.util.log.Tracer;
@@ -68,7 +72,7 @@ public abstract class DexInLibraryWriter extends DexWriter implements
   private final Tracer tracer = TracerFactory.getTracer();
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface type) {
     OutputVFile vFile;
 
     Event event = tracer.start(JackEventType.DX_BACKEND);
@@ -87,10 +91,24 @@ public abstract class DexInLibraryWriter extends DexWriter implements
           try {
             in = inputLibrary.getFile(FileType.PREBUILT,
                 new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
-            vFile = outputLibrary.createFile(FileType.PREBUILT,
-                new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
+            try {
+              vFile = outputLibrary.createFile(FileType.PREBUILT,
+                  new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
+            } catch (CannotCreateFileException e) {
+              throw new JackIOException("Could not create Dex file in output "
+                  + outputLibrary.getLocation().getDescription() + " for type "
+                  + Jack.getUserFriendlyFormatter().getName(type), e);
+            }
 
-            vFile.copy(in);
+            try {
+              vFile.copy(in);
+            } catch (CannotCloseException | CannotReadException | CannotWriteException
+                | WrongPermissionException e) {
+              throw new JackIOException(
+                  "Could not copy Dex file from " + in.getLocation().getDescription() + " to "
+                      + vFile.getLocation().getDescription(),
+                  e);
+            }
             return;
           } catch (FileTypeDoesNotExistException e) {
             // Pre-dex is not accessible, thus write dex file from type
@@ -106,7 +124,6 @@ public abstract class DexInLibraryWriter extends DexWriter implements
       options.targetApiLevel = apiLevel;
       DexFile typeDex = new DexFile(options);
       typeDex.add(cdiMarker.getClassDefItem());
-      OutputStream outStream = null;
       try {
         vFile = outputLibrary.createFile(FileType.PREBUILT,
             new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
@@ -115,18 +132,13 @@ public abstract class DexInLibraryWriter extends DexWriter implements
             + outputLibrary.getLocation().getDescription() + " for type "
             + Jack.getUserFriendlyFormatter().getName(type), e);
       }
-      try {
-        outStream = vFile.getOutputStream();
+      try (OutputStream outStream = vFile.getOutputStream()) {
         typeDex.getStringIds().intern(DexWriter.getJackDexTag());
         typeDex.prepare();
         typeDex.writeTo(outStream, null, false);
-      } catch (IOException e) {
+      } catch (IOException | WrongPermissionException e) {
         throw new JackIOException(
             "Could not write Dex file to output " + vFile.getLocation().getDescription(), e);
-      } finally {
-        if (outStream != null) {
-          outStream.close();
-        }
       }
     } finally {
       event.end();

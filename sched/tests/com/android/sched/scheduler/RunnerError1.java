@@ -28,5 +28,5 @@ import javax.annotation.Nonnull;
 @OnlyFor(SchedTest.class)
 public class RunnerError1 implements RunnableSchedulable<Component0> {
   @Override
-  public void run(@Nonnull Component0 t) throws Exception {}
+  public void run(@Nonnull Component0 t) {}
 }

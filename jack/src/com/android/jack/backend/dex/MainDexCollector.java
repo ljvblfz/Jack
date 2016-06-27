@@ -63,7 +63,7 @@ public class MainDexCollector extends TypeReferenceCollector
   }
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface type) {
     if (type.containsMarker(MultiDexLegacyTracerBrush.TracerMarker.class)
         && ((!isShrinkEnabled) || type.containsMarker(KeepMarker.class))) {
       collect(type);

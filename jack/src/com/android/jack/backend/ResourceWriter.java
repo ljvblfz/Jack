@@ -16,15 +16,24 @@
 
 package com.android.jack.backend;
 
+import com.android.jack.Jack;
+import com.android.jack.JackAbortException;
 import com.android.jack.Options;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.Resource;
+import com.android.jack.reporting.ReportableIOException;
+import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.scheduling.feature.Resources;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.file.CannotCloseException;
+import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.CannotReadException;
+import com.android.sched.util.file.CannotWriteException;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.vfs.Container;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.OutputVFS;
@@ -57,14 +66,22 @@ public class ResourceWriter implements RunnableSchedulable<JSession> {
   }
 
   @Override
-  public void run(@Nonnull JSession session) throws Exception {
+  public void run(@Nonnull JSession session) {
     assert outputVDir != null;
     List<Resource> resources = session.getResources();
     for (Resource resource : resources) {
       InputVFile inputFile = resource.getVFile();
       VPath path = resource.getPath();
-      OutputVFile outputFile = outputVDir.getRootOutputVDir().createOutputVFile(path);
-      outputFile.copy(inputFile);
+      try {
+        OutputVFile outputFile = outputVDir.getRootOutputVDir().createOutputVFile(path);
+        outputFile.copy(inputFile);
+      } catch (CannotCreateFileException | WrongPermissionException | CannotCloseException
+          | CannotReadException | CannotWriteException e) {
+        ReportableIOException reportable =
+            new ReportableIOException("Dex resource writing", e);
+        Jack.getSession().getReporter().report(Severity.FATAL, reportable);
+        throw new JackAbortException(reportable);
+      }
     }
   }
 }

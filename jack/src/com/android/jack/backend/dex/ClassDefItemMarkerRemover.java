@@ -38,7 +38,7 @@ import javax.annotation.Nonnull;
 public class ClassDefItemMarkerRemover implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface type) {
     type.removeMarker(ClassDefItemMarker.class);
   }
 }

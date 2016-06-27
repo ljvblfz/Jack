@@ -41,7 +41,7 @@ import javax.annotation.Nonnull;
 public class TypeGenericSignatureSplitter implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface declaredType) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface declaredType) {
     GenericSignature marker = declaredType.getMarker(GenericSignature.class);
     if (marker != null) {
       CharSequence newSignature = getSplittedSignature(marker.getGenericSignature());

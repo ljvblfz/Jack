@@ -47,7 +47,7 @@ public class MainDexTracer implements RunnableSchedulable<JDefinedClassOrInterfa
   private final Tracer tracer = new Tracer(new MultiDexLegacyTracerBrush());
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface type) {
     tracer.run(type);
   }
 

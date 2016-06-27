@@ -52,7 +52,7 @@ public class EmptyClinitRemover implements RunnableSchedulable<JMethod> {
       ThreadConfig.get(Options.METHOD_FILTER);
 
   @Override
-  public void run(@Nonnull JMethod method) throws Exception {
+  public void run(@Nonnull JMethod method) {
     if (JMethod.isClinit(method) && filter.accept(this.getClass(), method)) {
       JMethodBody body = (JMethodBody) method.getBody();
       assert body != null;

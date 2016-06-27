@@ -37,7 +37,7 @@ import javax.annotation.Nonnull;
 public class MethodStringLiteralRefiner implements RunnableSchedulable<JMethod> {
 
   @Override
-  public void run(@Nonnull JMethod method) throws Exception {
+  public void run(@Nonnull JMethod method) {
     TransformationRequest tr = new TransformationRequest(method);
     StringLiteralRefinerVisitor visitor = new StringLiteralRefinerVisitor(tr);
     visitor.accept(method);

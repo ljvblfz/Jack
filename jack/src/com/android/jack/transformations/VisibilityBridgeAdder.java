@@ -78,7 +78,7 @@ public class VisibilityBridgeAdder implements RunnableSchedulable<JDefinedClassO
       Boolean.TRUE).addCategory(DumpInLibrary.class);
 
   @Override
-  public synchronized void run(@Nonnull JDefinedClassOrInterface declaredType) throws Exception {
+  public synchronized void run(@Nonnull JDefinedClassOrInterface declaredType) {
     if (!declaredType.isPublic() || !(declaredType instanceof JDefinedClass)) {
       return;
     }

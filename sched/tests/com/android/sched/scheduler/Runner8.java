@@ -37,7 +37,7 @@ import javax.annotation.Nonnull;
 @Transform(add = Tag1.class, remove = Tag2.class)
 public class Runner8 extends RunnerTest implements RunnerInterface {
   @Override
-  public void run(@Nonnull Component0 v) throws Exception {
+  public void run(@Nonnull Component0 v) {
     need(Tag2.class);
     add(Tag1.class);
     remove(Tag2.class);

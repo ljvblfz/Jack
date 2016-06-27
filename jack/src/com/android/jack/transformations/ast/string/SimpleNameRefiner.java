@@ -35,7 +35,7 @@ import javax.annotation.Nonnull;
 public class SimpleNameRefiner implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface type) {
     SimpleName marker = type.getMarker(SimpleName.class);
     if (marker != null) {
       TypeName newName = new TypeName(Kind.SIMPLE_NAME, type);

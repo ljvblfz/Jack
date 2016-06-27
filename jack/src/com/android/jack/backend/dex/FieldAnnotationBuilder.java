@@ -53,7 +53,7 @@ import javax.annotation.Nonnull;
 public class FieldAnnotationBuilder implements RunnableSchedulable<JField> {
 
   @Override
-  public synchronized void run(@Nonnull JField field) throws Exception {
+  public synchronized void run(@Nonnull JField field) {
     JDefinedClassOrInterface declaringClass = field.getEnclosingType();
 
     Collection<JAnnotation> annotations = field.getAnnotations();

@@ -72,7 +72,7 @@ public class SwitchEnumUsageCollector implements RunnableSchedulable<JMethod> {
   public SwitchEnumUsageCollector() {}
 
   @Override
-  public void run(@Nonnull JMethod method) throws Exception {
+  public void run(@Nonnull JMethod method) {
     JDefinedClassOrInterface definedClass = method.getEnclosingType();
     // check if both the method and enclosing class are concrete
     if (!(definedClass instanceof JDefinedClass) || method.isNative() || method.isAbstract()) {

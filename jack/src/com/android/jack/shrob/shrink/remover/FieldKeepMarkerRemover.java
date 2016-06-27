@@ -32,7 +32,7 @@ import javax.annotation.Nonnull;
 public class FieldKeepMarkerRemover implements RunnableSchedulable<JField> {
 
   @Override
-  public void run(@Nonnull JField field) throws Exception {
+  public void run(@Nonnull JField field) {
     field.removeMarker(KeepMarker.class);
   }
 

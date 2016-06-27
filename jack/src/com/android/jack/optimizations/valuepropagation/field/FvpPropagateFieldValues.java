@@ -172,7 +172,7 @@ public class FvpPropagateFieldValues extends FvpSchedulable
   }
 
   @Override
-  public void run(@Nonnull JMethod method) throws Exception {
+  public void run(@Nonnull JMethod method) {
     if (preserveJls || method.isNative() || method.isAbstract()) {
       return;
     }

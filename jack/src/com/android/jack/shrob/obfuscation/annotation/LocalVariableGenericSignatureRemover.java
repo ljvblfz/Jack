@@ -55,7 +55,7 @@ public class LocalVariableGenericSignatureRemover implements
   }
 
   @Override
-  public void run(@Nonnull JMethod method) throws Exception {
+  public void run(@Nonnull JMethod method) {
     Visitor visitor = new Visitor();
     visitor.accept(method);
   }

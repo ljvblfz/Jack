@@ -51,7 +51,7 @@ public class MethodShrinker implements RunnableSchedulable<JMethod> {
   private final com.android.sched.util.log.Tracer tracer = TracerFactory.getTracer();
 
   @Override
-  public synchronized void run(@Nonnull JMethod method) throws Exception {
+  public synchronized void run(@Nonnull JMethod method) {
     boolean toRemove = !method.containsMarker(KeepMarker.class);
     if (toRemove) {
       assert method.getEnclosingType().getMarker(PartialTypeHierarchy.class) == null;

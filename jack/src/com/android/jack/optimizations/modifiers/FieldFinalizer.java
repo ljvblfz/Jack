@@ -100,7 +100,7 @@ public class FieldFinalizer {
       implements RunnableSchedulable<JMethod> {
 
     @Override
-    public void run(@Nonnull JMethod method) throws Exception {
+    public void run(@Nonnull JMethod method) {
       if (!method.isNative() && !method.isAbstract()) {
         new Visitor(method).accept(method);
       }
@@ -325,7 +325,7 @@ public class FieldFinalizer {
     }
 
     @Override
-    public void run(@Nonnull JMethod method) throws Exception {
+    public void run(@Nonnull JMethod method) {
       if (!preserveJls || !isConstructor(method)) {
         return; // We only analyze constructors and only if preserve JLS is true
       }
@@ -364,7 +364,7 @@ public class FieldFinalizer {
     private final Tracer tracer = TracerFactory.getTracer();
 
     @Override
-    public void run(@Nonnull JField field) throws Exception {
+    public void run(@Nonnull JField field) {
       if (field.isFinal() || field.isVolatile() ||
           !NotEffectivelyFinalField.checkIfCanBeFinalAndRemoveMarker(field) ||
           !(field.getEnclosingType() instanceof JDefinedClass)) {

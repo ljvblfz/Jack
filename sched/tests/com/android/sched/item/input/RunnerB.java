@@ -33,7 +33,7 @@ import javax.annotation.Nonnull;
 @Transform(add = FilledMarker.SubElement1.class)
 public class RunnerB extends RunnerTest implements RunnableSchedulable<Component0> {
   @Override
-  public void run(@Nonnull Component0 v) throws Exception {
+  public void run(@Nonnull Component0 v) {
     add(FilledMarker.SubElement1.class);
   }
 }

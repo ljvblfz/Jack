@@ -105,7 +105,7 @@ public class Tracer extends JVisitor {
     this.brush = brush;
   }
 
-  public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface type) {
     if (brush.startTraceSeed(type)) {
       trace(type);
       brush.endTraceSeed(type);

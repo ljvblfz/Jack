@@ -61,7 +61,7 @@ public class MethodAnnotationBuilder implements RunnableSchedulable<JMethod> {
       ThreadConfig.get(Options.METHOD_FILTER);
 
   @Override
-  public synchronized void run(@Nonnull JMethod method) throws Exception {
+  public synchronized void run(@Nonnull JMethod method) {
     JDefinedClassOrInterface declaringClass = method.getEnclosingType();
     if (!filter.accept(this.getClass(), method)) {
       return;

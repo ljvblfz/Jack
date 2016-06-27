@@ -269,7 +269,7 @@ public class CodeCoverageTransformer implements RunnableSchedulable<JDefinedClas
   }
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface declaredType) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface declaredType) {
     CodeCoverageMarker marker = declaredType.getMarker(CodeCoverageMarker.class);
     if (marker == null) {
       // This class is excluded from code coverage.

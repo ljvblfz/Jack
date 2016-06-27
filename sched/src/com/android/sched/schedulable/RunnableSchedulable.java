@@ -29,8 +29,6 @@ public interface RunnableSchedulable<T extends Component> extends ProcessorSched
 
   /**
    * Must implement the processing of the instance of type T.
-   *
-   * @throws Exception if any Exception is thrown during the process
    */
-  public void run(@Nonnull T t) throws Exception;
+  public void run(@Nonnull T t);
 }

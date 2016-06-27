@@ -38,7 +38,7 @@ import javax.annotation.Nonnull;
 public class MethodGenericSignatureSplitter implements RunnableSchedulable<JMethod> {
 
   @Override
-  public void run(@Nonnull JMethod method) throws Exception {
+  public void run(@Nonnull JMethod method) {
     GenericSignature marker = method.getMarker(GenericSignature.class);
     if (marker != null) {
       String oldSignature = marker.getGenericSignature();

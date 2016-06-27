@@ -90,7 +90,7 @@ public class FieldInitializerRemover implements RunnableSchedulable<JField> {
     Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_STRING);
 
   @Override
-  public synchronized void run(@Nonnull JField field) throws Exception {
+  public synchronized void run(@Nonnull JField field) {
     JFieldInitializer declaration = field.getFieldInitializer();
     if (declaration != null) {
       JExpression initialValue = declaration.getInitializer();

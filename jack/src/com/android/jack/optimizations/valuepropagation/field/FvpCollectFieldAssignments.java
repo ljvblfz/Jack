@@ -228,7 +228,7 @@ public class FvpCollectFieldAssignments extends FvpSchedulable
   }
 
   @Override
-  public void run(@Nonnull JMethod method) throws Exception {
+  public void run(@Nonnull JMethod method) {
     if (!preserveJls && !method.isAbstract() && !method.isNative()) {
       if (OptimizerUtils.isConstructor(method)) {
         // Each constructor may assign the values of this type several (zero, one or

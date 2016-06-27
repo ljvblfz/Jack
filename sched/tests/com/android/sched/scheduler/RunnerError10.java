@@ -41,5 +41,5 @@ import javax.annotation.Nonnull;
 @Transform(remove = {Tag2.class, Tag5.class})
 public class RunnerError10 implements RunnableSchedulable<Component0> {
   @Override
-  public void run(@Nonnull Component0 t) throws Exception {}
+  public void run(@Nonnull Component0 t) {}
 }

@@ -59,7 +59,7 @@ public class LineNumberRemover implements RunnableSchedulable<JDefinedClassOrInt
   }
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface type) {
     Visitor visitor = new Visitor(Jack.getSession().getSourceInfoFactory());
     visitor.accept(type);
   }

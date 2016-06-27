@@ -59,7 +59,7 @@ public class FieldAnnotationRemover extends AnnotationRemover implements
   }
 
   @Override
-  public void run(@Nonnull JField field) throws Exception {
+  public void run(@Nonnull JField field) {
     TransformationRequest request = new TransformationRequest(field);
 
     for (JAnnotation annotation : field.getAnnotations()) {

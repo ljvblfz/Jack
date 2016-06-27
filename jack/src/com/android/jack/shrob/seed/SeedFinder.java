@@ -80,7 +80,7 @@ public class SeedFinder implements RunnableSchedulable<JDefinedClassOrInterface>
   }
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface type) {
     for (ClassSpecification classSpec : flags.getKeepClassSpecs()) {
       if (classSpec.matches(type)) {
         KeepModifier keepModifier = classSpec.getKeepModifier();

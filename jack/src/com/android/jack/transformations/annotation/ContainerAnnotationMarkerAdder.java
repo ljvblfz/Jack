@@ -62,7 +62,7 @@ public class ContainerAnnotationMarkerAdder {
   public static class TypeContainerAnnotationMarkerAdder extends ContainerAnnotationMarkerAdder
       implements RunnableSchedulable<JDefinedClassOrInterface> {
     @Override
-    public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+    public void run(@Nonnull JDefinedClassOrInterface type) {
       addContainerAnnotationIfNeeded(type);
     }
   }
@@ -79,7 +79,7 @@ public class ContainerAnnotationMarkerAdder {
   public static class FieldContainerAnnotationMarkerAdder extends ContainerAnnotationMarkerAdder
       implements RunnableSchedulable<JField> {
     @Override
-    public void run(@Nonnull JField type) throws Exception {
+    public void run(@Nonnull JField type) {
       addContainerAnnotationIfNeeded(type);
     }
   }
@@ -96,7 +96,7 @@ public class ContainerAnnotationMarkerAdder {
   public static class MethodContainerAnnotationMarkerAdder extends ContainerAnnotationMarkerAdder
       implements RunnableSchedulable<JMethod> {
     @Override
-    public void run(@Nonnull JMethod jMethod) throws Exception {
+    public void run(@Nonnull JMethod jMethod) {
       addContainerAnnotationIfNeeded(jMethod);
 
       for (JParameter parameter : jMethod.getParams()) {

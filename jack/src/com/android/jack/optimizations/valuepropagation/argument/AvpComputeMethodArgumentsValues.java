@@ -288,7 +288,7 @@ public class AvpComputeMethodArgumentsValues extends AvpSchedulable
   }
 
   @Override
-  public void run(@Nonnull JSession session) throws Exception {
+  public void run(@Nonnull JSession session) {
     // Topologically sort types
     List<JDefinedClassOrInterface> sortedTypes =
         sortTopologically(session.getTypesToEmit());

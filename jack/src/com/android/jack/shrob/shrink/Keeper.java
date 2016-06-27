@@ -48,7 +48,7 @@ public class Keeper implements RunnableSchedulable<JDefinedClassOrInterface> {
   private final Tracer tracer = new Tracer(new KeeperBrush());
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface type) {
     tracer.run(type);
   }
 }

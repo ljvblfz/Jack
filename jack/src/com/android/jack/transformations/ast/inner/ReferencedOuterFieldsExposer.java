@@ -53,7 +53,7 @@ import javax.annotation.Nonnull;
 public class ReferencedOuterFieldsExposer implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface type) {
     if (type instanceof JDefinedInterface) {
       return;
     }

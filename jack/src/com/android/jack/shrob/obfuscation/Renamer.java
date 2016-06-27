@@ -404,7 +404,7 @@ public class Renamer implements RunnableSchedulable<JSession> {
   }
 
   @Override
-  public void run(@Nonnull JSession session) throws Exception {
+  public void run(@Nonnull JSession session) {
     allTypes = session.getTypesToEmit();
     Map<String, String> fieldNames = new HashMap<String, String>();
     Map<String, String> methodNames = new HashMap<String, String>();

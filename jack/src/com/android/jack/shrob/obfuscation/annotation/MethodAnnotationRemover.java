@@ -59,7 +59,7 @@ public class MethodAnnotationRemover extends AnnotationRemover implements
   }
 
   @Override
-  public void run(@Nonnull JMethod method) throws Exception {
+  public void run(@Nonnull JMethod method) {
     TransformationRequest request = new TransformationRequest(method);
 
     for (JAnnotation annotation : method.getAnnotations()) {

@@ -35,7 +35,7 @@ import javax.annotation.Nonnull;
 public class TypeGenericSignatureRemover implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface type) {
     type.removeMarker(GenericSignature.class);
   }
 

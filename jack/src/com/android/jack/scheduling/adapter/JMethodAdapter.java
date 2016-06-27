@@ -40,8 +40,7 @@ public class JMethodAdapter
    */
   @Override
   @Nonnull
-  public Iterator<JMethod> adapt(@Nonnull JDefinedClassOrInterface declaredType)
-      throws Exception {
+  public Iterator<JMethod> adapt(@Nonnull JDefinedClassOrInterface declaredType) {
     return new ArrayList<JMethod>(declaredType.getMethods()).iterator();
   }
 }

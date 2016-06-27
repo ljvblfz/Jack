@@ -35,7 +35,7 @@ import javax.annotation.Nonnull;
 public class ThrownExceptionRemover implements RunnableSchedulable<JMethod> {
 
   @Override
-  public void run(@Nonnull JMethod method) throws Exception {
+  public void run(@Nonnull JMethod method) {
     method.removeMarker(ThrownExceptionMarker.class);
   }
 

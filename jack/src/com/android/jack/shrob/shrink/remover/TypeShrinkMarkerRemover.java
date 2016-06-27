@@ -32,7 +32,7 @@ import javax.annotation.Nonnull;
 public class TypeShrinkMarkerRemover implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface type) {
     type.removeMarker(KeepMarker.class);
   }
 

@@ -30,6 +30,6 @@ import javax.annotation.Nonnull;
 public class VerifierRunnable1 implements RunnableSchedulable<Component0> {
 
   @Override
-  public void run(@Nonnull Component0 t) throws Exception {
+  public void run(@Nonnull Component0 t) {
   }
 }

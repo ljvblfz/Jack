@@ -32,7 +32,7 @@ import javax.annotation.Nonnull;
 public class MethodKeepMarkerRemover implements RunnableSchedulable<JMethod> {
 
   @Override
-  public void run(@Nonnull JMethod method) throws Exception {
+  public void run(@Nonnull JMethod method) {
     method.removeMarker(KeepMarker.class);
   }
 

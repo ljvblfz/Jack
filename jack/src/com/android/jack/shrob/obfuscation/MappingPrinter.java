@@ -200,7 +200,7 @@ public class MappingPrinter implements RunnableSchedulable<JSession> {
   }
 
   @Override
-  public void run(@Nonnull JSession session) throws Exception {
+  public void run(@Nonnull JSession session) {
     CustomPrintWriter writer = file.getPrintWriter();
     try {
       Visitor visitor = new Visitor(writer);

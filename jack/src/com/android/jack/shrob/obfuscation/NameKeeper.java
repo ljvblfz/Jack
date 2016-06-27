@@ -201,7 +201,7 @@ public class NameKeeper implements RunnableSchedulable<JPackage> {
   }
 
   @Override
-  public void run(@Nonnull JPackage pack) throws Exception {
+  public void run(@Nonnull JPackage pack) {
     new Visitor().accept(pack);
   }
 

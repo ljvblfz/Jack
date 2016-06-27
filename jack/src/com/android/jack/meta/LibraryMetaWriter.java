@@ -16,12 +16,17 @@
 
 package com.android.jack.meta;
 
+import com.android.jack.Jack;
+import com.android.jack.JackAbortException;
 import com.android.jack.analysis.dependency.Dependency;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.library.FileType;
 import com.android.jack.library.InputLibrary;
+import com.android.jack.library.LibraryIOException;
+import com.android.jack.library.LibraryWritingException;
 import com.android.jack.library.MetaInInputLibraryLocation;
 import com.android.jack.library.OutputJackLibrary;
+import com.android.jack.reporting.Reporter.Severity;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.util.file.CannotCloseException;
@@ -46,29 +51,37 @@ import javax.annotation.Nonnull;
 public class LibraryMetaWriter implements RunnableSchedulable<JSession> {
 
   @Override
-  public void run(@Nonnull JSession session) throws Exception {
+  public void run(@Nonnull JSession session) {
     OutputJackLibrary ojl = session.getJackOutputLibrary();
 
-    // add metas from --import-meta
-    List<Meta> metas = session.getMetas();
-    for (Meta meta : metas) {
-      addMetaToOutputJackLib(meta, ojl);
-    }
+    try {
+      // add metas from --import-meta
+      List<Meta> metas = session.getMetas();
+      for (Meta meta : metas) {
+        addMetaToOutputJackLib(meta, ojl);
+      }
 
-    // add metas from --import-jack libs
-    for (InputLibrary importedLibrary : session.getImportedLibraries()) {
-      if (importedLibrary.containsFileType(FileType.META)) {
-        Iterator<InputVFile> metaIter = importedLibrary.iterator(FileType.META);
-        while (metaIter.hasNext()) {
-          InputVFile metaFile = metaIter.next();
-          if (!metaFile.getName().endsWith(Dependency.DEPENDENCY_FILE_EXTENSION)) {
-            VPath path = getNameFromInputVFile(importedLibrary, metaFile);
-            Meta meta = new Meta(path, metaFile,
-                new MetaInInputLibraryLocation(importedLibrary, path));
-            addMetaToOutputJackLib(meta, ojl);
+      // add metas from --import-jack libs
+      for (InputLibrary importedLibrary : session.getImportedLibraries()) {
+        if (importedLibrary.containsFileType(FileType.META)) {
+          Iterator<InputVFile> metaIter = importedLibrary.iterator(FileType.META);
+          while (metaIter.hasNext()) {
+            InputVFile metaFile = metaIter.next();
+            if (!metaFile.getName().endsWith(Dependency.DEPENDENCY_FILE_EXTENSION)) {
+              VPath path = getNameFromInputVFile(importedLibrary, metaFile);
+              Meta meta = new Meta(path, metaFile,
+                  new MetaInInputLibraryLocation(importedLibrary, path));
+              addMetaToOutputJackLib(meta, ojl);
+            }
           }
         }
       }
+    } catch (CannotCreateFileException | WrongPermissionException | CannotCloseException
+        | CannotReadException | CannotWriteException e) {
+      LibraryWritingException reportable =
+          new LibraryWritingException(new LibraryIOException(ojl.getLocation(), e));
+      Jack.getSession().getReporter().report(Severity.FATAL, reportable);
+      throw new JackAbortException(reportable);
     }
   }
 

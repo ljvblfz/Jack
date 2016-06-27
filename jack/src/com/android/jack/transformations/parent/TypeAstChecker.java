@@ -77,7 +77,7 @@ public class TypeAstChecker implements RunnableSchedulable<JDefinedClassOrInterf
   }
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface type) {
     Visitor checker = new Visitor();
     checker.accept(type);
   }

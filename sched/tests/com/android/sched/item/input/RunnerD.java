@@ -34,7 +34,7 @@ import javax.annotation.Nonnull;
 @Produce(Production1.class)
 public class RunnerD extends RunnerTest implements RunnableSchedulable<Component0> {
   @Override
-  public void run(@Nonnull Component0 v) throws Exception {
+  public void run(@Nonnull Component0 v) {
     produce(Production1.class);
   }
 }

@@ -99,7 +99,7 @@ public abstract class TypeRemover implements RunnableSchedulable<JDefinedClassOr
   }
 
   @Override
-  public synchronized void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+  public synchronized void run(@Nonnull JDefinedClassOrInterface type) {
     boolean toRemove = mustBeRemoved(type);
     if (toRemove) {
       TransformationRequest request = new TransformationRequest(type);

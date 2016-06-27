@@ -42,7 +42,7 @@ import javax.annotation.Nonnull;
 @Optional(@ToSupport(feature = Feature1.class, add = @Constraint(need = Marker3.class)))
 public class Runner4 extends RunnerTest implements RunnableSchedulable<Component0> {
   @Override
-  public void run(@Nonnull Component0 v) throws Exception {
+  public void run(@Nonnull Component0 v) {
     need(Marker4.class);
     need(Marker5.class);
     need(Tag3.class);

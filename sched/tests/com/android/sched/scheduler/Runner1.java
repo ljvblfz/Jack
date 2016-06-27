@@ -32,7 +32,7 @@ import javax.annotation.Nonnull;
 @Transform(add = Marker1.class)
 public class Runner1 extends RunnerTest implements RunnableSchedulable<Component0> {
   @Override
-  public void run(@Nonnull Component0 v) throws Exception {
+  public void run(@Nonnull Component0 v) {
     add(Marker1.class);
   }
 }

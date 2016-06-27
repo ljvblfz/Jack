@@ -54,7 +54,7 @@ public class ClassFinalizer
   private final Tracer tracer = TracerFactory.getTracer();
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface type) {
     if (type instanceof JDefinedClass) {
       JDefinedClass definedClass = (JDefinedClass) type;
       if (!DirectlyDerivedClassesMarker.hasDirectlyDerivedClasses(definedClass)) {

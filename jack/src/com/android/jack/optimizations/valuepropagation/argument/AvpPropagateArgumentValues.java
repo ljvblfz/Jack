@@ -57,7 +57,7 @@ public class AvpPropagateArgumentValues extends AvpSchedulable
   private final Tracer tracer = TracerFactory.getTracer();
 
   @Override
-  public void run(@Nonnull final JMethod method) throws Exception {
+  public void run(@Nonnull final JMethod method) {
     LiteralValueListTracker tracker =
         MethodCallArgumentsMarker.getTrackerAndRemoveMarker(method);
     boolean isTainted = TaintedMethodMarker.checkIfTaintedAndRemoveMarker(method);

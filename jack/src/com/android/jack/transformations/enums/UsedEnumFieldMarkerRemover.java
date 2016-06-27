@@ -36,7 +36,7 @@ import javax.annotation.Nonnull;
 public class UsedEnumFieldMarkerRemover implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface t) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface t) {
     t.removeMarker(SwitchEnumSupport.UsedEnumField.class);
   }
 }

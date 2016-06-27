@@ -55,7 +55,7 @@ import javax.annotation.Nonnull;
 @Filter(TypeWithoutPrebuiltFilter.class)
 public class CodeCoverageAnalyzer implements RunnableSchedulable<JMethod> {
   @Override
-  public void run(@Nonnull JMethod m) throws Exception {
+  public void run(@Nonnull JMethod m) {
     if (m.isNative() || m.isAbstract()) {
       // This method has no code so cannot be instrumented.
       return;

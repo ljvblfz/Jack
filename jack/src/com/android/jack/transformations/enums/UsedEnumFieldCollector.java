@@ -67,7 +67,7 @@ public class UsedEnumFieldCollector implements RunnableSchedulable<JDefinedClass
   }
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface declaredType) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface declaredType) {
     Collector c = new Collector();
     c.accept(declaredType);
   }

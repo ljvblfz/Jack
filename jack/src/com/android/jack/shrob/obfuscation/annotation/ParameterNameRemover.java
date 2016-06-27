@@ -34,7 +34,7 @@ import javax.annotation.Nonnull;
 public class ParameterNameRemover implements RunnableSchedulable<JMethod> {
 
   @Override
-  public void run(@Nonnull JMethod t) throws Exception {
+  public void run(@Nonnull JMethod t) {
     for (JParameter param : t.getParams()) {
       param.setName(null);
     }

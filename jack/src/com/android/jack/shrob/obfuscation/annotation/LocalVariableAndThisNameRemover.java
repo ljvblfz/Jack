@@ -49,7 +49,7 @@ public class LocalVariableAndThisNameRemover implements RunnableSchedulable<JMet
   }
 
   @Override
-  public void run(@Nonnull JMethod t) throws Exception {
+  public void run(@Nonnull JMethod t) {
     Visitor visitor = new Visitor();
     visitor.accept(t);
   }

@@ -38,7 +38,7 @@ import javax.annotation.Nonnull;
 public class JNodeAdapter implements AdapterSchedulable<JDefinedClassOrInterface, JNode> {
   @Override
   @Nonnull
-  public Iterator<JNode> adapt(@Nonnull JDefinedClassOrInterface type) throws Exception {
+  public Iterator<JNode> adapt(@Nonnull JDefinedClassOrInterface type) {
     throw new AssertionError("NYI");
   }
 }

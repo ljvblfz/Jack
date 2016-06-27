@@ -185,7 +185,7 @@ public class DefaultBridgeInLambdaAdder implements RunnableSchedulable<JMethod> 
   }
 
   @Override
-  public void run(@Nonnull JMethod method) throws Exception {
+  public void run(@Nonnull JMethod method) {
     if (androidMinApiLevel >= AndroidCompatibilityChecker.N_API_LEVEL || method.isNative()
         || method.isAbstract() || !filter.accept(this.getClass(), method)) {
       return;

@@ -26,7 +26,7 @@ import com.android.sched.schedulable.RunnableSchedulable;
 @Filter({FilterOutC3.class, FilterB2.class})
 public class R_C implements RunnableSchedulable<C_C> {
   @Override
-  public void run(C_C t) throws Exception {
+  public void run(C_C t) {
     R_Common.list.add(t.getString());
   }
 }

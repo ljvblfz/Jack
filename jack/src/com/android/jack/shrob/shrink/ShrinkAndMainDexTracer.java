@@ -51,7 +51,7 @@ public class ShrinkAndMainDexTracer implements RunnableSchedulable<JDefinedClass
       new TracerBrush[] {new MultiDexLegacyTracerBrush(), new KeeperBrush()};
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface type) {
     new Tracer(new ComposedTracerBrush(BRUSHES)).run(type);
   }
 

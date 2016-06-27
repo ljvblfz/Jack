@@ -67,7 +67,7 @@ public class MethodFinalizer
   @Nonnull
   private final TypePackageAndMethodFormatter formatter = Jack.getLookupFormatter();
 
-  @Override public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+  @Override public void run(@Nonnull JDefinedClassOrInterface type) {
     // We want to analyze class hierarchies (trees) consisting from the classes
     // that are going to be emitted
     JClass superClass = type.getSuperClass();

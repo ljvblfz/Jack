@@ -65,7 +65,7 @@ public class MethodStats implements RunnableSchedulable<JMethod> {
       CounterImpl.class, Counter.class);
 
   @Override
-  public void run(@Nonnull JMethod method) throws Exception {
+  public void run(@Nonnull JMethod method) {
     if (!filter.accept(this.getClass(), method)) {
       return;
     }

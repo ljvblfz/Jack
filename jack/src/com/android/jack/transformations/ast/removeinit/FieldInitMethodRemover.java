@@ -48,7 +48,7 @@ public class FieldInitMethodRemover implements RunnableSchedulable<JDefinedClass
   static final String VAR_INIT_METHOD_NAME = "$init";
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface declaredType) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface declaredType) {
     if (declaredType instanceof JDefinedClass) {
       try {
         JMethod varInitMethod =

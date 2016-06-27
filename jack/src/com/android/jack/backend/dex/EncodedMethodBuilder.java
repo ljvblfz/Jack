@@ -75,7 +75,7 @@ public class EncodedMethodBuilder implements RunnableSchedulable<JMethod> {
    * no {@code EncodedMethod} is created.
    */
   @Override
-  public synchronized void run(@Nonnull JMethod method) throws Exception {
+  public synchronized void run(@Nonnull JMethod method) {
     JDefinedClassOrInterface declaringClass = method.getEnclosingType();
 
     ClassDefItemMarker classDefItemMarker =

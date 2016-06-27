@@ -45,7 +45,7 @@ public class FileDependenciesCollector implements
   private final JSession session = Jack.getSession();
 
   @Override
-  public synchronized void run(@Nonnull JDefinedClassOrInterface declaredType) throws Exception {
+  public synchronized void run(@Nonnull JDefinedClassOrInterface declaredType) {
     if (declaredType.getSourceInfo() == SourceInfo.UNKNOWN) {
       return;
     }

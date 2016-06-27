@@ -173,7 +173,7 @@ public class DalvikProtectedInnerChecker implements RunnableSchedulable<JMethod>
       ThreadConfig.get(Options.ANDROID_MIN_API_LEVEL).intValue() < 20;
 
   @Override
-  public void run(@Nonnull JMethod method) throws Exception {
+  public void run(@Nonnull JMethod method) {
     if ((!needCheck) || method.isNative() || method.isAbstract()
         || !filter.accept(this.getClass(), method)) {
       return;

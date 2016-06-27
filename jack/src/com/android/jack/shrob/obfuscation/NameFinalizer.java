@@ -30,6 +30,6 @@ import javax.annotation.Nonnull;
 @Transform(add = FinalNames.class)
 public class NameFinalizer implements RunnableSchedulable<JSession> {
   @Override
-  public void run(@Nonnull JSession t) throws Exception {
+  public void run(@Nonnull JSession t) {
   }
 }

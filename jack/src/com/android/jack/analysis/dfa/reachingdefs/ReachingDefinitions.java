@@ -43,6 +43,7 @@ import com.android.sched.util.config.id.PropertyId;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -72,7 +73,7 @@ public class ReachingDefinitions implements RunnableSchedulable<JMethod> {
   private final ReachingDefinitionsChecker checker =  ThreadConfig.get(REACHING_DEFS_CHECKER);
 
   @Override
-  public void run(@Nonnull JMethod method) throws Exception {
+  public void run(@Nonnull JMethod method) {
     if (method.isNative() || method.isAbstract() || !filter.accept(this.getClass(), method)) {
       return;
     }

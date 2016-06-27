@@ -70,7 +70,7 @@ public class IntersectionTypeRemover implements RunnableSchedulable<JMethod> {
   }
 
   @Override
-  public void run(@Nonnull JMethod method) throws Exception {
+  public void run(@Nonnull JMethod method) {
     TransformationRequest request = new TransformationRequest(method);
     Visitor visitor = new Visitor(request);
     visitor.accept(method);

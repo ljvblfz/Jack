@@ -36,7 +36,7 @@ import javax.annotation.Nonnull;
 public class EnumMappingMarkerRemover implements RunnableSchedulable<JMethod> {
 
   @Override
-  public void run(@Nonnull JMethod method) throws Exception {
+  public void run(@Nonnull JMethod method) {
 
     method.removeMarker(EnumMappingMarker.class);
   }

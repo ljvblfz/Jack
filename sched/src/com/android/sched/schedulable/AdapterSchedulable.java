@@ -38,5 +38,5 @@ public interface AdapterSchedulable<SRC extends Component, DST extends Component
    * @throws Exception if any Exception is thrown during the visit
    */
   @Nonnull
-  public Iterator<DST> adapt(@Nonnull SRC data) throws Exception;
+  public Iterator<DST> adapt(@Nonnull SRC data);
 }

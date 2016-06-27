@@ -47,7 +47,7 @@ public class WofrRemoveFields extends WofrSchedulable
   private final Tracer tracer = TracerFactory.getTracer();
 
   @Override
-  public synchronized void run(@Nonnull final JField field) throws Exception {
+  public synchronized void run(@Nonnull final JField field) {
     if (!preserveReflections &&
         !FieldReadWriteCountsMarker.hasReads(field) &&
         !FieldReadWriteCountsMarker.hasWrites(field)) {

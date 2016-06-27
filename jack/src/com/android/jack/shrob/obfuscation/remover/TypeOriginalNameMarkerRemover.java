@@ -33,7 +33,7 @@ public class TypeOriginalNameMarkerRemover
     implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface type) {
     type.removeMarker(OriginalNameMarker.class);
   }
 

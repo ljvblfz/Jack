@@ -89,10 +89,9 @@ public class ClassDefItemBuilder implements RunnableSchedulable<JDefinedClassOrI
    *
    * @param declaredType a non-null {@code JDeclaredType} for which a {@code ClassDefItem}
    * is created.
-   * @throws Exception if any exception is thrown while building the {@code ClassDefItem}.
    */
   @Override
-  public synchronized void run(@Nonnull JDefinedClassOrInterface declaredType) throws Exception {
+  public synchronized void run(@Nonnull JDefinedClassOrInterface declaredType) {
     ClassDefItem classDefItem = createClassDefItem(declaredType);
     ClassDefItemMarker classDefItemMarker = new ClassDefItemMarker(classDefItem);
     declaredType.addMarker(classDefItemMarker);

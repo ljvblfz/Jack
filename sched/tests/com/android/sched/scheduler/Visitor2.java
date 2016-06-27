@@ -32,8 +32,7 @@ import javax.annotation.Nonnull;
 public class Visitor2 implements AdapterSchedulable<Component2, Component1> {
   @Override
   @Nonnull
-  public Iterator<Component1> adapt(@Nonnull Component2 b)
-      throws Exception {
+  public Iterator<Component1> adapt(@Nonnull Component2 b) {
     return new SpecificIterator();
   }
 

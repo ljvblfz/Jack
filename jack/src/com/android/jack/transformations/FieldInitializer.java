@@ -52,7 +52,7 @@ import javax.annotation.Nonnull;
 public class FieldInitializer implements RunnableSchedulable<JField> {
 
   @Override
-  public void run(@Nonnull JField field) throws Exception {
+  public void run(@Nonnull JField field) {
     InitializationExpression marker = field.getMarker(InitializationExpression.class);
     if (marker != null) {
       assert field.isStatic() : "Not yet supported";

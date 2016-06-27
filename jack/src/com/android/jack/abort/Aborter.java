@@ -30,7 +30,7 @@ import javax.annotation.Nonnull;
 public class Aborter implements RunnableSchedulable<JSession> {
 
   @Override
-  public void run(@Nonnull JSession t) throws Exception {
+  public void run(@Nonnull JSession t) {
     if (t.mustAbortEventually()) {
       throw new JackAbortException();
     }

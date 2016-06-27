@@ -31,7 +31,7 @@ import javax.annotation.Nonnull;
 @Transform(add = Marker4.class)
 public class Runner7Bis extends RunnerTest implements RunnerInterface {
   @Override
-  public void run(@Nonnull Component0 v) throws Exception {
+  public void run(@Nonnull Component0 v) {
     add(Marker4.class);
   }
 }

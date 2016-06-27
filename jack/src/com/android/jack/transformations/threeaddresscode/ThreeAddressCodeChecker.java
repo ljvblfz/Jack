@@ -121,7 +121,7 @@ public class ThreeAddressCodeChecker implements RunnableSchedulable<JMethod>{
   private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
 
   @Override
-  public void run(@Nonnull JMethod method) throws Exception {
+  public void run(@Nonnull JMethod method) {
     if (method.isNative() || method.isAbstract() || !filter.accept(this.getClass(), method)) {
       return;
     }

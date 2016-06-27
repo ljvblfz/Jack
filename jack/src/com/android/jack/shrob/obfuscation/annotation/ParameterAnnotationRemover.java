@@ -113,7 +113,7 @@ public class ParameterAnnotationRemover extends AnnotationRemover implements
   }
 
   @Override
-  public void run(@Nonnull JMethod t) throws Exception {
+  public void run(@Nonnull JMethod t) {
     TransformationRequest request = new TransformationRequest(t);
     Visitor visitor = new Visitor(request);
     visitor.accept(t);

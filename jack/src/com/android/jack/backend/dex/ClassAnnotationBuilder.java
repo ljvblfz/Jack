@@ -50,7 +50,7 @@ import javax.annotation.Nonnull;
 public class ClassAnnotationBuilder implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface declaredType) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface declaredType) {
     Collection<JAnnotation> annotations = declaredType.getAnnotations();
     if (!annotations.isEmpty()) {
       Annotations classAnnotations = new AnnotationBuilder().createAnnotations(annotations);

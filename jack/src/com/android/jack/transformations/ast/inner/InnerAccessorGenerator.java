@@ -421,7 +421,7 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClass
       });
 
   @Override
-  public synchronized void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+  public synchronized void run(@Nonnull JDefinedClassOrInterface type) {
     // Start visit on outer types for a deterministic visit order.
     if (type.getEnclosingType() != null) {
       return;

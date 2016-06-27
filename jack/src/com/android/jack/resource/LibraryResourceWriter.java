@@ -16,18 +16,28 @@
 
 package com.android.jack.resource;
 
+import com.android.jack.Jack;
+import com.android.jack.JackAbortException;
 import com.android.jack.Options;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.Resource;
 import com.android.jack.library.FileType;
+import com.android.jack.library.LibraryIOException;
+import com.android.jack.library.LibraryWritingException;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.library.ResourceInInputLibraryLocation;
+import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.scheduling.feature.Resources;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.file.CannotCloseException;
+import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.CannotReadException;
+import com.android.sched.util.file.CannotWriteException;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.OutputVFile;
 import com.android.sched.vfs.VPath;
@@ -45,7 +55,7 @@ import javax.annotation.Nonnull;
 public class LibraryResourceWriter implements RunnableSchedulable<JSession> {
 
   @Override
-  public void run(@Nonnull JSession session) throws Exception {
+  public void run(@Nonnull JSession session) {
     OutputJackLibrary ojl = session.getJackOutputLibrary();
     List<Resource> resources = session.getResources();
     boolean generateLibFromIncremental =
@@ -55,8 +65,16 @@ public class LibraryResourceWriter implements RunnableSchedulable<JSession> {
           || !generateLibFromIncremental) {
         InputVFile inputFile = resource.getVFile();
         VPath path = resource.getPath();
-        OutputVFile outputFile = ojl.createFile(FileType.RSC, path);
-        outputFile.copy(inputFile);
+        try {
+          OutputVFile outputFile = ojl.createFile(FileType.RSC, path);
+          outputFile.copy(inputFile);
+        } catch (CannotCreateFileException | WrongPermissionException | CannotCloseException
+            | CannotReadException | CannotWriteException e) {
+          LibraryWritingException reportable =
+              new LibraryWritingException(new LibraryIOException(ojl.getLocation(), e));
+          Jack.getSession().getReporter().report(Severity.FATAL, reportable);
+          throw new JackAbortException(reportable);
+        }
       }
     }
   }

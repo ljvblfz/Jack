@@ -54,6 +54,6 @@ import javax.annotation.Nonnull;
 unprotect = @With(remove = Marker1.class, add=Marker6.class))
 public class Runner1 implements RunnableSchedulable<Component0> {
   @Override
-  public void run(@Nonnull Component0 v) throws Exception {
+  public void run(@Nonnull Component0 v) {
   }
 }

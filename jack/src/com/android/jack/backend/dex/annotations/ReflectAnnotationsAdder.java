@@ -400,7 +400,7 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
   }
 
   @Override
-  public synchronized void run(@Nonnull JDefinedClassOrInterface declaredType) throws Exception {
+  public synchronized void run(@Nonnull JDefinedClassOrInterface declaredType) {
     TransformationRequest tr = new TransformationRequest(declaredType);
     Visitor visitor = new Visitor(tr, Jack.getSession().getPhantomLookup());
     visitor.accept(declaredType);

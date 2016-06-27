@@ -51,7 +51,7 @@ public class FieldShrinker implements RunnableSchedulable<JField> {
   private final com.android.sched.util.log.Tracer tracer = TracerFactory.getTracer();
 
   @Override
-  public synchronized void run(@Nonnull JField field) throws Exception {
+  public synchronized void run(@Nonnull JField field) {
     boolean toRemove = !field.containsMarker(KeepMarker.class);
     if (toRemove) {
       TransformationRequest request = new TransformationRequest(field);

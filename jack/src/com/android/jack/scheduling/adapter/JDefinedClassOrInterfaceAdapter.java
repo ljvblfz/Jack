@@ -40,8 +40,7 @@ public class JDefinedClassOrInterfaceAdapter
    */
   @Override
   @Nonnull
-  public Iterator<JDefinedClassOrInterface> adapt(@Nonnull JSession session)
-      throws Exception {
+  public Iterator<JDefinedClassOrInterface> adapt(@Nonnull JSession session) {
     // Use a copy to scan types in order to support concurrent modification.
     return new ArrayList<JDefinedClassOrInterface>(session.getTypesToEmit()).iterator();
   }

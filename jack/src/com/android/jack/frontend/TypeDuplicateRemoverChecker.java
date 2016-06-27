@@ -67,7 +67,7 @@ public class TypeDuplicateRemoverChecker implements RunnableSchedulable<JSession
   }
 
   @Override
-  public void run(@Nonnull JSession session) throws Exception {
+  public void run(@Nonnull JSession session) {
     TypeDuplicateRemoverChecker.checkFieldsOf(Jack.getSession().getPhantomLookup().getClass(),
         Jack.getSession().getPhantomLookup(), session);
 

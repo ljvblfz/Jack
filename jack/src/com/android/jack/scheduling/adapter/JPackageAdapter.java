@@ -38,8 +38,7 @@ import javax.annotation.Nonnull;
 @Name("JPackageAdapter")
 public class JPackageAdapter implements AdapterSchedulable<JSession, JPackage> {
   @Nonnull
-  private Iterator<JPackage> process(@Nonnull JPackage pack)
-      throws Exception {
+  private Iterator<JPackage> process(@Nonnull JPackage pack) {
     // Use another list to scan packages in order to support concurrent modification.
     List<JPackage> packages = new ArrayList<JPackage>(pack.getSubPackages());
 
@@ -57,8 +56,7 @@ public class JPackageAdapter implements AdapterSchedulable<JSession, JPackage> {
    */
   @Override
   @Nonnull
-  public Iterator<JPackage> adapt(@Nonnull JSession session)
-      throws Exception {
+  public Iterator<JPackage> adapt(@Nonnull JSession session) {
     return Iterators.concat(Iterators.singletonIterator(session.getTopLevelPackage()),
         process(session.getTopLevelPackage()));
   }

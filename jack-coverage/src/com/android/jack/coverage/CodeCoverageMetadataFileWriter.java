@@ -249,7 +249,7 @@ public class CodeCoverageMetadataFileWriter implements RunnableSchedulable<JSess
   }
 
   @Override
-  public void run(@Nonnull JSession session) throws Exception {
+  public void run(@Nonnull JSession session) {
     WriterFile file = ThreadConfig.get(CodeCoverage.COVERAGE_METADATA_FILE);
     CustomPrintWriter writer = file.getPrintWriter();
 

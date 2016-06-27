@@ -44,7 +44,7 @@ import javax.annotation.Nonnull;
 public class AnnotatedFinder implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface type) {
     if (hasRuntimeAnnotation(type)) {
       type.addMarker(MainDexMarker.INSTANCE);
     }

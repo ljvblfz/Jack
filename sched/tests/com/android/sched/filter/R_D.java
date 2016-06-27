@@ -24,7 +24,7 @@ import com.android.sched.schedulable.RunnableSchedulable;
 @OnlyFor(FilterTest.class)
 public class R_D implements RunnableSchedulable<C_D> {
   @Override
-  public void run(C_D t) throws Exception {
+  public void run(C_D t) {
     R_Common.list.add(t.getString());
   }
 }

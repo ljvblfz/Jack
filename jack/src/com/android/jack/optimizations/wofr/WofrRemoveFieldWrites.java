@@ -133,7 +133,7 @@ public class WofrRemoveFieldWrites extends WofrSchedulable
   }
 
   @Override
-  public void run(@Nonnull final JMethod method) throws Exception {
+  public void run(@Nonnull final JMethod method) {
     if (method.isAbstract() || method.isNative()) {
       return;
     }

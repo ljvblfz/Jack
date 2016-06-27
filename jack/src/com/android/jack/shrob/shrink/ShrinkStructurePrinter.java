@@ -64,7 +64,7 @@ public class ShrinkStructurePrinter implements RunnableSchedulable<JSession> {
   }
 
   @Override
-  public void run(@Nonnull JSession session) throws Exception {
+  public void run(@Nonnull JSession session) {
     try {
       StructurePrinter visitor = new StructurePrinter(writer);
       visitor.accept(session.getTypesToEmit());

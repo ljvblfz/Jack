@@ -30,7 +30,7 @@ import javax.annotation.Nonnull;
 public class SourceFileRemover implements RunnableSchedulable<JSession> {
 
   @Override
-  public void run(@Nonnull JSession session) throws Exception {
+  public void run(@Nonnull JSession session) {
     for (FileSourceInfo info : session.getSourceInfoFactory().getFileSourceInfos()) {
       info.setFileName("");
     }

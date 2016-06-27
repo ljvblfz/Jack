@@ -61,7 +61,7 @@ public class EncodedFieldBuilder implements RunnableSchedulable<JField> {
    * no {@code EncodedField} is created.
    */
   @Override
-  public synchronized void run(@Nonnull JField field) throws Exception {
+  public synchronized void run(@Nonnull JField field) {
     JDefinedClassOrInterface declaringClass = field.getEnclosingType();
 
     ClassDefItemMarker classDefItemMarker =

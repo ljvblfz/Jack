@@ -16,16 +16,23 @@
 
 package com.android.jack.preprocessor;
 
+import com.android.jack.Jack;
 import com.android.jack.ir.ast.Annotable;
 import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.library.FileType;
 import com.android.jack.library.InputLibrary;
+import com.android.jack.reporting.ReportableException;
+import com.android.jack.reporting.Reporter.Severity;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.file.CannotCloseException;
+import com.android.sched.util.file.CannotReadException;
 import com.android.sched.util.file.ReaderFile;
+import com.android.sched.util.file.WrongPermissionException;
+import com.android.sched.util.location.HasLocation;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.InputVFile;
@@ -58,21 +65,22 @@ public class PreProcessorApplier implements RunnableSchedulable<JSession> {
   private static final Logger logger = LoggerFactory.getLogger();
 
   @Override
-  public void run(@Nonnull JSession session) throws Exception {
+  public void run(@Nonnull JSession session) {
 
     Collection<Rule> rules = new ArrayList<Rule>();
 
     if (ThreadConfig.get(PreProcessor.ENABLE).booleanValue()) {
       ReaderFile inputFile = ThreadConfig.get(PreProcessor.FILE);
-      Reader inputStream = inputFile.getBufferedReader();
       try {
-        rules.addAll(parseRules(session, inputStream, inputFile.getLocation()));
-      } finally {
-        try {
-          inputStream.close();
+        try (Reader inputStream = inputFile.getBufferedReader()) {
+          rules.addAll(parseRules(session, inputStream, inputFile.getLocation()));
         } catch (IOException e) {
-          // nothing to handle for inputs
+          throw new CannotCloseException(inputFile, e);
         }
+      } catch (CannotReadException | CannotCloseException | RecognitionException e) {
+        JppParsingException reportable = new JppParsingException(inputFile, e);
+        Jack.getSession().getReporter().report(Severity.FATAL, reportable);
+        Jack.getSession().abortEventually();
       }
     }
 
@@ -82,16 +90,18 @@ public class PreProcessorApplier implements RunnableSchedulable<JSession> {
       while (metaFileIt.hasNext()) {
         InputVFile inputFile = metaFileIt.next();
         if (inputFile.getName().endsWith(PreProcessor.PREPROCESSOR_FILE_EXTENSION)) {
-          InputStream inputStream = inputFile.getInputStream();
           try {
-            rules.addAll(
-                parseRules(session, new InputStreamReader(inputStream), inputFile.getLocation()));
-          } finally {
-            try {
-              inputStream.close();
+            try (InputStream inputStream = inputFile.getInputStream()) {
+              rules.addAll(
+                  parseRules(session, new InputStreamReader(inputStream), inputFile.getLocation()));
             } catch (IOException e) {
-              // nothing to handle for inputs
+              throw new CannotCloseException(inputFile, e);
             }
+          } catch (CannotReadException | WrongPermissionException | CannotCloseException
+              | RecognitionException e) {
+            JppParsingException reportable = new JppParsingException(inputFile, e);
+            Jack.getSession().getReporter().report(Severity.FATAL, reportable);
+            Jack.getSession().abortEventually();
           }
         }
       }
@@ -104,8 +114,13 @@ public class PreProcessorApplier implements RunnableSchedulable<JSession> {
   private Collection<Rule> parseRules(
       @Nonnull JSession session,
       @Nonnull Reader reader,
-      @Nonnull Location location) throws IOException, RecognitionException {
-    ANTLRReaderStream in = new ANTLRReaderStream(reader);
+      @Nonnull Location location) throws RecognitionException, CannotReadException {
+    ANTLRReaderStream in;
+    try {
+      in = new ANTLRReaderStream(reader);
+    } catch (IOException e) {
+      throw new CannotReadException(location, e);
+    }
     PreProcessorLexer lexer = new PreProcessorLexer(in);
     CommonTokenStream tokens = new CommonTokenStream(lexer);
     PreProcessorParser parser = new PreProcessorParser(tokens);
@@ -158,4 +173,31 @@ public class PreProcessorApplier implements RunnableSchedulable<JSession> {
       return annotated.hashCode() ^ annotationType.hashCode();
     }
   }
+
+  private static class JppParsingException extends ReportableException implements HasLocation {
+
+    private static final long serialVersionUID = 1L;
+
+    @Nonnull
+    private final HasLocation locationProvider;
+
+    public JppParsingException(@Nonnull HasLocation locationProvider, @Nonnull Throwable cause) {
+      super(cause);
+      this.locationProvider = locationProvider;
+    }
+
+    @Override
+    @Nonnull
+    public ProblemLevel getDefaultProblemLevel() {
+      return ProblemLevel.ERROR;
+    }
+
+    @Override
+    @Nonnull
+    public Location getLocation() {
+      return locationProvider.getLocation();
+    }
+
+  }
+
 }

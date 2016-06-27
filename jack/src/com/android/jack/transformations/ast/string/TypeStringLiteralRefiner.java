@@ -37,7 +37,7 @@ import javax.annotation.Nonnull;
 public class TypeStringLiteralRefiner implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface type) {
     TransformationRequest tr = new TransformationRequest(type);
     StringLiteralRefinerVisitor visitor = new StringLiteralRefinerVisitor(tr);
     visitor.accept(type);

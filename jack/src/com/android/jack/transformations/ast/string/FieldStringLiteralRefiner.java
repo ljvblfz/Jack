@@ -38,7 +38,7 @@ import javax.annotation.Nonnull;
 public class FieldStringLiteralRefiner implements RunnableSchedulable<JField> {
 
   @Override
-  public void run(@Nonnull JField field) throws Exception {
+  public void run(@Nonnull JField field) {
     TransformationRequest tr = new TransformationRequest(field);
     StringLiteralRefinerVisitor visitor = new StringLiteralRefinerVisitor(tr);
     visitor.accept(field);

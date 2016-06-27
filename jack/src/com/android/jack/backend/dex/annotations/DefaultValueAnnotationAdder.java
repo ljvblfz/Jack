@@ -98,7 +98,7 @@ public class DefaultValueAnnotationAdder implements RunnableSchedulable<JMethod>
   private JAnnotationType defaultAnnotationType;
 
   @Override
-  public synchronized void run(@Nonnull JMethod method) throws Exception {
+  public synchronized void run(@Nonnull JMethod method) {
     final JDefinedClassOrInterface enclosingType = method.getEnclosingType();
 
     if (!filter.accept(this.getClass(), method)) {

@@ -91,7 +91,7 @@ public class AndroidCompatibilityChecker implements RunnableSchedulable<JMethod>
   }
 
   @Override
-  public void run(@Nonnull JMethod m) throws Exception {
+  public void run(@Nonnull JMethod m) {
     if (androidMinApiLevel < N_API_LEVEL) {
       if (m.getEnclosingType() instanceof JInterface && !m.isAbstract() && !JMethod.isClinit(m)) {
         Reportable reportable;

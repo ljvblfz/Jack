@@ -43,7 +43,7 @@ import javax.annotation.Nonnull;
     @ToSupport(feature = Feature2.class, add = @Constraint(need = Marker2.class))})
 public class Runner5 extends RunnerTest implements RunnableSchedulable<Component0> {
   @Override
-  public void run(@Nonnull Component0 v) throws Exception {
+  public void run(@Nonnull Component0 v) {
     need(Marker4.class);
     need(Feature1.class, Marker1.class);
     need(Feature2.class, Marker2.class);

@@ -63,7 +63,7 @@ public class WofrCollectFieldAccesses extends WofrSchedulable
   };
 
   @Override
-  public void run(@Nonnull JMethod method) throws Exception {
+  public void run(@Nonnull JMethod method) {
     if (!method.isAbstract() && !method.isNative()) {
       ANALYZER.accept(method);
     }

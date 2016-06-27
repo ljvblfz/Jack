@@ -49,7 +49,7 @@ public class TypeShrinker extends TypeRemover {
   }
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface type) {
     super.run(type);
     tracer.getStatistic(ShrinkStatistic.TYPES_REMOVED).add(mustBeRemoved(type));
   }
