@@ -20,6 +20,7 @@ import com.android.jack.Jack;
 import com.android.jack.Options;
 import com.android.jack.ir.HasSourceInfo;
 import com.android.jack.ir.ast.JArrayType;
+import com.android.jack.ir.ast.JCastOperation;
 import com.android.jack.ir.ast.JClassLiteral;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDynamicCastOperation;
@@ -32,10 +33,12 @@ import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.reporting.Reportable;
 import com.android.jack.reporting.Reporter.Severity;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Feature;
 import com.android.sched.item.Name;
+import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.ThreadConfig;
@@ -68,6 +71,8 @@ import javax.annotation.Nonnull;
  */
 @Description("Check triggers of Dalvik bug about usage of arrays of protected inner classes.")
 @Support(DalvikProtectedInnerChecker.DalvikProtectedInnerCheck.class)
+@Constraint(no = JCastOperation.WithIntersectionType.class)
+@com.android.sched.schedulable.Filter(TypeWithoutPrebuiltFilter.class)
 public class DalvikProtectedInnerChecker implements RunnableSchedulable<JMethod> {
 
   /**
@@ -85,8 +90,8 @@ public class DalvikProtectedInnerChecker implements RunnableSchedulable<JMethod>
     @Nonnull
     private final JDefinedClassOrInterface inner;
 
-    private RiskyAccessToArrayOfInner(@Nonnull JDefinedClassOrInterface inner, @Nonnull JNode node)
-    {
+    private RiskyAccessToArrayOfInner(@Nonnull JDefinedClassOrInterface inner,
+        @Nonnull JNode node) {
       this.node = node;
       this.inner = inner;
     }

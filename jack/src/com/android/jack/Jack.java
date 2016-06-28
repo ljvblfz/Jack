@@ -92,6 +92,7 @@ import com.android.jack.incremental.Incremental;
 import com.android.jack.incremental.InputFilter;
 import com.android.jack.ir.JackFormatIr;
 import com.android.jack.ir.JavaSourceIr;
+import com.android.jack.ir.ast.JCastOperation;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
@@ -922,6 +923,9 @@ public abstract class Jack {
     if (ThreadConfig.get(Options.JAVA_SOURCE_VERSION).compareTo(JavaVersion.JAVA_7) >= 0) {
       set.add(JSwitchStatement.SwitchWithString.class);
     }
+    if (ThreadConfig.get(Options.JAVA_SOURCE_VERSION).compareTo(JavaVersion.JAVA_8) >= 0) {
+      set.add(JCastOperation.WithIntersectionType.class);
+    }
     return set;
   }
 
@@ -1156,13 +1160,6 @@ public abstract class Jack {
 
     if (hasSanityChecks) {
       planBuilder.append(TypeDuplicateRemoverChecker.class);
-    }
-
-    if (features.contains(DalvikProtectedInnerCheck.class)) {
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-      SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
-      methodPlan.append(DalvikProtectedInnerChecker.class);
     }
 
     if (features.contains(RemoveTypeDef.class)) {
@@ -1492,6 +1489,13 @@ public abstract class Jack {
         }
         methodPlan.append(EmptyClinitRemover.class);
       }
+    }
+
+    if (features.contains(DalvikProtectedInnerCheck.class)) {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+      SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
+      methodPlan.append(DalvikProtectedInnerChecker.class);
     }
 
     if (productions.contains(DependencyInLibraryProduct.class)) {
