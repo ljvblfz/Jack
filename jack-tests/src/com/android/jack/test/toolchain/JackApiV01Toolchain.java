@@ -101,7 +101,7 @@ public class JackApiV01Toolchain extends JackApiToolchainBase implements JackApi
     super.setVerbose(isVerbose);
     try {
       if (isVerbose) {
-        apiV01Config.setVerbosityLevel(VerbosityLevel.DEBUG);
+        apiV01Config.setVerbosityLevel(VerbosityLevel.INFO);
       } else {
         apiV01Config.setVerbosityLevel(VerbosityLevel.WARNING);
       }
