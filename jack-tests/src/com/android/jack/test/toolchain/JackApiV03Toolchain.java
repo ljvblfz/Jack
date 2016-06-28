@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -47,7 +48,7 @@ public class JackApiV03Toolchain extends JackApiToolchainBase implements JackApi
   @Nonnull
   private Api03Config apiV03Config;
 
-  JackApiV03Toolchain(@Nonnull File jackPrebuilt) {
+  JackApiV03Toolchain(@CheckForNull File jackPrebuilt) {
     super(jackPrebuilt, Api03Config.class);
     apiV03Config = (Api03Config) config;
     addProperty(Options.USE_DEFAULT_LIBRARIES.getName(), "false");
