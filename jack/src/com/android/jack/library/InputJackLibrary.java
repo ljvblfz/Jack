@@ -176,13 +176,13 @@ public abstract class InputJackLibrary extends CommonJackLibrary implements Inpu
 
     if (minorVersion < supportedMinorMin) {
       throw new LibraryVersionException("The version of the library "
-          + getLocation().getDescription() + " is not supported anymore." + "Library version: "
+          + getLocation().getDescription() + " is not supported anymore. " + "Library version: "
           + majorVersion + "." + minorVersion + " - Current version: " + majorVersion + "."
           + supportedMinor + " - Minimum compatible version: " + majorVersion + "."
           + supportedMinorMin);
     } else if (minorVersion > supportedMinor) {
       throw new LibraryVersionException("The version of the library "
-          + getLocation().getDescription() + " is too recent." + "Library version: " + majorVersion
+          + getLocation().getDescription() + " is too recent. " + "Library version: " + majorVersion
           + "." + minorVersion + " - Current version: " + majorVersion + "." + supportedMinor);
     } else if (minorVersion < supportedMinor) {
       Jack.getSession().getUserLogger().log(Level.WARNING, "The version of the library "
