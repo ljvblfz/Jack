@@ -452,6 +452,9 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
     if (!(parent instanceof JDefinedClassOrInterface) && !(parent instanceof JLambda)) {
       throw new JNodeInternalError(this, "Invalid parent");
     }
+    if (params.size() != methodId.getMethodIdWide().getParamTypes().size()) {
+      throw new JNodeInternalError(this, "Parameter size does not match type size of MethodID.");
+    }
   }
 
   public static boolean needThis(int modifier) {

@@ -74,7 +74,6 @@ public class ReferencedOuterFieldsExposer implements RunnableSchedulable<JDefine
           assert id.getMethods().size() == 1;
           if (id.getKind() != MethodKind.STATIC) {
             id.setKind(MethodKind.STATIC);
-            id.addParam(type);
             id.addMarker(NeedsDispatchAdjustment.INSTANCE);
             JParameter thisParam =
                 new JParameter(method.getSourceInfo(), InnerAccessorGenerator.THIS_PARAM_NAME,

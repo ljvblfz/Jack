@@ -41,6 +41,7 @@ public class AppendMethodParam implements TransformationStep, TransformStep {
 
   @Override
   public void apply() throws UnsupportedOperationException {
+    assert method.getParams().size() == method.getMethodIdWide().getParamTypes().size();
     method.addParam(parameter);
     method.getMethodIdWide().addParam(parameter.getType());
     parameter.updateParents(method);

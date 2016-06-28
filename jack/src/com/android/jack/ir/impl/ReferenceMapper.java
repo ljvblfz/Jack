@@ -387,6 +387,8 @@ public class ReferenceMapper {
 
     addGenericSignatureMarker(typeBinding, param);
 
+    assert method.getParams().size() == method.getMethodIdWide().getParamTypes().size();
+
     return param;
   }
 
