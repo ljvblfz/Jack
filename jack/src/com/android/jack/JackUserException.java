@@ -21,6 +21,7 @@ import javax.annotation.Nonnull;
 /**
  * Jack {@code Exception} that should be brought to the attention of the user.
  */
+@Deprecated
 public class JackUserException extends RuntimeException {
 
   private static final long serialVersionUID = 1L;

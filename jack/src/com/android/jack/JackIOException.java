@@ -23,6 +23,7 @@ import javax.annotation.Nonnull;
  * High-level vision of of a Jack-related {@code IOException} that should be brought to the
  * attention of the user.
  */
+@Deprecated
 public class JackIOException extends JackUserException {
 
   private static final long serialVersionUID = 1L;
