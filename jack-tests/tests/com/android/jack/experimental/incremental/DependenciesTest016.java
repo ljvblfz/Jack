@@ -39,6 +39,7 @@ import org.junit.Test;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -93,13 +94,15 @@ public class DependenciesTest016 {
     File rsc4 = new File(sourceDir, "rsc4");
     writeToRsc(rsc4, "rsc4");
 
+    File outputDex1 = AbstractTestTools.createTempDir();
+
     JackBasedToolchain toolchain = getIncrementalToolchain(JackBasedToolchain.class);
     File[] defaultClasspath = toolchain.getDefaultBootClasspath();
     toolchain.addStaticLibs(lib1, lib2);
     toolchain.setIncrementalFolder(helper.getCompilerStateFolder());
     toolchain.setOutputJack(outputJack, /* zipFiles = */ true);
     toolchain.addResourceDir(rscDir);
-    toolchain.addToClasspath(defaultClasspath).srcToExe(helper.getDexOutDir(),
+    toolchain.addToClasspath(defaultClasspath).srcToExe(outputDex1,
         /* zipFiles = */ false, helper.getSourceFolder());
     Thread.sleep(1000); // "lastModified()" lacks precision...
     helper.snapshotJackFilesModificationDate();
@@ -107,10 +110,24 @@ public class DependenciesTest016 {
     // check the content of the incremental dir
     Assert.assertEquals(2, getCount(helper.getCompilerStateFolder(), FileType.JAYCE));
     Assert.assertEquals(4, getCount(helper.getCompilerStateFolder(), FileType.RSC));
+    checkResourceContent("rsc1", "rsc1", helper.getCompilerStateFolder());
+    checkResourceContent("rsc2", "rsc2", helper.getCompilerStateFolder());
+    checkResourceContent("jack/source/rsc3", "rsc3", helper.getCompilerStateFolder());
+    checkResourceContent("jack/source/rsc4", "rsc4", helper.getCompilerStateFolder());
 
     // check the content of the output jack lib
     Assert.assertEquals(4, getCount(outputJack, FileType.JAYCE));
     Assert.assertEquals(4, getCount(outputJack, FileType.RSC));
+    checkResourceContent("rsc1", "rsc1", outputJack);
+    checkResourceContent("rsc2", "rsc2", outputJack);
+    checkResourceContent("jack/source/rsc3", "rsc3", outputJack);
+    checkResourceContent("jack/source/rsc4", "rsc4", outputJack);
+
+    // check the content of the resources in the output dex dir
+    checkResourceContentInDexDir("rsc1", "rsc1", outputDex1);
+    checkResourceContentInDexDir("rsc2", "rsc2", outputDex1);
+    checkResourceContentInDexDir("jack/source/rsc3", "rsc3", outputDex1);
+    checkResourceContentInDexDir("jack/source/rsc4", "rsc4", outputDex1);
 
     // touch Source1, rsc1 and rsc4
     source1.setLastModified(System.currentTimeMillis());
@@ -119,12 +136,14 @@ public class DependenciesTest016 {
 
     helper.snapshotJackFilesModificationDate();
 
+    File outputDex2 = AbstractTestTools.createTempDir();
+
     toolchain = getIncrementalToolchain(JackBasedToolchain.class);
     toolchain.addStaticLibs(lib1, lib2);
     toolchain.setIncrementalFolder(helper.getCompilerStateFolder());
     toolchain.setOutputJack(outputJack, /* zipFiles = */ true);
     toolchain.addResourceDir(rscDir);
-    toolchain.addToClasspath(defaultClasspath).srcToExe(helper.getDexOutDir(),
+    toolchain.addToClasspath(defaultClasspath).srcToExe(outputDex2,
         /* zipFiles = */ false, helper.getSourceFolder());
     Thread.sleep(1000);
 
@@ -137,13 +156,23 @@ public class DependenciesTest016 {
     Assert.assertEquals(2, getCount(helper.getCompilerStateFolder(), FileType.JAYCE));
     Assert.assertEquals(4, getCount(helper.getCompilerStateFolder(), FileType.RSC));
     checkResourceContent("rsc1", "rsc1.1", helper.getCompilerStateFolder());
+    checkResourceContent("rsc2", "rsc2", helper.getCompilerStateFolder());
+    checkResourceContent("jack/source/rsc3", "rsc3", helper.getCompilerStateFolder());
     checkResourceContent("jack/source/rsc4", "rsc4.1", helper.getCompilerStateFolder());
 
     // check the content of the output jack lib
     Assert.assertEquals(4, getCount(outputJack, FileType.JAYCE));
     Assert.assertEquals(4, getCount(outputJack, FileType.RSC));
     checkResourceContent("rsc1", "rsc1.1", outputJack);
+    checkResourceContent("rsc2", "rsc2", outputJack);
+    checkResourceContent("jack/source/rsc3", "rsc3", outputJack);
     checkResourceContent("jack/source/rsc4", "rsc4.1", outputJack);
+
+    // check the content of the resources in the output dex dir
+    checkResourceContentInDexDir("rsc1", "rsc1.1", outputDex2);
+    checkResourceContentInDexDir("rsc2", "rsc2", outputDex2);
+    checkResourceContentInDexDir("jack/source/rsc3", "rsc3", outputDex2);
+    checkResourceContentInDexDir("jack/source/rsc4", "rsc4.1", outputDex2);
   }
 
   @Test
@@ -163,6 +192,7 @@ public class DependenciesTest016 {
         + "@Override public void m(){} }");
 
     File outputJack = AbstractTestTools.createTempFile("output", ".jack");
+    File outputDex1 = AbstractTestTools.createTempDir();
 
     File rscDir = AbstractTestTools.createTempDir();
     File rsc1 = new File(rscDir, "rsc1");
@@ -183,7 +213,7 @@ public class DependenciesTest016 {
     toolchain.setIncrementalFolder(helper.getCompilerStateFolder());
     toolchain.setOutputJack(outputJack, /* zipFiles = */ true);
     toolchain.addResourceDir(rscDir);
-    toolchain.addToClasspath(defaultClasspath).srcToExe(helper.getDexOutDir(),
+    toolchain.addToClasspath(defaultClasspath).srcToExe(outputDex1,
         /* zipFiles = */ false, helper.getSourceFolder());
     Thread.sleep(1000); // "lastModified()" lacks precision...
     helper.snapshotJackFilesModificationDate();
@@ -196,18 +226,26 @@ public class DependenciesTest016 {
     Assert.assertEquals(4, getCount(outputJack, FileType.JAYCE));
     Assert.assertEquals(4, getCount(outputJack, FileType.RSC));
 
+    // check the content of the resources in the output dex dir
+    checkResourceContentInDexDir("rsc1", "rsc1", outputDex1);
+    checkResourceContentInDexDir("rsc2", "rsc2", outputDex1);
+    checkResourceContentInDexDir("jack/source/rsc3", "rsc3", outputDex1);
+    checkResourceContentInDexDir("jack/source/rsc4", "rsc4", outputDex1);
+
     // delete Source1, rsc1 and rsc4
     helper.deleteJavaFile(source1);
     AbstractTestTools.deleteFile(rsc1);
     AbstractTestTools.deleteFile(rsc4);
     helper.snapshotJackFilesModificationDate();
 
+    File outputDex2 = AbstractTestTools.createTempDir();
+
     toolchain = getIncrementalToolchain(JackBasedToolchain.class);
     toolchain.addStaticLibs(lib1, lib2);
     toolchain.setIncrementalFolder(helper.getCompilerStateFolder());
     toolchain.setOutputJack(outputJack, /* zipFiles = */ true);
     toolchain.addResourceDir(rscDir);
-    toolchain.addToClasspath(defaultClasspath).srcToExe(helper.getDexOutDir(),
+    toolchain.addToClasspath(defaultClasspath).srcToExe(outputDex2,
         /* zipFiles = */ false, helper.getSourceFolder());
     Thread.sleep(1000);
 
@@ -222,6 +260,12 @@ public class DependenciesTest016 {
     // check the content of the output jack lib
     Assert.assertEquals(3, getCount(outputJack, FileType.JAYCE));
     Assert.assertEquals(2, getCount(outputJack, FileType.RSC));
+
+    // check the content of the resources in the output dex dir
+    checkResourceContentInDexDir("rsc2", "rsc2", outputDex2);
+    checkResourceContentInDexDir("jack/source/rsc3", "rsc3", outputDex2);
+    checkResourceDoesntExistInDexDir("rsc1", outputDex2);
+    checkResourceDoesntExistInDexDir("jack/source/rsc4", outputDex2);
   }
 
   @Test
@@ -291,6 +335,8 @@ public class DependenciesTest016 {
 
     /* 1st step: import an empty resource dir */
 
+    File outputDex1 = AbstractTestTools.createTempDir();
+
     JackBasedToolchain toolchain = getIncrementalToolchain(baseToolchain);
     File[] defaultClasspath = toolchain.getDefaultBootClasspath();
     toolchain.addStaticLibs(lib1, lib2);
@@ -298,7 +344,7 @@ public class DependenciesTest016 {
     toolchain.setOutputJack(outputJack, /* zipFiles = */ true);
     toolchain.addResourceDir(standaloneRscDir);
     toolchain.setErrorStream(errorStream);
-    toolchain.addToClasspath(defaultClasspath).srcToExe(helper.getDexOutDir(),
+    toolchain.addToClasspath(defaultClasspath).srcToExe(outputDex1,
         /* zipFiles = */ false, helper.getSourceFolder());
     Thread.sleep(1000); // "lastModified()" lacks precision...
     helper.snapshotJackFilesModificationDate();
@@ -315,8 +361,16 @@ public class DependenciesTest016 {
     checkResourceContent("jack/source/rsc3", "rsc3lib", outputJack);
     checkResourceContent("jack/source/rsc4", "rsc4lib", outputJack);
 
+    // check the content of the resources in the output dex dir
+    checkResourceContentInDexDir("rsc1", "rsc1lib", outputDex1);
+    checkResourceContentInDexDir("rsc2", "rsc2lib", outputDex1);
+    checkResourceContentInDexDir("jack/source/rsc3", "rsc3lib", outputDex1);
+    checkResourceContentInDexDir("jack/source/rsc4", "rsc4lib", outputDex1);
+
     /* 2nd step: add a resource in the imported resource dir that conflicts with a resource from
      * lib1 */
+
+    File outputDex2 = AbstractTestTools.createTempDir();
 
     File rsc1 = new File(standaloneRscDir, "rsc1");
     writeToRsc(rsc1, "rsc1sa");
@@ -328,7 +382,7 @@ public class DependenciesTest016 {
     toolchain.addResourceDir(standaloneRscDir);
     toolchain.setErrorStream(errorStream);
     toolchain.addProperty(ResourceImporter.RESOURCE_COLLISION_POLICY.getName(), collisionPolicy);
-    toolchain.addToClasspath(defaultClasspath).srcToExe(helper.getDexOutDir(),
+    toolchain.addToClasspath(defaultClasspath).srcToExe(outputDex2,
         /* zipFiles = */ false, helper.getSourceFolder());
     Thread.sleep(1000); // "lastModified()" lacks precision...
     helper.snapshotJackFilesModificationDate();
@@ -345,12 +399,20 @@ public class DependenciesTest016 {
     checkResourceContent("jack/source/rsc3", "rsc3lib", outputJack);
     checkResourceContent("jack/source/rsc4", "rsc4lib", outputJack);
 
+    // check the content of the resources in the output dex dir
+    checkResourceContentInDexDir("rsc1", "rsc1sa", outputDex2);
+    checkResourceContentInDexDir("rsc2", "rsc2lib", outputDex2);
+    checkResourceContentInDexDir("jack/source/rsc3", "rsc3lib", outputDex2);
+    checkResourceContentInDexDir("jack/source/rsc4", "rsc4lib", outputDex2);
+
     // check that no files have been recompiled
     List<String> recompiledTypes = helper.getFQNOfRebuiltTypes();
     Assert.assertEquals(0, recompiledTypes.size());
 
     /* 3rd step: add a resource in the imported resource dir that conflicts with a resource from
      * lib2 */
+
+    File outputDex3 = AbstractTestTools.createTempDir();
 
     File subRscDir = new File(standaloneRscDir, "jack/source");
     subRscDir.mkdirs();
@@ -364,7 +426,7 @@ public class DependenciesTest016 {
     toolchain.addResourceDir(standaloneRscDir);
     toolchain.setErrorStream(errorStream);
     toolchain.addProperty(ResourceImporter.RESOURCE_COLLISION_POLICY.getName(), collisionPolicy);
-    toolchain.addToClasspath(defaultClasspath).srcToExe(helper.getDexOutDir(),
+    toolchain.addToClasspath(defaultClasspath).srcToExe(outputDex3,
         /* zipFiles = */ false, helper.getSourceFolder());
     Thread.sleep(1000); // "lastModified()" lacks precision...
     helper.snapshotJackFilesModificationDate();
@@ -381,11 +443,19 @@ public class DependenciesTest016 {
     checkResourceContent("jack/source/rsc3", "rsc3lib", outputJack);
     checkResourceContent("jack/source/rsc4", "rsc4sa", outputJack);
 
+    // check the content of the resources in the output dex dir
+    checkResourceContentInDexDir("rsc1", "rsc1sa", outputDex3);
+    checkResourceContentInDexDir("rsc2", "rsc2lib", outputDex3);
+    checkResourceContentInDexDir("jack/source/rsc3", "rsc3lib", outputDex3);
+    checkResourceContentInDexDir("jack/source/rsc4", "rsc4sa", outputDex3);
+
     // check that no files have been recompiled
     recompiledTypes = helper.getFQNOfRebuiltTypes();
     Assert.assertEquals(0, recompiledTypes.size());
 
     /* 4th step: delete resources from the imported resource dir */
+
+    File outputDex4 = AbstractTestTools.createTempDir();
 
     // delete rsc1 and rsc4
     AbstractTestTools.deleteFile(rsc1);
@@ -399,7 +469,7 @@ public class DependenciesTest016 {
     toolchain.addResourceDir(standaloneRscDir);
     toolchain.setErrorStream(errorStream);
     toolchain.addProperty(ResourceImporter.RESOURCE_COLLISION_POLICY.getName(), collisionPolicy);
-    toolchain.addToClasspath(defaultClasspath).srcToExe(helper.getDexOutDir(),
+    toolchain.addToClasspath(defaultClasspath).srcToExe(outputDex4,
         /* zipFiles = */ false, helper.getSourceFolder());
     Thread.sleep(1000); // "lastModified()" lacks precision...
     helper.snapshotJackFilesModificationDate();
@@ -415,6 +485,12 @@ public class DependenciesTest016 {
     checkResourceContent("rsc2", "rsc2lib", outputJack);
     checkResourceContent("jack/source/rsc3", "rsc3lib", outputJack);
     checkResourceContent("jack/source/rsc4", "rsc4lib", outputJack);
+
+    // check the content of the resources in the output dex dir
+    checkResourceContentInDexDir("rsc1", "rsc1lib", outputDex4);
+    checkResourceContentInDexDir("rsc2", "rsc2lib", outputDex4);
+    checkResourceContentInDexDir("jack/source/rsc3", "rsc3lib", outputDex4);
+    checkResourceContentInDexDir("jack/source/rsc4", "rsc4lib", outputDex4);
 
     // check that no files have been recompiled
     recompiledTypes = helper.getFQNOfRebuiltTypes();
@@ -500,6 +576,23 @@ public class DependenciesTest016 {
         lib.close();
       }
     }
+  }
+
+  private void checkResourceContentInDexDir(@Nonnull String rscPath,
+      @Nonnull String rscContent, @Nonnull File dexDir) throws Exception {
+
+    File rscFile = new File(dexDir, rscPath);
+
+    try (FileInputStream fis = new FileInputStream(rscFile);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(fis));) {
+      Assert.assertEquals(rscContent, reader.readLine());
+      Assert.assertNull(reader.readLine());
+    }
+  }
+
+  private void checkResourceDoesntExistInDexDir(@Nonnull String rscPath, @Nonnull File dexDir) {
+    File rscFile = new File(dexDir, rscPath);
+    Assert.assertFalse(rscFile.exists());
   }
 }
 
