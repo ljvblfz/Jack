@@ -22,6 +22,8 @@ import com.android.sched.util.location.FileLocation;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.attribute.FileTime;
 import java.util.zip.ZipFile;
 
 import javax.annotation.CheckForNull;
@@ -99,8 +101,13 @@ public class InputZipFile extends StreamFile {
     return file.getName();
   }
 
-  public long getLastModified() {
+  @Nonnull
+  public FileTime getLastModified() throws CannotGetModificationTimeException {
     assert file != null;
-    return file.lastModified();
+    try {
+      return Files.getLastModifiedTime(file.toPath());
+    } catch (IOException e) {
+      throw new CannotGetModificationTimeException(this, e);
+    }
   }
 }

@@ -26,6 +26,7 @@ import com.android.sched.util.config.id.MessageDigestPropertyId;
 import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
+import com.android.sched.util.file.CannotGetModificationTimeException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
@@ -42,6 +43,7 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.nio.file.attribute.FileTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -511,7 +513,9 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
   }
 
   @Override
-  public long getLastModified(@Nonnull CaseInsensitiveVFile file) {
+  @Nonnull
+  public FileTime getLastModified(@Nonnull CaseInsensitiveVFile file)
+      throws CannotGetModificationTimeException {
     return vfs.getLastModified(file.getEncodedFile());
   }
 

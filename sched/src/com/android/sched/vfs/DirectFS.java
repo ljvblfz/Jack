@@ -20,6 +20,7 @@ import com.android.sched.util.ConcurrentIOException;
 import com.android.sched.util.file.AbstractStreamFile;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
+import com.android.sched.util.file.CannotGetModificationTimeException;
 import com.android.sched.util.file.CannotListDirException;
 import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileAlreadyExistsException;
@@ -37,8 +38,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -272,8 +276,14 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
   }
 
   @Override
-  public long getLastModified(@Nonnull ParentVFile file) {
-    return getNativeFile(file.getPath()).lastModified();
+  @Nonnull
+  public FileTime getLastModified(@Nonnull ParentVFile file)
+      throws CannotGetModificationTimeException {
+    try {
+      return Files.getLastModifiedTime(getNativeFile(file.getPath()).toPath());
+    } catch (IOException e) {
+      throw new CannotGetModificationTimeException(this, e);
+    }
   }
 
   @Override

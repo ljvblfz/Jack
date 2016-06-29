@@ -28,6 +28,7 @@ import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.attribute.FileTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -242,7 +243,8 @@ public class WriteZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
   }
 
   @Override
-  long getLastModified(@Nonnull ZipVFile file) {
+  @Nonnull
+  FileTime getLastModified(@Nonnull ZipVFile file) {
     throw new UnsupportedOperationException();
   }
 

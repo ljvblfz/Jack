@@ -22,6 +22,7 @@ import com.android.sched.util.config.MessageDigestFactory;
 import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
+import com.android.sched.util.file.CannotGetModificationTimeException;
 import com.android.sched.util.file.CannotReadException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
@@ -40,6 +41,7 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.nio.file.attribute.FileTime;
 import java.security.DigestOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -287,7 +289,9 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
   }
 
   @Override
-  long getLastModified(@Nonnull MessageDigestVFile file) {
+  @Nonnull
+  FileTime getLastModified(@Nonnull MessageDigestVFile file)
+      throws CannotGetModificationTimeException {
     return vfs.getLastModified(file.getWrappedFile());
   }
 

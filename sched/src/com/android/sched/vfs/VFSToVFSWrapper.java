@@ -19,6 +19,7 @@ package com.android.sched.vfs;
 import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
+import com.android.sched.util.file.CannotGetModificationTimeException;
 import com.android.sched.util.file.CannotReadException;
 import com.android.sched.util.file.CannotWriteException;
 import com.android.sched.util.file.NoSuchFileException;
@@ -31,6 +32,7 @@ import com.android.sched.util.stream.LocationByteStreamSucker;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.attribute.FileTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -229,7 +231,8 @@ public class VFSToVFSWrapper extends BaseVFS<BaseVDir, BaseVFile> implements VFS
   }
 
   @Override
-  long getLastModified(@Nonnull BaseVFile file) {
+  @Nonnull
+  FileTime getLastModified(@Nonnull BaseVFile file) throws CannotGetModificationTimeException {
     return workVFS.getLastModified(file);
   }
 

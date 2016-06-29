@@ -21,6 +21,7 @@ import com.google.common.base.Splitter;
 import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
+import com.android.sched.util.file.CannotGetModificationTimeException;
 import com.android.sched.util.file.InputZipFile;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
@@ -33,6 +34,7 @@ import com.android.sched.vfs.ReadZipFS.ZipVFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.attribute.FileTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -304,7 +306,8 @@ public class ReadZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
   }
 
   @Override
-  long getLastModified(@Nonnull ZipVFile file) {
+  @Nonnull
+  FileTime getLastModified(@Nonnull ZipVFile file) throws CannotGetModificationTimeException {
     return inputZipFile.getLastModified();
   }
 

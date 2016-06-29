@@ -18,11 +18,13 @@ package com.android.sched.vfs;
 
 import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.file.CannotDeleteFileException;
+import com.android.sched.util.file.CannotGetModificationTimeException;
 import com.android.sched.util.file.CannotReadException;
 import com.android.sched.util.file.CannotWriteException;
 import com.android.sched.util.file.WrongPermissionException;
 
 import java.io.OutputStream;
+import java.nio.file.attribute.FileTime;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -40,7 +42,8 @@ public interface VFile extends VElement, InputStreamProvider, OutputStreamProvid
   @CheckForNull
   String getDigest();
 
-  long getLastModified();
+  @Nonnull
+  FileTime getLastModified() throws CannotGetModificationTimeException;
 
   void delete() throws CannotDeleteFileException;
   @Nonnull

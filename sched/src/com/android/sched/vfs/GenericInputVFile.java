@@ -17,10 +17,12 @@
 package com.android.sched.vfs;
 
 import com.android.sched.util.file.CannotDeleteFileException;
+import com.android.sched.util.file.CannotGetModificationTimeException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
 
 import java.io.InputStream;
+import java.nio.file.attribute.FileTime;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -82,7 +84,8 @@ public class GenericInputVFile implements InputVFile {
   }
 
   @Override
-  public long getLastModified() {
+  @Nonnull
+  public FileTime getLastModified() throws CannotGetModificationTimeException {
     return file.getLastModified();
   }
 

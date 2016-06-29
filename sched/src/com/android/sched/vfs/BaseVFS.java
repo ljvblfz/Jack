@@ -20,6 +20,7 @@ import com.android.sched.util.config.ConfigurationError;
 import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
+import com.android.sched.util.file.CannotGetModificationTimeException;
 import com.android.sched.util.file.CannotReadException;
 import com.android.sched.util.file.CannotWriteException;
 import com.android.sched.util.file.NoSuchFileException;
@@ -34,6 +35,7 @@ import com.android.sched.util.stream.LocationByteStreamSucker;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.attribute.FileTime;
 import java.util.Collection;
 
 import javax.annotation.CheckForNull;
@@ -101,7 +103,8 @@ abstract class BaseVFS<DIR extends BaseVDir, FILE extends BaseVFile> implements 
   @Nonnull
   abstract VPath getPathFromRoot(@Nonnull FILE file);
 
-  abstract long getLastModified(@Nonnull FILE file);
+  @Nonnull
+  abstract FileTime getLastModified(@Nonnull FILE file) throws CannotGetModificationTimeException;
 
   //
   // Location related

@@ -21,6 +21,7 @@ import com.android.sched.util.file.CannotChangePermissionException;
 import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
+import com.android.sched.util.file.CannotGetModificationTimeException;
 import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileAlreadyExistsException;
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
@@ -40,6 +41,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.attribute.FileTime;
 import java.util.Collection;
 import java.util.Set;
 
@@ -192,7 +194,8 @@ public class ReadWriteZipFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS 
   }
 
   @Override
-  long getLastModified(@Nonnull BaseVFile file) {
+  @Nonnull
+  FileTime getLastModified(@Nonnull BaseVFile file) throws CannotGetModificationTimeException {
     return vfs.getLastModified(file);
   }
 

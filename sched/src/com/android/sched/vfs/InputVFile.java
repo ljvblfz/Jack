@@ -17,6 +17,9 @@
 package com.android.sched.vfs;
 
 import com.android.sched.util.file.CannotDeleteFileException;
+import com.android.sched.util.file.CannotGetModificationTimeException;
+
+import java.nio.file.attribute.FileTime;
 
 import javax.annotation.Nonnull;
 
@@ -30,7 +33,8 @@ public interface InputVFile extends InputVElement, InputStreamProvider  {
   @Nonnull
   VPath getPathFromRoot();
 
-  long getLastModified();
+  @Nonnull
+  FileTime getLastModified() throws CannotGetModificationTimeException;
 
   @Nonnull
   VFile getVFile();

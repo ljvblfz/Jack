@@ -30,6 +30,7 @@ import com.android.jack.test.toolchain.JackBasedToolchain.MultiDexKind;
 import com.android.jack.test.toolchain.JackCliToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.TwoStepsToolchain;
+import com.android.sched.util.file.CannotGetModificationTimeException;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
 
@@ -39,6 +40,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -69,7 +71,7 @@ public class IncrementalTestHelper {
   @Nonnull
   private final Set<File> javaFiles = new HashSet<File>();
   @Nonnull
-  private final Map<VPath, Long> fileModificationDate = new HashMap<VPath, Long>();
+  private final Map<VPath, FileTime> fileModificationDate = new HashMap<VPath, FileTime>();
   @Nonnull
   private OutputStream out = System.out;
   @Nonnull
@@ -139,8 +141,12 @@ public class IncrementalTestHelper {
       Iterator<InputVFile> jayceIter = compilerStateLib.iterator(FileType.JAYCE);
       while (jayceIter.hasNext()) {
         InputVFile jayceFile = jayceIter.next();
-        fileModificationDate.put(jayceFile.getPathFromRoot(),
-            Long.valueOf(jayceFile.getLastModified()));
+        try {
+          fileModificationDate.put(jayceFile.getPathFromRoot(),
+              jayceFile.getLastModified());
+        } catch (CannotGetModificationTimeException e) {
+          throw new AssertionError(e);
+        }
       }
     } finally {
       if (compilerStateLib != null) {
@@ -161,12 +167,16 @@ public class IncrementalTestHelper {
       while (jayceIter.hasNext()) {
         InputVFile jayceFile = jayceIter.next();
         VPath path = jayceFile.getPathFromRoot();
-        Long previousDate = fileModificationDate.get(path);
-        if (previousDate == null || jayceFile.getLastModified() > previousDate.longValue()) {
-          String fqnWithExtension = path.getPathAsString('.');
-          String fqn = fqnWithExtension.substring(0,
-              fqnWithExtension.lastIndexOf(JayceFileImporter.JAYCE_FILE_EXTENSION));
-          fqnOfRebuiltTypes.add(fqn);
+        FileTime previousDate = fileModificationDate.get(path);
+        try {
+          if (previousDate == null || jayceFile.getLastModified().compareTo(previousDate) > 0) {
+            String fqnWithExtension = path.getPathAsString('.');
+            String fqn = fqnWithExtension.substring(0,
+                fqnWithExtension.lastIndexOf(JayceFileImporter.JAYCE_FILE_EXTENSION));
+            fqnOfRebuiltTypes.add(fqn);
+          }
+        } catch (CannotGetModificationTimeException e) {
+          throw new AssertionError(e);
         }
       }
     } finally {
