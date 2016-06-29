@@ -69,8 +69,15 @@ public final class JlsNullabilityChecker {
     this.getPhantomLookup = getPhantomLookup;
   }
 
+  /** If the expression can be null, creates null-checking 'if' statement */
+  @CheckForNull
+  public JStatement createNullCheckIfNeeded(
+      @Nonnull JExpression expr, @Nonnull TransformationRequest request) {
+    return expr instanceof JThisRef ? null : createNullCheck(expr, request);
+  }
+
   /**
-   * If the expression can be null, creates an 'if' statement of the following form and
+   * Creates an 'if' statement of the following form and
    * inserts it before the statement including the expression:
    * <pre>
    * if ([expr] == null) {
@@ -78,13 +85,9 @@ public final class JlsNullabilityChecker {
    * }
    * </pre>
    */
-  @CheckForNull
-  public JStatement createNullCheckIfNeeded(
+  @Nonnull
+  public JStatement createNullCheck(
       @Nonnull JExpression expr, @Nonnull TransformationRequest request) {
-    if (expr instanceof JThisRef) {
-      return null;
-    }
-
     SourceInfo srcInfo = expr.getSourceInfo();
     return new JIfStatement(
         srcInfo,

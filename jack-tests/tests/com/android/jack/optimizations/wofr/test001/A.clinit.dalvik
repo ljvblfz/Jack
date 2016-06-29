@@ -1,0 +1,6 @@
+method: Lcom/android/jack/optimizations/wofr/test001/A;-><clinit>()V
+registers: 1, in/out: 0/0
+instructions: 3
+    | const/4 v0, -1
+    | sput v0, Lcom/android/jack/optimizations/wofr/test001/A;->_1_read_1_writes_init:I
+    | return-void

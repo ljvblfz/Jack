@@ -295,6 +295,42 @@ public class Optimizations {
         .addCategory(Private.class);
   }
 
+  /**
+   * A {@link Feature} that represents write-only field removal optimization.
+   */
+  @HasKeyId
+  @Description("Apply write-only field removal optimization")
+  public static class WriteOnlyFieldRemoval implements Feature {
+    @Nonnull
+    public static final BooleanPropertyId ENABLE = BooleanPropertyId
+        .create("jack.optimization.write-only-field-removal",
+            "Apply write-only field removal optimization")
+        .addDefaultValue(Boolean.FALSE)
+        .addCategory(DumpInLibrary.class)
+        .addCategory(PrebuiltCompatibility.class)
+        .addCategory(Private.class);
+
+    @Nonnull
+    public static final BooleanPropertyId PRESERVE_JLS = BooleanPropertyId
+        .create("jack.optimization.write-only-field-removal.preserve-jls",
+            "Preserve JSL during write-only field removal optimization")
+        .addDefaultValue(Boolean.TRUE)
+        .requiredIf(ENABLE.getValue().isTrue())
+        .addCategory(DumpInLibrary.class)
+        .addCategory(PrebuiltCompatibility.class)
+        .addCategory(Private.class);
+
+    @Nonnull
+    public static final BooleanPropertyId PRESERVE_REFLECTIONS = BooleanPropertyId
+        .create("jack.optimization.write-only-field-removal.preserve-reflections",
+            "Preserve reflections during write-only field removal optimization")
+        .addDefaultValue(Boolean.FALSE)
+        .requiredIf(ENABLE.getValue().isTrue())
+        .addCategory(DumpInLibrary.class)
+        .addCategory(PrebuiltCompatibility.class)
+        .addCategory(Private.class);
+  }
+
   @Nonnull
   public static final BooleanPropertyId ENABLE_NULL_INSTANCEOF =
       BooleanPropertyId.create(

@@ -16,6 +16,10 @@
 
 package com.android.jack.optimizations.common;
 
+import com.google.common.collect.Sets;
+
+import com.android.jack.analysis.DefinitionMarker;
+import com.android.jack.analysis.UseDefsMarker;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JBooleanLiteral;
@@ -25,6 +29,8 @@ import com.android.jack.ir.ast.JEnumLiteral;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JFloatLiteral;
 import com.android.jack.ir.ast.JIntegralConstant32;
+import com.android.jack.ir.ast.JLocal;
+import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JLongLiteral;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
@@ -36,6 +42,9 @@ import com.android.jack.ir.ast.JValueLiteral;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.util.CloneExpressionVisitor;
 
+import java.util.List;
+import java.util.Set;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /** Common utilities used in optimizations */
@@ -50,6 +59,13 @@ public final class OptimizerUtils {
     JNode parent = expr.getParent();
     return (parent instanceof JAsgOperation) &&
         (((JAsgOperation) parent).getLhs() == expr);
+  }
+
+  /** Get the value being assigned */
+  @Nonnull
+  public static JExpression getAssignedValue(@Nonnull JExpression expr) {
+    assert isAssigned(expr);
+    return ((JAsgOperation) expr.getParent()).getRhs();
   }
 
   /**
@@ -135,6 +151,43 @@ public final class OptimizerUtils {
     // constructor we are analyzing, this must be a call to a super constructor
     return call.getReceiverType().isSameType(constructor.getEnclosingType());
   }
+
+  /**
+   * Checks if the value of the expression is a literal value, unwinding
+   * optional chain of synthesized variables. If it is not, returns default value
+   */
+  @CheckForNull
+  public static JValueLiteral asLiteralOrDefault(
+      @Nonnull JExpression expression, @CheckForNull JValueLiteral defaultValue) {
+    if (expression instanceof JValueLiteral) {
+      return (JValueLiteral) expression;
+    }
+
+    // The value may be a reference to a synthetic local created to hold
+    // the actual value, we unroll such assignment chain in some simple cases.
+    Set<JLocal> localsSeen = Sets.newIdentityHashSet();
+    while (expression instanceof JLocalRef) {
+      JLocal local = ((JLocalRef) expression).getLocal();
+      if (!local.isSynthetic() || localsSeen.contains(local)) {
+        break;
+      }
+      localsSeen.add(local);
+
+      UseDefsMarker usedRefs = expression.getMarker(UseDefsMarker.class);
+      if (usedRefs == null) {
+        break;
+      }
+      List<DefinitionMarker> defs = usedRefs.getDefs();
+      if (defs.size() != 1) {
+        break;
+      }
+      expression = defs.get(0).getValue();
+    }
+
+    // If the expression is NOT a simple value literal, let's return default value provided
+    return expression instanceof JValueLiteral ? (JValueLiteral) expression : defaultValue;
+  }
+
 
   private OptimizerUtils() {
   }
