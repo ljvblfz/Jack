@@ -117,7 +117,6 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
   public OutputVFile createFile(@Nonnull FileType fileType, @Nonnull final VPath typePath)
       throws CannotCreateFileException {
     assert !isClosed();
-    putProperty(buildPropertyName(fileType, null /* suffix */), String.valueOf(true));
     addFileType(fileType);
     return getSectionVFS(fileType).getRootOutputVDir()
         .createOutputVFile(buildFileVPath(fileType, typePath));
@@ -194,6 +193,11 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
       if (property.hasCategory(DumpInLibrary.class)) {
         libraryProperties.put("config." + property.getName(), config.getAsString(property));
       }
+    }
+
+    // Write properties related to file types in library
+    for (FileType fileType : fileTypes) {
+      libraryProperties.put(buildPropertyName(fileType, null /* suffix */), String.valueOf(true));
     }
 
     try {
