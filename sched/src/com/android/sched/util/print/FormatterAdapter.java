@@ -18,7 +18,7 @@ package com.android.sched.util.print;
 
 import com.android.sched.util.codec.Formatter;
 
-import java.io.PrintStream;
+import java.io.PrintWriter;
 
 import javax.annotation.Nonnull;
 
@@ -31,7 +31,7 @@ class FormatterAdapter<T> implements TypePrinter<T> {
   }
 
   @Override
-  public boolean print(@Nonnull PrintStream printer, @Nonnull T value) {
+  public boolean print(@Nonnull PrintWriter printer, @Nonnull T value) {
     String str = formatter.formatValue(value);
     printer.print(str);
 

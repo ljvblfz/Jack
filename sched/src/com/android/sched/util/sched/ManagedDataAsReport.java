@@ -55,7 +55,6 @@ import com.android.sched.util.print.DataView;
 import com.android.sched.util.print.DataViewBuilder;
 import com.android.sched.util.print.Printer;
 
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.util.Iterator;
@@ -75,7 +74,7 @@ public class ManagedDataAsReport implements ManagedDataListener {
   @Nonnull
   private static final ReflectFactoryPropertyId<Printer> PRINTER = ReflectFactoryPropertyId
       .create("sched.report.format", "Define which format to use", Printer.class)
-      .addArgType(PrintStream.class).addDefaultValue("text")
+      .addArgType(PrintWriter.class).addDefaultValue("text")
       .requiredIf(ManagedDataListenerFactory.DATA_LISTENER.getClazz()
           .isSubClassOf(ManagedDataAsReport.class));
 
