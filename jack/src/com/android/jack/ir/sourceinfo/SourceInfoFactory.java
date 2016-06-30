@@ -70,7 +70,7 @@ public class SourceInfoFactory {
     FileSourceInfo fileSourceInfo = create(fileName);
     LineSourceInfo lineSourceOrigin = create(startLine, endLine, fileSourceInfo);
     if (startCol <= 0 && endCol <= 0) {
-      return create(startLine, endLine, fileSourceInfo);
+      return lineSourceOrigin;
     }
 
     ColumnSourceInfo newInstance = new ColumnSourceInfo(lineSourceOrigin, startCol, endCol);
