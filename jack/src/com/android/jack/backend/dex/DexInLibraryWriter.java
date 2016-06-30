@@ -64,11 +64,13 @@ public abstract class DexInLibraryWriter extends DexWriter implements
   private final boolean usePrebuilts =
       ThreadConfig.get(Options.USE_PREBUILT_FROM_LIBRARY).booleanValue();
 
+  @Nonnull
+  private final Tracer tracer = TracerFactory.getTracer();
+
   @Override
   public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
     OutputVFile vFile;
 
-    Tracer tracer = TracerFactory.getTracer();
     Event event = tracer.start(JackEventType.DX_BACKEND);
 
     try {

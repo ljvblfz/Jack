@@ -189,7 +189,6 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
       return;
     }
 
-    Tracer tracer = TracerFactory.getTracer();
     Event event = tracer.start(JackEventType.DX_BACKEND);
     try {
 
