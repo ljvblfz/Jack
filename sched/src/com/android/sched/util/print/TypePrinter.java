@@ -16,7 +16,7 @@
 
 package com.android.sched.util.print;
 
-import java.io.PrintStream;
+import java.io.PrintWriter;
 
 import javax.annotation.Nonnull;
 
@@ -24,5 +24,5 @@ import javax.annotation.Nonnull;
  * Interface to a low level printer / formatter
  */
 public interface TypePrinter<T> {
-  public boolean print(@Nonnull PrintStream printer, @Nonnull T value);
+  public boolean print(@Nonnull PrintWriter printer, @Nonnull T value);
 }

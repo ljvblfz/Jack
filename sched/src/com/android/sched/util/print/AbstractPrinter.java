@@ -16,7 +16,7 @@
 
 package com.android.sched.util.print;
 
-import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -36,11 +36,11 @@ public abstract class AbstractPrinter implements Printer {
   @Nonnull
   private final TypePrinter<?> defaultPrinter = new MissingPrinter();
   @Nonnull
-  private final PrintStream printer;
+  private final PrintWriter printer;
   @Nonnull
   private final ArrayList<ResourceBundle> bundles = new ArrayList<ResourceBundle>();
 
-  public AbstractPrinter(@Nonnull PrintStream printer) {
+  public AbstractPrinter(@Nonnull PrintWriter printer) {
     this.printer = printer;
   }
 
@@ -100,7 +100,7 @@ public abstract class AbstractPrinter implements Printer {
   private class MissingPrinter implements TypePrinter<Object> {
     @Override
     @Nonnull
-    public boolean print(@Nonnull PrintStream printer, @Nonnull Object object) {
+    public boolean print(@Nonnull PrintWriter printer, @Nonnull Object object) {
       return AbstractPrinter.this.<String> getFormatter(DataType.STRING).print(
           printer, "<missing formatter for '" + object.getClass().getCanonicalName() + "'>");
     }
@@ -112,7 +112,7 @@ public abstract class AbstractPrinter implements Printer {
   protected class BundlePrinter implements TypePrinter<String> {
     @Override
     @Nonnull
-    public boolean print(@Nonnull PrintStream printer, @Nonnull String key) {
+    public boolean print(@Nonnull PrintWriter printer, @Nonnull String key) {
       return AbstractPrinter.this.<String> getFormatter(DataType.STRING).print(
           printer, getString(key));
     }
@@ -124,7 +124,7 @@ public abstract class AbstractPrinter implements Printer {
   protected static class NothingPrinter implements TypePrinter<Object> {
     @Override
     @Nonnull
-    public boolean print(@Nonnull PrintStream printer, @Nonnull Object object) {
+    public boolean print(@Nonnull PrintWriter printer, @Nonnull Object object) {
       return false;
     }
   }

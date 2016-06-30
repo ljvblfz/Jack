@@ -25,6 +25,7 @@ import com.android.sched.util.print.TextPrinter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -87,10 +88,11 @@ public abstract class Statistic implements DataModel, HasDescription {
   @Deprecated
   public final String getHumanReadableValue(@Nonnegative int columnIdx) {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    PrintStream printer = new PrintStream(baos);
+    PrintWriter printer = new PrintWriter(new PrintStream(baos));
     TextPrinter provider = new TextPrinter(printer);
     provider.getFormatter(getDataView().getDataTypes()[columnIdx]).print(printer,
         getValue(columnIdx));
+    printer.close();
 
     return baos.toString();
   }

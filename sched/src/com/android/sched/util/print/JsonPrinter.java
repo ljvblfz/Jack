@@ -22,7 +22,7 @@ import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.codec.LongCodec;
 import com.android.sched.util.codec.NumberFormatter;
 
-import java.io.PrintStream;
+import java.io.PrintWriter;
 
 import javax.annotation.Nonnull;
 
@@ -31,7 +31,7 @@ import javax.annotation.Nonnull;
  */
 @ImplementationName(iface = Printer.class, name = "json")
 public class JsonPrinter extends AbstractPrinter {
-  public JsonPrinter(@Nonnull PrintStream printer) {
+  public JsonPrinter(@Nonnull PrintWriter printer) {
     super(printer);
     printers.put(DataType.NOTHING, new NothingPrinter());
     printers.put(DataType.BOOLEAN, new FormatterAdapter<Boolean>(new BooleanCodec()));
@@ -47,7 +47,7 @@ public class JsonPrinter extends AbstractPrinter {
 
   private static class StringFormatter implements TypePrinter<String> {
     @Override
-    public boolean print(@Nonnull PrintStream printer, @Nonnull String value) {
+    public boolean print(@Nonnull PrintWriter printer, @Nonnull String value) {
       printer.print("\"" + value.replace("\"", "\\\"") + "\"");
 
       return true;
@@ -57,7 +57,7 @@ public class JsonPrinter extends AbstractPrinter {
   private class ListFormatter implements TypePrinter<DataModel> {
     @Override
     @Nonnull
-    public boolean print(@Nonnull PrintStream printer, @Nonnull DataModel model) {
+    public boolean print(@Nonnull PrintWriter printer, @Nonnull DataModel model) {
       TypePrinter<Object> formatter =
           JsonPrinter.this.<Object>getFormatter(model.getDataView().getDataTypes()[0]);
       boolean first = true;
@@ -82,7 +82,7 @@ public class JsonPrinter extends AbstractPrinter {
   private class StructureFormatter implements TypePrinter<DataModel> {
     @Override
     @Nonnull
-    public boolean print(@Nonnull PrintStream printer, @Nonnull DataModel model) {
+    public boolean print(@Nonnull PrintWriter printer, @Nonnull DataModel model) {
       DataType[] types = model.getDataView().getDataTypes();
       String[]   names = model.getDataView().getDataNames();
       boolean first = true;

@@ -40,7 +40,6 @@ import com.android.sched.util.print.DataView;
 import com.android.sched.util.print.DataViewBuilder;
 import com.android.sched.util.print.Printer;
 
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -73,7 +72,7 @@ public final class StatisticOnlyTracer implements Tracer {
   @Nonnull
   private static final ReflectFactoryPropertyId<Printer> PRINTER = ReflectFactoryPropertyId
       .create("sched.tracer.format", "Define which format to use", Printer.class)
-      .addArgType(PrintStream.class).addDefaultValue("text")
+      .addArgType(PrintWriter.class).addDefaultValue("text")
       .requiredIf(TracerFactory.TRACER.getClazz().isSubClassOf(StatisticOnlyTracer.class));
 
   @Nonnull

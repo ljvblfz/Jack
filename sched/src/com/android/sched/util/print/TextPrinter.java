@@ -26,7 +26,7 @@ import com.android.sched.util.codec.PercentFormatter;
 import com.android.sched.util.codec.QuantityFormatter;
 import com.android.sched.util.codec.ToStringFormatter;
 
-import java.io.PrintStream;
+import java.io.PrintWriter;
 
 import javax.annotation.Nonnull;
 
@@ -42,7 +42,7 @@ public class TextPrinter extends AbstractPrinter {
   @Nonnull
   private final TextIndenter f = new TextIndenter(0);
 
-  public TextPrinter(@Nonnull PrintStream printer) {
+  public TextPrinter(@Nonnull PrintWriter printer) {
     super(printer);
     printers.put(DataType.NOTHING, new NothingPrinter());
     printers.put(DataType.BOOLEAN, new FormatterAdapter<Boolean>(new BooleanCodec()));
@@ -59,7 +59,7 @@ public class TextPrinter extends AbstractPrinter {
   private class ListPrinter implements TypePrinter<DataModel> {
     @Override
     @Nonnull
-    public boolean print(@Nonnull PrintStream printer, @Nonnull DataModel model) {
+    public boolean print(@Nonnull PrintWriter printer, @Nonnull DataModel model) {
       TypePrinter<Object> formatter =
           TextPrinter.this.<Object>getFormatter(model.getDataView().getDataTypes()[0]);
       boolean notEmpty = false;
@@ -77,7 +77,7 @@ public class TextPrinter extends AbstractPrinter {
   private class StructurePrinter implements TypePrinter<DataModel> {
     @Override
     @Nonnull
-    public boolean print(@Nonnull PrintStream printer, @Nonnull DataModel model) {
+    public boolean print(@Nonnull PrintWriter printer, @Nonnull DataModel model) {
       boolean notEmpty = false;
       DataType[] types = model.getDataView().getDataTypes();
       String[]   names = model.getDataView().getDataNames();
@@ -168,7 +168,7 @@ public class TextPrinter extends AbstractPrinter {
       currentBullet = currentBullet.substring(blank.length());
     }
 
-    public void print(@Nonnull PrintStream printer, @Nonnull String str) {
+    public void print(@Nonnull PrintWriter printer, @Nonnull String str) {
       if (!prefixDone) {
         if (needBullet) {
           printer.print(currentBullet);
@@ -183,7 +183,7 @@ public class TextPrinter extends AbstractPrinter {
       newLineDone = false;
     }
 
-    public void println(@Nonnull PrintStream printer) {
+    public void println(@Nonnull PrintWriter printer) {
       prefixDone = false;
       if (!newLineDone) {
         printer.println();
