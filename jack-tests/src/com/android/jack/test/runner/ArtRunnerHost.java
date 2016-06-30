@@ -30,7 +30,7 @@ import javax.annotation.Nonnull;
  */
 public class ArtRunnerHost extends HostRunner {
 
-  private boolean isDebugMode = false;
+  private boolean isDebugMode = true;
 
   public ArtRunnerHost(@Nonnull File rtEnvironmentRootDir) {
     super(rtEnvironmentRootDir);

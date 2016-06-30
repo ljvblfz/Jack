@@ -73,8 +73,8 @@ public class RuntimeRunnerFactory {
     } else if ("art".equals(rtEnvName)) {
       if ("host".equals(runnerKind)) {
         result = new ArtRunnerHost(AbstractTestTools.getRuntimeEnvironmentRootDir(rtName));
-        if ("debug".equals(variant)) {
-          ((ArtRunnerHost) result).setDebugMode(/* isDebugMode = */ true);
+        if ("release".equals(variant)) {
+          ((ArtRunnerHost) result).setDebugMode(/* isDebugMode = */ false);
         } else if (variant != null) {
           throw new RuntimeRunnerException("Unkown target for ART: '" + rtName + "'");
         }
