@@ -58,9 +58,6 @@ public class NFieldRef extends NExpression {
   @CheckForNull
   public NExpression instance;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JFieldRef jFieldRef = (JFieldRef) node;
@@ -69,7 +66,7 @@ public class NFieldRef extends NExpression {
     receiverType = ImportHelper.getSignatureName(jFieldRef.getReceiverType());
     kind = jFieldRef.getFieldId().getKind();
     instance = (NExpression) loader.load(jFieldRef.getInstance());
-    sourceInfo = loader.load(jFieldRef.getSourceInfo());
+    sourceInfo = jFieldRef.getSourceInfo();
   }
 
   @Override
@@ -84,7 +81,7 @@ public class NFieldRef extends NExpression {
     JExpression jInstance = instance != null ? instance.exportAsJast(exportSession) : null;
     JType jReceiverType = exportSession.getLookup().getType(receiverType);
     JType jFieldType = exportSession.getLookup().getType(fieldType);
-    return new JFieldRef(sourceInfo.exportAsJast(exportSession), jInstance,
+    return new JFieldRef(sourceInfo, jInstance,
         exportSession.getFieldId((JClassOrInterface) jReceiverType, field, jFieldType, kind),
         (JClassOrInterface) jReceiverType);
   }
@@ -113,17 +110,4 @@ public class NFieldRef extends NExpression {
   public Token getToken() {
     return TOKEN;
   }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
-  }
-
 }

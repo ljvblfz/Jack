@@ -45,16 +45,13 @@ public class NMethodBody extends NAbstractMethodBody {
   private List<NLocal> locals = Collections.emptyList();
   @CheckForNull
   private NBlock block;
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
 
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object jElement) {
     JMethodBody jMethodBody = (JMethodBody) jElement;
     locals = loader.load(NLocal.class, jMethodBody.getLocals());
     block = (NBlock) loader.load(jMethodBody.getBlock());
-    sourceInfo = loader.load(jMethodBody.getSourceInfo());
+    sourceInfo = jMethodBody.getSourceInfo();
   }
 
   @Override
@@ -63,8 +60,7 @@ public class NMethodBody extends NAbstractMethodBody {
       throws JTypeLookupException, JMethodLookupException {
     assert block != null;
     assert sourceInfo != null;
-    JMethodBody jMethodBody =
-        new JMethodBody(sourceInfo.exportAsJast(exportSession), block.exportAsJast(exportSession));
+    JMethodBody jMethodBody = new JMethodBody(sourceInfo, block.exportAsJast(exportSession));
     for (NLocal local : locals) {
       JLocal jLocal = local.exportAsJast(exportSession);
       jLocal.setEnclosingMethodBody(jMethodBody);
@@ -89,17 +85,5 @@ public class NMethodBody extends NAbstractMethodBody {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

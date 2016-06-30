@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -47,15 +46,12 @@ public class NBlock extends NStatement {
   @Nonnull
   public List<String> catchBlockIds = Collections.emptyList();
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JBlock jBlock = (JBlock) node;
     statements = loader.load(NStatement.class, jBlock.getStatements());
     catchBlockIds = loader.getIds(loader.getCatchBlockSymbols(), jBlock.getJCatchBlocks());
-    sourceInfo = loader.load(jBlock.getSourceInfo());
+    sourceInfo = jBlock.getSourceInfo();
   }
 
   @Override
@@ -63,7 +59,7 @@ public class NBlock extends NStatement {
   public JBlock exportAsJast(@Nonnull ExportSession exportSession) throws JTypeLookupException,
       JMethodLookupException {
     assert sourceInfo != null;
-    JBlock jBlock = new JBlock(sourceInfo.exportAsJast(exportSession));
+    JBlock jBlock = new JBlock(sourceInfo);
     for (NStatement nStatement : statements) {
       jBlock.addStmt(nStatement.exportAsJast(exportSession));
     }
@@ -88,18 +84,6 @@ public class NBlock extends NStatement {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 
   @Override

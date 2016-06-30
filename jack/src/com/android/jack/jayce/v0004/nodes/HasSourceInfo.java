@@ -16,6 +16,8 @@
 
 package com.android.jack.jayce.v0004.nodes;
 
+import com.android.jack.ir.sourceinfo.SourceInfo;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -24,8 +26,8 @@ import javax.annotation.Nonnull;
 public interface HasSourceInfo {
 
   @Nonnull
-  public abstract NSourceInfo getSourceInfos();
+  public abstract SourceInfo getSourceInfos();
 
-  public abstract void setSourceInfos(@Nonnull NSourceInfo sourceInfo);
+  public abstract void setSourceInfos(@Nonnull SourceInfo sourceInfo);
 
 }

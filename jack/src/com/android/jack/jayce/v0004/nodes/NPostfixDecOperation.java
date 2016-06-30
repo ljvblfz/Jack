@@ -41,14 +41,11 @@ public class NPostfixDecOperation extends NExpression {
   @CheckForNull
   public NExpression arg;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JPostfixDecOperation operation = (JPostfixDecOperation) node;
     arg = (NExpression) loader.load(operation.getArg());
-    sourceInfo = loader.load(operation.getSourceInfo());
+    sourceInfo = operation.getSourceInfo();
   }
 
   @Override
@@ -57,8 +54,7 @@ public class NPostfixDecOperation extends NExpression {
       throws JMethodLookupException, JTypeLookupException {
     assert sourceInfo != null;
     assert arg != null;
-    return new JPostfixDecOperation(sourceInfo.exportAsJast(exportSession),
-        arg.exportAsJast(exportSession));
+    return new JPostfixDecOperation(sourceInfo, arg.exportAsJast(exportSession));
   }
 
   @Override
@@ -76,17 +72,5 @@ public class NPostfixDecOperation extends NExpression {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

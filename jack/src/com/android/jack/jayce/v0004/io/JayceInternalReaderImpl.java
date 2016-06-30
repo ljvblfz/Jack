@@ -16,10 +16,13 @@
 
 package com.android.jack.jayce.v0004.io;
 
+import com.android.jack.Jack;
 import com.android.jack.ir.ast.FieldKind;
 import com.android.jack.ir.ast.JMethodCall.DispatchKind;
 import com.android.jack.ir.ast.JRetentionPolicy;
 import com.android.jack.ir.ast.MethodKind;
+import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.ir.sourceinfo.SourceInfoFactory;
 import com.android.jack.jayce.DeclaredTypeNode;
 import com.android.jack.jayce.JayceFormatException;
 import com.android.jack.jayce.JayceInternalReader;
@@ -31,7 +34,6 @@ import com.android.jack.jayce.v0004.nodes.HasSourceInfo;
 import com.android.jack.jayce.v0004.nodes.NDeclaredType;
 import com.android.jack.jayce.v0004.nodes.NMethod;
 import com.android.jack.jayce.v0004.nodes.NMethodCall.ReceiverKind;
-import com.android.jack.jayce.v0004.nodes.NSourceInfo;
 import com.android.jack.jayce.v0004.util.DispatchKindIdHelper;
 import com.android.jack.jayce.v0004.util.FieldRefKindIdHelper;
 import com.android.jack.jayce.v0004.util.MethodKindIdHelper;
@@ -85,6 +87,9 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
 
   @Nonnull
   private final Tracer tracer = TracerFactory.getTracer();
+
+  @Nonnull
+  private final SourceInfoFactory sif = Jack.getSession().getSourceInfoFactory();
 
   public JayceInternalReaderImpl(@Nonnull InputStream in) {
     this.tokenizer = new Tokenizer(in);
@@ -223,12 +228,6 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
           + nodeClass.getSimpleName() + " was expected.");
     }
 
-    if (nodeLevel != NodeLevel.TYPES && node instanceof HasSourceInfo) {
-      NSourceInfo sourceInfo = new NSourceInfo();
-      sourceInfo.fileName = fileName;
-      sourceInfo.startLine = startLine;
-      ((HasSourceInfo) node).setSourceInfos(sourceInfo);
-    }
     if (node instanceof HasCatchBlockIds) {
       ((HasCatchBlockIds) node).setCatchBlockIds(new ArrayList<String>(currentCatchBlockList));
     }
@@ -237,7 +236,18 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
      */
     node.readContent(this);
     if (nodeLevel != NodeLevel.TYPES) {
-      readSourceInfoEnd(node);
+
+      if (node instanceof HasSourceInfo) {
+        int endLine = readCurrentLine();
+        if (fileName == null && startLine == 0 && endLine == 0) {
+          ((HasSourceInfo) node).setSourceInfos(SourceInfo.UNKNOWN);
+        } else {
+          assert fileName != null;
+          ((HasSourceInfo) node).setSourceInfos(
+              sif.create(/* startCol= */ 0, /* endCol */ 0, startLine, endLine, fileName));
+        }
+      }
+
       assert !(node instanceof NMethod) || currentCatchBlockList.isEmpty();
       tokenizer.readClose();
     }
@@ -252,19 +262,6 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
         statistic.addTrue();
       }
       return null;
-    }
-  }
-
-  private void readSourceInfoEnd(@Nonnull NNode node)
-      throws IOException {
-    if (node instanceof HasSourceInfo) {
-      NSourceInfo sourceInfo = ((HasSourceInfo) node).getSourceInfos();
-      sourceInfo.endLine = readCurrentLine();
-      if (sourceInfo.startLine == 0
-              && sourceInfo.endLine == 0
-              && !(node instanceof NDeclaredType)) {
-        ((HasSourceInfo) node).setSourceInfos(NSourceInfo.UNKNOWN);
-      }
     }
   }
 

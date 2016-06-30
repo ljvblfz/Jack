@@ -44,15 +44,12 @@ public class NAsgDivOperation extends NExpression {
   @CheckForNull
   public NExpression rhs;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JAsgDivOperation asgDiv = (JAsgDivOperation) node;
     lhs = (NExpression) loader.load(asgDiv.getLhs());
     rhs = (NExpression) loader.load(asgDiv.getRhs());
-    sourceInfo = loader.load(asgDiv.getSourceInfo());
+    sourceInfo = asgDiv.getSourceInfo();
   }
 
   @Override
@@ -62,7 +59,7 @@ public class NAsgDivOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JAsgDivOperation(sourceInfo.exportAsJast(exportSession),
+    return new JAsgDivOperation(sourceInfo,
         lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
   }
@@ -83,17 +80,5 @@ public class NAsgDivOperation extends NExpression {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

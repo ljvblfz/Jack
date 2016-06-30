@@ -47,16 +47,13 @@ public class NExpressionStatement extends NStatement {
   @Nonnull
   public List<String> catchBlockIds = Collections.emptyList();
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JExpressionStatement jExpressionStatement = (JExpressionStatement) node;
     expression = (NExpression) loader.load(jExpressionStatement.getExpr());
     catchBlockIds =
         loader.getIds(loader.getCatchBlockSymbols(), jExpressionStatement.getJCatchBlocks());
-    sourceInfo = loader.load(jExpressionStatement.getSourceInfo());
+    sourceInfo = jExpressionStatement.getSourceInfo();
   }
 
   @Override
@@ -66,7 +63,7 @@ public class NExpressionStatement extends NStatement {
     assert sourceInfo != null;
     assert expression != null;
     JExpressionStatement jExpressionStatement = new JExpressionStatement(
-        sourceInfo.exportAsJast(exportSession), expression.exportAsJast(exportSession));
+        sourceInfo, expression.exportAsJast(exportSession));
     for (String catchId : catchBlockIds) {
       exportSession.getCatchBlockResolver()
           .addLink(catchId, new CatchBlockLinker(jExpressionStatement));
@@ -88,18 +85,6 @@ public class NExpressionStatement extends NStatement {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 
   @Override

@@ -20,7 +20,6 @@ import com.android.jack.ir.ast.JBlock;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JSynchronizedBlock;
 import com.android.jack.ir.ast.JTypeLookupException;
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.linker.CatchBlockLinker;
 import com.android.jack.jayce.v0004.io.ExportSession;
 import com.android.jack.jayce.v0004.io.ImportHelper;
@@ -53,9 +52,6 @@ public class NSynchronizedBlock extends NStatement {
   @Nonnull
   public List<String> catchBlockIds = Collections.emptyList();
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JSynchronizedBlock jSynchronizedBlock = (JSynchronizedBlock) node;
@@ -64,7 +60,7 @@ public class NSynchronizedBlock extends NStatement {
     synchronizedBlock = (NBlock) loader.load(jSynchronizedBlock.getSynchronizedBlock());
     catchBlockIds =
         loader.getIds(loader.getCatchBlockSymbols(), jSynchronizedBlock.getJCatchBlocks());
-    sourceInfo = loader.load(jSynchronizedBlock.getSourceInfo());
+    sourceInfo = jSynchronizedBlock.getSourceInfo();
   }
 
   @Override
@@ -76,8 +72,7 @@ public class NSynchronizedBlock extends NStatement {
     assert synchronizedBlock != null;
     JExpression jLockExpr = lockExpr.exportAsJast(exportSession);
     JBlock jBlock = synchronizedBlock.exportAsJast(exportSession);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
-    JSynchronizedBlock jSynchronizedBlock = new JSynchronizedBlock(jSourceInfo, jLockExpr, jBlock);
+    JSynchronizedBlock jSynchronizedBlock = new JSynchronizedBlock(sourceInfo, jLockExpr, jBlock);
     for (String catchId : catchBlockIds) {
       exportSession.getCatchBlockResolver()
           .addLink(catchId, new CatchBlockLinker(jSynchronizedBlock));
@@ -101,18 +96,6 @@ public class NSynchronizedBlock extends NStatement {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 
   @Override

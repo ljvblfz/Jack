@@ -43,9 +43,6 @@ public class NLocalRef extends NExpression {
   @CheckForNull
   public String localId;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Nonnull
   public List<NMarker> markers = Collections.emptyList();
 
@@ -53,7 +50,7 @@ public class NLocalRef extends NExpression {
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JLocalRef jLocalRef = (JLocalRef) node;
     localId = loader.getVariableSymbols().getId(jLocalRef.getLocal());
-    sourceInfo = loader.load(jLocalRef.getSourceInfo());
+    sourceInfo = jLocalRef.getSourceInfo();
     markers = loader.load(NMarker.class, jLocalRef.getAllMarkers());
   }
 
@@ -62,7 +59,7 @@ public class NLocalRef extends NExpression {
   public JLocalRef exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
     assert localId != null;
-    JLocalRef jLocalRef = JLocalUnresolved.INSTANCE.makeRef(sourceInfo.exportAsJast(exportSession));
+    JLocalRef jLocalRef = JLocalUnresolved.INSTANCE.makeRef(sourceInfo);
     exportSession.getVariableResolver().addLink(localId, new VariableRefLinker(jLocalRef));
 
     for (NMarker marker : markers) {
@@ -88,17 +85,5 @@ public class NLocalRef extends NExpression {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

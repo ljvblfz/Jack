@@ -43,14 +43,11 @@ public class NClassLiteral extends NLiteral {
   @CheckForNull
   public String refType;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JClassLiteral jClassLiteral = (JClassLiteral) node;
     refType = ImportHelper.getSignatureName(jClassLiteral.getRefType());
-    sourceInfo = loader.load(jClassLiteral.getSourceInfo());
+    sourceInfo = jClassLiteral.getSourceInfo();
   }
 
   @Override
@@ -59,9 +56,7 @@ public class NClassLiteral extends NLiteral {
       throws JTypeLookupException {
     assert sourceInfo != null;
     assert refType != null;
-    return new JClassLiteral(
-        sourceInfo.exportAsJast(exportSession),
-        exportSession.getLookup().getType(refType),
+    return new JClassLiteral(sourceInfo, exportSession.getLookup().getType(refType),
         exportSession.getLookup().getClass(JAVA_LANG_CLASS));
   }
 
@@ -80,17 +75,5 @@ public class NClassLiteral extends NLiteral {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

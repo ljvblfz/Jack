@@ -55,10 +55,6 @@ public class NLabeledStatement extends NStatement {
   @Nonnull
   public List<String> catchBlockIds = Collections.emptyList();
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JLabeledStatement jLabeled = (JLabeledStatement) node;
@@ -66,7 +62,7 @@ public class NLabeledStatement extends NStatement {
     id = loader.getLabelSymbols().getId(jLabeled);
     body = (NStatement) loader.load(jLabeled.getBody());
     catchBlockIds = loader.getIds(loader.getCatchBlockSymbols(), jLabeled.getJCatchBlocks());
-    sourceInfo = loader.load(jLabeled.getSourceInfo());
+    sourceInfo = jLabeled.getSourceInfo();
   }
 
   @Override
@@ -77,8 +73,8 @@ public class NLabeledStatement extends NStatement {
     assert body != null;
     assert id != null;
     assert label != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
-    JLabeledStatement jLabeled = new JLabeledStatement(jSourceInfo,
+    SourceInfo jSourceInfo = sourceInfo;
+    JLabeledStatement jLabeled = new JLabeledStatement(sourceInfo,
         new JLabel(jSourceInfo, label), body.exportAsJast(exportSession));
     exportSession.getLabelResolver().addTarget(id, jLabeled);
     for (String catchId : catchBlockIds) {
@@ -105,18 +101,6 @@ public class NLabeledStatement extends NStatement {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 
   @Override

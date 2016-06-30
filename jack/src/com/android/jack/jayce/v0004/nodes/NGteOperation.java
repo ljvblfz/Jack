@@ -44,15 +44,12 @@ public class NGteOperation extends NExpression {
   @CheckForNull
   public NExpression rhs;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JGteOperation operation = (JGteOperation) node;
     lhs = (NExpression) loader.load(operation.getLhs());
     rhs = (NExpression) loader.load(operation.getRhs());
-    sourceInfo = loader.load(operation.getSourceInfo());
+    sourceInfo = operation.getSourceInfo();
   }
 
   @Override
@@ -62,7 +59,7 @@ public class NGteOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JGteOperation(sourceInfo.exportAsJast(exportSession),
+    return new JGteOperation(sourceInfo,
         lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
   }
@@ -83,17 +80,5 @@ public class NGteOperation extends NExpression {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

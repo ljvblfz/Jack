@@ -66,7 +66,7 @@ public class NInterfaceType extends NDeclaredType {
   public List<NMarker> markers = Collections.emptyList();
 
   @CheckForNull
-  public NSourceInfo sourceInfo;
+  public SourceInfo sourceInfo;
 
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
@@ -80,7 +80,7 @@ public class NInterfaceType extends NDeclaredType {
     methods = loader.load(NMethod.class, jInterfaceType.getMethods());
     annotations = loader.load(NAnnotation.class, jInterfaceType.getAnnotations());
     markers = loader.load(NMarker.class, jInterfaceType.getAllMarkers());
-    sourceInfo = loader.load(jInterfaceType.getSourceInfo());
+    sourceInfo = jInterfaceType.getSourceInfo();
   }
 
   @Nonnull
@@ -110,7 +110,7 @@ public class NInterfaceType extends NDeclaredType {
     ExportSession exportSession = new ExportSession(loader.getLookup(), Jack.getSession(),
         NodeLevel.STRUCTURE);
     exportSession.setCurrentType(jInterfaceType);
-    loading.setSourceInfo(sourceInfo.exportAsJast(exportSession));
+    loading.setSourceInfo(sourceInfo);
     for (String superInterface : superInterfaces) {
       jInterfaceType.addImplements(
           exportSession.getLookup().getInterface(superInterface));
@@ -183,13 +183,13 @@ public class NInterfaceType extends NDeclaredType {
 
   @Override
   @Nonnull
-  public NSourceInfo getSourceInfos() {
+  public SourceInfo getSourceInfos() {
     assert sourceInfo != null;
     return sourceInfo;
   }
 
   @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
+  public void setSourceInfos(@Nonnull SourceInfo sourceInfo) {
     this.sourceInfo = sourceInfo;
   }
 }

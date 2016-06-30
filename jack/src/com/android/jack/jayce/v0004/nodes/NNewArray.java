@@ -20,7 +20,6 @@ import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JNewArray;
 import com.android.jack.ir.ast.JTypeLookupException;
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0004.io.ExportSession;
 import com.android.jack.jayce.v0004.io.ImportHelper;
 import com.android.jack.jayce.v0004.io.JayceInternalReaderImpl;
@@ -52,16 +51,13 @@ public class NNewArray extends NExpression {
   @Nonnull
   public List<NExpression> initializers = Collections.emptyList();
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JNewArray jNewArray = (JNewArray) node;
     type = ImportHelper.getSignatureName(jNewArray.getArrayType());
     dims = loader.load(NExpression.class, jNewArray.getDims());
     initializers = loader.load(NExpression.class, jNewArray.getInitializers());
-    sourceInfo = loader.load(jNewArray.getSourceInfo());
+    sourceInfo = jNewArray.getSourceInfo();
   }
 
   @Override
@@ -71,19 +67,18 @@ public class NNewArray extends NExpression {
     assert sourceInfo != null;
     assert type != null;
     JArrayType jType = (JArrayType) exportSession.getLookup().getType(type);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     if (initializers.isEmpty()) {
       List<JExpression> jDims = new ArrayList<JExpression>(dims.size());
       for (NExpression expr : dims) {
         jDims.add(expr.exportAsJast(exportSession));
       }
-      return JNewArray.createWithDims(jSourceInfo, jType, jDims);
+      return JNewArray.createWithDims(sourceInfo, jType, jDims);
     } else {
       List<JExpression> jInitializers = new ArrayList<JExpression>(initializers.size());
       for (NExpression expr : initializers) {
         jInitializers.add(expr.exportAsJast(exportSession));
       }
-      return JNewArray.createWithInits(jSourceInfo, jType, jInitializers);
+      return JNewArray.createWithInits(sourceInfo, jType, jInitializers);
     }
   }
 
@@ -106,17 +101,5 @@ public class NNewArray extends NExpression {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

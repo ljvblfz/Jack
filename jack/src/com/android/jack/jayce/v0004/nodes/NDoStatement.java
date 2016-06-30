@@ -51,16 +51,13 @@ public class NDoStatement extends NStatement {
   @Nonnull
   public List<String> catchBlockIds = Collections.emptyList();
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JDoStatement jDoStatement = (JDoStatement) node;
     testExpression = (NExpression) loader.load(jDoStatement.getTestExpr());
     body = (NStatement) loader.load(jDoStatement.getBody());
     catchBlockIds = loader.getIds(loader.getCatchBlockSymbols(), jDoStatement.getJCatchBlocks());
-    sourceInfo = loader.load(jDoStatement.getSourceInfo());
+    sourceInfo = jDoStatement.getSourceInfo();
   }
 
   @Override
@@ -70,8 +67,8 @@ public class NDoStatement extends NStatement {
     assert testExpression != null;
     assert sourceInfo != null;
     JStatement jBody = body != null ? body.exportAsJast(exportSession) : null;
-    JDoStatement jDoStatement = new JDoStatement(
-        sourceInfo.exportAsJast(exportSession), testExpression.exportAsJast(exportSession), jBody);
+    JDoStatement jDoStatement =
+        new JDoStatement(sourceInfo, testExpression.exportAsJast(exportSession), jBody);
     for (String catchId : catchBlockIds) {
       exportSession.getCatchBlockResolver().addLink(catchId, new CatchBlockLinker(jDoStatement));
     }
@@ -94,18 +91,6 @@ public class NDoStatement extends NStatement {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 
   @Override

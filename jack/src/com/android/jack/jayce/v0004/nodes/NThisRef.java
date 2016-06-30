@@ -18,7 +18,6 @@ package com.android.jack.jayce.v0004.nodes;
 
 import com.android.jack.ir.ast.JThis;
 import com.android.jack.ir.ast.JThisRef;
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0004.io.ExportSession;
 import com.android.jack.jayce.v0004.io.ImportHelper;
 import com.android.jack.jayce.v0004.io.JayceInternalReaderImpl;
@@ -40,14 +39,11 @@ public class NThisRef extends NExpression {
   @CheckForNull
   public String type;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JThisRef jThisRef = (JThisRef) node;
     type = ImportHelper.getSignatureName(jThisRef.getType());
-    sourceInfo = loader.load(jThisRef.getSourceInfo());
+    sourceInfo = jThisRef.getSourceInfo();
   }
 
   @Override
@@ -55,10 +51,9 @@ public class NThisRef extends NExpression {
   public JThisRef exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
     assert type != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JThis jThis = exportSession.getCurrentMethod().getThis();
     assert jThis != null;
-    JThisRef jThisRef = jThis.makeRef(jSourceInfo);
+    JThisRef jThisRef = jThis.makeRef(sourceInfo);
     return jThisRef;
   }
 
@@ -77,17 +72,5 @@ public class NThisRef extends NExpression {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

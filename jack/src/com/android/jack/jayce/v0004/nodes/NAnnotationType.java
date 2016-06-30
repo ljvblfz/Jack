@@ -64,7 +64,7 @@ public class NAnnotationType extends NInterfaceType {
     methods = loader.load(NMethod.class, jAnnotationType.getMethods());
     annotations = loader.load(NAnnotation.class, jAnnotationType.getAnnotations());
     markers = loader.load(NMarker.class, jAnnotationType.getAllMarkers());
-    sourceInfo = loader.load(jAnnotationType.getSourceInfo());
+    sourceInfo = jAnnotationType.getSourceInfo();
   }
 
   @Nonnull
@@ -96,7 +96,7 @@ public class NAnnotationType extends NInterfaceType {
     ExportSession exportSession = new ExportSession(loader.getLookup(), Jack.getSession(),
         NodeLevel.STRUCTURE);
     exportSession.setCurrentType(jInterfaceType);
-    loading.setSourceInfo(sourceInfo.exportAsJast(exportSession));
+    loading.setSourceInfo(sourceInfo);
     for (String superInterface : superInterfaces) {
       jInterfaceType.addImplements(
           exportSession.getLookup().getInterface(superInterface));

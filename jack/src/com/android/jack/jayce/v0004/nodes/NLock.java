@@ -48,16 +48,13 @@ public class NLock extends NStatement {
   @Nonnull
   public List<String> catchBlockIds = Collections.emptyList();
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JLock statement = (JLock) node;
 
     lockExpr = (NExpression) loader.load(statement.getLockExpr());
     catchBlockIds = loader.getIds(loader.getCatchBlockSymbols(), statement.getJCatchBlocks());
-    sourceInfo = loader.load(statement.getSourceInfo());
+    sourceInfo = statement.getSourceInfo();
   }
 
   @Override
@@ -66,8 +63,7 @@ public class NLock extends NStatement {
       JMethodLookupException {
     assert sourceInfo != null;
     assert lockExpr != null;
-    JLock jStatement = new JLock(sourceInfo.exportAsJast(exportSession),
-        lockExpr.exportAsJast(exportSession));
+    JLock jStatement = new JLock(sourceInfo, lockExpr.exportAsJast(exportSession));
     for (String catchId : catchBlockIds) {
       exportSession.getCatchBlockResolver().addLink(catchId, new CatchBlockLinker(jStatement));
     }
@@ -88,18 +84,6 @@ public class NLock extends NStatement {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 
   @Override

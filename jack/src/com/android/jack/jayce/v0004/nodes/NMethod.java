@@ -78,7 +78,7 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
   @Nonnull
   public List<NMarker> markers = Collections.emptyList();
   @CheckForNull
-  public NSourceInfo sourceInfo;
+  public SourceInfo sourceInfo;
 
   @CheckForNull
   protected NodeLevel level;
@@ -102,7 +102,7 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
     annotations = loader.load(NAnnotation.class, jMethod.getAnnotations());
     body = (NAbstractMethodBody) loader.load(jMethod.getBody());
     markers = loader.load(NMarker.class, jMethod.getAllMarkers());
-    sourceInfo = loader.load(jMethod.getSourceInfo());
+    sourceInfo = jMethod.getSourceInfo();
   }
 
   @Override
@@ -128,14 +128,15 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
     assert methodKind != null;
     assert sourceInfo != null;
     assert methodNodeIndex != INDEX_UNKNOWN;
-    SourceInfo info = sourceInfo.exportAsJast(exportSession);
     JDefinedClassOrInterface enclosingType = exportSession.getCurrentType();
     assert enclosingType != null;
     JMethodIdWide id = new JMethodIdWide(name, methodKind);
     JType returnJType = exportSession.getLookup().getType(returnType);
     JayceMethodLoader methodLoader = new JayceMethodLoader(this, methodNodeIndex, enclosingLoader);
+    SourceInfo sourceInfoLocal = sourceInfo;
+    assert sourceInfoLocal != null;
     JMethod jMethod = new JMethod(
-        info, new JMethodId(id, returnJType), enclosingType,
+        sourceInfo, new JMethodId(id, returnJType), enclosingType,
         modifier, methodLoader);
     exportSession.setCurrentMethod(jMethod);
     for (NParameter parameter : parameters) {
@@ -208,13 +209,13 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
 
   @Override
   @Nonnull
-  public NSourceInfo getSourceInfos() {
+  public SourceInfo getSourceInfos() {
     assert sourceInfo != null;
     return sourceInfo;
   }
 
   @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
+  public void setSourceInfos(@Nonnull SourceInfo sourceInfo) {
     this.sourceInfo = sourceInfo;
   }
 

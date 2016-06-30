@@ -60,9 +60,6 @@ public class NForStatement extends NStatement {
   @Nonnull
   public List<String> catchBlockIds = Collections.emptyList();
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JForStatement jForStatement = (JForStatement) node;
@@ -71,7 +68,7 @@ public class NForStatement extends NStatement {
     increments = loader.load(NExpressionStatement.class, jForStatement.getIncrements());
     body = (NStatement) loader.load(jForStatement.getBody());
     catchBlockIds = loader.getIds(loader.getCatchBlockSymbols(), jForStatement.getJCatchBlocks());
-    sourceInfo = loader.load(jForStatement.getSourceInfo());
+    sourceInfo = jForStatement.getSourceInfo();
   }
 
   @Override
@@ -92,8 +89,8 @@ public class NForStatement extends NStatement {
     for (NExpressionStatement increment : increments) {
       jIncrements.add(increment.exportAsJast(exportSession));
     }
-    JForStatement jForStatement = new JForStatement(
-      sourceInfo.exportAsJast(exportSession), jInitializers, jTestExpression, jIncrements, jBody);
+    JForStatement jForStatement =
+        new JForStatement(sourceInfo, jInitializers, jTestExpression, jIncrements, jBody);
     for (String catchId : catchBlockIds) {
       exportSession.getCatchBlockResolver().addLink(catchId, new CatchBlockLinker(jForStatement));
     }
@@ -123,18 +120,6 @@ public class NForStatement extends NStatement {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 
   @Override

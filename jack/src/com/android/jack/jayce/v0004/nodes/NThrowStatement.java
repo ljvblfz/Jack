@@ -48,16 +48,13 @@ public class NThrowStatement extends NStatement {
   @Nonnull
   public List<String> catchBlockIds = Collections.emptyList();
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JThrowStatement statement = (JThrowStatement) node;
 
     expr = (NExpression) loader.load(statement.getExpr());
     catchBlockIds = loader.getIds(loader.getCatchBlockSymbols(), statement.getJCatchBlocks());
-    sourceInfo = loader.load(statement.getSourceInfo());
+    sourceInfo = statement.getSourceInfo();
   }
 
   @Override
@@ -66,8 +63,7 @@ public class NThrowStatement extends NStatement {
       throws JMethodLookupException, JTypeLookupException {
     assert sourceInfo != null;
     assert expr != null;
-    JThrowStatement jStatement = new JThrowStatement(sourceInfo.exportAsJast(exportSession),
-        expr.exportAsJast(exportSession));
+    JThrowStatement jStatement = new JThrowStatement(sourceInfo, expr.exportAsJast(exportSession));
     for (String catchId : catchBlockIds) {
       exportSession.getCatchBlockResolver().addLink(catchId, new CatchBlockLinker(jStatement));
     }
@@ -88,18 +84,6 @@ public class NThrowStatement extends NStatement {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 
   @Override

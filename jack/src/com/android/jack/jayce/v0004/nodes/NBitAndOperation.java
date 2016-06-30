@@ -18,6 +18,7 @@ package com.android.jack.jayce.v0004.nodes;
 
 import com.android.jack.ir.ast.JBitAndOperation;
 import com.android.jack.ir.ast.JTypeLookupException;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0004.io.ExportSession;
 import com.android.jack.jayce.v0004.io.ImportHelper;
 import com.android.jack.jayce.v0004.io.JayceInternalReaderImpl;
@@ -44,15 +45,12 @@ public class NBitAndOperation extends NExpression {
   @CheckForNull
   public NExpression rhs;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JBitAndOperation bitAnd = (JBitAndOperation) node;
     lhs = (NExpression) loader.load(bitAnd.getLhs());
     rhs = (NExpression) loader.load(bitAnd.getRhs());
-    sourceInfo = loader.load(bitAnd.getSourceInfo());
+    sourceInfo = bitAnd.getSourceInfo();
   }
 
   @Override
@@ -62,8 +60,7 @@ public class NBitAndOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JBitAndOperation(sourceInfo.exportAsJast(exportSession),
-        lhs.exportAsJast(exportSession),
+    return new JBitAndOperation(sourceInfo, lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
   }
 
@@ -87,13 +84,13 @@ public class NBitAndOperation extends NExpression {
 
   @Override
   @Nonnull
-  public NSourceInfo getSourceInfos() {
+  public SourceInfo getSourceInfos() {
     assert sourceInfo != null;
     return sourceInfo;
   }
 
   @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
+  public void setSourceInfos(@Nonnull SourceInfo sourceInfo) {
     this.sourceInfo = sourceInfo;
   }
 }

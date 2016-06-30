@@ -47,16 +47,13 @@ public class NEnumLiteral extends NLiteral {
   @CheckForNull
   public String enumFieldName;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JEnumLiteral jEnumLiteral = (JEnumLiteral) node;
     enumFieldDeclaringType =
         ImportHelper.getSignatureName(jEnumLiteral.getType());
     enumFieldName = jEnumLiteral.getFieldId().getName();
-    sourceInfo = loader.load(jEnumLiteral.getSourceInfo());
+    sourceInfo = jEnumLiteral.getSourceInfo();
   }
 
   @Override
@@ -66,7 +63,7 @@ public class NEnumLiteral extends NLiteral {
     assert sourceInfo != null;
     assert enumFieldDeclaringType != null;
     assert enumFieldName != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
+    SourceInfo jSourceInfo = sourceInfo;
     JLookup lookup = exportSession.getLookup();
     JEnum enumType = lookup.getEnum(enumFieldDeclaringType);
     /* type of the field is enumType, see JLS-8 8.9.2 */
@@ -91,17 +88,5 @@ public class NEnumLiteral extends NLiteral {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

@@ -53,17 +53,13 @@ public class NFieldInitializer extends NStatement {
   @Nonnull
   public List<String> catchBlockIds = Collections.emptyList();
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JFieldInitializer fieldInit = (JFieldInitializer) node;
     fieldRef = (NFieldRef) loader.load(fieldInit.getFieldRef());
     initializer = (NExpression) loader.load(fieldInit.getInitializer());
     catchBlockIds = loader.getIds(loader.getCatchBlockSymbols(), fieldInit.getJCatchBlocks());
-    sourceInfo = loader.load(fieldInit.getSourceInfo());
+    sourceInfo = fieldInit.getSourceInfo();
   }
 
   @Override
@@ -73,11 +69,8 @@ public class NFieldInitializer extends NStatement {
     assert sourceInfo != null;
     assert fieldRef != null;
     assert initializer != null;
-    JFieldInitializer jFieldInitializer =
-        new JFieldInitializer(
-            sourceInfo.exportAsJast(exportSession),
-            fieldRef.exportAsJast(exportSession),
-            initializer.exportAsJast(exportSession));
+    JFieldInitializer jFieldInitializer = new JFieldInitializer(sourceInfo,
+        fieldRef.exportAsJast(exportSession), initializer.exportAsJast(exportSession));
     // field of fieldRef can be external after exportToJast(), so use  field resolver here
     // so the link is done when processing the field.
     JFieldId fieldId = jFieldInitializer.getFieldRef().getFieldId();
@@ -108,18 +101,6 @@ public class NFieldInitializer extends NStatement {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 
   @Override

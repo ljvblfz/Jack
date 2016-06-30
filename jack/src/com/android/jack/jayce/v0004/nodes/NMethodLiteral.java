@@ -20,7 +20,6 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodLiteral;
 import com.android.jack.ir.ast.JTypeLookupException;
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0004.io.ExportSession;
 import com.android.jack.jayce.v0004.io.ImportHelper;
 import com.android.jack.jayce.v0004.io.JayceInternalReaderImpl;
@@ -47,16 +46,13 @@ public class NMethodLiteral extends NLiteral {
   @CheckForNull
   public String methodEnclosingType;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JMethodLiteral jMethodLiteral = (JMethodLiteral) node;
     method = ImportHelper.getMethodSignature(jMethodLiteral.getMethod());
     methodEnclosingType =
         ImportHelper.getSignatureName(jMethodLiteral.getMethod().getEnclosingType());
-    sourceInfo = loader.load(jMethodLiteral.getSourceInfo());
+    sourceInfo = jMethodLiteral.getSourceInfo();
   }
 
   @Override
@@ -69,8 +65,7 @@ public class NMethodLiteral extends NLiteral {
     JDefinedClassOrInterface jEnclosingType =
         (JDefinedClassOrInterface) exportSession.getLookup().getType(methodEnclosingType);
     JMethod jMethod = exportSession.getDeclaredMethod(jEnclosingType, method);
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
-    JMethodLiteral jMethodLiteral = new JMethodLiteral(jMethod, jSourceInfo);
+    JMethodLiteral jMethodLiteral = new JMethodLiteral(jMethod, sourceInfo);
     return jMethodLiteral;
   }
 
@@ -90,17 +85,5 @@ public class NMethodLiteral extends NLiteral {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

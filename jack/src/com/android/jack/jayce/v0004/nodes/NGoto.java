@@ -47,15 +47,12 @@ public class NGoto extends NStatement {
   @Nonnull
   public List<String> catchBlockIds = Collections.emptyList();
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JGoto jGoto = (JGoto) node;
     target = loader.getLabelSymbols().getId(jGoto.getTargetBlock());
     catchBlockIds = loader.getIds(loader.getCatchBlockSymbols(), jGoto.getJCatchBlocks());
-    sourceInfo = loader.load(jGoto.getSourceInfo());
+    sourceInfo = jGoto.getSourceInfo();
   }
 
   @Override
@@ -63,8 +60,7 @@ public class NGoto extends NStatement {
   public JGoto exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
     assert target != null;
-    JGoto jGoto =
-        new JGoto(sourceInfo.exportAsJast(exportSession), JLabeledStatementUnresolved.INSTANCE);
+    JGoto jGoto = new JGoto(sourceInfo, JLabeledStatementUnresolved.INSTANCE);
     exportSession.getLabelResolver().addLink(target, new GotoLinker(jGoto));
     for (String catchId : catchBlockIds) {
       exportSession.getCatchBlockResolver().addLink(catchId, new CatchBlockLinker(jGoto));
@@ -86,18 +82,6 @@ public class NGoto extends NStatement {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 
   @Override

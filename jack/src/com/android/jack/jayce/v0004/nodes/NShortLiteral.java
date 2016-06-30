@@ -17,7 +17,6 @@
 package com.android.jack.jayce.v0004.nodes;
 
 import com.android.jack.ir.ast.JShortLiteral;
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0004.io.ExportSession;
 import com.android.jack.jayce.v0004.io.ImportHelper;
 import com.android.jack.jayce.v0004.io.JayceInternalReaderImpl;
@@ -26,7 +25,6 @@ import com.android.jack.jayce.v0004.io.Token;
 
 import java.io.IOException;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -39,22 +37,18 @@ public class NShortLiteral extends NLiteral {
 
   public short value;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JShortLiteral jShortLiteral = (JShortLiteral) node;
     value = jShortLiteral.getValue();
-    sourceInfo = loader.load(jShortLiteral.getSourceInfo());
+    sourceInfo = jShortLiteral.getSourceInfo();
   }
 
   @Override
   @Nonnull
   public JShortLiteral exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
-    JShortLiteral jShortLiteral = new JShortLiteral(jSourceInfo, value);
+    JShortLiteral jShortLiteral = new JShortLiteral(sourceInfo, value);
     return jShortLiteral;
   }
 
@@ -66,24 +60,12 @@ public class NShortLiteral extends NLiteral {
   @Override
   public void readContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
     value = in.readShort();
-    
+
   }
 
   @Override
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

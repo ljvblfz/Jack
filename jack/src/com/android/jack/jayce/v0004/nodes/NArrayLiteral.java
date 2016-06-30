@@ -19,7 +19,6 @@ package com.android.jack.jayce.v0004.nodes;
 import com.android.jack.ir.ast.JArrayLiteral;
 import com.android.jack.ir.ast.JLiteral;
 import com.android.jack.ir.ast.JTypeLookupException;
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0004.io.ExportSession;
 import com.android.jack.jayce.v0004.io.ImportHelper;
 import com.android.jack.jayce.v0004.io.JayceInternalReaderImpl;
@@ -32,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -46,14 +44,11 @@ public class NArrayLiteral extends NLiteral {
   @Nonnull
   public List<NLiteral> values = Collections.emptyList();
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JArrayLiteral jArrayLiteral = (JArrayLiteral) node;
     values = loader.load(NLiteral.class, jArrayLiteral.getValues());
-    sourceInfo = loader.load(jArrayLiteral.getSourceInfo());
+    sourceInfo = jArrayLiteral.getSourceInfo();
   }
 
   @Override
@@ -65,8 +60,7 @@ public class NArrayLiteral extends NLiteral {
     for (NLiteral value : values) {
       jValues.add(value.exportAsJast(exportSession));
     }
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
-    JArrayLiteral jArrayLiteral = new JArrayLiteral(jSourceInfo, jValues);
+    JArrayLiteral jArrayLiteral = new JArrayLiteral(sourceInfo, jValues);
     return jArrayLiteral;
   }
 
@@ -84,17 +78,5 @@ public class NArrayLiteral extends NLiteral {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }

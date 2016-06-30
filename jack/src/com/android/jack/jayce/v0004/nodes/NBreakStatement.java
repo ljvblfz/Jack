@@ -18,7 +18,6 @@ package com.android.jack.jayce.v0004.nodes;
 
 import com.android.jack.ir.ast.JBreakStatement;
 import com.android.jack.ir.ast.JLabel;
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.linker.CatchBlockLinker;
 import com.android.jack.jayce.v0004.io.ExportSession;
 import com.android.jack.jayce.v0004.io.ImportHelper;
@@ -46,24 +45,20 @@ public class NBreakStatement extends NStatement {
   @Nonnull
   public List<String> catchBlockIds = Collections.emptyList();
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JBreakStatement jBreakStatement = (JBreakStatement) node;
     label = ImportHelper.getLabelName(jBreakStatement.getLabel());
     catchBlockIds = loader.getIds(loader.getCatchBlockSymbols(), jBreakStatement.getJCatchBlocks());
-    sourceInfo = loader.load(jBreakStatement.getSourceInfo());
+    sourceInfo = jBreakStatement.getSourceInfo();
   }
 
   @Override
   @Nonnull
   public JBreakStatement exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
-    SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
-    JLabel jLabel = (label == null) ? null : new JLabel(jSourceInfo, label);
-    JBreakStatement jBreakStatement = new JBreakStatement(jSourceInfo, jLabel);
+    JLabel jLabel = (label == null) ? null : new JLabel(sourceInfo, label);
+    JBreakStatement jBreakStatement = new JBreakStatement(sourceInfo, jLabel);
     for (String catchId : catchBlockIds) {
       exportSession.getCatchBlockResolver().addLink(catchId, new CatchBlockLinker(jBreakStatement));
     }
@@ -84,18 +79,6 @@ public class NBreakStatement extends NStatement {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 
   @Override

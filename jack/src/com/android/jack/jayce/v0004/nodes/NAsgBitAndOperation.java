@@ -44,15 +44,12 @@ public class NAsgBitAndOperation extends NExpression {
   @CheckForNull
   public NExpression rhs;
 
-  @CheckForNull
-  public NSourceInfo sourceInfo;
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JAsgBitAndOperation asgBitAnd = (JAsgBitAndOperation) node;
     lhs = (NExpression) loader.load(asgBitAnd.getLhs());
     rhs = (NExpression) loader.load(asgBitAnd.getRhs());
-    sourceInfo = loader.load(asgBitAnd.getSourceInfo());
+    sourceInfo = asgBitAnd.getSourceInfo();
   }
 
   @Override
@@ -62,7 +59,7 @@ public class NAsgBitAndOperation extends NExpression {
     assert sourceInfo != null;
     assert lhs != null;
     assert rhs != null;
-    return new JAsgBitAndOperation(sourceInfo.exportAsJast(exportSession),
+    return new JAsgBitAndOperation(sourceInfo,
         lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
   }
@@ -83,17 +80,5 @@ public class NAsgBitAndOperation extends NExpression {
   @Nonnull
   public Token getToken() {
     return TOKEN;
-  }
-
-  @Override
-  @Nonnull
-  public NSourceInfo getSourceInfos() {
-    assert sourceInfo != null;
-    return sourceInfo;
-  }
-
-  @Override
-  public void setSourceInfos(@Nonnull NSourceInfo sourceInfo) {
-    this.sourceInfo = sourceInfo;
   }
 }
