@@ -174,13 +174,15 @@ public class NField extends NNode implements HasSourceInfo, FieldNode {
 
   @Override
   public void loadAnnotations(@Nonnull JField loading) {
-    JSession session = Jack.getSession();
-    ExportSession exportSession = new ExportSession(session.getPhantomLookup(), session,
-        NodeLevel.STRUCTURE);
-    for (NAnnotation annotation : annotations) {
-      JAnnotation annote = annotation.exportAsJast(exportSession);
-      loading.addAnnotation(annote);
-      annote.updateParents(loading);
+    if (!annotations.isEmpty()) {
+      JSession session = Jack.getSession();
+      ExportSession exportSession =
+          new ExportSession(session.getPhantomLookup(), session, NodeLevel.STRUCTURE);
+      for (NAnnotation annotation : annotations) {
+        JAnnotation annote = annotation.exportAsJast(exportSession);
+        loading.addAnnotation(annote);
+        annote.updateParents(loading);
+      }
     }
   }
 
