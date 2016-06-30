@@ -43,7 +43,7 @@ public abstract class JillApiToolchainBase extends ExternalJillBasedToolchain {
   protected JillConfig config;
 
   @CheckForNull
-  private static JillProvider configProvider;
+  private JillProvider configProvider;
 
   @Nonnull
   private String releaseName;

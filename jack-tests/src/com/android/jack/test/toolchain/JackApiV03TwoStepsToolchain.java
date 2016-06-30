@@ -33,13 +33,13 @@ import javax.annotation.Nonnull;
  */
 public class JackApiV03TwoStepsToolchain extends JackApiV03Toolchain implements TwoStepsToolchain {
 
-  @Nonnull
+  @CheckForNull
   private File jackPrebuilt;
 
   @CheckForNull
   private Map<String, String> properties;
 
-  JackApiV03TwoStepsToolchain(File jackPrebuilt) {
+  JackApiV03TwoStepsToolchain(@CheckForNull File jackPrebuilt) {
     super(jackPrebuilt);
     this.jackPrebuilt = jackPrebuilt;
   }
