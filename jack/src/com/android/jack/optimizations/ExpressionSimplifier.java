@@ -94,13 +94,13 @@ public class ExpressionSimplifier implements RunnableSchedulable<JMethod> {
   private final com.android.jack.util.filter.Filter<JMethod> filter =
       ThreadConfig.get(Options.METHOD_FILTER);
 
-  static class Simplifier extends JVisitor {
+  private final boolean enableNullInstanceOf =
+      ThreadConfig.get(Optimizations.ENABLE_NULL_INSTANCEOF).booleanValue();
+
+  class Simplifier extends JVisitor {
 
     @CheckForNull
     private JMethod currentMethod;
-
-    private final boolean enableNullInstanceOf =
-        ThreadConfig.get(Optimizations.ENABLE_NULL_INSTANCEOF).booleanValue();
 
     @Override
     public boolean visit(@Nonnull JMethod method) {

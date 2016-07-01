@@ -158,7 +158,10 @@ public class TryWithResourcesTransformer implements RunnableSchedulable<JMethod>
   private final com.android.jack.util.filter.Filter<JMethod> filter =
       ThreadConfig.get(Options.METHOD_FILTER);
 
-  private static class Visitor extends JVisitor {
+  @Nonnull
+  private final SourceInfoFactory sourceInfoFactory = Jack.getSession().getSourceInfoFactory();
+
+  private class Visitor extends JVisitor {
 
     @Nonnull
     private final JMethodBody currentMethodBody;
@@ -166,8 +169,6 @@ public class TryWithResourcesTransformer implements RunnableSchedulable<JMethod>
     private final LocalVarCreator localVarCreator;
     @Nonnull
     private final TransformationRequest request;
-    @Nonnull
-    private final SourceInfoFactory sourceInfoFactory = Jack.getSession().getSourceInfoFactory();
 
     @Nonnull
     private static final String AUTO_CLOSEABLE_SIGNATURE = "Ljava/lang/AutoCloseable;";

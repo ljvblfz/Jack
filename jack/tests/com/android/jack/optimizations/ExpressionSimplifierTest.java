@@ -121,7 +121,7 @@ public class ExpressionSimplifierTest {
     tr.append(new AppendStatement(bodyBlock, exprToSimplify.makeStatement()));
     tr.commit();
 
-    Simplifier s = new ExpressionSimplifier.Simplifier();
+    Simplifier s = new ExpressionSimplifier().new Simplifier();
     s.accept(method);
 
     Assert.assertEquals(1, bodyBlock.getStatements().size());
@@ -639,7 +639,7 @@ public class ExpressionSimplifierTest {
     tr.append(new AppendStatement(bodyBlock, ifStmt));
     tr.commit();
 
-    Simplifier s = new ExpressionSimplifier.Simplifier();
+    Simplifier s = new ExpressionSimplifier().new Simplifier();
     s.accept(method);
 
     Assert.assertEquals(1, bodyBlock.getStatements().size());
