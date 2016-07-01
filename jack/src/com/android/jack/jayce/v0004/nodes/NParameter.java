@@ -141,13 +141,15 @@ public class NParameter extends NVariable implements ParameterNode {
 
   @Override
   public void loadAnnotations(@Nonnull JParameter loading) {
-    JSession session = Jack.getSession();
-    ExportSession exportSession = new ExportSession(session.getPhantomLookup(), session,
-        NodeLevel.STRUCTURE);
-    for (NAnnotation annotation : annotations) {
-      JAnnotation annote = annotation.exportAsJast(exportSession);
-      loading.addAnnotation(annote);
-      annote.updateParents(loading);
+    if (!annotations.isEmpty()) {
+      JSession session = Jack.getSession();
+      ExportSession exportSession =
+          new ExportSession(session.getPhantomLookup(), session, NodeLevel.STRUCTURE);
+      for (NAnnotation annotation : annotations) {
+        JAnnotation annote = annotation.exportAsJast(exportSession);
+        loading.addAnnotation(annote);
+        annote.updateParents(loading);
+      }
     }
   }
 
