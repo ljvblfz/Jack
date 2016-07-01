@@ -28,7 +28,6 @@ import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.PropertyId;
 
 import java.io.File;
-import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -55,8 +54,7 @@ public class SourceFileRenamer implements RunnableSchedulable<JSession> {
 
   @Override
   public void run(@Nonnull JSession session) throws Exception {
-    Set<FileSourceInfo> infos = session.getSourceInfoFactory().getFileSourceInfos();
-    for (FileSourceInfo info : infos) {
+    for (FileSourceInfo info : session.getSourceInfoFactory().getFileSourceInfos()) {
       info.setFileName(newSourceFileName.getPath());
     }
   }

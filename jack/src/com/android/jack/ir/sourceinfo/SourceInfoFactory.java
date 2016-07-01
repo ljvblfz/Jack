@@ -18,6 +18,7 @@ package com.android.jack.ir.sourceinfo;
 
 import com.android.sched.schedulable.Constraint;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -30,8 +31,8 @@ import javax.annotation.Nonnull;
 @Constraint(need = SourceInfoCreation.class)
 public class SourceInfoFactory {
   @Nonnull
-  private final HashMap<FileSourceInfo, FileSourceInfo> canonicalFileSourceInfos =
-      new HashMap<FileSourceInfo, FileSourceInfo>();
+  private final HashMap<String, FileSourceInfo> canonicalFileSourceInfos =
+      new HashMap<String, FileSourceInfo>();
 
   @Nonnull
   private final HashMap<LineSourceInfo, LineSourceInfo> canonicalLineSourceInfos =
@@ -47,17 +48,12 @@ public class SourceInfoFactory {
    */
   @Nonnull
   public synchronized FileSourceInfo create(@Nonnull String fileName) {
-    FileSourceInfo newInstance = new FileSourceInfo(fileName);
-
-    FileSourceInfo canonical = canonicalFileSourceInfos.get(newInstance);
-
-    assert canonical == null || (newInstance != canonical && newInstance.equals(canonical));
-    if (canonical != null) {
-      return canonical;
-    } else {
-      canonicalFileSourceInfos.put(newInstance, newInstance);
-      return newInstance;
+    FileSourceInfo newInstance = canonicalFileSourceInfos.get(fileName);
+    if (newInstance == null) {
+      newInstance = new FileSourceInfo(fileName);
+      canonicalFileSourceInfos.put(fileName, newInstance);
     }
+    return newInstance;
   }
 
   /**
@@ -116,8 +112,8 @@ public class SourceInfoFactory {
   }
 
   @Nonnull
-  public Set<FileSourceInfo> getFileSourceInfos() {
-    return canonicalFileSourceInfos.keySet();
+  public Collection<FileSourceInfo> getFileSourceInfos() {
+    return canonicalFileSourceInfos.values();
   }
 
   @Nonnull
