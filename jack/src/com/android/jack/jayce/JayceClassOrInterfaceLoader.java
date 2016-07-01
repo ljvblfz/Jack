@@ -23,6 +23,7 @@ import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JDefinedAnnotationType;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPackage;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.formatter.TypePackageAndMethodFormatter;
 import com.android.jack.library.HasInputLibrary;
@@ -34,7 +35,6 @@ import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.load.ClassOrInterfaceLoader;
 import com.android.jack.load.JackLoadingException;
 import com.android.jack.lookup.JLookupException;
-import com.android.jack.lookup.JPhantomLookup;
 import com.android.sched.marker.Marker;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
@@ -93,7 +93,7 @@ public class JayceClassOrInterfaceLoader implements ClassOrInterfaceLoader, HasI
   private boolean annotationLoaded = false;
 
   @Nonnull
-  private final JPhantomLookup lookup;
+  private final JSession session;
 
   @Nonnull
   private final NodeLevel defaultLoadLevel;
@@ -123,13 +123,13 @@ public class JayceClassOrInterfaceLoader implements ClassOrInterfaceLoader, HasI
       @Nonnull JPackage enclosingPackage,
       @Nonnull String simpleName,
       @Nonnull InputVFile source,
-      @Nonnull JPhantomLookup lookup,
+      @Nonnull JSession session,
       @Nonnull NodeLevel defaultLoadLevel) {
     this.inputJackLibrary = jackLibrary;
     this.enclosingPackage = enclosingPackage;
     this.simpleName = simpleName;
     this.source = source;
-    this.lookup = lookup;
+    this.session = session;
     nnode = new SoftReference<DeclaredTypeNode>(null);
     this.defaultLoadLevel = defaultLoadLevel;
     location = new TypeInInputLibraryLocation(inputJackLibrary,
@@ -137,8 +137,8 @@ public class JayceClassOrInterfaceLoader implements ClassOrInterfaceLoader, HasI
   }
 
   @Nonnull
-  public JPhantomLookup getLookup() {
-    return lookup;
+  public JSession getSession() {
+    return session;
   }
 
   @Override

@@ -16,7 +16,6 @@
 
 package com.android.jack.jayce.v0003.nodes;
 
-import com.android.jack.Jack;
 import com.android.jack.ir.ast.JAbstractMethodBody;
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
@@ -24,7 +23,6 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JParameter;
-import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.MethodKind;
@@ -151,12 +149,10 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
 
   @CheckForNull
   @Override
-  public JAbstractMethodBody loadBody(@Nonnull JMethod method) throws JTypeLookupException,
-      JMethodLookupException {
+  public JAbstractMethodBody loadBody(@Nonnull JMethod method, @Nonnull JayceMethodLoader loader)
+      throws JTypeLookupException, JMethodLookupException {
     if (body != null) {
-      JSession session = Jack.getSession();
-      ExportSession exportSession = new ExportSession(session.getPhantomLookup(), session,
-          NodeLevel.FULL);
+      ExportSession exportSession = new ExportSession(loader.getSession(), NodeLevel.FULL);
       exportSession.setCurrentMethod(method);
       exportSession.setCurrentType(method.getEnclosingType());
 
@@ -231,11 +227,9 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
   }
 
   @Override
-  public void loadAnnotations(@Nonnull JMethod loading) {
+  public void loadAnnotations(@Nonnull JMethod loading, @Nonnull JayceMethodLoader loader) {
     if (!annotations.isEmpty()) {
-      JSession session = Jack.getSession();
-      ExportSession exportSession =
-          new ExportSession(session.getPhantomLookup(), session, NodeLevel.STRUCTURE);
+      ExportSession exportSession = new ExportSession(loader.getSession(), NodeLevel.STRUCTURE);
       for (NAnnotation annotation : annotations) {
         JAnnotation annote = annotation.exportAsJast(exportSession);
         loading.addAnnotation(annote);

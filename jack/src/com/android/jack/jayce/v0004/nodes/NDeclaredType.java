@@ -68,11 +68,10 @@ public abstract class NDeclaredType extends NNode implements HasSourceInfo, Decl
 
   @Override
   public void loadAnnotations(@Nonnull JDefinedClassOrInterface loading,
-      @Nonnull JayceClassOrInterfaceLoader classOrInterfaceLoader) {
+      @Nonnull JayceClassOrInterfaceLoader loader) {
     if (!annotations.isEmpty()) {
-      JSession session = Jack.getSession();
       ExportSession exportSession =
-          new ExportSession(session.getPhantomLookup(), session, NodeLevel.STRUCTURE);
+          new ExportSession(loader.getSession(), NodeLevel.STRUCTURE);
       for (NAnnotation annotation : annotations) {
         JAnnotation annotationLiteral = annotation.exportAsJast(exportSession);
         loading.addAnnotation(annotationLiteral);

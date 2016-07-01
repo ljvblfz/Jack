@@ -35,6 +35,7 @@ import com.android.jack.jayce.NodeLevel;
 import com.android.jack.jayce.linker.SymbolResolver;
 import com.android.jack.lookup.JLookup;
 import com.android.jack.lookup.JMethodLookupException;
+import com.android.jack.lookup.JPhantomLookup;
 import com.android.sched.util.collect.Lists;
 
 import java.util.ArrayList;
@@ -73,7 +74,7 @@ public class ExportSession {
       new SymbolResolver<JCaseStatement>();
 
   @Nonnull
-  private final JLookup lookup;
+  private final JPhantomLookup lookup;
 
   @Nonnull
   private final NodeLevel nodeLevel;
@@ -87,10 +88,9 @@ public class ExportSession {
   @Nonnull
   private final JSession session;
 
-  public ExportSession(
-       @Nonnull JLookup lookup, @Nonnull JSession session, @Nonnull NodeLevel nodeLevel) {
+  public ExportSession(@Nonnull JSession session, @Nonnull NodeLevel nodeLevel) {
     this.session = session;
-    this.lookup = lookup;
+    this.lookup = session.getPhantomLookup();
     this.nodeLevel = nodeLevel;
   }
 

@@ -23,6 +23,7 @@ import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JPackageLookupException;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.MissingJTypeLookupException;
 import com.android.jack.library.FileType;
 import com.android.jack.library.HasInputLibrary;
@@ -30,7 +31,6 @@ import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.library.LibraryReadingException;
 import com.android.jack.load.PackageLoader;
-import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.util.collect.UnmodifiableCollections;
 import com.android.sched.util.codec.VariableName;
@@ -60,7 +60,7 @@ public class JaycePackageLoader implements PackageLoader, HasInputLibrary {
   private final InputVDir packageVDir;
 
   @Nonnull
-  private final JPhantomLookup lookup;
+  private final JSession session;
 
   @Nonnull
   private final NodeLevel defaultLoadLevel;
@@ -78,12 +78,12 @@ public class JaycePackageLoader implements PackageLoader, HasInputLibrary {
   private final UnmodifiableCollections collections = Jack.getUnmodifiableCollections();
 
   JaycePackageLoader(@Nonnull InputJackLibrary inputJackLibrary,
-      @Nonnull InputVDir packageVDir, @Nonnull JPhantomLookup lookup,
+      @Nonnull InputVDir packageVDir, @Nonnull JSession session,
       @Nonnull NodeLevel defaultLoadLevel) {
     assert inputJackLibrary.containsFileType(FileType.JAYCE);
     this.inputJackLibrary = inputJackLibrary;
     this.packageVDir = packageVDir;
-    this.lookup = lookup;
+    this.session = session;
     this.defaultLoadLevel = defaultLoadLevel;
     for (InputVElement sub : packageVDir.list()) {
       String name = sub.getName();
@@ -112,7 +112,7 @@ public class JaycePackageLoader implements PackageLoader, HasInputLibrary {
           loading,
           simpleName,
           inputVFile,
-          lookup,
+          session,
           defaultLoadLevel).load();
     } catch (LibraryException e) {
       LibraryReadingException reportable = new LibraryReadingException(e);
@@ -137,7 +137,7 @@ public class JaycePackageLoader implements PackageLoader, HasInputLibrary {
       throw new JPackageLookupException(simpleName, loading);
     }
 
-    return new JaycePackageLoader(inputJackLibrary, input, lookup, defaultLoadLevel);
+    return new JaycePackageLoader(inputJackLibrary, input, session, defaultLoadLevel);
   }
 
   @Nonnull

@@ -20,6 +20,7 @@ import com.android.jack.LibraryException;
 import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNode;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.library.HasInputLibrary;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.library.LibraryFormatException;
@@ -80,7 +81,7 @@ public class JayceMethodLoader implements MethodLoader, HasInputLibrary {
       }
       JNode body;
       try {
-        body = methodNode.loadBody(loaded);
+        body = methodNode.loadBody(loaded, this);
       } catch (JLookupException e) {
         throw new JackLoadingException(getLocation(loaded), e);
       }
@@ -104,7 +105,7 @@ public class JayceMethodLoader implements MethodLoader, HasInputLibrary {
       MethodNode node;
       try {
         node = getNNode(NodeLevel.STRUCTURE);
-        node.loadAnnotations(loaded);
+        node.loadAnnotations(loaded, this);
       } catch (LibraryException e) {
         throw new JackLoadingException(getLocation(loaded), e);
       }
@@ -152,5 +153,10 @@ public class JayceMethodLoader implements MethodLoader, HasInputLibrary {
   @Override
   public void ensureAnnotation(@Nonnull JMethod loaded, @Nonnull JAnnotationType annotation) {
     ensureAnnotations(loaded);
+  }
+
+  @Nonnull
+  public JSession getSession() {
+    return enclosingClassLoader.getSession();
   }
 }

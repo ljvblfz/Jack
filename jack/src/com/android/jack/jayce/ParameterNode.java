@@ -25,6 +25,6 @@ import javax.annotation.Nonnull;
  */
 public interface ParameterNode extends Node {
 
-  void loadAnnotations(@Nonnull JParameter loading);
+  void loadAnnotations(@Nonnull JParameter loading, @Nonnull JayceParameterLoader loader);
 
 }

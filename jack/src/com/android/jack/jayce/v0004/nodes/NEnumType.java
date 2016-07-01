@@ -16,7 +16,6 @@
 
 package com.android.jack.jayce.v0004.nodes;
 
-import com.android.jack.Jack;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JDefinedClass;
@@ -91,8 +90,7 @@ public class NEnumType extends NClassType {
     assert sourceInfo != null;
     assert signature != null;
     JDefinedEnum jEnumType = (JDefinedEnum) loading;
-    ExportSession exportSession = new ExportSession(loader.getLookup(), Jack.getSession(),
-        NodeLevel.STRUCTURE);
+    ExportSession exportSession = new ExportSession(loader.getSession(), NodeLevel.STRUCTURE);
     exportSession.setCurrentType(jEnumType);
     loading.setSourceInfo(sourceInfo);
 

@@ -16,10 +16,8 @@
 
 package com.android.jack.jayce.v0002.nodes;
 
-import com.android.jack.Jack;
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JParameter;
-import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.jayce.JayceMethodLoader;
 import com.android.jack.jayce.JayceParameterLoader;
@@ -158,11 +156,9 @@ public class NParameter extends NVariable implements ParameterNode {
   }
 
   @Override
-  public void loadAnnotations(@Nonnull JParameter loading) {
+  public void loadAnnotations(@Nonnull JParameter loading, @Nonnull JayceParameterLoader loader) {
     if (!annotations.isEmpty()) {
-      JSession session = Jack.getSession();
-      ExportSession exportSession =
-          new ExportSession(session.getPhantomLookup(), session, NodeLevel.STRUCTURE);
+      ExportSession exportSession = new ExportSession(loader.getSession(), NodeLevel.STRUCTURE);
       for (NAnnotation annotation : annotations) {
         JAnnotation annote = annotation.exportAsJast(exportSession);
         loading.addAnnotation(annote);

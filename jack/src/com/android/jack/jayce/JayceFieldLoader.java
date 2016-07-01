@@ -19,6 +19,7 @@ package com.android.jack.jayce;
 import com.android.jack.LibraryException;
 import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JField;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.library.HasInputLibrary;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.library.LibraryFormatException;
@@ -89,7 +90,7 @@ public class JayceFieldLoader implements FieldLoader, HasInputLibrary {
       FieldNode node;
       try {
         node = getNNode();
-        node.loadAnnotations(loaded);
+        node.loadAnnotations(loaded, this);
       } catch (LibraryException e) {
         throw new JackLoadingException(getLocation(loaded), e);
       }
@@ -111,5 +112,10 @@ public class JayceFieldLoader implements FieldLoader, HasInputLibrary {
   @Override
   public void ensureAnnotation(@Nonnull JField loaded, @Nonnull JAnnotationType annotation) {
     ensureAnnotations(loaded);
+  }
+
+  @Nonnull
+  public JSession getSession() {
+    return enclosingClassLoader.getSession();
   }
 }

@@ -25,6 +25,6 @@ import javax.annotation.Nonnull;
  */
 public interface FieldNode extends Node {
 
-  void loadAnnotations(@Nonnull JField loading);
+  void loadAnnotations(@Nonnull JField loading, @Nonnull JayceFieldLoader loader);
 
 }

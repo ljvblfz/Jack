@@ -113,7 +113,6 @@ import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.LibraryReadingException;
 import com.android.jack.library.LibraryWritingException;
 import com.android.jack.library.OutputJackLibrary;
-import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.meta.LibraryMetaWriter;
 import com.android.jack.meta.Meta;
 import com.android.jack.optimizations.ConstantRefinerAndVariableRemover;
@@ -383,7 +382,7 @@ public abstract class Jack {
           "Hint on default load policy for classpath entries",
           JaycePackageLoader.class)
           .addArgType(InputJackLibrary.class)
-          .addArgType(JPhantomLookup.class)
+          .addArgType(JSession.class)
           .bypassAccessibility()
           .addDefaultValue("type");
 
@@ -394,7 +393,7 @@ public abstract class Jack {
           "Hint on default load policy for import entries",
           JaycePackageLoader.class)
           .addArgType(InputJackLibrary.class)
-          .addArgType(JPhantomLookup.class)
+          .addArgType(JSession.class)
           .bypassAccessibility()
           .addDefaultValue("type");
 
@@ -1047,7 +1046,7 @@ public abstract class Jack {
       ReflectFactory<JaycePackageLoader> factory, InputJackLibrary inputJackLibrary) {
     if (inputJackLibrary.containsFileType(FileType.JAYCE)) {
       JaycePackageLoader rootPLoader =
-          factory.create(inputJackLibrary, session.getPhantomLookup());
+          factory.create(inputJackLibrary, session);
       session.getTopLevelPackage().addLoader(rootPLoader);
     }
   }

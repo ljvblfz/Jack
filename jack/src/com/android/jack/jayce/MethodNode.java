@@ -31,10 +31,10 @@ import javax.annotation.Nonnull;
 public interface MethodNode extends Node {
 
   @CheckForNull
-  JAbstractMethodBody loadBody(@Nonnull JMethod loading) throws JTypeLookupException,
-      JMethodLookupException;
+  JAbstractMethodBody loadBody(@Nonnull JMethod loading, @Nonnull JayceMethodLoader loader)
+      throws JTypeLookupException, JMethodLookupException;
 
-  void loadAnnotations(@Nonnull JMethod loading);
+  void loadAnnotations(@Nonnull JMethod loading, @Nonnull JayceMethodLoader loader);
 
   @Nonnull
   NodeLevel getLevel();

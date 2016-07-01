@@ -19,6 +19,7 @@ package com.android.jack.jayce;
 import com.android.jack.LibraryException;
 import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JParameter;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.library.HasInputLibrary;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.library.LibraryFormatException;
@@ -89,7 +90,7 @@ public class JayceParameterLoader implements ParameterLoader, HasInputLibrary {
       ParameterNode node;
       try {
         node = getNNode();
-        node.loadAnnotations(loaded);
+        node.loadAnnotations(loaded, this);
       } catch (LibraryException e) {
         throw new JackLoadingException(getLocation(loaded), e);
       }
@@ -112,5 +113,10 @@ public class JayceParameterLoader implements ParameterLoader, HasInputLibrary {
   @Override
   public void ensureAnnotation(@Nonnull JParameter loaded, @Nonnull JAnnotationType annotation) {
     ensureAnnotations(loaded);
+  }
+
+  @Nonnull
+  public JSession getSession() {
+    return enclosingMethodLoader.getSession();
   }
 }

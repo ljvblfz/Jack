@@ -16,7 +16,6 @@
 
 package com.android.jack.jayce.v0004.nodes;
 
-import com.android.jack.Jack;
 import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDefinedInterface;
@@ -107,7 +106,7 @@ public class NInterfaceType extends NDeclaredType {
     assert sourceInfo != null;
     assert signature != null;
     JDefinedInterface jInterfaceType = (JDefinedInterface) loading;
-    ExportSession exportSession = new ExportSession(loader.getLookup(), Jack.getSession(),
+    ExportSession exportSession = new ExportSession(loader.getSession(),
         NodeLevel.STRUCTURE);
     exportSession.setCurrentType(jInterfaceType);
     loading.setSourceInfo(sourceInfo);

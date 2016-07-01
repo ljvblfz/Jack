@@ -16,7 +16,6 @@
 
 package com.android.jack.jayce.v0003.nodes;
 
-import com.android.jack.Jack;
 import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JDefinedAnnotationType;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
@@ -93,8 +92,7 @@ public class NAnnotationType extends NInterfaceType {
     assert sourceInfo != null;
     assert signature != null;
     JDefinedAnnotationType jInterfaceType = (JDefinedAnnotationType) loading;
-    ExportSession exportSession = new ExportSession(loader.getLookup(), Jack.getSession(),
-        NodeLevel.STRUCTURE);
+    ExportSession exportSession = new ExportSession(loader.getSession(), NodeLevel.STRUCTURE);
     exportSession.setCurrentType(jInterfaceType);
     loading.setSourceInfo(sourceInfo.exportAsJast(exportSession));
     for (String superInterface : superInterfaces) {
