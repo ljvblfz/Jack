@@ -23,7 +23,6 @@ import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JDefinedAnnotationType;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPackage;
-import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.formatter.TypePackageAndMethodFormatter;
 import com.android.jack.library.HasInputLibrary;
@@ -36,7 +35,6 @@ import com.android.jack.load.ClassOrInterfaceLoader;
 import com.android.jack.load.JackLoadingException;
 import com.android.jack.lookup.JLookupException;
 import com.android.jack.lookup.JPhantomLookup;
-import com.android.jack.util.NamingTools;
 import com.android.sched.marker.Marker;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
@@ -254,17 +252,6 @@ public class JayceClassOrInterfaceLoader implements ClassOrInterfaceLoader, HasI
     DeclaredTypeNode type = getNNode(NodeLevel.TYPES);
     assert checkName(type.getSignature());
     JDefinedClassOrInterface jType = type.create(enclosingPackage, this);
-    return jType;
-  }
-
-  @Nonnull
-  private JDefinedClassOrInterface create(@Nonnull JSession session) throws LibraryFormatException,
-      LibraryIOException {
-    DeclaredTypeNode type = getNNode(NodeLevel.TYPES);
-    String packageQualifiedName = NamingTools.getPackageNameFromBinaryName(
-        NamingTools.getClassBinaryNameFromDescriptor(type.getSignature()));
-    JPackage pack = session.getLookup().getOrCreatePackage(packageQualifiedName);
-    JDefinedClassOrInterface jType = type.create(pack, this);
     return jType;
   }
 
