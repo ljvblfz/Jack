@@ -1663,21 +1663,27 @@ public abstract class Jack {
             methodPlan5.append(MethodBodyRemover.class);
           }
         }
-        if (enableWriteOnlyFieldRemoval) {
-          typePlan6
-              .appendSubPlan(JFieldAdapter.class)
-              .append(WofrRemoveFields.class);
-        }
-        {
-          SubPlanBuilder<JField> fieldPlan2 =
-              typePlan6.appendSubPlan(JFieldAdapter.class);
-          fieldPlan2.append(ContainerAnnotationAdder.FieldContainerAnnotationAdder.class);
-          fieldPlan2.append(EncodedFieldBuilder.class);
-          fieldPlan2.append(FieldAnnotationBuilder.class);
-        }
+      }
+    }
+    {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan7 =
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+
+      if (enableWriteOnlyFieldRemoval) {
+        typePlan7
+            .appendSubPlan(JFieldAdapter.class)
+            .append(WofrRemoveFields.class);
+      }
+
+      {
+        SubPlanBuilder<JField> fieldPlan2 =
+            typePlan7.appendSubPlan(JFieldAdapter.class);
+        fieldPlan2.append(ContainerAnnotationAdder.FieldContainerAnnotationAdder.class);
+        fieldPlan2.append(EncodedFieldBuilder.class);
+        fieldPlan2.append(FieldAnnotationBuilder.class);
       }
       if (hasSanityChecks) {
-        typePlan6.append(TypeAstChecker.class);
+        typePlan7.append(TypeAstChecker.class);
       }
     }
 
