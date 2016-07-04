@@ -50,6 +50,7 @@
       Each sample can be updated with the line below
     <update-sample dir="my_plugin_directory"/>
     -->
+    <update-sample dir="jack-structure-printer-plugin"/>
   </target>
 
 </project>
