@@ -17,6 +17,7 @@
 package com.android.jack.java7;
 
 import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
@@ -54,21 +55,25 @@ public class SwitchesTest {
       "com.android.jack.java7.switches.test004.dx.Tests");
 
   @Test
+  @Runtime
   public void java7Switches001() throws Exception {
     new RuntimeTestHelper(TEST001).setSourceLevel(SourceLevel.JAVA_7).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   public void java7Switches002() throws Exception {
     new RuntimeTestHelper(TEST002).setSourceLevel(SourceLevel.JAVA_7).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   public void java7Switches003() throws Exception {
     new RuntimeTestHelper(TEST003).setSourceLevel(SourceLevel.JAVA_7).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   public void java7Switches004() throws Exception {
     new RuntimeTestHelper(TEST004).setSourceLevel(SourceLevel.JAVA_7).compileAndRunTest();
   }

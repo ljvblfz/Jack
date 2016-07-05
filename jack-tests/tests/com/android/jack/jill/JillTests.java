@@ -17,6 +17,7 @@
 package com.android.jack.jill;
 
 import com.android.jack.test.TestsProperties;
+import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runner.RuntimeRunner;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackBasedToolchain;
@@ -31,6 +32,7 @@ import java.util.List;
 public class JillTests {
 
   @Test
+  @Runtime
   public void test001() throws Exception {
     File jasminFolder = AbstractTestTools.getTestRootDir("com.android.jack.jill.test001.jasmin");
     File jarInput = new File(jasminFolder, "jarInput.jar");

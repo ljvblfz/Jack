@@ -23,6 +23,7 @@ import com.android.jack.test.comparator.ComparatorMapping;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
 import com.android.jack.test.junit.KnownIssue;
+import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.DummyToolchain;
 import com.android.jack.test.toolchain.IToolchain;
@@ -122,6 +123,7 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
    * Test Obfuscation when a whole package is missing from the classpath.
    */
   @Test
+  @Runtime
   public void test54() throws Exception {
     File testRootDir = getShrobTestRootDir("054");
 

@@ -21,6 +21,7 @@ import org.junit.Test;
 import javax.annotation.Nonnull;
 
 import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackApiV01;
@@ -163,96 +164,115 @@ public class GwtTest {
       "com.android.jack.java8.gwt.test046.jack.Java8Test");
 
   @Test
+  @Runtime
   public void testLambdaNoCapture() throws Exception {
     run(GWT_LAMBDA_TEST_1);
   }
 
   @Test
+  @Runtime
   public void testLambdaCaptureLocal() throws Exception {
     run(GWT_LAMBDA_TEST_2);
   }
 
   @Test
+  @Runtime
   public void testLambdaCaptureLocalWithInnerClass() throws Exception {
     run(GWT_LAMBDA_TEST_3);
   }
 
   @Test
+  @Runtime
   public void testLambdaCaptureLocalAndFieldWithInnerClass() throws Exception {
     run(GWT_LAMBDA_TEST_4);
   }
 
   @Test
+  @Runtime
   public void testLambdaCaptureLocalAndField() throws Exception {
     run(GWT_LAMBDA_TEST_5);
   }
 
   @Test
+  @Runtime
   public void testCompileLambdaCaptureOuterInnerField() throws Exception {
     run(GWT_LAMBDA_TEST_6);
   }
 
   @Test
+  @Runtime
   public void testStaticReferenceBinding() throws Exception {
     run(GWT_LAMBDA_TEST_7);
   }
 
   @Test
+  @Runtime
   public void testInstanceReferenceBinding() throws Exception {
     run(GWT_LAMBDA_TEST_8);
   }
 
   @Test
+  @Runtime
   public void testImplicitQualifierReferenceBinding() throws Exception {
     run(GWT_LAMBDA_TEST_9);
   }
 
   @Test
+  @Runtime
   public void testConstructorReferenceBinding() throws Exception {
     run(GWT_LAMBDA_TEST_10);
   }
 
   @Test
+  @Runtime
   public void testStaticInterfaceMethod() throws Exception {
     run(GWT_LAMBDA_TEST_11);
   }
 
   @Test
+  @Runtime
   public void testArrayConstructorReference() throws Exception {
     run(GWT_LAMBDA_TEST_12);
   }
 
   @Test
+  @Runtime
   public void testArrayConstructorReferenceBoxed() throws Exception {
     run(GWT_LAMBDA_TEST_13);
   }
 
   @Test
+  @Runtime
   public void testVarArgsReferenceBinding() throws Exception {
     run(GWT_LAMBDA_TEST_14);
   }
 
   @Test
+  @Runtime
   public void testVarArgsPassthroughReferenceBinding() throws Exception {
     run(GWT_LAMBDA_TEST_15);
   }
 
   @Test
+  @Runtime
   public void testVarArgsPassthroughReferenceBindingProvidedArray() throws Exception {
     run(GWT_LAMBDA_TEST_16);
   }
 
   @Test
+  @Runtime
   public void testSuperReferenceExpression() throws Exception {
     run(GWT_LAMBDA_TEST_17);
   }
 
   @Test
+  @Runtime
   public void testSuperReferenceExpressionWithVarArgs() throws Exception {
     run(GWT_LAMBDA_TEST_18);
   }
 
   @Test
+  @Runtime
   public void testPrivateConstructorReference() throws Exception {
     new RuntimeTestHelper(GWT_LAMBDA_TEST_19)
     .setSourceLevel(SourceLevel.JAVA_8)
@@ -263,66 +283,79 @@ public class GwtTest {
   }
 
   @Test
+  @Runtime
   public void testLambdaCaptureParameter() throws Exception {
     run(GWT_LAMBDA_TEST_20);
   }
 
   @Test
+  @Runtime
   public void testLambdaNestingCaptureLocal() throws Exception {
     run(GWT_LAMBDA_TEST_21);
   }
 
   @Test
+  @Runtime
   public void testLambdaNestingCaptureField_InnerClassCapturingOuterClassVariable() throws Exception {
     run(GWT_LAMBDA_TEST_22);
   }
 
   @Test
+  @Runtime
   public void testInnerClassCaptureLocalFromOuterLambda() throws Exception {
     run(GWT_LAMBDA_TEST_23);
   }
 
   @Test
+  @Runtime
   public void testLambdaNestingCaptureField() throws Exception {
     run(GWT_LAMBDA_TEST_24);
   }
 
   @Test
+  @Runtime
   public void testLambdaMultipleNestingCaptureFieldAndLocal() throws Exception {
     run(GWT_LAMBDA_TEST_25);
   }
 
   @Test
+  @Runtime
   public void testLambdaMultipleNestingCaptureFieldAndLocalInnerClass() throws Exception {
     run(GWT_LAMBDA_TEST_26);
   }
 
   @Test
+  @Runtime
   public void testMethodRefWithSameName() throws Exception {
     run(GWT_LAMBDA_TEST_27);
   }
 
   @Test
+  @Runtime
   public void testLambdaNestingInAnonymousCaptureLocal() throws Exception {
     run(GWT_LAMBDA_TEST_42);
   }
 
   @Test
+  @Runtime
   public void testLambdaNestingInMultipleMixedAnonymousCaptureLocal() throws Exception {
     run(GWT_LAMBDA_TEST_43);
   }
 
   @Test
+  @Runtime
   public void testLambdaNestingInMultipleMixedAnonymousCaptureLocal_withInterference() throws Exception {
     run(GWT_LAMBDA_TEST_44);
   }
 
   @Test
+  @Runtime
   public void testLambdaNestingInMultipleMixedAnonymousCaptureLocalAndField() throws Exception {
     run(GWT_LAMBDA_TEST_45);
   }
 
   @Test
+  @Runtime
   public void testLambdaNestingInMultipleAnonymousCaptureLocal() throws Exception {
     run(GWT_LAMBDA_TEST_46);
   }

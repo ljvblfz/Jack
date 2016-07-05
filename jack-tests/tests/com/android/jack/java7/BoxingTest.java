@@ -17,6 +17,7 @@
 package com.android.jack.java7;
 
 import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
@@ -36,6 +37,7 @@ public class BoxingTest {
       "com.android.jack.java7.boxing.test001.dx.Tests");
 
   @Test
+  @Runtime
   public void java7Boxing001() throws Exception {
     new RuntimeTestHelper(TEST001).setSourceLevel(SourceLevel.JAVA_7).compileAndRunTest();
   }

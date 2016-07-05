@@ -21,6 +21,8 @@ import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
 import com.android.jack.test.TestsProperties;
 import com.android.jack.test.junit.KnownIssue;
+import com.android.jack.test.junit.Runtime;
+import com.android.jack.test.junit.RuntimeVersion;
 import com.android.jack.test.runner.RuntimeRunner;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
@@ -55,6 +57,7 @@ public class LambdaTestPostM {
    * that contains bridges.
    */
   @Test
+  @Runtime(from=RuntimeVersion.N)
   @KnownIssue(candidate = IncrementalToolchain.class)
   public void testLamba041() throws Exception {
     List<Class<? extends IToolchain>> excludedToolchains =
