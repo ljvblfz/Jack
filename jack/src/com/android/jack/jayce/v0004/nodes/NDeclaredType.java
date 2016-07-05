@@ -19,7 +19,6 @@ package com.android.jack.jayce.v0004.nodes;
 import com.android.jack.Jack;
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.formatter.TypeAndMethodFormatter;
 import com.android.jack.jayce.DeclaredTypeNode;
 import com.android.jack.jayce.FieldNode;
