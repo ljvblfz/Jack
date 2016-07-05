@@ -19,7 +19,6 @@ package com.android.jack.jayce.v0002.nodes;
 import com.android.jack.Jack;
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.formatter.TypeAndMethodFormatter;
 import com.android.jack.jayce.DeclaredTypeNode;
 import com.android.jack.jayce.FieldNode;
@@ -70,7 +69,6 @@ public abstract class NDeclaredType extends NNode implements HasSourceInfo, Decl
   public void loadAnnotations(@Nonnull JDefinedClassOrInterface loading,
       @Nonnull JayceClassOrInterfaceLoader loader) {
     if (!annotations.isEmpty()) {
-      JSession session = Jack.getSession();
       ExportSession exportSession =
           new ExportSession(loader.getSession(), NodeLevel.STRUCTURE);
       for (NAnnotation annotation : annotations) {
