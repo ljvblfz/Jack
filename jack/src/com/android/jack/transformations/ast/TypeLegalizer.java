@@ -93,9 +93,6 @@ public class TypeLegalizer implements RunnableSchedulable<JMethod> {
   private final com.android.jack.util.filter.Filter<JMethod> filter =
       ThreadConfig.get(Options.METHOD_FILTER);
 
-  @Nonnull
-  private final JPhantomLookup lookup = Jack.getSession().getPhantomLookup();
-
   static class TypeLegalizerVisitor extends JVisitor {
 
     @Nonnull

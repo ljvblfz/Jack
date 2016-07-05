@@ -18,6 +18,7 @@ package com.android.jack.analysis.dependency.file;
 
 import com.android.jack.Jack;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
+import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.sched.item.Description;
@@ -40,13 +41,16 @@ import javax.annotation.Nonnull;
 public class FileDependenciesCollector implements
     RunnableSchedulable<JDefinedClassOrInterface> {
 
+  @Nonnull
+  private final JSession session = Jack.getSession();
+
   @Override
   public synchronized void run(@Nonnull JDefinedClassOrInterface declaredType) throws Exception {
     if (declaredType.getSourceInfo() == SourceInfo.UNKNOWN) {
       return;
     }
 
-    Jack.getSession().getFileDependencies().addMappingBetweenJavaFileAndType(
+    session.getFileDependencies().addMappingBetweenJavaFileAndType(
         declaredType.getSourceInfo().getFileName(), declaredType);
   }
 }
