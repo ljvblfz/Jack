@@ -21,8 +21,6 @@ import com.android.jack.ir.sourceinfo.FileSourceInfo;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.RunnableSchedulable;
 
-import java.util.Set;
-
 import javax.annotation.Nonnull;
 
 /**
@@ -33,8 +31,7 @@ public class SourceFileRemover implements RunnableSchedulable<JSession> {
 
   @Override
   public void run(@Nonnull JSession session) throws Exception {
-    Set<FileSourceInfo> infos = session.getSourceInfoFactory().getFileSourceInfos();
-    for (FileSourceInfo info : infos) {
+    for (FileSourceInfo info : session.getSourceInfoFactory().getFileSourceInfos()) {
       info.setFileName("");
     }
   }
