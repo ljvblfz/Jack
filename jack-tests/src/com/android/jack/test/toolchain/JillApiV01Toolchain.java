@@ -96,7 +96,7 @@ public class JillApiV01Toolchain extends JillApiToolchainBase {
       }
     } finally {
       System.setOut(stdOut);
-      System.setOut(stdErr);
+      System.setErr(stdErr);
       LoggerFactory.configure(LogLevel.ERROR);
     }
   }
