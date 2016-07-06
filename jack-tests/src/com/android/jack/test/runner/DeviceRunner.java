@@ -20,6 +20,7 @@ import com.google.common.base.Joiner;
 
 import com.android.ddmlib.AdbCommandRejectedException;
 import com.android.ddmlib.AndroidDebugBridge;
+import com.android.ddmlib.FileListingService;
 import com.android.ddmlib.IDevice;
 import com.android.ddmlib.IShellOutputReceiver;
 import com.android.ddmlib.ShellCommandUnresponsiveException;
@@ -32,7 +33,6 @@ import com.android.jack.test.util.ExecFileException;
 import com.android.jack.test.util.ExecuteFile;
 import com.android.sched.util.file.CannotChangePermissionException;
 import com.android.sched.util.file.CannotCreateFileException;
-import com.android.sched.util.findbugs.SuppressFBWarnings;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -40,6 +40,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -51,14 +52,7 @@ import javax.annotation.Nonnull;
 /**
  * This runner is used to execute tests on a device.
  */
-// It is safe because ROOT_DIR and ANDROID_DATA_DIR are well known paths
-@SuppressFBWarnings("DMI_HARDCODED_ABSOLUTE_FILENAME")
 public abstract class DeviceRunner extends AbstractRuntimeRunner {
-
-  @Nonnull
-  public static final File ROOT_DIR = new File("/system");
-  @Nonnull
-  public static final File ANDROID_DATA_DIR = new File("/data");
 
   @Nonnegative
   private static final long ADB_CONNECTION_TIMEOUT = 5000;
@@ -73,6 +67,9 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
   @Nonnull
   private static final File TEST_SCRIPT_FILE =
       new File(TestsProperties.getJackRootDir(), "jack-tests/etc/" + TEST_SCRIPT_NAME);
+
+  @Nonnull
+  protected static final char PATH_SEPARATOR_CHAR = ':';
 
   @Nonnull
   MyShellOuputReceiver hostOutput = new MyShellOuputReceiver();
@@ -110,7 +107,6 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
   }
 
   public DeviceRunner() {
-    super(ROOT_DIR);
     try {
       AndroidDebugBridge.init(/* clientSupport */ false);
     } catch (IllegalStateException ex) {
@@ -192,47 +188,54 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
 
       ensureAdbRoot(device);
 
-      // Remove trailing '\n' returned by emulator
-      String dataPath = device.getMountPoint(IDevice.MNT_DATA).replace("\n", "");
-      File testsRootDir = new File(dataPath + "/jack-tests");
-      File[] desFilePaths = new File[classpathFiles.length];
+      //Remove trailing '\n' returned by emulator
+      File testsRootDirFile =
+          new File(device.getMountPoint(IDevice.MNT_DATA).replace("\n", ""), "jack-tests");
+      String testsRootDir = convertToTargetPath(testsRootDirFile);
+
+      String testScriptPathOnTarget =
+          convertToTargetPath(new File(testsRootDirFile, "TEST_SCRIPT_NAME"));
+
+      String[] desFilePaths = new String[classpathFiles.length];
       try {
         if (isVerbose) {
           System.out.println("adb shell -s " + device.getSerialNumber() + " mkdir "
-              + testsRootDir.getAbsolutePath());
+              + testsRootDir);
         }
-        device.executeShellCommand("mkdir " + testsRootDir.getAbsolutePath(), hostOutput);
+        device.executeShellCommand("mkdir " + testsRootDir, hostOutput);
 
         if (isVerbose) {
           System.out.println("adb shell -s " + device.getSerialNumber() + " rm "
-              + testsRootDir.getAbsolutePath() + "/*");
+              + testsRootDir + FileListingService.FILE_SEPARATOR + "*");
         }
-        device.executeShellCommand("rm " + testsRootDir.getAbsolutePath() + "/*", hostOutput);
+        device.executeShellCommand("rm " + testsRootDir + FileListingService.FILE_SEPARATOR + "*",
+            hostOutput);
 
         if (isVerbose) {
           System.out.println("adb -s " + device.getSerialNumber() + " push  "
               + TEST_SCRIPT_FILE.getAbsolutePath() + " "
-              + testsRootDir.getAbsolutePath() + '/' + TEST_SCRIPT_NAME);
+              + testScriptPathOnTarget);
         }
         device.pushFile(TEST_SCRIPT_FILE.getAbsolutePath(),
-            testsRootDir.getAbsolutePath() + '/' + TEST_SCRIPT_NAME);
+            testScriptPathOnTarget);
 
         if (isVerbose) {
           System.out.println("adb -s " + device.getSerialNumber() + " shell chmod 777 "
-              + testsRootDir.getAbsolutePath() + '/' + TEST_SCRIPT_NAME);
+              + testScriptPathOnTarget);
         }
         device.executeShellCommand(
-            "chmod 777 " + testsRootDir.getAbsolutePath() + '/' + TEST_SCRIPT_NAME, hostOutput);
+            "chmod 777 " + testScriptPathOnTarget, hostOutput);
 
         int i = 0;
         for (File f : classpathFiles) {
-          desFilePaths[i] = new File(testsRootDir, "f" + i + "_"  + f.getName());
+          desFilePaths[i] =
+              convertToTargetPath(new File(testsRootDirFile,  "f" + i + "_" + f.getName()));
 
           if (isVerbose) {
             System.out.println("adb -s " + device.getSerialNumber() + " push "
-                + f.getAbsolutePath() + " " + desFilePaths[i].getAbsolutePath());
+                + f.getAbsolutePath() + " " + desFilePaths[i]);
           }
-          device.pushFile(f.getAbsolutePath(), desFilePaths[i].getAbsolutePath());
+          device.pushFile(f.getAbsolutePath(), desFilePaths[i]);
           i++;
         }
       } catch (TimeoutException e) {
@@ -265,8 +268,9 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
         }
       }
       List<String> cmdLines = new ArrayList<String>(splittedMainClasses.size());
+      File rootDir = new File(device.getMountPoint(IDevice.MNT_ROOT).replace("\n", ""));
       for (List<String> classList : splittedMainClasses) {
-        cmdLines.add(Joiner.on(' ').join(buildCommandLine(options,
+        cmdLines.add(Joiner.on(' ').join(buildCommandLine(rootDir, options,
             classList.toArray(new String[classList.size()]), desFilePaths)));
       }
 
@@ -279,19 +283,19 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
         for (String args : cmdLines) {
           if (isVerbose) {
             System.out.println("adb -s " + device.getSerialNumber() + " shell "
-                + testsRootDir.getAbsolutePath() + '/' + TEST_SCRIPT_NAME + ' ' + args);
+                + testScriptPathOnTarget + ' ' + args);
           }
           device.executeShellCommand(
-              testsRootDir.getAbsolutePath() + '/' + TEST_SCRIPT_NAME + ' ' + args,
+              testScriptPathOnTarget + ' ' + args,
               new MyShellOuputReceiver(outRedirectStream, errRedirectStream));
 
           File exitStatusFile = AbstractTestTools.createTempFile("exitStatus", "");
           if (isVerbose) {
             System.out.println("adb -s " + device.getSerialNumber() + " pull "
-                + testsRootDir.getAbsolutePath() + "/exitStatus "
+                + testsRootDir + "/exitStatus "
                 + exitStatusFile.getAbsolutePath());
           }
-          device.pullFile(testsRootDir.getAbsolutePath() + "/exitStatus",
+          device.pullFile(testsRootDir + "/exitStatus",
               exitStatusFile.getAbsolutePath());
 
           BufferedReader br = new BufferedReader(new FileReader(exitStatusFile));
@@ -326,12 +330,12 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
         throw new RuntimeRunnerException(e);
       } finally {
         try {
-          for (File pushedFile : desFilePaths) {
+          for (String pushedFile : desFilePaths) {
             if (isVerbose) {
               System.out.println(
-                  "adb -s " + device.getSerialNumber() + " rm " + pushedFile.getAbsolutePath());
+                  "adb -s " + device.getSerialNumber() + " rm " + pushedFile);
             }
-            device.executeShellCommand("rm " + pushedFile.getAbsolutePath(), hostOutput);
+            device.executeShellCommand("rm " + pushedFile, hostOutput);
           }
         } catch (IOException e) {
           throw new RuntimeRunnerException(e);
@@ -349,8 +353,8 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
   }
 
   @Nonnull
-  protected abstract List<String> buildCommandLine(@Nonnull String[] options,
-      @Nonnull String[] mainClasses, @Nonnull File... classpathFiles);
+  protected abstract List<String> buildCommandLine(@Nonnull File rootDir, @Nonnull String[] options,
+      @Nonnull String[] mainClasses, @Nonnull String... classpathFiles);
 
   private boolean isAdbInitialized(@Nonnull AndroidDebugBridge adb) {
     return adb.isConnected() && adb.hasInitialDeviceList();
@@ -409,6 +413,16 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
     } catch (IOException e) {
       throw new RuntimeRunnerException(e);
     }
+  }
+
+  @Nonnull
+  protected String convertToTargetPath(@Nonnull File file) {
+    String path = file.getPath();
+    Path root = file.toPath().getRoot();
+    if (root != null) {
+      path = path.replace(root.toString(), FileListingService.FILE_SEPARATOR);
+    }
+    return path.replace(File.separator, FileListingService.FILE_SEPARATOR);
   }
 
 }

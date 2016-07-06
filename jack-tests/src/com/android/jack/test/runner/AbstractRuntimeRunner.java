@@ -17,7 +17,6 @@
 package com.android.jack.test.runner;
 
 
-import java.io.File;
 import java.io.OutputStream;
 
 import javax.annotation.Nonnull;
@@ -32,10 +31,6 @@ public abstract class AbstractRuntimeRunner extends RuntimeRunner {
   protected OutputStream outRedirectStream = System.out;
   @Nonnull
   protected OutputStream errRedirectStream = System.err;
-
-  protected AbstractRuntimeRunner(@Nonnull File rtEnvRootDir) {
-    super(rtEnvRootDir);
-  }
 
   @Nonnull
   public final AbstractRuntimeRunner setOutputStream(@Nonnull OutputStream outputStream) {
