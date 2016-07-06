@@ -140,7 +140,6 @@ public class UnaryTests extends RuntimeTest {
 
   @Test
   @Runtime
-  @Category(RuntimeRegressionTest.class)
   @KnownIssue(candidate=JillBasedToolchain.class)
   public void test005() throws Exception {
     new RuntimeTestHelper(TEST005)
