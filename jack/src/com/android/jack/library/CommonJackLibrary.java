@@ -152,7 +152,8 @@ public abstract class CommonJackLibrary implements JackLibrary {
       if (!(inputLib instanceof InputJackLibrary)
           || !(inputLib.getMajorVersion() == currentMajorVersion)
           || !((InputJackLibrary) inputLib).containsFileType(FileType.PREBUILT)
-          || !((InputJackLibrary) inputLib).hasCompliantPrebuilts()) {
+          || !((InputJackLibrary) inputLib).hasCompliantPrebuilts()
+          || ((InputJackLibrary) inputLib).hasJayceDigest()) {
         return false;
       }
     }
@@ -188,5 +189,9 @@ public abstract class CommonJackLibrary implements JackLibrary {
 
   public boolean containsLibraryLocation(@Nonnull Location location) {
     return locationList.contains(location);
+  }
+
+  public boolean hasJayceDigest() {
+    return libraryProperties.getProperty(JackLibrary.KEY_LIB_JAYCE_DIGEST, "").equals("true");
   }
 }

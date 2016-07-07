@@ -47,6 +47,9 @@ public interface JackLibrary extends Library {
   @Nonnull
   public static final String KEY_LIB_EMITTER_VERSION = "lib.emitter.version";
 
+  @Nonnull
+  public static final String KEY_LIB_JAYCE_DIGEST = "lib.jayce.digest";
+
   public static final int GROUP_SIZE_FOR_DIRS = 2;
 
   public static final int NUM_GROUPS_FOR_DIRS = 1;

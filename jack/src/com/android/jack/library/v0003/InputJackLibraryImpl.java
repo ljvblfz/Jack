@@ -180,7 +180,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
         throw new AssertionError(e);
       }
 
-      if (fileType == FileType.PREBUILT) {
+      if (fileType == FileType.PREBUILT || (fileType == FileType.JAYCE && hasJayceDigest())) {
         try {
           inputVFS = new MessageDigestFS(inputVFS,
                   ThreadConfig.get(JackLibraryFactory.MESSAGE_DIGEST_ALGO));
@@ -271,11 +271,12 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   @Override
   @CheckForNull
   public String getDigest() {
-    if (!containsFileType(FileType.PREBUILT)) {
-      return null;
-    } else {
+    if (containsFileType(FileType.PREBUILT)) {
       return getSectionVFS(FileType.PREBUILT).getDigest();
-
+    } else if (containsFileType(FileType.JAYCE)) {
+      return getSectionVFS(FileType.JAYCE).getDigest();
+    } else {
+      return null;
     }
   }
 

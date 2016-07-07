@@ -20,6 +20,9 @@ import com.android.jill.JillException;
 import com.android.jill.Options;
 import com.android.jill.backend.jayce.JayceWriter;
 import com.android.jill.utils.FileUtils;
+import com.android.sched.util.codec.CodecContext;
+import com.android.sched.util.codec.MessageDigestCodec;
+import com.android.sched.util.config.MessageDigestFactory;
 import com.android.sched.util.file.CannotChangePermissionException;
 import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.file.CannotCreateFileException;
@@ -39,12 +42,14 @@ import com.android.sched.util.location.Location;
 import com.android.sched.vfs.DeflateFS;
 import com.android.sched.vfs.DirectFS;
 import com.android.sched.vfs.GenericOutputVFS;
+import com.android.sched.vfs.MessageDigestFS;
 import com.android.sched.vfs.OutputVFS;
 import com.android.sched.vfs.OutputVFile;
 import com.android.sched.vfs.PrefixedFS;
 import com.android.sched.vfs.VFS;
 import com.android.sched.vfs.VPath;
 import com.android.sched.vfs.WriteZipFS;
+import com.android.sched.vfs.WrongVFSFormatException;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
@@ -54,6 +59,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.Provider.Service;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
@@ -101,6 +107,9 @@ public class JavaTransformer {
   private static final String KEY_JAYCE_MINOR_VERSION = "jayce.version.minor";
 
   @Nonnull
+  private static final String KEY_LIB_JAYCE_DIGEST = "lib.jayce.digest";
+
+  @Nonnull
   private static final String JACK_LIBRARY_PROPERTIES = "jack.properties";
 
   @Nonnull
@@ -125,6 +134,7 @@ public class JavaTransformer {
     jackLibraryProperties.put(KEY_LIB_EMITTER_VERSION, version);
     jackLibraryProperties.put(KEY_LIB_MAJOR_VERSION, LIB_MAJOR_VERSION);
     jackLibraryProperties.put(KEY_LIB_MINOR_VERSION, LIB_MINOR_VERSION);
+    jackLibraryProperties.put(KEY_LIB_JAYCE_DIGEST, "true");
   }
 
   public void transform(@Nonnull List<File> javaBinaryFiles) {
@@ -186,9 +196,13 @@ public class JavaTransformer {
 
   @Nonnull
   private OutputVFS wrapOutputVFS(@Nonnull VFS baseVFS) {
+    MessageDigestCodec mdCodec = new MessageDigestCodec();
+    Service service = mdCodec.parseString(new CodecContext(), "SHA");
+
     try {
-      return new GenericOutputVFS(new DeflateFS(new PrefixedFS(baseVFS, new VPath("jayce", '/'))));
-    } catch (NotDirectoryException | CannotCreateFileException e) {
+      return new GenericOutputVFS(new DeflateFS(new MessageDigestFS(
+          new PrefixedFS(baseVFS, new VPath("jayce", '/')), new MessageDigestFactory(service))));
+    } catch (NotDirectoryException | CannotCreateFileException | WrongVFSFormatException e) {
       throw new JillException(e);
     }
   }

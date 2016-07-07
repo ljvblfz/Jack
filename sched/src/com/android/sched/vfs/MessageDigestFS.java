@@ -79,6 +79,8 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
   private String digest = null;
   @Nonnull
   private final Set<Capabilities> capabilities;
+  @Nonnull
+  public MessageDigestVDir rootDir;
 
   class MessageDigestVFile extends BaseVFile {
 
@@ -178,6 +180,7 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
     capabilities.add(Capabilities.DIGEST);
     this.capabilities = Collections.unmodifiableSet(capabilities);
 
+    rootDir = new MessageDigestVDir(this, this.vfs.getRootDir());
     init();
   }
 
@@ -349,7 +352,7 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
   @Override
   @Nonnull
   public MessageDigestVDir getRootDir() {
-    return new MessageDigestVDir(this, vfs.getRootDir());
+    return rootDir;
   }
 
   @Override
@@ -404,6 +407,10 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
     Collection<? extends BaseVElement> elements = dir.getWrappedDir().list();
     List<BaseVElement> newElements = new ArrayList<BaseVElement>(elements.size());
     for (BaseVElement element : elements) {
+      // skip digest file
+      if (dir == rootDir && element.getName().equals(DIGEST_FILE_NAME)) {
+        break;
+      }
       BaseVElement newElement;
       if (element.isVDir()) {
         newElement = new MessageDigestVDir(this, (BaseVDir) element);
