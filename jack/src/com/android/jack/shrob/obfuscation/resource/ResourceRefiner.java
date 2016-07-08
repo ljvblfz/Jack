@@ -38,6 +38,7 @@ import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.vfs.VPath;
 
 import java.util.Iterator;
+import java.util.List;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -113,11 +114,12 @@ public class ResourceRefiner implements RunnableSchedulable<JSession>{
 
   @Override
   public void run(@Nonnull JSession session) throws Exception {
-    FilterSpecification adaptResourceFileNames = flags.getAdaptResourceFileNames();
-    if (adaptResourceFileNames != null) {
+    List<FilterSpecification> adaptResourceFileNames = flags.getAdaptResourceFileNames();
+    if (!adaptResourceFileNames.isEmpty()) {
       for (Resource res : session.getResources()) {
         VPath resName = res.getPath();
-        if (adaptResourceFileNames.matches(
+        if (Flags.matches(
+            adaptResourceFileNames,
             resName.getPathAsString(GrammarActions.SHROB_REGEX_PATH_SEPARATOR))) {
           CharSequence refinedName = getResourceRefinedName(resName, session.getTopLevelPackage());
           if (refinedName != null) {

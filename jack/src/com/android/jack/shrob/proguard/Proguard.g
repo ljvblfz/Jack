@@ -68,22 +68,22 @@ prog [Flags flags, String baseDirectory] throws ProguardFileParsingException
     | '-outjars' outJars=classpath {GrammarActions.outJars($flags, baseDirectory, $outJars.text);}
     | '-libraryjars' libraryJars=classpath {GrammarActions.libraryJars($flags, baseDirectory, $libraryJars.text);}
     | ('-applymapping' mapping=NAME {GrammarActions.mapping($flags, baseDirectory, $mapping.text);})
-    | ('-keepattributes' {FilterSpecification attribute_filter = new FilterSpecification();} filter[attribute_filter, FilterSeparator.ATTRIBUTE] {GrammarActions.attributeFilter($flags, attribute_filter);})
+    | ('-keepattributes' {List<FilterSpecification> attribute_filter = new ArrayList<FilterSpecification>();} filter[attribute_filter, FilterSeparator.ATTRIBUTE] {GrammarActions.attributeFilter($flags, attribute_filter);})
     | '-keepparameternames' {$flags.setKeepParameterNames(true);}
     | '-obfuscationdictionary' obfuscationDictionary=NAME {GrammarActions.obfuscationDictionary($flags, baseDirectory, $obfuscationDictionary.text);}
     | '-classobfuscationdictionary' classObfuscationDictionary=NAME {GrammarActions.classObfuscationDictionary($flags, baseDirectory, $classObfuscationDictionary.text);}
     | '-packageobfuscationdictionary' packageObfuscationDictionary=NAME {GrammarActions.packageObfuscationDictionary($flags, baseDirectory, $packageObfuscationDictionary.text);}
     | '-printmapping' outputMapping=NAME? {GrammarActions.outputMapping($flags, baseDirectory, $outputMapping.text);}
-    | ('-keeppackagenames' {FilterSpecification package_filter = new FilterSpecification();} filter[package_filter, FilterSeparator.GENERAL] {GrammarActions.packageFilter($flags, package_filter);})
+    | ('-keeppackagenames' {List<FilterSpecification> package_filter = new ArrayList<FilterSpecification>();} filter[package_filter, FilterSeparator.GENERAL] {GrammarActions.packageFilter($flags, package_filter);})
     | ('-repackageclasses' ('\'' newPackage=NAME? '\'')? {GrammarActions.repackageClasses($flags, $newPackage.text); newPackage = null;})
     | ('-flattenpackagehierarchy' ('\'' newPackage=NAME? '\'')? {GrammarActions.flattenPackageHierarchy($flags, $newPackage.text); newPackage = null;})
     | '-dontusemixedcaseclassnames' {GrammarActions.dontUseMixedCaseClassnames($flags);}
     | '-useuniqueclassmembernames' {GrammarActions.useUniqueClassMemberNames($flags);}
-    | ('-adaptclassstrings' {FilterSpecification filter = new FilterSpecification();} filter[filter, FilterSeparator.GENERAL] {GrammarActions.adaptClassStrings($flags, filter);})
+    | ('-adaptclassstrings' {List<FilterSpecification> filter = new ArrayList<FilterSpecification>();} filter[filter, FilterSeparator.GENERAL] {GrammarActions.adaptClassStrings($flags, filter);})
     | ('-printseeds' seedOutputFile=NAME? {GrammarActions.printseeds($flags, baseDirectory, $seedOutputFile.text);})
-    | ('-adaptresourcefilenames' {FilterSpecification file_filter = new FilterSpecification();} filter[file_filter, FilterSeparator.FILE] {GrammarActions.adaptResourceFileNames($flags, file_filter);})
+    | ('-adaptresourcefilenames' {List<FilterSpecification> file_filter = new ArrayList<FilterSpecification>();} filter[file_filter, FilterSeparator.FILE] {GrammarActions.adaptResourceFileNames($flags, file_filter);})
     | ('-renamesourcefileattribute' sourceFile=NAME? {GrammarActions.renameSourcefileAttribute($flags, $sourceFile.text);})
-    | ('-adaptresourcefilecontents' {FilterSpecification file_filter = new FilterSpecification();} filter[file_filter, FilterSeparator.FILE] {GrammarActions.adaptResourceFileContents($flags, file_filter);})
+    | ('-adaptresourcefilecontents' {List<FilterSpecification> file_filter = new ArrayList<FilterSpecification>();} filter[file_filter, FilterSeparator.FILE] {GrammarActions.adaptResourceFileContents($flags, file_filter);})
     | unFlag=unsupportedFlag {GrammarActions.printUnsupportedFlag($unFlag.text);}
   )*
   EOF
@@ -97,12 +97,12 @@ private unsupportedFlag
   ('-skipnonpubliclibraryclasses'
     | '-dontskipnonpubliclibraryclasses'
     | '-dontskipnonpubliclibraryclassmembers'
-    | ('-keepdirectories' {FilterSpecification directory_filter = new FilterSpecification();} filter[directory_filter, FilterSeparator.FILE])
+    | ('-keepdirectories' {List<FilterSpecification> directory_filter = new ArrayList<FilterSpecification>();} filter[directory_filter, FilterSeparator.FILE])
     | ('-target' NAME) //version
     | '-forceprocessing'
     | ('-printusage' NAME) //[filename]
     | ('-whyareyoukeeping' classSpecification)
-    | ('-optimizations' {FilterSpecification optimization_filter = new FilterSpecification();} filter[optimization_filter, FilterSeparator.GENERAL])
+    | ('-optimizations' {List<FilterSpecification> optimization_filter = new ArrayList<FilterSpecification>();} filter[optimization_filter, FilterSeparator.GENERAL])
     | ('-optimizationpasses' NAME) //n
     | ('-assumenosideeffects' classSpecification)
     | '-allowaccessmodification'
@@ -110,8 +110,8 @@ private unsupportedFlag
     | '-overloadaggressively'
     | '-microedition'
     | '-verbose'
-    | ('-dontnote' {FilterSpecification class_filter = new FilterSpecification();} filter[class_filter, FilterSeparator.CLASS])
-    | ('-dontwarn' {FilterSpecification class_filter = new FilterSpecification();} filter[class_filter, FilterSeparator.CLASS])
+    | ('-dontnote' {List<FilterSpecification> class_filter = new ArrayList<FilterSpecification>();} filter[class_filter, FilterSeparator.CLASS])
+    | ('-dontwarn' {List<FilterSpecification> class_filter = new ArrayList<FilterSpecification>();} filter[class_filter, FilterSeparator.CLASS])
     | '-ignorewarnings'
     | ('-printconfiguration' NAME?) //[filename]
     | ('-dump' NAME?) //[filename]
@@ -122,14 +122,14 @@ private classpath
   :  NAME ((':'|';') classpath)?
   ;
 
-private filter [FilterSpecification filter, FilterSeparator format]
+private filter [List<FilterSpecification> filter, FilterSeparator format]
   :
   nonEmptytFilter[filter, format]
   | {GrammarActions.filter($filter, false, "**", format);}
   ;
 
 
-private nonEmptytFilter [FilterSpecification filter, FilterSeparator separator]
+private nonEmptytFilter [List<FilterSpecification> filter, FilterSeparator separator]
 @init {
   boolean negator = false;
 }

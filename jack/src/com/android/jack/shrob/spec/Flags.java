@@ -74,17 +74,17 @@ public class Flags {
   @CheckForNull
   private File packageObfuscationDictionary;
 
-  @CheckForNull
-  private FilterSpecification keepAttributes;
+  @Nonnull
+  private final List<FilterSpecification> keepAttributes = new ArrayList<FilterSpecification>();
 
   @CheckForNull
   private String renameSourceFileAttribute;
 
-  @CheckForNull
-  private FilterSpecification keepPackageNames;
+  @Nonnull
+  private final List<FilterSpecification> keepPackageNames = new ArrayList<FilterSpecification>();
 
-  @CheckForNull
-  private FilterSpecification adaptClassStrings;
+  @Nonnull
+  private final List<FilterSpecification> adaptClassStrings = new ArrayList<FilterSpecification>();
 
   @Nonnull
   private final List<ClassSpecification> keepClassSpecs
@@ -103,11 +103,13 @@ public class Flags {
   @CheckForNull
   private File seedsFile;
 
-  @CheckForNull
-  private FilterSpecification adaptResourceFileNames;
+  @Nonnull
+  private final List<FilterSpecification> adaptResourceFileNames =
+      new ArrayList<FilterSpecification>();
 
-  @CheckForNull
-  private FilterSpecification adaptResourceFileContents;
+  @Nonnull
+  private final List<FilterSpecification> adaptResourceFileContents =
+      new ArrayList<FilterSpecification>();
 
   public void setShrink(boolean shrink) {
     this.shrink = shrink;
@@ -305,28 +307,36 @@ public class Flags {
     keepClassMembersSpecs.add(classSpecification);
   }
 
-  public void setKeepAttribute(@CheckForNull FilterSpecification attribute) {
-    keepAttributes = attribute;
+  public void addAllKeepAttribute(@Nonnull List<FilterSpecification> attribute) {
+    keepAttributes.addAll(attribute);
   }
 
-  public void setKeepPackageName(@CheckForNull FilterSpecification packageSpec) {
-    keepPackageNames = packageSpec;
+  public void addAllKeepPackageName(@Nonnull List<FilterSpecification> packageSpec) {
+    keepPackageNames.addAll(packageSpec);
   }
 
-  public FilterSpecification getKeepPackageNames() {
+  @Nonnull
+  public List<FilterSpecification> getKeepPackageNames() {
     return keepPackageNames;
   }
 
   public void addKeepPackageNames(@Nonnull NameSpecification packageName, boolean negator) {
-    if (keepPackageNames == null) {
-      keepPackageNames = new FilterSpecification();
+    keepPackageNames.add(new FilterSpecification(packageName, negator));
+  }
+
+  public static <T> boolean matches(
+      @Nonnull List<? extends Specification<T>> specifications, @Nonnull T value) {
+    for (Specification<T> spec : specifications) {
+      if (spec.matches(value)) {
+        return true;
+      }
     }
-    keepPackageNames.addElement(packageName, negator);
+    return false;
   }
 
   public boolean keepAttribute(@Nonnull String attributeName) {
     assert obfuscate;
-    return keepAttributes != null && keepAttributes.matches(attributeName);
+    return matches(keepAttributes, attributeName);
   }
 
   public void setRenameSourceFileAttribute(@CheckForNull String renameSourceFileAttribute) {
@@ -338,13 +348,13 @@ public class Flags {
     return renameSourceFileAttribute;
   }
 
-  @CheckForNull
-  public FilterSpecification getAdaptClassStrings() {
+  @Nonnull
+  public List<FilterSpecification> getAdaptClassStrings() {
     return adaptClassStrings;
   }
 
-  public void setAdaptClassStrings(@CheckForNull FilterSpecification adaptClassStrings) {
-    this.adaptClassStrings = adaptClassStrings;
+  public void addAdaptClassStrings(@Nonnull List<FilterSpecification> adaptClassStrings) {
+    this.adaptClassStrings.addAll(adaptClassStrings);
   }
 
   public boolean printSeeds() {
@@ -364,21 +374,21 @@ public class Flags {
     this.seedsFile = seedsFile;
   }
 
-  public void adaptResourceFileNames(@CheckForNull FilterSpecification filter) {
-    this.adaptResourceFileNames = filter;
+  public void adaptResourceFileNames(@Nonnull List<FilterSpecification> filter) {
+    this.adaptResourceFileNames.addAll(filter);
   }
 
-  @CheckForNull
-  public FilterSpecification getAdaptResourceFileNames() {
+  @Nonnull
+  public List<FilterSpecification> getAdaptResourceFileNames() {
     return adaptResourceFileNames;
   }
 
-  public void adaptResourceFileContents(@CheckForNull FilterSpecification filter) {
-    this.adaptResourceFileContents = filter;
+  public void adaptResourceFileContents(@Nonnull List<FilterSpecification> filter) {
+    this.adaptResourceFileContents.addAll(filter);
   }
 
-  @CheckForNull
-  public FilterSpecification getAdaptResourceFileContents() {
+  @Nonnull
+  public List<FilterSpecification> getAdaptResourceFileContents() {
     return adaptResourceFileContents;
   }
 }

@@ -28,6 +28,7 @@ import com.android.jack.lookup.JLookupException;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.shrob.spec.FilterSpecification;
+import com.android.jack.shrob.spec.Flags;
 import com.android.jack.util.NamingTools;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
@@ -40,7 +41,6 @@ import com.android.sched.vfs.VPath;
 import java.io.InputStreamReader;
 import java.util.List;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -53,17 +53,17 @@ public class ResourceContentRefiner implements RunnableSchedulable<JSession> {
   @Nonnull
   private final JLookup lookup = Jack.getSession().getLookup();
 
-  @CheckForNull
-  private final FilterSpecification adaptResourceFileContents =
+  @Nonnull
+  private final List<FilterSpecification> adaptResourceFileContents =
       ThreadConfig.get(Options.FLAGS).getAdaptResourceFileContents();
 
   @Override
   public void run(@Nonnull JSession session) throws Exception {
-    assert adaptResourceFileContents != null;
     List<Resource> resources = session.getResources();
     for (Resource res : resources) {
       VPath resName = res.getPath();
-      if (adaptResourceFileContents.matches(
+      if (Flags.matches(
+          adaptResourceFileContents,
           resName.getPathAsString(GrammarActions.SHROB_REGEX_PATH_SEPARATOR))) {
         InputStreamReader reader = null;
         InputVFile originalVFile = res.getVFile();

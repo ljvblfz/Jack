@@ -1,0 +1,2 @@
+This test contains a method with a generic signature and tests runtime if it
+wasn't removed.

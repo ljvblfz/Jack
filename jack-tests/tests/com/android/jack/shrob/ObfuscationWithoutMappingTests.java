@@ -24,6 +24,7 @@ import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
 import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.junit.Runtime;
+import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.DummyToolchain;
 import com.android.jack.test.toolchain.IToolchain;
@@ -223,4 +224,19 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
   public void test56_001() throws Exception {
     runTest("056", "001", "");
   }
+
+  @Nonnull
+  private static File shrobTestsDir =
+      AbstractTestTools.getTestRootDir("com.android.jack.shrob");
+
+  @Test
+  @Runtime
+  public void test59() throws Exception {
+    RuntimeTestInfo runtimeTestInfo = new RuntimeTestInfo(
+        new File(shrobTestsDir, "test059"),
+        "com.android.jack.shrob.test059.dx.Tests");
+    runtimeTestInfo.addProguardFlagsFileName("proguard.flags001");
+    new RuntimeTestHelper(runtimeTestInfo).compileAndRunTest(/* checkStructure = */ false);
+  }
+
 }

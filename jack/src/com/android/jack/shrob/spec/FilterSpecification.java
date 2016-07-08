@@ -16,67 +16,27 @@
 
 package com.android.jack.shrob.spec;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import javax.annotation.Nonnull;
 
 /**
  * Class representing the specification of a filter for packages, attributes, directories...
  */
-public class FilterSpecification implements Specification<String> {
+public class FilterSpecification extends SpecificationWithNegator<String> {
+  @Nonnull private final NameSpecification name;
 
-  private static class FilterElement extends SpecificationWithNegator<String>{
-    @Nonnull
-    private final NameSpecification name;
-
-    public FilterElement(@Nonnull NameSpecification name, boolean negator) {
-      this.name = name;
-      setNegator(negator);
-    }
-
-    @Override
-    protected boolean matchesWithoutNegator(@Nonnull String t) {
-      return name.matches(t);
-    }
-
-    @Override
-    @Nonnull
-    public String toString() {
-      return super.toString() + name.toString();
-    }
-  }
-
-  @Nonnull
-  private final List<FilterElement> elements = new ArrayList<FilterSpecification.FilterElement>();
-
-  public void addElement(@Nonnull NameSpecification name, boolean negator) {
-    elements.add(new FilterElement(name, negator));
+  public FilterSpecification(@Nonnull NameSpecification name, boolean negator) {
+    this.name = name;
+    setNegator(negator);
   }
 
   @Override
-  public boolean matches(@Nonnull String t) {
-    for (FilterElement element : elements) {
-      if (element.matches(t)) {
-        return true;
-      }
-    }
-    return false;
+  protected boolean matchesWithoutNegator(@Nonnull String t) {
+    return name.matches(t);
   }
 
   @Override
   @Nonnull
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    Iterator<FilterElement> iterator = elements.iterator();
-    while (iterator.hasNext()) {
-      sb.append(iterator.next().toString());
-      if (iterator.hasNext()) {
-        sb.append(", ");
-      }
-    }
-
-    return sb.toString();
+    return super.toString() + name.toString();
   }
 }

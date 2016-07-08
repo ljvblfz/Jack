@@ -94,10 +94,10 @@ public class NameKeeper implements RunnableSchedulable<JPackage> {
         Jack.getSession().getReporter().report(Severity.NON_FATAL,
             new KeepedPackageBecauseOfPhantom(pack));
         keepName(pack);
-      } else if (flags.getKeepPackageNames() != null) {
+      } else if (!flags.getKeepPackageNames().isEmpty()) {
         if (!isMarked(pack)) {
-          if (flags.getKeepPackageNames()
-              .matches(GrammarActions.getSourceFormatter().getName(pack))) {
+          if (Flags.matches(
+              flags.getKeepPackageNames(), GrammarActions.getSourceFormatter().getName(pack))) {
             keepName(pack);
           }
         }

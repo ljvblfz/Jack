@@ -1,0 +1,6 @@
+-dontshrink
+-keepnames class * {
+  *;
+}
+-keepattributes Signature
+-keepattributes EnclosingMethod

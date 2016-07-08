@@ -412,22 +412,22 @@ public class GrammarActions {
   }
 
   static void filter(
-      @Nonnull FilterSpecification filter,
+      @Nonnull List<FilterSpecification> filter,
       boolean negator, /*@Nonnull*/
       String filterName,
       @Nonnull FilterSeparator separator) {
     assert filterName != null;
-    filter.addElement(name(filterName, separator), negator);
+    filter.add(new FilterSpecification(name(filterName, separator), negator));
   }
 
   static void attributeFilter(
-      @Nonnull Flags flags, @Nonnull FilterSpecification attributeSpec) {
-    flags.setKeepAttribute(attributeSpec);
+      @Nonnull Flags flags, @Nonnull List<FilterSpecification> attributeSpec) {
+    flags.addAllKeepAttribute(attributeSpec);
   }
 
   static void packageFilter(
-      @Nonnull Flags flags, @Nonnull FilterSpecification packageSpec) {
-    flags.setKeepPackageName(packageSpec);
+      @Nonnull Flags flags, @Nonnull List<FilterSpecification> packageSpec) {
+    flags.addAllKeepPackageName(packageSpec);
   }
 
 
@@ -561,8 +561,8 @@ public class GrammarActions {
     return pathList;
   }
 
-  static void adaptClassStrings(@Nonnull Flags flags, @Nonnull FilterSpecification filter) {
-    flags.setAdaptClassStrings(filter);
+  static void adaptClassStrings(@Nonnull Flags flags, @Nonnull List<FilterSpecification> filter) {
+    flags.addAdaptClassStrings(filter);
   }
 
   static void printUnsupportedFlag(/*@Nonnull*/ @SuppressWarnings("unused") String flag) {
@@ -577,12 +577,12 @@ public class GrammarActions {
     }
   }
 
-  public static void adaptResourceFileNames(@Nonnull Flags flags,
-      @Nonnull FilterSpecification filter) {
+  static void adaptResourceFileNames(@Nonnull Flags flags,
+      @Nonnull List<FilterSpecification>  filter) {
     flags.adaptResourceFileNames(filter);
   }
 
-  public static void renameSourcefileAttribute(@Nonnull Flags flags,
+  static void renameSourcefileAttribute(@Nonnull Flags flags,
       @CheckForNull String newSourceFileName) {
     if (newSourceFileName == null) {
       newSourceFileName = "";
@@ -590,8 +590,8 @@ public class GrammarActions {
     flags.setRenameSourceFileAttribute(newSourceFileName);
   }
 
-  public static void adaptResourceFileContents(@Nonnull Flags flags,
-      @Nonnull FilterSpecification filter) {
+  static void adaptResourceFileContents(@Nonnull Flags flags,
+      @Nonnull List<FilterSpecification> filter) {
     flags.adaptResourceFileContents(filter);
   }
 }
