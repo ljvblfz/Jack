@@ -16,8 +16,6 @@
 
 package com.android.jack.optimizations.wofr;
 
-import com.android.jack.optimizations.Optimizations;
-import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.log.stats.Counter;
 import com.android.sched.util.log.stats.CounterImpl;
 import com.android.sched.util.log.stats.StatisticId;
@@ -35,10 +33,4 @@ public abstract class WofrSchedulable {
   public static final StatisticId<Counter> FIELDS_REMOVED = new StatisticId<>(
       "jack.optimization.write-only-field-removal.fields-removed", "Fields removed",
       CounterImpl.class, Counter.class);
-
-  public final boolean preserveJls =
-      ThreadConfig.get(Optimizations.WriteOnlyFieldRemoval.PRESERVE_JLS).booleanValue();
-
-  public final boolean preserveReflections =
-      ThreadConfig.get(Optimizations.WriteOnlyFieldRemoval.PRESERVE_REFLECTIONS).booleanValue();
 }

@@ -30,9 +30,9 @@ import javax.annotation.Nonnull;
 /** Set of value propagation tests */
 public class ValuePropagationTests extends DexOutputBasedTest {
   @Nonnull
-  private static String STR = "Ljava/lang/String;";
+  private static final String STR = "Ljava/lang/String;";
   @Nonnull
-  private static String OBJ = "Ljava/lang/Object;";
+  private static final String OBJ = "Ljava/lang/Object;";
 
   @Nonnull
   private CompilationProperties defaultProperties() {
@@ -40,10 +40,8 @@ public class ValuePropagationTests extends DexOutputBasedTest {
     //       the code, since we check dalvik code and it will be different
     return CompilationProperties.EMPTY
         .excludeJillToolchain()
-        .withPreserveJls(false)
-        .withPreserveReflections(false)
         .with(Optimizations.FieldValuePropagation.ENSURE_TYPE_INITIALIZERS.getName(), Boolean.FALSE)
-        .with(Optimizations.FieldValuePropagation.REMOVE_NULL_CHECKS.getName(), Boolean.TRUE)
+        .with(Optimizations.FieldValuePropagation.PRESERVE_NULL_CHECKS.getName(), Boolean.FALSE)
         .with(Optimizations.FieldValuePropagation.ENABLE.getName(), Boolean.TRUE)
         .with(Optimizations.ArgumentValuePropagation.ENABLE.getName(), Boolean.TRUE);
   }
@@ -69,7 +67,9 @@ public class ValuePropagationTests extends DexOutputBasedTest {
                 new DexTypeMethodsValidator()
                     .insert("use(I)I", dalvik(test, "A.use.dalvik"))));
 
-    compileAndValidate(test, defaultProperties().withPreserveJls(true),
+    compileAndValidate(test,
+        defaultProperties().with(
+            Optimizations.FieldValuePropagation.ENABLE.getName(), Boolean.FALSE),
         new DexFileTypesValidator()
             .insert(aType,
                 new DexTypeMethodsValidator()
@@ -154,7 +154,7 @@ public class ValuePropagationTests extends DexOutputBasedTest {
                     .insert("check()I", dalvik(test, "A.check.dalvik"))));
 
     properties = properties.
-        with(Optimizations.FieldValuePropagation.REMOVE_NULL_CHECKS.getName(), Boolean.FALSE).
+        with(Optimizations.FieldValuePropagation.PRESERVE_NULL_CHECKS.getName(), Boolean.TRUE).
         with(Optimizations.FieldValuePropagation.ENSURE_TYPE_INITIALIZERS.getName(), Boolean.TRUE);
 
     compileAndValidate(test, properties,

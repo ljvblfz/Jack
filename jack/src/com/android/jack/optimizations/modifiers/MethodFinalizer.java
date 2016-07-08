@@ -53,8 +53,8 @@ import javax.annotation.Nonnull;
 public class MethodFinalizer
     implements RunnableSchedulable<JDefinedClassOrInterface> {
 
-  private final boolean preserveReflections =
-      ThreadConfig.get(Optimizations.MethodFinalizer.PRESERVE_REFLECTIONS).booleanValue();
+  private final boolean addFinalModifier =
+      ThreadConfig.get(Optimizations.MethodFinalizer.ADD_FINAL_MODIFIER).booleanValue();
 
   @Nonnull
   public static final StatisticId<Counter> METHODS_FINALIZED = new StatisticId<>(
@@ -88,8 +88,7 @@ public class MethodFinalizer
         // Mark as effectively final
         EffectivelyFinalMethodMarker.markAsEffectivelyFinal(method);
 
-        if (!preserveReflections) {
-          // Mark as actually final, if strict reflections are not enforced
+        if (addFinalModifier) {
           method.setFinal();
           tracer.getStatistic(METHODS_FINALIZED).incValue();
         }

@@ -17,7 +17,6 @@
 package com.android.jack.test.dex;
 
 import com.android.jack.backend.dex.DexFileWriter;
-import com.android.jack.optimizations.Optimizations;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
@@ -72,40 +71,6 @@ public abstract class DexOutputBasedTest {
     @Nonnull
     public CompilationProperties excludeJillToolchain() {
       return new CompilationProperties(properties, false);
-    }
-
-    @Nonnull
-    public CompilationProperties withPreserveJls(boolean value) {
-      return this
-          .with(Optimizations.FieldFinalizer.PRESERVE_JLS.getName(),
-              Boolean.valueOf(value))
-          .with(Optimizations.MethodFinalizer.PRESERVE_JLS.getName(),
-              Boolean.valueOf(value))
-          .with(Optimizations.FieldFinalizer.PRESERVE_JLS.getName(),
-              Boolean.valueOf(value))
-          .with(Optimizations.WriteOnlyFieldRemoval.PRESERVE_JLS.getName(),
-              Boolean.valueOf(value))
-          .with(Optimizations.FieldValuePropagation.PRESERVE_JLS.getName(),
-              Boolean.valueOf(value))
-          .with(Optimizations.ArgumentValuePropagation.PRESERVE_JLS.getName(),
-              Boolean.valueOf(value));
-    }
-
-    @Nonnull
-    public CompilationProperties withPreserveReflections(boolean value) {
-      return this
-          .with(Optimizations.ClassFinalizer.PRESERVE_REFLECTIONS.getName(),
-              Boolean.valueOf(value))
-          .with(Optimizations.MethodFinalizer.PRESERVE_REFLECTIONS.getName(),
-              Boolean.valueOf(value))
-          .with(Optimizations.FieldFinalizer.PRESERVE_REFLECTIONS.getName(),
-              Boolean.valueOf(value))
-          .with(Optimizations.WriteOnlyFieldRemoval.PRESERVE_REFLECTIONS.getName(),
-              Boolean.valueOf(value))
-          .with(Optimizations.FieldValuePropagation.PRESERVE_REFLECTIONS.getName(),
-              Boolean.valueOf(value))
-          .with(Optimizations.ArgumentValuePropagation.PRESERVE_REFLECTIONS.getName(),
-              Boolean.valueOf(value));
     }
   }
 

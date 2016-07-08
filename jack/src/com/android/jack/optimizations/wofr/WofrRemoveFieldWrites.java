@@ -32,6 +32,7 @@ import com.android.jack.ir.ast.JPrimitiveType;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.lookup.JPhantomLookup;
+import com.android.jack.optimizations.Optimizations;
 import com.android.jack.optimizations.common.JlsNullabilityChecker;
 import com.android.jack.transformations.LocalVarCreator;
 import com.android.jack.transformations.request.AppendBefore;
@@ -44,6 +45,7 @@ import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
+import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
 
@@ -62,6 +64,15 @@ import javax.annotation.Nonnull;
        LocalVarCreator.class })
 public class WofrRemoveFieldWrites extends WofrSchedulable
     implements RunnableSchedulable<JMethod> {
+
+  private final boolean preserveObjectLifetime =
+      ThreadConfig.get(Optimizations.WriteOnlyFieldRemoval.PRESERVE_OBJECT_LIFETIME).booleanValue();
+
+  private final boolean ensureTypeInitializers =
+      ThreadConfig.get(Optimizations.WriteOnlyFieldRemoval.ENSURE_TYPE_INITIALIZERS).booleanValue();
+
+  public final boolean preserveNullChecks =
+      ThreadConfig.get(Optimizations.WriteOnlyFieldRemoval.PRESERVE_NULL_CHECKS).booleanValue();
 
   @Nonnull
   private final JPhantomLookup phantomLookup = Jack.getSession().getPhantomLookup();
@@ -103,20 +114,20 @@ public class WofrRemoveFieldWrites extends WofrSchedulable
       return Action.None; // Not a field of a type to be emitted
     }
 
-    if (preserveJls) {
+    if (preserveObjectLifetime &&
+        !(field.getType() instanceof JPrimitiveType ||
+            !FieldReadWriteCountsMarker.hasNonLiteralWrites(field))) {
       // Field having non-primitive type that is assigned a non-constant value
       // (an instance of JValueLiteral) at least once is not eligible: may affect
       // object's live-time
-      if (!(field.getType() instanceof JPrimitiveType ||
-          !FieldReadWriteCountsMarker.hasNonLiteralWrites(field))) {
-        return Action.None;
-      }
+      return Action.None;
+    }
 
+    if (ensureTypeInitializers && field.isStatic() &&
+        !fieldOwningType.isSameType(method.getEnclosingType())) {
       // Static field is accessed outside the scope of the field containing type:
       // may affect class initialization
-      if (!fieldOwningType.isSameType(method.getEnclosingType())) {
-        return Action.None;
-      }
+      return Action.None;
     }
 
     if (field.isStatic() || ref.getInstance() instanceof JThisRef) {
@@ -127,7 +138,7 @@ public class WofrRemoveFieldWrites extends WofrSchedulable
 
     assert !field.isStatic();
 
-    return preserveJls
+    return preserveNullChecks
         ? Action.ReceiverExpressionAndNullCheck
         : Action.ReceiverAndExpression;
   }

@@ -18,8 +18,6 @@ package com.android.jack.optimizations.valuepropagation.field;
 
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JValueLiteral;
-import com.android.jack.optimizations.Optimizations;
-import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.log.stats.Counter;
 import com.android.sched.util.log.stats.CounterImpl;
 import com.android.sched.util.log.stats.StatisticId;
@@ -32,9 +30,6 @@ public abstract class FvpSchedulable {
   public static final StatisticId<Counter> FIELD_VALUES_PROPAGATED = new StatisticId<>(
       "jack.optimization.field-value-propagation", "Field value propagated",
       CounterImpl.class, Counter.class);
-
-  public final boolean preserveJls =
-      ThreadConfig.get(Optimizations.FieldValuePropagation.PRESERVE_JLS).booleanValue();
 
   @Nonnull
   static JValueLiteral createDefaultValue(@Nonnull JField field) {

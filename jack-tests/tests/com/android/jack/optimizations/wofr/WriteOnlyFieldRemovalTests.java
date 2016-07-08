@@ -31,17 +31,21 @@ import javax.annotation.Nonnull;
 /** Set of write-only field removal tests */
 public class WriteOnlyFieldRemovalTests extends DexOutputBasedTest {
   @Nonnull
-  private static String STR = "Ljava/lang/String;";
+  private static final String STR = "Ljava/lang/String;";
   @Nonnull
-  private static String OBJ = "Ljava/lang/Object;";
+  private static final String OBJ = "Ljava/lang/Object;";
 
   @Nonnull
   private CompilationProperties defaultProperties() {
+    Boolean TRUE = Boolean.TRUE;
+    Boolean FALSE = Boolean.FALSE;
     return CompilationProperties.EMPTY
         .excludeJillToolchain()
-        .withPreserveJls(false)
-        .withPreserveReflections(false)
-        .with(Optimizations.WriteOnlyFieldRemoval.ENABLE.getName(), Boolean.TRUE);
+        .with(Optimizations.WriteOnlyFieldRemoval.ENABLE.getName(), TRUE)
+        .with(Optimizations.WriteOnlyFieldRemoval.REMOVE_UNUSED_FIELDS.getName(), TRUE)
+        .with(Optimizations.WriteOnlyFieldRemoval.PRESERVE_NULL_CHECKS.getName(), FALSE)
+        .with(Optimizations.WriteOnlyFieldRemoval.PRESERVE_OBJECT_LIFETIME.getName(), FALSE)
+        .with(Optimizations.WriteOnlyFieldRemoval.ENSURE_TYPE_INITIALIZERS.getName(), FALSE);
   }
 
   @Nonnull
@@ -96,7 +100,10 @@ public class WriteOnlyFieldRemovalTests extends DexOutputBasedTest {
                     .andAlso(missing("sF3:" + OBJ))
                     .andAlso(missing("sF4:" + OBJ))));
 
-    properties = properties.withPreserveJls(true);
+    properties = properties.
+        with(Optimizations.WriteOnlyFieldRemoval.PRESERVE_NULL_CHECKS.getName(), Boolean.TRUE).
+        with(Optimizations.WriteOnlyFieldRemoval.PRESERVE_OBJECT_LIFETIME.getName(), Boolean.TRUE).
+        with(Optimizations.WriteOnlyFieldRemoval.ENSURE_TYPE_INITIALIZERS.getName(), Boolean.TRUE);
 
     compileAndValidate(test, properties,
         new DexFileTypesValidator()
@@ -126,7 +133,8 @@ public class WriteOnlyFieldRemovalTests extends DexOutputBasedTest {
                     .andAlso(missing("sF3:" + OBJ))
                     .andAlso(existing("sF4:" + OBJ))));
 
-    properties = properties.withPreserveReflections(true);
+    properties = properties.
+        with(Optimizations.WriteOnlyFieldRemoval.REMOVE_UNUSED_FIELDS.getName(), Boolean.FALSE);
 
     compileAndValidate(test, properties,
         new DexFileTypesValidator()
@@ -159,7 +167,12 @@ public class WriteOnlyFieldRemovalTests extends DexOutputBasedTest {
                 new DexTypeMethodsValidator()
                     .insert("test(" + aType + "I)V", dalvik(test, "A.test.dalvik"))));
 
-    compileAndValidate(test, defaultProperties().withPreserveJls(true),
+    CompilationProperties properties = defaultProperties().
+        with(Optimizations.WriteOnlyFieldRemoval.PRESERVE_NULL_CHECKS.getName(), Boolean.TRUE).
+        with(Optimizations.WriteOnlyFieldRemoval.PRESERVE_OBJECT_LIFETIME.getName(), Boolean.TRUE).
+        with(Optimizations.WriteOnlyFieldRemoval.ENSURE_TYPE_INITIALIZERS.getName(), Boolean.TRUE);
+
+    compileAndValidate(test, properties,
         new DexFileTypesValidator()
             .insert(aType,
                 new DexTypeMethodsValidator()

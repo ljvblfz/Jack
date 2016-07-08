@@ -67,8 +67,8 @@ public class FvpPropagateFieldValues extends FvpSchedulable
   @Nonnull
   private final JPhantomLookup phantomLookup = Jack.getSession().getPhantomLookup();
 
-  private final boolean removeNullChecks = ThreadConfig.get(
-      Optimizations.FieldValuePropagation.REMOVE_NULL_CHECKS).booleanValue();
+  private final boolean preserveNullChecks = ThreadConfig.get(
+      Optimizations.FieldValuePropagation.PRESERVE_NULL_CHECKS).booleanValue();
 
   private final boolean ensureTypeInitializers = ThreadConfig.get(
       Optimizations.FieldValuePropagation.ENSURE_TYPE_INITIALIZERS).booleanValue();
@@ -173,11 +173,11 @@ public class FvpPropagateFieldValues extends FvpSchedulable
 
   @Override
   public void run(@Nonnull JMethod method) {
-    if (preserveJls || method.isNative() || method.isAbstract()) {
+    if (method.isNative() || method.isAbstract()) {
       return;
     }
 
-    Visitor visitor = new Visitor(method, !removeNullChecks);
+    Visitor visitor = new Visitor(method, preserveNullChecks);
     visitor.accept(method);
     visitor.request.commit();
   }

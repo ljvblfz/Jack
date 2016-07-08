@@ -152,8 +152,8 @@ public class FieldFinalizer {
   public static class ConstructorsAnalysisPhase
       implements RunnableSchedulable<JMethod> {
 
-    private final boolean preserveJls =
-        ThreadConfig.get(Optimizations.FieldFinalizer.PRESERVE_JLS).booleanValue();
+    private final boolean enforceInitSemantic =
+        ThreadConfig.get(Optimizations.FieldFinalizer.ENFORCE_INIT_SEMANTIC).booleanValue();
 
     private static class State {
       final BitSet maybeAssigned;
@@ -326,7 +326,7 @@ public class FieldFinalizer {
 
     @Override
     public void run(@Nonnull JMethod method) {
-      if (!preserveJls || !isConstructor(method)) {
+      if (!enforceInitSemantic || !isConstructor(method)) {
         return; // We only analyze constructors and only if preserve JLS is true
       }
 
@@ -357,8 +357,8 @@ public class FieldFinalizer {
   public static class FinalizingPhase
       implements RunnableSchedulable<JField> {
 
-    private final boolean preserveReflections =
-        ThreadConfig.get(Optimizations.FieldFinalizer.PRESERVE_REFLECTIONS).booleanValue();
+    private final boolean addFinalModifier =
+        ThreadConfig.get(Optimizations.FieldFinalizer.ADD_FINAL_MODIFIER).booleanValue();
 
     @Nonnull
     private final Tracer tracer = TracerFactory.getTracer();
@@ -375,7 +375,7 @@ public class FieldFinalizer {
       }
 
       EffectivelyFinalFieldMarker.markAsEffectivelyFinal(field);
-      if (!preserveReflections) {
+      if (addFinalModifier) {
         field.setFinal();
         tracer.getStatistic(FIELDS_FINALIZED).incValue();
       }

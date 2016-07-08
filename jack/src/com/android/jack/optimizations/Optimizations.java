@@ -111,20 +111,10 @@ public class Optimizations {
         .addCategory(Private.class);
 
     @Nonnull
-    public static final BooleanPropertyId PRESERVE_JLS = BooleanPropertyId
-        .create("jack.optimization.class-finalizer.preserve-jls",
-            "Preserve JSL during class finalizer optimization")
+    public static final BooleanPropertyId ADD_FINAL_MODIFIER = BooleanPropertyId
+        .create("jack.optimization.class-finalizer.add-final-modifier",
+            "Set final modifier to all effectively final classes")
         .addDefaultValue(Boolean.TRUE)
-        .requiredIf(ENABLE.getValue().isTrue())
-        .addCategory(DumpInLibrary.class)
-        .addCategory(PrebuiltCompatibility.class)
-        .addCategory(Private.class);
-
-    @Nonnull
-    public static final BooleanPropertyId PRESERVE_REFLECTIONS = BooleanPropertyId
-        .create("jack.optimization.class-finalizer.preserve-reflections",
-            "Preserve reflections during class finalizer optimization")
-        .addDefaultValue(Boolean.FALSE)
         .requiredIf(ENABLE.getValue().isTrue())
         .addCategory(DumpInLibrary.class)
         .addCategory(PrebuiltCompatibility.class)
@@ -147,20 +137,10 @@ public class Optimizations {
         .addCategory(Private.class);
 
     @Nonnull
-    public static final BooleanPropertyId PRESERVE_JLS = BooleanPropertyId
-        .create("jack.optimization.method-finalizer.preserve-jls",
-            "Preserve JSL during method finalizer optimization")
+    public static final BooleanPropertyId ADD_FINAL_MODIFIER = BooleanPropertyId
+        .create("jack.optimization.method-finalizer.add-final-modifier",
+            "Set final modifier to all effectively final methods")
         .addDefaultValue(Boolean.TRUE)
-        .requiredIf(ENABLE.getValue().isTrue())
-        .addCategory(DumpInLibrary.class)
-        .addCategory(PrebuiltCompatibility.class)
-        .addCategory(Private.class);
-
-    @Nonnull
-    public static final BooleanPropertyId PRESERVE_REFLECTIONS = BooleanPropertyId
-        .create("jack.optimization.method-finalizer.preserve-reflections",
-            "Preserve reflections during method finalizer optimization")
-        .addDefaultValue(Boolean.FALSE)
         .requiredIf(ENABLE.getValue().isTrue())
         .addCategory(DumpInLibrary.class)
         .addCategory(PrebuiltCompatibility.class)
@@ -183,9 +163,9 @@ public class Optimizations {
         .addCategory(Private.class);
 
     @Nonnull
-    public static final BooleanPropertyId PRESERVE_JLS = BooleanPropertyId
-        .create("jack.optimization.field-finalizer.preserve-jls",
-            "Preserve JSL during field finalizer optimization")
+    public static final BooleanPropertyId ENFORCE_INIT_SEMANTIC = BooleanPropertyId
+        .create("jack.optimization.field-finalizer.enforce-initialization-semantic",
+            "Ensure initialization semantic for final field")
         .addDefaultValue(Boolean.TRUE)
         .requiredIf(ENABLE.getValue().isTrue())
         .addCategory(DumpInLibrary.class)
@@ -193,10 +173,10 @@ public class Optimizations {
         .addCategory(Private.class);
 
     @Nonnull
-    public static final BooleanPropertyId PRESERVE_REFLECTIONS = BooleanPropertyId
-        .create("jack.optimization.field-finalizer.preserve-reflections",
-            "Preserve reflections during field finalizer optimization")
-        .addDefaultValue(Boolean.FALSE)
+    public static final BooleanPropertyId ADD_FINAL_MODIFIER = BooleanPropertyId
+        .create("jack.optimization.field-finalizer.add-final-modifier",
+            "Set final modifier to all effectively final fields")
+        .addDefaultValue(Boolean.TRUE)
         .requiredIf(ENABLE.getValue().isTrue())
         .addCategory(DumpInLibrary.class)
         .addCategory(PrebuiltCompatibility.class)
@@ -219,30 +199,10 @@ public class Optimizations {
         .addCategory(Private.class);
 
     @Nonnull
-    public static final BooleanPropertyId PRESERVE_JLS = BooleanPropertyId
-        .create("jack.optimization.field-value-propagation.preserve-jls",
-            "Preserve JSL during field value propagation optimization")
-        .addDefaultValue(Boolean.TRUE)
-        .requiredIf(ENABLE.getValue().isTrue())
-        .addCategory(DumpInLibrary.class)
-        .addCategory(PrebuiltCompatibility.class)
-        .addCategory(Private.class);
-
-    @Nonnull
-    public static final BooleanPropertyId PRESERVE_REFLECTIONS = BooleanPropertyId
-        .create("jack.optimization.field-value-propagation.preserve-reflections",
-            "Preserve reflections during field value propagation optimization")
+    public static final BooleanPropertyId PRESERVE_NULL_CHECKS = BooleanPropertyId
+        .create("jack.optimization.field-value-propagation.preserve-null-checks",
+            "Preserves null checks when a value of the instance field is propagated")
         .addDefaultValue(Boolean.FALSE)
-        .requiredIf(ENABLE.getValue().isTrue())
-        .addCategory(DumpInLibrary.class)
-        .addCategory(PrebuiltCompatibility.class)
-        .addCategory(Private.class);
-
-    @Nonnull
-    public static final BooleanPropertyId REMOVE_NULL_CHECKS = BooleanPropertyId
-        .create("jack.optimization.field-value-propagation.remove-null-checks",
-            "Removes null checks when a value of the instance field is propagated")
-        .addDefaultValue(Boolean.TRUE)
         .requiredIf(ENABLE.getValue().isTrue())
         .addCategory(DumpInLibrary.class)
         .addCategory(PrebuiltCompatibility.class)
@@ -273,26 +233,6 @@ public class Optimizations {
         .addCategory(DumpInLibrary.class)
         .addCategory(PrebuiltCompatibility.class)
         .addCategory(Private.class);
-
-    @Nonnull
-    public static final BooleanPropertyId PRESERVE_JLS = BooleanPropertyId
-        .create("jack.optimization.argument-value-propagation.preserve-jls",
-            "Preserve JSL during argument value propagation optimization")
-        .addDefaultValue(Boolean.TRUE)
-        .requiredIf(ENABLE.getValue().isTrue())
-        .addCategory(DumpInLibrary.class)
-        .addCategory(PrebuiltCompatibility.class)
-        .addCategory(Private.class);
-
-    @Nonnull
-    public static final BooleanPropertyId PRESERVE_REFLECTIONS = BooleanPropertyId
-        .create("jack.optimization.argument-value-propagation.preserve-reflections",
-            "Preserve reflections during argument value propagation optimization")
-        .addDefaultValue(Boolean.FALSE)
-        .requiredIf(ENABLE.getValue().isTrue())
-        .addCategory(DumpInLibrary.class)
-        .addCategory(PrebuiltCompatibility.class)
-        .addCategory(Private.class);
   }
 
   /**
@@ -311,20 +251,40 @@ public class Optimizations {
         .addCategory(Private.class);
 
     @Nonnull
-    public static final BooleanPropertyId PRESERVE_JLS = BooleanPropertyId
-        .create("jack.optimization.write-only-field-removal.preserve-jls",
-            "Preserve JSL during write-only field removal optimization")
-        .addDefaultValue(Boolean.TRUE)
+    public static final BooleanPropertyId PRESERVE_NULL_CHECKS = BooleanPropertyId
+        .create("jack.optimization.write-only-field-removal.preserve-null-checks",
+            "Preserves null checks when a field assignment is removed")
+        .addDefaultValue(Boolean.FALSE)
         .requiredIf(ENABLE.getValue().isTrue())
         .addCategory(DumpInLibrary.class)
         .addCategory(PrebuiltCompatibility.class)
         .addCategory(Private.class);
 
     @Nonnull
-    public static final BooleanPropertyId PRESERVE_REFLECTIONS = BooleanPropertyId
-        .create("jack.optimization.write-only-field-removal.preserve-reflections",
-            "Preserve reflections during write-only field removal optimization")
+    public static final BooleanPropertyId PRESERVE_OBJECT_LIFETIME = BooleanPropertyId
+        .create("jack.optimization.write-only-field-removal.preserve-object-lifetime",
+            "Prevents field writes removal of object values that can affect object lifetime")
         .addDefaultValue(Boolean.FALSE)
+        .requiredIf(ENABLE.getValue().isTrue())
+        .addCategory(DumpInLibrary.class)
+        .addCategory(PrebuiltCompatibility.class)
+        .addCategory(Private.class);
+
+    @Nonnull
+    public static final BooleanPropertyId ENSURE_TYPE_INITIALIZERS = BooleanPropertyId
+        .create("jack.optimization.write-only-field-removal.ensure-type-initializers",
+            "Ensures type initializers are called if caused by field access")
+        .addDefaultValue(Boolean.FALSE)
+        .requiredIf(ENABLE.getValue().isTrue())
+        .addCategory(DumpInLibrary.class)
+        .addCategory(PrebuiltCompatibility.class)
+        .addCategory(Private.class);
+
+    @Nonnull
+    public static final BooleanPropertyId REMOVE_UNUSED_FIELDS = BooleanPropertyId
+        .create("jack.optimization.write-only-field-removal.remove-unused-fields",
+            "Remove fields without reads or writes")
+        .addDefaultValue(Boolean.TRUE)
         .requiredIf(ENABLE.getValue().isTrue())
         .addCategory(DumpInLibrary.class)
         .addCategory(PrebuiltCompatibility.class)

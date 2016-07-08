@@ -18,6 +18,7 @@ package com.android.jack.optimizations.wofr;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
+import com.android.jack.optimizations.Optimizations;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
@@ -27,6 +28,7 @@ import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.ExclusiveAccess;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
+import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
 
@@ -43,12 +45,15 @@ import javax.annotation.Nonnull;
 public class WofrRemoveFields extends WofrSchedulable
     implements RunnableSchedulable<JField> {
 
+  private final boolean removeUnusedFields =
+      ThreadConfig.get(Optimizations.WriteOnlyFieldRemoval.REMOVE_UNUSED_FIELDS).booleanValue();
+
   @Nonnull
   private final Tracer tracer = TracerFactory.getTracer();
 
   @Override
   public synchronized void run(@Nonnull final JField field) {
-    if (!preserveReflections &&
+    if (removeUnusedFields &&
         !FieldReadWriteCountsMarker.hasReads(field) &&
         !FieldReadWriteCountsMarker.hasWrites(field)) {
 

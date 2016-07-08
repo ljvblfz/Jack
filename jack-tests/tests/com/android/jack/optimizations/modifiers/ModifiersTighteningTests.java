@@ -38,11 +38,8 @@ public class ModifiersTighteningTests extends DexOutputBasedTest {
 
     CompilationProperties properties =
         CompilationProperties.EMPTY
-            .withPreserveReflections(true)
-            .withPreserveJls(true)
             .with(Optimizations.ClassFinalizer.ENABLE.getName(), Boolean.TRUE)
-            .with(Optimizations.MethodFinalizer.ENABLE.getName(), Boolean.FALSE)
-            .with(Optimizations.FieldFinalizer.ENABLE.getName(), Boolean.FALSE);
+            .with(Optimizations.ClassFinalizer.ADD_FINAL_MODIFIER.getName(), Boolean.FALSE);
 
     DexTypeFinalValidator isNotFinal = new DexTypeFinalValidator(false);
     DexTypeFinalValidator isFinal = new DexTypeFinalValidator(true);
@@ -70,7 +67,9 @@ public class ModifiersTighteningTests extends DexOutputBasedTest {
         .update("Lcom/android/jack/optimizations/modifiers/test001/C2final;", isFinal)
         .update("Lcom/android/jack/optimizations/modifiers/test001/F2final;", isFinal);
 
-    compileAndValidate(testPackage, properties.withPreserveReflections(false), validators);
+    properties = properties.with(
+        Optimizations.ClassFinalizer.ADD_FINAL_MODIFIER.getName(), Boolean.TRUE);
+    compileAndValidate(testPackage, properties, validators);
   }
 
   @Test
@@ -79,11 +78,8 @@ public class ModifiersTighteningTests extends DexOutputBasedTest {
 
     CompilationProperties properties =
         CompilationProperties.EMPTY
-            .withPreserveReflections(true)
-            .withPreserveJls(true)
-            .with(Optimizations.ClassFinalizer.ENABLE.getName(), Boolean.FALSE)
             .with(Optimizations.MethodFinalizer.ENABLE.getName(), Boolean.TRUE)
-            .with(Optimizations.FieldFinalizer.ENABLE.getName(), Boolean.FALSE);
+            .with(Optimizations.MethodFinalizer.ADD_FINAL_MODIFIER.getName(), Boolean.FALSE);
 
     DexMethodFinalValidator isNotFinal = new DexMethodFinalValidator(false);
     DexMethodFinalValidator isFinal = new DexMethodFinalValidator(true);
@@ -153,7 +149,9 @@ public class ModifiersTighteningTests extends DexOutputBasedTest {
     mD2.update("foo()Lcom/android/jack/optimizations/modifiers/test002/Base;", isFinal);
     mD2.update("foo()Lcom/android/jack/optimizations/modifiers/test002/D1;", isFinal);
 
-    compileAndValidate(testPackage, properties.withPreserveReflections(false), validators);
+    properties = properties.with(
+        Optimizations.MethodFinalizer.ADD_FINAL_MODIFIER.getName(), Boolean.TRUE);
+    compileAndValidate(testPackage, properties, validators);
   }
 
   @Test
@@ -163,11 +161,9 @@ public class ModifiersTighteningTests extends DexOutputBasedTest {
 
     CompilationProperties properties =
         CompilationProperties.EMPTY
-            .withPreserveReflections(true)
-            .withPreserveJls(false)
-            .with(Optimizations.ClassFinalizer.ENABLE.getName(), Boolean.FALSE)
-            .with(Optimizations.MethodFinalizer.ENABLE.getName(), Boolean.FALSE)
-            .with(Optimizations.FieldFinalizer.ENABLE.getName(), Boolean.TRUE);
+            .with(Optimizations.FieldFinalizer.ENABLE.getName(), Boolean.TRUE)
+            .with(Optimizations.FieldFinalizer.ADD_FINAL_MODIFIER.getName(), Boolean.FALSE)
+            .with(Optimizations.FieldFinalizer.ENFORCE_INIT_SEMANTIC.getName(), Boolean.FALSE);
 
     DexFieldFinalValidator isNotFinal = new DexFieldFinalValidator(false);
     DexFieldFinalValidator isFinal = new DexFieldFinalValidator(true);
@@ -217,7 +213,8 @@ public class ModifiersTighteningTests extends DexOutputBasedTest {
 
     fDerived.update("df0_not_assigned:I", isFinal);
 
-    properties = properties.withPreserveReflections(false);
+    properties = properties.
+        with(Optimizations.FieldFinalizer.ADD_FINAL_MODIFIER.getName(), Boolean.TRUE);
     compileAndValidate(testPackage, properties, validators);
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -231,7 +228,8 @@ public class ModifiersTighteningTests extends DexOutputBasedTest {
 
     fDerived.update("df0_not_assigned:I", isNotFinal);
 
-    properties = properties.withPreserveJls(true);
+    properties = properties.
+        with(Optimizations.FieldFinalizer.ENFORCE_INIT_SEMANTIC.getName(), Boolean.TRUE);
     compileAndValidate(testPackage, properties, validators);
   }
 }
