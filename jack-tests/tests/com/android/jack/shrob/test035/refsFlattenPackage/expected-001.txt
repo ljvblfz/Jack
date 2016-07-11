@@ -1,10 +1,10 @@
-com.android.jack.shrob.test035.jack.Kept -> flatpackage.wnpx.Xrdh:
-    void <init>() -> <init>
-    int kept() -> xrdh__
-com.android.jack.shrob.test035.jack.B -> flatpackage.wnpx.O:
-    void <init>() -> <init>
-    int m() -> z__
 com.android.jack.shrob.test035.jack.A -> p.C:
     int f -> s:V
     void <init>() -> <init>
     void <clinit>() -> <clinit>
+com.android.jack.shrob.test035.jack.B -> flatpackage.wnpx.O:
+    void <init>() -> <init>
+    int m() -> z__
+com.android.jack.shrob.test035.jack.Kept -> flatpackage.wnpx.Xrcg:
+    void <init>() -> <init>
+    int kept() -> xrcg__

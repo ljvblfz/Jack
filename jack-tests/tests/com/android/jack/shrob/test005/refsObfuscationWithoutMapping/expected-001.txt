@@ -1,6 +1,6 @@
-com.android.jack.shrob.test005.jack.Annot -> pcz.nbqfcvq.wnpx.gufco.hrgh005.wnpx.Nbbch:
-com.android.jack.shrob.test005.jack.A -> pcz.nbqfcvq.wnpx.gufco.hrgh005.wnpx.N:
+com.android.jack.shrob.test005.jack.A -> pbz.naqebvq.wnpx.fuebo.grfg005.wnpx.N:
     void <init>() -> <init>
-com.android.jack.shrob.test005.jack.B -> pcz.nbqfcvq.wnpx.gufco.hrgh005.wnpx.O:
+com.android.jack.shrob.test005.jack.Annot2 -> pbz.naqebvq.wnpx.fuebo.grfg005.wnpx.Naabg2:
+com.android.jack.shrob.test005.jack.Annot -> pbz.naqebvq.wnpx.fuebo.grfg005.wnpx.Naabg:
+com.android.jack.shrob.test005.jack.B -> pbz.naqebvq.wnpx.fuebo.grfg005.wnpx.O:
     void <init>() -> <init>
-com.android.jack.shrob.test005.jack.Annot2 -> pcz.nbqfcvq.wnpx.gufco.hrgh005.wnpx.Nbbch2:

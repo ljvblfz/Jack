@@ -1,10 +1,10 @@
-com.android.jack.shrob.test035.jack.A -> p.C:
-    int f -> s:V
-    void <clinit>() -> <clinit>
-    void <init>() -> <init>
 com.android.jack.shrob.test035.jack.B -> O:
     void <init>() -> <init>
     int m() -> z__
-com.android.jack.shrob.test035.jack.Kept -> Xrdh:
+com.android.jack.shrob.test035.jack.A -> p.C:
+    int f -> s:V
     void <init>() -> <init>
-    int kept() -> xrdh__
+    void <clinit>() -> <clinit>
+com.android.jack.shrob.test035.jack.Kept -> Xrcg:
+    void <init>() -> <init>
+    int kept() -> xrcg__

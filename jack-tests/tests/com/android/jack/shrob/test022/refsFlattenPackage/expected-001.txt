@@ -1,6 +1,6 @@
-com.android.jack.shrob.test022.jack.Shrob022 -> com.android.jack.shrob.test022.jack.Shrob022:
+com.android.jack.shrob.test022.jack.AbstractClass -> com.android.jack.shrob.test022.jack.NofgenpgPynff:
     void <init>() -> <init>
     void method() -> method
-com.android.jack.shrob.test022.jack.AbstractClass -> com.android.jack.shrob.test022.jack.NoghfnphPyngg:
+com.android.jack.shrob.test022.jack.Shrob022 -> com.android.jack.shrob.test022.jack.Shrob022:
     void <init>() -> <init>
     void method() -> method

@@ -431,10 +431,10 @@ public class FileConflictTests {
   public void test004() throws Exception {
     File jackOutput = AbstractTestTools.createTempDir();
     VPath pathToType = new VPath("com/android/jack/fileconflict/test004/jack/MyClass", '/');
-    VPath pathToRenamedType = new VPath("pcz/nbqfcvq/wnpx/svyrpcbsyvph/hrgh004/wnpx/ZmPyngg", '/');
+    VPath pathToRenamedType = new VPath("pbz/naqebvq/wnpx/svyrpbasyvpg/grfg004/wnpx/ZlPynff", '/');
     VPath pathToResource2 = pathToRenamedType.clone().addSuffix(".txt");
 
-    // compile source files to a lib dir while importing ZmPyngg.txt
+    // compile source files to a lib dir while importing ZlPynff.txt
     File testSrcDir =
         AbstractTestTools.getTestRootDir("com.android.jack.fileconflict.test004.jack");
     File jackImport1 = AbstractTestTools.createTempDir();

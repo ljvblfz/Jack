@@ -100,7 +100,7 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
 
   @Override
   @Test
-  @KnownIssue(candidate=IncrementalToolchain.class)
+  @KnownIssue
   public void test44_001() throws Exception {
     super.test44_001();
   }

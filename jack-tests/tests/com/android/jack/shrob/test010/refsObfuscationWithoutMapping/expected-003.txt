@@ -1,6 +1,6 @@
-com.android.jack.shrob.test010.jack.C -> com.android.jack.shrob.test010.jack.P:
-    void <init>() -> <init>
 com.android.jack.shrob.test010.jack.A -> com.android.jack.shrob.test010.jack.A:
     void <init>() -> <init>
     java.lang.Object get() -> get
     void set(com.android.jack.shrob.test010.jack.C) -> set
+com.android.jack.shrob.test010.jack.C -> com.android.jack.shrob.test010.jack.P:
+    void <init>() -> <init>

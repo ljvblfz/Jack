@@ -1,17 +1,17 @@
+com.android.jack.shrob.test031.jack.I -> com.android.jack.shrob.test031.jack.V:
+    int m() -> m
+com.android.jack.shrob.test031.jack.A -> com.android.jack.shrob.test031.jack.N:
+    void <init>() -> <init>
+    int m() -> m
 com.android.jack.shrob.test031.jack.E -> com.android.jack.shrob.test031.jack.E:
+    void <init>() -> <init>
+com.android.jack.shrob.test031.jack.B -> com.android.jack.shrob.test031.jack.B:
     void <init>() -> <init>
 com.android.jack.shrob.test031.jack.Kept -> com.android.jack.shrob.test031.jack.Kept:
     void <init>() -> <init>
     int kept(com.android.jack.shrob.test031.jack.I) -> kept
-com.android.jack.shrob.test031.jack.I -> com.android.jack.shrob.test031.jack.V:
-    int m() -> m
 com.android.jack.shrob.test031.jack.F -> com.android.jack.shrob.test031.jack.S:
     void <init>() -> <init>
     int m() -> m
-com.android.jack.shrob.test031.jack.B -> com.android.jack.shrob.test031.jack.B:
-    void <init>() -> <init>
 com.android.jack.shrob.test031.jack.D -> com.android.jack.shrob.test031.jack.D:
     void <init>() -> <init>
-com.android.jack.shrob.test031.jack.A -> com.android.jack.shrob.test031.jack.N:
-    void <init>() -> <init>
-    int m() -> m

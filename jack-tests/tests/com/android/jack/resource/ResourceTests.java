@@ -367,9 +367,9 @@ public class ResourceTests {
       shrobbedLib = AbstractTestTools.getInputJackLibrary(shrobbedJackDir);
       File referenceFile = new File(testFolder, "refs/A.txt");
       InputVFile candidateFile1 = shrobbedLib.getFile(FileType.RSC,
-          new VPath("pcz/nbqfcvq/wnpx/frgcifpr/hrgh003/wnpx/A", '/'));
+          new VPath("pbz/naqebvq/wnpx/erfbhepr/grfg003/wnpx/A", '/'));
       InputVFile candidateFile2 = shrobbedLib.getFile(FileType.RSC,
-          new VPath("pcz/nbqfcvq/wnpx/frgcifpr/hrgh003/wnpx/N.txt", '/'));
+          new VPath("pbz/naqebvq/wnpx/erfbhepr/grfg003/wnpx/N.txt", '/'));
       checkResourceContent(candidateFile1, referenceFile);
       checkResourceContent(candidateFile2, referenceFile);
     } finally {

@@ -41,12 +41,12 @@ public class Rot13NameProvider implements NameProvider {
     if (c >= BEGIN_LOWERCASE_CHAR && c <= END_LOWERCASE_CHAR) {
       c += OFFSET;
       if (c > END_LOWERCASE_CHAR) {
-        c -= (END_LOWERCASE_CHAR - BEGIN_LOWERCASE_CHAR);
+        c -= (END_LOWERCASE_CHAR - BEGIN_LOWERCASE_CHAR + 1);
       }
     } else if (c >= BEGIN_UPPERCASE_CHAR && c <= END_UPPERCASE_CHAR) {
       c += OFFSET;
       if (c > END_UPPERCASE_CHAR) {
-        c -= (END_UPPERCASE_CHAR - BEGIN_UPPERCASE_CHAR);
+        c -= (END_UPPERCASE_CHAR - BEGIN_UPPERCASE_CHAR + 1);
       }
     } else {
       throw new AssertionError();
@@ -80,5 +80,4 @@ public class Rot13NameProvider implements NameProvider {
   public boolean hasAlternativeName(@Nonnull String oldName) {
     return false;
   }
-
 }

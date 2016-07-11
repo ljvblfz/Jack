@@ -1,4 +1,4 @@
-com.android.jack.shrob.test052.jack.Outer$Member$Class$Member3$B -> flatpackage.wnpx.Cihrf$Zrzorf$Pyngg$Zrzorf3$O:
-com.android.jack.shrob.test052.jack.Outer$Member$Class -> flatpackage.wnpx.Cihrf$Zrzorf$Pyngg:
-com.android.jack.shrob.test052.jack.Outer -> flatpackage.wnpx.Cihrf:
+com.android.jack.shrob.test052.jack.Outer -> flatpackage.wnpx.Bhgre:
     void <init>() -> <init>
+com.android.jack.shrob.test052.jack.Outer$Member$Class -> flatpackage.wnpx.Bhgre$Zrzore$Pynff:
+com.android.jack.shrob.test052.jack.Outer$Member$Class$Member3$B -> flatpackage.wnpx.Bhgre$Zrzore$Pynff$Zrzore3$O:

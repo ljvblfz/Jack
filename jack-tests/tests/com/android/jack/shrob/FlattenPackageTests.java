@@ -21,10 +21,12 @@ import com.android.jack.shrob.obfuscation.NameProviderFactory;
 import com.android.jack.test.category.SlowTests;
 import com.android.jack.test.comparator.ComparatorMapping;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.DummyToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.File;
@@ -71,5 +73,19 @@ public class FlattenPackageTests extends AbstractTest {
     env.setCandidateClasspath(toolchain.getDefaultBootClasspath()[0]);
 
     env.runTest(new ComparatorMapping(refOutputMapping, candidateOutputMapping));
+  }
+
+  @Override
+  @Test
+  @KnownIssue
+  public void test34_001() throws Exception {
+    super.test34_001();
+  }
+
+  @Override
+  @Test
+  @KnownIssue
+  public void test44_001() throws Exception {
+    runTest("044", "001", "");
   }
 }

@@ -1,7 +1,7 @@
 com.android.jack.shrob.test044.jack.A -> N:
     int f -> s:V
-    void <clinit>() -> <clinit>
     void <init>() -> <init>
+    void <clinit>() -> <clinit>
 com.android.jack.shrob.test044.jack.B -> O:
     void <init>() -> <init>
     int m() -> z__

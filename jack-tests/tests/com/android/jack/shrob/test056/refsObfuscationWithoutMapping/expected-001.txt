@@ -1,6 +1,6 @@
-com.android.jack.shrob.test056.jack.A -> pcz.nbqfcvq.wnpx.gufco.hrgh056.wnpx.N:
+com.android.jack.shrob.test056.jack.A -> pbz.naqebvq.wnpx.fuebo.grfg056.wnpx.N:
     int f -> s:V
     void <init>() -> <init>
-com.android.jack.shrob.test056.jack.B -> pcz.nbqfcvq.wnpx.gufco.hrgh056.wnpx.O:
+com.android.jack.shrob.test056.jack.B -> pbz.naqebvq.wnpx.fuebo.grfg056.wnpx.O:
     int f -> s:V
     void <init>() -> <init>

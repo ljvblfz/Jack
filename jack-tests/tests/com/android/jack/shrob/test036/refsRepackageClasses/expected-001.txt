@@ -1,13 +1,13 @@
-com.android.jack.shrob.test036.jack.E -> R:
-    com.android.jack.shrob.test036.jack.E A -> N:Ypcz/nbqfcvq/wnpx/gufco/hrgh036/wnpx/F;
-    com.android.jack.shrob.test036.jack.E B -> O:Ypcz/nbqfcvq/wnpx/gufco/hrgh036/wnpx/F;
-    com.android.jack.shrob.test036.jack.E C -> P:Ypcz/nbqfcvq/wnpx/gufco/hrgh036/wnpx/F;
-    com.android.jack.shrob.test036.jack.E[] $VALUES -> $JNYIRG:[Ypcz/nbqfcvq/wnpx/gufco/hrgh036/wnpx/F;
-    void <init>(java.lang.String,int) -> <init>
-    com.android.jack.shrob.test036.jack.E[] values() -> jnyirg__
-    void <clinit>() -> <clinit>
 com.android.jack.shrob.test036.jack.Kept -> com.android.jack.shrob.test036.jack.Kept:
-    int[] -com-android-jack-shrob-test036-jack-ESwitchesValues -> -pcz-nbqfcvq-wnpx-gufco-hrgh036-wnpx-RGkvhpurgJnyirg:[V
+    int[] -com-android-jack-shrob-test036-jack-ESwitchesValues -> -pbz-naqebvq-wnpx-fuebo-grfg036-wnpx-RFjvgpurfInyhrf:[V
     void <init>() -> <init>
     int kept(com.android.jack.shrob.test036.jack.E) -> kept
-    int[] -getcom-android-jack-shrob-test036-jack-ESwitchesValues() -> -trhpcz-nbqfcvq-wnpx-gufco-hrgh036-wnpx-RGkvhpurgJnyirg__
+    int[] -getcom-android-jack-shrob-test036-jack-ESwitchesValues() -> -trgpbz-naqebvq-wnpx-fuebo-grfg036-wnpx-RFjvgpurfInyhrf__
+com.android.jack.shrob.test036.jack.E -> R:
+    com.android.jack.shrob.test036.jack.E[] $VALUES -> $INYHRF:[Ypbz/naqebvq/wnpx/fuebo/grfg036/wnpx/E;
+    com.android.jack.shrob.test036.jack.E A -> N:Ypbz/naqebvq/wnpx/fuebo/grfg036/wnpx/E;
+    com.android.jack.shrob.test036.jack.E B -> O:Ypbz/naqebvq/wnpx/fuebo/grfg036/wnpx/E;
+    com.android.jack.shrob.test036.jack.E C -> P:Ypbz/naqebvq/wnpx/fuebo/grfg036/wnpx/E;
+    void <init>(java.lang.String,int) -> <init>
+    com.android.jack.shrob.test036.jack.E[] values() -> inyhrf__
+    void <clinit>() -> <clinit>
