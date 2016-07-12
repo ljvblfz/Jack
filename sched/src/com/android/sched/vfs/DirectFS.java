@@ -31,6 +31,12 @@ import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.DirectoryLocation;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
+import com.android.sched.util.log.Tracer;
+import com.android.sched.util.log.stats.Counter;
+import com.android.sched.util.log.stats.CounterImpl;
+import com.android.sched.util.log.stats.Percent;
+import com.android.sched.util.log.stats.PercentImpl;
+import com.android.sched.util.log.stats.StatisticId;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -50,6 +56,22 @@ import javax.annotation.Nonnull;
  * A {@link VFS} implementation backed by a real file system.
  */
 public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
+
+  @Nonnull
+  private static final StatisticId<Percent> CREATED_PHYSICAL_FILES = new StatisticId<Percent>(
+      "sched.vfs.dir.created-physical-files", "Created physical files",
+      PercentImpl.class, Percent.class);
+
+  @Nonnull
+  private static final StatisticId<Counter> WRITTEN_PHYSICAL_FILES = new StatisticId<Counter>(
+      "sched.vfs.dir.opened-for-writing-files", "Physical files opened for writing",
+      CounterImpl.class, Counter.class);
+
+  @Nonnull
+  private static final StatisticId<Counter> READ_PHYSICAL_FILES = new StatisticId<Counter>(
+      "sched.vfs.dir.opened-for-reading-files", "Physical files opened for reading",
+      CounterImpl.class, Counter.class);
+
   @Nonnull
   private final Directory  dir;
   @Nonnull
@@ -113,6 +135,11 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
     assert !isClosed();
     assert capabilities.contains(Capabilities.READ);
 
+    Tracer tracer = getTracer();
+    if (tracer != null) {
+      tracer.getStatistic(READ_PHYSICAL_FILES).incValue();
+    }
+
     File path = getNativeFile(file.getPath());
     try {
       return new FileInputStream(path);
@@ -135,6 +162,11 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
       throws WrongPermissionException {
     assert !isClosed();
     assert capabilities.contains(Capabilities.WRITE);
+
+    Tracer tracer = getTracer();
+    if (tracer != null) {
+      tracer.getStatistic(WRITTEN_PHYSICAL_FILES).incValue();
+    }
 
     File path = getNativeFile(file.getPath());
     try {
@@ -189,11 +221,19 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
     assert !isClosed();
     assert capabilities.contains(Capabilities.WRITE);
 
+    Tracer tracer = getTracer();
     File path = getNativeFile(parent.getPath(), name);
     try {
       AbstractStreamFile.create(path, new FileLocation(path));
+
+      if (tracer != null) {
+        tracer.getStatistic(CREATED_PHYSICAL_FILES).addTrue();
+      }
     } catch (FileAlreadyExistsException e) {
       // Nothing to do
+      if (tracer != null) {
+        tracer.getStatistic(CREATED_PHYSICAL_FILES).addFalse();
+      }
     }
 
     return new ParentVFile(this, parent, name);

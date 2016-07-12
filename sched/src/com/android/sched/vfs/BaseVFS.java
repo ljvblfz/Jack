@@ -16,6 +16,7 @@
 
 package com.android.sched.vfs;
 
+import com.android.sched.util.config.ConfigurationError;
 import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
@@ -26,6 +27,8 @@ import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
+import com.android.sched.util.log.Tracer;
+import com.android.sched.util.log.TracerFactory;
 import com.android.sched.util.stream.LocationByteStreamSucker;
 
 import java.io.IOException;
@@ -40,6 +43,10 @@ import javax.annotation.Nonnull;
  * A base implementation of a {@link VFS}.
  */
 abstract class BaseVFS<DIR extends BaseVDir, FILE extends BaseVFile> implements VFS {
+
+  @CheckForNull
+  private Tracer tracer;
+
   protected boolean closed = false;
 
   @Override
@@ -144,5 +151,22 @@ abstract class BaseVFS<DIR extends BaseVDir, FILE extends BaseVFile> implements 
     } catch (IOException e) {
       throw new CannotCloseException(srcFile, e);
     }
+    Tracer tracer = getTracer();
+    if (tracer != null) {
+      tracer.getStatistic(DeflateFS.OPTIMIZED_COPIES).addFalse();
+    }
+  }
+
+  @CheckForNull
+  protected Tracer getTracer() {
+    // lazy because the tracer may not be available yet when initializing the VFS
+    if (tracer == null) {
+      try {
+        tracer = TracerFactory.getTracer();
+      } catch (ConfigurationError e) {
+        // ignore and return null
+      }
+    }
+    return tracer;
   }
 }

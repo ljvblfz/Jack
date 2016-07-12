@@ -31,6 +31,12 @@ import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.DirectoryLocation;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
+import com.android.sched.util.log.Tracer;
+import com.android.sched.util.log.stats.Counter;
+import com.android.sched.util.log.stats.CounterImpl;
+import com.android.sched.util.log.stats.Percent;
+import com.android.sched.util.log.stats.PercentImpl;
+import com.android.sched.util.log.stats.StatisticId;
 import com.android.sched.vfs.CachedDirectFS.CachedParentVDir;
 import com.android.sched.vfs.CachedDirectFS.CachedParentVFile;
 
@@ -53,6 +59,21 @@ import javax.annotation.Nonnull;
  * memory.
  */
 public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile> implements VFS {
+
+  @Nonnull
+  private static final StatisticId<Percent> CREATED_PHYSICAL_FILES = new StatisticId<Percent>(
+      "sched.vfs.cached-dir.created-physical-files", "Created physical files (cached)",
+      PercentImpl.class, Percent.class);
+
+  @Nonnull
+  private static final StatisticId<Counter> OPENED_WRITING_FILES = new StatisticId<Counter>(
+      "sched.vfs.cached-dir.opened-for-writing-files", "Physical files opened for writing (cached)",
+      CounterImpl.class, Counter.class);
+
+  @Nonnull
+  private static final StatisticId<Counter> OPENED_READING_FILES = new StatisticId<Counter>(
+      "sched.vfs.cached-dir.opened-for-reading-files", "Physical files opened for reading (cached)",
+      CounterImpl.class, Counter.class);
 
   static class CachedParentVDir extends InMemoryVDir {
 
@@ -218,6 +239,11 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
     assert !isClosed();
     assert capabilities.contains(Capabilities.READ);
 
+    Tracer tracer = getTracer();
+    if (tracer != null) {
+      tracer.getStatistic(OPENED_READING_FILES).incValue();
+    }
+
     File path = getNativeFile(file.getPath());
     try {
       return new FileInputStream(path);
@@ -239,6 +265,11 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
       throws WrongPermissionException {
     assert !isClosed();
     assert capabilities.contains(Capabilities.WRITE);
+
+    Tracer tracer = getTracer();
+    if (tracer != null) {
+      tracer.getStatistic(OPENED_WRITING_FILES).incValue();
+    }
 
     File path = getNativeFile(file.getPath());
     try {
@@ -322,11 +353,19 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
 
     } catch (NoSuchFileException e) {
 
+    Tracer tracer = getTracer();
     File path = getNativeFile(parent.getPath(), name);
     try {
       AbstractStreamFile.create(path, new FileLocation(path));
+
+      if (tracer != null) {
+        tracer.getStatistic(CREATED_PHYSICAL_FILES).addTrue();
+      }
     } catch (FileAlreadyExistsException e2) {
       // Nothing to do
+      if (tracer != null) {
+        tracer.getStatistic(CREATED_PHYSICAL_FILES).addFalse();
+      }
     }
     CachedParentVFile vFile = new CachedParentVFile(this, parent, name);
 
