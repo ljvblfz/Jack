@@ -29,25 +29,44 @@ import org.junit.Test;
 import java.io.File;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 public class JillTests {
 
   @Test
   @Runtime
   public void test001() throws Exception {
-    File jasminFolder = AbstractTestTools.getTestRootDir("com.android.jack.jill.test001.jasmin");
+    runJillTest("001");
+  }
+
+  @Test
+  @Runtime
+  public void test002() throws Exception {
+    runJillTest("002");
+  }
+
+  private static void runJillTest(@Nonnull String testNumber) throws Exception {
+    String jackFolder = getJackFolder(testNumber);
+    String jasminFolder = getJasminFolder(testNumber);
+    String testClassName = getTestClassName(testNumber);
+    runJillTestImpl(jackFolder, jasminFolder, testClassName);
+  }
+
+  private static void runJillTestImpl(@Nonnull String jackFolderName,
+      @Nonnull String jasminFolderName, @Nonnull String testClassName) throws Exception {
+    File jasminFolder = AbstractTestTools.getTestRootDir(jasminFolderName);
     File jarInput = new File(jasminFolder, "jarInput.jar");
 
     JackBasedToolchain jackToolchain =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
     File dex = AbstractTestTools.createTempFile("dex", jackToolchain.getExeExtension());
-    File testSourceDir = AbstractTestTools.getTestRootDir("com.android.jack.jill.test001.jack");
+    File testSourceDir = AbstractTestTools.getTestRootDir(jackFolderName);
     jackToolchain.addToClasspath(jackToolchain.getDefaultBootClasspath());
     jackToolchain.addStaticLibs(jarInput);
     jackToolchain.srcToExe(dex, /* zipFile = */ true, testSourceDir);
 
-
     List<RuntimeRunner> runnerList = AbstractTestTools.listRuntimeTestRunners(null);
-    String[] names = {"com.android.jack.jill.test001.jack.Test001"};
+    String[] names = { testClassName };
     for (RuntimeRunner runner : runnerList) {
       Assert.assertEquals(0,
           runner.runJUnit(new String[] {}, AbstractTestTools.JUNIT_RUNNER_NAME, names, new File[] {
@@ -55,4 +74,25 @@ public class JillTests {
               dex}));
     }
   }
+
+  @Nonnull
+  private static String getTestPackage(String testNumber) {
+    return "com.android.jack.jill.test" + testNumber;
+  }
+
+  @Nonnull
+  private static String getJackFolder(String testNumber) {
+    return getTestPackage(testNumber) + ".jack";
+  }
+
+  @Nonnull
+  private static String getJasminFolder(String testNumber) {
+    return getTestPackage(testNumber) + ".jasmin";
+  }
+
+  @Nonnull
+  private static String getTestClassName(String testNumber) {
+    return getJackFolder(testNumber) + ".Test" + testNumber;
+  }
+
 }

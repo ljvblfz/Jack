@@ -1051,25 +1051,28 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
 
   private void writeInsn(@Nonnull Frame<BasicValue> frame, @Nonnull Frame<BasicValue> nextFrame,
       @Nonnull IincInsnNode iincInsn) throws IOException {
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
-    writer.writeCatchBlockIds(currentCatchList);
-    writer.writeKeyword(Token.EXPRESSION_STATEMENT);
-    writer.writeOpen();
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
-    writer.writeKeyword(Token.ASG_OPERATION);
-    writer.writeOpen();
-    writeLocalAccess(nextFrame, iincInsn.var);
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
-    writer.writeKeyword(Token.ADD_OPERATION);
-    writer.writeOpen();
-    writeLocalAccess(frame, iincInsn.var);
-    writeValue(iincInsn.incr, currentClass, currentLine);
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
-    writer.writeClose();
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
-    writer.writeClose();
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
-    writer.writeClose();
+    // Uninitialized variable means dead store. Do not generate them.
+    if (nextFrame.getLocal(iincInsn.var) != BasicValue.UNINITIALIZED_VALUE) {
+      sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+      writer.writeCatchBlockIds(currentCatchList);
+      writer.writeKeyword(Token.EXPRESSION_STATEMENT);
+      writer.writeOpen();
+      sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+      writer.writeKeyword(Token.ASG_OPERATION);
+      writer.writeOpen();
+      writeLocalAccess(nextFrame, iincInsn.var);
+      sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+      writer.writeKeyword(Token.ADD_OPERATION);
+      writer.writeOpen();
+      writeLocalAccess(frame, iincInsn.var);
+      writeValue(iincInsn.incr, currentClass, currentLine);
+      sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+      writer.writeClose();
+      sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+      writer.writeClose();
+      sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+      writer.writeClose();
+    }
   }
 
   private void writeInsn(@Nonnull Frame<BasicValue> frame, @Nonnull Frame<BasicValue> nextFrame,
@@ -1648,7 +1651,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
       case LSTORE:
       case ISTORE:
       case ASTORE: {
-        // Uninitialize variable means dead store. Do not generate them.
+        // Uninitialized variable means dead store. Do not generate them.
         if (nextFrame.getLocal(varInsn.var) != BasicValue.UNINITIALIZED_VALUE) {
           sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
           writer.writeCatchBlockIds(currentCatchList);
