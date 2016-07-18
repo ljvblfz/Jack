@@ -68,7 +68,7 @@ public class CodeCoverageSelector implements RunnableSchedulable<JDefinedClassOr
   }
 
   private boolean needsCoverage(@Nonnull JDefinedClassOrInterface declaredType) {
-    if (declaredType.isExternal()) {
+    if (!declaredType.isToEmit()) {
       // Do not instrument classes that will no be part of the output.
       return false;
     }
