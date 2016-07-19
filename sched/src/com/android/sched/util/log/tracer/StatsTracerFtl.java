@@ -387,6 +387,17 @@ public class StatsTracerFtl extends AbstractTracer {
     generateConfigReport();
   }
 
+  @CheckForNull
+  private String getFileName(@Nonnull Object object) {
+    if (object instanceof EventType) {
+      return getEventFileName((EventType) object);
+    } else if (object instanceof StatisticId) {
+      return getStatFileName((StatisticId<?>) object);
+    } else {
+      return null;
+    }
+  }
+
   @Nonnull
   private String getEventFileName(@Nonnull EventType type) {
     return "event-"
@@ -584,8 +595,17 @@ public class StatsTracerFtl extends AbstractTracer {
               dmData.add(statId.getName().replace("'", "\\'"));
               dmData.add(getStatFileName(statId));
               for (int idx = 0; idx < dummy.getDataView().getDataCount(); idx++) {
-                dmData.add(woStat.getValue(idx));
-                dmData.add(woStat.getHumanReadableValue(idx));
+                assert woStat.getHumanReadableValue(idx) != null;
+
+                if (dummy.getType(idx).equals("string")) {
+                  dmData.add(woStat.getHumanReadableValue(idx).replace("'", "\\'"));
+                  dmData.add(getFileName(woStat.getValue(idx)));
+                } else {
+                  assert woStat.getValue(idx) != null;
+
+                  dmData.add(woStat.getValue(idx));
+                  dmData.add(woStat.getHumanReadableValue(idx));
+                }
               }
             }
           }
@@ -633,8 +653,17 @@ public class StatsTracerFtl extends AbstractTracer {
                 dmData.add(statId.getName().replace("'", "\\'"));
                 dmData.add(getStatFileName(statId));
                 for (int idx = 0; idx < dummy.getDataView().getDataCount(); idx++) {
-                  dmData.add(wStat.getValue(idx));
-                  dmData.add(wStat.getHumanReadableValue(idx));
+                  assert wStat.getHumanReadableValue(idx) != null;
+
+                  if (dummy.getType(idx).equals("string")) {
+                    dmData.add(wStat.getHumanReadableValue(idx).replace("'", "\\'"));
+                    dmData.add(getFileName(wStat.getValue(idx)));
+                  } else {
+                    assert wStat.getValue(idx) != null;
+
+                    dmData.add(wStat.getValue(idx));
+                    dmData.add(wStat.getHumanReadableValue(idx));
+                  }
                 }
               }
             }

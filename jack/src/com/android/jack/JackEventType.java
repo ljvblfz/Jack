@@ -59,4 +59,9 @@ public enum JackEventType implements EventType {
     return name;
   }
 
+  @Override
+  @Nonnull
+  public String toString() {
+    return name + " (" + super.toString() + ")";
+  }
 }

@@ -20,8 +20,8 @@ import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.log.EventType;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
-import com.android.sched.util.log.stats.Alloc;
-import com.android.sched.util.log.stats.AllocImpl;
+import com.android.sched.util.log.stats.ObjectAlloc;
+import com.android.sched.util.log.stats.ObjectAllocImpl;
 import com.android.sched.util.log.stats.Statistic;
 import com.android.sched.util.log.stats.StatisticId;
 
@@ -34,7 +34,7 @@ import javax.annotation.Nonnull;
 /**
  * Class to watch {@link Object} creation and make a global statistic about allocation.
  */
-public class AllocationWatcher implements ObjectWatcher<Object> {
+public class TotalAllocationWatcher implements ObjectWatcher<Object> {
   static class Statistics implements ObjectWatcher.Statistics {
     @Override
     public Iterator<Statistic> iterator() {
@@ -43,40 +43,21 @@ public class AllocationWatcher implements ObjectWatcher<Object> {
   }
 
   @Nonnull
-  private static final StatisticId<Alloc> ALLOCATIONS = new StatisticId<Alloc>(
+  private static final StatisticId<ObjectAlloc> ALLOCATIONS = new StatisticId<ObjectAlloc>(
       "jack.allocation.object.total",
       "Total object and array allocations",
-      AllocImpl.class, Alloc.class);
+      ObjectAllocImpl.class, ObjectAlloc.class);
 
   @Override
   public boolean notifyInstantiation(
       @Nonnull Object object, @Nonnegative long size, int count, @Nonnull EventType notUsed) {
-    Class<?> type = object.getClass();
-
-    if (count == -1) {
-      notifyObject(type, size);
-    } else {
-      notifyArray(type, size, count);
+    try {
+      TracerFactory.getTracer().getStatistic(ALLOCATIONS).recordAllocation(size);
+    } catch (RuntimeException e) {
+      // Do best effort here
     }
 
     return false;
-  }
-
-  private void notifyObject(@Nonnull Class<?> type, @Nonnegative long size) {
-    try {
-      TracerFactory.getTracer().getStatistic(ALLOCATIONS).recordAllocation(size);
-    } catch (RuntimeException e) {
-      // Do best effort here
-    }
-  }
-
-  private synchronized void notifyArray(@Nonnull Class<?> type, @Nonnegative long size,
-      @Nonnegative int count) {
-    try {
-      TracerFactory.getTracer().getStatistic(ALLOCATIONS).recordAllocation(size);
-    } catch (RuntimeException e) {
-      // Do best effort here
-    }
   }
 
   @Override
@@ -87,14 +68,14 @@ public class AllocationWatcher implements ObjectWatcher<Object> {
   }
 
   /**
-   * Install a {@link AllocationWatcher}
+   * Install a {@link TotalAllocationWatcher}
    */
-  @ImplementationName(iface = WatcherInstaller.class, name = "object-alloc",
+  @ImplementationName(iface = WatcherInstaller.class, name = "total-object-alloc",
       description = "record object and array allocations globally")
   public static class AllocationWatcherInstaller implements WatcherInstaller {
     @Override
     public void install(@Nonnull Tracer tracer) {
-      tracer.registerWatcher(Object.class, AllocationWatcher.class);
+      tracer.registerWatcher(Object.class, TotalAllocationWatcher.class);
     }
   }
 }

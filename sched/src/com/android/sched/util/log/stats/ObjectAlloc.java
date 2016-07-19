@@ -40,7 +40,7 @@ public class ObjectAlloc extends Statistic {
    *
    * @param size size in bytes of object in memory.
    */
-  public void recordObjectAllocation(@Nonnegative long size) {
+  public void recordAllocation(@Nonnegative long size) {
   }
 
 
@@ -68,15 +68,13 @@ public class ObjectAlloc extends Statistic {
   public synchronized Iterator<Object> iterator() {
     return Iterators.<Object> forArray(
         Long.valueOf(getNumber()),
-        Long.valueOf(getSize()),
-        Long.valueOf(getNumber() * getSize()));
+        Long.valueOf(getSize()));
   }
 
   @Nonnull
   private static final DataView DATA_VIEW = DataViewBuilder.getStructure()
       .addField("objectCount", DataType.NUMBER)
       .addField("objectSize", DataType.QUANTITY)
-      .addField("objectTotalSize", DataType.QUANTITY)
       .build();
 
   @Override

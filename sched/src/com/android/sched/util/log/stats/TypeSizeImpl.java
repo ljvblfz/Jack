@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2013 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,13 +22,11 @@ import javax.annotation.Nonnull;
 /**
  * Represents a statistic on object allocation.
  */
-public class AllocImpl extends Alloc {
-  @Nonnegative
-  private long number;
+public class TypeSizeImpl extends TypeSize {
   @Nonnegative
   private long size = 0;
 
-  protected AllocImpl(@Nonnull StatisticId<? extends Statistic> id) {
+  protected TypeSizeImpl(@Nonnull StatisticId<? extends Statistic> id) {
     super(id);
   }
 
@@ -43,29 +41,29 @@ public class AllocImpl extends Alloc {
    * @param size size in bytes of object in memory.
    */
   @Override
-  public synchronized void recordAllocation(@Nonnegative long size) {
-    this.number++;
-    this.size += size;
-  }
-
-  @Override
-  public synchronized void merge(@Nonnull Statistic statistic) {
-    AllocImpl stat = (AllocImpl) statistic;
-
-    synchronized (stat) {
-      this.number += stat.number;
-      this.size   += stat.size;
+  public synchronized void recordType(@Nonnegative long size) {
+    if (this.size == 0) {
+      this.size = size;
+    } else {
+      assert this.size == size : "Object size are not constant";
     }
   }
 
   @Override
-  @Nonnegative
-  public long getNumber() {
-    return number;
+  public synchronized void merge(@Nonnull Statistic statistic) {
+    TypeSizeImpl stat = (TypeSizeImpl) statistic;
+
+    synchronized (stat) {
+      if (this.size == 0) {
+        this.size = stat.size;
+      } else {
+        assert this.size == stat.size : "Object size are not constant";
+      }
+    }
   }
 
-  @Override
   @Nonnegative
+  @Override
   public long getSize() {
     return size;
   }

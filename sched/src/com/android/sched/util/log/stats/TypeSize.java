@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2013 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,8 @@ import javax.annotation.Nonnull;
 /**
  * Represents a statistic on object allocation when statistic is not enabled.
  */
-public class Alloc extends Statistic {
-  protected Alloc(@Nonnull StatisticId<? extends Statistic> id) {
+public class TypeSize extends Statistic {
+  protected TypeSize(@Nonnull StatisticId<? extends Statistic> id) {
     super(id);
   }
 
@@ -40,7 +40,11 @@ public class Alloc extends Statistic {
    *
    * @param size size in bytes of object in memory.
    */
-  public void recordAllocation(@Nonnegative long size) {
+  public void recordType(@Nonnegative long size) {
+  }
+
+  public long getSize() {
+    return 0;
   }
 
   @Override
@@ -51,37 +55,25 @@ public class Alloc extends Statistic {
   @Override
   @Nonnull
   public String getDescription() {
-    return "Allocation";
-  }
-
-
-  @Nonnegative
-  public long getNumber() {
-    return 0;
-  }
-
-  @Nonnegative
-  public long getSize() {
-    return 0;
+    return "Type size";
   }
 
   @Override
   @Nonnull
   public synchronized Iterator<Object> iterator() {
     return Iterators.<Object> forArray(
-        Long.valueOf(getNumber()),
         Long.valueOf(getSize()));
   }
 
   @Nonnull
   private static final DataView DATA_VIEW = DataViewBuilder.getStructure()
-       .addField("allocCount", DataType.NUMBER)
-       .addField("allocSize", DataType.QUANTITY)
-       .build();
+      .addField("typeSize", DataType.QUANTITY)
+      .build();
 
   @Override
   @Nonnull
   public DataView getDataView() {
     return DATA_VIEW;
   }
+
 }

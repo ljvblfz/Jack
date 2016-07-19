@@ -43,13 +43,9 @@ public class ObjectAllocImpl extends ObjectAlloc {
    * @param size size in bytes of object in memory.
    */
   @Override
-  public synchronized void recordObjectAllocation(@Nonnegative long size) {
+  public synchronized void recordAllocation(@Nonnegative long size) {
     this.number++;
-    if (this.size == 0) {
-      this.size = size;
-    } else {
-      assert this.size == size : "Object size are not constant";
-    }
+    this.size += size;
   }
 
   @Override
@@ -58,11 +54,7 @@ public class ObjectAllocImpl extends ObjectAlloc {
 
     synchronized (stat) {
       this.number += stat.number;
-      if (this.size == 0) {
-        this.size = stat.size;
-      } else {
-        assert this.size == stat.size : "Object size are not constant";
-      }
+      this.size += stat.size;
     }
   }
 

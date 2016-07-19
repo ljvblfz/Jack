@@ -20,8 +20,6 @@ import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.log.EventType;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
-import com.android.sched.util.log.stats.ArrayAlloc;
-import com.android.sched.util.log.stats.ArrayAllocImpl;
 import com.android.sched.util.log.stats.ObjectAlloc;
 import com.android.sched.util.log.stats.ObjectAllocImpl;
 import com.android.sched.util.log.stats.Statistic;
@@ -38,7 +36,7 @@ import javax.annotation.Nonnull;
 /**
  * Class to watch {@link Object} creation and make detailed statistics about allocation.
  */
-public class DetailedAllocationWatcher implements ObjectWatcher<Object> {
+public class ObjectAllocationWatcher implements ObjectWatcher<Object> {
   static class Statistics implements ObjectWatcher.Statistics {
     @Override
     public Iterator<Statistic> iterator() {
@@ -50,28 +48,14 @@ public class DetailedAllocationWatcher implements ObjectWatcher<Object> {
   private static final Map<Class<?>, StatisticId<ObjectAlloc>> objectStats =
       new ConcurrentHashMap<Class<?>, StatisticId<ObjectAlloc>>();
 
-  @Nonnull
-  private static final Map<Class<?>, StatisticId<ArrayAlloc>> arrayStats =
-      new ConcurrentHashMap<Class<?>, StatisticId<ArrayAlloc>>();
-
   @Override
   public boolean notifyInstantiation(
-      @Nonnull Object object, @Nonnegative long size, int count, @Nonnull EventType notUsed) {
+      @Nonnull Object object, @Nonnegative long size, int count, @Nonnull EventType eventType) {
     Class<?> type = object.getClass();
 
-    if (count == -1) {
-      notifyObject(type, size);
-    } else {
-      notifyArray(type, size, count);
-    }
-
-    return false;
-  }
-
-  private void notifyObject(@Nonnull Class<?> type, @Nonnegative long size) {
     StatisticId<ObjectAlloc> id;
 
-    synchronized (DetailedAllocationWatcher.class) {
+    synchronized (ObjectAllocationWatcher.class) {
       id = objectStats.get(type);
       if (id == null) {
         String name = type.getName();
@@ -84,32 +68,12 @@ public class DetailedAllocationWatcher implements ObjectWatcher<Object> {
     }
 
     try {
-      TracerFactory.getTracer().getStatistic(id).recordObjectAllocation(size);
+      TracerFactory.getTracer().getStatistic(id).recordAllocation(size);
     } catch (RuntimeException e) {
       // Do best effort here
     }
-  }
 
-  private synchronized void notifyArray(@Nonnull Class<?> type, @Nonnegative long size,
-      @Nonnegative int count) {
-    StatisticId<ArrayAlloc> id;
-
-    synchronized (DetailedAllocationWatcher.class) {
-      id = arrayStats.get(type);
-      if (id == null) {
-        String name = type.getName();
-
-        id = new StatisticId<ArrayAlloc>("jack.allocation.array." + name,
-            "Array allocation of type " + name, ArrayAllocImpl.class, ArrayAlloc.class);
-        arrayStats.put(type, id);
-      }
-    }
-
-    try {
-      TracerFactory.getTracer().getStatistic(id).recordObjectAllocation(count, size);
-    } catch (RuntimeException e) {
-      // Do best effort here
-    }
+    return false;
   }
 
   @Override
@@ -120,14 +84,14 @@ public class DetailedAllocationWatcher implements ObjectWatcher<Object> {
   }
 
   /**
-   * Install a {@link DetailedAllocationWatcher}
+   * Install a {@link ObjectAllocationWatcher}
    */
-  @ImplementationName(iface = WatcherInstaller.class, name = "detailed-object-alloc",
+  @ImplementationName(iface = WatcherInstaller.class, name = "object-alloc",
       description = "record object and array allocations type by type")
   public static class DetailedAllocationWatcherInstaller implements WatcherInstaller {
     @Override
     public void install(@Nonnull Tracer tracer) {
-      tracer.registerWatcher(Object.class, DetailedAllocationWatcher.class);
+      tracer.registerWatcher(Object.class, ObjectAllocationWatcher.class);
     }
   }
 }
