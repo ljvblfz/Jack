@@ -18,9 +18,11 @@ package com.android.jack.ir.ast;
 
 import com.android.jack.Options;
 import com.android.jack.TestTools;
+import com.android.sched.util.config.ThreadConfig;
 
 import junit.framework.Assert;
 
+import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -114,6 +116,11 @@ public class JDefinedInterfaceTest {
   private static final String TEST12_CLASS_SIGNATURE = "L" + TEST12_CLASS_BINARY_NAME + ";";
   @Nonnull
   private static final File TEST12_FILE = TestTools.getJackUnitTestFromBinaryName(TEST12_CLASS_BINARY_NAME);
+
+  @After
+  public void tearDown() {
+    ThreadConfig.unsetConfig();
+  }
 
   @Test
   public void testSam1() throws Exception {

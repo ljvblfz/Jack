@@ -76,6 +76,7 @@ public class Types {
   @AfterClass
   public static void tearDown() {
     hooks.runHooks();
+    ThreadConfig.unsetConfig();
   }
 
   @Test

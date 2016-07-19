@@ -20,12 +20,19 @@ import static org.junit.Assert.fail;
 
 import com.android.jack.TestTools;
 import com.android.jack.util.graph.GraphException;
+import com.android.sched.util.config.ThreadConfig;
 
+import org.junit.After;
 import org.junit.Test;
 
 public class BuildCfgErrorTest {
 
   private static final String CLASS_BINARY_NAME = "com/android/jack/fibonacci/test001/jack/FibonacciThreeAddress";
+
+  @After
+  public void tearDown() {
+    ThreadConfig.unsetConfig();
+  }
 
   /**
    * Add a successor twice to a block is not allow.

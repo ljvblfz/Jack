@@ -28,6 +28,7 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSession;
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.config.ThreadConfig;
 
 import junit.framework.Assert;
 
@@ -127,6 +128,7 @@ public class TracingTest {
       }
     } finally {
       hooks.runHooks();
+      ThreadConfig.unsetConfig();
     }
 
   }

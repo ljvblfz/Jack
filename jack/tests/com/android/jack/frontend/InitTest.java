@@ -19,12 +19,19 @@ package com.android.jack.frontend;
 import com.android.jack.TestTools;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.util.NamingTools;
+import com.android.sched.util.config.ThreadConfig;
 
 import junit.framework.Assert;
 
+import org.junit.After;
 import org.junit.Test;
 
 public class InitTest {
+
+  @After
+  public void tearDown() {
+    ThreadConfig.unsetConfig();
+  }
 
   @Test
   public void searchInit() throws Exception {

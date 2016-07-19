@@ -33,9 +33,11 @@ import com.android.sched.scheduler.Request;
 import com.android.sched.scheduler.Scheduler;
 import com.android.sched.scheduler.SubPlanBuilder;
 import com.android.sched.scheduler.TagOrMarkerOrComponentSet;
+import com.android.sched.util.config.ThreadConfig;
 
 import junit.framework.Assert;
 
+import org.junit.After;
 import org.junit.Test;
 
 import java.util.List;
@@ -46,6 +48,11 @@ import java.util.List;
 public class StaticValuesTest {
 
   private static final String CLINIT = "<clinit>";
+
+  @After
+  public void tearDown() {
+    ThreadConfig.unsetConfig();
+  }
 
   @Test
   public void testGeneratedClinit1() throws Exception {
@@ -78,15 +85,19 @@ public class StaticValuesTest {
   }
 
   @Test
-  public void testGeneratedClinit6() throws Exception {
+  public void testGeneratedClinit6_1() throws Exception {
     final String classBinaryName = "com/android/jack/field/static004/jack/Data6";
     Options options = TestTools
         .buildCommandLineArgs(TestTools.getJackTestFromBinaryName(classBinaryName));
     options.addProperty(FieldInitializerRemover.CLASS_AS_INITIALVALUE.getName(), "true");
     Assert.assertTrue(
         containsOnlyReturn(compileAndGetClinit(classBinaryName, options)));
+  }
 
-    options = TestTools
+  @Test
+  public void testGeneratedClinit6_2() throws Exception {
+    final String classBinaryName = "com/android/jack/field/static004/jack/Data6";
+    Options options = TestTools
         .buildCommandLineArgs(TestTools.getJackTestFromBinaryName(classBinaryName));
     options.addProperty(FieldInitializerRemover.CLASS_AS_INITIALVALUE.getName(), "false");
     Assert.assertFalse(

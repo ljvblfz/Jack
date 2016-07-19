@@ -22,9 +22,11 @@ import com.android.jack.TestTools;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JSession;
+import com.android.sched.util.config.ThreadConfig;
 
 import junit.framework.Assert;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -47,6 +49,11 @@ public class FieldModifierTest {
 
     session = TestTools.buildSession(jackArgs);
     Assert.assertNotNull(session);
+  }
+
+  @After
+  public void tearDown() {
+    ThreadConfig.unsetConfig();
   }
 
   @Test
@@ -160,6 +167,8 @@ public class FieldModifierTest {
 
   @Test
   public void fieldEnumModifier() throws Exception {
+    ThreadConfig.unsetConfig(); // clean config from setUp, which is unused here
+
     Options args = TestTools.buildCommandLineArgs(
         TestTools.getJackTestFromBinaryName(FIELD_ENUM_BINARY_NAME));
     args.addProperty(Options.METHOD_FILTER.getName(), "reject-all-methods");

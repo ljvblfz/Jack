@@ -25,9 +25,11 @@ import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.util.filter.SignatureMethodFilter;
+import com.android.sched.util.config.ThreadConfig;
 
 import junit.framework.Assert;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -55,6 +57,11 @@ public class BuildCfgTest {
     assert cfg != null;
 
     bbCodeOder = cfg.getNodes();
+  }
+
+  @After
+  public void tearDown() {
+    ThreadConfig.unsetConfig();
   }
 
   @Test

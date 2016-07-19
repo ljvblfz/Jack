@@ -22,9 +22,11 @@ import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
+import com.android.sched.util.config.ThreadConfig;
 
 import junit.framework.Assert;
 
+import org.junit.After;
 import org.junit.Test;
 
 import java.io.File;
@@ -38,6 +40,11 @@ public class FibonacciThreeAddressTest {
   private static final String CLASS_SIGNATURE = "L" + CLASS_BINARY_NAME + ";";
   private static final String JAVA_FILENAME = "FibonacciThreeAddress.java";
   private static final File JAVA_FILEPATH = TestTools.getJackTestFromBinaryName(CLASS_BINARY_NAME);
+
+  @After
+  public void tearDown() {
+    ThreadConfig.unsetConfig();
+  }
 
   /**
    * Verifies that FibonacciThreeAddress can be loaded in J-AST.

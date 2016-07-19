@@ -109,6 +109,7 @@ public class ExpressionSimplifierTest {
   @AfterClass
   public static void tearDown() {
     hooks.runHooks();
+    ThreadConfig.unsetConfig();
   }
 
   @Nonnull

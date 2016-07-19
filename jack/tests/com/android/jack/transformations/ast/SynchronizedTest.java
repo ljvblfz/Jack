@@ -38,9 +38,11 @@ import com.android.sched.scheduler.PlanBuilder;
 import com.android.sched.scheduler.Request;
 import com.android.sched.scheduler.Scheduler;
 import com.android.sched.scheduler.SubPlanBuilder;
+import com.android.sched.util.config.ThreadConfig;
 
 import junit.framework.Assert;
 
+import org.junit.After;
 import org.junit.Test;
 
 import java.io.File;
@@ -57,6 +59,11 @@ public class SynchronizedTest {
   private static final String CLASS_SIGNATURE = "L" + CLASS_BINARY_NAME + ";";
   @Nonnull
   private static final File FILE = TestTools.getJackTestFromBinaryName(CLASS_BINARY_NAME);
+
+  @After
+  public void tearDown() {
+    ThreadConfig.unsetConfig();
+  }
 
   @Test
   public void synchronizedStaticMethod() throws Exception {

@@ -23,9 +23,11 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNullLiteral;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.optimizations.Optimizations;
+import com.android.sched.util.config.ThreadConfig;
 
 import junit.framework.Assert;
 
+import org.junit.After;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -37,6 +39,11 @@ import javax.annotation.Nonnull;
  * JUnit test for compilation of finally blocks.
  */
 public class FinallyTest {
+
+  @After
+  public void tearDown() {
+    ThreadConfig.unsetConfig();
+  }
 
   @Test
   public void testCompile005() throws Exception {
