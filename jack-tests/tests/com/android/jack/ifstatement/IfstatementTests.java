@@ -16,15 +16,29 @@
 
 package com.android.jack.ifstatement;
 
+import com.android.jack.TestTools;
 import com.android.jack.test.category.RuntimeRegressionTest;
+import com.android.jack.test.helper.FileChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 
+import junit.framework.Assert;
+
+import org.jf.dexlib.CodeItem;
+import org.jf.dexlib.DexFile;
+import org.jf.dexlib.ClassDataItem.EncodedMethod;
+import org.jf.dexlib.Code.Instruction;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+
+import java.io.File;
+
+import javax.annotation.Nonnull;
 
 public class IfstatementTests extends RuntimeTest {
 
@@ -44,6 +58,19 @@ public class IfstatementTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.ifstatement.simpleTest"),
     "com.android.jack.ifstatement.simpleTest.dx.Tests");
 
+  private RuntimeTestInfo SHORTCONDITION = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.ifstatement.shortCondition"),
+      "com.android.jack.ifstatement.shortCondition.dx.Tests").addFileChecker(new FileChecker() {
+        @Override
+        public void check(@Nonnull File file) throws Exception {
+          DexFile dexFile = new DexFile(file);
+          EncodedMethod em =
+              TestTools.getEncodedMethod(dexFile,
+                  "Lcom/android/jack/ifstatement/shortCondition/jack/If;", "shortCircuit1",
+                  "(Z)I");
+          Assert.assertTrue(!hasConditionalBranch(em.codeItem));
+        }
+      });
 
   @Test
   @Runtime
@@ -73,11 +100,36 @@ public class IfstatementTests extends RuntimeTest {
     new RuntimeTestHelper(SIMPLETEST).compileAndRunTest();
   }
 
+  @Test
+  @Runtime
+  @Category(RuntimeRegressionTest.class)
+  @KnownIssue(candidate=JillBasedToolchain.class)
+  public void shortCondition() throws Exception {
+    new RuntimeTestHelper(SHORTCONDITION)
+        .addProperty("jack.dex.optimizebranches", "true")
+        .compileAndRunTest();
+  }
+
   @Override
   protected void fillRtTestInfos() {
     rtTestInfos.add(ADVANCEDTEST);
     rtTestInfos.add(CFGTEST);
     rtTestInfos.add(FASTPATH);
     rtTestInfos.add(SIMPLETEST);
+  }
+
+  private boolean hasConditionalBranch(@Nonnull CodeItem codeItem) {
+    for (Instruction inst : codeItem.getInstructions()) {
+      switch (inst.opcode) {
+        case IF_EQZ:
+        case IF_NEZ:
+        case IF_NE:
+        case IF_EQ:
+          return true;
+        default:
+          continue;
+      }
+    }
+    return false;
   }
 }

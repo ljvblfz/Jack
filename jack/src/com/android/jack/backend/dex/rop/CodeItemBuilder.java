@@ -166,6 +166,11 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
       .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
 
   @Nonnull
+  public static final BooleanPropertyId OPTIMIZE_BRANCHES = BooleanPropertyId.create(
+      "jack.dex.optimizebranches", "Remove redundant branches in dex")
+      .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
+
+  @Nonnull
   private final com.android.jack.util.filter.Filter<JMethod> filter =
       ThreadConfig.get(Options.METHOD_FILTER);
   private final boolean emitSyntheticLocalDebugInfo =
@@ -174,6 +179,8 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
       ThreadConfig.get(Options.EMIT_LOCAL_DEBUG_INFO).booleanValue();
   private final boolean runDxOptimizations = ThreadConfig.get(DEX_OPTIMIZE).booleanValue();
   private final boolean forceJumbo = ThreadConfig.get(FORCE_JUMBO).booleanValue();
+  private final boolean removeRedundantConditionalBranch =
+      ThreadConfig.get(OPTIMIZE_BRANCHES).booleanValue();
   private final int apiLevel = ThreadConfig.get(Options.ANDROID_MIN_API_LEVEL).intValue();
   private final boolean emitLineNumberTable =
       ThreadConfig.get(Options.EMIT_LINE_NUMBER_DEBUG_INFO).booleanValue();
@@ -371,8 +378,13 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
 
         try {
           ropMethod =
-              Optimizer.optimize(ropMethod, getParameterWordCount(method), method.isStatic(),
-                  true /* inPreserveLocals */, DexTranslationAdvice.THE_ONE);
+              Optimizer.optimize(
+                  ropMethod,
+                  getParameterWordCount(method),
+                  method.isStatic(),
+                  true /* inPreserveLocals */,
+                  removeRedundantConditionalBranch,
+                  DexTranslationAdvice.THE_ONE);
         } finally {
           optEvent.end();
         }

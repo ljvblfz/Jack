@@ -21,6 +21,7 @@ import com.google.common.collect.Maps;
 import com.android.jack.TestTools;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.test.category.RuntimeRegressionTest;
+import com.android.jack.test.helper.FileChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTest;
@@ -45,7 +46,6 @@ import org.jf.dexlib.Code.Format.PackedSwitchDataPseudoInstruction;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.internal.AssumptionViolatedException;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -159,6 +159,27 @@ public class SwitchstatementTests extends RuntimeTest {
   private RuntimeTestInfo TEST027 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.switchstatement.test027"),
       "com.android.jack.switchstatement.test027.dx.Tests");
+
+  private RuntimeTestInfo TEST028 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.switchstatement.test028"),
+      "com.android.jack.switchstatement.test028.dx.Tests").addFileChecker(new FileChecker() {
+        @Override
+        public void check(@Nonnull File file) throws Exception {
+          DexFile dexFile = new DexFile(file);
+          Assert.assertEquals(2, TestTools.getEncodedMethod(dexFile,
+              "Lcom/android/jack/switchstatement/test028/jack/RedundantSwitch;", "switch001",
+              "(I)I").codeItem.getInstructions().length);
+          Assert.assertEquals(2, TestTools.getEncodedMethod(dexFile,
+              "Lcom/android/jack/switchstatement/test028/jack/RedundantSwitch;", "switch002",
+              "(I)I").codeItem.getInstructions().length);
+          Assert.assertEquals(2, TestTools.getEncodedMethod(dexFile,
+              "Lcom/android/jack/switchstatement/test028/jack/RedundantSwitch;", "switch003",
+              "(I)I").codeItem.getInstructions().length);
+          Assert.assertTrue(TestTools.getEncodedMethod(dexFile,
+              "Lcom/android/jack/switchstatement/test028/jack/RedundantSwitch;", "switch004",
+              "(I)I").codeItem.getInstructions().length > 2);
+        }
+      });
 
   @Nonnull
   private Map<String, String> properties = Maps.newHashMap();
@@ -1026,6 +1047,12 @@ public class SwitchstatementTests extends RuntimeTest {
   @Runtime
   public void testRun027() throws Exception {
     runTestCase(TEST027);
+  }
+
+  @Test
+  @Runtime
+  public void testRun028() throws Exception {
+    runTestCase(TEST028);
   }
 
   private void compileCode(

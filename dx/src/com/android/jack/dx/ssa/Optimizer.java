@@ -53,25 +53,32 @@ public class Optimizer {
   }
 
   /**
-   * Runs optimization algorthims over this method, and returns a new
-   * instance of RopMethod with the changes.
+   * Runs optimization algorthims over this method, and returns a new instance of RopMethod with the
+   * changes.
    *
    * @param rmeth method to process
-   * @param paramWidth the total width, in register-units, of this method's
-   * parameters
+   * @param paramWidth the total width, in register-units, of this method's parameters
    * @param isStatic true if this method has no 'this' pointer argument.
-   * @param inPreserveLocals true if local variable info should be preserved,
-   * at the cost of some registers and insns
+   * @param inPreserveLocals true if local variable info should be preserved, at the cost of some
+   *     registers and insns
+   * @param removeRedundantConditionalBranch true if we should optimize unneccesary conditional
+   *     branches.
    * @param inAdvice {@code non-null;} translation advice
    * @return optimized method
    */
-  public static RopMethod optimize(RopMethod rmeth, int paramWidth, boolean isStatic,
-      boolean inPreserveLocals, TranslationAdvice inAdvice) {
+  public static RopMethod optimize(
+      RopMethod rmeth,
+      int paramWidth,
+      boolean isStatic,
+      boolean inPreserveLocals,
+      boolean removeRedundantConditionalBranch,
+      TranslationAdvice inAdvice) {
 
     return optimize(rmeth,
         paramWidth,
         isStatic,
         inPreserveLocals,
+        removeRedundantConditionalBranch,
         inAdvice,
         EnumSet.allOf(OptionalStep.class));
   }
@@ -86,6 +93,8 @@ public class Optimizer {
    * @param isStatic true if this method has no 'this' pointer argument.
    * @param inPreserveLocals true if local variable info should be preserved,
    * at the cost of some registers and insns
+   * @param removeRedundantConditionalBranch true if we should optimize unneccesary conditional
+   * branches.
    * @param inAdvice {@code non-null;} translation advice
    * @param steps set of optional optimization steps to run
    * @return optimized method
@@ -94,6 +103,7 @@ public class Optimizer {
       int paramWidth,
       boolean isStatic,
       boolean inPreserveLocals,
+      boolean removeRedundantConditionalBranch,
       TranslationAdvice inAdvice,
       EnumSet<OptionalStep> steps) {
     SsaMethod ssaMeth = null;
@@ -104,11 +114,13 @@ public class Optimizer {
     ssaMeth = SsaConverter.convertToSsaMethod(rmeth, paramWidth, isStatic);
     runSsaFormSteps(ssaMeth, steps);
 
-    RopMethod resultMeth = SsaToRop.convertToRopMethod(ssaMeth);
+    RopMethod resultMeth = SsaToRop.convertToRopMethod(ssaMeth, removeRedundantConditionalBranch);
 
     if (resultMeth.getBlocks().getRegCount() > advice.getMaxOptimalRegisterCount()) {
       // Try to see if we can squeeze it under the register count bar
-      resultMeth = optimizeMinimizeRegisters(rmeth, paramWidth, isStatic, steps);
+      resultMeth =
+          optimizeMinimizeRegisters(
+              rmeth, paramWidth, isStatic, removeRedundantConditionalBranch, steps);
     }
     return resultMeth;
   }
@@ -122,11 +134,13 @@ public class Optimizer {
    * @param rmeth method to process
    * @param paramWidth the total width, in register-units, of this method's parameters
    * @param isStatic true if this method has no 'this' pointer argument.
+   * @param removeRedundantConditionalBranch true if we should optimize unneccesary conditional
+   *     branches.
    * @param steps set of optional optimization steps to run
    * @return optimized method
    */
   private static RopMethod optimizeMinimizeRegisters(RopMethod rmeth, int paramWidth,
-      boolean isStatic, EnumSet<OptionalStep> steps) {
+      boolean isStatic, boolean removeRedundantConditionalBranch,  EnumSet<OptionalStep> steps) {
     SsaMethod ssaMeth;
     RopMethod resultMeth;
 
@@ -142,7 +156,7 @@ public class Optimizer {
 
     runSsaFormSteps(ssaMeth, newSteps);
 
-    resultMeth = SsaToRop.convertToRopMethod(ssaMeth);
+    resultMeth = SsaToRop.convertToRopMethod(ssaMeth, removeRedundantConditionalBranch);
     return resultMeth;
   }
 
