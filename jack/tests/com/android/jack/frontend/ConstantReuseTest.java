@@ -18,7 +18,9 @@ package com.android.jack.frontend;
 
 
 import com.android.jack.TestTools;
+import com.android.sched.util.config.ThreadConfig;
 
+import org.junit.After;
 import org.junit.Test;
 
 import java.io.File;
@@ -29,6 +31,10 @@ public class ConstantReuseTest {
   private static String CLASS_SIGNATURE = "L" + CLASS_BINARY_NAME + ";";
   private static File TEST_FILE = TestTools.getJackTestFromBinaryName(CLASS_BINARY_NAME);
 
+  @After
+  public void tearDown() {
+    ThreadConfig.unsetConfig();
+  }
 
   @Test
   public void intConstantReuse() throws Exception {

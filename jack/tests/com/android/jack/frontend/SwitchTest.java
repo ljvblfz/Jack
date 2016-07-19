@@ -24,9 +24,11 @@ import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.util.filter.SignatureMethodFilter;
+import com.android.sched.util.config.ThreadConfig;
 
 import junit.framework.Assert;
 
+import org.junit.After;
 import org.junit.Test;
 
 import java.io.File;
@@ -42,6 +44,11 @@ public class SwitchTest {
 
   @Nonnull
   private static final File FILE = TestTools.getJackTestFromBinaryName(CLASS_BINARY_NAME);
+
+  @After
+  public void tearDown() {
+    ThreadConfig.unsetConfig();
+  }
 
   @Test
   public void testCompileSwitch001() throws Exception {

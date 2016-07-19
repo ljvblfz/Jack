@@ -69,6 +69,7 @@ public class MarkerCollectorTest {
   @AfterClass
   public static void tearDown() throws Exception {
     hooks.runHooks();
+    ThreadConfig.unsetConfig();
   }
 
   @Test

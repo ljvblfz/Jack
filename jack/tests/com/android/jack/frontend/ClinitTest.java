@@ -24,9 +24,11 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.util.NamingTools;
+import com.android.sched.util.config.ThreadConfig;
 
 import junit.framework.Assert;
 
+import org.junit.After;
 import org.junit.Test;
 
 import java.util.List;
@@ -37,6 +39,11 @@ public class ClinitTest {
     = "com/android/jack/clinit/jack/ClInitWithVariableInit";
   public static final String CLASS_BINARY_NAME
     = "com/android/jack/clinit/jack/ClInit";
+
+  @After
+  public void tearDown() {
+    ThreadConfig.unsetConfig();
+  }
 
   @Test
   public void searchStaticInit() throws Exception {

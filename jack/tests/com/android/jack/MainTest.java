@@ -18,9 +18,11 @@ package com.android.jack;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JSession;
+import com.android.sched.util.config.ThreadConfig;
 
 import junit.framework.Assert;
 
+import org.junit.After;
 import org.junit.Test;
 
 /**
@@ -30,6 +32,11 @@ public class MainTest {
 
   private static final String CLASS_BINARY_NAME = "com/android/jack/fibonacci/test001/jack/Fibo";
   private static final String CLASS_SIGNATURE = "L" + CLASS_BINARY_NAME + ";";
+
+  @After
+  public void tearDown() {
+    ThreadConfig.unsetConfig();
+  }
 
   /**
    * Verifies that Fibo can be loaded in J-AST.

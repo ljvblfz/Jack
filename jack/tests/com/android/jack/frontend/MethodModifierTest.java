@@ -23,9 +23,11 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JSession;
+import com.android.sched.util.config.ThreadConfig;
 
 import junit.framework.Assert;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -44,6 +46,11 @@ public class MethodModifierTest {
 
     session = TestTools.buildSession(jackArgs);
     Assert.assertNotNull(session);
+  }
+
+  @After
+  public void tearDown() {
+    ThreadConfig.unsetConfig();
   }
 
   @Test

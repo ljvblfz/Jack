@@ -32,6 +32,7 @@ import com.android.jack.lookup.JLookupException;
 import com.android.jack.lookup.JMethodLookupException;
 import com.android.jack.lookup.JMethodSignatureLookupException;
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.config.ThreadConfig;
 
 import junit.framework.Assert;
 
@@ -59,6 +60,7 @@ public class BinaryLookup {
   @AfterClass
   public static void tearDownClass() throws Exception {
     hooks.runHooks();
+    ThreadConfig.unsetConfig();
   }
 
   @Test

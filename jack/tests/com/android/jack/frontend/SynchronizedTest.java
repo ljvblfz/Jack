@@ -33,9 +33,11 @@ import com.android.jack.lookup.CommonTypes;
 import com.android.jack.transformations.request.AppendBefore;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.filter.SignatureMethodFilter;
+import com.android.sched.util.config.ThreadConfig;
 
 import junit.framework.Assert;
 
+import org.junit.After;
 import org.junit.Test;
 
 import java.io.File;
@@ -50,6 +52,11 @@ public class SynchronizedTest {
   private static final String CLASS_SIGNATURE = "L" + CLASS_BINARY_NAME + ";";
   @Nonnull
   private static final File FILE = TestTools.getJackTestFromBinaryName(CLASS_BINARY_NAME);
+
+  @After
+  public void tearDown() {
+    ThreadConfig.unsetConfig();
+  }
 
   @Test
   public void testSynchronizedBlock() throws Exception {

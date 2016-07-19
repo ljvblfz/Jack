@@ -25,12 +25,14 @@ import com.android.jack.ir.ast.JSession;
 import com.android.jack.lookup.JNodeLookup;
 import com.android.jack.preprocessor.PreProcessorApplier.Entry;
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.location.NoLocation;
 
 import junit.framework.Assert;
 
 import org.antlr.runtime.ANTLRFileStream;
 import org.antlr.runtime.CommonTokenStream;
+import org.junit.After;
 import org.junit.Test;
 
 import java.io.File;
@@ -39,6 +41,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PreProcessorTest {
+
+  @After
+  public void tearDown() {
+    ThreadConfig.unsetConfig();
+  }
 
   @Test
   public void test001() throws Exception {

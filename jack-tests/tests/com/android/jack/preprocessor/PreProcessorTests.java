@@ -29,12 +29,14 @@ import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.location.NoLocation;
 
 import junit.framework.Assert;
 
 import org.antlr.runtime.ANTLRFileStream;
 import org.antlr.runtime.CommonTokenStream;
+import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -50,6 +52,11 @@ public class PreProcessorTests {
   @BeforeClass
   public static void setUpClass() throws Exception {
 
+  }
+
+  @After
+  public void tearDown() {
+    ThreadConfig.unsetConfig();
   }
 
   @Test

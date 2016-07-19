@@ -22,9 +22,11 @@ import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JCastOperation;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.sched.util.config.ThreadConfig;
 
 import junit.framework.Assert;
 
+import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -39,6 +41,11 @@ public class UselessCastRemoverTest {
   private static final String CAST_USELESS002 = "com/android/jack/cast/useless002/jack/UselessCast";
   @Nonnull
   private static final String CAST_USELESS003 = "com/android/jack/cast/useless003/jack/UselessCast";
+
+  @After
+  public void tearDown() {
+    ThreadConfig.unsetConfig();
+  }
 
   @Test
   public void castObjectToArray() throws Exception {

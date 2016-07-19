@@ -26,10 +26,12 @@ import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JReturnStatement;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.sched.util.config.ThreadConfig;
 
 import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
 
+import org.junit.After;
 import org.junit.Assume;
 import org.junit.Test;
 
@@ -37,6 +39,11 @@ import java.util.List;
 
 public class GotoTest {
   private static final String TEST_CLASS_BINARY_NAME = "com/android/jack/frontend/SynthetizeCode";
+
+  @After
+  public void tearDown() {
+    ThreadConfig.unsetConfig();
+  }
 
   @Test
   public void dumpGoto() throws Exception {

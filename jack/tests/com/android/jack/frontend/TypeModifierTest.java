@@ -22,9 +22,11 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JTypeLookupException;
+import com.android.sched.util.config.ThreadConfig;
 
 import junit.framework.Assert;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,6 +41,11 @@ public class TypeModifierTest {
     jackArgs.addProperty(Options.METHOD_FILTER.getName(), "reject-all-methods");
     session = TestTools.buildSession(jackArgs);
     Assert.assertNotNull(session);
+  }
+
+  @After
+  public void tearDown() {
+    ThreadConfig.unsetConfig();
   }
 
   private JDefinedClassOrInterface lookupInnerClass(String className) throws JTypeLookupException {
