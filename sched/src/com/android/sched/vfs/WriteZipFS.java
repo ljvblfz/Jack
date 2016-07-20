@@ -21,6 +21,10 @@ import com.android.sched.util.file.OutputZipFile;
 import com.android.sched.util.file.StreamFileStatus;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.ZipLocation;
+import com.android.sched.util.log.Tracer;
+import com.android.sched.util.log.stats.Counter;
+import com.android.sched.util.log.stats.CounterImpl;
+import com.android.sched.util.log.stats.StatisticId;
 import com.android.sched.vfs.WriteZipFS.ZipVDir;
 import com.android.sched.vfs.WriteZipFS.ZipVFile;
 
@@ -44,6 +48,10 @@ import javax.annotation.Nonnull;
  */
 public class WriteZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
 
+  @Nonnull
+  private static final StatisticId<Counter> CREATED_ZIP_ENTRIES = new StatisticId<Counter>(
+      "sched.vfs.zip.created-entries", "Created zip entries",
+      CounterImpl.class, Counter.class);
 
   static class ZipVDir extends InMemoryVDir {
 
@@ -215,7 +223,14 @@ public class WriteZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
   ZipVFile createVFile(@Nonnull ZipVDir parent, @Nonnull String name) {
     assert !isClosed();
 
-    return new ZipVFile(this, new ZipEntry(parent.getZipEntry().getName() + name), name);
+    ZipVFile vFile = new ZipVFile(this, new ZipEntry(parent.getZipEntry().getName() + name), name);
+
+    Tracer tracer = getTracer();
+    if (tracer != null) {
+      tracer.getStatistic(CREATED_ZIP_ENTRIES).incValue();
+    }
+
+    return vFile;
   }
 
   @Override

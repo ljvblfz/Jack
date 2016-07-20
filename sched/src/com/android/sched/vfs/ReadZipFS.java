@@ -27,6 +27,10 @@ import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.ZipLocation;
+import com.android.sched.util.log.Tracer;
+import com.android.sched.util.log.stats.Counter;
+import com.android.sched.util.log.stats.CounterImpl;
+import com.android.sched.util.log.stats.StatisticId;
 import com.android.sched.vfs.ReadZipFS.ZipVDir;
 import com.android.sched.vfs.ReadZipFS.ZipVFile;
 
@@ -49,6 +53,10 @@ import javax.annotation.Nonnull;
  */
 public class ReadZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
 
+  @Nonnull
+  private static final StatisticId<Counter> OPENED_ZIP_ENTRIES = new StatisticId<Counter>(
+      "sched.vfs.zip.opened-for-reading-entries", "Zip entries opened for reading",
+      CounterImpl.class, Counter.class);
 
   static class ZipVDir extends InMemoryVDir {
 
@@ -196,6 +204,11 @@ public class ReadZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
   @Nonnull
   InputStream openRead(@Nonnull ZipVFile file) {
     try {
+      Tracer tracer = getTracer();
+      if (tracer != null) {
+        tracer.getStatistic(OPENED_ZIP_ENTRIES).incValue();
+      }
+
       return zipFile.getInputStream(file.getZipEntry());
     } catch (IOException e) {
       // Only IOException actually thrown is when compression method is unknown
