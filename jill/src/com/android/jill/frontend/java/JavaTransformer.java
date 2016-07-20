@@ -16,20 +16,41 @@
 
 package com.android.jill.frontend.java;
 
-import com.android.jill.ContainerType;
 import com.android.jill.JillException;
 import com.android.jill.Options;
 import com.android.jill.backend.jayce.JayceWriter;
 import com.android.jill.utils.FileUtils;
-import com.android.sched.util.stream.UncloseableOutputStream;
+import com.android.sched.util.file.CannotChangePermissionException;
+import com.android.sched.util.file.CannotCloseException;
+import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.CannotWriteException;
+import com.android.sched.util.file.Directory;
+import com.android.sched.util.file.FileAlreadyExistsException;
+import com.android.sched.util.file.FileOrDirectory.ChangePermission;
+import com.android.sched.util.file.FileOrDirectory.Existence;
+import com.android.sched.util.file.FileOrDirectory.Permission;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotDirectoryException;
+import com.android.sched.util.file.NotFileException;
+import com.android.sched.util.file.OutputZipFile;
+import com.android.sched.util.file.OutputZipFile.Compression;
+import com.android.sched.util.file.WrongPermissionException;
+import com.android.sched.util.location.Location;
+import com.android.sched.vfs.DeflateFS;
+import com.android.sched.vfs.DirectFS;
+import com.android.sched.vfs.GenericOutputVFS;
+import com.android.sched.vfs.OutputVFS;
+import com.android.sched.vfs.OutputVFile;
+import com.android.sched.vfs.PrefixedFS;
+import com.android.sched.vfs.VFS;
+import com.android.sched.vfs.VPath;
+import com.android.sched.vfs.WriteZipFS;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -38,12 +59,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.zip.Deflater;
-import java.util.zip.DeflaterOutputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -96,9 +112,6 @@ public class JavaTransformer {
   private static final String JAYCE_FILE_EXTENSION = ".jayce";
 
   @Nonnull
-  private static final String JAYCE_PREFIX_INTO_LIB = "jayce";
-
-  @Nonnull
   private static final char TYPE_NAME_SEPARATOR = '/';
 
   @Nonnull
@@ -115,109 +128,88 @@ public class JavaTransformer {
   }
 
   public void transform(@Nonnull List<File> javaBinaryFiles) {
-    ZipOutputStream zos = null;
-    try {
-      if (options.getOutputContainer() == ContainerType.ZIP) {
-        zos = new ZipOutputStream(new FileOutputStream(options.getOutput()));
+
+    try (VFS baseVFS = getBaseOutputVFS()) {
+      try (OutputVFS outputVFS = wrapOutputVFS(baseVFS)) {
+
         for (File fileToTransform : javaBinaryFiles) {
-          InputStream is = new BufferedInputStream(new FileInputStream(fileToTransform));
-          try {
-            transformToZip(is, zos, null);
-          } finally {
-            is.close();
+          try (FileInputStream fis = new FileInputStream(fileToTransform)) {
+            transformToVFS(fis, outputVFS);
           }
         }
-      } else {
-        for (File fileToTransform : javaBinaryFiles) {
-          FileInputStream fis = new FileInputStream(fileToTransform);
-          try {
-            transformToDir(fis, options.getOutput());
-          } finally {
-            fis.close();
-          }
-        }
+        dumpJackLibraryProperties(baseVFS);
       }
-      dumpJackLibraryProperties(zos);
-    } catch (IOException e) {
-      throw new JillException("Transformation failure.", e);
-    } finally {
-      if (zos != null) {
-        try {
-          zos.close();
-        } catch (IOException e) {
-          throw new JillException("Error closing zip.", e);
-        }
-      }
+    } catch (IOException | CannotCloseException e) {
+      throw new JillException(e);
     }
   }
 
   public void transform(@Nonnull JarFile jarFile) {
-    ZipOutputStream zos = null;
-    try {
-      if (options.getOutputContainer() == ContainerType.ZIP) {
-        zos = new ZipOutputStream(new FileOutputStream(options.getOutput()));
-        zos.setLevel(Deflater.NO_COMPRESSION);
+
+    try (VFS baseVFS = getBaseOutputVFS()) {
+      try (OutputVFS outputVFS = wrapOutputVFS(baseVFS)) {
+        transformJavaFiles(jarFile, outputVFS);
       }
-      transformJavaFiles(jarFile, zos);
-      dumpJackLibraryProperties(zos);
-    } catch (JillException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new JillException(e.getMessage(), e);
-    } finally {
-      if (zos != null) {
-        try {
-          zos.close();
-        } catch (IOException e) {
-          throw new JillException("Error closing zip.", e);
-        }
-      }
+      dumpJackLibraryProperties(baseVFS);
+    } catch (IOException | CannotCloseException e) {
+      throw new JillException(e);
     }
   }
 
-  private void dumpJackLibraryProperties(@CheckForNull ZipOutputStream zos) {
-    if (zos != null) {
-      dumpPropertiesToZip(zos, jackLibraryProperties);
-    } else {
-      dumpPropertiesToFile(new File(options.getOutput(), JACK_LIBRARY_PROPERTIES),
-          jackLibraryProperties);
-    }
-  }
-
-  private void dumpPropertiesToZip(@Nonnull ZipOutputStream zos,
-      @Nonnull Properties libraryProperties) {
+  @Nonnull
+  private VFS getBaseOutputVFS() {
+    VFS baseVFS;
     try {
-      ZipEntry entry = new ZipEntry(JACK_LIBRARY_PROPERTIES);
-      zos.putNextEntry(entry);
-      libraryProperties.store(zos, "Library Properties");
-    } catch (IOException e) {
-      throw new JillException("Error writing '" + JACK_LIBRARY_PROPERTIES + "' to output zip", e);
-    }
-  }
-
-  private void dumpPropertiesToFile(@Nonnull File outputFile,
-      @Nonnull Properties libraryProperties) {
-    File outputDir = options.getOutput();
-    File libraryPropertiesFile = new File(outputDir, JACK_LIBRARY_PROPERTIES);
-    FileOutputStream fos = null;
-    try {
-      fos = new FileOutputStream(libraryPropertiesFile);
-      libraryProperties.store(fos, "Library Properties");
-    } catch (IOException e) {
-      throw new JillException(
-          "Error writing '" + JACK_LIBRARY_PROPERTIES + "' to " + outputFile.getAbsolutePath(), e);
-    } finally {
-      if (fos != null) {
-        try {
-          fos.close();
-        } catch (IOException e) {
-          throw new JillException("Error closing output " + outputFile.getAbsolutePath(), e);
-        }
+      switch (options.getOutputContainer()) {
+        case DIR:
+          baseVFS =
+              new DirectFS(
+                  new Directory(options.getOutput().getPath(), /* hooks = */ null,
+                      Existence.MUST_EXIST, Permission.WRITE, ChangePermission.NOCHANGE),
+                  Permission.WRITE);
+          break;
+        case ZIP:
+          baseVFS =
+              new WriteZipFS(new OutputZipFile(options.getOutput().getPath(), /* hooks = */ null,
+                  Existence.MAY_EXIST, ChangePermission.NOCHANGE, Compression.UNCOMPRESSED));
+          break;
+        default:
+          throw new AssertionError();
       }
+    } catch (NotFileException | FileAlreadyExistsException | CannotCreateFileException
+        | CannotChangePermissionException | WrongPermissionException | NoSuchFileException
+        | NotDirectoryException e) {
+      throw new JillException(e);
+    }
+    return baseVFS;
+  }
+
+  @Nonnull
+  private OutputVFS wrapOutputVFS(@Nonnull VFS baseVFS) {
+    try {
+      return new GenericOutputVFS(new DeflateFS(new PrefixedFS(baseVFS, new VPath("jayce", '/'))));
+    } catch (NotDirectoryException | CannotCreateFileException e) {
+      throw new JillException(e);
     }
   }
 
-  private void transformJavaFiles(@Nonnull JarFile jarFile, @CheckForNull ZipOutputStream zos)
+  private void dumpJackLibraryProperties(@Nonnull VFS baseVFS) {
+    try {
+      @SuppressWarnings("resource")
+      OutputVFS goVFS = new GenericOutputVFS(baseVFS);
+      OutputVFile libraryPropertiesOut =
+          goVFS.getRootOutputVDir().createOutputVFile(new VPath(JACK_LIBRARY_PROPERTIES, '/'));
+      try (OutputStream os = libraryPropertiesOut.getOutputStream()) {
+        jackLibraryProperties.store(os, "Library Properties");
+      } catch (IOException e) {
+        throw new CannotCloseException(libraryPropertiesOut, e);
+      }
+    } catch (CannotCreateFileException | WrongPermissionException | CannotCloseException e) {
+      throw new JillException(e);
+    }
+  }
+
+  private void transformJavaFiles(@Nonnull JarFile jarFile, @Nonnull OutputVFS outputVFS)
       throws IOException {
     final Enumeration<JarEntry> entries = jarFile.entries();
     while (entries.hasMoreElements()) {
@@ -227,81 +219,44 @@ public class JavaTransformer {
         JarEntry fileEntry = jarFile.getJarEntry(name);
         if (!fileEntry.isDirectory()) {
           InputStream is = jarFile.getInputStream(fileEntry);
-          if (zos != null) {
-            assert options.getOutputContainer() == ContainerType.ZIP;
-            transformToZip(is, zos, jarFile);
-          } else {
-            assert options.getOutputContainer() == ContainerType.DIR;
-            transformToDir(is, options.getOutput());
-          }
+          transformToVFS(is, outputVFS);
         }
       }
     }
   }
 
-  private void transformToZip(@Nonnull InputStream is, @Nonnull ZipOutputStream zipOutputStream,
-      @CheckForNull JarFile jarFile) throws IOException {
-    ClassNode cn = getClassNode(is);
-    String filePath = getZipFilePath(cn.name);
-    assert (jarFile == null || jarFile.getEntry(filePath) == null);
-    try {
-      ZipEntry entry = new ZipEntry(filePath);
-      zipOutputStream.putNextEntry(entry);
-      transform(cn, zipOutputStream);
-    } catch (IOException e) {
-      throw new JillException("Error writing to output zip", e);
-    }
-  }
-
-  private void transformToDir(@Nonnull InputStream is, @Nonnull File outputDir)
+  private void transformToVFS(@Nonnull InputStream is, @Nonnull OutputVFS outputVFS)
       throws IOException {
     ClassNode cn = getClassNode(is);
-    String filePath = getFilePath(cn.name);
-
-    File outputFile = new File(outputDir, filePath);
-    assert !outputFile.exists();
-    FileOutputStream fos = null;
+    VPath outputPath = getVPath(cn.name);
     try {
-      createParentDirectories(outputFile);
-      fos = new FileOutputStream(outputFile);
-      transform(cn, fos);
-    } catch (IOException e) {
-      throw new JillException("Unable to create output file " + outputFile.getName(), e);
-    } finally {
-      if (fos != null) {
-        try {
-          fos.close();
-        } catch (IOException e) {
-          throw new JillException("Error closing output " + outputFile.getAbsolutePath(), e);
-        }
+      OutputVFile vFile = outputVFS.getRootOutputVDir().createOutputVFile(outputPath);
+      try (OutputStream os = vFile.getOutputStream()) {
+        transform(cn, os, vFile.getLocation());
+      } catch (IOException e) {
+        throw new CannotCloseException(vFile.getLocation(), e);
       }
+    } catch (CannotCreateFileException | WrongPermissionException | CannotCloseException
+        | CannotWriteException e) {
+      throw new JillException(e);
     }
   }
 
-  private void transform(@Nonnull ClassNode cn, @Nonnull OutputStream os) throws IOException {
+  private void transform(@Nonnull ClassNode cn, @Nonnull OutputStream os,
+      @Nonnull Location location) throws CannotWriteException {
 
-    UncloseableOutputStream uos = new UncloseableOutputStream(os);
-    DeflaterOutputStream dos = new DeflaterOutputStream(uos, new Deflater());
-    try {
-      JayceWriter writer = createWriter(dos);
+      JayceWriter writer = createWriter(os);
 
       ClassNodeWriter asm2jayce =
           new ClassNodeWriter(writer, new SourceInfoWriter(writer), options);
 
-      asm2jayce.write(cn);
+      try {
+        asm2jayce.write(cn);
 
-      writer.flush();
-
-    } finally {
-      dos.close();
-    }
-  }
-
-  private void createParentDirectories(File outputFile) throws IOException {
-    File parentFile = outputFile.getParentFile();
-    if (!parentFile.exists() && !parentFile.mkdirs()) {
-      throw new IOException("Could not create directory \"" + parentFile.getName() + "\"");
-    }
+        writer.flush();
+      } catch (IOException e) {
+        throw new CannotWriteException(location, e);
+      }
   }
 
   private JayceWriter createWriter(@Nonnull OutputStream os) {
@@ -311,15 +266,8 @@ public class JavaTransformer {
   }
 
   @Nonnull
-  private static String getFilePath(@Nonnull String typeBinaryName) {
-    return JAYCE_PREFIX_INTO_LIB + File.separatorChar
-        + typeBinaryName.replace(TYPE_NAME_SEPARATOR, File.separatorChar) + JAYCE_FILE_EXTENSION;
-  }
-
-  @Nonnull
-  private static String getZipFilePath(@Nonnull String typeBinaryName) {
-    return JAYCE_PREFIX_INTO_LIB + '/'
-        + typeBinaryName.replace(TYPE_NAME_SEPARATOR, '/') + JAYCE_FILE_EXTENSION;
+  private static VPath getVPath(@Nonnull String typeBinaryName) {
+    return new VPath(typeBinaryName + JAYCE_FILE_EXTENSION, TYPE_NAME_SEPARATOR);
   }
 
   @Nonnull
