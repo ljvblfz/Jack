@@ -16,11 +16,7 @@
 
 package com.android.sched.util.print;
 
-import com.android.sched.util.codec.BooleanCodec;
-import com.android.sched.util.codec.DoubleCodec;
 import com.android.sched.util.codec.ImplementationName;
-import com.android.sched.util.codec.LongCodec;
-import com.android.sched.util.codec.NumberFormatter;
 
 import java.io.PrintWriter;
 
@@ -34,15 +30,50 @@ public class JsonPrinter extends AbstractPrinter {
   public JsonPrinter(@Nonnull PrintWriter printer) {
     super(printer);
     printers.put(DataType.NOTHING, new NothingPrinter());
-    printers.put(DataType.BOOLEAN, new FormatterAdapter<Boolean>(new BooleanCodec()));
-    printers.put(DataType.DURATION, new FormatterAdapter<Long>(new LongCodec()));
-    printers.put(DataType.NUMBER, new FormatterAdapter<Number>(new NumberFormatter()));
-    printers.put(DataType.PERCENT, new FormatterAdapter<Double>(new DoubleCodec()));
-    printers.put(DataType.QUANTITY, new FormatterAdapter<Long>(new LongCodec()));
+    printers.put(DataType.BOOLEAN, new BooleanFormatter());
+    printers.put(DataType.DURATION, new NumberFormatter());
+    printers.put(DataType.NUMBER, new NumberFormatter());
+    printers.put(DataType.PERCENT, new NumberFormatter());
+    printers.put(DataType.QUANTITY, new NumberFormatter());
     printers.put(DataType.STRING, new StringFormatter());
     printers.put(DataType.BUNDLE, new StringFormatter());
     printers.put(DataType.STRUCT, new StructureFormatter());
     printers.put(DataType.LIST, new ListFormatter());
+  }
+
+  private static class NumberFormatter implements TypePrinter<Number> {
+    @Override
+    @Nonnull
+    public boolean print(@Nonnull PrintWriter printer, @Nonnull Number value) {
+
+      if (value instanceof Double) {
+        if (((Double) value).isNaN() || ((Double) value).isInfinite()) {
+          printer.print("null");
+        } else {
+          printer.print(value.toString());
+        }
+      } else if (value instanceof Float) {
+        if (((Float) value).isNaN() || ((Float) value).isInfinite()) {
+          printer.print("null");
+        } else {
+          printer.print(value.toString());
+        }
+      } else {
+        printer.print(value.toString());
+      }
+
+      return true;
+    }
+  }
+
+  private static class BooleanFormatter implements TypePrinter<Boolean> {
+    @Override
+    @Nonnull
+    public boolean print(@Nonnull PrintWriter printer, @Nonnull Boolean value) {
+      printer.print(value.booleanValue() ? "true" : "false");
+
+      return true;
+    }
   }
 
   private static class StringFormatter implements TypePrinter<String> {
