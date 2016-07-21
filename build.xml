@@ -886,6 +886,7 @@
           <exclude name="com/android/jack/frontend/test006/jack/**"/>
           <exclude name="com/android/jack/frontend/test007/**"/>
           <exclude name="com/android/jack/jill/test001/**"/>
+          <exclude name="com/android/jack/jill/test002/**"/>
           <exclude name="com/android/jack/sourcepath/test002/jack/Sourcepath002.java"/>
         </fileset>
         <filelist dir="/">
@@ -946,6 +947,7 @@
       <exclude name="com/android/jack/frontend/test006/jack/**"/>
       <exclude name="com/android/jack/frontend/test007/**"/>
       <exclude name="com/android/jack/jill/test001/**"/>
+      <exclude name="com/android/jack/jill/test002/**"/>
       <exclude name="com/android/jack/sourcepath/test002/jack/Sourcepath002.java"/>
       <classpath>
         <filelist dir="/">
