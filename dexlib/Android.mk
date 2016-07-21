@@ -33,7 +33,7 @@ LOCAL_SRC_FILES := \
 	$(call all-java-files-under, src/main/java) \
 
 #extract the current version from the pom file
-DEXLIB_VERSION := $(shell cat version)
+DEXLIB_VERSION := $(shell cat $(LOCAL_PATH)/version)
 
 #create a new dexlib.properties file using the correct version
 $(intermediates)/resources/dexlib.properties:
