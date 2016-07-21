@@ -20,6 +20,7 @@ import com.android.sched.util.ConcurrentIOException;
 import com.android.sched.util.file.AbstractStreamFile;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
+import com.android.sched.util.file.CannotListDirException;
 import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileAlreadyExistsException;
 import com.android.sched.util.file.FileOrDirectory;
@@ -186,7 +187,7 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
     File path = getNativeFile(dir.getPath());
     File[] subs = path.listFiles();
     if (subs == null) {
-      throw new ConcurrentIOException(new ListDirException(path));
+      throw new ConcurrentIOException(new CannotListDirException(new DirectoryLocation(path)));
     }
     if (subs.length == 0) {
       return Collections.emptyList();

@@ -17,6 +17,7 @@
 package com.android.jill;
 
 import com.android.sched.util.config.cli.TokenIterator;
+import com.android.sched.util.file.CannotListDirException;
 import com.android.sched.util.file.CannotReadException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
@@ -28,7 +29,6 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.ParserProperties;
 
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +71,7 @@ public class Main {
         System.err.println("Try --help for help");
       }
       System.exit(ExitStatus.FAILURE_USAGE);
-    } catch (IOException | SchedIOException e) {
+    } catch (SchedIOException e) {
       System.err.println(e.getMessage());
 
       System.exit(ExitStatus.FAILURE_USAGE);
@@ -97,9 +97,9 @@ public class Main {
   }
 
   @Nonnull
-  public static Options getOptions(@Nonnull String[] args)
-      throws CmdLineException, IOException, NoSuchElementException, WrongPermissionException,
-      NoSuchFileException, NotFileOrDirectoryException, CannotReadException {
+  public static Options getOptions(@Nonnull String[] args) throws CmdLineException,
+      CannotListDirException, NoSuchElementException, WrongPermissionException, NoSuchFileException,
+      NotFileOrDirectoryException, CannotReadException {
     Options options = new Options();
 
 

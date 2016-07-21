@@ -19,8 +19,8 @@ package com.android.jill;
 import com.android.jill.frontend.java.JavaTransformer;
 import com.android.jill.utils.FileUtils;
 import com.android.sched.util.Version;
+import com.android.sched.util.file.CannotListDirException;
 import com.android.sched.util.log.LoggerFactory;
-import com.android.sched.vfs.ListDirException;
 
 import java.io.File;
 import java.io.IOException;
@@ -72,7 +72,7 @@ public class Jill {
       List<File> javaBinaryFiles = new ArrayList<File>();
       try {
         FileUtils.getJavaBinaryFiles(binaryFile, javaBinaryFiles);
-      } catch (ListDirException e) {
+      } catch (CannotListDirException e) {
         throw new JillException(e);
       }
       jt.transform(javaBinaryFiles);

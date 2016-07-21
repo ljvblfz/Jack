@@ -17,7 +17,7 @@
 package com.android.jill;
 
 import com.android.jill.utils.FileUtils;
-import com.android.sched.vfs.ListDirException;
+import com.android.sched.util.file.CannotListDirException;
 
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
@@ -65,7 +65,7 @@ public class Options {
   @CheckForNull
   private File workingDir;
 
-  public void checkValidity() throws IllegalOptionsException, ListDirException {
+  public void checkValidity() throws IllegalOptionsException, CannotListDirException {
     if (askForVersion() || askForHelp()) {
       return;
     }
@@ -164,7 +164,7 @@ public class Options {
     this.workingDir = workingDir;
   }
 
-  private void checkBinaryFileValidity() throws IllegalOptionsException, ListDirException {
+  private void checkBinaryFileValidity() throws IllegalOptionsException, CannotListDirException {
     assert binaryFile != null;
 
     File binaryFile = getBinaryFile();

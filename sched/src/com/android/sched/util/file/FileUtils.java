@@ -18,7 +18,7 @@ package com.android.sched.util.file;
 
 import com.android.sched.util.ConcurrentIOException;
 import com.android.sched.util.findbugs.SuppressFBWarnings;
-import com.android.sched.vfs.ListDirException;
+import com.android.sched.util.location.DirectoryLocation;
 
 import java.io.File;
 import java.io.IOException;
@@ -77,7 +77,7 @@ public final class FileUtils {
     }
     File[] fileList = dir.listFiles();
     if (fileList == null) {
-      throw new ConcurrentIOException(new ListDirException(dir));
+      throw new ConcurrentIOException(new CannotListDirException(new DirectoryLocation(dir)));
     }
     for (File sub : fileList) {
       deleteSubElement(sub);
@@ -93,7 +93,7 @@ public final class FileUtils {
     if (dir.isDirectory()) {
       File[] fileList = dir.listFiles();
       if (fileList == null) {
-        throw new ConcurrentIOException(new ListDirException(dir));
+        throw new ConcurrentIOException(new CannotListDirException(new DirectoryLocation(dir)));
       }
       for (File sub : fileList) {
         deleteSubElement(sub);

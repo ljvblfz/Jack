@@ -26,7 +26,6 @@ import com.android.sched.util.file.SchedIOException;
 import org.kohsuke.args4j.CmdLineException;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintStream;
 
 import javax.annotation.CheckForNull;
@@ -53,7 +52,7 @@ public class Cli01ConfigImpl implements Cli01Config {
       return new Cli01TranslationTaskImpl(options);
     } catch (CmdLineException e) {
       throw new ConfigurationException(e.getMessage(), e);
-    } catch (IOException | SchedIOException e) {
+    } catch (SchedIOException e) {
       throw new ConfigurationException(e.getMessage(), e);
     }
   }
