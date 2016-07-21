@@ -202,6 +202,12 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
         device.executeShellCommand("mkdir " + testsRootDir.getAbsolutePath(), hostOutput);
 
         if (isVerbose) {
+          System.out.println("adb shell -s " + device.getSerialNumber() + " rm "
+              + testsRootDir.getAbsolutePath() + "/*");
+        }
+        device.executeShellCommand("rm " + testsRootDir.getAbsolutePath() + "/*", hostOutput);
+
+        if (isVerbose) {
           System.out.println("adb -s " + device.getSerialNumber() + " push  "
               + TEST_SCRIPT_FILE.getAbsolutePath() + " "
               + testsRootDir.getAbsolutePath() + '/' + TEST_SCRIPT_NAME);
