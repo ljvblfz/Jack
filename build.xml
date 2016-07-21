@@ -373,8 +373,9 @@
   </target>
 
   <target name="jack-create-version-file">
-    <!-- force replacement -->
-    <delete file="${jack.dir}/rsc/jack-version.properties"/>
+    <!-- make it writable or copy won't work if replacement is needed -->
+    <chmod file="${jack.dir}/rsc/jack-version.properties" perm="a+w"/>
+    <attrib file="${jack.dir}/rsc/jack-version.properties" readonly="false"/>
     <copy file="${jack-project.dir}/version.properties" tofile="${jack.dir}/rsc/jack-version.properties"/>
     <chmod file="${jack.dir}/rsc/jack-version.properties" perm="a-w"/>
     <attrib file="${jack.dir}/rsc/jack-version.properties" readonly="true"/>
@@ -735,7 +736,7 @@
       <file name="${dexcomparator.dist.dir}/${dexcomparator.libname}" />
     </filelist>
 
-    <union id ="jackunittests.uptodate.files">
+    <union id="jackunittests.uptodate.files">
       <fileset dir="${jack.dir}/tests"/>
       <dirset dir="${jack.dir}/tests"/>
       <filelist refid="jackunittests.static.libs.fileset"/>
@@ -839,73 +840,35 @@
     </copy>
   </target>
 
-  <target name="jack-tests" depends="jack-tests-copy-libs, jack-lib, jackunittests, jill-api, schedtests-lib">
+  <target name="jack-tests-check">
+    <union id="jack-tests.uptodate.files">
+      <fileset id="jack-test.src.fileset" dir="${jack-tests.dir}/src"/>
+      <fileset id="jack-test.src.fileset" dir="${jack-tests.dir}/tests"/>
+      <filelist dir="/">
+        <file name="${jackunittests.dist.dir}/${jackunittests.execname}" />
+        <file name="${ddm-lib.dist.dir}/${ddm-lib.libname}" />
+        <file name="${jack-api.dist.dir}/${jack-api.lib.name}"/>
+        <file name="${schedtests.dist.dir}/${schedtests.libname}"/>
+        <file name="${gson.dist.dir}/${gson.libname}"/>
+      </filelist>
+      <filelist refid="jackunittests.static.libs.fileset" />
+      <filelist refid="jack.static.libs.fileset" />
+      <filelist files="${jack-tests.prebuilts.dir}/${ecj-tests.libname}" />
+    </union>
+
+    <uptodate property="jack-tests.uptodate"
+      targetfile="${jack-tests.dist.dir}/${jack-tests.execname}">
+      <srcresources refid="jack-tests.uptodate.files" />
+    </uptodate>
+  </target>
+
+  <target name="jack-tests" depends="jack-tests-copy-libs, jack-lib, jackunittests, jill-api, schedtests-lib,jack-tests-check"
+    unless="jack-tests.uptodate">
     <!-- project layout -->
+    <delete dir="${jack-tests.build.outdir}"/>
     <mkdir dir="${jack-tests.build.outdir}"/>
     <mkdir dir="${jack-tests.dist.dir}"/>
     <!-- compile -->
-    <dependset>
-      <sources>
-        <fileset id="jack-test.src.fileset" dir="${jack-tests.dir}/src"/>
-        <fileset id="jack-test.tests.fileset" dir="${jack-tests.dir}/tests">
-          <exclude name="com/android/jack/annotation/test014/jack/**"/>
-          <exclude name="com/android/jack/annotation/test015/jack/**"/>
-          <exclude name="com/android/jack/annotation/test016/jack/**"/>
-          <exclude name="com/android/jack/annotation/test017/jack/**"/>
-          <exclude name="com/android/jack/annotation/test019/jack/**"/>
-          <exclude name="com/android/jack/classpath/test002/lib1override/**"/>
-          <exclude name="com/android/jack/enums/test003/link/Other.java"/>
-          <exclude name="com/android/jack/enums/test003/link/Values.java"/>
-          <exclude name="com/android/jack/error/test001/jack/A.java"/>
-          <exclude name="com/android/jack/error/test002/jack/A.java"/>
-          <exclude name="com/android/jack/frontend/test002/jack/PackageName/ClassInConflictingPackage.java"/>
-          <exclude name="com/android/jack/frontend/test008/jack/NoOuterContext.java"/>
-          <exclude name="com/android/jack/frontend/test010/jack/UnusedLocalVar.java"/>
-          <exclude name="com/android/jack/frontend/test013/jack/ExtendingInnerOnly.java"/>
-          <exclude name="com/android/jack/frontend/test014/jack/ExtendingInnerInStaticContext.java"/>
-          <exclude name="com/android/jack/frontend/test015/jack/WithOuterContextButStatic.java"/>
-          <exclude name="com/android/jack/frontend/test016/jack/WithDuplicated.java"/>
-          <exclude name="com/android/jack/frontend/test017/jack/InvalidQualification.java"/>
-          <exclude name="com/android/jack/nopackage/jack/**"/>
-          <exclude name="com/android/jack/java8/lambda/**"/>
-          <exclude name="com/android/jack/java8/defaultmethod/**"/>
-          <exclude name="com/android/jack/java8/staticmethod/**"/>
-          <exclude name="com/android/jack/java8/methodref/**"/>
-          <exclude name="com/android/jack/java8/inference/**"/>
-          <exclude name="com/android/jack/java8/gwt/**"/>
-          <exclude name="com/android/jack/java8/retrolambda/**"/>
-          <exclude name="com/android/jack/java8/intersectiontype/**"/>
-          <exclude name="com/android/jack/java8/annotation/**"/>
-          <exclude name="com/android/jack/java8/variable/**"/>
-          <exclude name="com/android/jack/java8/bridges/**"/>
-          <exclude name="com/android/jack/jarjar/test003/dontcompile/**"/>
-          <exclude name="com/android/jack/jarjar/test004/dontcompile/**"/>
-          <exclude name="com/android/jack/jarjar/test006/dontcompile/**"/>
-          <exclude name="com/android/jack/lookup/test001/liboverride/**"/>
-          <exclude name="com/android/jack/frontend/test005/jack/**"/>
-          <exclude name="com/android/jack/frontend/test006/jack/**"/>
-          <exclude name="com/android/jack/frontend/test007/**"/>
-          <exclude name="com/android/jack/jill/test001/**"/>
-          <exclude name="com/android/jack/jill/test002/**"/>
-          <exclude name="com/android/jack/sourcepath/test002/jack/Sourcepath002.java"/>
-        </fileset>
-        <filelist dir="/">
-          <!-- classpath -->
-          <file name="${jackunittests.dist.dir}/${jackunittests.execname}" />
-          <file name="${ddm-lib.dist.dir}/${ddm-lib.libname}" />
-          <file name="${jack-api.dist.dir}/${jack-api.lib.name}"/>
-          <file name="${schedtests.dist.dir}/${schedtests.libname}"/>
-          <file name="${gson.dist.dir}/${gson.libname}"/>
-        </filelist>
-        <!-- static libs -->
-        <filelist refid="jackunittests.static.libs.fileset" />
-        <filelist refid="jack.static.libs.fileset" />
-        <filelist files="${jack-tests.prebuilts.dir}/${ecj-tests.libname}" />
-      </sources>
-      <targets>
-        <fileset file="${jack-tests.dist.dir}/${jack-tests.execname}"/>
-      </targets>
-    </dependset>
     <javac
       encoding="UTF-8"
       destdir="${jack-tests.build.outdir}"
@@ -1035,7 +998,7 @@
   </target>
 
   <target name="jill-check">
-    <union id ="jill.uptodate.files">
+    <union id="jill.uptodate.files">
       <fileset dir="${jill.dir}/src" />
       <dirset dir="${jill.dir}/src" />
       <fileset dir="${jill.dir}/rsc"/>
@@ -1048,8 +1011,9 @@
   </target>
 
   <target name="jill-create-version-file">
-    <!-- force replacement -->
-    <delete file="${jill.dir}/rsc/jill-version.properties"/>
+    <!-- make it writable or copy won't work if replacement is needed -->
+    <chmod file="${jill.dir}/rsc/jill-version.properties" perm="a+w"/>
+    <attrib file="${jill.dir}/rsc/jill-version.properties" readonly="false"/>
     <copy file="${jack-project.dir}/version.properties" tofile="${jill.dir}/rsc/jill-version.properties"/>
     <chmod file="${jill.dir}/rsc/jill-version.properties" perm="a-w"/>
     <attrib file="${jill.dir}/rsc/jill-version.properties" readonly="true"/>
@@ -1079,7 +1043,7 @@
           includes="**"/>
   </target>
 
-  <target name="jill" depends="jill-compile">
+  <target name="jill" depends="jill-compile" unless="jill.uptodate">
       <mkdir dir="${jill.exec.build.dir}"/>
       <copy todir="${jill.exec.build.dir}">
         <fileset dir="${jill.build.outdir}">
@@ -2226,13 +2190,13 @@
     <!-- compile -->
     <dependset>
       <sources>
-        <fileset dir="${gson.dir}/gson/src/main" />
+        <fileset dir="${gson.dir}/gson/src/main/java" />
       </sources>
       <targets>
         <fileset file="${gson.dist.dir}/${gson.libname}"/>
       </targets>
     </dependset>
-    <javac encoding="UTF-8" srcdir="${gson.dir}/gson/src/main"
+    <javac encoding="UTF-8" srcdir="${gson.dir}/gson/src/main/java"
           destdir="${gson.build.outdir}"
           source="1.5" target="1.5"
           debug="true" includeantruntime="false"/>
@@ -2637,23 +2601,28 @@
     </copy>
   </target>
 
+  <target name="jack-jar-tools-check">
+    <union id="jack-jar-tools.uptodate.files">
+      <fileset dir="${jack-jar-tools.dir}/src" />
+      <fileset dir="${jack-jar-tools.dir}/etc" />
+      <filelist id="jack-jar-tools.static.libs.fileset" dir="/">
+        <file name="${jsr305.dist.dir}/${jsr305.libname}" />
+        <file name="${schedlib.dist.dir}/${schedlib.libname}" />
+        <file name="${args4j.dist.dir}/${args4j.libname}"/>
+      </filelist>
+    </union>
+
+    <uptodate property="jack-jar-tools.uptodate"
+      targetfile="${jack-jar-tools.dist.dir}/${jack-jar-tools.name}">
+      <srcresources refid="jack-jar-tools.uptodate.files" />
+    </uptodate>
+  </target>
+
   <target name="jack-jar-tools"
-      depends="jack-jar-tools-copy-libs,sched-lib">
+      depends="jack-jar-tools-copy-libs,sched-lib,jack-jar-tools-check"
+    unless="jack-jar-tools.uptodate">
+    <delete dir="${jack-jar-tools.build.outdir}"/>
     <mkdir dir="${jack-jar-tools.build.outdir}"/>
-    <filelist id="jack-jar-tools.static.libs.fileset" dir="/">
-      <file name="${jsr305.dist.dir}/${jsr305.libname}" />
-      <file name="${schedlib.dist.dir}/${schedlib.libname}" />
-      <file name="${args4j.dist.dir}/${args4j.libname}"/>
-    </filelist>
-    <dependset>
-      <sources>
-          <fileset dir="${jack-jar-tools.dir}/src" />
-          <filelist refid="jack-jar-tools.static.libs.fileset" />
-        </sources>
-      <targets>
-        <fileset dir="${jack-jar-tools.build.outdir}"/>
-      </targets>
-    </dependset>
     <javac encoding="UTF-8" srcdir="${jack-jar-tools.dir}/src" destdir="${jack-jar-tools.build.outdir}"
          source="1.6" target="1.6" debug="true"
          includeantruntime="false"  includeDestClasses="false" nowarn="true">
@@ -2701,27 +2670,32 @@
     </copy>
   </target>
 
+  <target name="jack-jacoco-reporter-check">
+    <union id="jack-jacoco-reporter.uptodate.files">
+      <fileset dir="${jack-jacoco-reporter.dir}/src" />
+      <fileset dir="${jack-jacoco-reporter.dir}/etc" />
+      <filelist id="jack-jacoco-reporter.static.libs.fileset" dir="/">
+        <file name="${jack-jacoco-reporter.libs.dir}/${jsr305.libname}"/>
+        <file name="${jack-jacoco-reporter.libs.dir}/${schedlib.libname}"/>
+        <file name="${jack-jacoco-reporter.libs.dir}/${args4j.libname}"/>
+        <file name="${jack-jacoco-reporter.libs.dir}/${asm4.libname}"/>
+        <file name="${jack-jacoco-reporter.libs.dir}/${gson.libname}"/>
+        <file name="${jack-jacoco-reporter.libs.dir}/${jacoco.core.libname}"/>
+        <file name="${jack-jacoco-reporter.libs.dir}/${jacoco.report.libname}"/>
+      </filelist>
+    </union>
+
+    <uptodate property="jack-jacoco-reporter.uptodate"
+      targetfile="${jack-jacoco-reporter.dist.dir}/${jack-jacoco-reporter.name}">
+      <srcresources refid="jack-jacoco-reporter.uptodate.files" />
+    </uptodate>
+  </target>
+
   <target name="jack-jacoco-reporter"
-      depends="jack-jacoco-reporter-copy-libs">
+      depends="jack-jacoco-reporter-copy-libs,jack-jacoco-reporter-check"
+      unless="${jack-jacoco-reporter.uptodate}">
+    <delete dir="${jack-jacoco-reporter.build.outdir}"/>
     <mkdir dir="${jack-jacoco-reporter.build.outdir}"/>
-    <filelist id="jack-jacoco-reporter.static.libs.fileset" dir="/">
-      <file name="${jack-jacoco-reporter.libs.dir}/${jsr305.libname}"/>
-      <file name="${jack-jacoco-reporter.libs.dir}/${schedlib.libname}"/>
-      <file name="${jack-jacoco-reporter.libs.dir}/${args4j.libname}"/>
-      <file name="${jack-jacoco-reporter.libs.dir}/${asm4.libname}"/>
-      <file name="${jack-jacoco-reporter.libs.dir}/${gson.libname}"/>
-      <file name="${jack-jacoco-reporter.libs.dir}/${jacoco.core.libname}"/>
-      <file name="${jack-jacoco-reporter.libs.dir}/${jacoco.report.libname}"/>
-    </filelist>
-    <dependset>
-      <sources>
-          <fileset dir="${jack-jacoco-reporter.dir}/src" />
-          <filelist refid="jack-jacoco-reporter.static.libs.fileset" />
-        </sources>
-      <targets>
-        <fileset dir="${jack-jacoco-reporter.build.outdir}"/>
-      </targets>
-    </dependset>
     <javac encoding="UTF-8" srcdir="${jack-jacoco-reporter.dir}/src" destdir="${jack-jacoco-reporter.build.outdir}"
          source="1.6" target="1.6" debug="true"
          includeantruntime="false"  includeDestClasses="false" nowarn="true">
