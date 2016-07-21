@@ -1,7 +1,7 @@
-com.android.jack.shrob.test001.jack.E -> com.android.jack.shrob.test001.jack.R:
-    void <init>() -> <init>
-    void keep() -> xrrd__
 com.android.jack.shrob.test001.jack.D -> com.android.jack.shrob.test001.jack.D:
     void <init>() -> <init>
-    void keep() -> xrrd__
+    void keep() -> xrrc__
     void main(java.lang.String[]) -> main
+com.android.jack.shrob.test001.jack.E -> com.android.jack.shrob.test001.jack.R:
+    void <init>() -> <init>
+    void keep() -> xrrc__

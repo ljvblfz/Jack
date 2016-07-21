@@ -1,9 +1,9 @@
+com.android.jack.shrob.test001.jack.Reflect2 -> com.android.jack.shrob.test001.jack.Ersyrpg2:
+    com.android.jack.shrob.test001.jack.Reflect2$A a -> n:Ypbz/naqebvq/wnpx/fuebo/grfg001/wnpx/Reflect2$A;
+    com.android.jack.shrob.test001.jack.Reflect2$B b -> o:Ypbz/naqebvq/wnpx/fuebo/grfg001/wnpx/Reflect2$B;
+    void <init>() -> <init>
+com.android.jack.shrob.test001.jack.Reflect2$B -> com.android.jack.shrob.test001.jack.Ersyrpg2$O:
 com.android.jack.shrob.test001.jack.Reflect -> com.android.jack.shrob.test001.jack.Reflect:
     void <init>() -> <init>
     void keep8() -> keep8
-com.android.jack.shrob.test001.jack.Reflect2 -> com.android.jack.shrob.test001.jack.Frsyrph2:
-    com.android.jack.shrob.test001.jack.Reflect2$A a -> n:Ypcz/nbqfcvq/wnpx/gufco/hrgh001/wnpx/Sfgmfdu2$B;
-    com.android.jack.shrob.test001.jack.Reflect2$B b -> o:Ypcz/nbqfcvq/wnpx/gufco/hrgh001/wnpx/Sfgmfdu2$C;
-    void <init>() -> <init>
-com.android.jack.shrob.test001.jack.Reflect2$A -> com.android.jack.shrob.test001.jack.Frsyrph2$N:
-com.android.jack.shrob.test001.jack.Reflect2$B -> com.android.jack.shrob.test001.jack.Frsyrph2$O:
+com.android.jack.shrob.test001.jack.Reflect2$A -> com.android.jack.shrob.test001.jack.Ersyrpg2$N:

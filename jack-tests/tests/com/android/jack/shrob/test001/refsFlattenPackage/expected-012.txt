@@ -1,8 +1,8 @@
+com.android.jack.shrob.test001.jack.Reflect2 -> com.android.jack.shrob.test001.jack.Ersyrpg2:
+    void <init>() -> <init>
+    void m(com.android.jack.shrob.test001.jack.Reflect2$A) -> z_Ypbz/naqebvq/wnpx/fuebo/grfg001/wnpx/Reflect2$A;_
+com.android.jack.shrob.test001.jack.Reflect2$B -> com.android.jack.shrob.test001.jack.Ersyrpg2$O:
 com.android.jack.shrob.test001.jack.Reflect -> com.android.jack.shrob.test001.jack.Reflect:
     void <init>() -> <init>
     void keep5() -> keep5
-com.android.jack.shrob.test001.jack.Reflect2 -> com.android.jack.shrob.test001.jack.Frsyrph2:
-    void <init>() -> <init>
-    void m(com.android.jack.shrob.test001.jack.Reflect2$A) -> z_Ypcz/nbqfcvq/wnpx/gufco/hrgh001/wnpx/Sfgmfdu2$B;_
-com.android.jack.shrob.test001.jack.Reflect2$A -> com.android.jack.shrob.test001.jack.Frsyrph2$N:
-com.android.jack.shrob.test001.jack.Reflect2$B -> com.android.jack.shrob.test001.jack.Frsyrph2$O:
+com.android.jack.shrob.test001.jack.Reflect2$A -> com.android.jack.shrob.test001.jack.Ersyrpg2$N:

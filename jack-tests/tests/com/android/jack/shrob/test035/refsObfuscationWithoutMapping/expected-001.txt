@@ -1,6 +1,10 @@
-com.android.jack.shrob.test035.jack.A -> p.C:
-    int f -> a
 com.android.jack.shrob.test035.jack.B -> p.O:
-    int m() -> a
+    void <init>() -> <init>
+    int m() -> z__
 com.android.jack.shrob.test035.jack.Kept -> p.Xrcg:
-    int kept() -> a
+    void <init>() -> <init>
+    int kept() -> xrcg__
+com.android.jack.shrob.test035.jack.A -> p.C:
+    int f -> s:V
+    void <init>() -> <init>
+    void <clinit>() -> <clinit>

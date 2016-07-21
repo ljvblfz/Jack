@@ -1,18 +1,18 @@
-com.android.jack.shrob.test005.jack.A -> N:
-    void <init>() -> <init>
+com.android.jack.shrob.test005.jack.Annot -> Naabg:
+    int intValue() -> vagInyhr__
+com.android.jack.shrob.test005.jack.E -> R:
+    com.android.jack.shrob.test005.jack.E A -> N:Ycom/android/jack/shrob/test005/jack/E;
+    com.android.jack.shrob.test005.jack.E B -> O:Ycom/android/jack/shrob/test005/jack/E;
+    com.android.jack.shrob.test005.jack.E C -> P:Ycom/android/jack/shrob/test005/jack/E;
+    com.android.jack.shrob.test005.jack.E[] $VALUES -> $INYHRF:[Ycom/android/jack/shrob/test005/jack/E;
+    void <init>(java.lang.String,int) -> <init>
+    com.android.jack.shrob.test005.jack.E valueOf(java.lang.String) -> inyhrBs_Ywnin/ynat/Fgevat;_
+    com.android.jack.shrob.test005.jack.E[] values() -> inyhrf__
+    void <clinit>() -> <clinit>
 com.android.jack.shrob.test005.jack.B -> O:
     void <init>() -> <init>
+com.android.jack.shrob.test005.jack.Annot2 -> Naabg2:
 com.android.jack.shrob.test005.jack.C -> P:
     void <init>() -> <init>
-com.android.jack.shrob.test005.jack.Annot -> Nbbch:
-    int intValue() -> vbhJnyir__
-com.android.jack.shrob.test005.jack.Annot2 -> Nbbch2:
-com.android.jack.shrob.test005.jack.E -> R:
-    com.android.jack.shrob.test005.jack.E A -> N:Ydpn/boespje/kbdl/tispc/uftu005/kbdl/F;
-    com.android.jack.shrob.test005.jack.E B -> O:Ydpn/boespje/kbdl/tispc/uftu005/kbdl/F;
-    com.android.jack.shrob.test005.jack.E C -> P:Ydpn/boespje/kbdl/tispc/uftu005/kbdl/F;
-    com.android.jack.shrob.test005.jack.E[] $VALUES -> $JNYIRG:[Ydpn/boespje/kbdl/tispc/uftu005/kbdl/F;
-    void <clinit>() -> <clinit>
-    com.android.jack.shrob.test005.jack.E valueOf(java.lang.String) -> jnyirCs_Ywnjn/ynbt/Ghfvbt;_
-    com.android.jack.shrob.test005.jack.E[] values() -> jnyirg__
-    void <init>(java.lang.String,int) -> <init>
+com.android.jack.shrob.test005.jack.A -> N:
+    void <init>() -> <init>

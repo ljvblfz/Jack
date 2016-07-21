@@ -1,23 +1,23 @@
-com.android.jack.shrob.test016.jack.Annot -> com.android.jack.shrob.test016.jack.Nbbch:
-    java.lang.String value() -> jnyir__
+com.android.jack.shrob.test016.jack.Annot4 -> com.android.jack.shrob.test016.jack.Naabg4:
+    java.lang.String value() -> inyhr__
+com.android.jack.shrob.test016.jack.Annot -> com.android.jack.shrob.test016.jack.Naabg:
+    java.lang.String value() -> inyhr__
+com.android.jack.shrob.test016.jack.Annot2 -> com.android.jack.shrob.test016.jack.Naabg2:
+    java.lang.String value() -> inyhr__
+com.android.jack.shrob.test016.jack.Annot3 -> com.android.jack.shrob.test016.jack.Naabg3:
+    java.lang.String value() -> inyhr__
 com.android.jack.shrob.test016.jack.KeepClass -> com.android.jack.shrob.test016.jack.KeepClass:
     void <init>() -> <init>
-    java.lang.String value() -> jnyir__
-    java.lang.String value2() -> jnyir2__
-    java.lang.String value3() -> jnyir3__
-    java.lang.String value4() -> jnyir4__
-    java.lang.String value5() -> jnyir5__
-    java.lang.String value6() -> jnyir6__
-    java.lang.String value7() -> jnyir7__
-    java.lang.String value8() -> jnyir8__
-    java.lang.String value9() -> jnyir9__
-com.android.jack.shrob.test016.jack.Annot4 -> com.android.jack.shrob.test016.jack.Nbbch4:
-    java.lang.String value() -> jnyir__
-com.android.jack.shrob.test016.jack.Annot5 -> com.android.jack.shrob.test016.jack.Nbbch5:
-    java.lang.String value() -> jnyir__
+    java.lang.String value() -> inyhr__
+    java.lang.String value2() -> inyhr2__
+    java.lang.String value3() -> inyhr3__
+    java.lang.String value4() -> inyhr4__
+    java.lang.String value5() -> inyhr5__
+    java.lang.String value6() -> inyhr6__
+    java.lang.String value7() -> inyhr7__
+    java.lang.String value8() -> inyhr8__
+    java.lang.String value9() -> inyhr9__
+com.android.jack.shrob.test016.jack.Annot5 -> com.android.jack.shrob.test016.jack.Naabg5:
+    java.lang.String value() -> inyhr__
 com.android.jack.shrob.test016.jack.A -> com.android.jack.shrob.test016.jack.N:
     void <init>() -> <init>
-com.android.jack.shrob.test016.jack.Annot2 -> com.android.jack.shrob.test016.jack.Nbbch2:
-    java.lang.String value() -> jnyir__
-com.android.jack.shrob.test016.jack.Annot3 -> com.android.jack.shrob.test016.jack.Nbbch3:
-    java.lang.String value() -> jnyir__

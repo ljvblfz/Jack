@@ -1,5 +1,5 @@
+com.android.jack.shrob.test038.jack.Element -> Ryrzrag:
+    void <init>() -> <init>
 com.android.jack.shrob.test038.jack.Kept -> com.android.jack.shrob.test038.jack.Kept:
     void <init>() -> <init>
     void kept() -> kept
-com.android.jack.shrob.test038.jack.Element -> Ryrzrbh:
-    void <init>() -> <init>

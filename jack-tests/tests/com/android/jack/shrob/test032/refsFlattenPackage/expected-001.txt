@@ -1,13 +1,13 @@
-com.android.jack.shrob.test032.jack.Kept -> com.android.jack.shrob.test032.jack.Kept:
-    void <init>() -> <init>
-    int kept(com.android.jack.shrob.test032.jack.I) -> kept
-com.android.jack.shrob.test032.jack.I -> com.android.jack.shrob.test032.jack.V:
-    int m() -> z__
-com.android.jack.shrob.test032.jack.B -> com.android.jack.shrob.test032.jack.O:
-    void <init>() -> <init>
 com.android.jack.shrob.test032.jack.C -> com.android.jack.shrob.test032.jack.C:
     void <init>() -> <init>
     int m() -> z__
+com.android.jack.shrob.test032.jack.I -> com.android.jack.shrob.test032.jack.V:
+    int m() -> z__
+com.android.jack.shrob.test032.jack.Kept -> com.android.jack.shrob.test032.jack.Kept:
+    void <init>() -> <init>
+    int kept(com.android.jack.shrob.test032.jack.I) -> kept
 com.android.jack.shrob.test032.jack.A -> com.android.jack.shrob.test032.jack.N:
     void <init>() -> <init>
     int m() -> z__
+com.android.jack.shrob.test032.jack.B -> com.android.jack.shrob.test032.jack.O:
+    void <init>() -> <init>

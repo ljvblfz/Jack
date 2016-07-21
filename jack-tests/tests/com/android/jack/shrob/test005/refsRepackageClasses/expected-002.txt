@@ -1,6 +1,6 @@
-com.android.jack.shrob.test005.jack.A -> N:
-    void <init>() -> <init>
+com.android.jack.shrob.test005.jack.Annot2 -> Naabg2:
 com.android.jack.shrob.test005.jack.B -> O:
     void <init>() -> <init>
-com.android.jack.shrob.test005.jack.Annot -> Nbbch:
-com.android.jack.shrob.test005.jack.Annot2 -> Nbbch2:
+com.android.jack.shrob.test005.jack.Annot -> Naabg:
+com.android.jack.shrob.test005.jack.A -> N:
+    void <init>() -> <init>

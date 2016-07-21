@@ -1,6 +1,6 @@
-com.android.jack.shrob.test011.jack.B -> com.android.jack.shrob.test011.jack.O:
-    void <init>() -> <init>
-    int value() -> jnyir__
 com.android.jack.shrob.test011.jack.A -> com.android.jack.shrob.test011.jack.A:
     void <init>() -> <init>
     int keep2() -> keep2
+com.android.jack.shrob.test011.jack.B -> com.android.jack.shrob.test011.jack.O:
+    void <init>() -> <init>
+    int value() -> inyhr__

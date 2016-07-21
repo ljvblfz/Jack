@@ -1,6 +1,6 @@
-com.android.jack.shrob.test005.jack.Annot -> flatpackage.wnpx.Nbbch:
-com.android.jack.shrob.test005.jack.A -> flatpackage.wnpx.N:
-    void <init>() -> <init>
+com.android.jack.shrob.test005.jack.Annot2 -> flatpackage.wnpx.Naabg2:
+com.android.jack.shrob.test005.jack.Annot -> flatpackage.wnpx.Naabg:
 com.android.jack.shrob.test005.jack.B -> flatpackage.wnpx.O:
     void <init>() -> <init>
-com.android.jack.shrob.test005.jack.Annot2 -> flatpackage.wnpx.Nbbch2:
+com.android.jack.shrob.test005.jack.A -> flatpackage.wnpx.N:
+    void <init>() -> <init>

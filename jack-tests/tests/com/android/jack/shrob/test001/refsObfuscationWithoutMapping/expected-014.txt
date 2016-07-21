@@ -1,6 +1,6 @@
+com.android.jack.shrob.test001.jack.Reflect2 -> com.android.jack.shrob.test001.jack.Ersyrpg2:
+    int fieldPublic -> svryqChoyvp:V
+    void <init>() -> <init>
 com.android.jack.shrob.test001.jack.Reflect -> com.android.jack.shrob.test001.jack.Reflect:
     void <init>() -> <init>
     void keep6() -> keep6
-com.android.jack.shrob.test001.jack.Reflect2 -> com.android.jack.shrob.test001.jack.Frsyrph2:
-    int fieldPublic -> svryqDioyvp:V
-    void <init>() -> <init>

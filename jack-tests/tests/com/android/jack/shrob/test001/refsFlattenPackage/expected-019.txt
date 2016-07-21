@@ -18,10 +18,6 @@ com.android.jack.shrob.test001.jack.Reflect2$A -> com.android.jack.shrob.test001
 com.android.jack.shrob.test001.jack.Reflect2$B -> com.android.jack.shrob.test001.jack.Reflect2$B:
     com.android.jack.shrob.test001.jack.Reflect2 this$0 -> this$0
     void <init>(com.android.jack.shrob.test001.jack.Reflect2) -> <init>
-com.android.jack.shrob.test001.jack.L -> com.android.jack.shrob.test001.jack.L:
-    java.lang.String TAG -> TAG
-    void <init>() -> <init>
-    void onReceive() -> onReceive
 com.android.jack.shrob.test001.jack.K -> com.android.jack.shrob.test001.jack.K:
     java.lang.String TAG -> TAG
     java.lang.String TAG2 -> TAG2
@@ -34,3 +30,7 @@ com.android.jack.shrob.test001.jack.K -> com.android.jack.shrob.test001.jack.K:
     void <init>() -> <init>
     void keep() -> keep
     void <clinit>() -> <clinit>
+com.android.jack.shrob.test001.jack.L -> com.android.jack.shrob.test001.jack.L:
+    java.lang.String TAG -> TAG
+    void <init>() -> <init>
+    void onReceive() -> onReceive

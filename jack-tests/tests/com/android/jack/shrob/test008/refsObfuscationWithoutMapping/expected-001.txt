@@ -1,6 +1,6 @@
 com.android.jack.shrob.test008.jack.A -> com.android.jack.shrob.test008.jack.A:
     void <init>() -> <init>
-    void m() -> z__
     void keep() -> keep
-com.android.jack.shrob.test008.jack.MyException -> com.android.jack.shrob.test008.jack.ZmRlprdhvcb:
+    void m() -> z__
+com.android.jack.shrob.test008.jack.MyException -> com.android.jack.shrob.test008.jack.ZlRkprcgvba:
     void <init>() -> <init>
