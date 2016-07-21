@@ -23,6 +23,8 @@ import com.android.sched.util.log.tracer.probe.HeapAllocationCountProbe;
 import com.android.sched.util.log.tracer.probe.HeapAllocationSizeProbe;
 import com.android.sched.util.log.tracer.probe.HeapMemoryProbe;
 import com.android.sched.util.log.tracer.probe.Probe;
+import com.android.sched.util.log.tracer.probe.ThreadContentionCountProbe;
+import com.android.sched.util.log.tracer.probe.ThreadContentionDurationProbe;
 import com.android.sched.util.log.tracer.probe.ThreadTimeProbe;
 import com.android.sched.util.log.tracer.probe.WallClockProbe;
 
@@ -52,10 +54,14 @@ public enum TemplateFtl {
           new MappingProbe[]{new MappingProbe(HeapAllocationSizeProbe.class, "memory")}, null),
   HEAP_ALLOCATION_COUNT("Heap allocation count usage", "count.html.ftl", "heap-alloc-count.html",
           new MappingProbe[]{new MappingProbe(HeapAllocationCountProbe.class, "count")}, null),
-  GC_TIME("Garbage Collector time", "time.html.ftl", "time-gc.html",
+  GC_TIME("Garbage Collector duration", "time.html.ftl", "time-gc.html",
       new MappingProbe[]{new MappingProbe(GcDurationProbe.class, "time")}, null),
   GC_COUNT("Garbage Collector count", "count.html.ftl", "count-gc.html",
       new MappingProbe[]{new MappingProbe(GcCountProbe.class, "count")}, null),
+  CONTENTION_DURATION("Contention duration", "time.html.ftl", "time-contention.html",
+      new MappingProbe[]{new MappingProbe(ThreadContentionDurationProbe.class, "time")}, null),
+  CONTENTION_COUNT("Contention count", "count.html.ftl", "count-contention.html",
+      new MappingProbe[]{new MappingProbe(ThreadContentionCountProbe.class, "count")}, null),
   OVERVIEW("Overview", "overview.html.ftl", "index.html",
       null, null);
 
