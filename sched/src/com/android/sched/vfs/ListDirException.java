@@ -38,6 +38,6 @@ public class ListDirException extends IOException {
 
   @Override
   public String getMessage() {
-    return "Failed to list directory content '" + directoryLocation.getDescription() + "'";
+    return "Failed to list content of " + directoryLocation.getDescription();
   }
 }
