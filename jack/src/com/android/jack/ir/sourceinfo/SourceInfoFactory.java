@@ -19,8 +19,8 @@ package com.android.jack.ir.sourceinfo;
 import com.android.sched.schedulable.Constraint;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -30,28 +30,32 @@ import javax.annotation.Nonnull;
  */
 @Constraint(need = SourceInfoCreation.class)
 public class SourceInfoFactory {
-  @Nonnull
-  private final HashMap<String, FileSourceInfo> canonicalFileSourceInfos =
-      new HashMap<String, FileSourceInfo>();
 
   @Nonnull
-  private final HashMap<LineSourceInfo, LineSourceInfo> canonicalLineSourceInfos =
-      new HashMap<LineSourceInfo, LineSourceInfo>();
+  private final ConcurrentHashMap<String, FileSourceInfo> canonicalFileSourceInfos =
+      new ConcurrentHashMap<String, FileSourceInfo>();
 
   @Nonnull
-  private final HashMap<ColumnSourceInfo, ColumnSourceInfo> canonicalColumnSourceInfos =
-      new HashMap<ColumnSourceInfo, ColumnSourceInfo>();
+  private final ConcurrentHashMap<LineSourceInfo, LineSourceInfo> canonicalLineSourceInfos =
+      new ConcurrentHashMap<LineSourceInfo, LineSourceInfo>();
+
+  @Nonnull
+  private final ConcurrentHashMap<ColumnSourceInfo, ColumnSourceInfo> canonicalColumnSourceInfos =
+      new ConcurrentHashMap<ColumnSourceInfo, ColumnSourceInfo>();
 
   /**
    * Creates SourceInfo nodes. This factory method will provide
    * canonicalized instances of SourceInfo objects.
    */
   @Nonnull
-  public synchronized FileSourceInfo create(@Nonnull String fileName) {
+  public FileSourceInfo create(@Nonnull String fileName) {
     FileSourceInfo newInstance = canonicalFileSourceInfos.get(fileName);
     if (newInstance == null) {
       newInstance = new FileSourceInfo(fileName);
-      canonicalFileSourceInfos.put(fileName, newInstance);
+      FileSourceInfo previousValue = canonicalFileSourceInfos.putIfAbsent(fileName, newInstance);
+      if (previousValue != null) {
+        newInstance = previousValue;
+      }
     }
     return newInstance;
   }
@@ -61,7 +65,7 @@ public class SourceInfoFactory {
    * canonicalized instances of SourceInfo objects.
    */
   @Nonnull
-  public synchronized SourceInfo create(int startCol, int endCol,
+  public SourceInfo create(int startCol, int endCol,
       @Nonnegative int startLine, @Nonnegative int endLine, @Nonnull String fileName) {
     FileSourceInfo fileSourceInfo = create(fileName);
     LineSourceInfo lineSourceOrigin = create(startLine, endLine, fileSourceInfo);
@@ -76,7 +80,11 @@ public class SourceInfoFactory {
     if (canonical != null) {
       return canonical;
     } else {
-      canonicalColumnSourceInfos.put(newInstance, newInstance);
+      ColumnSourceInfo previousValue = canonicalColumnSourceInfos.putIfAbsent(newInstance,
+          newInstance);
+      if (previousValue != null) {
+        newInstance = previousValue;
+      }
       return newInstance;
     }
   }
@@ -86,7 +94,7 @@ public class SourceInfoFactory {
    * canonicalized instances of SourceInfo objects.
    */
   @Nonnull
-  public synchronized SourceInfo create(@Nonnegative int startLine, @Nonnegative int endLine,
+  public SourceInfo create(@Nonnegative int startLine, @Nonnegative int endLine,
       @Nonnull String fileName) {
     FileSourceInfo fileSourceInfo = create(fileName);
     return create(startLine, endLine, fileSourceInfo);
@@ -97,7 +105,7 @@ public class SourceInfoFactory {
    * canonicalized instances of SourceInfo objects.
    */
   @Nonnull
-  public synchronized LineSourceInfo create(
+  public LineSourceInfo create(
       @Nonnegative int startLine, @Nonnegative int endLine, @Nonnull FileSourceInfo fileName) {
     LineSourceInfo newInstance = new LineSourceInfo(fileName, startLine, endLine);
     LineSourceInfo canonical = canonicalLineSourceInfos.get(newInstance);
@@ -106,7 +114,10 @@ public class SourceInfoFactory {
     if (canonical != null) {
       return canonical;
     } else {
-      canonicalLineSourceInfos.put(newInstance, newInstance);
+      LineSourceInfo previousValue = canonicalLineSourceInfos.putIfAbsent(newInstance, newInstance);
+      if (previousValue != null) {
+        newInstance = previousValue;
+      }
       return newInstance;
     }
   }
