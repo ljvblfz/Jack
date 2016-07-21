@@ -24,6 +24,7 @@ import com.android.sched.util.print.DataViewBuilder;
 
 import java.util.Iterator;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -40,8 +41,10 @@ public class ArrayAlloc extends Statistic {
    *
    * @param count number of element if it is an array.
    * @param size size in bytes of object in memory.
+   * @param object marker object for that allocation.
    */
-  public void recordObjectAllocation(@Nonnegative int count, @Nonnegative long size) {
+  public void recordAllocation(@Nonnegative int count, @Nonnegative long size,
+      @CheckForNull Object object) {
   }
 
   @Override

@@ -16,6 +16,11 @@
 
 package com.android.sched.util.log.stats;
 
+import com.google.common.collect.Iterators;
+
+import java.util.Iterator;
+
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -46,12 +51,14 @@ public class ArrayAllocImpl extends ArrayAlloc {
    *
    * @param count number of element if it is an array.
    * @param size size in bytes of object in memory.
+   * @param object marker object for that allocation.
    */
   @Override
-  public synchronized void recordObjectAllocation(@Nonnegative int count, @Nonnegative long size) {
+  public synchronized void recordAllocation(@Nonnegative int count, @Nonnegative long size,
+      @CheckForNull Object object) {
     this.number++;
     this.size += size;
-    this.element.add(count, null);
+    this.element.add(count, object);
   }
 
   @Override
@@ -75,5 +82,16 @@ public class ArrayAllocImpl extends ArrayAlloc {
   @Nonnegative
   public long getSize() {
     return size;
+  }
+
+
+  @Override
+  @Nonnull
+  public synchronized Iterator<Object> iterator() {
+    return Iterators.concat(
+        Iterators.forArray(
+            Long.valueOf(getNumber()),
+            Long.valueOf(getSize())),
+            element.iterator());
   }
 }

@@ -36,4 +36,10 @@ class DynamicEventType implements EventType {
   public String getName() {
     return name;
   }
+
+  @Override
+  @Nonnull
+  public String toString() {
+    return name + " (Dynamic Event)";
+  }
 }
