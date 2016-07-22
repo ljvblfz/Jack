@@ -57,18 +57,15 @@ abstract class AbstractMarkerManager implements MarkerManager {
   private static final boolean FAILED_STOP =
       ThreadConfig.get(SchedProperties.FAILED_STOP).booleanValue();
 
-  protected AbstractMarkerManager() {
-    ensureScan();
-    assert map != null;
-  }
-
   protected boolean isValidMarker(@Nonnull Class<? extends Marker> marker) {
+    ensureScan();
     assert map != null;
 
     return map.get(marker).isValidMarker(this);
   }
 
   protected boolean isValidMarker(@Nonnull Marker marker) {
+    ensureScan();
     assert map != null;
 
     return map.get(marker.getClass()).isValidMarker(this, marker);
