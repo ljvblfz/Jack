@@ -16,6 +16,7 @@
 
 package com.android.sched.util.log.tracer.probe;
 
+import com.android.sched.util.codec.ImplementationFilter;
 import com.android.sched.util.codec.ImplementationName;
 
 import java.lang.management.ManagementFactory;
@@ -27,8 +28,22 @@ import javax.annotation.Nonnull;
 /**
  * Probe which take the usage of per thread CPU time.
  */
-@ImplementationName(iface = Probe.class, name = "thread-cpu-time")
+@ImplementationName(iface = Probe.class,
+    name = "thread-cpu-time",
+    filter = ThreadTimeProbe.Filter.class)
 public class ThreadTimeProbe extends TimeNanosProbe {
+  static class Filter implements ImplementationFilter {
+    @Override
+    public boolean isValid() {
+      try {
+        ThreadMXBean threadManager = ManagementFactory.getThreadMXBean();
+        return threadManager.isCurrentThreadCpuTimeSupported();
+      } catch (Throwable e) {
+        return false;
+      }
+    }
+  }
+
   @Nonnull
   private final ThreadMXBean threadMXBean;
 
@@ -36,9 +51,7 @@ public class ThreadTimeProbe extends TimeNanosProbe {
     super("Per Thread CPU time", MAX_PRIORITY + 1);
 
     threadMXBean = ManagementFactory.getThreadMXBean();
-    if (!threadMXBean.isCurrentThreadCpuTimeSupported()) {
-      throw new RuntimeException("Current thread cpu time not supported");
-    }
+    threadMXBean.setThreadCpuTimeEnabled(true);
   }
 
   @Override
