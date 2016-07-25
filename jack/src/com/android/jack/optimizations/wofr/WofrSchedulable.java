@@ -16,6 +16,10 @@
 
 package com.android.jack.optimizations.wofr;
 
+import com.android.jack.Jack;
+import com.android.jack.annotations.DisableWriteOnlyFieldRemovalOptimization;
+import com.android.jack.ir.ast.JAnnotationType;
+import com.android.jack.util.NamingTools;
 import com.android.sched.util.log.stats.Counter;
 import com.android.sched.util.log.stats.CounterImpl;
 import com.android.sched.util.log.stats.StatisticId;
@@ -33,4 +37,10 @@ public abstract class WofrSchedulable {
   public static final StatisticId<Counter> FIELDS_REMOVED = new StatisticId<>(
       "jack.optimization.write-only-field-removal.fields-removed", "Fields removed",
       CounterImpl.class, Counter.class);
+
+  @Nonnull
+  public final JAnnotationType disablingAnnotationType =
+      Jack.getSession().getPhantomLookup().getAnnotationType(
+          NamingTools.getTypeSignatureName(
+              DisableWriteOnlyFieldRemovalOptimization.class.getName()));
 }

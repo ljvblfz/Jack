@@ -18,8 +18,11 @@ package com.android.jack.optimizations.modifiers;
 
 import com.google.common.collect.Maps;
 
+import com.android.jack.Jack;
 import com.android.jack.analysis.common.ReachabilityAnalyzer;
+import com.android.jack.annotations.DisableFieldFinalizerOptimization;
 import com.android.jack.cfg.ControlFlowGraph;
+import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JConstructor;
 import com.android.jack.ir.ast.JDefinedClass;
@@ -38,6 +41,7 @@ import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.optimizations.Optimizations;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
+import com.android.jack.util.NamingTools;
 import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
@@ -361,6 +365,10 @@ public class FieldFinalizer {
         ThreadConfig.get(Optimizations.FieldFinalizer.ADD_FINAL_MODIFIER).booleanValue();
 
     @Nonnull
+    private final JAnnotationType disablingAnnotationType =
+        Jack.getSession().getPhantomLookup().getAnnotationType(
+            NamingTools.getTypeSignatureName(DisableFieldFinalizerOptimization.class.getName()));
+    @Nonnull
     private final Tracer tracer = TracerFactory.getTracer();
 
     @Override
@@ -375,7 +383,9 @@ public class FieldFinalizer {
       }
 
       EffectivelyFinalFieldMarker.markAsEffectivelyFinal(field);
-      if (addFinalModifier) {
+      if (addFinalModifier &&
+          field.getAnnotations(disablingAnnotationType).isEmpty() &&
+          field.getEnclosingType().getAnnotations(disablingAnnotationType).isEmpty()) {
         field.setFinal();
         tracer.getStatistic(FIELDS_FINALIZED).incValue();
       }

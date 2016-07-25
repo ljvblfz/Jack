@@ -16,10 +16,14 @@
 
 package com.android.jack.optimizations.modifiers;
 
+import com.android.jack.Jack;
+import com.android.jack.annotations.DisableClassFinalizerOptimization;
+import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.optimizations.Optimizations;
 import com.android.jack.optimizations.common.DirectlyDerivedClassesMarker;
+import com.android.jack.util.NamingTools;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
@@ -51,6 +55,11 @@ public class ClassFinalizer
       CounterImpl.class, Counter.class);
 
   @Nonnull
+  private final JAnnotationType disablingAnnotationType =
+      Jack.getSession().getPhantomLookup().getAnnotationType(
+          NamingTools.getTypeSignatureName(DisableClassFinalizerOptimization.class.getName()));
+
+  @Nonnull
   private final Tracer tracer = TracerFactory.getTracer();
 
   @Override
@@ -62,7 +71,7 @@ public class ClassFinalizer
           // Mark as effectively final
           EffectivelyFinalClassMarker.markAsEffectivelyFinal(definedClass);
 
-          if (addFinalModifier) {
+          if (addFinalModifier && type.getAnnotations(disablingAnnotationType).isEmpty()) {
             definedClass.setFinal();
             tracer.getStatistic(TYPES_FINALIZED).incValue();
           }

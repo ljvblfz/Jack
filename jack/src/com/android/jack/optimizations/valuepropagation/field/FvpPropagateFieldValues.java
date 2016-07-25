@@ -17,6 +17,8 @@
 package com.android.jack.optimizations.valuepropagation.field;
 
 import com.android.jack.Jack;
+import com.android.jack.annotations.DisableFieldValuePropagationOptimization;
+import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JField;
@@ -35,6 +37,7 @@ import com.android.jack.transformations.LocalVarCreator;
 import com.android.jack.transformations.request.AppendBefore;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
+import com.android.jack.util.NamingTools;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
@@ -61,6 +64,12 @@ import javax.annotation.Nonnull;
 @Name("FieldValuePropagation: PropagateFieldValues")
 public class FvpPropagateFieldValues extends FvpSchedulable
     implements RunnableSchedulable<JMethod> {
+
+  @Nonnull
+  public final JAnnotationType disablingAnnotationType =
+      Jack.getSession().getPhantomLookup().getAnnotationType(
+          NamingTools.getTypeSignatureName(
+              DisableFieldValuePropagationOptimization.class.getName()));
 
   @Nonnull
   private final Tracer tracer = TracerFactory.getTracer();
@@ -108,7 +117,9 @@ public class FvpPropagateFieldValues extends FvpSchedulable
       }
 
       JField field = ref.getFieldId().getField();
-      if (field == null) {
+      if (field == null ||
+          !field.getAnnotations(disablingAnnotationType).isEmpty() ||
+          !field.getEnclosingType().getAnnotations(disablingAnnotationType).isEmpty()) {
         return;
       }
 

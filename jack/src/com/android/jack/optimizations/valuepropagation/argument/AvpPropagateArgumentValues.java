@@ -16,6 +16,9 @@
 
 package com.android.jack.optimizations.valuepropagation.argument;
 
+import com.android.jack.Jack;
+import com.android.jack.annotations.DisableArgumentValuePropagationOptimization;
+import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNode;
@@ -28,6 +31,7 @@ import com.android.jack.optimizations.common.LiteralValueListTracker;
 import com.android.jack.optimizations.common.OptimizerUtils;
 import com.android.jack.transformations.LocalVarCreator;
 import com.android.jack.transformations.request.TransformationRequest;
+import com.android.jack.util.NamingTools;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
@@ -54,6 +58,12 @@ public class AvpPropagateArgumentValues extends AvpSchedulable
     implements RunnableSchedulable<JMethod> {
 
   @Nonnull
+  public final JAnnotationType disablingAnnotationType =
+      Jack.getSession().getPhantomLookup().getAnnotationType(
+          NamingTools.getTypeSignatureName(
+              DisableArgumentValuePropagationOptimization.class.getName()));
+
+  @Nonnull
   private final Tracer tracer = TracerFactory.getTracer();
 
   @Override
@@ -63,7 +73,9 @@ public class AvpPropagateArgumentValues extends AvpSchedulable
     boolean isTainted = TaintedMethodMarker.checkIfTaintedAndRemoveMarker(method);
 
     if (isTainted || tracker == null || !tracker.hasAtLeastOneLiteral() ||
-        method.isAbstract() || method.isNative()) {
+        method.isAbstract() || method.isNative() ||
+        !method.getAnnotations(disablingAnnotationType).isEmpty() ||
+        !method.getEnclosingType().getAnnotations(disablingAnnotationType).isEmpty()) {
       return;
     }
 
@@ -108,8 +120,9 @@ public class AvpPropagateArgumentValues extends AvpSchedulable
           new ExpressionReplaceHelper(new LocalVarCreator(method, "avp"));
 
       @Override public void endVisit(@Nonnull JParameterRef x) {
-        JValueLiteral literal = paramValues.get(x.getParameter());
-        if (literal != null) {
+        JParameter parameter = x.getParameter();
+        JValueLiteral literal = paramValues.get(parameter);
+        if (literal != null && parameter.getAnnotations(disablingAnnotationType).isEmpty()) {
           literal = OptimizerUtils.cloneExpression(literal);
           literal.setSourceInfo(x.getSourceInfo());
           helper.replace(x, literal, request);
