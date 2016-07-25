@@ -203,7 +203,8 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
 
   @SuppressWarnings("unchecked")
   public CaseInsensitiveFS(@Nonnull VFS vfs, int numGroups, int groupSize,
-      @Nonnull MessageDigestFactory mdf, boolean debug) throws WrongVFSFormatException {
+      @Nonnull MessageDigestFactory mdf, boolean debug)
+      throws WrongVFSFormatException {
     this.vfs = (BaseVFS<BaseVDir, BaseVFile>) vfs;
 
     Set<Capabilities> capabilities = EnumSet.copyOf(vfs.getCapabilities());
@@ -634,6 +635,12 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
   @Nonnull
   VPath getPathFromRoot(@Nonnull CaseInsensitiveVFile file) {
     return getPathFromDir(root, file);
+  }
+
+  @Override
+  @CheckForNull
+  public String getInfoString() {
+    return vfs.getInfoString();
   }
 
   @Override

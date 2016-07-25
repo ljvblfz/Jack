@@ -43,6 +43,7 @@ import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Set;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -67,9 +68,11 @@ public class ReadWriteZipFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS 
     dir = Files.createTempDir("vfs-");
     VFS workVFS;
     try {
-      workVFS = new CaseInsensitiveFS(new CachedDirectFS(new Directory(dir.getPath(),
-          null, Existence.MUST_EXIST, permissions, ChangePermission.NOCHANGE), permissions),
+      CachedDirectFS cdFS = new CachedDirectFS(new Directory(dir.getPath(), null,
+          Existence.MUST_EXIST, permissions, ChangePermission.NOCHANGE), permissions);
+      workVFS = new CaseInsensitiveFS(cdFS,
           numGroups, groupSize, mdf, debug);
+      cdFS.setInfoString("tmp-for-zip");
     } catch (WrongVFSFormatException e) {
       // Directory is empty, so this cannot happen
       throw new AssertionError(e);
@@ -248,6 +251,16 @@ public class ReadWriteZipFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS 
   @Nonnull
   public VFS getWorkVFS() {
     return vfs.getWorkVFS();
+  }
+
+  @Override
+  @CheckForNull
+  public String getInfoString() {
+    return vfs.getInfoString();
+  }
+
+  public void setInfoString(@CheckForNull String infoString) {
+    ((WriteZipFS) vfs.getFinalVFS()).setInfoString(infoString);
   }
 
   @Override

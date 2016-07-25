@@ -59,6 +59,9 @@ public class InputJackLibraryCodec implements StringCodec<InputJackLibrary> {
   @Nonnull
   private final MessageDigestCodec messageDigestCodec = new MessageDigestCodec();
 
+  @CheckForNull
+  private String infoString;
+
   @Override
   @Nonnull
   public InputJackLibrary parseString(@Nonnull CodecContext context, @Nonnull String string) {
@@ -84,6 +87,7 @@ public class InputJackLibraryCodec implements StringCodec<InputJackLibrary> {
             Existence.MUST_EXIST,
             Permission.READ | Permission.WRITE,
             ChangePermission.NOCHANGE), Permission.READ | Permission.WRITE);
+        directFS.setInfoString(infoString);
         try {
           Service service = messageDigestCodec.checkString(context, "SHA");
           vfs = new CaseInsensitiveFS(directFS, /* numGroups = */ JackLibrary.NUM_GROUPS_FOR_DIRS,
@@ -94,8 +98,11 @@ public class InputJackLibraryCodec implements StringCodec<InputJackLibrary> {
         }
       } else {
         RunnableHooks hooks = context.getRunnableHooks();
-        vfs = new ReadZipFS(new InputZipFile(workingDirectory, string, hooks,
+        @SuppressWarnings("resource")
+        ReadZipFS rzFS = new ReadZipFS(new InputZipFile(workingDirectory, string, hooks,
             Existence.MUST_EXIST, ChangePermission.NOCHANGE));
+        rzFS.setInfoString(infoString);
+        vfs = rzFS;
       }
 
       return JackLibraryFactory.getInputLibrary(vfs);
@@ -148,5 +155,11 @@ public class InputJackLibraryCodec implements StringCodec<InputJackLibrary> {
 
   @Override
   public void checkValue(@Nonnull CodecContext context, @Nonnull InputJackLibrary data) {
+  }
+
+  @Nonnull
+  public InputJackLibraryCodec setInfoString(@CheckForNull String infoString) {
+    this.infoString = infoString;
+    return this;
   }
 }

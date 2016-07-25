@@ -40,6 +40,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -642,6 +643,12 @@ public class UnionVFS extends BaseVFS<UnionVDir, UnionVFile> implements VFS {
   Location getVDirLocation(@Nonnull UnionVDir parent, @Nonnull VPath path) {
     BaseVDir parentWrappedDir = parent.getWrappedDirs().get(0);
     return parentWrappedDir.getVFS().getVDirLocation(parentWrappedDir, path);
+  }
+
+  @Override
+  @CheckForNull
+  public String getInfoString() {
+    return vfsList.get(0).getInfoString();
   }
 
   @Override

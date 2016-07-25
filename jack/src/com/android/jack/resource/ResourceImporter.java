@@ -53,9 +53,10 @@ public class ResourceImporter extends ResourceOrMetaImporter {
               .ignoreCase()).addDefaultValue(CollisionPolicy.FAIL).addCategory(Arzon.class);
 
   @Nonnull
-  public static final ListPropertyId<InputVFS> IMPORTED_RESOURCES = new ListPropertyId<InputVFS>(
-      "jack.import.resource", "Resources to import", new DirectoryInputVFSCodec())
-      .on(File.pathSeparator).minElements(0).addDefaultValue(Collections.<InputVFS>emptyList());
+  public static final ListPropertyId<InputVFS> IMPORTED_RESOURCES =
+      new ListPropertyId<InputVFS>("jack.import.resource", "Resources to import",
+          new DirectoryInputVFSCodec().setInfoString("imported-rsc")).on(File.pathSeparator)
+              .minElements(0).addDefaultValue(Collections.<InputVFS>emptyList());
 
   @Nonnull
   private final CollisionPolicy resourceCollisionPolicy =

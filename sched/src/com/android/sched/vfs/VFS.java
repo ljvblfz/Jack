@@ -47,4 +47,7 @@ public interface VFS extends HasLocation, AutoCloseable, HasDescription {
 
   @Override
   void close() throws CannotCloseException;
+
+  @CheckForNull
+  String getInfoString();
 }

@@ -37,6 +37,7 @@ import com.android.sched.vfs.VFS;
 
 import java.security.Provider.Service;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -49,6 +50,8 @@ public class ZipFSCodec extends FileOrDirCodec<VFS> {
   private final MessageDigestCodec messageDigestCodec = new MessageDigestCodec();
   @Nonnull
   private final Compression compression;
+  @CheckForNull
+  private String infoString;
 
   public ZipFSCodec(@Nonnull Existence existence, @Nonnull Compression compression) {
     super(existence, Permission.READ | Permission.WRITE);
@@ -108,15 +111,23 @@ public class ZipFSCodec extends FileOrDirCodec<VFS> {
     RunnableHooks hooks = context.getRunnableHooks();
     try {
       Service service = messageDigestCodec.checkString(context, "SHA");
-      return new ReadWriteZipFS(
+      ReadWriteZipFS rwzFS = new ReadWriteZipFS(
           new OutputZipFile(context.getWorkingDirectory(), string, hooks, existence, change,
               compression),
           /* numGroups = */ 1, /* groupSize = */ 2,
           new MessageDigestFactory(service), /* debug = */ false);
+      rwzFS.setInfoString(infoString);
+      return rwzFS;
     } catch (CannotCreateFileException | NotDirectoryException | NotFileException
         | WrongPermissionException | CannotChangePermissionException | NoSuchFileException
         | FileAlreadyExistsException e) {
       throw new ParsingException(e.getMessage(), e);
     }
+  }
+
+  @Nonnull
+  public ZipFSCodec setInfoString(@CheckForNull String infoString) {
+    this.infoString = infoString;
+    return this;
   }
 }

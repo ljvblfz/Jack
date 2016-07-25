@@ -31,6 +31,7 @@ import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.vfs.CachedDirectFS;
 import com.android.sched.vfs.VFS;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -38,6 +39,9 @@ import javax.annotation.Nonnull;
  * filesystem directory.
  */
 public class DirectFSCodec extends FileOrDirCodec<VFS> {
+
+  @CheckForNull
+  private String infoString;
 
   public DirectFSCodec() {
     super(Existence.MUST_EXIST, Permission.READ | Permission.WRITE);
@@ -100,11 +104,19 @@ public class DirectFSCodec extends FileOrDirCodec<VFS> {
   public VFS checkString(@Nonnull CodecContext context,
       @Nonnull final String string) throws ParsingException {
     try {
-      return new CachedDirectFS(new Directory(context.getWorkingDirectory(), string,
+      CachedDirectFS cdFS = new CachedDirectFS(new Directory(context.getWorkingDirectory(), string,
           context.getRunnableHooks(), existence, permissions, change), permissions);
+      cdFS.setInfoString(infoString);
+      return cdFS;
     } catch (CannotChangePermissionException | NotDirectoryException | WrongPermissionException
         | NoSuchFileException | FileAlreadyExistsException | CannotCreateFileException e) {
       throw new ParsingException(e);
     }
+  }
+
+  @Nonnull
+  public DirectFSCodec setInfoString(@CheckForNull String infoString) {
+    this.infoString = infoString;
+    return this;
   }
 }

@@ -507,6 +507,12 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
   }
 
   @Override
+  @CheckForNull
+  public String getInfoString() {
+    return vfs.getInfoString();
+  }
+
+  @Override
   public String toString() {
     return "digestFS >> " + vfs.toString();
   }

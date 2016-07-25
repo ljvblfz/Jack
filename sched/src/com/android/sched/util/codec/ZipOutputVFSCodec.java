@@ -33,6 +33,7 @@ import com.android.sched.vfs.WriteZipFS;
 
 import java.util.logging.Logger;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -43,6 +44,9 @@ public class ZipOutputVFSCodec extends OutputVFSCodec {
 
   @Nonnull
   private final Logger logger = LoggerFactory.getLogger();
+
+  @CheckForNull
+  private String infoString;
 
   public ZipOutputVFSCodec(@Nonnull Existence existence) {
     super(existence);
@@ -68,10 +72,17 @@ public class ZipOutputVFSCodec extends OutputVFSCodec {
     try {
       WriteZipFS vfs = new WriteZipFS(new OutputZipFile(context.getWorkingDirectory(), string,
           hooks, existence, change, Compression.COMPRESSED));
+      vfs.setInfoString(infoString);
       return new GenericOutputVFS(vfs);
     } catch (CannotCreateFileException | NotFileException | WrongPermissionException
         | CannotChangePermissionException | NoSuchFileException | FileAlreadyExistsException e) {
       throw new ParsingException(e.getMessage(), e);
     }
+  }
+
+  @Nonnull
+  public ZipOutputVFSCodec setInfoString(@CheckForNull String infoString) {
+    this.infoString = infoString;
+    return this;
   }
 }
