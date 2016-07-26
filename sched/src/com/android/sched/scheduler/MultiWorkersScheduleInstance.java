@@ -425,7 +425,7 @@ public class MultiWorkersScheduleInstance<T extends Component>
 
           if (step.isSkippable(currentFilters)) {
             if (logger.isLoggable(Level.FINER)) {
-              logger.log(Level.FINER, "Skiping {0} ''{1}'' because requiring {2} but having {3}",
+              logger.log(Level.FINER, "Skipping {0} ''{1}'' because requiring {2} but having {3}",
                   new Object[] {
                       (step instanceof ScheduleInstance.RunnableSchedStep) ? "runner" : "adapter",
                       step.getName(),

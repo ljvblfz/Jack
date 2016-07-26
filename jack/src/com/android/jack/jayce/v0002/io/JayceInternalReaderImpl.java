@@ -57,12 +57,12 @@ import javax.annotation.Nonnull;
  */
 public class JayceInternalReaderImpl implements JayceInternalReader {
   @Nonnull
-  public static final StatisticId<Percent> SKIPED_NDECLARED_TYPE = new StatisticId<Percent>(
-      "jayce.ndeclaredtype.skiped", "NDeclaredType loading that skiped by the reader",
+  public static final StatisticId<Percent> SKIPPED_NDECLARED_TYPE = new StatisticId<Percent>(
+      "jayce.ndeclaredtype.skipped", "NDeclaredType loading that skipped by the reader",
       PercentImpl.class, Percent.class);
   @Nonnull
-  public static final StatisticId<Percent> SKIPED_BODY = new StatisticId<Percent>(
-      "jayce.body.skiped", "Body loading skiped by the reader",
+  public static final StatisticId<Percent> SKIPPED_BODY = new StatisticId<Percent>(
+      "jayce.body.skipped", "Body loading skipped by the reader",
       PercentImpl.class, Percent.class);
 
   @Nonnull
@@ -208,9 +208,9 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
     }
     Percent statistic = null;
     if (token == Token.METHOD_BODY) {
-      statistic = tracer.getStatistic(SKIPED_BODY);
+      statistic = tracer.getStatistic(SKIPPED_BODY);
     } else if (node instanceof NDeclaredType) {
-      statistic = tracer.getStatistic(SKIPED_NDECLARED_TYPE);
+      statistic = tracer.getStatistic(SKIPPED_NDECLARED_TYPE);
     }
 
     if (!nodeClass.isAssignableFrom(node.getClass())) {
