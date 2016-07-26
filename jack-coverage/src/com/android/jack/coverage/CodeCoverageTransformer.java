@@ -24,6 +24,7 @@ import com.android.jack.cfg.ControlFlowGraph;
 import com.android.jack.cfg.PeiBasicBlock;
 import com.android.jack.cfg.ReturnBasicBlock;
 import com.android.jack.cfg.SwitchBasicBlock;
+import com.android.jack.digest.SourceDigestAdder;
 import com.android.jack.ir.ast.JArrayRef;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JBlock;
@@ -88,6 +89,7 @@ import com.android.sched.schedulable.Transform;
 import com.android.sched.util.collect.Lists;
 import com.android.sched.util.config.ThreadConfig;
 
+import java.math.BigInteger;
 import java.util.List;
 
 import javax.annotation.CheckForNull;
@@ -108,7 +110,8 @@ import javax.annotation.Nonnull;
     JNullLiteral.class, JReturnStatement.class},
     remove = ProbeMarker.class)
 @Filter(TypeWithoutPrebuiltFilter.class)
-public class CodeCoverageTransformer implements RunnableSchedulable<JDefinedClassOrInterface> {
+public class CodeCoverageTransformer  extends SourceDigestAdder
+    implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   /**
    * The name of the field containing the array of coverage probes.
@@ -268,6 +271,18 @@ public class CodeCoverageTransformer implements RunnableSchedulable<JDefinedClas
     return jacocoProbesMethod;
   }
 
+  /**
+   * Computes the class ID from the given type.
+   *
+   * @param declaredType a class or interface type
+   * @return a class ID
+   */
+  private long computeClassID(@Nonnull JDefinedClassOrInterface declaredType) {
+    final byte[] digest = computeSourceDigest(declaredType).digest();
+    BigInteger bigInteger = new BigInteger(digest);
+    return bigInteger.longValue();
+  }
+
   @Override
   public void run(@Nonnull JDefinedClassOrInterface declaredType) {
     CodeCoverageMarker marker = declaredType.getMarker(CodeCoverageMarker.class);
@@ -277,7 +292,7 @@ public class CodeCoverageTransformer implements RunnableSchedulable<JDefinedClas
     }
 
     // First we need to compute the class ID of the class.
-    final long classID = CodeCoverageSelector.computeClassID(declaredType);
+    final long classID = computeClassID(declaredType);
     marker.setClassId(classID);
 
     TransformationRequest transformationRequest = new TransformationRequest(declaredType);

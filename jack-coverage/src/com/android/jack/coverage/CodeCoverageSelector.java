@@ -18,8 +18,6 @@ package com.android.jack.coverage;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDefinedInterface;
-import com.android.jack.ir.ast.JField;
-import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.formatter.SourceFormatter;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.sched.item.Description;
@@ -29,11 +27,6 @@ import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
-
-import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 import javax.annotation.Nonnull;
 
@@ -79,42 +72,5 @@ public class CodeCoverageSelector implements RunnableSchedulable<JDefinedClassOr
     // Manage class filtering.
     String typeName = formatter.getName(declaredType);
     return filter.matches(typeName);
-  }
-
-  /**
-   * Fallback to compute digest based on the class information (name, fields, methods, ...).
-   * The goal is to distinct two classes, even if they have the same name. Otherwise this will
-   * cause conflicts in Jacoco.
-   */
-  @Nonnull
-  private static byte[] computeClassDigest(@Nonnull JDefinedClassOrInterface type)
-      throws NoSuchAlgorithmException {
-    MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
-    // Update digest with class name.
-    messageDigest.update(stringToBytes(formatter.getName(type)));
-    // Update digest with fields.
-    for (JField field : type.getFields()) {
-      messageDigest.update(stringToBytes(field.getName()));
-      messageDigest.update(stringToBytes(formatter.getName(field.getType())));
-    }
-    // Update digest with methods.
-    for (JMethod method : type.getMethods()) {
-      messageDigest.update(stringToBytes(formatter.getName(method)));
-    }
-    byte[] digest = messageDigest.digest();
-    assert digest != null;
-    return digest;
-  }
-
-  private static byte[] stringToBytes(@Nonnull String str) {
-    return str.getBytes(StandardCharsets.UTF_8);
-  }
-
-  public static long computeClassID(@Nonnull JDefinedClassOrInterface type)
-      throws NoSuchAlgorithmException {
-    // Compute the digest of the class and convert it to a long.
-    byte[] digest = computeClassDigest(type);
-    BigInteger bigInteger = new BigInteger(digest);
-    return bigInteger.longValue();
   }
 }
