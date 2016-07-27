@@ -563,7 +563,8 @@
       manifest="${jack.dir}/etc/manifest.txt"
       basedir="${jack.exec.build.outdir}"
       includes="**">
-      <rule pattern="com.google.**" result="com.android.jack.google.@1"/>
+      <rule pattern="com.google.common.**" result="com.android.jack.google.common.@1"/>
+      <rule pattern="com.google.thirdparty.**" result="com.android.jack.google.thirdparty.@1"/>
       <rule pattern="com.tonicsystems.**" result="com.android.jack.tonicsystems.@1"/>
       <rule pattern="freemarker.**" result="com.android.jack.freemarker.@1"/>
       <rule pattern="org.antlr.**" result="com.android.jack.antlr.@1"/>
