@@ -31,7 +31,7 @@ public class LineSourceInfo extends SourceInfo {
   @Nonnegative
   private final int startLine;
   @Nonnegative
-  private int endLine;
+  private final int endLine;
 
   LineSourceInfo(
       @Nonnull FileSourceInfo location, @Nonnegative int startLine, @Nonnegative int endLine) {
@@ -66,11 +66,6 @@ public class LineSourceInfo extends SourceInfo {
   @Nonnegative
   public int getEndLine() {
     return endLine;
-  }
-
-  @Nonnegative
-  public void setEndLine(@Nonnegative int endLine) {
-    this.endLine = endLine;
   }
 
   @Override
