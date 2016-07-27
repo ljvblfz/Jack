@@ -21,6 +21,7 @@ import com.android.sched.util.log.stats.Statistic;
 import com.android.sched.util.log.stats.StatisticId;
 import com.android.sched.util.log.tracer.watcher.ObjectWatcher;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -76,5 +77,6 @@ public interface Tracer {
   public <T> void registerWatcher(@Nonnull Class<T> objectClass,
       @Nonnull Class<? extends ObjectWatcher<? extends T>> watcherClass);
 
-  public void registerObject(@Nonnull Object object, @Nonnegative long size, int count);
+  public void registerObject(@Nonnull Object object, @Nonnegative long size, int count,
+      @CheckForNull StackTraceElement site);
 }

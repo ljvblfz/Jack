@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -187,7 +188,8 @@ public final class DummyTracer implements Tracer {
   }
 
   @Override
-  public void registerObject(@Nonnull Object object, @Nonnegative long size, int count) {
+  public void registerObject(@Nonnull Object object, @Nonnegative long size, int count,
+      @CheckForNull StackTraceElement site) {
     assert config == ThreadConfig.getConfig();
 
     throw new UnsupportedOperationException();

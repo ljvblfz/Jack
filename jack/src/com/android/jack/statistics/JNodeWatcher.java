@@ -54,7 +54,11 @@ public class JNodeWatcher implements ObjectWatcher<JNode> {
 
   @Override
   public boolean notifyInstantiation(
-      @Nonnull JNode node, @Nonnegative long size, int count, @Nonnull EventType type) {
+      @Nonnull JNode node,
+      @Nonnegative long size,
+      int count,
+      @Nonnull EventType type,
+      @CheckForNull StackTraceElement site) {
     StatisticId<Counter> id = map.get(node.getClass());
     if (id == null) {
       String name = Items.getName(node.getClass());

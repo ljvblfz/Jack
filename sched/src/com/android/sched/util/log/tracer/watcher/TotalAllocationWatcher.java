@@ -50,7 +50,11 @@ public class TotalAllocationWatcher implements ObjectWatcher<Object> {
 
   @Override
   public boolean notifyInstantiation(
-      @Nonnull Object object, @Nonnegative long size, int count, @Nonnull EventType notUsed) {
+      @Nonnull Object object,
+      @Nonnegative long size,
+      int count,
+      @Nonnull EventType notUsed,
+      @CheckForNull StackTraceElement site) {
     try {
       TracerFactory.getTracer().getStatistic(ALLOCATIONS).recordAllocation(size);
     } catch (RuntimeException e) {

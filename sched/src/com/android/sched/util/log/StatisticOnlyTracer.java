@@ -59,6 +59,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -372,7 +373,8 @@ public final class StatisticOnlyTracer implements Tracer {
   }
 
   @Override
-  public void registerObject(@Nonnull Object object, @Nonnegative long size, int count) {
+  public void registerObject(@Nonnull Object object, @Nonnegative long size, int count,
+      @CheckForNull StackTraceElement site) {
     enable.set(Boolean.FALSE);
     Class<?> objectClass = object.getClass();
     List<Class<? extends ObjectWatcher<?>>> list = null;
@@ -419,7 +421,7 @@ public final class StatisticOnlyTracer implements Tracer {
         @SuppressWarnings("unchecked")
         ObjectWatcher<Object> watcher = (ObjectWatcher<Object>) watcherClass.newInstance();
 
-        if (watcher.notifyInstantiation(object, size, count, getCurrentEventType())) {
+        if (watcher.notifyInstantiation(object, size, count, getCurrentEventType(), site)) {
           WeakHashMap<Object, ObjectWatcher<Object>> weak = objects.get(watcherClass);
           assert weak != null; // If watchers contains object.getClass, then objects contains it
                                // also, see registerWatcher
