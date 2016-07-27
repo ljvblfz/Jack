@@ -142,6 +142,25 @@
 
   <target name="dist" depends="jack-dist, jill-dist, tools-dist"/>
 
+  <scriptdef name="generateUuid" language="javascript">
+      <attribute name="result" />
+      <![CDATA[
+      project.setProperty(attributes.get("result"), java.util.UUID.randomUUID());
+      ]]>
+  </scriptdef>
+
+  <scriptdef name="getHostame" language="javascript">
+      <attribute name="result" /> <![CDATA[
+          project.setProperty(attributes.get("result"), java.net.InetAddress.getLocalHost().getCanonicalHostName());
+      ]]>
+  </scriptdef>
+
+  <target name="generate-eng-signature">
+    <getHostame result="hostname"/>
+    <property name="sign.eng.releaser" value="${user.name}@${hostname}"/>
+    <generateUuid result="sign.eng.buildid"/>
+  </target>
+
   <target name="dist-check-version-files">
     <condition property="dist.version.file" value="${version.file}" else="${jack-project.dir}/version.properties">
       <isset property="version.file"/>
@@ -230,12 +249,19 @@
              jack,
              jack-api,
              jack-api-src,
-             jack-annotations-lib">
+             jack-annotations-lib,
+             generate-eng-signature">
 
     <mkdir dir="${jack-top-dist.dir}"/>
 
     <tempfile property="jack-sign.tmp" prefix="ant-jack-sign" destdir="${java.io.tmpdir}" deleteonexit="true"/>
     <mkdir dir="${jack-sign.tmp}"/>
+    <copy file="${dist.version.file}" tofile="${jack-sign.tmp}/version.properties"/>
+
+    <propertyfile file="${jack-sign.tmp}/version.properties">
+      <entry key="releaser" default="${sign.eng.releaser}"/>
+      <entry key="version.buildid" default="${sign.eng.buildid}"/>
+    </propertyfile>
 
     <copy file="${jack-api.dist.dir}/${jack-api-src.name}" tofile="${jack-top-dist.dir}/${jack-api-src.name}" />
 
@@ -243,7 +269,7 @@
       <zipfileset src="${jack.dist.dir}/${jack.execname}"
       excludes="jack-version.properties"/>
     </jar>
-    <copy file="${dist.version.file}" tofile="${jack-sign.tmp}/jack-version.properties"/>
+    <copy file="${jack-sign.tmp}/version.properties" tofile="${jack-sign.tmp}/jack-version.properties"/>
     <jar destfile="${jack-top-dist.dir}/${jack.execname}" update="true"
       basedir="${jack-sign.tmp}"
       includes="jack-version.properties"/>
@@ -252,7 +278,7 @@
       <zipfileset src="${jack-api.dist.dir}/${jack-api.name}"
       excludes="jack-api-version.properties"/>
     </jar>
-    <copy file="${dist.version.file}" tofile="${jack-sign.tmp}/jack-api-version.properties"/>
+    <copy file="${jack-sign.tmp}/version.properties" tofile="${jack-sign.tmp}/jack-api-version.properties"/>
     <jar destfile="${jack-top-dist.dir}/${jack-api.name}" update="true"
       basedir="${jack-sign.tmp}"
       includes="jack-api-version.properties"/>
@@ -261,7 +287,7 @@
       <zipfileset src="${jack.dist.dir}/${jack-annotations.libname}"
       excludes="jack-annotations-version.properties"/>
     </jar>
-    <copy file="${dist.version.file}" tofile="${jack-sign.tmp}/jack-annotations-version.properties"/>
+    <copy file="${jack-sign.tmp}/version.properties" tofile="${jack-sign.tmp}/jack-annotations-version.properties"/>
     <jar destfile="${jack-top-dist.dir}/${jack-annotations.libname}" update="true"
       basedir="${jack-sign.tmp}"
       includes="jack-annotations-version.properties"/>
@@ -276,7 +302,8 @@
     depends="dist-check-version-files,
              jill,
              jill-api,
-             jill-api-src">
+             jill-api-src,
+             generate-eng-signature">
 
     <mkdir dir="${jack-top-dist.dir}"/>
 
@@ -291,13 +318,19 @@
 
     <tempfile property="jill-sign.tmp" prefix="ant-jill-sign" destdir="${java.io.tmpdir}" deleteonexit="true"/>
     <mkdir dir="${jill-sign.tmp}"/>
+    <copy file="${dist.version.file}" tofile="${jill-sign.tmp}/version.properties"/>
 
-    <copy file="${dist.version.file}" tofile="${jill-sign.tmp}/jill-version.properties"/>
+    <propertyfile file="${jill-sign.tmp}/version.properties">
+      <entry key="releaser" default="${sign.eng.releaser}"/>
+      <entry key="version.buildid" default="${sign.eng.buildid}"/>
+    </propertyfile>
+
+    <copy file="${jill-sign.tmp}/version.properties" tofile="${jill-sign.tmp}/jill-version.properties"/>
     <jar destfile="${jack-top-dist.dir}/${jill.execname}" update="true"
          basedir="${jill-sign.tmp}"
          includes="jill-version.properties"/>
 
-    <copy file="${dist.version.file}" tofile="${jill-sign.tmp}/jill-api-version.properties"/>
+    <copy file="${jill-sign.tmp}/version.properties" tofile="${jill-sign.tmp}/jill-api-version.properties"/>
     <jar destfile="${jack-top-dist.dir}/${jill-api.name}" update="true"
          basedir="${jill-sign.tmp}"
          includes="jill-api-version.properties"/>
@@ -310,18 +343,25 @@
     description="package a tools distribution"
     depends="dist-check-version-files,
              jack-jar-tools,
-             jack-jacoco-reporter">
+             jack-jacoco-reporter,
+             generate-eng-signature">
 
     <mkdir dir="${jack-top-dist.dir}"/>
 
     <tempfile property="tools-sign.tmp" prefix="ant-tools-sign" destdir="${java.io.tmpdir}" deleteonexit="true"/>
     <mkdir dir="${tools-sign.tmp}"/>
+    <copy file="${dist.version.file}" tofile="${tools-sign.tmp}/version.properties"/>
+
+    <propertyfile file="${tools-sign.tmp}/version.properties">
+      <entry key="releaser" default="${sign.eng.releaser}"/>
+      <entry key="version.buildid" default="${sign.eng.buildid}"/>
+    </propertyfile>
 
     <jar destfile="${jack-top-dist.dir}/${jack-jar-tools.name}" filesetmanifest="merge">
       <zipfileset src="${jack-jar-tools.dist.dir}/${jack-jar-tools.name}"
       excludes="jack-jar-tools-version.properties"/>
     </jar>
-    <copy file="${dist.version.file}" tofile="${tools-sign.tmp}/jack-jar-tools-version.properties"/>
+    <copy file="${tools-sign.tmp}/version.properties" tofile="${tools-sign.tmp}/jack-jar-tools-version.properties"/>
     <jar destfile="${jack-top-dist.dir}/${jack-jar-tools.name}" update="true"
         basedir="${tools-sign.tmp}"
         includes="jack-jar-tools-version.properties"/>
@@ -2721,7 +2761,6 @@
       <fileset dir="${jack-jacoco-reporter.build.outdir}"/>
     </jar>
   </target>
-
 </project>
 
 

@@ -49,18 +49,26 @@
     description="package a Jack server distribution"
     depends="server-dist-check-version-files,
     jack-server,
-    jack-launcher">
+    jack-launcher,
+    generate-eng-signature">
 
     <mkdir dir="${jack-top-dist.dir}"/>
 
     <tempfile property="jack-server-dist.tmp" prefix="jack-server-dist" destdir="${java.io.tmpdir}" deleteonexit="true"/>
     <mkdir dir="${jack-server-dist.tmp}"/>
 
+    <copy file="${server.dist.version.file}" tofile="${jack-server-dist.tmp}/version.properties"/>
+
+    <propertyfile file="${jack-server-dist.tmp}/version.properties">
+      <entry key="releaser" default="${sign.eng.releaser}"/>
+      <entry key="version.buildid" default="${sign.eng.buildid}"/>
+    </propertyfile>
+
     <jar destfile="${jack-top-dist.dir}/${jack-server.name}" filesetmanifest="merge">
       <zipfileset src="${jack-server.dist.dir}/${jack-server.name}"
       excludes="jack-server-version.properties"/>
     </jar>
-    <copy file="${server.dist.version.file}" tofile="${jack-server-dist.tmp}/jack-server-version.properties"/>
+    <copy file="${jack-server-dist.tmp}/version.properties" tofile="${jack-server-dist.tmp}/jack-server-version.properties"/>
     <jar destfile="${jack-top-dist.dir}/${jack-server.name}" update="true"
        basedir="${jack-server-dist.tmp}"
        includes="jack-server-version.properties"/>
@@ -69,7 +77,7 @@
       <zipfileset src="${jack-launcher.dist.dir}/${jack-launcher.name}"
       excludes="jack-launcher-version.properties"/>
     </jar>
-    <copy file="${server.dist.version.file}" tofile="${jack-server-dist.tmp}/jack-launcher-version.properties"/>
+    <copy file="${jack-server-dist.tmp}/version.properties" tofile="${jack-server-dist.tmp}/jack-launcher-version.properties"/>
     <jar destfile="${jack-top-dist.dir}/${jack-launcher.name}" update="true"
        basedir="${jack-server-dist.tmp}"
        includes="jack-launcher-version.properties"/>
