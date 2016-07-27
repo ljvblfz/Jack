@@ -41,6 +41,11 @@ public abstract class DexWriter {
     String tag = JACK_DEX_TAG_HEADER + version.getReleaseCode() + "." + version.getSubReleaseCode();
     if (version.getSubReleaseKind() == SubReleaseKind.ENGINEERING) {
       tag += "-eng";
+
+      String buildId = version.getBuildId();
+      if (buildId != null) {
+        tag += "-" + buildId;
+      }
     }
 
     JACK_DEX_TAG = tag;
