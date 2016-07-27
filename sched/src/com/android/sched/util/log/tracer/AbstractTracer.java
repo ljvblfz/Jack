@@ -131,7 +131,8 @@ public abstract class AbstractTracer implements Tracer {
   }
 
   @Override
-  public void registerObject(@Nonnull Object object, @Nonnegative long size, int count) {
+  public void registerObject(@Nonnull Object object, @Nonnegative long size, int count,
+      @CheckForNull StackTraceElement site) {
     Class<? extends ObjectWatcher<?>> watcherClass = null;
 
     synchronized (watcherLock) {
@@ -162,7 +163,7 @@ public abstract class AbstractTracer implements Tracer {
         WeakHashMap<Object, ObjectWatcher<Object>> weak = objects.get(watcherClass);
         assert weak != null; // If watchers contains object.getClass, then objects contains it also,
                              // see registerWatcher
-        if (watcher.notifyInstantiation(object, size, count, getCurrentEventType())) {
+        if (watcher.notifyInstantiation(object, size, count, getCurrentEventType(), site)) {
           weak.put(object, watcher);
         }
       } catch (InstantiationException e) {

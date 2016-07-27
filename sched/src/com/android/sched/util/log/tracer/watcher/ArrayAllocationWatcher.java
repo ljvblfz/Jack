@@ -50,7 +50,11 @@ public class ArrayAllocationWatcher implements ObjectWatcher<Object> {
 
   @Override
   public boolean notifyInstantiation(
-      @Nonnull Object object, @Nonnegative long size, int count, @Nonnull EventType eventType) {
+      @Nonnull Object object,
+      @Nonnegative long size,
+      int count,
+      @Nonnull EventType eventType,
+      @CheckForNull StackTraceElement site) {
     Class<?> type = object.getClass();
 
     if (count >= 0) {

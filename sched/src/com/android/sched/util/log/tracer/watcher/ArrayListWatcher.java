@@ -91,7 +91,11 @@ public class ArrayListWatcher implements ObjectWatcher<ArrayList<?>> {
 
   @Override
   public boolean notifyInstantiation(
-      @Nonnull ArrayList<?> list, @Nonnegative long size, int count, @Nonnull EventType type) {
+      @Nonnull ArrayList<?> list,
+      @Nonnegative long size,
+      int count,
+      @Nonnull EventType type,
+      @CheckForNull StackTraceElement site) {
     this.eventTypeName = type.getName();
     try {
       previousCapacity = ((Object[]) (arrayRef.get(list))).length;

@@ -20,19 +20,29 @@ import com.google.monitoring.runtime.instrumentation.AllocationRecorder;
 import com.google.monitoring.runtime.instrumentation.Sampler;
 
 import com.android.sched.util.config.ConfigurationError;
+import com.android.sched.util.config.HasKeyId;
+import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
 
 import java.util.logging.Level;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
  * Probe which count the heap memory usage.
  */
+@HasKeyId
 public abstract class HeapAllocationProbe extends MemoryBytesProbe {
+  @Nonnull
+  public static final BooleanPropertyId GET_ALLOCATION_SITE =
+      BooleanPropertyId.create("sched.tracer.probe.heap-allocation.site",
+          "Get allocation site information during statistics").addDefaultValue(Boolean.FALSE);
+
   protected HeapAllocationProbe(@Nonnull String description) {
     super(description, MIN_PRIORITY);
   }
@@ -86,22 +96,46 @@ public abstract class HeapAllocationProbe extends MemoryBytesProbe {
   private static class Instrumentation {
     private static void install() {
       Sampler sampler = new Sampler() {
+        private int stackDepth = -1;
         @Override
         public void sampleAllocation(
             int count, String desc, Object newObj, long size) {
-          try {
-            Tracer tracer = TracerFactory.getTracer();
+          Tracer tracer = TracerFactory.getTracer();
 
+          try {
             if (tracer.isTracing()) {
               ThreadLocalCounting tlc = alloc.get();
               tlc.count++;
               tlc.size += size;
 
-              tracer.registerObject(newObj, size, count);
+              tracer.registerObject(newObj, size, count, getAllocationSite());
             }
           } catch (ConfigurationError e) {
             // Do not collect for thread without config (No Tracer available)
           }
+        }
+
+        @CheckForNull
+        private StackTraceElement getAllocationSite() {
+          if (stackDepth == 0) {
+            return null;
+          }
+
+          StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+
+          if (stackDepth < 0) {
+            if (ThreadConfig.get(GET_ALLOCATION_SITE).booleanValue()) {
+              stackDepth = 0;
+              while (!stack[stackDepth++].getClassName()
+                                         .startsWith("com.google.monitoring.runtime")) {}
+              while (stack[stackDepth++].getClassName()
+                                        .startsWith("com.google.monitoring.runtime")) {}
+            } else {
+              stackDepth = 0;
+            }
+          }
+
+          return stack[stackDepth];
         }
       };
 

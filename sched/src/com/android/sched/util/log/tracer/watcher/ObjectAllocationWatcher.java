@@ -48,9 +48,15 @@ public class ObjectAllocationWatcher implements ObjectWatcher<Object> {
   private static final Map<Class<?>, StatisticId<ObjectAlloc>> objectStats =
       new ConcurrentHashMap<Class<?>, StatisticId<ObjectAlloc>>();
 
+  Tracer tracer = TracerFactory.getTracer();
+
   @Override
   public boolean notifyInstantiation(
-      @Nonnull Object object, @Nonnegative long size, int count, @Nonnull EventType eventType) {
+      @Nonnull Object object,
+      @Nonnegative long size,
+      int count,
+      @Nonnull EventType notUsed,
+      @CheckForNull StackTraceElement site) {
     Class<?> type = object.getClass();
 
     StatisticId<ObjectAlloc> id;

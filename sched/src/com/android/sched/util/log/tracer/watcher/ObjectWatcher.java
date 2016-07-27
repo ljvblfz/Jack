@@ -46,11 +46,12 @@ public interface ObjectWatcher<T> {
    *     shows up as a value here sometimes; one reason is T[] toArray()-type
    *     methods that require an array type argument (see ArrayList.toArray() for
    *     example).
+   * @param site the allocation site.
    * @return true if the watcher want to sample the object at every event ending (see
    *         {@link ObjectWatcher#addSample}), or false otherwise.
    */
-  public abstract boolean notifyInstantiation(
-      @Nonnull T object, @Nonnegative long size, int count, @Nonnull EventType type);
+  public abstract boolean notifyInstantiation(@Nonnull T object, @Nonnegative long size, int count,
+      @Nonnull EventType type, @CheckForNull StackTraceElement site);
 
   /**
    * Callback to update statistics when ending an event.
