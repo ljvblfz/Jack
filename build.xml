@@ -2341,6 +2341,10 @@
     <istrue value="${tests.disable-assertions}"/>
   </condition>
 
+  <condition property="jack.tests.runtime.tolerant" value="true" else="false">
+    <istrue value="${tests.runtime.tolerant}"/>
+  </condition>
+
   <condition property="jack.tests.console-output" value="--console-output" else="">
     <istrue value="${tests.console-output}"/>
   </condition>
@@ -2426,6 +2430,7 @@
       classname="com.android.jack.test.junit.JackJunitLauncherXml">
       <jvmarg value="-Dfile.encoding=utf-8" />
       <jvmarg value="-Dtests.config=${tests.config}"/>
+      <jvmarg value="-Dtests.runtime.tolerant=${jack.tests.runtime.tolerant}"/>
       <jvmarg value="${jack.tests.assertions}"/>
       <jvmarg line="${jack.runtime.version}"/>
       <classpath>
@@ -2458,6 +2463,7 @@
       classname="com.android.jack.test.junit.JackJunitLauncherXml">
       <jvmarg value="-Dfile.encoding=utf-8" />
       <jvmarg value="-Dtests.config=${tests.config}"/>
+      <jvmarg value="-Dtests.runtime.tolerant=${jack.tests.runtime.tolerant}"/>
       <jvmarg value="${jack.tests.assertions}"/>
       <jvmarg line="${jack.runtime.version}"/>
       <classpath>
@@ -2490,6 +2496,7 @@
        classname="com.android.jack.test.junit.JackJunitLauncherXml">
        <jvmarg value="-Dfile.encoding=utf-8" />
        <jvmarg value="-Dtests.config=${tests.config}"/>
+       <jvmarg value="-Dtests.runtime.tolerant=${jack.tests.runtime.tolerant}"/>
        <jvmarg value="${jack.tests.assertions}"/>
        <jvmarg line="${jack.runtime.version}"/>
        <classpath>
@@ -2522,6 +2529,7 @@
         classname="com.android.jack.test.junit.JackJunitLauncherXml">
         <jvmarg value="-Dfile.encoding=utf-8" />
         <jvmarg value="-Dtests.config=${tests.config}"/>
+        <jvmarg value="-Dtests.runtime.tolerant=${jack.tests.runtime.tolerant}"/>
         <jvmarg value="${jack.tests.assertions}"/>
         <jvmarg line="${jack.runtime.version}"/>
         <classpath>

@@ -91,6 +91,9 @@ public abstract class AbstractTestTools {
   private static final String LEGACY_COMPILER_KEY       = "toolchain.prebuilt.legacy-java-compiler";
 
   @Nonnull
+  private static final String RUNTIME_TOLERANT          = "tests.runtime.tolerant";
+
+  @Nonnull
   private static final List<RuntimeRunner> runtimes = new ArrayList<RuntimeRunner>();
 
   @Nonnull
@@ -703,14 +706,14 @@ public abstract class AbstractTestTools {
     }
 
     if (runtimes.size() == 0) {
-      if (Boolean.parseBoolean(System.getProperty("jack.test.runtime.tolerant", "false"))) {
+      if (Boolean.parseBoolean(System.getProperty(RUNTIME_TOLERANT, "false"))) {
         if (!hasRuntimeWarningBeenEmitted) {
           System.err.println("WARNING: no runtime has been provided");
           hasRuntimeWarningBeenEmitted = true;
         }
       } else {
         throw new TestConfigurationException(
-            "No runtime has been provided. Set property 'jack.test.runtime.tolerant' to 'true'"
+            "No runtime has been provided. Set property '" + RUNTIME_TOLERANT + "' to 'true'"
             + " to allow it.");
       }
     }
