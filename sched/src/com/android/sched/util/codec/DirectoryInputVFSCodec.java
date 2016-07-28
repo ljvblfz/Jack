@@ -30,10 +30,10 @@ import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.DirectFS;
 import com.android.sched.vfs.GenericInputVFS;
 import com.android.sched.vfs.InputVFS;
-import com.android.sched.vfs.VFS;
 
 import java.util.logging.Logger;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -45,6 +45,8 @@ public class DirectoryInputVFSCodec extends InputVFSCodec
 
   @Nonnull
   private final Logger logger = LoggerFactory.getLogger();
+  @CheckForNull
+  private String infoString;
 
   @Override
   @Nonnull
@@ -63,16 +65,22 @@ public class DirectoryInputVFSCodec extends InputVFSCodec
   public InputVFS checkString(@Nonnull CodecContext context, @Nonnull final String string)
       throws ParsingException {
     try {
-      VFS vfs = new DirectFS(new Directory(context.getWorkingDirectory(),
+      DirectFS vfs = new DirectFS(new Directory(context.getWorkingDirectory(),
           string,
           context.getRunnableHooks(),
           Existence.MUST_EXIST,
           Permission.READ,
           change), Permission.READ);
+      vfs.setInfoString(infoString);
       return new GenericInputVFS(vfs);
     } catch (CannotChangePermissionException | NotDirectoryException | WrongPermissionException
         | NoSuchFileException | FileAlreadyExistsException | CannotCreateFileException e) {
       throw new ParsingException(e.getMessage(), e);
     }
+  }
+
+  public DirectoryInputVFSCodec setInfoString(@Nonnull String infoString) {
+    this.infoString = infoString;
+    return this;
   }
 }

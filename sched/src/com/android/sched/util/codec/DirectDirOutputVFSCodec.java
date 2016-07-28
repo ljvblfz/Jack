@@ -28,6 +28,7 @@ import com.android.sched.vfs.DirectFS;
 import com.android.sched.vfs.GenericOutputVFS;
 import com.android.sched.vfs.OutputVFS;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -35,6 +36,10 @@ import javax.annotation.Nonnull;
  * filesystem directory.
  */
 public class DirectDirOutputVFSCodec extends OutputVFSCodec {
+
+  @CheckForNull
+  private String infoString;
+
   public DirectDirOutputVFSCodec(@Nonnull Existence existence) {
     super(existence);
   }
@@ -56,16 +61,24 @@ public class DirectDirOutputVFSCodec extends OutputVFSCodec {
   public OutputVFS checkString(@Nonnull CodecContext context,
       @Nonnull final String string) throws ParsingException {
     try {
-      return new GenericOutputVFS(new DirectFS(new Directory(context.getWorkingDirectory(),
+      DirectFS dirFS = new DirectFS(new Directory(context.getWorkingDirectory(),
           string,
           context.getRunnableHooks(),
           existence,
           permissions,
-          change), permissions));
+          change), permissions);
+      dirFS.setInfoString(infoString);
+      return new GenericOutputVFS(dirFS);
     } catch (CannotChangePermissionException | NotDirectoryException | WrongPermissionException
         | NoSuchFileException | FileAlreadyExistsException | CannotCreateFileException e) {
       throw new ParsingException(e.getMessage(), e);
     }
+  }
+
+  @Nonnull
+  public DirectDirOutputVFSCodec setInfoString(@CheckForNull String infoString) {
+    this.infoString = infoString;
+    return this;
   }
 
 }

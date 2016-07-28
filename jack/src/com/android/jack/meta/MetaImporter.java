@@ -40,9 +40,10 @@ import javax.annotation.Nonnull;
 public class MetaImporter extends ResourceOrMetaImporter {
 
   @Nonnull
-  public static final ListPropertyId<InputVFS> IMPORTED_META = new ListPropertyId<InputVFS>(
-      "jack.import.meta", "Meta to import", new DirectoryInputVFSCodec()).minElements(0)
-      .addDefaultValue(Collections.<InputVFS>emptyList());
+  public static final ListPropertyId<InputVFS> IMPORTED_META =
+      new ListPropertyId<InputVFS>("jack.import.meta", "Meta to import",
+          new DirectoryInputVFSCodec().setInfoString("imported-meta")).minElements(0)
+              .addDefaultValue(Collections.<InputVFS>emptyList());
 
   public MetaImporter(@Nonnull List<InputVFS> metaDirs) {
     super(metaDirs);

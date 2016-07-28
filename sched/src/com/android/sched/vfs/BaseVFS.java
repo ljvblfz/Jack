@@ -151,10 +151,7 @@ abstract class BaseVFS<DIR extends BaseVDir, FILE extends BaseVFile> implements 
     } catch (IOException e) {
       throw new CannotCloseException(srcFile, e);
     }
-    Tracer tracer = getTracer();
-    if (tracer != null) {
-      tracer.getStatistic(DeflateFS.OPTIMIZED_COPIES).addFalse();
-    }
+    VFSStatCategory.OPTIMIZED_COPIES.getPercentStat(getTracer(), getInfoString()).addFalse();
   }
 
   @CheckForNull

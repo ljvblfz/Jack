@@ -287,41 +287,41 @@ public class Options {
   @Nonnull
   public static final PropertyId<VFS> LIBRARY_OUTPUT_ZIP = PropertyId
       .create("jack.library.output.zip", "Output zip archive for library",
-          new ZipFSCodec(Existence.MAY_EXIST, Compression.UNCOMPRESSED))
+          new ZipFSCodec(Existence.MAY_EXIST, Compression.UNCOMPRESSED).setInfoString("output-lib"))
       .requiredIf(GENERATE_JACK_LIBRARY.getValue().isTrue()
           .and(LIBRARY_OUTPUT_CONTAINER_TYPE.is(Container.ZIP))
           .or(GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER.getValue().isTrue()));
 
   @Nonnull
-  public static final PropertyId<VFS> LIBRARY_OUTPUT_DIR = PropertyId.create(
-      "jack.library.output.dir", "Output folder for library",
-      new CaseInsensitiveDirectFSCodec(Existence.MUST_EXIST)).requiredIf(GENERATE_JACK_LIBRARY
-      .getValue().isTrue().and(LIBRARY_OUTPUT_CONTAINER_TYPE.is(Container.DIR)));
-
+  public static final PropertyId<VFS> LIBRARY_OUTPUT_DIR = PropertyId
+      .create("jack.library.output.dir", "Output folder for library",
+          new CaseInsensitiveDirectFSCodec(Existence.MUST_EXIST).setInfoString("output-lib"))
+      .requiredIf(GENERATE_JACK_LIBRARY.getValue().isTrue()
+          .and(LIBRARY_OUTPUT_CONTAINER_TYPE.is(Container.DIR)));
 
   @Nonnull
   public static final PropertyId<OutputVFS> DEX_OUTPUT_DIR = PropertyId.create(
       "jack.dex.output.dir", "Output folder for dex",
-      new DirectDirOutputVFSCodec(Existence.MUST_EXIST)).requiredIf(
+      new DirectDirOutputVFSCodec(Existence.MUST_EXIST).setInfoString("output-dex")).requiredIf(
       DEX_OUTPUT_CONTAINER_TYPE.is(Container.DIR));
 
   @Nonnull
   public static final PropertyId<OutputVFS> DEX_OUTPUT_ZIP = PropertyId.create(
       "jack.dex.output.zip", "Output zip archive for dex",
-      new ZipOutputVFSCodec(Existence.MAY_EXIST)).requiredIf(
+      new ZipOutputVFSCodec(Existence.MAY_EXIST).setInfoString("output-dex")).requiredIf(
       DEX_OUTPUT_CONTAINER_TYPE.is(Container.ZIP));
 
   @Nonnull
   public static final ListPropertyId<InputLibrary> IMPORTED_LIBRARIES =
       new ListPropertyId<InputLibrary>("jack.library.import", "Libraries to import",
-          new InputLibraryCodec()).minElements(0).addDefaultValue(
+          new InputLibraryCodec().setInfoString("imported-lib")).minElements(0).addDefaultValue(
           Collections.<InputLibrary>emptyList());
 
   @Nonnull
   public static final ListPropertyId<InputLibrary> CLASSPATH =
-      new ListPropertyId<InputLibrary>("jack.classpath", "Classpath", new InputLibraryCodec())
-          .minElements(0).on(File.pathSeparator)
-          .addDefaultValue(Collections.<InputLibrary>emptyList());
+      new ListPropertyId<InputLibrary>("jack.classpath", "Classpath",
+          new InputLibraryCodec().setInfoString("classpath-lib")).minElements(0)
+              .on(File.pathSeparator).addDefaultValue(Collections.<InputLibrary>emptyList());
 
   @Nonnull
   public static final BooleanPropertyId ENABLE_COMPILED_FILES_STATISTICS = BooleanPropertyId.create(

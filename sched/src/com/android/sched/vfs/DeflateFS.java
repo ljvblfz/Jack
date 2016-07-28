@@ -26,10 +26,6 @@ import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
-import com.android.sched.util.log.Tracer;
-import com.android.sched.util.log.stats.Percent;
-import com.android.sched.util.log.stats.PercentImpl;
-import com.android.sched.util.log.stats.StatisticId;
 import com.android.sched.vfs.DeflateFS.DeflateVDir;
 import com.android.sched.vfs.DeflateFS.DeflateVFile;
 
@@ -51,11 +47,6 @@ import javax.annotation.Nonnull;
  * A {@link VFS} filter implementation which inflate/deflate individual file.
  */
 public class DeflateFS extends BaseVFS<DeflateVDir, DeflateVFile> implements VFS{
-
-  @Nonnull
-  public static final StatisticId<Percent> OPTIMIZED_COPIES = new StatisticId<Percent>(
-      "sched.vfs.deflate.optimized-copies", "Optimized copies (without inflation/deflation)",
-      PercentImpl.class, Percent.class);
 
   @Nonnull
   private final BaseVFS<BaseVDir, BaseVFile> vfs;
@@ -316,12 +307,15 @@ public class DeflateFS extends BaseVFS<DeflateVDir, DeflateVFile> implements VFS
     if (srcFile instanceof DeflateVFile) { // copy without inflating/deflating
       vfs.copy(((DeflateVFile) srcFile).getWrappedFile(), dstFile.getWrappedFile());
 
-      Tracer tracer = getTracer();
-      if (tracer != null) {
-        tracer.getStatistic(OPTIMIZED_COPIES).addTrue();
-      }
+      VFSStatCategory.OPTIMIZED_COPIES.getPercentStat(getTracer(), getInfoString()).addTrue();
     } else {
       super.copy(srcFile, dstFile);
     }
+  }
+
+  @Override
+  @CheckForNull
+  public String getInfoString() {
+    return vfs.getInfoString();
   }
 }

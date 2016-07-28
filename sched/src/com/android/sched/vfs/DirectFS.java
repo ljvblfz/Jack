@@ -32,12 +32,6 @@ import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.DirectoryLocation;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.Location;
-import com.android.sched.util.log.Tracer;
-import com.android.sched.util.log.stats.Counter;
-import com.android.sched.util.log.stats.CounterImpl;
-import com.android.sched.util.log.stats.Percent;
-import com.android.sched.util.log.stats.PercentImpl;
-import com.android.sched.util.log.stats.StatisticId;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -51,6 +45,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -59,26 +54,13 @@ import javax.annotation.Nonnull;
 public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
 
   @Nonnull
-  private static final StatisticId<Percent> CREATED_PHYSICAL_FILES = new StatisticId<Percent>(
-      "sched.vfs.dir.created-physical-files", "Created physical files",
-      PercentImpl.class, Percent.class);
-
-  @Nonnull
-  private static final StatisticId<Counter> WRITTEN_PHYSICAL_FILES = new StatisticId<Counter>(
-      "sched.vfs.dir.opened-for-writing-files", "Physical files opened for writing",
-      CounterImpl.class, Counter.class);
-
-  @Nonnull
-  private static final StatisticId<Counter> READ_PHYSICAL_FILES = new StatisticId<Counter>(
-      "sched.vfs.dir.opened-for-reading-files", "Physical files opened for reading",
-      CounterImpl.class, Counter.class);
-
-  @Nonnull
   private final Directory  dir;
   @Nonnull
   private final ParentVDir root;
   @Nonnull
   private final Set<Capabilities> capabilities;
+  @CheckForNull
+  private String infoString;
 
   public DirectFS(@Nonnull Directory dir, int permissions) {
     this.dir = dir;
@@ -136,10 +118,7 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
     assert !isClosed();
     assert capabilities.contains(Capabilities.READ);
 
-    Tracer tracer = getTracer();
-    if (tracer != null) {
-      tracer.getStatistic(READ_PHYSICAL_FILES).incValue();
-    }
+    VFSStatCategory.DIR_READ.getCounterStat(getTracer(), infoString).incValue();
 
     File path = getNativeFile(file.getPath());
     try {
@@ -164,10 +143,7 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
     assert !isClosed();
     assert capabilities.contains(Capabilities.WRITE);
 
-    Tracer tracer = getTracer();
-    if (tracer != null) {
-      tracer.getStatistic(WRITTEN_PHYSICAL_FILES).incValue();
-    }
+    VFSStatCategory.DIR_WRITE.getCounterStat(getTracer(), infoString).incValue();
 
     File path = getNativeFile(file.getPath());
     try {
@@ -222,19 +198,14 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
     assert !isClosed();
     assert capabilities.contains(Capabilities.WRITE);
 
-    Tracer tracer = getTracer();
     File path = getNativeFile(parent.getPath(), name);
     try {
       AbstractStreamFile.create(path, new FileLocation(path));
 
-      if (tracer != null) {
-        tracer.getStatistic(CREATED_PHYSICAL_FILES).addTrue();
-      }
+      VFSStatCategory.DIR_CREATE.getPercentStat(getTracer(), infoString).addTrue();
     } catch (FileAlreadyExistsException e) {
       // Nothing to do
-      if (tracer != null) {
-        tracer.getStatistic(CREATED_PHYSICAL_FILES).addFalse();
-      }
+      VFSStatCategory.DIR_CREATE.getPercentStat(getTracer(), infoString).addFalse();
     }
 
     return new ParentVFile(this, parent, name);
@@ -374,6 +345,16 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
   @Nonnull
   public VPath getPathFromRoot(@Nonnull ParentVFile file) {
     return getPathFromDir(root, file);
+  }
+
+  public void setInfoString(@CheckForNull String infoString) {
+    this.infoString = infoString;
+  }
+
+  @Override
+  @CheckForNull
+  public String getInfoString() {
+    return infoString;
   }
 
   @Override

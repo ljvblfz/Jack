@@ -34,6 +34,9 @@ import javax.annotation.Nonnull;
  */
 public class InputLibraryCodec extends OrCodec<InputLibrary> {
 
+  @CheckForNull
+  private String infoString;
+
   @SuppressWarnings("unchecked")
   public InputLibraryCodec() {
     super(new InputJackLibraryCodec(), new JarLibraryCodec());
@@ -57,11 +60,18 @@ public class InputLibraryCodec extends OrCodec<InputLibrary> {
     return data.getPath();
   }
 
+  @Nonnull
+  public InputLibraryCodec setInfoString(@CheckForNull String infoString) {
+    this.infoString = infoString;
+    return this;
+  }
+
   @Override
   @CheckForNull
   public InputLibrary checkString(@Nonnull CodecContext context, @Nonnull String string)
       throws ParsingException  {
     StringCodec<? extends InputLibrary> jackLibCodec = codecList.get(0);
+    ((InputJackLibraryCodec) jackLibCodec).setInfoString(infoString);
     StringCodec<? extends InputLibrary> jarCodec = codecList.get(1);
     List<Throwable> causes = new ArrayList<Throwable>(codecList.size());
     try {

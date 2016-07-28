@@ -29,6 +29,7 @@ import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Set;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -41,8 +42,8 @@ public class PrefixedFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS {
   private final BaseVDir rootDir;
 
   @SuppressWarnings("unchecked")
-  public PrefixedFS(@Nonnull VFS vfs, @Nonnull VPath prefix) throws CannotCreateFileException,
-      NotDirectoryException {
+  public PrefixedFS(@Nonnull VFS vfs, @Nonnull VPath prefix)
+      throws CannotCreateFileException, NotDirectoryException {
     this.vfs = (BaseVFS<BaseVDir, BaseVFile>) vfs;
 
     BaseVDir rootDir;
@@ -226,6 +227,12 @@ public class PrefixedFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS {
   private BaseVFile changeVFS(@Nonnull BaseVFile file) {
     file.changeVFS(this);
     return file;
+  }
+
+  @Override
+  @CheckForNull
+  public String getInfoString() {
+    return vfs.getInfoString();
   }
 
   @Override

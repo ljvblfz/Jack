@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -288,6 +289,17 @@ public class VFSToVFSWrapper extends BaseVFS<BaseVDir, BaseVFile> implements VFS
   @Nonnull
   public VFS getWorkVFS() {
     return workVFS;
+  }
+
+  @Nonnull
+  public VFS getFinalVFS() {
+    return finalVFS;
+  }
+
+  @Override
+  @CheckForNull
+  public String getInfoString() {
+    return finalVFS.getInfoString();
   }
 
   @Override

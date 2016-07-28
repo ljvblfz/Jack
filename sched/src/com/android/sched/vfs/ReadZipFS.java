@@ -27,10 +27,6 @@ import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.location.ZipLocation;
-import com.android.sched.util.log.Tracer;
-import com.android.sched.util.log.stats.Counter;
-import com.android.sched.util.log.stats.CounterImpl;
-import com.android.sched.util.log.stats.StatisticId;
 import com.android.sched.vfs.ReadZipFS.ZipVDir;
 import com.android.sched.vfs.ReadZipFS.ZipVFile;
 
@@ -46,17 +42,13 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
  * A {@link VFS} implementation backed by a zip archive that only supports reading.
  */
 public class ReadZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
-
-  @Nonnull
-  private static final StatisticId<Counter> OPENED_ZIP_ENTRIES = new StatisticId<Counter>(
-      "sched.vfs.zip.opened-for-reading-entries", "Zip entries opened for reading",
-      CounterImpl.class, Counter.class);
 
   static class ZipVDir extends InMemoryVDir {
 
@@ -153,6 +145,8 @@ public class ReadZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
   private final InputZipFile inputZipFile;
   @Nonnull
   private final ZipFile zipFile;
+  @CheckForNull
+  private String infoString;
 
   public ReadZipFS(@Nonnull InputZipFile zipFile) {
     this.inputZipFile = zipFile;
@@ -204,10 +198,7 @@ public class ReadZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
   @Nonnull
   InputStream openRead(@Nonnull ZipVFile file) {
     try {
-      Tracer tracer = getTracer();
-      if (tracer != null) {
-        tracer.getStatistic(OPENED_ZIP_ENTRIES).incValue();
-      }
+      VFSStatCategory.ZIP_READ.getCounterStat(getTracer(), infoString).incValue();
 
       return zipFile.getInputStream(file.getZipEntry());
     } catch (IOException e) {
@@ -413,6 +404,15 @@ public class ReadZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
   @Nonnull
   VPath getPathFromRoot(@Nonnull ZipVFile file) {
     return getPathFromDir(root, file);
+  }
+
+  public void setInfoString(@CheckForNull String infoString) {
+    this.infoString = infoString;
+  }
+
+  @Override
+  public String getInfoString() {
+    return infoString;
   }
 
   @Override
