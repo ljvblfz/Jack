@@ -313,6 +313,13 @@ insns.subList(0, getCountPhiInsns()).clear();
   }
 
   /**
+   * @return last instruction. {@code null} if block is empty.
+   */
+  public SsaInsn getLastInsns() {
+    return insns.isEmpty() ? null : insns.get(insns.size() - 1);
+  }
+
+  /**
    * @return the block index of this block
    */
   public int getIndex() {
@@ -837,6 +844,13 @@ for (int i = successors.nextSetBit(0); i >= 0; i = successors.nextSetBit(i + 1))
       parent.computeReachability();
     }
     return (reachable == 1);
+  }
+
+  /**
+   * @return {@code true} if this block only contains a single GOTO.
+   */
+  public boolean isSingleGoto() {
+    return ((insns.size() == 1) && (insns.get(0).getOpcode() == Rops.GOTO));
   }
 
   /**

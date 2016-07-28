@@ -45,6 +45,8 @@ public class SsaToRop {
   /** local debug flag */
   private static final boolean DEBUG = false;
 
+  private final boolean removeRedundantConditionalBranch;
+
   /** {@code non-null;} method to process */
   private final SsaMethod ssaMeth;
 
@@ -55,10 +57,13 @@ public class SsaToRop {
    * Converts a method in SSA form to ROP form.
    *
    * @param ssaMeth {@code non-null;} method to process
+   * @param removeRedundantConditionalBranch true if we should optimize unneccesary conditional
+   *     branches.
    * @return {@code non-null;} rop-form output
    */
-  public static RopMethod convertToRopMethod(SsaMethod ssaMeth) {
-    return new SsaToRop(ssaMeth).convert();
+  public static RopMethod convertToRopMethod(
+      SsaMethod ssaMeth, boolean removeRedundantConditionalBranch) {
+    return new SsaToRop(ssaMeth, removeRedundantConditionalBranch).convert();
   }
 
   /**
@@ -66,9 +71,12 @@ public class SsaToRop {
    *
    * @param ssaMethod {@code non-null;} method to process
    * attempt to minimize the rop-form register count
+   * @param removeRedundantConditionalBranch true if we should optimize unneccesary conditional
+   * branches.
    */
-  private SsaToRop(SsaMethod ssaMethod) {
+  private SsaToRop(SsaMethod ssaMethod, boolean removeRedundantConditionalBranch) {
     this.ssaMeth = ssaMethod;
+    this.removeRedundantConditionalBranch = removeRedundantConditionalBranch;
     this.interference = LivenessAnalyzer.constructInterferenceGraph(ssaMethod);
   }
 
@@ -105,6 +113,10 @@ public class SsaToRop {
       moveParametersToHighRegisters();
     }
 
+    if (removeRedundantConditionalBranch) {
+      new RedundantConditionalBranchRemover(ssaMeth).process();
+    }
+
     removeEmptyGotos();
 
     RopMethod ropMethod = new RopMethod(convertBasicBlocks(),
@@ -128,9 +140,7 @@ public class SsaToRop {
     ssaMeth.forEachBlockDepthFirst(false, new SsaBasicBlock.Visitor() {
       @Override
       public void visitBlock(SsaBasicBlock b, SsaBasicBlock parent) {
-        ArrayList<SsaInsn> insns = b.getInsns();
-
-        if ((insns.size() == 1) && (insns.get(0).getOpcode() == Rops.GOTO)) {
+        if (b.isSingleGoto()) {
           BitSet preds = (BitSet) b.getPredecessors().clone();
 
           for (int i = preds.nextSetBit(0); i >= 0; i = preds.nextSetBit(i + 1)) {
