@@ -1255,9 +1255,6 @@ public abstract class Jack {
           }
           methodPlan2.append(IncDecRemover.class);
           methodPlan2.append(CompoundAssignmentRemover.class);
-          if (features.contains(Optimizations.NotSimplifier.class)) {
-            methodPlan2.append(NotSimplifier.class);
-          }
           methodPlan2.append(ConcatRemover.class);
         }
       }
@@ -1433,6 +1430,9 @@ public abstract class Jack {
         methodPlan.append(EnabledAssertionTransformer.class);
       } else if (features.contains(DisabledAssertionFeature.class)) {
         methodPlan.append(AssertionRemover.class);
+      }
+      if (features.contains(Optimizations.NotSimplifier.class)) {
+        methodPlan.append(NotSimplifier.class);
       }
     }
 
