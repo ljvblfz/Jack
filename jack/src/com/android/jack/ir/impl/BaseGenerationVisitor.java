@@ -1354,7 +1354,7 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
     if (name == null) {
       print(CHARS_NONAME);
     } else {
-      print(name.replace("/", "."));
+      print(name.replace('/', '.'));
     }
   }
 
