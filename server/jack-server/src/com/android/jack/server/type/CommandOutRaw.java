@@ -148,7 +148,7 @@ public class CommandOutRaw implements CommandOut {
       while (index >= 0) {
         synchronized (out) {
           super.write(prefix, 0, prefix.length);
-          byte[] line = outputCharset.encode(builder.substring(0, index)).array();
+          byte[] line = builder.substring(0, index).getBytes(outputCharset);
           super.write(line, 0, line.length);
           super.write(outputEol, 0, outputEol.length);
           super.flush();
