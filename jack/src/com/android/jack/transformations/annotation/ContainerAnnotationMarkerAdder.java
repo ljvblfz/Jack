@@ -28,9 +28,11 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNameValuePair;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JSession;
+import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Access;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
@@ -59,6 +61,7 @@ public class ContainerAnnotationMarkerAdder {
   @Constraint(need = JAnnotation.RepeatedAnnotationOnType.class)
   @Use(ContainerAnnotationMarkerAdder.class)
   @Access(JSession.class)
+  @Filter(SourceTypeFilter.class)
   public static class TypeContainerAnnotationMarkerAdder extends ContainerAnnotationMarkerAdder
       implements RunnableSchedulable<JDefinedClassOrInterface> {
     @Override
@@ -76,6 +79,7 @@ public class ContainerAnnotationMarkerAdder {
   @Constraint(need = JAnnotation.RepeatedAnnotationOnField.class)
   @Use(ContainerAnnotationMarkerAdder.class)
   @Access(JSession.class)
+  @Filter(SourceTypeFilter.class)
   public static class FieldContainerAnnotationMarkerAdder extends ContainerAnnotationMarkerAdder
       implements RunnableSchedulable<JField> {
     @Override
@@ -93,6 +97,7 @@ public class ContainerAnnotationMarkerAdder {
   @Constraint(need = JAnnotation.RepeatedAnnotationOnMethod.class)
   @Use(ContainerAnnotationMarkerAdder.class)
   @Access(JSession.class)
+  @Filter(SourceTypeFilter.class)
   public static class MethodContainerAnnotationMarkerAdder extends ContainerAnnotationMarkerAdder
       implements RunnableSchedulable<JMethod> {
     @Override
