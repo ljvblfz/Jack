@@ -20,6 +20,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import com.android.jack.Jack;
+import com.android.jack.annotations.DisableMethodFinalizerOptimization;
+import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JConstructor;
 import com.android.jack.ir.ast.JDefinedClass;
@@ -29,6 +31,7 @@ import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.formatter.TypePackageAndMethodFormatter;
 import com.android.jack.optimizations.Optimizations;
 import com.android.jack.optimizations.common.DirectlyDerivedClassesMarker;
+import com.android.jack.util.NamingTools;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
@@ -62,6 +65,11 @@ public class MethodFinalizer
       CounterImpl.class, Counter.class);
 
   @Nonnull
+  private final JAnnotationType disablingAnnotationType =
+      Jack.getSession().getPhantomLookup().getAnnotationType(
+          NamingTools.getTypeSignatureName(DisableMethodFinalizerOptimization.class.getName()));
+
+  @Nonnull
   private final Tracer tracer = TracerFactory.getTracer();
 
   @Nonnull
@@ -88,7 +96,9 @@ public class MethodFinalizer
         // Mark as effectively final
         EffectivelyFinalMethodMarker.markAsEffectivelyFinal(method);
 
-        if (addFinalModifier) {
+        if (addFinalModifier &&
+            method.getAnnotations(disablingAnnotationType).isEmpty() &&
+            method.getEnclosingType().getAnnotations(disablingAnnotationType).isEmpty()) {
           method.setFinal();
           tracer.getStatistic(METHODS_FINALIZED).incValue();
         }

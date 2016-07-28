@@ -96,7 +96,9 @@ public class WofrRemoveFieldWrites extends WofrSchedulable
   private Action classify(@Nonnull JMethod method, @Nonnull JFieldRef ref) {
 
     JField field = ref.getFieldId().getField();
-    if (field == null) {
+    if (field == null ||
+        !field.getAnnotations(disablingAnnotationType).isEmpty() ||
+        !field.getEnclosingType().getAnnotations(disablingAnnotationType).isEmpty()) {
       return Action.None;
     }
 

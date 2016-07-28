@@ -55,7 +55,9 @@ public class WofrRemoveFields extends WofrSchedulable
   public synchronized void run(@Nonnull final JField field) {
     if (removeUnusedFields &&
         !FieldReadWriteCountsMarker.hasReads(field) &&
-        !FieldReadWriteCountsMarker.hasWrites(field)) {
+        !FieldReadWriteCountsMarker.hasWrites(field) &&
+        field.getAnnotations(disablingAnnotationType).isEmpty() &&
+        field.getEnclosingType().getAnnotations(disablingAnnotationType).isEmpty()) {
 
       TransformationRequest request = new TransformationRequest(field);
       request.append(new Remove(field));
