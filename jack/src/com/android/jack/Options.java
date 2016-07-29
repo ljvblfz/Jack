@@ -493,8 +493,6 @@ public class Options {
   /**
    * Output jack library to this folder.
    */
-  @Option(name = "--output-jack-dir",
-      metaVar = "<DIRECTORY>")
   private File libraryOutDir = null;
 
   @Option(name = "--output-jack", usage = "output jack library file", metaVar = "<FILE>")

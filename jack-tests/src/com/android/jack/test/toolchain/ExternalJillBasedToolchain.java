@@ -164,12 +164,7 @@ public abstract class ExternalJillBasedToolchain
     List<String> commandLine = new ArrayList<String>();
     libToCommon(commandLine, convertClasspahtWithJillAsString(), in);
 
-    if (zipFiles) {
-      commandLine.add("--output-jack");
-    } else {
-      commandLine.add("--output-jack-dir");
-    }
-    commandLine.add(out.getAbsolutePath());
+    addOutputJack(commandLine, out, zipFiles);
 
     ExecuteFile exec = new ExecuteFile(commandLine.toArray(new String[commandLine.size()]));
     exec.inheritEnvironment();
