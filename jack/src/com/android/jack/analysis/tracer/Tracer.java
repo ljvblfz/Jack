@@ -48,6 +48,7 @@ import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JLiteral;
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JMethodIdRef;
@@ -87,7 +88,7 @@ import javax.annotation.Nonnull;
  * A visitor that traces dependencies
  */
 @Description("traces dependencies")
-@Constraint(need = UniqMethodIds.class)
+@Constraint(need = {UniqMethodIds.class, SubClassOrInterfaceMarker.class, JMethodBody.class})
 // Visit type hierarchy, access referenced types and depends on isAnonymous
 @Access(JSession.class)
 public class Tracer extends JVisitor {
