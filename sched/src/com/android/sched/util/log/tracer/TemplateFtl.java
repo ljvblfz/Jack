@@ -22,6 +22,7 @@ import com.android.sched.util.log.tracer.probe.GcDurationProbe;
 import com.android.sched.util.log.tracer.probe.HeapAllocationCountProbe;
 import com.android.sched.util.log.tracer.probe.HeapAllocationSizeProbe;
 import com.android.sched.util.log.tracer.probe.HeapMemoryProbe;
+import com.android.sched.util.log.tracer.probe.JitDurationProbe;
 import com.android.sched.util.log.tracer.probe.Probe;
 import com.android.sched.util.log.tracer.probe.ThreadContentionCountProbe;
 import com.android.sched.util.log.tracer.probe.ThreadContentionDurationProbe;
@@ -62,6 +63,8 @@ public enum TemplateFtl {
       new MappingProbe[]{new MappingProbe(ThreadContentionDurationProbe.class, "time")}, null),
   CONTENTION_COUNT("Contention count", "count.html.ftl", "count-contention.html",
       new MappingProbe[]{new MappingProbe(ThreadContentionCountProbe.class, "count")}, null),
+  JIT_DURATION("JIT compiler duration", "time.html.ftl", "time-jit.html",
+      new MappingProbe[]{new MappingProbe(JitDurationProbe.class, "time")}, null),
   OVERVIEW("Overview", "overview.html.ftl", "index.html",
       null, null);
 
