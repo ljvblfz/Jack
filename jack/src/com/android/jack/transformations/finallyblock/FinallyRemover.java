@@ -319,6 +319,7 @@ public class FinallyRemover implements RunnableSchedulable<JMethod> {
       if (!blockStatements.isEmpty()) {
         JStatement lastStmt = blockStatements.get(blockStatements.size() - 1);
         boolean isLastStmtBranching = (lastStmt instanceof JReturnStatement)
+            || (lastStmt instanceof JThrowStatement)
             || (lastStmt instanceof JGoto && isBranchingOutsideOfTryStatement((JGoto) lastStmt));
 
         if (!isLastStmtBranching) {
