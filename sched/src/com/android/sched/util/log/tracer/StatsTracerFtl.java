@@ -24,10 +24,18 @@ import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.config.Config;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.file.CannotChangePermissionException;
+import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.Directory;
+import com.android.sched.util.file.FileAlreadyExistsException;
+import com.android.sched.util.file.FileOrDirectory.ChangePermission;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotDirectoryException;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.log.Event;
 import com.android.sched.util.log.EventType;
 import com.android.sched.util.log.LoggerFactory;
@@ -85,13 +93,40 @@ public class StatsTracerFtl extends AbstractTracer {
       .requiredIf(TracerFactory.TRACER.getClazz().isImplementedBy(StatsTracerFtl.class));
 
   @Nonnull
+  public static final BooleanPropertyId TRACER_DIR_WITH_CONFIG =
+      BooleanPropertyId
+          .create("sched.tracer.dir.add-config-name",
+              "Generate tracer files in an additional sub-directory named after the configuration")
+          .requiredIf(TracerFactory.TRACER.getClazz().isImplementedBy(StatsTracerFtl.class))
+          .addDefaultValue(Boolean.FALSE);
+
+  @Nonnull
   private final Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
-  private final Directory dir = ThreadConfig.get(TRACER_DIR);
+  private final Directory dir;
 
   @Nonnull
   private final Map<EventType, Total> map = new HashMap<EventType, Total>();
+
+  public StatsTracerFtl() {
+    super();
+
+    if (ThreadConfig.get(TRACER_DIR_WITH_CONFIG).booleanValue()) {
+      try {
+        dir = new Directory(
+            ThreadConfig.get(TRACER_DIR).getFile().getPath() + File.separator
+                + ThreadConfig.getConfig().getName(),
+            null, Existence.MAY_EXIST, Permission.READ | Permission.WRITE | Permission.EXECUTE,
+            ChangePermission.OWNER);
+      } catch (NotDirectoryException | WrongPermissionException | CannotChangePermissionException
+          | NoSuchFileException | CannotCreateFileException | FileAlreadyExistsException e) {
+        throw new AssertionError(e);
+      }
+    } else {
+      dir = ThreadConfig.get(TRACER_DIR);
+    }
+  }
 
   private class Total {
     @Nonnull

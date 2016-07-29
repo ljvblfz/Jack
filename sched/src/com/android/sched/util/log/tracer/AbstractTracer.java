@@ -48,6 +48,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -301,6 +302,8 @@ public abstract class AbstractTracer implements Tracer {
   @Override
   @Nonnull
   public TracerEvent start(@Nonnull EventType type) {
+    eventCount.incrementAndGet();
+
     Stack<TracerEvent> threadPendingEvents = pendingEvents.get();
     TracerEvent parent = null;
 
@@ -464,19 +467,6 @@ public abstract class AbstractTracer implements Tracer {
   private BlockingQueue<TracerEvent> openQueue() {
     final BlockingQueue<TracerEvent> eventQueue = new LinkedBlockingQueue<TracerEvent>();
 
-    Runtime.getRuntime().addShutdownHook(new Thread() {
-      @Override
-      public void run() {
-        try {
-          // Wait for the other thread to drain the queue.
-          eventQueue.add(shutDownSentinel);
-          shutDownLatch.await();
-        } catch (InterruptedException e) {
-          // Ignored
-        }
-      }
-    });
-
     // Background thread to write SpeedTracer events to log
     Thread logWriterWorker = new LogWriterThread(eventQueue);
 
@@ -497,6 +487,9 @@ public abstract class AbstractTracer implements Tracer {
   //
   // Event
   //
+
+  @Nonnull
+  private final AtomicInteger eventCount = new AtomicInteger(0);
 
   private class TracerEvent implements Event {
     @Nonnull
@@ -545,69 +538,82 @@ public abstract class AbstractTracer implements Tracer {
 
     @Override
     public void end() {
-      long values[] = probeManager.stopAndRead(type);
+      try {
+        long values[] = probeManager.stopAndRead(type);
 
-      Stack<TracerEvent> threadPendingEvents = pendingEvents.get();
-      if (threadPendingEvents.isEmpty() || threadPendingEvents.peek() != this) {
-        throw new IllegalStateException("Event '" + this.getType().getName() +
-            "' is not the current one");
-      }
-
-      TracerEvent currentEvent = threadPendingEvents.pop();
-
-      for (int i = 0; i < values.length; i++) {
-        currentEvent.elapsedValue[i] = values[i] - currentEvent.startValue[i];
-      }
-
-      TracerEvent[] stack =
-          threadPendingEvents.toArray(new TracerEvent[threadPendingEvents.size()]);
-
-      // Managed watched objects
-      for (WeakHashMap<Object, ObjectWatcher<Object>> weak : objects.values()) {
-        // Cumul statistics
-        ObjectWatcher.Statistics statistics = null;
-        for (Entry<Object, ObjectWatcher<Object>> e : weak.entrySet()) {
-          statistics = e.getValue().addSample(e.getKey(), statistics, currentEvent.getType());
+        Stack<TracerEvent> threadPendingEvents = pendingEvents.get();
+        if (threadPendingEvents.isEmpty() || threadPendingEvents.peek() != this) {
+          throw new IllegalStateException(
+              "Event '" + this.getType().getName() + "' is not the current one");
         }
 
-        // Merge in global statistics
-        if (statistics != null) {
-          for (Statistic statistic : statistics) {
-            mergeStatistic(currentEvent.getType(), statistic.getId(), Children.WITHOUT, statistic);
-            mergeStatistic(currentEvent.getType(), statistic.getId(), Children.WITH, statistic);
+        TracerEvent currentEvent = threadPendingEvents.pop();
 
-            for (TracerEvent event : stack) {
-              if (event.getType() != currentEvent.getType()) {
-                mergeStatistic(event.getType(), statistic.getId(), Children.WITH, statistic);
+        for (int i = 0; i < values.length; i++) {
+          currentEvent.elapsedValue[i] = values[i] - currentEvent.startValue[i];
+        }
+
+        TracerEvent[] stack =
+            threadPendingEvents.toArray(new TracerEvent[threadPendingEvents.size()]);
+
+        // Managed watched objects
+        for (WeakHashMap<Object, ObjectWatcher<Object>> weak : objects.values()) {
+          // Cumul statistics
+          ObjectWatcher.Statistics statistics = null;
+          for (Entry<Object, ObjectWatcher<Object>> e : weak.entrySet()) {
+            statistics = e.getValue().addSample(e.getKey(), statistics, currentEvent.getType());
+          }
+
+          // Merge in global statistics
+          if (statistics != null) {
+            for (Statistic statistic : statistics) {
+              mergeStatistic(currentEvent.getType(), statistic.getId(), Children.WITHOUT,
+                  statistic);
+              mergeStatistic(currentEvent.getType(), statistic.getId(), Children.WITH, statistic);
+
+              for (TracerEvent event : stack) {
+                if (event.getType() != currentEvent.getType()) {
+                  mergeStatistic(event.getType(), statistic.getId(), Children.WITH, statistic);
+                }
               }
             }
           }
         }
-      }
 
-      // Managed statistics
-      for (Statistic stat : currentEvent.getStatistics()) {
-        mergeStatistic(currentEvent.getType(), stat.getId(), Children.WITHOUT, stat);
-        mergeStatistic(currentEvent.getType(), stat.getId(), Children.WITH, stat);
+        // Managed statistics
+        for (Statistic stat : currentEvent.getStatistics()) {
+          mergeStatistic(currentEvent.getType(), stat.getId(), Children.WITHOUT, stat);
+          mergeStatistic(currentEvent.getType(), stat.getId(), Children.WITH, stat);
 
-        for (TracerEvent event : stack) {
-          if (event.getType() != currentEvent.getType()) {
-            mergeStatistic(event.getType(), stat.getId(), Children.WITH, stat);
+          for (TracerEvent event : stack) {
+            if (event.getType() != currentEvent.getType()) {
+              mergeStatistic(event.getType(), stat.getId(), Children.WITH, stat);
+            }
           }
         }
-      }
-      currentEvent.removeStatistics();
+        currentEvent.removeStatistics();
 
-      // Ending event
-      if (threadPendingEvents.isEmpty()) {
-        eventsToWrite.add(currentEvent);
-      } else {
-        TracerEvent parent = threadPendingEvents.peek();
+        // Ending event
+        if (threadPendingEvents.isEmpty()) {
+          eventsToWrite.add(currentEvent);
+        } else {
+          TracerEvent parent = threadPendingEvents.peek();
 
-        TracerEvent overhead = new TracerEvent(parent, TracerEventType.OVERHEAD, values);
-        long[] now = probeManager.readAndStart(type);
-        for (int idx = 0; idx < now.length; idx++) {
-          overhead.elapsedValue[idx] = now[idx] - values[idx];
+          TracerEvent overhead = new TracerEvent(parent, TracerEventType.OVERHEAD, values);
+          long[] now = probeManager.readAndStart(type);
+          for (int idx = 0; idx < now.length; idx++) {
+            overhead.elapsedValue[idx] = now[idx] - values[idx];
+          }
+        }
+      } finally {
+        if (eventCount.decrementAndGet() == 0) {
+          try {
+            // Wait for the other thread to drain the queue.
+            eventsToWrite.add(shutDownSentinel);
+            shutDownLatch.await();
+          } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+          }
         }
       }
     }
