@@ -517,7 +517,7 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
       semi();
       newlineOpt();
     } else {
-      JMethodBody body = x.getBody();
+      JAbstractMethodBody body = x.getBody();
       assert body != null;
       accept(body);
     }

@@ -19,12 +19,38 @@ package com.android.jack.ir.ast;
 import com.android.jack.JackAbortException;
 import com.android.jack.ir.HasSourceInfo;
 import com.android.jack.ir.JNodeInternalError;
+import com.android.jack.ir.ast.cfg.JBasicBlock;
+import com.android.jack.ir.ast.cfg.JBasicBlockElement;
+import com.android.jack.ir.ast.cfg.JBlockUnderConstruction;
+import com.android.jack.ir.ast.cfg.JCaseBlockElement;
+import com.android.jack.ir.ast.cfg.JCatchBasicBlock;
+import com.android.jack.ir.ast.cfg.JConditionalBasicBlock;
+import com.android.jack.ir.ast.cfg.JConditionalBlockElement;
+import com.android.jack.ir.ast.cfg.JControlFlowGraph;
+import com.android.jack.ir.ast.cfg.JEntryBasicBlock;
+import com.android.jack.ir.ast.cfg.JExitBasicBlock;
+import com.android.jack.ir.ast.cfg.JGotoBlockElement;
+import com.android.jack.ir.ast.cfg.JLockBlockElement;
+import com.android.jack.ir.ast.cfg.JMethodCallBlockElement;
+import com.android.jack.ir.ast.cfg.JPolymorphicMethodCallBlockElement;
+import com.android.jack.ir.ast.cfg.JRegularBasicBlock;
+import com.android.jack.ir.ast.cfg.JReturnBasicBlock;
+import com.android.jack.ir.ast.cfg.JReturnBlockElement;
+import com.android.jack.ir.ast.cfg.JSimpleBasicBlock;
+import com.android.jack.ir.ast.cfg.JStoreBlockElement;
+import com.android.jack.ir.ast.cfg.JSwitchBasicBlock;
+import com.android.jack.ir.ast.cfg.JSwitchBlockElement;
+import com.android.jack.ir.ast.cfg.JThrowBasicBlock;
+import com.android.jack.ir.ast.cfg.JThrowBlockElement;
+import com.android.jack.ir.ast.cfg.JThrowingBasicBlock;
+import com.android.jack.ir.ast.cfg.JThrowingExpressionBasicBlock;
+import com.android.jack.ir.ast.cfg.JUnlockBlockElement;
+import com.android.jack.ir.ast.cfg.JVariableAsgBlockElement;
 import com.android.jack.load.JackLoadingException;
 import com.android.sched.transform.TransformRequest;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
 import javax.annotation.Nonnull;
 
 /**
@@ -147,6 +173,122 @@ public class JVisitor {
 
   public void endVisit(@Nonnull JAssertStatement assertStatement) {
     endVisit((JStatement) assertStatement);
+  }
+
+  public void endVisit(@Nonnull JConcreteMethodBody concreteMethodBody) {
+    endVisit((JAbstractMethodBody) concreteMethodBody);
+  }
+
+  public void endVisit(@Nonnull JMethodBodyCfg methodBodyCfg) {
+    endVisit((JConcreteMethodBody) methodBodyCfg);
+  }
+
+  public void endVisit(@Nonnull JControlFlowGraph controlFlowGraph) {
+    endVisit((JNode) controlFlowGraph);
+  }
+
+  public void endVisit(@Nonnull JBasicBlock basicBlock) {
+    endVisit((JNode) basicBlock);
+  }
+
+  public void endVisit(@Nonnull JCatchBasicBlock catchBasicBlock) {
+    endVisit((JRegularBasicBlock) catchBasicBlock);
+  }
+
+  public void endVisit(@Nonnull JConditionalBasicBlock conditionalBasicBlock) {
+    endVisit((JRegularBasicBlock) conditionalBasicBlock);
+  }
+
+  public void endVisit(@Nonnull JEntryBasicBlock entryBasicBlock) {
+    endVisit((JBasicBlock) entryBasicBlock);
+  }
+
+  public void endVisit(@Nonnull JExitBasicBlock exitBasicBlock) {
+    endVisit((JBasicBlock) exitBasicBlock);
+  }
+
+  public void endVisit(@Nonnull JRegularBasicBlock regularBasicBlock) {
+    endVisit((JBasicBlock) regularBasicBlock);
+  }
+
+  public void endVisit(@Nonnull JBlockUnderConstruction blockUnderConstruction) {
+    endVisit((JBasicBlock) blockUnderConstruction);
+  }
+
+  public void endVisit(@Nonnull JReturnBasicBlock returnBasicBlock) {
+    endVisit((JRegularBasicBlock) returnBasicBlock);
+  }
+
+  public void endVisit(@Nonnull JSimpleBasicBlock simpleBasicBlock) {
+    endVisit((JRegularBasicBlock) simpleBasicBlock);
+  }
+
+  public void endVisit(@Nonnull JSwitchBasicBlock switchBasicBlock) {
+    endVisit((JRegularBasicBlock) switchBasicBlock);
+  }
+
+  public void endVisit(@Nonnull JThrowingBasicBlock throwingBasicBlock) {
+    endVisit((JRegularBasicBlock) throwingBasicBlock);
+  }
+
+  public void endVisit(@Nonnull JThrowingExpressionBasicBlock throwingExpressionBasicBlock) {
+    endVisit((JThrowingBasicBlock) throwingExpressionBasicBlock);
+  }
+
+  public void endVisit(@Nonnull JThrowBasicBlock throwBasicBlock) {
+    endVisit((JThrowingBasicBlock) throwBasicBlock);
+  }
+
+  public void endVisit(@Nonnull JBasicBlockElement basicBlockElement) {
+    endVisit((JNode) basicBlockElement);
+  }
+
+  public void endVisit(@Nonnull JGotoBlockElement gotoBlockElement) {
+    endVisit((JBasicBlockElement) gotoBlockElement);
+  }
+
+  public void endVisit(@Nonnull JThrowBlockElement throwBlockElement) {
+    endVisit((JBasicBlockElement) throwBlockElement);
+  }
+
+  public void endVisit(@Nonnull JStoreBlockElement storeBlockElement) {
+    endVisit((JBasicBlockElement) storeBlockElement);
+  }
+
+  public void endVisit(@Nonnull JVariableAsgBlockElement variableAsgBlockElement) {
+    endVisit((JBasicBlockElement) variableAsgBlockElement);
+  }
+
+  public void endVisit(@Nonnull JReturnBlockElement returnBlockElement) {
+    endVisit((JBasicBlockElement) returnBlockElement);
+  }
+
+  public void endVisit(@Nonnull JCaseBlockElement caseBlockElement) {
+    endVisit((JBasicBlockElement) caseBlockElement);
+  }
+
+  public void endVisit(@Nonnull JMethodCallBlockElement methodCallBlockElement) {
+    endVisit((JBasicBlockElement) methodCallBlockElement);
+  }
+
+  public void endVisit(@Nonnull JPolymorphicMethodCallBlockElement methodCallBlockElement) {
+    endVisit((JBasicBlockElement) methodCallBlockElement);
+  }
+
+  public void endVisit(@Nonnull JLockBlockElement lockBlockElement) {
+    endVisit((JBasicBlockElement) lockBlockElement);
+  }
+
+  public void endVisit(@Nonnull JUnlockBlockElement unlockBlockElement) {
+    endVisit((JBasicBlockElement) unlockBlockElement);
+  }
+
+  public void endVisit(@Nonnull JSwitchBlockElement switchBlockElement) {
+    endVisit((JBasicBlockElement) switchBlockElement);
+  }
+
+  public void endVisit(@Nonnull JConditionalBlockElement conditionalBlockElement) {
+    endVisit((JBasicBlockElement) conditionalBlockElement);
   }
 
   public void endVisit(@Nonnull JBinaryOperation binaryOperation) {
@@ -326,7 +468,7 @@ public class JVisitor {
   }
 
   public void endVisit(@Nonnull JMethodBody methodBody) {
-    endVisit((JAbstractMethodBody) methodBody);
+    endVisit((JConcreteMethodBody) methodBody);
   }
 
   public void endVisit(@Nonnull JPolymorphicMethodCall polymorphicMethodCall) {
@@ -367,7 +509,9 @@ public class JVisitor {
 
   /**
    * End visit of a {@link JNode}
-   * @param jnode visited {@link JNode}
+   *
+   * @param jnode
+   *     visited {@link JNode}
    */
   public void endVisit(@Nonnull JNode jnode) {
     // empty block
@@ -549,6 +693,122 @@ public class JVisitor {
     return visit((JExpression) binaryOperation);
   }
 
+  public boolean visit(@Nonnull JConcreteMethodBody concreteMethodBody) {
+    return visit((JAbstractMethodBody) concreteMethodBody);
+  }
+
+  public boolean visit(@Nonnull JMethodBodyCfg methodBodyCfg) {
+    return visit((JConcreteMethodBody) methodBodyCfg);
+  }
+
+  public boolean visit(@Nonnull JControlFlowGraph controlFlowGraph) {
+    return visit((JNode) controlFlowGraph);
+  }
+
+  public boolean visit(@Nonnull JBasicBlock basicBlock) {
+    return visit((JNode) basicBlock);
+  }
+
+  public boolean visit(@Nonnull JCatchBasicBlock catchBasicBlock) {
+    return visit((JRegularBasicBlock) catchBasicBlock);
+  }
+
+  public boolean visit(@Nonnull JConditionalBasicBlock conditionalBasicBlock) {
+    return visit((JRegularBasicBlock) conditionalBasicBlock);
+  }
+
+  public boolean visit(@Nonnull JEntryBasicBlock entryBasicBlock) {
+    return visit((JBasicBlock) entryBasicBlock);
+  }
+
+  public boolean visit(@Nonnull JExitBasicBlock exitBasicBlock) {
+    return visit((JBasicBlock) exitBasicBlock);
+  }
+
+  public boolean visit(@Nonnull JRegularBasicBlock regularBasicBlock) {
+    return visit((JBasicBlock) regularBasicBlock);
+  }
+
+  public boolean visit(@Nonnull JBlockUnderConstruction blockUnderConstruction) {
+    return visit((JBasicBlock) blockUnderConstruction);
+  }
+
+  public boolean visit(@Nonnull JReturnBasicBlock returnBasicBlock) {
+    return visit((JRegularBasicBlock) returnBasicBlock);
+  }
+
+  public boolean visit(@Nonnull JSimpleBasicBlock simpleBasicBlock) {
+    return visit((JRegularBasicBlock) simpleBasicBlock);
+  }
+
+  public boolean visit(@Nonnull JSwitchBasicBlock switchBasicBlock) {
+    return visit((JRegularBasicBlock) switchBasicBlock);
+  }
+
+  public boolean visit(@Nonnull JThrowingBasicBlock throwingBasicBlock) {
+    return visit((JRegularBasicBlock) throwingBasicBlock);
+  }
+
+  public boolean visit(@Nonnull JThrowingExpressionBasicBlock throwingExpressionBasicBlock) {
+    return visit((JThrowingBasicBlock) throwingExpressionBasicBlock);
+  }
+
+  public boolean visit(@Nonnull JThrowBasicBlock throwBasicBlock) {
+    return visit((JThrowingBasicBlock) throwBasicBlock);
+  }
+
+  public boolean visit(@Nonnull JBasicBlockElement basicBlockElement) {
+    return visit((JNode) basicBlockElement);
+  }
+
+  public boolean visit(@Nonnull JGotoBlockElement gotoBlockElement) {
+    return visit((JBasicBlockElement) gotoBlockElement);
+  }
+
+  public boolean visit(@Nonnull JThrowBlockElement throwBlockElement) {
+    return visit((JBasicBlockElement) throwBlockElement);
+  }
+
+  public boolean visit(@Nonnull JStoreBlockElement storeBlockElement) {
+    return visit((JBasicBlockElement) storeBlockElement);
+  }
+
+  public boolean visit(@Nonnull JVariableAsgBlockElement variableAsgBlockElement) {
+    return visit((JBasicBlockElement) variableAsgBlockElement);
+  }
+
+  public boolean visit(@Nonnull JReturnBlockElement returnBlockElement) {
+    return visit((JBasicBlockElement) returnBlockElement);
+  }
+
+  public boolean visit(@Nonnull JCaseBlockElement caseBlockElement) {
+    return visit((JBasicBlockElement) caseBlockElement);
+  }
+
+  public boolean visit(@Nonnull JMethodCallBlockElement methodCallBlockElement) {
+    return visit((JBasicBlockElement) methodCallBlockElement);
+  }
+
+  public boolean visit(@Nonnull JPolymorphicMethodCallBlockElement methodCallBlockElement) {
+    return visit((JBasicBlockElement) methodCallBlockElement);
+  }
+
+  public boolean visit(@Nonnull JLockBlockElement lockBlockElement) {
+    return visit((JBasicBlockElement) lockBlockElement);
+  }
+
+  public boolean visit(@Nonnull JUnlockBlockElement unlockBlockElement) {
+    return visit((JBasicBlockElement) unlockBlockElement);
+  }
+
+  public boolean visit(@Nonnull JSwitchBlockElement switchBlockElement) {
+    return visit((JBasicBlockElement) switchBlockElement);
+  }
+
+  public boolean visit(@Nonnull JConditionalBlockElement conditionalBlockElement) {
+    return visit((JBasicBlockElement) conditionalBlockElement);
+  }
+
   public boolean visit(@Nonnull JReinterpretCastOperation reinterpretCastOperation) {
     return visit((JCastOperation) reinterpretCastOperation);
   }
@@ -722,7 +982,7 @@ public class JVisitor {
   }
 
   public boolean visit(@Nonnull JMethodBody methodBody) {
-    return visit((JAbstractMethodBody) methodBody);
+    return visit((JConcreteMethodBody) methodBody);
   }
 
   public boolean visit(@Nonnull JPolymorphicMethodCall polymorphicMethodCall) {
@@ -763,7 +1023,9 @@ public class JVisitor {
 
   /**
    * Visit of a {@link JNode}
-   * @param jnode visited {@link JNode}
+   *
+   * @param jnode
+   *     visited {@link JNode}
    */
   public boolean visit(@Nonnull JNode jnode) {
     return true;
@@ -958,6 +1220,152 @@ public class JVisitor {
   public void visit(@Nonnull JBinaryOperation binaryOperation,
       @Nonnull TransformRequest transformRequest) throws Exception {
     visit((JExpression) binaryOperation, transformRequest);
+  }
+
+  public void visit(@Nonnull JConcreteMethodBody concreteMethodBody,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JAbstractMethodBody) concreteMethodBody, transformRequest);
+  }
+
+  public void visit(@Nonnull JMethodBodyCfg x, @Nonnull TransformRequest transformRequest)
+      throws Exception {
+    visit((JConcreteMethodBody) x, transformRequest);
+  }
+
+  public void visit(@Nonnull JControlFlowGraph controlFlowGraph,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JNode) controlFlowGraph, transformRequest);
+  }
+
+  public void visit(@Nonnull JBasicBlock basicBlock,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JNode) basicBlock, transformRequest);
+  }
+
+  public void visit(@Nonnull JCatchBasicBlock catchBasicBlock,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JRegularBasicBlock) catchBasicBlock, transformRequest);
+  }
+
+  public void visit(@Nonnull JConditionalBasicBlock conditionalBasicBlock,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JRegularBasicBlock) conditionalBasicBlock, transformRequest);
+  }
+
+  public void visit(@Nonnull JEntryBasicBlock entryBasicBlock,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JBasicBlock) entryBasicBlock, transformRequest);
+  }
+
+  public void visit(@Nonnull JExitBasicBlock exitBasicBlock,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JBasicBlock) exitBasicBlock, transformRequest);
+  }
+
+  public void visit(@Nonnull JRegularBasicBlock regularBasicBlock,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JBasicBlock) regularBasicBlock, transformRequest);
+  }
+
+  public void visit(@Nonnull JBlockUnderConstruction blockUnderConstruction,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JBasicBlock) blockUnderConstruction, transformRequest);
+  }
+
+  public void visit(@Nonnull JReturnBasicBlock returnBasicBlock,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JRegularBasicBlock) returnBasicBlock, transformRequest);
+  }
+
+  public void visit(@Nonnull JSimpleBasicBlock simpleBasicBlock,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JRegularBasicBlock) simpleBasicBlock, transformRequest);
+  }
+
+  public void visit(@Nonnull JSwitchBasicBlock switchBasicBlock,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JRegularBasicBlock) switchBasicBlock, transformRequest);
+  }
+
+  public void visit(@Nonnull JThrowingBasicBlock throwingBasicBlock,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JRegularBasicBlock) throwingBasicBlock, transformRequest);
+  }
+
+  public void visit(
+      @Nonnull JThrowingExpressionBasicBlock throwingExpressionBasicBlock,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JThrowingBasicBlock) throwingExpressionBasicBlock, transformRequest);
+  }
+
+  public void visit(@Nonnull JThrowBasicBlock throwBasicBlock,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JThrowingBasicBlock) throwBasicBlock, transformRequest);
+  }
+
+  public void visit(@Nonnull JBasicBlockElement basicBlockElement,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JNode) basicBlockElement, transformRequest);
+  }
+
+  public void visit(@Nonnull JGotoBlockElement gotoBlockElement,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JBasicBlockElement) gotoBlockElement, transformRequest);
+  }
+
+  public void visit(@Nonnull JThrowBlockElement throwBlockElement,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JBasicBlockElement) throwBlockElement, transformRequest);
+  }
+
+  public void visit(@Nonnull JStoreBlockElement storeBlockElement,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JBasicBlockElement) storeBlockElement, transformRequest);
+  }
+
+  public void visit(@Nonnull JVariableAsgBlockElement variableAsgBlockElement,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JBasicBlockElement) variableAsgBlockElement, transformRequest);
+  }
+
+  public void visit(@Nonnull JReturnBlockElement returnBlockElement,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JBasicBlockElement) returnBlockElement, transformRequest);
+  }
+
+  public void visit(@Nonnull JCaseBlockElement caseBlockElement,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JBasicBlockElement) caseBlockElement, transformRequest);
+  }
+
+  public void visit(@Nonnull JMethodCallBlockElement methodCallBlockElement,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JBasicBlockElement) methodCallBlockElement, transformRequest);
+  }
+
+  public void visit(@Nonnull JPolymorphicMethodCallBlockElement methodCallBlockElement,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JBasicBlockElement) methodCallBlockElement, transformRequest);
+  }
+
+  public void visit(@Nonnull JLockBlockElement lockBlockElement,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JBasicBlockElement) lockBlockElement, transformRequest);
+  }
+
+  public void visit(@Nonnull JUnlockBlockElement unlockBlockElement,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JBasicBlockElement) unlockBlockElement, transformRequest);
+  }
+
+  public void visit(@Nonnull JSwitchBlockElement switchBlockElement,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JBasicBlockElement) switchBlockElement, transformRequest);
+  }
+
+  public void visit(@Nonnull JConditionalBlockElement conditionalBlockElement,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JBasicBlockElement) conditionalBlockElement, transformRequest);
   }
 
   public void visit(
@@ -1174,7 +1582,7 @@ public class JVisitor {
 
   public void visit(@Nonnull JMethodBody methodBody, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JAbstractMethodBody) methodBody, transformRequest);
+    visit((JConcreteMethodBody) methodBody, transformRequest);
   }
 
   public void visit(@Nonnull JPolymorphicMethodCall polymorphicMethodCall,
@@ -1226,11 +1634,15 @@ public class JVisitor {
 
   /**
    * Visit of a {@link JNode} with a {@link TransformRequest} to apply on.
-   * @param jnode visited {@link JNode}
-   * @param transformRequest {@link TransformRequest} to apply on.
+   *
+   * @param jnode
+   *     visited {@link JNode}
+   * @param transformRequest
+   *     {@link TransformRequest} to apply on.
    */
   public void visit(@Nonnull JNode jnode, @Nonnull TransformRequest transformRequest)
-      throws Exception {}
+      throws Exception {
+  }
 
   public void visit(@Nonnull JNullLiteral nullLiteral, @Nonnull TransformRequest transformRequest)
       throws Exception {

@@ -69,11 +69,6 @@ public class JConstructor extends JMethod {
     return false;
   }
 
-  @Override
-  public JMethodBody getBody() {
-    return (JMethodBody) super.getBody();
-  }
-
   @Nonnull
   @Override
   public JDefinedClass getEnclosingType() {

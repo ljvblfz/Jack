@@ -200,12 +200,24 @@ public class RopHelper {
    */
   @Nonnull
   public static SourcePosition getSourcePosition(@Nonnull JNode stmt) {
-    if (stmt.getSourceInfo() == SourceInfo.UNKNOWN) {
+    return getSourcePosition(stmt.getSourceInfo());
+  }
+
+  /**
+   * Builds a {@code SourcePosition} for a {@code SourceInfo}.
+   *
+   * @param sourceInfo
+   *     The source info used to extract source position information.
+   * @return The built {@code SourcePosition}.
+   */
+  @Nonnull
+  public static SourcePosition getSourcePosition(@Nonnull SourceInfo sourceInfo) {
+    if (sourceInfo == SourceInfo.UNKNOWN) {
       return SourcePosition.NO_INFO;
     }
-    int startLine = stmt.getSourceInfo().getStartLine();
+    int startLine = sourceInfo.getStartLine();
     // Jack defines unknown line by UNKNOWN_LINE_NUMBER, but dx requires to use -1.
-    return (new SourcePosition(new CstString(stmt.getSourceInfo().getFileName()), -1,
+    return (new SourcePosition(new CstString(sourceInfo.getFileName()), -1,
         startLine == SourceInfo.UNKNOWN_LINE_NUMBER ? -1 : startLine));
   }
 
