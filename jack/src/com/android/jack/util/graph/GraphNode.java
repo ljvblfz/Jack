@@ -35,12 +35,13 @@ public class GraphNode<N extends GraphNode<N>> extends LocalMarkerManager {
   // TODO(mikaelpeltier) Think about new implementation of sparse list due to index usage and
   // append usage to fill successors.
   @Nonnull
-  protected final ArrayList<N> successors = new ArrayList<N>();
+  protected final ArrayList<N> successors;
 
   @Nonnull
   protected final ArrayList<N> predecessors = new ArrayList<N>();
 
   public GraphNode(@Nonnegative int successorsCount) {
+    successors = new ArrayList<>(successorsCount);
     for (int i = 0; i < successorsCount; i++) {
       successors.add(null);
     }
