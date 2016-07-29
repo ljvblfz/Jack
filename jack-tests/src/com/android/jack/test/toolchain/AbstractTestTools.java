@@ -300,7 +300,7 @@ public abstract class AbstractTestTools {
 
   @Nonnull
   public static final File getTestRootDir(@Nonnull String packageName) {
-    return new File(getTestsRootDir(), packageName.replace(".", File.separator));
+    return new File(getTestsRootDir(), packageName.replace('.', File.separatorChar));
   }
 
   @Nonnull
