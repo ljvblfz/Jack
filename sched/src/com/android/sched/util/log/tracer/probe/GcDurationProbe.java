@@ -49,7 +49,7 @@ public class GcDurationProbe extends TimeNanosProbe {
     }
 
     // From millis to nanos
-    return count * 1000;
+    return count * 1000 * 1000;
   }
 
   @Override

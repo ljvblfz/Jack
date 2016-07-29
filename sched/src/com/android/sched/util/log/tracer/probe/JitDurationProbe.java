@@ -19,25 +19,25 @@ package com.android.sched.util.log.tracer.probe;
 import com.android.sched.util.codec.ImplementationFilter;
 import com.android.sched.util.codec.ImplementationName;
 
+import java.lang.management.CompilationMXBean;
 import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadMXBean;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
- * Probe which take the duration of thread contention.
+ * Probe which take the duration of JIT compiler.
  */
 @ImplementationName(iface = Probe.class,
-    name = "thread-contention-duration",
-    filter = ThreadContentionDurationProbe.Filter.class)
-public class ThreadContentionDurationProbe extends TimeNanosProbe {
+    name = "jit-duration",
+    filter = JitDurationProbe.Filter.class)
+public class JitDurationProbe extends TimeNanosProbe {
   static class Filter implements ImplementationFilter {
     @Override
     public boolean isValid() {
       try {
-        ThreadMXBean threadManager = ManagementFactory.getThreadMXBean();
-        return threadManager.isThreadContentionMonitoringSupported();
+        CompilationMXBean compilerMXBean = ManagementFactory.getCompilationMXBean();
+        return compilerMXBean.isCompilationTimeMonitoringSupported();
       } catch (Throwable e) {
         return false;
       }
@@ -45,20 +45,18 @@ public class ThreadContentionDurationProbe extends TimeNanosProbe {
   }
 
   @Nonnull
-  private final ThreadMXBean threadMXBean;
+  private final CompilationMXBean compilerMXBean;
 
-  public ThreadContentionDurationProbe() {
-    super("Thread contention duration", MAX_PRIORITY + 5);
+  public JitDurationProbe() {
+    super("JIT compiler duration", MIN_PRIORITY);
 
-    threadMXBean = ManagementFactory.getThreadMXBean();
-    threadMXBean.setThreadContentionMonitoringEnabled(true);
+    compilerMXBean = ManagementFactory.getCompilationMXBean();
   }
 
   @Override
   @Nonnegative
   public long read() {
-    return threadMXBean.getThreadInfo(Thread.currentThread().getId()).getBlockedTime()
-         * 1000 * 1000;
+    return compilerMXBean.getTotalCompilationTime() * 1000 * 1000;
   }
 
   @Override
