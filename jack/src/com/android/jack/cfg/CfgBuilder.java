@@ -138,7 +138,7 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
     @Nonnull
     private final EntryBlock entryBlock;
     @Nonnull
-    private final ExitBlock exitBlock;
+    private final ExitBlock exitBlock = new ExitBlock();
     @Nonnull
     private final ArrayList<BasicBlock> blocks;
     @Nonnull
@@ -157,7 +157,8 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
     private List<JStatement> virtualStmts = new LinkedList<JStatement>();
 
     @Nonnull
-    private final ForwardBranchResolver forwardBranchResolver = new ForwardBranchResolver();
+    private final ForwardBranchResolver forwardBranchResolver =
+        new ForwardBranchResolver(exitBlock);
 
     @Nonnull
     private List<JCatchBlock> previousCatchBlock = new ArrayList<JCatchBlock>();
@@ -171,7 +172,6 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
       blocks = new ArrayList<BasicBlock>();
       entryBlock = new EntryBlock(basicBlockId++);
       blocks.add(entryBlock);
-      exitBlock = new ExitBlock();
     }
 
     @Override
