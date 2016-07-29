@@ -24,7 +24,7 @@ import javax.annotation.Nonnull;
  */
 public class ToStringFormatter implements Formatter<Object> {
   @Nonnull
-  private String nullString = "-";
+  private String nullString = "n/a";
 
   public void setNull(@Nonnull String nullString) {
     this.nullString = nullString;

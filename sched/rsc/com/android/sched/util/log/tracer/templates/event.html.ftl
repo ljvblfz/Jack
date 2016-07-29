@@ -26,6 +26,7 @@
 <#list table.data as data>
           [
 <#list data?chunk(2) as value>
+<#if value[0]??>
 <#if value[0]?is_string>
 <#if value[1]?has_content>
             '<a href="${value[1]}">${value[0]}</a>',
@@ -34,6 +35,7 @@
 </#if>
 <#else>
             {v: ${value[0]}, f: '${value[1]}'},
+</#if>
 </#if>
 </#list>
           ],

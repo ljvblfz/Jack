@@ -16,7 +16,6 @@
 
 package com.android.sched.util.codec;
 
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 import javax.annotation.Nonnull;
@@ -26,7 +25,7 @@ import javax.annotation.Nonnull;
  */
 public class NumberFormatter implements Formatter<Number> {
   @Nonnull
-  private NumberFormat formatter = NumberFormat.getIntegerInstance();
+  private NumberFormat formatter = NumberFormat.getNumberInstance();
 
   @Nonnull
   public NumberFormat getNumberFormatter() {
@@ -34,7 +33,7 @@ public class NumberFormatter implements Formatter<Number> {
   }
 
   @Nonnull
-  public NumberFormatter setNumberFormatter(@Nonnull DecimalFormat formatter) {
+  public NumberFormatter setNumberFormatter(@Nonnull NumberFormat formatter) {
     this.formatter = formatter;
 
     return this;

@@ -27,6 +27,7 @@ import com.android.sched.util.codec.QuantityFormatter;
 import com.android.sched.util.codec.ToStringFormatter;
 
 import java.io.PrintWriter;
+import java.text.NumberFormat;
 
 import javax.annotation.Nonnull;
 
@@ -44,10 +45,15 @@ public class TextPrinter extends AbstractPrinter {
 
   public TextPrinter(@Nonnull PrintWriter printer) {
     super(printer);
+    NumberFormat formatter = NumberFormat.getNumberInstance();
+    formatter.setMinimumFractionDigits(4);
+    formatter.setMaximumFractionDigits(4);
+
     printers.put(DataType.NOTHING, new NothingPrinter());
     printers.put(DataType.BOOLEAN, new FormatterAdapter<Boolean>(new BooleanCodec()));
     printers.put(DataType.DURATION, new FormatterAdapter<Long>(new DurationFormatter()));
-    printers.put(DataType.NUMBER, new FormatterAdapter<Number>(new NumberFormatter()));
+    printers.put(DataType.NUMBER,
+        new FormatterAdapter<Number>(new NumberFormatter().setNumberFormatter(formatter)));
     printers.put(DataType.PERCENT, new FormatterAdapter<Double>(new PercentFormatter()));
     printers.put(DataType.QUANTITY, new FormatterAdapter<Long>(new QuantityFormatter()));
     printers.put(DataType.STRING, new FormatterAdapter<Object>(new ToStringFormatter()));
