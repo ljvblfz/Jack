@@ -63,6 +63,7 @@ import javax.annotation.Nonnull;
 @HasKeyId
 @Description("Visitor that prints the mapping")
 @Produce(Mapping.class)
+@Constraint(need = FinalNames.class)
 @Optional(@ToSupport(
     feature = Obfuscation.class, add = @Constraint(need = OriginalNameMarker.class)))
 public class MappingPrinter implements RunnableSchedulable<JSession> {
