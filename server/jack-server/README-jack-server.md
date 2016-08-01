@@ -16,8 +16,8 @@ Mac OS:
     Make sure that `/opt/local/bin appears` in your path before `/usr/bin`. If not, please
     add the following to your `~/.bash_profile` file (If you do not have a `.bash_profile`
     file in your home directory, create one):
-```  
-    export PATH=/opt/local/bin:$PATH`
+```
+    $ export PATH=/opt/local/bin:$PATH`
 ```
 
   - Get curl package from MacPorts:
@@ -116,7 +116,8 @@ Print help.
 Install the Jack server.
 
 `$ jack-admin uninstall-server`  
-Uninstall the Jack server and all components.
+Uninstall the Jack server and all components. You should ensure that the Jack server
+is not running before uninstalling.
 
 `$ jack-admin list jack`  
 List installed versions for Jack.
