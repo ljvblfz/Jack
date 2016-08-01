@@ -9,8 +9,7 @@ and benefit from already warm instances.
 
 ## Setup for Mac OS
 
-Jack server is automatically installed and started by android build but requires initial setup on
-Mac OS:
+Jack server requires initial setup on Mac OS:
 
   - Install MacPorts from [macports.org](http://www.macports.org/install.php)  
     Make sure that `/opt/local/bin appears` in your path before `/usr/bin`. If not, please
@@ -24,6 +23,15 @@ Mac OS:
 ```
     $ POSIXLY_CORRECT=1 sudo port install curl +ssl
 ```
+
+## Installing the server
+
+Jack server is automatically installed and started by Android build. If you need to do the
+installation manually use:
+```
+    $ jack-admin install-server <launcher.jar> <server.jar>
+```
+
 
 ## Starting the server
 
