@@ -78,4 +78,9 @@ public class JGoto extends JStatement {
     assert target.getBody() instanceof JBlock : "Goto must target labeled block.";
     labeledStmt = target;
   }
+
+  @Override
+  public boolean isUnconditionalBranch() {
+    return true;
+  }
 }

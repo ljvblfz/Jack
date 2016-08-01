@@ -163,12 +163,15 @@ public class IfWithConstantSimplifier implements RunnableSchedulable<JMethod> {
 
               if (!thenStatements.isEmpty()) {
                 JStatement lastStatement = getLastStatement(thenStatements);
-                tr.append(new PrependAfter(lastStatement, new JGoto(si, endLabel)));
+                if (!lastStatement.isUnconditionalBranch()) {
+                  tr.append(new PrependAfter(lastStatement, new JGoto(si, endLabel)));
+                  tr.append(new PrependAfter(ifStmt, endLabel));
+                }
               } else {
                 tr.append(new AppendStatement(thenBb, new JGoto(si, endLabel)));
+                tr.append(new PrependAfter(ifStmt, endLabel));
               }
 
-              tr.append(new PrependAfter(ifStmt, endLabel));
             }
             tr.append(new Remove(ifStmt));
           }
