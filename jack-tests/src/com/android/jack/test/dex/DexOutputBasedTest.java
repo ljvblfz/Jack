@@ -17,6 +17,7 @@
 package com.android.jack.test.dex;
 
 import com.android.jack.backend.dex.DexFileWriter;
+import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
@@ -88,7 +89,8 @@ public abstract class DexOutputBasedTest {
       @Nonnull CompilationProperties properties,
       @Nonnull DexValidator<DexFile> validator) throws Exception {
 
-    File testFolder = AbstractTestTools.getTestRootDir(testPackage);
+    File testFolder = new File(AbstractTestTools.getTestRootDir(testPackage), "jack");
+    File unitTestFolder = new File(AbstractTestTools.getTestRootDir(testPackage), "dx");
     File outFolder = AbstractTestTools.createTempDir();
     File out = new File(outFolder, DexFileWriter.DEX_FILENAME);
 
@@ -105,8 +107,13 @@ public abstract class DexOutputBasedTest {
     }
 
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
-        .srcToExe(outFolder, /* zipFile = */false, testFolder);
+        .srcToExe(outFolder, /* zipFile = */false, testFolder, unitTestFolder);
 
     validator.validate(new DexFile(out));
+
+    // Run runtime tests
+    RuntimeTestHelper.runOnRuntimeEnvironments(
+        Collections.singletonList(testPackage + ".Tests"),
+        RuntimeTestHelper.getJunitDex(), out);
   }
 }

@@ -17,10 +17,10 @@
 package com.android.jack.optimizations.wofr.test002;
 
 // Temp variables and null-check
-class A {
-  int SI = 123;
-  int fld;
-  static int sfld;
+public class A {
+  public int SI = 123;
+  public int fld;
+  public static int sfld;
 
   A a() { return null; }
   int i() { return 0; }
