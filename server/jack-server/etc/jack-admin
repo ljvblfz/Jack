@@ -285,13 +285,31 @@ case $COMMAND in
 
 
   uninstall-server)
+    SERVERS_PID=$(ps -A -o "pid args" -u `id -u -n` | grep $LAUNCHER_NAME | grep -v grep | awk '{print $1}')
+    if [ -n "$SERVERS_PID" ]; then
+      echo "Jack server is running, please stop it before uninstall" >&2
+      echo "If you want to proceeed anyway, use '$0 force-uninstall-server'" >&2
+      exit 2
+    fi
+
     if [ ! -d "$JACK_HOME" ]; then
       echo "Jack server in \"$JACK_HOME\" not found" >&2
       abort
-    else
-      echo "Removing jack server from \"$JACK_HOME\""
-      rm -rf "$JACK_HOME"
     fi
+
+    echo "Removing jack server from \"$JACK_HOME\""
+    rm -rf "$JACK_HOME"
+    exit 0 ;;
+
+
+  force-uninstall-server)
+    if [ ! -d "$JACK_HOME" ]; then
+      echo "Jack server in \"$JACK_HOME\" not found" >&2
+      abort
+    fi
+
+    echo "Removing jack server from \"$JACK_HOME\""
+    rm -rf "$JACK_HOME"
     exit 0 ;;
 
 
