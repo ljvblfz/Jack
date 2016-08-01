@@ -148,7 +148,7 @@ class ForwardBranchResolver {
     }
   }
 
-  private static class SwitchBasicBlockToResolve implements BlockToResolve {
+  private class SwitchBasicBlockToResolve implements BlockToResolve {
     @Nonnull
     private final SwitchBasicBlock block;
     @Nonnull
@@ -170,7 +170,18 @@ class ForwardBranchResolver {
       for (JCaseStatement caseStatement : cases) {
         block.addCaseBlock(getTargetBlock(caseStatement));
       }
-      if (defaultCase != null) {
+      if (defaultCase == null) {
+        // defaultCase means statement representing the default case of the JSwitchstatement or the
+        // statement following the JSwitchStatement.
+        // A Switch block without a default statement will target the exit block. Indeed, by
+        // building a switch block must have at least a default target (it is required by the
+        // backend).
+        // A switch without a default case can happen after FinallyRemover where a finally
+        // block containing a JSwitchStatement is inlined at the end of the try block that is
+        // composed by an infinite loop for instance. In this case, JSwitchtatement will be dead
+        // code and default case will be null.
+        block.setDefault(exitBlock);
+      } else {
         block.setDefault(getTargetBlock(defaultCase));
       }
     }

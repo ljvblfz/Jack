@@ -45,6 +45,10 @@ public class TryfinallyTests extends RuntimeTest {
     "com.android.jack.tryfinally.finallyblock.dx.Tests");
 
 
+  private RuntimeTestInfo FINALLY006 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.tryfinally.finally006"),
+      "com.android.jack.tryfinally.finally006.dx.Tests");
+
   @Test
   @Runtime
   @Category(RuntimeRegressionTest.class)
@@ -73,11 +77,19 @@ public class TryfinallyTests extends RuntimeTest {
     new RuntimeTestHelper(FINALLYBLOCK).compileAndRunTest();
   }
 
+  @Test
+  @Runtime
+  @Category(RuntimeRegressionTest.class)
+  public void finally006() throws Exception {
+    new RuntimeTestHelper(FINALLY006).compileAndRunTest();
+  }
+
   @Override
   protected void fillRtTestInfos() {
     rtTestInfos.add(FINALLY002);
     rtTestInfos.add(FINALLY003);
     rtTestInfos.add(FINALLY004);
     rtTestInfos.add(FINALLYBLOCK);
+    rtTestInfos.add(FINALLY006);
   }
 }
