@@ -69,6 +69,9 @@ import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.log.Event;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
+import com.android.sched.util.log.stats.Counter;
+import com.android.sched.util.log.stats.CounterImpl;
+import com.android.sched.util.log.stats.StatisticId;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -101,6 +104,11 @@ import javax.annotation.Nonnull;
 @Use(SourceInfoFactory.class)
 @Filter(TypeWithoutPrebuiltFilter.class)
 public class CfgBuilder implements RunnableSchedulable<JMethod> {
+
+  @Nonnull
+  public static final StatisticId<Counter> DEAD_BASIC_BLOCK = new StatisticId<>(
+      "jack.optimization.cfg.dead-basic-block", "Dead basic block removed",
+      CounterImpl.class, Counter.class);
 
   @Nonnull
   private final com.android.jack.util.filter.Filter<JMethod> filter =
@@ -222,25 +230,6 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
     }
 
     @Override
-    public void endVisit(@Nonnull JBlock block) {
-      JNode parent = block.getParent();
-      if (!currentStmts.isEmpty() || parent instanceof JLabeledStatement
-          || parent instanceof JIfStatement || !block.getJCatchBlocks().isEmpty()) {
-        // A basic block must be created if there are pending statements or if the block is the
-        // target of a branch (explicitly through label or implicitly through if statement) or
-        // if the block must reach a specific program point as for a try block which must branch
-        // after catches.
-        NormalBasicBlock endOfBlock = new NormalBasicBlock(basicBlockId++, currentStmts);
-        setBlockOfStatement(endOfBlock);
-
-        JStatement nextStatement = ControlFlowHelper.getNextStatement(block);
-        if (nextStatement != null) {
-          forwardBranchResolver.addNormalBasicBlock(endOfBlock, nextStatement);
-        }
-      }
-    }
-
-    @Override
     public boolean visit(@Nonnull JStatement statement) {
       if (!currentStmts.isEmpty() && !statement.getJCatchBlocks().equals(previousCatchBlock)) {
         previousCatchBlock = statement.getJCatchBlocks();
@@ -272,14 +261,36 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
 
       accept(ifStmt.getThenStmt());
 
+      if (!currentStmts.isEmpty() || !virtualStmts.isEmpty()) {
+        // If there are pending statements or virtual statements we must create a block to branch on
+        // the next instruction of the if statement. Otherwise, virtual statement such as
+        // JLabeledStatement could be associated with a bad basic block.
+        NormalBasicBlock endOfBlock = new NormalBasicBlock(basicBlockId++, currentStmts);
+        setBlockOfStatement(endOfBlock);
+
+        JStatement nextStatement = ControlFlowHelper.getNextStatement(ifStmt);
+        assert nextStatement != null;
+        forwardBranchResolver.addNormalBasicBlock(endOfBlock, nextStatement);
+      }
+
       JStatement elseStmt = ifStmt.getElseStmt();
       if (elseStmt != null) {
         accept(elseStmt);
+
+        if (!currentStmts.isEmpty() || !virtualStmts.isEmpty()) {
+          NormalBasicBlock endOfBlock = new NormalBasicBlock(basicBlockId++, currentStmts);
+          setBlockOfStatement(endOfBlock);
+
+          JStatement nextStatement = ControlFlowHelper.getNextStatement(ifStmt);
+          assert nextStatement != null;
+          forwardBranchResolver.addNormalBasicBlock(endOfBlock, nextStatement);
+        }
       } else {
         elseStmt = ControlFlowHelper.getNextStatement(ifStmt);
       }
-      forwardBranchResolver.addConditionalBasicBlock(condBlock, ifStmt.getThenStmt(),
-          elseStmt);
+
+      assert elseStmt != null;
+      forwardBranchResolver.addConditionalBasicBlock(condBlock, ifStmt.getThenStmt(), elseStmt);
 
       return false;
     }
@@ -489,7 +500,7 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
     method.addMarker(cfgBuilder.getCfg());
   }
 
-  private static void removeUnaccessibleNode(@Nonnull ArrayList<BasicBlock> nodes,
+  private void removeUnaccessibleNode(@Nonnull ArrayList<BasicBlock> nodes,
       @Nonnull BasicBlock entryNode, @Nonnull BasicBlock exitNode,
       @Nonnegative int maxBasicBlockId) {
 
@@ -537,6 +548,8 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
         }
       }
     }
+
+    tracer.getStatistic(DEAD_BASIC_BLOCK).incValue(nodes.size() - accessibleNodesCount);
     nodes.clear();
     nodes.addAll(accessibleBlocks);
     nodes.trimToSize();
