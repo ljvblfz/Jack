@@ -1,15 +1,11 @@
 method: Lcom/android/jack/optimizations/valuepropagation/test002/jack/B;-><init>(I)V
-registers: 5, in/out: 2/1
-instructions: 12
-    | const/16 v2, 1234
-    | invoke-direct v0, v3, v0, v0, v0, method_id_item: Ljava/lang/Object;-><init>()V
-    | iget v0, v3, Lcom/android/jack/optimizations/valuepropagation/test002/jack/B;->instance:I
-    | iget v1, v3, Lcom/android/jack/optimizations/valuepropagation/test002/jack/B;->instance:I
-    | add-int/2addr v0, v1
-    | iget v1, v3, Lcom/android/jack/optimizations/valuepropagation/test002/jack/B;->instance:I
-    | add-int/2addr v0, v1
-    | iget-object v1, v3, Lcom/android/jack/optimizations/valuepropagation/test002/jack/B;->anotherB:Lcom/android/jack/optimizations/valuepropagation/test002/jack/B;
-    | add-int/lit16 v0, v0, 1234
-    | add-int/lit8 v0, v0, 34
-    | iput v2, v3, Lcom/android/jack/optimizations/valuepropagation/test002/jack/B;->instance:I
+registers: 4, in/out: 2/1
+instructions: 8
+    | const/16 v1, 1234
+    | invoke-direct v0, v2, v0, v0, v0, method_id_item: Ljava/lang/Object;-><init>()V
+    | iget v0, v2, Lcom/android/jack/optimizations/valuepropagation/test002/jack/B;->instance:I
+    | iget v0, v2, Lcom/android/jack/optimizations/valuepropagation/test002/jack/B;->instance:I
+    | iget v0, v2, Lcom/android/jack/optimizations/valuepropagation/test002/jack/B;->instance:I
+    | iget-object v0, v2, Lcom/android/jack/optimizations/valuepropagation/test002/jack/B;->anotherB:Lcom/android/jack/optimizations/valuepropagation/test002/jack/B;
+    | iput v1, v2, Lcom/android/jack/optimizations/valuepropagation/test002/jack/B;->instance:I
     | return-void

@@ -91,6 +91,19 @@ public class DxTests extends RuntimeTest {
 
     });
 
+  private RuntimeTestInfo DEADCODEREMOVER =
+      new RuntimeTestInfo(AbstractTestTools.getTestRootDir("com.android.jack.dx.deadcoderemover"),
+          "com.android.jack.dx.deadcoderemover.dx.Tests").addFileChecker(new FileChecker() {
+            @Override
+            public void check(@Nonnull File file) throws Exception {
+              DexFile dexFile = new DexFile(file);
+              Assert.assertEquals(2,
+                  TestTools.getEncodedMethod(dexFile,
+                      "Lcom/android/jack/dx/deadcoderemover/jack/Data;", "allRemoved",
+                      "(IIZZ)I").codeItem.getInstructions().length);
+            }
+          });
+
   @Test
   @Runtime
   @Category(RuntimeRegressionTest.class)
@@ -110,6 +123,13 @@ public class DxTests extends RuntimeTest {
   @Category(RuntimeRegressionTest.class)
   public void overlapping() throws Exception {
     new RuntimeTestHelper(OVERLAPPING)
+    .compileAndRunTest();
+  }
+
+  @Test
+  @Runtime
+  public void deadcoderemover() throws Exception {
+    new RuntimeTestHelper(DEADCODEREMOVER)
     .compileAndRunTest();
   }
 

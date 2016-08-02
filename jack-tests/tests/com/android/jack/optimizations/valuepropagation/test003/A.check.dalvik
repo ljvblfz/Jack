@@ -1,19 +1,6 @@
 method: Lcom/android/jack/optimizations/valuepropagation/test003/jack/A;->check()V
-registers: 5, in/out: 1/2
-instructions: 28
-    | const/16 v0, 46
-    | int-to-long v0, v0
-    | const-wide/16 v2, 4
-    | add-long/2addr v0, v2
-    | const-wide/high16 v2, 16368
-    | double-to-long v2, v2
-    | add-long/2addr v0, v2
-    | const/high16 v2, 16384
-    | float-to-long v2, v2
-    | add-long/2addr v2, v0
-    | const/16 v0, 1001
-    | int-to-long v0, v0
-    | add-long/2addr v0, v2
+registers: 3, in/out: 1/2
+instructions: 15
     | const-string/jumbo v0, string_id_item: OOO
     | const/4 v1, 0
     | invoke-virtual v0, v0, v1, v0, v0, method_id_item: Ljava/lang/Object;->equals(Ljava/lang/Object;)Z
