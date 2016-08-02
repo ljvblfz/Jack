@@ -78,4 +78,10 @@ public abstract class BasicBlock extends GraphNode<BasicBlock> implements Compon
     // -1 means to get the last element.
     return statements.get(statements.size() - 1);
   }
+
+  @Nonnull
+  @Override
+  public List<BasicBlock> getSuccessors() {
+    return Jack.getUnmodifiableCollections().getUnmodifiableList(successors);
+  }
 }

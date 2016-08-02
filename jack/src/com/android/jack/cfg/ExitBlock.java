@@ -16,7 +16,11 @@
 
 package com.android.jack.cfg;
 
+import java.util.Collections;
+import java.util.List;
+
 import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
 
 /**
  * {@link ExitBlock} is a special block to have only one exit block into the control flow graph.
@@ -31,4 +35,9 @@ public class ExitBlock extends BasicBlock {
     super(Integer.MAX_VALUE, BasicBlock.EMPTY_STATEMENT_LIST, FIXED_BLOCK_COUNT);
   }
 
+  @Override
+  @Nonnull
+  public List<BasicBlock> getSuccessors() {
+    return Collections.emptyList();
+  }
 }

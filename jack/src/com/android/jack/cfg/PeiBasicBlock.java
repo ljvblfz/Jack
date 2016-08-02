@@ -16,8 +16,10 @@
 
 package com.android.jack.cfg;
 
+import com.android.jack.Jack;
 import com.android.jack.ir.ast.JStatement;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nonnegative;
@@ -36,8 +38,12 @@ public class PeiBasicBlock extends NormalBasicBlock {
   @Nonnegative
   private static final int EXCEPTION_BLOCKS_START_INDEX = 2;
 
+  @Nonnegative
+  // 1 for a branch to the normal successor and 1 for a branch to the exit node.
+  private static final int SIZE_WHEN_NO_CATCH = 2;
+
   public PeiBasicBlock(@Nonnegative int id, @Nonnull List<JStatement> statements) {
-    super(id, statements, NORMAL_BLOCK_FIXED_BLOCK_COUNT + 1 /*exit node if no catch block*/);
+    super(id, statements, SIZE_WHEN_NO_CATCH);
   }
 
   public void addExceptionBlock(@Nonnull CatchBasicBlock exceptionBb) {
@@ -57,5 +63,18 @@ public class PeiBasicBlock extends NormalBasicBlock {
   public List<CatchBasicBlock> getExceptionBlocks() {
     return ((List<CatchBasicBlock>) (List<? extends BasicBlock>) getInternalSuccessors().subList(
         EXCEPTION_BLOCKS_START_INDEX, getInternalSuccessors().size()));
+  }
+
+  @Override
+  @Nonnull
+  public List<BasicBlock> getSuccessors() {
+    List<BasicBlock> filteredSuccessors = new ArrayList<BasicBlock>(Math
+        .max(successors.size() - 1 /* means branch to the exit node */, SIZE_WHEN_NO_CATCH));
+    for (BasicBlock succ : successors) {
+      if (succ != null) {
+        filteredSuccessors.add(succ);
+      }
+    }
+    return Jack.getUnmodifiableCollections().getUnmodifiableList(filteredSuccessors);
   }
 }
