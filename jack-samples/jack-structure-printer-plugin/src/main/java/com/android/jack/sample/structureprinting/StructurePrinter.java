@@ -59,7 +59,7 @@ public class StructurePrinter implements RunnableSchedulable<JDefinedClassOrInte
    * stdout, stderr).
    */
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface type) throws Exception {
+  public void run(@Nonnull JDefinedClassOrInterface type) {
     TextTypeAndMemberWriter writer = new TextTypeAndMemberWriter();
     writer.write(type);
 
