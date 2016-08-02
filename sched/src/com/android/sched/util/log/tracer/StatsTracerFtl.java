@@ -954,15 +954,17 @@ public class StatsTracerFtl extends AbstractTracer {
     // Print properties
     Config config = ThreadConfig.getConfig();
     for (PropertyId<?> property : config.getPropertyIds()) {
-      List<Object> dmData = new ArrayList<Object>();
-      dmDatas.add(dmData);
+      if (config.hasValue(property)) {
+        List<Object> dmData = new ArrayList<Object>();
+        dmDatas.add(dmData);
 
-      dmData.add(property.getName().replace("'", "\\'"));
-      dmData.add(""); // No HRef
-      dmData.add(config.getAsString(property).replace("'", "\\'"));
-      dmData.add(""); // No HRef
-      dmData.add(property.getDescription().replace("'", "\\'"));
-      dmData.add(""); // No HRef
+        dmData.add(property.getName().replace("'", "\\'"));
+        dmData.add(""); // No HRef
+        dmData.add(config.getAsString(property).replace("'", "\\'"));
+        dmData.add(""); // No HRef
+        dmData.add(property.getDescription().replace("'", "\\'"));
+        dmData.add(""); // No HRef
+      }
     }
 
     //
