@@ -79,7 +79,7 @@ public class KeeperBrush extends AbstractTracerBrush<KeepMarker> {
   @Nonnull
   @Override
   protected KeepMarker createMarkerFor(@Nonnull JNode node) {
-    return new KeepMarker();
+    return KeepMarker.INSTANCE;
   }
 
   @Override
