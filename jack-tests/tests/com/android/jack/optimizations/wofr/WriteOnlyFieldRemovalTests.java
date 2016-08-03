@@ -23,6 +23,7 @@ import com.android.jack.test.dex.DexOutputBasedTest;
 import com.android.jack.test.dex.DexTypeExistingFieldValidator;
 import com.android.jack.test.dex.DexTypeMethodsValidator;
 import com.android.jack.test.dex.DexTypeMissingFieldValidator;
+import com.android.jack.test.junit.Runtime;
 
 import org.junit.Test;
 
@@ -64,6 +65,7 @@ public class WriteOnlyFieldRemovalTests extends DexOutputBasedTest {
   }
 
   @Test
+  @Runtime
   public void test001() throws Exception {
     String test = "com.android.jack.optimizations.wofr.test001";
     String aType = "Lcom/android/jack/optimizations/wofr/test001/A;";
@@ -157,6 +159,7 @@ public class WriteOnlyFieldRemovalTests extends DexOutputBasedTest {
   }
 
   @Test
+  @Runtime
   public void test002() throws Exception {
     String test = "com.android.jack.optimizations.wofr.test002";
     String aType = "Lcom/android/jack/optimizations/wofr/test002/A;";

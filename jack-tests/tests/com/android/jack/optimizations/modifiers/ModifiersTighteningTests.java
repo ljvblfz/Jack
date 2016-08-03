@@ -25,6 +25,7 @@ import com.android.jack.test.dex.DexTypeFieldsValidator;
 import com.android.jack.test.dex.DexTypeFinalValidator;
 import com.android.jack.test.dex.DexTypeMethodsValidator;
 import com.android.jack.test.junit.KnownIssue;
+import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 
 import org.junit.Test;
@@ -33,6 +34,7 @@ import org.junit.Test;
 public class ModifiersTighteningTests extends DexOutputBasedTest {
 
   @Test
+  @Runtime
   public void test001() throws Exception {
     String testPackage = "com.android.jack.optimizations.modifiers.test001";
 
@@ -73,6 +75,7 @@ public class ModifiersTighteningTests extends DexOutputBasedTest {
   }
 
   @Test
+  @Runtime
   public void test002() throws Exception {
     String testPackage = "com.android.jack.optimizations.modifiers.test002";
 
@@ -155,6 +158,7 @@ public class ModifiersTighteningTests extends DexOutputBasedTest {
   }
 
   @Test
+  @Runtime
   @KnownIssue(candidate = JillBasedToolchain.class)
   public void test003() throws Exception {
     String testPackage = "com.android.jack.optimizations.modifiers.test003";
