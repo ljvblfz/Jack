@@ -44,7 +44,13 @@ public class MultiDexLegacyTracerBrush
   /** Indicates that this node was identified during the main dex legacy tracing. */
   @ValidOn({JDefinedClassOrInterface.class, JMethod.class, JField.class})
   @Description("Indicates that this node was identified during the main dex legacy tracing")
-  public static class TracerMarker extends BaseTracerMarker {}
+  public static class TracerMarker extends BaseTracerMarker {
+    @Nonnull
+    public static final TracerMarker INSTANCE = new TracerMarker();
+
+    private TracerMarker() {
+    }
+  }
 
   /**
    * Indicates that this node may be an entry point used by multidex legacy support installation.
@@ -74,7 +80,7 @@ public class MultiDexLegacyTracerBrush
   @Nonnull
   @Override
   protected TracerMarker createMarkerFor(@Nonnull JNode node) {
-    return new TracerMarker();
+    return TracerMarker.INSTANCE;
   }
 
 }

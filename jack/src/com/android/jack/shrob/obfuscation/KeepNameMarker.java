@@ -24,6 +24,8 @@ import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
 
+import javax.annotation.Nonnull;
+
 /**
  * Indicates that this class or member should not be renamed when obfuscating.
  */
@@ -32,8 +34,10 @@ import com.android.sched.marker.ValidOn;
     JMethodIdWide.class})
 public class KeepNameMarker implements Marker {
 
-  public KeepNameMarker() {
+  @Nonnull
+  public static final KeepNameMarker INSTANCE = new KeepNameMarker();
 
+  private KeepNameMarker() {
   }
 
   @Override

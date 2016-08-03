@@ -158,7 +158,7 @@ public class MappingApplier {
       request.append(new ChangeEnclosingPackage(clOrI, newEnclosingPackage));
       while (newEnclosingPackage != null) {
         if (!newEnclosingPackage.containsMarker(KeepNameMarker.class)) {
-          newEnclosingPackage.addMarker(new KeepNameMarker());
+          newEnclosingPackage.addMarker(KeepNameMarker.INSTANCE);
         }
         newEnclosingPackage = newEnclosingPackage.getEnclosingPackage();
       }

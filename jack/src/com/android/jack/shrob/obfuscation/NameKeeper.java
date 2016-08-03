@@ -151,7 +151,7 @@ public class NameKeeper implements RunnableSchedulable<JPackage> {
 
   private boolean markIfNecessary(@Nonnull MarkerManager node) {
     if (!node.containsMarker(KeepNameMarker.class)) {
-      return (node.addMarkerIfAbsent(new KeepNameMarker()) == null);
+      return (node.addMarkerIfAbsent(KeepNameMarker.INSTANCE) == null);
     } else {
       return false;
     }
