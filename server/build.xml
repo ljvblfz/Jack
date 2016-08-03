@@ -85,12 +85,18 @@
     <copy todir="${jack-top-dist.dir}" flatten="true">
       <filelist dir="/" >
         <file name="${jack-server.dir}/etc/jack" />
+        <file name="${jack-server.dir}/etc/jack-ea" />
         <file name="${jack-server.dir}/etc/jack-admin" />
         <file name="${jack-server.dir}/etc/jack-diagnose" />
       </filelist>
     </copy>
 
     <replace file="${jack-top-dist.dir}/jack"
+                   token="%%VERSION%%"
+                   value="${version}"
+                   encoding="UTF-8"/>
+
+    <replace file="${jack-top-dist.dir}/jack-ea"
                    token="%%VERSION%%"
                    value="${version}"
                    encoding="UTF-8"/>
@@ -107,6 +113,7 @@
 
     <!-- <copy> and <replace> do not retain file permissions -->
     <chmod perm="755" file="${jack-top-dist.dir}/jack"/>
+    <chmod perm="755" file="${jack-top-dist.dir}/jack-ea"/>
     <chmod perm="755" file="${jack-top-dist.dir}/jack-admin"/>
 
     <delete dir="${jack-server-dist.tmp}"/>

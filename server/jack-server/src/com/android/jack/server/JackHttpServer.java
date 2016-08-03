@@ -94,6 +94,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
@@ -113,6 +114,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -141,9 +143,72 @@ import javax.net.ssl.TrustManagerFactory;
 public class JackHttpServer implements HasVersion {
 
   /**
+   * Define an assertion status.
+   */
+  public static enum Assertion {
+    ENABLED {
+      @Override
+      public boolean isEnabled() {
+        return true;
+      }
+    },
+    DISABLED {
+      @Override
+      public boolean isEnabled() {
+        return false;
+      }
+    };
+
+    public abstract boolean isEnabled();
+  }
+
+  /**
    * A program that can be run by this server as a service.
    */
   public static class Program<T> implements HasVersion {
+
+    private abstract static class ProgramReference<U, T extends Reference<U>> {
+      @Nonnull
+      private T program = newReference(null);
+      @Nonnull
+      private T assertingProgram = newReference(null);
+
+      @Nonnull
+      protected abstract T newReference(@CheckForNull U program);
+
+      public U get(@Nonnull Assertion assertion) {
+        switch (assertion) {
+          case ENABLED:
+            return assertingProgram.get();
+          case DISABLED:
+            return program.get();
+          default:
+            throw new AssertionError();
+        }
+      }
+
+      public void set(@Nonnull Assertion status, @CheckForNull U program) {
+        switch (status) {
+          case ENABLED:
+            assertingProgram = newReference(program);
+            break;
+          case DISABLED:
+            this.program = newReference(program);
+            break;
+          default:
+            throw new AssertionError();
+        }
+      }
+    }
+
+    private static class ProgramSoftReference<U> extends ProgramReference<U, SoftReference<U>> {
+      @Override
+      @Nonnull
+      protected SoftReference<U> newReference(@CheckForNull U referent) {
+        return new SoftReference<U>(referent);
+      }
+    }
+
     @Nonnull
     private final Version version;
 
@@ -151,12 +216,21 @@ public class JackHttpServer implements HasVersion {
     private final File jar;
 
     @Nonnull
-    private Reference<T> loadedProgram;
+    private final ProgramSoftReference<T> loadedProgram;
 
-    public Program(@Nonnull Version version, @Nonnull File jar, @CheckForNull T loadedProgram) {
+    /**
+     * This is used to track garbage collection of classloaders on this program. It shared between
+     * classloaders which are preventing its collection as long as the classloaders are not
+     * collected.
+     */
+    @Nonnull
+    private WeakReference<URL[]> urlPath;
+
+    public Program(@Nonnull Version version, @Nonnull File jar, @CheckForNull URL[] path) {
       this.version = version;
       this.jar = jar;
-      this.loadedProgram = new SoftReference<T>(loadedProgram);
+      loadedProgram = new ProgramSoftReference<T>();
+      urlPath = new WeakReference<URL[]>(path);
     }
 
     @Override
@@ -166,19 +240,46 @@ public class JackHttpServer implements HasVersion {
     }
 
     @Nonnull
-    public File getJar() {
+    private File getJar() {
       return jar;
     }
 
+    @Nonnull
+    private URL[] getUrlPath() {
+      URL[] path = urlPath.get();
+      if (path == null) {
+        try {
+          path = new URL[] {jar.toURI().toURL()};
+        } catch (MalformedURLException e) {
+          logger.log(Level.SEVERE, e.getMessage(), e);
+          throw new AssertionError();
+        }
+        urlPath = new WeakReference<URL[]>(path);
+      }
+      return path;
+    }
+
     @CheckForNull
-    private T getLoadedProgram() {
-      return loadedProgram.get();
+    private Object getGCProbe() {
+      return urlPath.get();
     }
 
-    private void setLoadedProgram(@CheckForNull T program) {
-      loadedProgram = new SoftReference<>(program);
+    @CheckForNull
+    private T getLoadedProgram(@Nonnull Assertion status) {
+      return loadedProgram.get(status);
     }
 
+    /**
+     * Should be called only by code synchronized on {@link #installedJack}, or at creation.
+     */
+    private void setLoadedProgram(@Nonnull Assertion status, @CheckForNull T program) {
+      if (program == null) {
+        loadedProgram.set(status, null);
+      } else {
+        assert loadedProgram.get(status) == null;
+        this.loadedProgram.set(status, program);
+      }
+    }
   }
 
   /**
@@ -186,6 +287,19 @@ public class JackHttpServer implements HasVersion {
    */
   public static class ServerClosedException extends Exception {
     private static final long serialVersionUID = 1L;
+  }
+
+  private static class URLClassLoaderWithProbe extends URLClassLoader {
+
+    // The purpose of this subclass of URLClassLoader is to ensure urls won't be garbaged
+    // collected before this classloader.
+    @SuppressWarnings("unused")
+    private final URL[] urls;
+
+    public URLClassLoaderWithProbe(@Nonnull URL[] urls, @CheckForNull ClassLoader parent) {
+      super(urls, parent);
+      this.urls = urls;
+    }
   }
 
   private static class VersionKey implements HasVersion {
@@ -407,9 +521,9 @@ public class JackHttpServer implements HasVersion {
           public void onRemoval(
               @Nonnull RemovalNotification<VersionKey, Program<JackProvider>> notification) {
             Program<JackProvider> program = notification.getValue();
-            JackProvider provider = program.getLoadedProgram();
             final File jar = program.getJar();
-            if (provider != null) {
+            Object gcProbe = program.getGCProbe();
+            if (gcProbe != null) {
               logger.info("Queuing " + jar.getPath() + " for deletion");
               final File deleteMarker = new File(jar.getPath() + DELETED_SUFFIX);
               try {
@@ -421,8 +535,7 @@ public class JackHttpServer implements HasVersion {
                     + "' aborting deletion by finalizer", e);
                 return;
               }
-              finalizer.registerFinalizer(new Deleter(new File[]{deleteMarker, jar}),
-                  provider.getClass().getClassLoader());
+              finalizer.registerFinalizer(new Deleter(new File[]{deleteMarker, jar}), gcProbe);
               deleteMarker.deleteOnExit();
               jar.deleteOnExit();
             } else {
@@ -469,10 +582,11 @@ public class JackHttpServer implements HasVersion {
     }
     for (File jackJar : jars) {
       try {
-        JackProvider jackProvider = loadJack(jackJar);
+        URL[] path = new URL[]{jackJar.toURI().toURL()};
+        JackProvider jackProvider = loadJack(path, Assertion.DISABLED);
         Version version = new Version("jack", jackProvider.getClass().getClassLoader());
-        Program<JackProvider> jackProgram =
-            new Program<JackProvider>(version, jackJar, jackProvider);
+        Program<JackProvider> jackProgram = new Program<JackProvider>(version, jackJar, path);
+        jackProgram.setLoadedProgram(Assertion.DISABLED, jackProvider);
         installedJack.put(new VersionKey(version), jackProgram);
         logger.log(Level.INFO, "Jack " + version.getVerboseVersion()
             + " available in " + jackJar.getPath());
@@ -739,13 +853,13 @@ public class JackHttpServer implements HasVersion {
   }
 
   @Nonnull
-  public JackProvider getProvider(@Nonnull Program<JackProvider> program)
+  public JackProvider getProvider(@Nonnull Program<JackProvider> program, @Nonnull Assertion status)
       throws UnsupportedProgramException {
     synchronized (program) {
-      JackProvider jackProvider = program.getLoadedProgram();
+      JackProvider jackProvider = program.getLoadedProgram(status);
       if (jackProvider == null) {
-        jackProvider = loadJack(program.getJar());
-        program.setLoadedProgram(jackProvider);
+        jackProvider = loadJack(program.getUrlPath(), status);
+        program.setLoadedProgram(status, jackProvider);
       }
       return jackProvider;
     }
@@ -765,21 +879,17 @@ public class JackHttpServer implements HasVersion {
   // We have no privilege restriction for now and there is no call back here from a Jack thread so
   // we should be fine keeping the code simple
   @SuppressFBWarnings("DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED")
-  public JackProvider loadJack(File jackJar) throws UnsupportedProgramException {
+  public JackProvider loadJack(@Nonnull URL[] path, @Nonnull Assertion status)
+      throws UnsupportedProgramException {
     URLClassLoader jackLoader;
-    try {
-      jackLoader = new URLClassLoader(new URL[] {jackJar.toURI().toURL()},
-          this.getClass().getClassLoader());
-    } catch (MalformedURLException e) {
-      logger.log(Level.SEVERE, e.getMessage(), e);
-      throw new AssertionError();
-    }
+    jackLoader = new URLClassLoaderWithProbe(path, this.getClass().getClassLoader());
+    jackLoader.setDefaultAssertionStatus(status.isEnabled());
     ServiceLoader<JackProvider> serviceLoader = ServiceLoader.load(JackProvider.class, jackLoader);
     JackProvider provider;
     try {
       provider = serviceLoader.iterator().next();
     } catch (NoSuchElementException | ServiceConfigurationError e) {
-      logger.log(Level.SEVERE, "Failed to load jack from " + jackJar, e);
+      logger.log(Level.SEVERE, "Failed to load jack from " + Arrays.toString(path), e);
       throw new UnsupportedProgramException("Jack");
     }
     return provider;
@@ -837,7 +947,7 @@ public class JackHttpServer implements HasVersion {
     Collection<Program<JackProvider>> programs = getInstalledJacks();
     for (Program<JackProvider> program : programs) {
       synchronized (program) {
-        program.setLoadedProgram(null);
+        program.setLoadedProgram(Assertion.ENABLED, null);
       }
     }
     System.gc();
@@ -1129,13 +1239,15 @@ public class JackHttpServer implements HasVersion {
                               .add("1",
                                  new PathRouter()
                                   .add("/jack",
-                                      new AcceptContentTypeRouter()
-                                        .add(CommandOutRaw.JACK_COMMAND_OUT_CONTENT_TYPE,
-                                            new JackTaskRawOut(this))
-                                        .add(CommandOutBase64.JACK_COMMAND_OUT_CONTENT_TYPE,
-                                            new JackTaskBase64Out(this))
+                                    new PartParserRouter<>("assert",
+                                      new TextPlainPartParser<>(new BooleanCodec(), Boolean.FALSE),
+                                        new AcceptContentTypeRouter()
+                                          .add(CommandOutRaw.JACK_COMMAND_OUT_CONTENT_TYPE,
+                                              new JackTaskRawOut(this))
+                                          .add(CommandOutBase64.JACK_COMMAND_OUT_CONTENT_TYPE,
+                                              new JackTaskBase64Out(this))
 
-                                  .add("/jill", new JillTask(this))))))))));
+                                  .add("/jill", new JillTask(this)))))))))));
   }
 
   @Nonnull
