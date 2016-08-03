@@ -24,11 +24,14 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JSession;
+import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.lookup.JLookup;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
 
 import java.util.ArrayList;
@@ -50,6 +53,16 @@ public abstract class TypeRemover implements RunnableSchedulable<JDefinedClassOr
 
   @Nonnull
   private final JLookup lookup = Jack.getSession().getLookup();
+
+
+  @Nonnull
+  private final JSession session = Jack.getSession();
+
+  protected boolean isTypeFromClasspath(@Nonnull JDefinedClassOrInterface type) {
+    Location location = type.getLocation();
+    return (location instanceof TypeInInputLibraryLocation) && session.getLibraryOnClasspath()
+        .contains(((TypeInInputLibraryLocation) location).getInputLibrary());
+  }
 
   private void updateSuperTypeList(@Nonnull JDefinedClassOrInterface type) {
     if (type instanceof JDefinedClass) {
@@ -125,7 +138,7 @@ public abstract class TypeRemover implements RunnableSchedulable<JDefinedClassOr
   private void updateEnclosingType(@Nonnull JDefinedClassOrInterface type) {
     JClassOrInterface enclosingType = type.getEnclosingType();
     while (enclosingType instanceof JDefinedClassOrInterface) {
-      if (!mustBeRemovedInternal(enclosingType) || !enclosingType.isToEmit()) {
+      if (!mustBeRemovedInternal(enclosingType) || isTypeFromClasspath(type)) {
         break;
       }
       enclosingType = ((JDefinedClassOrInterface) enclosingType).getEnclosingType();

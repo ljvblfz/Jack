@@ -45,7 +45,8 @@ public class TypeShrinker extends TypeRemover {
 
   @Override
   protected boolean mustBeRemoved(@Nonnull JDefinedClassOrInterface type) {
-    return type.isToEmit() && !((JNode) type).containsMarker(KeepMarker.class);
+    // Type from classpath can not be remove
+    return !isTypeFromClasspath(type) && !((JNode) type).containsMarker(KeepMarker.class);
   }
 
   @Override
