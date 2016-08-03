@@ -33,9 +33,6 @@ public final class CstString extends TypedConstant {
   /** {@code non-null;} the UTF-8 value as a string */
   private final String string;
 
-  /** {@code null-ok;} the UTF-8 value as bytes */
-  private ByteArray bytes;
-
   /** the number of bytes in UTF-8 value */
   private int bytesCount = -1;
 
@@ -204,21 +201,6 @@ public final class CstString extends TypedConstant {
     this.string = string.intern();
   }
 
-  /**
-   * Constructs an instance from some UTF-8 bytes.
-   *
-   * @param bytes {@code non-null;} array of the UTF-8 bytes
-   */
-  public CstString(ByteArray bytes) {
-    if (bytes == null) {
-      throw new NullPointerException("bytes == null");
-    }
-
-    this.bytes = bytes;
-    this.bytesCount = bytes.size();
-    this.string = utf8BytesToString(bytes).intern();
-  }
-
   /** {@inheritDoc} */
   @Override
   public boolean equals(Object other) {
@@ -368,10 +350,7 @@ public final class CstString extends TypedConstant {
    * @return {@code non-null;} an array of the UTF-8 bytes
    */
   public ByteArray getBytes() {
-    if (bytes == null) {
-      bytes = new ByteArray(stringToUtf8Bytes(string, getUtf8Size()));
-    }
-    return bytes;
+    return new ByteArray(stringToUtf8Bytes(string, getUtf8Size()));
   }
 
   /**
