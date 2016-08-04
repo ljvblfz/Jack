@@ -44,7 +44,7 @@ import javax.annotation.Nonnull;
 public class JayceMethodLoader implements MethodLoader, HasInputLibrary {
   @Nonnull
   private static final StatisticId<Counter> BODY_LOAD_COUNT = new StatisticId<Counter>(
-      "jayce.body.load", "Body loaded from a NNode in a JNode",
+      "jack.nnode-to-jnode.body", "Body converted from a NNode in a JNode",
           CounterImpl.class, Counter.class);
 
   @Nonnull

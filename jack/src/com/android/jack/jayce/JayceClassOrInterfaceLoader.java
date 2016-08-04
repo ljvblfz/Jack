@@ -66,17 +66,17 @@ import javax.annotation.Nonnull;
 public class JayceClassOrInterfaceLoader implements ClassOrInterfaceLoader, HasInputLibrary {
 
   @Nonnull
-  private static final StatisticId<Counter> NNODE_MINI_LOAD = new StatisticId<
-      Counter>("jayce.type.load", "Jayce file partial load",
+  private static final StatisticId<Counter> NNODE_TYPE_LOAD = new StatisticId<
+      Counter>("jack.nnode-to-jnode.type", "NDeclaredType loaded in a JNode at type level",
           CounterImpl.class, Counter.class);
 
   @Nonnull
-  private static final StatisticId<Percent> NNODE_RELOAD = new StatisticId<
-      Percent>("jayce.reload", "Jayce file reload versus total jayce file load",
+  private static final StatisticId<Percent> NNODE_REREAD = new StatisticId<
+      Percent>("jack.jayce-to-nnode", "Jayce file reread versus total jayce file read",
           PercentImpl.class, Percent.class);
   @Nonnull
-  private static final StatisticId<Counter> STRUCTURE_LOAD = new StatisticId<Counter>(
-      "jayce.structure.load", "NDeclaredType structure loaded in a JNode",
+  private static final StatisticId<Counter> NNODE_STRUCTURE_LOAD = new StatisticId<Counter>(
+      "jack.nnode-to-jnode.structure", "NDeclaredType loaded in a JNode at structure level",
           CounterImpl.class, Counter.class);
 
   @Nonnull
@@ -99,7 +99,7 @@ public class JayceClassOrInterfaceLoader implements ClassOrInterfaceLoader, HasI
   private final NodeLevel defaultLoadLevel;
 
   @Nonnegative
-  private int loadCount = 0;
+  private int nnodeReadCount = 0;
 
   @Nonnull
   private final InputJackLibrary inputJackLibrary;
@@ -247,7 +247,7 @@ public class JayceClassOrInterfaceLoader implements ClassOrInterfaceLoader, HasI
   @Nonnull
   JDefinedClassOrInterface load() throws LibraryFormatException, LibraryIOException {
     if (defaultLoadLevel == NodeLevel.TYPES) {
-      tracer.getStatistic(NNODE_MINI_LOAD).incValue();
+      tracer.getStatistic(NNODE_TYPE_LOAD).incValue();
     }
     DeclaredTypeNode type = getNNode(NodeLevel.TYPES);
     assert checkName(type.getSignature());
@@ -282,8 +282,8 @@ public class JayceClassOrInterfaceLoader implements ClassOrInterfaceLoader, HasI
               "Failed to close input stream on " + source.getLocation().getDescription(), e);
         }
       }
-      tracer.getStatistic(NNODE_RELOAD).add(loadCount > 0);
-      loadCount++;
+      tracer.getStatistic(NNODE_REREAD).add(nnodeReadCount > 0);
+      nnodeReadCount++;
     }
     return type;
   }
@@ -305,7 +305,7 @@ public class JayceClassOrInterfaceLoader implements ClassOrInterfaceLoader, HasI
         }
         ParentSetter parentSetter = new ParentSetter();
         parentSetter.accept(loaded);
-        tracer.getStatistic(STRUCTURE_LOAD).incValue();
+        tracer.getStatistic(NNODE_STRUCTURE_LOAD).incValue();
       }
     }
   }
