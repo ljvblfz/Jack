@@ -124,10 +124,12 @@ public class SingleScheduleInstance<T extends Component> extends ScheduleInstanc
             }
           }
         } else if (logger.isLoggable(Level.FINER)) {
-          logger.log(Level.FINER, "Skipping {0} ''{1}'' because requiring {2} but having {3}",
+          logger.log(Level.FINER,
+              "Skipping {0} ''{1}'' on ''{2}'' because requiring {3} but having {4}",
               new Object[] {
                   (step instanceof ScheduleInstance.RunnableSchedStep) ? "runner" : "adapter",
                   step.getName(),
+                  component,
                   step.getRequiredFilters(),
                   currentFilters});
         }
