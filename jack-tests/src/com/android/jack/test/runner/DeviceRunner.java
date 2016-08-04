@@ -192,7 +192,9 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
 
       ensureAdbRoot(device);
 
-      File testsRootDir = new File(device.getMountPoint(IDevice.MNT_DATA) + "/jack-tests");
+      // Remove trailing '\n' returned by emulator
+      String dataPath = device.getMountPoint(IDevice.MNT_DATA).replace("\n", "");
+      File testsRootDir = new File(dataPath + "/jack-tests");
       File[] desFilePaths = new File[classpathFiles.length];
       try {
         if (isVerbose) {
