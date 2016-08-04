@@ -23,7 +23,7 @@ import javax.annotation.Nonnull;
 
 /**
  * A utility class for reducing String memory waste. Note that this does not use
- * the String.intern() method which would prevent GC and fill the PermGen space.
+ * the String.intern() method.
  * Instead, we use a Google Collections WeakInterner.
  */
 public class StringInterner {
