@@ -17,7 +17,6 @@
 package com.android.jack.backend.dex;
 
 import com.android.jack.JackAbortException;
-import com.android.jack.JackEventType;
 import com.android.jack.Options;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.library.DumpInLibrary;
@@ -31,9 +30,6 @@ import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.ImplementationPropertyId;
-import com.android.sched.util.log.Event;
-import com.android.sched.util.log.Tracer;
-import com.android.sched.util.log.TracerFactory;
 import com.android.sched.vfs.Container;
 import com.android.sched.vfs.OutputVFS;
 
@@ -85,19 +81,12 @@ public class DexFileWriter extends DexWriter implements RunnableSchedulable<JSes
 
   @Override
   public void run(@Nonnull JSession session) {
-
-    Tracer tracer = TracerFactory.getTracer();
-    Event event = tracer.start(JackEventType.DEX_MERGER);
-
     DexWritingTool writingTool = ThreadConfig.get(DEX_WRITING_POLICY);
     try {
       writingTool.write(outputVDir);
     } catch (DexWritingException e) {
       session.getReporter().report(Severity.FATAL, e);
       throw new JackAbortException(e);
-    } finally {
-      event.end();
     }
   }
-
 }
