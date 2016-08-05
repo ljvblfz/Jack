@@ -44,7 +44,8 @@ public enum JackEventType implements EventType {
   JACK_RUN("Jack run"),
   ALL_JACK_SCHEDULABLES("All Jack schedulables"),
   DX_BACKEND("Dx backend"),
-  DEX_MERGER("Dex merger");
+  DEX_MERGER("Dex merger"),
+  DEX_MERGER_FINISH("Dex merger finish");
 
   @Nonnull
   private final String name;
