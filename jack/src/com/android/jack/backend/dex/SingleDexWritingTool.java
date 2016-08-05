@@ -24,8 +24,6 @@ import com.android.jack.tools.merger.JackMerger;
 import com.android.jack.tools.merger.MergingOverflowException;
 import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.log.Event;
-import com.android.sched.util.log.Tracer;
-import com.android.sched.util.log.TracerFactory;
 import com.android.sched.vfs.OutputVFS;
 import com.android.sched.vfs.OutputVFile;
 
@@ -41,9 +39,6 @@ import javax.annotation.Nonnull;
 @ImplementationName(iface = DexWritingTool.class, name = "single-dex",
     description = "only emit one dex file")
 public class SingleDexWritingTool extends DexWritingTool {
-  @Nonnull
-  private final Tracer tracer = TracerFactory.getTracer();
-
   @Override
   public void write(@Nonnull OutputVFS outputVDir) throws DexWritingException {
     final OutputJackLibrary jackOutputLibrary = Jack.getSession().getJackOutputLibrary();
@@ -54,8 +49,7 @@ public class SingleDexWritingTool extends DexWritingTool {
     }
     addOrphanDexFiles(dexToMerge);
 
-    Event eMerger = tracer.start(JackEventType.DEX_MERGER);
-    try {
+    try (Event event = tracer.open(JackEventType.DEX_MERGER)) {
       JackMerger merger = new JackMerger(createDexFile());
       OutputVFile outputDex = getOutputDex(outputVDir);
 
@@ -67,14 +61,7 @@ public class SingleDexWritingTool extends DexWritingTool {
         }
       }
 
-      Event eFinish = tracer.start(JackEventType.DEX_MERGER_FINISH);
-      try {
-        finishMerge(merger, outputDex);
-      } finally {
-        eFinish.end();
-      }
-    } finally {
-      eMerger.end();
+      finishMerge(merger, outputDex);
     }
   }
 

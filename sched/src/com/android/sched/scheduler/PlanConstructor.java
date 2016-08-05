@@ -235,9 +235,7 @@ public class PlanConstructor<T extends Component>  implements PlanCandidate<T> {
   PlanConstructor(@Nonnull Request request,
                   @Nonnull Class<T> rootRunOn,
                   @Nonnull List<ManagedRunnable> plan) {
-    Event event = tracer.start(SchedEventType.ANALYZER);
-
-    try {
+    try (Event event = tracer.open(SchedEventType.ANALYZER)) {
       this.request = request;
       this.rootRunOn = rootRunOn;
       this.features = request.getFeatures();
@@ -250,8 +248,6 @@ public class PlanConstructor<T extends Component>  implements PlanCandidate<T> {
         this.missingProductions.removeAll(runner.getProductions());
       }
       this.plan.add(new Decorated(request.getTargetIncludeTags(), request.getTargetExcludeTags()));
-    } finally {
-      event.end();
     }
   }
 
@@ -375,9 +371,7 @@ public class PlanConstructor<T extends Component>  implements PlanCandidate<T> {
   @Override
   @Nonnull
   public PlanBuilder<T> getPlanBuilder() throws IllegalRequestException {
-    Event event = tracer.start(SchedEventType.PLANBUILDER);
-
-    try {
+    try (Event event = tracer.open(SchedEventType.PLANBUILDER)) {
       // STOPSHIP Replace Stack
       Stack<Class<? extends Component>> runOn = new Stack<Class<? extends Component>>();
       Stack<SubPlanBuilder<? extends Component>> adapters =
@@ -560,8 +554,6 @@ public class PlanConstructor<T extends Component>  implements PlanCandidate<T> {
       @SuppressWarnings("unchecked")
       PlanBuilder<T> pb = (PlanBuilder<T>) adapters.pop();
       return pb;
-    } finally {
-      event.end();
     }
   }
 

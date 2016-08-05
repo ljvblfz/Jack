@@ -263,8 +263,8 @@ public abstract class AbstractTracer implements Tracer {
 
   @Override
   @Nonnull
-  public TracerEvent start(@Nonnull String name) {
-    return start(getOrCreateDynamicEventType(name));
+  public TracerEvent open(@Nonnull String name) {
+    return open(getOrCreateDynamicEventType(name));
   }
 
   @Override
@@ -301,7 +301,7 @@ public abstract class AbstractTracer implements Tracer {
 
   @Override
   @Nonnull
-  public TracerEvent start(@Nonnull EventType type) {
+  public TracerEvent open(@Nonnull EventType type) {
     eventCount.incrementAndGet();
 
     Stack<TracerEvent> threadPendingEvents = pendingEvents.get();
@@ -352,7 +352,7 @@ public abstract class AbstractTracer implements Tracer {
       EventType[] types = ((ThreadTracerStateImpl) state).types;
 
       for (int idx = 0; idx < types.length; idx++) {
-        start(types[idx]);
+        open(types[idx]);
       }
     }
   }
@@ -366,11 +366,10 @@ public abstract class AbstractTracer implements Tracer {
       for (int idx = stack.size() - 1; idx >= 0; idx--) {
         assert ((ThreadTracerStateImpl) state).types[idx] == stack.peek().getType();
 
-        stack.peek().end();
+        stack.peek().close();
       }
     }
   }
-
 
   @Override
   public boolean isTracing() {
@@ -537,7 +536,7 @@ public abstract class AbstractTracer implements Tracer {
     }
 
     @Override
-    public void end() {
+    public void close() {
       try {
         long values[] = probeManager.stopAndRead(type);
 

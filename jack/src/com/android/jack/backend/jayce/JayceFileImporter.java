@@ -169,9 +169,8 @@ public class JayceFileImporter {
   private void addImportedTypes(@Nonnull JSession session, @Nonnull InputVFile jayceFile,
       @Nonnull InputLibrary intendedInputLibrary) throws TypeImportConflictException,
       JTypeLookupException {
-    Event readEvent = tracer.start(JackEventType.NNODE_READING_FOR_IMPORT);
-    String path = jayceFile.getPathFromRoot().getPathAsString('/');
-    try {
+    try (Event readEvent = tracer.open(JackEventType.NNODE_READING_FOR_IMPORT)) {
+      String path = jayceFile.getPathFromRoot().getPathAsString('/');
       logger.log(Level.FINEST, "Importing jayce file ''{0}'' from {1}", new Object[] {path,
           intendedInputLibrary.getLocation().getDescription()});
       String signature = convertJackFilePathToSignature(path);
@@ -201,8 +200,6 @@ public class JayceFileImporter {
       } else {
         session.addTypeToEmit(declaredType);
       }
-    } finally {
-      readEvent.end();
     }
   }
 

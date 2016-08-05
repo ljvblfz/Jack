@@ -92,9 +92,7 @@ public class FitnessPlanCandidate<T extends Component> implements PlanCandidate<
 
   FitnessPlanCandidate(
       @Nonnull Request request, @Nonnull Class<T> rootRunOn, @Nonnull List<ManagedRunnable> plan) {
-    Event event = tracer.start(SchedEventType.ANALYZER);
-
-    try {
+    try (Event event = tracer.open(SchedEventType.ANALYZER)) {
       this.request = request;
       this.rootRunOn = rootRunOn;
 
@@ -201,8 +199,6 @@ public class FitnessPlanCandidate<T extends Component> implements PlanCandidate<
         currentTags = runner.getAfterTags(currentTags);
         beforeTags.add(currentTags);
       }
-    } finally {
-      event.end();
     }
   }
 
@@ -362,9 +358,7 @@ public class FitnessPlanCandidate<T extends Component> implements PlanCandidate<
   @Nonnull
   public PlanBuilder<T> getPlanBuilder()
       throws IllegalRequestException {
-    Event event = tracer.start(SchedEventType.PLANBUILDER);
-
-    try {
+    try (Event event = tracer.open(SchedEventType.PLANBUILDER)) {
       Stack<Class<? extends Component>> runOn = new Stack<Class<? extends Component>>();
       Stack<SubPlanBuilder<? extends Component>> adapters =
           new Stack<SubPlanBuilder<? extends Component>>();
@@ -408,8 +402,6 @@ public class FitnessPlanCandidate<T extends Component> implements PlanCandidate<
       @SuppressWarnings("unchecked")
       PlanBuilder<T> pb = (PlanBuilder<T>) adapters.pop();
       return pb;
-    } finally {
-      event.end();
     }
   }
 

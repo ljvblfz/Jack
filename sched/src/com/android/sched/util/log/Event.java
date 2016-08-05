@@ -28,11 +28,12 @@ import javax.annotation.Nonnull;
 /**
  * Represents a event whose performance is tracked.
  */
-public interface Event {
+public interface Event extends AutoCloseable {
   /**
-   * Signals the end of the current event.
+   * Close the event.
    */
-  public void end();
+  @Override
+  public void close ();
 
   /**
    * @return the type of an event.

@@ -486,10 +486,7 @@ public abstract class Jack {
 
 
       Tracer tracer = TracerFactory.getTracer();
-      Event event = tracer.start(JackEventType.JACK_RUN);
-
-      try {
-
+      try (Event event = tracer.open(JackEventType.JACK_RUN)) {
         ConfigPrinterFactory.getConfigPrinter().printConfig(config);
 
         JSession session = getSession();
@@ -840,11 +837,8 @@ public abstract class Jack {
           }
 
           assert plan != null;
-          Event allJackSchedulablesEvent = tracer.start(JackEventType.ALL_JACK_SCHEDULABLES);
-          try {
+          try (Event allJackSchedulablesEvent = tracer.open(JackEventType.ALL_JACK_SCHEDULABLES)) {
             plan.getScheduleInstance().process(session);
-          } finally {
-            allJackSchedulablesEvent.end();
           }
         } finally {
             if (outputJackLibrary != null) {
@@ -885,8 +879,6 @@ public abstract class Jack {
               }
             }
           }
-      } finally {
-        event.end();
       }
     } finally {
       ThreadConfig.unsetConfig();
@@ -1001,24 +993,22 @@ public abstract class Jack {
 
       JackBatchCompiler jbc = new JackBatchCompiler(session);
 
-      Event event = tracer.start(JackEventType.ECJ_COMPILATION);
+      try (Event event = tracer.open(JackEventType.ECJ_COMPILATION)) {
+        List<String> ecjExtraArguments = options.getEcjExtraArguments();
+        List<String> ecjArguments =
+            new ArrayList<String>(ecjExtraArguments.size() + fileNamesToCompile.size());
+        ecjArguments.addAll(ecjExtraArguments);
+        ecjArguments.addAll(fileNamesToCompile);
 
-      List<String> ecjExtraArguments = options.getEcjExtraArguments();
-      List<String> ecjArguments = new ArrayList<String>(
-          ecjExtraArguments.size() + fileNamesToCompile.size());
-      ecjArguments.addAll(ecjExtraArguments);
-      ecjArguments.addAll(fileNamesToCompile);
-
-      try {
-        if (!jbc.compile(ecjArguments.toArray(new String[ecjArguments.size()]))) {
-          throw new FrontendCompilationException("Failed to compile");
+        try {
+          if (!jbc.compile(ecjArguments.toArray(new String[ecjArguments.size()]))) {
+            throw new FrontendCompilationException("Failed to compile");
+          }
+        } catch (TransportExceptionAroundEcjError e) {
+          throw e.getCause();
+        } catch (TransportJUEAroundEcjError e) {
+          throw e.getCause();
         }
-      } catch (TransportExceptionAroundEcjError e) {
-        throw e.getCause();
-      } catch (TransportJUEAroundEcjError e) {
-        throw e.getCause();
-      } finally {
-        event.end();
       }
     }
 

@@ -144,7 +144,7 @@ public final class StatisticOnlyTracer implements Tracer {
         new ConcurrentHashMap<StatisticId<? extends Statistic>, Statistic>();
 
     @Override
-    public void end() {
+    public void close() {
       if (eventCount.decrementAndGet() == 0) {
         try {
           enable.set(Boolean.FALSE);
@@ -246,14 +246,14 @@ public final class StatisticOnlyTracer implements Tracer {
 
   @Override
   @Nonnull
-  public SingletonEvent start(@Nonnull EventType type) {
+  public SingletonEvent open(@Nonnull EventType type) {
     event.eventCount.incrementAndGet();
     return event;
   }
 
   @Override
   @Nonnull
-  public SingletonEvent start(@Nonnull String name) {
+  public SingletonEvent open(@Nonnull String name) {
     event.eventCount.incrementAndGet();
     return event;
   }

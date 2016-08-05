@@ -75,10 +75,7 @@ public abstract class DexInLibraryWriter extends DexWriter implements
   public void run(@Nonnull JDefinedClassOrInterface type) {
     OutputVFile vFile;
 
-    Event event = tracer.start(JackEventType.DX_BACKEND);
-
-    try {
-
+    try (Event event = tracer.open(JackEventType.DX_BACKEND)) {
       if (usePrebuilts) {
         Location loc = type.getLocation();
         if (loc instanceof TypeInInputLibraryLocation) {
@@ -140,8 +137,6 @@ public abstract class DexInLibraryWriter extends DexWriter implements
         throw new JackIOException(
             "Could not write Dex file to output " + vFile.getLocation().getDescription(), e);
       }
-    } finally {
-      event.end();
     }
   }
 }

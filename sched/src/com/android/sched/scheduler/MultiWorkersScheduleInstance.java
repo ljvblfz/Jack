@@ -139,10 +139,8 @@ public class MultiWorkersScheduleInstance<T extends Component>
     public void run() {
       assert state != null;
       tracer.pushThreadState(state);
-      Event workersEvent = tracer.start(SchedEventType.WORKERS);
-      Event workerEvent = tracer.start("Worker " + getName());
-
-      try {
+      try (Event workersEvent = tracer.open(SchedEventType.WORKERS);
+           Event workerEvent = tracer.open("Worker " + getName())) {
         while (true) {
           try {
             synchronized (this) {
@@ -176,8 +174,6 @@ public class MultiWorkersScheduleInstance<T extends Component>
         new AssertionErrorTask(queue,
             new AssertionError("Uncaught exception in thread '" + getName() + "'", e)).commit();
       } finally {
-        workerEvent.end();
-        workersEvent.end();
         assert state != null;
         tracer.popThreadState(state);
       }

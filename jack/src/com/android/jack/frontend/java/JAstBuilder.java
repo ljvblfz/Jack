@@ -119,8 +119,7 @@ class JAstBuilder extends JavaParser {
   @Override
   public void process(CompilationUnitDeclaration unit, int i) {
     try {
-      Event jastEvent = tracer.start(JackEventType.J_AST_BUILDER);
-      try {
+      try (Event jastEvent = tracer.open(JackEventType.J_AST_BUILDER)) {
         super.process(unit, i);
 
         if (hasErrors || unit.hasErrors() || unit.compilationResult().hasErrors()) {
@@ -135,14 +134,11 @@ class JAstBuilder extends JavaParser {
         // It could not be done at the end of compile(ICompilationUnit[] sourceUnits) method since
         // reset method of ecj was called by super.compile(sourceUnits) and after the lookup
         // environment is no longer usable.
-        Event jackIrBuilderEvent = tracer.start(JackEventType.JACK_IR_BUILDER);
         List<JDefinedClassOrInterface> types;
-        try {
+        try (Event jackIrBuilderEvent = tracer.open(JackEventType.JACK_IR_BUILDER)) {
           types = astBuilder.process(unit);
         } catch (SourceCompilationException e) {
           return;
-        } finally {
-          jackIrBuilderEvent.end();
         }
 
         for (JDefinedClassOrInterface type : loadedLocalTypes) {
@@ -156,8 +152,6 @@ class JAstBuilder extends JavaParser {
         for (JDefinedClassOrInterface type : types) {
           session.addTypeToEmit(type);
         }
-      } finally {
-        jastEvent.end();
       }
     } catch (IllegalArgumentException e) {
       // This is a workaround to reduce bad handling of IllegalArgumentException in

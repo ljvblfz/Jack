@@ -52,10 +52,6 @@ public final class DummyTracer implements Tracer {
     }
 
     @Override
-    public void end() {
-    }
-
-    @Override
     @Nonnegative
     public long getElapsedValue(@Nonnull Probe probe) {
       throw new UnsupportedOperationException();
@@ -100,6 +96,10 @@ public final class DummyTracer implements Tracer {
     public <T extends Statistic> T getStatistic(@Nonnull StatisticId<T> id) {
       return id.getDummyInstance();
     }
+
+    @Override
+    public void close() {
+    }
   }
 
   public DummyTracer() {
@@ -108,7 +108,7 @@ public final class DummyTracer implements Tracer {
 
   @Override
   @Nonnull
-  public DummyTracerEvent start(@Nonnull EventType type) {
+  public DummyTracerEvent open(@Nonnull EventType type) {
     assert config == ThreadConfig.getConfig();
 
     return dummyEvent;
@@ -116,7 +116,7 @@ public final class DummyTracer implements Tracer {
 
   @Override
   @Nonnull
-  public DummyTracerEvent start(@Nonnull String name) {
+  public DummyTracerEvent open(@Nonnull String name) {
     assert config == ThreadConfig.getConfig();
 
     return dummyEvent;

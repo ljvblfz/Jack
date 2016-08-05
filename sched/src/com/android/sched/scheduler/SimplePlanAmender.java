@@ -48,8 +48,7 @@ public class SimplePlanAmender<T extends Component> implements PlanAmender<T> {
       @Nonnull RunnerSet runners, @Nonnull FitnessPlanCandidate<T> current)
           throws PlanNotFoundException {
     // STOPSHIP Adapt this to the new ammendPlan method
-    Event event = TracerFactory.getTracer().start(SchedEventType.AMENDER);
-    try {
+    try (Event event = TracerFactory.getTracer().open(SchedEventType.AMENDER)) {
       RunnerSet mandatoryRunners = new RunnerSet(request.getScheduler().getSchedulableManager());
       RunnerSet optionalRunners = new RunnerSet(request.getScheduler().getSchedulableManager());
 
@@ -136,8 +135,6 @@ public class SimplePlanAmender<T extends Component> implements PlanAmender<T> {
       }
 
       throw new PlanNotFoundException();
-    } finally {
-      event.end();
     }
   }
 }

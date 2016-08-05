@@ -407,12 +407,8 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
 
     @Nonnull
     public ControlFlowGraph getCfg() {
-      Event optEvent = tracer.start(JackEventType.REMOVE_DEAD_CODE);
-
-      try {
+      try (Event optEvent = tracer.open(JackEventType.REMOVE_DEAD_CODE)) {
         removeUnaccessibleNode(blocks, entryBlock, exitBlock, basicBlockId);
-      } finally {
-        optEvent.end();
       }
       return new ControlFlowGraph(method, basicBlockId, entryBlock, exitBlock, blocks);
     }

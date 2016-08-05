@@ -133,12 +133,9 @@ public class GeneticHardcodedPlanner<T extends Component> extends GeneticPlanner
   protected GroupPlanCandidate<T> buildPlanCandidate(
       @Nonnull Request request, @Nonnull Class<T> rootRunOn) {
     if (rng == null) {
-      Event event = tracer.start(GeneticEventType.RANDOM_INIT);
-      try {
+      try (Event event = tracer.open(GeneticEventType.RANDOM_INIT)) {
         logger.log(Level.FINER, "Initializing random generator");
         rng = new XORShiftRNG();
-      } finally {
-        event.end();
       }
     }
 
@@ -193,8 +190,7 @@ public class GeneticHardcodedPlanner<T extends Component> extends GeneticPlanner
       });
     }
 
-    Event event = tracer.start(GeneticEventType.ENGINE);
-    try {
+    try (Event event = tracer.open(GeneticEventType.ENGINE)) {
       GroupPlanCandidate<T> planCandidate = engine.evolve(
           ThreadConfig.get(POPULATION_SIZE).intValue(), ThreadConfig.get(ELITE_COUNT).intValue(),
           new Stagnation(ThreadConfig.get(STAGNATION).intValue(), true),
@@ -203,8 +199,6 @@ public class GeneticHardcodedPlanner<T extends Component> extends GeneticPlanner
       logger.log(Level.FINE, "Winner plan: {0}", planCandidate);
 
       return planCandidate;
-    } finally {
-      event.end();
     }
   }
 }

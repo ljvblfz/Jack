@@ -31,26 +31,28 @@ import javax.annotation.Nonnull;
 @VariableName("tracer")
 public interface Tracer {
   /**
-   * Signals that a new event has started. You must end each event for each corresponding call to
-   * {@code start}. Nesting calls are allowed. Parent events are handled automatically for the same
-   * thread.
+   * Open a new event. You must call {@link Event#close()} on each event you open.
+   * The returned {@link Event} is {@Link AutoCloseable} so this method can be called in a
+   * try-with-resources pattern for your convenience.
+   * Nesting opens are allowed. Parent events are handled automatically for the same thread.
    *
    * @param type the type of event.
-   * @return an Event object to be ended by the caller.
+   * @return an Event object to be closed by the caller.
    */
   @Nonnull
-  public Event start(@Nonnull EventType type);
+  public Event open(@Nonnull EventType type);
 
   /**
-   * Signals that a new event has started. You must end each event for each corresponding call to
-   * {@code start}. Nesting calls is allowed. Parent events are handled automatically for the same
-   * thread.
+   * Open a new event. You must call {@link Event#close()} on each event you open.
+   * The returned {@link Event} is {@Link AutoCloseable} so this method can be called in a
+   * try-with-resources pattern for your convenience.
+   * Nesting opens are allowed. Parent events are handled automatically for the same thread.
    *
-   * @param name the name of the event.
-   * @return an Event object to be ended by the caller.
+   * @param name the name of event.
+   * @return an Event object to be closed by the caller.
    */
   @Nonnull
-  public Event start(@Nonnull String name);
+  public Event open(@Nonnull String name);
 
   @Nonnull
   public ThreadTracerState getThreadState();

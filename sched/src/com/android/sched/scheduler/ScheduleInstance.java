@@ -122,8 +122,7 @@ public abstract class ScheduleInstance<T extends Component> {
     scheduler = plan.getScheduler();
     this.features = plan.getFeatures();
 
-    Event eventGlobal = tracer.start(SchedEventType.INSTANCIER);
-    try {
+    try (Event eventGlobal = tracer.open(SchedEventType.INSTANCIER)) {
       steps = new SchedStep[plan.size()];
       int idx = 0;
       filtersNeeded = scheduler.createComponentFilterSet();
@@ -131,8 +130,7 @@ public abstract class ScheduleInstance<T extends Component> {
         SchedStep<T> instance = null;
 
         try {
-          Event event = tracer.start(SchedEventType.INSTANCIER);
-          try {
+          try (Event event = tracer.open(SchedEventType.INSTANCIER)) {
             if (step.isVisitor()) {
               ScheduleInstance<? extends Component> subInstance =
                   step.getSubPlan().getScheduleInstance();
@@ -142,8 +140,6 @@ public abstract class ScheduleInstance<T extends Component> {
             } else {
               instance = new RunnableSchedStep<T>((ManagedRunnable) step.getManagedSchedulable());
             }
-          } finally {
-            event.end();
           }
         } catch (Exception e) {
           logger.log(Level.SEVERE,
@@ -171,8 +167,6 @@ public abstract class ScheduleInstance<T extends Component> {
       }
 
       filterInstances = tmp.toArray(new FilterInstance[tmp.size()]);
-    } finally {
-      eventGlobal.end();
     }
   }
 
@@ -197,15 +191,12 @@ public abstract class ScheduleInstance<T extends Component> {
 
     visitStack.push(new ElementStack(features, managedSchedulable));
 
-    Event event = logAndTrace(runner, data);
-    try {
+    try (Event event = logAndTrace(runner, data)) {
       try {
         runner.run(data);
       } catch (Throwable e) {
         throw new RunnerProcessException(runner, managedSchedulable, data, e);
       }
-    } finally {
-      event.end();
     }
 
     visitStack.pop();
@@ -220,16 +211,13 @@ public abstract class ScheduleInstance<T extends Component> {
 
     visitStack.push(new ElementStack(features, managedSchedulable));
 
-    Event event = logAndTrace(visitor, data);
-    try {
+    try (Event event = logAndTrace(visitor, data)) {
       assert data instanceof SchedulerVisitable<?>;
       try {
         ((SchedulerVisitable<X>) data).visit((X) visitor, new TransformRequest());
       } catch (Throwable e) {
         throw new VisitorProcessException(visitor, managedSchedulable, data, e);
       }
-    } finally {
-      event.end();
     }
 
     visitStack.pop();
@@ -238,16 +226,13 @@ public abstract class ScheduleInstance<T extends Component> {
   @Nonnull
   protected <DST extends Component> Iterator<DST> adaptWithLog(
       @Nonnull AdapterSchedulable<T, DST> adapter, @Nonnull T data) throws AdapterProcessException {
-    Event event = logAndTrace(adapter, data);
-    try {
+    try (Event event = logAndTrace(adapter, data)) {
       return adapter.adapt(data);
     } catch (Throwable e) {
       ManagedSchedulable managedSchedulable =
           scheduler.getSchedulableManager().getManagedSchedulable(adapter.getClass());
 
       throw new AdapterProcessException(adapter, managedSchedulable, data, e);
-    } finally {
-      event.end();
     }
   }
 
@@ -261,9 +246,9 @@ public abstract class ScheduleInstance<T extends Component> {
     }
 
     if (tracer.isTracing()) {
-      return tracer.start(getSchedulableName(schedulable.getClass()));
+      return tracer.open(getSchedulableName(schedulable.getClass()));
     } else {
-      return tracer.start("<no-name>");
+      return tracer.open("<no-name>");
     }
   }
 

@@ -332,20 +332,14 @@ public class JayceInternalWriterImpl implements JayceInternalWriter {
 
   @Override
   public void write(@Nonnull JNode jNode) throws IOException {
-    Event eventWriting = tracer.start(JackEventType.NNODE_WRITING);
-    try {
+    try (Event eventWriting = tracer.open(JackEventType.NNODE_WRITING)) {
       ImportHelper importHelper = new ImportHelper(new NodeFactory());
-      Event eventConvert = tracer.start(JackEventType.JNODE_TO_NNODE_CONVERSION);
       NNode nNode;
-      try {
+      try (Event eventConvert = tracer.open(JackEventType.JNODE_TO_NNODE_CONVERSION)) {
         nNode = importHelper.load(jNode);
-      } finally {
-        eventConvert.end();
       }
 
       writeNode(nNode);
-    } finally {
-      eventWriting.end();
     }
   }
 

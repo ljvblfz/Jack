@@ -44,11 +44,8 @@ public class PlanBuilder<T extends Component> extends SubPlanBuilder<T> {
   public Plan<T> getPlan() {
     assert request != null;
 
-    Event event = tracer.start(SchedEventType.PLANBUILDER);
-    try {
+    try (Event event = tracer.open(SchedEventType.PLANBUILDER)) {
       plan.initPlan(request, this);
-    } finally {
-      event.end();
     }
 
     return plan;

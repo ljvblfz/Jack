@@ -53,8 +53,7 @@ public class EvenSimplerPlanAmender<T extends Component> implements PlanAmender<
   @Override
   public boolean amendPlan(@Nonnull Request request, @Nonnull Class<T> on,
       @Nonnull List<ManagedRunnable> runners, @Nonnull PlanConstructor<T> ctor) {
-    Event event = tracer.start(SchedEventType.AMENDER);
-    try {
+    try (Event event = tracer.open(SchedEventType.AMENDER)) {
       List<ManagedRunnable> next = new LinkedList<ManagedRunnable>(runners);
       for (ManagedRunnable runner : runners) {
         ProductionSet productions = runner.getProductions();
@@ -100,8 +99,6 @@ public class EvenSimplerPlanAmender<T extends Component> implements PlanAmender<
       }
 
       return amendPlan(request, on, next, ctor, 0);
-    } finally {
-      event.end();
     }
   }
 

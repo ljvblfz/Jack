@@ -196,9 +196,7 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
       return;
     }
 
-    Event event = tracer.start(JackEventType.DX_BACKEND);
-    try {
-
+    try (Event event = tracer.open(JackEventType.DX_BACKEND)) {
       RopRegisterManager ropReg =
           new RopRegisterManager(emitLocalDebugInfo, emitSyntheticLocalDebugInfo);
 
@@ -374,9 +372,7 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
               ropBb.getSpecialLabel(RopBasicBlockManager.PARAM_ASSIGNMENT));
 
       if (runDxOptimizations) {
-        Event optEvent = tracer.start(JackEventType.DX_OPTIMIZATION);
-
-        try {
+        try (Event optEvent = tracer.open(JackEventType.DX_OPTIMIZATION)) {
           ropMethod =
               Optimizer.optimize(
                   ropMethod,
@@ -385,23 +381,16 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
                   true /* inPreserveLocals */,
                   removeRedundantConditionalBranch,
                   DexTranslationAdvice.THE_ONE);
-        } finally {
-          optEvent.end();
         }
       }
 
-      Event dopEvent = tracer.start(JackEventType.DOP_CREATION);
       DalvCode dalvCode;
-      try {
+      try (Event dopEvent = tracer.open(JackEventType.DOP_CREATION)) {
         dalvCode = createCode(method, ropMethod);
-      } finally {
-        dopEvent.end();
       }
 
       method.addMarker(new DexCodeMarker(new CodeItem(RopHelper.createMethodRef(method), dalvCode,
           method.isStatic(), createThrows(method))));
-    } finally {
-      event.end();
     }
   }
 

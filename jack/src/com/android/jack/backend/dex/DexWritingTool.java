@@ -17,6 +17,7 @@
 package com.android.jack.backend.dex;
 
 import com.android.jack.Jack;
+import com.android.jack.JackEventType;
 import com.android.jack.Options;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.dx.dex.DexOptions;
@@ -40,7 +41,10 @@ import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotReadException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
+import com.android.sched.util.log.Event;
 import com.android.sched.util.log.LoggerFactory;
+import com.android.sched.util.log.Tracer;
+import com.android.sched.util.log.TracerFactory;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.OutputVFS;
 import com.android.sched.vfs.OutputVFile;
@@ -69,6 +73,8 @@ import javax.annotation.Nonnull;
  */
 @VariableName("writer")
 public abstract class DexWritingTool {
+  @Nonnull
+  protected final Tracer tracer = TracerFactory.getTracer();
 
   /**
    * {@link MatchableInputVFile} is used to deduplicate {@link InputVFile}.
@@ -128,18 +134,20 @@ public abstract class DexWritingTool {
 
   protected void finishMerge(@Nonnull JackMerger merger, @Nonnull OutputVFile out)
       throws DexWritingException {
-    OutputStream os = null;
-    try {
+    try (Event event = tracer.open(JackEventType.DEX_MERGER_FINISH)) {
+      OutputStream os = null;
       try {
-        os = new BufferedOutputStream(out.getOutputStream());
-        merger.finish(os);
-      } finally {
-        if (os != null) {
-          os.close();
+        try {
+          os = new BufferedOutputStream(out.getOutputStream());
+          merger.finish(os);
+        } finally {
+          if (os != null) {
+            os.close();
+          }
         }
+      } catch (IOException | WrongPermissionException e) {
+        throw new DexWritingException(e);
       }
-    } catch (IOException | WrongPermissionException e) {
-      throw new DexWritingException(e);
     }
   }
 

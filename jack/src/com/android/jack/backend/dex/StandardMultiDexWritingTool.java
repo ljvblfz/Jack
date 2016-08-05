@@ -21,8 +21,6 @@ import com.android.jack.tools.merger.JackMerger;
 import com.android.jack.tools.merger.MergingOverflowException;
 import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.log.Event;
-import com.android.sched.util.log.Tracer;
-import com.android.sched.util.log.TracerFactory;
 import com.android.sched.vfs.OutputVFS;
 import com.android.sched.vfs.OutputVFile;
 
@@ -40,9 +38,6 @@ import javax.annotation.Nonnull;
 @ImplementationName(iface = DexWritingTool.class, name = "multidex",
     description = "allow emitting several dex files")
 public class StandardMultiDexWritingTool extends DexWritingTool implements MultiDexWritingTool {
-  @Nonnull
-  private final Tracer tracer = TracerFactory.getTracer();
-
   @Override
   public void write(@Nonnull OutputVFS outputVDir) throws DexWritingException {
     int dexCount = 1;
@@ -50,8 +45,7 @@ public class StandardMultiDexWritingTool extends DexWritingTool implements Multi
     List<MatchableInputVFile> anyDexList = new ArrayList<MatchableInputVFile>();
     fillDexLists(mainDexList, anyDexList);
 
-    Event eMerger = tracer.start(JackEventType.DEX_MERGER);
-    try {
+    try (Event event = tracer.open(JackEventType.DEX_MERGER)) {
       JackMerger merger = new JackMerger(createDexFile());
       OutputVFile outputDex = getOutputDex(outputVDir, dexCount++);
 
@@ -67,12 +61,7 @@ public class StandardMultiDexWritingTool extends DexWritingTool implements Multi
         try {
           mergeDex(merger, currentDex.getInputVFile());
         } catch (MergingOverflowException e) {
-          Event eFinish = tracer.start(JackEventType.DEX_MERGER_FINISH);
-          try {
-            finishMerge(merger, outputDex);
-          } finally {
-            eFinish.end();
-          }
+          finishMerge(merger, outputDex);
           outputDex = getOutputDex(outputVDir, dexCount++);
           merger = new JackMerger(createDexFile());
           try {
@@ -84,14 +73,7 @@ public class StandardMultiDexWritingTool extends DexWritingTool implements Multi
         }
       }
 
-      Event eFinish = tracer.start(JackEventType.DEX_MERGER_FINISH);
-      try {
-        finishMerge(merger, outputDex);
-      } finally {
-        eFinish.end();
-      }
-    } finally {
-      eMerger.end();
+      finishMerge(merger, outputDex);
     }
   }
 }
