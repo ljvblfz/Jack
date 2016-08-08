@@ -443,7 +443,6 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
       }
       String id = "-e_" + (unusedVarCount++);
       declaringCatchVariable = new Variable(id, id, caughtType, null);
-      declaringCatchVariable.setSynthetic();
       catchBlockToCatchedVariable.put(tryCatchNode, declaringCatchVariable);
     }
   }
@@ -2529,10 +2528,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
 
     LocalVariableNode lvn = getLocalVariableNode(v.getLocalIndex());
 
-    if (lvn == null) {
-      // Variable is a local variable but there is no debug info.
-      v.setSynthetic();
-    } else {
+    if (lvn != null) {
       writer.writeKeyword(Token.DEBUG_VARIABLE_INFORMATION);
       writer.writeOpen();
       writer.writeString(lvn.name);
@@ -2806,7 +2802,6 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     Variable topOfStackBeforeInst = getStackVariable(frame, TOP_OF_STACK - 1);
     String tmpVarId = "-swap_tmp_" + typeToUntypedDesc(topOfStackBeforeInst.getType());
     Variable tmpVariable = getVariable(tmpVarId, tmpVarId, topOfStackBeforeInst.getType(), null);
-    tmpVariable.setSynthetic();
     return tmpVariable;
   }
 
@@ -2859,7 +2854,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     writer.writeKeyword(Token.PARAMETER);
     writer.writeOpen();
     writer.writeId(param.getId());
-    writer.writeInt(NO_MODIFIER);
+    writer.writeInt(param.isSynthetic() ? Opcodes.ACC_SYNTHETIC : NO_MODIFIER);
     writer.writeId(paramType.getDescriptor());
     writer.writeString(param.getName());
     annotWriter.writeAnnotations(currentMethod, parameterAnnotationIdx);
@@ -2952,7 +2947,6 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     assert bv != BasicValue.UNINITIALIZED_VALUE;
     String id = "-s_" + stackHeight + "_" + typeToUntypedDesc(bv.getType());
     Variable variable = getVariable(id, id, typeToUntyped(bv.getType()), null);
-    variable.setSynthetic();
     return variable;
   }
 
@@ -2975,7 +2969,9 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     Variable var = nameToVar.get(id);
 
     if (var == null) {
-      var = new Variable(id, name, type, signature, localIdx);
+      // All variables which do no have LocalVariableNode are marked synthetic
+      var =
+          new Variable(id, name, type, signature, localIdx, getLocalVariableNode(localIdx) == null);
       nameToVar.put(id, var);
     }
 
