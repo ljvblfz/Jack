@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.jack.optimizations.valuepropagation.test001;
+package com.android.jack.optimizations.valuepropagation.test001.jack;
 
-class A {
+public class A {
   int initialized1_reassigned_with_same_value = 1001;
   int initialized2_reassigned_with_different_value = 1;
   int initialized3_definitely_reassigned_with_different_value = 77;
@@ -78,5 +78,8 @@ class A {
     result += not_initialized4_partially_assigned_different_value;
     result += not_initialized5_not_assigned;
     return result;
+  }
+
+  public static void touch() {
   }
 }

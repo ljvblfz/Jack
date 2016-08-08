@@ -1,6 +1,6 @@
-method: Lcom/android/jack/optimizations/valuepropagation/test105/A;->equals(Ljava/lang/Object;)Z
+method: Lcom/android/jack/optimizations/valuepropagation/test105/jack/A;->equals(Ljava/lang/Object;)Z
 registers: 3, in/out: 2/2
 instructions: 3
-    | invoke-virtual v0, v1, v2, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test105/A;->s(Ljava/lang/Object;)V
+    | invoke-virtual v0, v1, v2, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test105/jack/A;->s(Ljava/lang/Object;)V
     | const/4 v0, 0
     | return v0

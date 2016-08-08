@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.jack.optimizations.valuepropagation.test004;
+package com.android.jack.optimizations.valuepropagation.test004.jack;
 
-class A {
+public class A {
   static int static_field = 101;
   int instance_field = 1010;
 
@@ -28,5 +28,8 @@ class A {
     int x = get().static_field + A.static_field + this.static_field;
     int y = get().instance_field + this.static_field;
     return x + y;
+  }
+
+  public static void touch() {
   }
 }

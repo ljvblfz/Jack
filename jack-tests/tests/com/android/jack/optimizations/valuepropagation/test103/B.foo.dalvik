@@ -1,4 +1,4 @@
-method: Lcom/android/jack/optimizations/valuepropagation/test103/B;->foo(Ljava/lang/String;)Ljava/lang/String;
+method: Lcom/android/jack/optimizations/valuepropagation/test103/jack/B;->foo(Ljava/lang/String;)Ljava/lang/String;
 registers: 2, in/out: 2/0
 instructions: 1
     | return-object v1

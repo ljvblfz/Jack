@@ -1,14 +1,14 @@
-method: Lcom/android/jack/optimizations/wofr/test001/C;->test(Ljava/lang/String;I)V
+method: Lcom/android/jack/optimizations/wofr/test001/jack/C;->test(Ljava/lang/String;I)V
 registers: 5, in/out: 3/1
 instructions: 11
     | const/4 v1, 0
     | const-string/jumbo v0, string_id_item: Blah
-    | iput-object v1, v2, Lcom/android/jack/optimizations/wofr/test001/C;->sF2a:Ljava/lang/String;
+    | iput-object v1, v2, Lcom/android/jack/optimizations/wofr/test001/jack/C;->sF2a:Ljava/lang/String;
     | const-string/jumbo v0, string_id_item: Blah
-    | iput-object v0, v2, Lcom/android/jack/optimizations/wofr/test001/C;->sF2a:Ljava/lang/String;
-    | iput-object v3, v2, Lcom/android/jack/optimizations/wofr/test001/C;->sF2a:Ljava/lang/String;
-    | iput-object v1, v2, Lcom/android/jack/optimizations/wofr/test001/C;->sF4:Ljava/lang/Object;
+    | iput-object v0, v2, Lcom/android/jack/optimizations/wofr/test001/jack/C;->sF2a:Ljava/lang/String;
+    | iput-object v3, v2, Lcom/android/jack/optimizations/wofr/test001/jack/C;->sF2a:Ljava/lang/String;
+    | iput-object v1, v2, Lcom/android/jack/optimizations/wofr/test001/jack/C;->sF4:Ljava/lang/Object;
     | new-instance v0, type_id_item: Ljava/lang/Object;
     | invoke-direct v0, v0, v0, v0, v0, method_id_item: Ljava/lang/Object;-><init>()V
-    | iput-object v0, v2, Lcom/android/jack/optimizations/wofr/test001/C;->sF4:Ljava/lang/Object;
+    | iput-object v0, v2, Lcom/android/jack/optimizations/wofr/test001/jack/C;->sF4:Ljava/lang/Object;
     | return-void

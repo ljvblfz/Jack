@@ -1,20 +1,20 @@
-method: Lcom/android/jack/optimizations/wofr/test002/A;->test(Lcom/android/jack/optimizations/wofr/test002/A;I)V
+method: Lcom/android/jack/optimizations/wofr/test002/jack/A;->test(Lcom/android/jack/optimizations/wofr/test002/jack/A;I)V
 registers: 4, in/out: 3/1
 instructions: 17
-    | invoke-virtual v0, v1, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/wofr/test002/A;->i()I
-    | iget v0, v2, Lcom/android/jack/optimizations/wofr/test002/A;->SI:I
-    | invoke-virtual v0, v1, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/wofr/test002/A;->a()Lcom/android/jack/optimizations/wofr/test002/A;
+    | invoke-virtual v0, v1, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/wofr/test002/jack/A;->i()I
+    | iget v0, v2, Lcom/android/jack/optimizations/wofr/test002/jack/A;->SI:I
+    | invoke-virtual v0, v1, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/wofr/test002/jack/A;->a()Lcom/android/jack/optimizations/wofr/test002/jack/A;
     | move-result-object v0
-    | iget v0, v0, Lcom/android/jack/optimizations/wofr/test002/A;->SI:I
+    | iget v0, v0, Lcom/android/jack/optimizations/wofr/test002/jack/A;->SI:I
     | if-nez v2, #00
     | new-instance v0, type_id_item: Ljava/lang/NullPointerException;
     | invoke-direct v0, v0, v0, v0, v0, method_id_item: Ljava/lang/NullPointerException;-><init>()V
     | throw v0
-#00-> invoke-virtual v0, v1, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/wofr/test002/A;->a()Lcom/android/jack/optimizations/wofr/test002/A;
+#00-> invoke-virtual v0, v1, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/wofr/test002/jack/A;->a()Lcom/android/jack/optimizations/wofr/test002/jack/A;
     | move-result-object v0
     | if-nez v0, #01
     | new-instance v0, type_id_item: Ljava/lang/NullPointerException;
     | invoke-direct v0, v0, v0, v0, v0, method_id_item: Ljava/lang/NullPointerException;-><init>()V
     | throw v0
-#01-> invoke-virtual v0, v1, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/wofr/test002/A;->a()Lcom/android/jack/optimizations/wofr/test002/A;
+#01-> invoke-virtual v0, v1, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/wofr/test002/jack/A;->a()Lcom/android/jack/optimizations/wofr/test002/jack/A;
     | return-void

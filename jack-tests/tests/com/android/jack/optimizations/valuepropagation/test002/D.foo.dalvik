@@ -1,5 +1,5 @@
-method: Lcom/android/jack/optimizations/valuepropagation/test002/D;->foo()I
+method: Lcom/android/jack/optimizations/valuepropagation/test002/jack/D;->foo()I
 registers: 2, in/out: 1/0
 instructions: 2
-    | iget v0, v1, Lcom/android/jack/optimizations/valuepropagation/test002/D;->instance:I
+    | iget v0, v1, Lcom/android/jack/optimizations/valuepropagation/test002/jack/D;->instance:I
     | return v0

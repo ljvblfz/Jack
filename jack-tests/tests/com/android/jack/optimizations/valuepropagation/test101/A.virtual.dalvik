@@ -1,4 +1,4 @@
-method: Lcom/android/jack/optimizations/valuepropagation/test101/A;->virtual(II)I
+method: Lcom/android/jack/optimizations/valuepropagation/test101/jack/A;->virtual(II)I
 registers: 4, in/out: 3/0
 instructions: 2
     | add-int/lit8 v0, v3, 100

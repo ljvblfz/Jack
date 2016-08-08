@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.jack.optimizations.modifiers.test002;
+package com.android.jack.optimizations.modifiers.test002.jack;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -67,4 +67,17 @@ class D2 extends D1 {
 
 interface Inter {
   Base foo();
+}
+
+public abstract class A {
+  private static void touch(Class clazz) {
+  }
+  public static void touch() {
+    touch(Base.class);
+    touch(D1.class);
+    touch(D2.class);
+    touch(Inter.class);
+    touch(PreBase.class);
+    touch(PrePreBase.class);
+  }
 }

@@ -1,4 +1,4 @@
-method: Lcom/android/jack/optimizations/valuepropagation/test003/A;->check()V
+method: Lcom/android/jack/optimizations/valuepropagation/test003/jack/A;->check()V
 registers: 5, in/out: 1/2
 instructions: 28
     | const/16 v0, 46

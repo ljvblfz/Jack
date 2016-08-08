@@ -1,4 +1,4 @@
-method: Lcom/android/jack/optimizations/wofr/test001/B;->btest(Lcom/android/jack/optimizations/wofr/test001/B;)V
+method: Lcom/android/jack/optimizations/wofr/test001/jack/B;->btest(Lcom/android/jack/optimizations/wofr/test001/jack/B;)V
 registers: 2, in/out: 2/0
 instructions: 1
     | return-void

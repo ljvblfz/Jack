@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.jack.optimizations.wofr.test002;
+package com.android.jack.optimizations.wofr.test002.jack;
 
 // Temp variables and null-check
 public class A {
@@ -42,5 +42,8 @@ public class A {
     this.sfld = 103;
     A.sfld = 104;
     sfld = 105;
+  }
+
+  public static void touch() {
   }
 }

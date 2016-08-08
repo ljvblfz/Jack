@@ -61,7 +61,7 @@ public class ValuePropagationTests extends DexOutputBasedTest {
   @Runtime
   public void test001() throws Exception {
     String test = "com.android.jack.optimizations.valuepropagation.test001";
-    String aType = "Lcom/android/jack/optimizations/valuepropagation/test001/A;";
+    String aType = "Lcom/android/jack/optimizations/valuepropagation/test001/jack/A;";
 
     compileAndValidate(test, defaultProperties(),
         new DexFileTypesValidator()
@@ -82,10 +82,10 @@ public class ValuePropagationTests extends DexOutputBasedTest {
   @Runtime
   public void test002() throws Exception {
     String test = "com.android.jack.optimizations.valuepropagation.test002";
-    String aType = "Lcom/android/jack/optimizations/valuepropagation/test002/A;";
-    String bType = "Lcom/android/jack/optimizations/valuepropagation/test002/B;";
-    String cType = "Lcom/android/jack/optimizations/valuepropagation/test002/C;";
-    String dType = "Lcom/android/jack/optimizations/valuepropagation/test002/D;";
+    String aType = "Lcom/android/jack/optimizations/valuepropagation/test002/jack/A;";
+    String bType = "Lcom/android/jack/optimizations/valuepropagation/test002/jack/B;";
+    String cType = "Lcom/android/jack/optimizations/valuepropagation/test002/jack/C;";
+    String dType = "Lcom/android/jack/optimizations/valuepropagation/test002/jack/D;";
 
     compileAndValidate(test, defaultProperties(),
         new DexFileTypesValidator()
@@ -110,9 +110,9 @@ public class ValuePropagationTests extends DexOutputBasedTest {
   @Runtime
   public void test003() throws Exception {
     String test = "com.android.jack.optimizations.valuepropagation.test003";
-    String aType = "Lcom/android/jack/optimizations/valuepropagation/test003/A;";
-    String bType = "Lcom/android/jack/optimizations/valuepropagation/test003/B;";
-    String cType = "Lcom/android/jack/optimizations/valuepropagation/test003/C;";
+    String aType = "Lcom/android/jack/optimizations/valuepropagation/test003/jack/A;";
+    String bType = "Lcom/android/jack/optimizations/valuepropagation/test003/jack/B;";
+    String cType = "Lcom/android/jack/optimizations/valuepropagation/test003/jack/C;";
 
     CompilationProperties properties = defaultProperties();
 
@@ -148,7 +148,7 @@ public class ValuePropagationTests extends DexOutputBasedTest {
   @Runtime
   public void test004() throws Exception {
     String test = "com.android.jack.optimizations.valuepropagation.test004";
-    String aType = "Lcom/android/jack/optimizations/valuepropagation/test004/A;";
+    String aType = "Lcom/android/jack/optimizations/valuepropagation/test004/jack/A;";
 
     CompilationProperties properties = defaultProperties();
 
@@ -173,9 +173,9 @@ public class ValuePropagationTests extends DexOutputBasedTest {
   @Runtime
   public void test005() throws Exception {
     String test = "com.android.jack.optimizations.valuepropagation.test005";
-    String aType = "Lcom/android/jack/optimizations/valuepropagation/test005/A;";
-    String bType = "Lcom/android/jack/optimizations/valuepropagation/test005/B;";
-    String cType = "Lcom/android/jack/optimizations/valuepropagation/test005/C;";
+    String aType = "Lcom/android/jack/optimizations/valuepropagation/test005/jack/A;";
+    String bType = "Lcom/android/jack/optimizations/valuepropagation/test005/jack/B;";
+    String cType = "Lcom/android/jack/optimizations/valuepropagation/test005/jack/C;";
 
     compileAndValidate(test, defaultProperties(),
         new DexFileTypesValidator()
@@ -194,9 +194,9 @@ public class ValuePropagationTests extends DexOutputBasedTest {
   @Runtime
   public void test101() throws Exception {
     String test = "com.android.jack.optimizations.valuepropagation.test101";
-    String aType = "Lcom/android/jack/optimizations/valuepropagation/test101/A;";
-    String bType = "Lcom/android/jack/optimizations/valuepropagation/test101/B;";
-    String cType = "Lcom/android/jack/optimizations/valuepropagation/test101/C;";
+    String aType = "Lcom/android/jack/optimizations/valuepropagation/test101/jack/A;";
+    String bType = "Lcom/android/jack/optimizations/valuepropagation/test101/jack/B;";
+    String cType = "Lcom/android/jack/optimizations/valuepropagation/test101/jack/C;";
 
     compileAndValidate(test, defaultProperties(),
         new DexFileTypesValidator()
@@ -218,13 +218,13 @@ public class ValuePropagationTests extends DexOutputBasedTest {
   @Runtime
   public void test102() throws Exception {
     String test = "com.android.jack.optimizations.valuepropagation.test102";
-    String aType = "Lcom/android/jack/optimizations/valuepropagation/test102/A;";
-    String bType = "Lcom/android/jack/optimizations/valuepropagation/test102/B;";
-    String cType = "Lcom/android/jack/optimizations/valuepropagation/test102/C;";
-    String ccType = "Lcom/android/jack/optimizations/valuepropagation/test102/CC;";
-    String dType = "Lcom/android/jack/optimizations/valuepropagation/test102/D;";
-    String ddType = "Lcom/android/jack/optimizations/valuepropagation/test102/DD;";
-    String eType = "Lcom/android/jack/optimizations/valuepropagation/test102/E;";
+    String aType = "Lcom/android/jack/optimizations/valuepropagation/test102/jack/A;";
+    String bType = "Lcom/android/jack/optimizations/valuepropagation/test102/jack/B;";
+    String cType = "Lcom/android/jack/optimizations/valuepropagation/test102/jack/C;";
+    String ccType = "Lcom/android/jack/optimizations/valuepropagation/test102/jack/CC;";
+    String dType = "Lcom/android/jack/optimizations/valuepropagation/test102/jack/D;";
+    String ddType = "Lcom/android/jack/optimizations/valuepropagation/test102/jack/DD;";
+    String eType = "Lcom/android/jack/optimizations/valuepropagation/test102/jack/E;";
 
     String foo = "foo(" + STR + STR + STR + STR + STR + STR + ")V";
     String bar = "bar(" + STR + STR + STR + STR + STR + STR + ")V";
@@ -265,10 +265,10 @@ public class ValuePropagationTests extends DexOutputBasedTest {
   @Runtime
   public void test103() throws Exception {
     String test = "com.android.jack.optimizations.valuepropagation.test103";
-    String aType = "Lcom/android/jack/optimizations/valuepropagation/test103/A;";
-    String bType = "Lcom/android/jack/optimizations/valuepropagation/test103/B;";
-    String cType = "Lcom/android/jack/optimizations/valuepropagation/test103/C;";
-    String dType = "Lcom/android/jack/optimizations/valuepropagation/test103/D;";
+    String aType = "Lcom/android/jack/optimizations/valuepropagation/test103/jack/A;";
+    String bType = "Lcom/android/jack/optimizations/valuepropagation/test103/jack/B;";
+    String cType = "Lcom/android/jack/optimizations/valuepropagation/test103/jack/C;";
+    String dType = "Lcom/android/jack/optimizations/valuepropagation/test103/jack/D;";
 
     String foo = "foo(" + STR + ")" + STR;
 
@@ -292,11 +292,11 @@ public class ValuePropagationTests extends DexOutputBasedTest {
   @Runtime
   public void test104() throws Exception {
     String test = "com.android.jack.optimizations.valuepropagation.test104";
-    String aType = "Lcom/android/jack/optimizations/valuepropagation/test104/A;";
-    String bType = "Lcom/android/jack/optimizations/valuepropagation/test104/B;";
-    String cType = "Lcom/android/jack/optimizations/valuepropagation/test104/C;";
-    String dType = "Lcom/android/jack/optimizations/valuepropagation/test104/D;";
-    String eType = "Lcom/android/jack/optimizations/valuepropagation/test104/E;";
+    String aType = "Lcom/android/jack/optimizations/valuepropagation/test104/jack/A;";
+    String bType = "Lcom/android/jack/optimizations/valuepropagation/test104/jack/B;";
+    String cType = "Lcom/android/jack/optimizations/valuepropagation/test104/jack/C;";
+    String dType = "Lcom/android/jack/optimizations/valuepropagation/test104/jack/D;";
+    String eType = "Lcom/android/jack/optimizations/valuepropagation/test104/jack/E;";
 
     String foo = "foo(" + STR + STR + STR + STR + STR + ")V";
 
@@ -322,10 +322,10 @@ public class ValuePropagationTests extends DexOutputBasedTest {
   @Runtime
   public void test105() throws Exception {
     String test = "com.android.jack.optimizations.valuepropagation.test105";
-    String aType = "Lcom/android/jack/optimizations/valuepropagation/test105/A;";
-    String bType = "Lcom/android/jack/optimizations/valuepropagation/test105/B;";
-    String cType = "Lcom/android/jack/optimizations/valuepropagation/test105/C;";
-    String dType = "Lcom/android/jack/optimizations/valuepropagation/test105/D;";
+    String aType = "Lcom/android/jack/optimizations/valuepropagation/test105/jack/A;";
+    String bType = "Lcom/android/jack/optimizations/valuepropagation/test105/jack/B;";
+    String cType = "Lcom/android/jack/optimizations/valuepropagation/test105/jack/C;";
+    String dType = "Lcom/android/jack/optimizations/valuepropagation/test105/jack/D;";
 
     String equals = "equals(" + OBJ + ")Z";
     String equals2 = "equals2(" + OBJ + ")Z";
@@ -363,10 +363,10 @@ public class ValuePropagationTests extends DexOutputBasedTest {
   @Runtime
   public void test106() throws Exception {
     String test = "com.android.jack.optimizations.valuepropagation.test106";
-    String aType = "Lcom/android/jack/optimizations/valuepropagation/test106/A;";
-    String bType = "Lcom/android/jack/optimizations/valuepropagation/test106/B;";
-    String cType = "Lcom/android/jack/optimizations/valuepropagation/test106/C;";
-    String dType = "Lcom/android/jack/optimizations/valuepropagation/test106/D;";
+    String aType = "Lcom/android/jack/optimizations/valuepropagation/test106/jack/A;";
+    String bType = "Lcom/android/jack/optimizations/valuepropagation/test106/jack/B;";
+    String cType = "Lcom/android/jack/optimizations/valuepropagation/test106/jack/C;";
+    String dType = "Lcom/android/jack/optimizations/valuepropagation/test106/jack/D;";
 
     String init1 = "<init>(" + STR + ")V";
     String init2 = "<init>(" + STR + STR + ")V";

@@ -1,14 +1,14 @@
-method: Lcom/android/jack/optimizations/valuepropagation/test002/B;-><clinit>()V
+method: Lcom/android/jack/optimizations/valuepropagation/test002/jack/B;-><clinit>()V
 registers: 3, in/out: 0/0
 instructions: 11
     | const/16 v2, 33
     | const/4 v1, 1
-    | sput v1, Lcom/android/jack/optimizations/valuepropagation/test002/B;->static_initialized:I
-    | invoke-static v0, v0, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test002/A;->test()Z
+    | sput v1, Lcom/android/jack/optimizations/valuepropagation/test002/jack/B;->static_initialized:I
+    | invoke-static v0, v0, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test002/jack/A;->test()Z
     | move-result v0
     | if-eqz v0, #01
-    | sput v1, Lcom/android/jack/optimizations/valuepropagation/test002/B;->static_initialized:I
-    | sput v2, Lcom/android/jack/optimizations/valuepropagation/test002/B;->static_not_initialized:I
+    | sput v1, Lcom/android/jack/optimizations/valuepropagation/test002/jack/B;->static_initialized:I
+    | sput v2, Lcom/android/jack/optimizations/valuepropagation/test002/jack/B;->static_not_initialized:I
 #00-> return-void
-#01-> sput v2, Lcom/android/jack/optimizations/valuepropagation/test002/B;->static_not_initialized:I
+#01-> sput v2, Lcom/android/jack/optimizations/valuepropagation/test002/jack/B;->static_not_initialized:I
     | goto #00

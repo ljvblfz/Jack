@@ -1,4 +1,4 @@
-method: Lcom/android/jack/optimizations/valuepropagation/test101/A;->interface_(III)I
+method: Lcom/android/jack/optimizations/valuepropagation/test101/jack/A;->interface_(III)I
 registers: 5, in/out: 4/0
 instructions: 3
     | add-int/lit16 v0, v2, 200

@@ -1,7 +1,7 @@
-method: Lcom/android/jack/optimizations/valuepropagation/test002/C;-><init>()V
+method: Lcom/android/jack/optimizations/valuepropagation/test002/jack/C;-><init>()V
 registers: 2, in/out: 1/1
 instructions: 4
     | invoke-direct v0, v1, v0, v0, v0, method_id_item: Ljava/lang/Object;-><init>()V
 #00-> const/16 v0, 123
-    | iput v0, v1, Lcom/android/jack/optimizations/valuepropagation/test002/C;->instance:I
+    | iput v0, v1, Lcom/android/jack/optimizations/valuepropagation/test002/jack/C;->instance:I
     | goto #00

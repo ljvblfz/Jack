@@ -1,14 +1,14 @@
-method: Lcom/android/jack/optimizations/valuepropagation/test104/A;->foo(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+method: Lcom/android/jack/optimizations/valuepropagation/test104/jack/A;->foo(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 registers: 7, in/out: 6/2
 instructions: 11
     | const-string/jumbo v0, string_id_item: A
-    | invoke-virtual v0, v1, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test104/A;->sink(Ljava/lang/String;)V
+    | invoke-virtual v0, v1, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test104/jack/A;->sink(Ljava/lang/String;)V
     | const-string/jumbo v0, string_id_item: B
-    | invoke-virtual v0, v1, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test104/A;->sink(Ljava/lang/String;)V
+    | invoke-virtual v0, v1, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test104/jack/A;->sink(Ljava/lang/String;)V
     | const-string/jumbo v0, string_id_item: C
-    | invoke-virtual v0, v1, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test104/A;->sink(Ljava/lang/String;)V
+    | invoke-virtual v0, v1, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test104/jack/A;->sink(Ljava/lang/String;)V
     | const-string/jumbo v0, string_id_item: D
-    | invoke-virtual v0, v1, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test104/A;->sink(Ljava/lang/String;)V
+    | invoke-virtual v0, v1, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test104/jack/A;->sink(Ljava/lang/String;)V
     | const-string/jumbo v0, string_id_item: E
-    | invoke-virtual v0, v1, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test104/A;->sink(Ljava/lang/String;)V
+    | invoke-virtual v0, v1, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test104/jack/A;->sink(Ljava/lang/String;)V
     | return-void

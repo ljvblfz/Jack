@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.jack.optimizations.valuepropagation.test005;
+package com.android.jack.optimizations.valuepropagation.test005.jack;
 
-class A {
+public class A {
   int f0_reassigned_in_constructor_ok = 7;
   int f1_reassigned_in_constructor_wrong = 7;
   int f2_reassigned_in_method_ok = 7;
@@ -47,6 +47,12 @@ class A {
         f1_reassigned_in_constructor_wrong +
         f2_reassigned_in_method_ok +
         f3_reassigned_in_method_wrong;
+  }
+
+  private static void touch(Class clazz) { }
+  public static void touch() {
+    touch(B.class);
+    touch(C.class);
   }
 }
 

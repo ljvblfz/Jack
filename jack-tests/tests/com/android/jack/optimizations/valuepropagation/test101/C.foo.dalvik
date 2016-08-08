@@ -1,4 +1,4 @@
-method: Lcom/android/jack/optimizations/valuepropagation/test101/C;->foo(IIII)I
+method: Lcom/android/jack/optimizations/valuepropagation/test101/jack/C;->foo(IIII)I
 registers: 5, in/out: 4/0
 instructions: 4
     | add-int/lit8 v0, v2, 100

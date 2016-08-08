@@ -1,4 +1,4 @@
-method: Lcom/android/jack/optimizations/valuepropagation/test103/A;->foo(Ljava/lang/String;)Ljava/lang/String;
+method: Lcom/android/jack/optimizations/valuepropagation/test103/jack/A;->foo(Ljava/lang/String;)Ljava/lang/String;
 registers: 3, in/out: 2/0
 instructions: 2
     | const-string/jumbo v0, string_id_item: A

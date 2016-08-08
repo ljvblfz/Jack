@@ -113,7 +113,7 @@ public abstract class DexOutputBasedTest {
 
     // Run runtime tests
     RuntimeTestHelper.runOnRuntimeEnvironments(
-        Collections.singletonList(testPackage + ".Tests"),
+        Collections.singletonList(testPackage + ".dx.Tests"),
         RuntimeTestHelper.getJunitDex(), out);
   }
 }

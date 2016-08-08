@@ -1,7 +1,7 @@
-method: Lcom/android/jack/optimizations/valuepropagation/test002/C;->foo()I
+method: Lcom/android/jack/optimizations/valuepropagation/test002/jack/C;->foo()I
 registers: 1, in/out: 0/1
 instructions: 4
-    | new-instance v0, type_id_item: Lcom/android/jack/optimizations/valuepropagation/test002/C;
-    | invoke-direct v0, v0, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test002/C;-><init>()V
+    | new-instance v0, type_id_item: Lcom/android/jack/optimizations/valuepropagation/test002/jack/C;
+    | invoke-direct v0, v0, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test002/jack/C;-><init>()V
     | const/4 v0, 0
     | return v0

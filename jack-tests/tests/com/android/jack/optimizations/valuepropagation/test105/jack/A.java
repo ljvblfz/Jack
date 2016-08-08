@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.android.jack.optimizations.valuepropagation.test105;
+package com.android.jack.optimizations.valuepropagation.test105.jack;
 
 interface LocalComparable {
   int compareTo2(Object o);
 }
 
-class A {
+public class A {
   void s(Object s) {
   }
 
@@ -49,6 +49,14 @@ class A {
     equals2("CCC");
     c.compareTo("AAA");
     lc.compareTo2("BBB");
+  }
+
+  private static void touch(Class clazz) { }
+  public static void touch() {
+    touch(LocalComparable.class);
+    touch(B.class);
+    touch(C.class);
+    touch(D.class);
   }
 }
 
