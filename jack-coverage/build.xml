@@ -55,7 +55,6 @@
       <classpath>
         <filelist dir="${jack-coverage-libs.dir}">
           <file name="jsr305-lib.jar"/>
-          <file name="junit4.jar"/>
           <file name="sched-lib.jar"/>
           <file name="jack-lib.jar"/>
         </filelist>
