@@ -75,47 +75,46 @@ public abstract class DexInLibraryWriter extends DexWriter implements
   public void run(@Nonnull JDefinedClassOrInterface type) {
     OutputVFile vFile;
 
-    try (Event event = tracer.open(JackEventType.DX_BACKEND)) {
-      if (usePrebuilts) {
-        Location loc = type.getLocation();
-        if (loc instanceof TypeInInputLibraryLocation) {
-          InputVFile in;
-          InputLibrary inputLibrary = ((TypeInInputLibraryLocation) loc).getInputLibrary();
-          LibraryLocation inputLibraryLocation = inputLibrary.getLocation();
-          if (outputLibrary.containsLibraryLocation(inputLibraryLocation)) {
-            return;
-          }
+    if (usePrebuilts) {
+      Location loc = type.getLocation();
+      if (loc instanceof TypeInInputLibraryLocation) {
+        InputVFile in;
+        InputLibrary inputLibrary = ((TypeInInputLibraryLocation) loc).getInputLibrary();
+        LibraryLocation inputLibraryLocation = inputLibrary.getLocation();
+        if (outputLibrary.containsLibraryLocation(inputLibraryLocation)) {
+          return;
+        }
+        try {
+          in = inputLibrary.getFile(FileType.PREBUILT,
+              new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
           try {
-            in = inputLibrary.getFile(FileType.PREBUILT,
+            vFile = outputLibrary.createFile(FileType.PREBUILT,
                 new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
-            try {
-              vFile = outputLibrary.createFile(FileType.PREBUILT,
-                  new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
-            } catch (CannotCreateFileException e) {
-              throw new JackIOException("Could not create Dex file in output "
-                  + outputLibrary.getLocation().getDescription() + " for type "
-                  + Jack.getUserFriendlyFormatter().getName(type), e);
-            }
-
-            try {
-              vFile.copy(in);
-            } catch (CannotCloseException | CannotReadException | CannotWriteException
-                | WrongPermissionException e) {
-              throw new JackIOException(
-                  "Could not copy Dex file from " + in.getLocation().getDescription() + " to "
-                      + vFile.getLocation().getDescription(),
-                  e);
-            }
-            return;
-          } catch (FileTypeDoesNotExistException e) {
-            // Pre-dex is not accessible, thus write dex file from type
+          } catch (CannotCreateFileException e) {
+            throw new JackIOException("Could not create Dex file in output "
+                + outputLibrary.getLocation().getDescription() + " for type "
+                + Jack.getUserFriendlyFormatter().getName(type), e);
           }
+
+          try {
+            vFile.copy(in);
+          } catch (CannotCloseException | CannotReadException | CannotWriteException
+              | WrongPermissionException e) {
+            throw new JackIOException("Could not copy Dex file from "
+                + in.getLocation().getDescription() + " to " + vFile.getLocation().getDescription(),
+                e);
+          }
+          return;
+        } catch (FileTypeDoesNotExistException e) {
+          // Pre-dex is not accessible, thus write dex file from type
         }
       }
+    }
 
-      ClassDefItemMarker cdiMarker = type.getMarker(ClassDefItemMarker.class);
-      assert cdiMarker != null;
+    ClassDefItemMarker cdiMarker = type.getMarker(ClassDefItemMarker.class);
+    assert cdiMarker != null;
 
+    try (Event event = tracer.open(JackEventType.DX_BACKEND)) {
       DexOptions options = new DexOptions();
       options.forceJumbo = forceJumbo;
       options.targetApiLevel = apiLevel;
@@ -125,9 +124,10 @@ public abstract class DexInLibraryWriter extends DexWriter implements
         vFile = outputLibrary.createFile(FileType.PREBUILT,
             new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
       } catch (CannotCreateFileException e) {
-        throw new JackIOException("Could not create Dex file in output "
-            + outputLibrary.getLocation().getDescription() + " for type "
-            + Jack.getUserFriendlyFormatter().getName(type), e);
+        throw new JackIOException(
+            "Could not create Dex file in output " + outputLibrary.getLocation().getDescription()
+                + " for type " + Jack.getUserFriendlyFormatter().getName(type),
+            e);
       }
       try (OutputStream outStream = vFile.getOutputStream()) {
         typeDex.getStringIds().intern(DexWriter.getJackDexTag());
