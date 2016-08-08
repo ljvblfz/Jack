@@ -18,7 +18,7 @@ LOCAL_PATH:= $(call my-dir)
 ifneq ($(ANDROID_JACK_VM_ARGS),)
 jack_vm_args := $(ANDROID_JACK_VM_ARGS)
 else
-jack_vm_args := -Dfile.encoding=UTF-8 -XX:+TieredCompilation -XX:+UseG1GC
+jack_vm_args := -Dfile.encoding=UTF-8 -XX:+UseG1GC
 endif
 
 ifdef JACK_SERVER
