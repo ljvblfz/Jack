@@ -88,7 +88,7 @@ public class CLILogConfiguration {
   }
 
   public static void setupLogs() throws LogConfigurationException {
-    LogLevel level = LogLevel.ERROR;
+    LogLevel level = LogLevel.WARNING;
     String stringLevel = System.getProperty("com.android.jack.log");
     if (stringLevel != null) {
       try {
