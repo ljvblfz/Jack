@@ -208,12 +208,16 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
 
     @Override
     public void endVisit(@Nonnull JCatchBlock block) {
-      NormalBasicBlock endOfBlock = new NormalBasicBlock(basicBlockId++, currentStmts);
-      setBlockOfStatement(endOfBlock);
+      // if currentStmts is empty all statements are already managed, no need to create an
+      // empty block that will be a dead code
+      if (!currentStmts.isEmpty()) {
+        NormalBasicBlock endOfBlock = new NormalBasicBlock(basicBlockId++, currentStmts);
+        setBlockOfStatement(endOfBlock);
 
-      JStatement nextStatement = ControlFlowHelper.getNextStatement(block);
-      if (nextStatement != null) {
-        forwardBranchResolver.addNormalBasicBlock(endOfBlock, nextStatement);
+        JStatement nextStatement = ControlFlowHelper.getNextStatement(block);
+        if (nextStatement != null) {
+          forwardBranchResolver.addNormalBasicBlock(endOfBlock, nextStatement);
+        }
       }
     }
 
