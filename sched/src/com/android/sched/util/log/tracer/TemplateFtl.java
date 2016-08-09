@@ -41,12 +41,12 @@ import javax.annotation.Nonnull;
  * Templates definition.
  */
 public enum TemplateFtl {
-  TIME_WC("Wall Clock time", "time.html.ftl", "time-wc.html",
-      new MappingProbe[]{new MappingProbe(WallClockProbe.class, "time")}, null),
-  TIME_TT("Thread time", "time.html.ftl", "time-tt.html",
-      new MappingProbe[]{new MappingProbe(ThreadTimeProbe.class, "time")}, null),
   COUNT("Event count", "count.html.ftl", "count-ec.html",
       new MappingProbe[]{new MappingProbe(EventCountProbe.class, "count")}, null),
+  TIME_TT("Thread CPU time", "time.html.ftl", "time-tt.html",
+      new MappingProbe[]{new MappingProbe(ThreadTimeProbe.class, "time")}, null),
+  TIME_WC("Wall Clock time", "time.html.ftl", "time-wc.html",
+      new MappingProbe[]{new MappingProbe(WallClockProbe.class, "time")}, null),
   HEAP_MEMORY(
       "Heap memory usage", "memory.html.ftl", "memory-heap.html",
       new MappingProbe[]{new MappingProbe(HeapMemoryProbe.class, "memory")}, null),
