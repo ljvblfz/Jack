@@ -21,7 +21,6 @@ import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.log.EventType;
 import com.android.sched.util.log.tracer.filter.EventFilter;
-import com.android.sched.util.log.tracer.probe.HeapAllocationProbe;
 import com.android.sched.util.log.tracer.probe.Probe;
 
 import java.util.ArrayList;
@@ -42,7 +41,7 @@ public class ProbeManager {
   private static final PropertyId<ProbeManager> PROBE_MANAGER = PropertyId.create(
       "sched.tracer.probes", "Define which probes use for tracing",
       new ProbeManagerCodec()).addDefaultValue(
-      "event-count,gc-count,gc-duration,wall-clock");
+      "event-count,gc-duration,thread-cpu-time");
 
   @Nonnull
   public static final ThreadLocal<Boolean> enable = new ThreadLocal<Boolean>() {
@@ -103,9 +102,6 @@ public class ProbeManager {
 
   // Reverse order, low priority to high priority
   void start() {
-    // WIP here
-    HeapAllocationProbe.ensureInstall();
-
     for (int i = 0; i < nb; i++) {
       probes[i].start();
     }
