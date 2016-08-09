@@ -18,7 +18,6 @@ package com.android.jack.transformations.ast;
 
 import com.android.jack.Options;
 import com.android.jack.ir.ast.JBlock;
-import com.android.jack.ir.ast.JCaseStatement;
 import com.android.jack.ir.ast.JDoStatement;
 import com.android.jack.ir.ast.JForStatement;
 import com.android.jack.ir.ast.JIfStatement;
@@ -37,8 +36,6 @@ import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.ThreadConfig;
-
-import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -112,27 +109,6 @@ public class ImplicitBlocksChecker implements RunnableSchedulable<JMethod> {
         throw new AssertionError("Do while statement with stand-alone statement.");
       }
       super.endVisit(doWhileStatement);
-    }
-
-
-    @Override
-    public boolean visit(@Nonnull JCaseStatement caseStmt) {
-      JNode parent = caseStmt.getParent();
-
-      if (!(parent instanceof JBlock)) {
-        throw new AssertionError("Case statement must be start a block.");
-      }
-
-      List<JStatement> stmts = ((JBlock) parent).getStatements();
-      int indexOfCaseStmt = stmts.indexOf(caseStmt);
-      // +1 means statement that follows the case statement.
-      int statementIndexAfterCaseStmt = indexOfCaseStmt + 1;
-      if (!(stmts.get(statementIndexAfterCaseStmt) instanceof JBlock)
-          || (statementIndexAfterCaseStmt) != (stmts.size() - 1)) {
-        throw new AssertionError("Case statement must be only follows by one block.");
-      }
-
-      return super.visit(caseStmt);
     }
   }
 

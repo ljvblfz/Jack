@@ -18,7 +18,6 @@ package com.android.jack.transformations.ast;
 
 import com.android.jack.Options;
 import com.android.jack.ir.ast.JBlock;
-import com.android.jack.ir.ast.JCaseStatement;
 import com.android.jack.ir.ast.JDoStatement;
 import com.android.jack.ir.ast.JForStatement;
 import com.android.jack.ir.ast.JIfStatement;
@@ -29,8 +28,6 @@ import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.JWhileStatement;
 import com.android.jack.scheduling.filter.SourceTypeFilter;
-import com.android.jack.transformations.request.PrependAfter;
-import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
@@ -39,8 +36,6 @@ import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
-
-import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -134,43 +129,11 @@ public class ImplicitBlocks implements RunnableSchedulable<JMethod> {
       return super.visit(doStmt);
     }
 
-    @Override
-    public boolean visit(@Nonnull JCaseStatement caseStmt) {
-      List<JStatement> statementsToMove = getFollowingStatements(caseStmt);
-
-      JBlock newBlock = new JBlock(caseStmt.getSourceInfo());
-      newBlock.addStmts(statementsToMove);
-
-      // TODO(mikaelpeltier) Think about an API that allows directly to remove a list ?
-      for (JStatement stmt : statementsToMove) {
-        tr.append(new Remove(stmt));
-      }
-
-      tr.append(new PrependAfter(caseStmt, newBlock));
-
-      return super.visit(caseStmt);
-    }
-
     private void moveIntoBLock(@Nonnull JStatement stmt) {
       JBlock newBlock = new JBlock(stmt.getSourceInfo());
       newBlock.addStmt(stmt);
       tr.append(new Replace(stmt, newBlock));
     }
-
-    @Nonnull
-    private List<JStatement> getFollowingStatements(@Nonnull JStatement stmt) {
-      JNode parent = stmt.getParent();
-      assert parent instanceof JBlock;
-
-      JBlock switchBlock = (JBlock) parent;
-      List<JStatement> switchStmts = switchBlock.getStatements();
-      // +1 means next statement of labeled statement.
-      List<JStatement> statementsToMove = switchBlock.getStatements().subList(
-          switchStmts.indexOf(stmt) + 1, switchStmts.size());
-
-      return statementsToMove;
-    }
-
   }
 
   @Override

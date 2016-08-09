@@ -1300,15 +1300,6 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     writer.writeKeyword(Token.BLOCK);
     writer.writeOpen();
     writer.writeOpenNodeList();
-    // Jack IR generated from Jill must have the following form:
-    // switch {
-    //   case x: {
-    //     goto ..
-    //     case y : {
-    //       ...
-    //     }
-    //   }
-    //}
     for (Case c : casesLabelNodeAndKey) {
       sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
       writer.writeCatchBlockIds(currentCatchList);
@@ -1318,18 +1309,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
       writeValue(c.key, currentClass, currentLine);
       sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
       writer.writeClose();
-      // Open case block
-      writer.writeKeyword(Token.BLOCK);
-      writer.writeOpen();
-      writer.writeOpenNodeList();
       writeGoto(c.labelNode);
-    }
-
-    // Close case blocks
-    for (Case c : casesLabelNodeAndKey) {
-      writer.writeCloseNodeList();
-      sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
-      writer.writeClose();
     }
     writer.writeCloseNodeList();
     sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
