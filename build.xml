@@ -1431,7 +1431,7 @@
 
   <target name="freemarker-lib">
     <mkdir dir="${freemarker.dist.dir}"/>
-    <copy file="${freemarker.dir}/freemarker-2.3.19.jar" tofile="${freemarker.dist.dir}/${freemarker.libname}"/>
+    <copy file="${freemarker.dir}/freemarker-2.3.25-incubating.jar" tofile="${freemarker.dist.dir}/${freemarker.libname}"/>
   </target>
 
 

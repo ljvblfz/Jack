@@ -1,7 +1,7 @@
 URL: http://freemarker.org/
-Tag: 2.3.19 (SVN revision 1657)
+Tag: 2.3.25
 License: BSD, Apache 2
 Description: FreeMarker is a "template engine"; a generic tool to generate text output (anything from HTML to auto generated source code) based on templates.
 Local Modifications: None.
 
-http://sourceforge.net/p/freemarker/code/HEAD/tree/tags/2.3.19/
+http://www-eu.apache.org/dist/incubator/freemarker/engine/2.3.25-incubating/binaries/apache-freemarker-2.3.25-incubating-bin.tar.gz

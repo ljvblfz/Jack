@@ -17,7 +17,7 @@ LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_PREBUILT_JAVA_LIBRARIES := \
-    freemarker-jack:freemarker-2.3.19$(COMMON_JAVA_PACKAGE_SUFFIX)
+    freemarker-jack:freemarker-2.3.25-incubating$(COMMON_JAVA_PACKAGE_SUFFIX)
 
 LOCAL_MODULE_TAGS := optional
 
