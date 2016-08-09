@@ -58,6 +58,42 @@
 </#if>
        ]);
 
+<#if descs.data?size != 0>
+        // Create and populate the data table.
+        var descs = new google.visualization.DataTable();
+
+<#list descs.header?chunk(2) as header>
+        descs.addColumn('${header[1]}', '${header[0]}');
+</#list>
+
+        descs.addRows([
+<#list descs.data as data>
+          [
+<#list data?chunk(2) as value>
+<#if value[0]??>
+<#if value[0]?is_string>
+<#if value[1]?has_content>
+            '<a href="${value[1]}">${value[0]}</a>',
+<#else>
+            '${value[0]}',
+</#if>
+<#else>
+<#if !value[0]?is_nan && !value[0]?is_infinite>
+            {v: ${value[0]}, f: '${value[1]}'},
+<#else>
+            {v: 0, f: '${value[1]}'},
+</#if>
+</#if>
+</#if>
+</#list>
+          ],
+</#list>
+        ]);
+
+        var tableDescs = new google.visualization.Table(document.getElementById('descs'));
+        tableDescs.draw(descs, {title: 'Statistics', allowHtml: true});
+</#if>
+
         var tableReports = new google.visualization.Table(document.getElementById('reports'));
         tableReports.draw(reports, {title: 'Probes', allowHtml: true});
 
@@ -85,9 +121,22 @@
       </tr>
       <tr>
         <td valign="top">
-          <div align="center"><b><a href="${systems.config}">Jack Properties</a></b></div>
+          <div align="center"><b><a href="${systems.config}">Configuration Properties</a></b></div>
         </td>
       </tr>
     </table>
+
+<#if descs.data?size != 0>
+  <table cellpadding="5px">
+    <tr>
+      <td><div align="center"><b>Statistics</b></div></td>
+    <tr>
+      <td valign="top">
+        <div id="descs"></div>
+      </td>
+    </tr>
+  </table>
+</#if>
+
   </body>
 </html>

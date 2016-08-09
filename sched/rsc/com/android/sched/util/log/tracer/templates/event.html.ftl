@@ -59,6 +59,9 @@
   </head>
   <body style="font-family: Arial;border: 0 none;">
   <h2>${name}</h2>
+<#if description??>
+  <h4>(${description})</h4>
+</#if>
 
 <#assign idx = 0>
 <#list tables as table>

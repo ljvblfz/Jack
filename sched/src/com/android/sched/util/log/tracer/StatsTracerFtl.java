@@ -65,6 +65,7 @@ import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -176,7 +177,7 @@ public class StatsTracerFtl extends AbstractTracer {
     modelRoot.put("templates", modelTemps);
     Map<String, Object> modelSysts = new HashMap<String, Object>();
     modelRoot.put("systems", modelSysts);
-
+    modelRoot.put("descs", generateStatDescDataModel());
     /*
      * Put systems in data model
      */
@@ -305,7 +306,7 @@ public class StatsTracerFtl extends AbstractTracer {
           String label = template.getLabel(probe.getClass());
           long total = 0;
 
-          for (Total c : map.values()) {
+          for (Total c : Ordering.usingToString().immutableSortedCopy(map.values())) {
             if (c.withChildrenValue[probeIndex].getTotal() != 0 ||
                 c.withoutChildrenValue[probeIndex].getTotal() != 0) {
               Map<String, Object> elt = new HashMap<String, Object>();
@@ -762,6 +763,7 @@ public class StatsTracerFtl extends AbstractTracer {
 
     Map<String, Object> dmRoot = new HashMap<String, Object>();
     dmRoot.put("name", id.getName());
+    dmRoot.put("description", id.getDescription());
 
     //
     // Tables
@@ -937,7 +939,7 @@ public class StatsTracerFtl extends AbstractTracer {
 
     Map<String, Object> dmStat = new HashMap<String, Object>();
     dmTables.add(dmStat);
-    dmStat.put("name", "Application properties");
+    dmStat.put("name", "Properties");
     List<String> dmHeader = new ArrayList<String>();
     dmStat.put("header", dmHeader);
     List<List<Object>> dmDatas = new ArrayList<List<Object>>();
@@ -953,7 +955,8 @@ public class StatsTracerFtl extends AbstractTracer {
 
     // Print properties
     Config config = ThreadConfig.getConfig();
-    for (PropertyId<?> property : config.getPropertyIds()) {
+    Collection<PropertyId<?>> ids = config.getPropertyIds();
+    for (PropertyId<?> property : Ordering.usingToString().immutableSortedCopy(ids)) {
       if (config.hasValue(property)) {
         List<Object> dmData = new ArrayList<Object>();
         dmDatas.add(dmData);
@@ -1120,5 +1123,38 @@ public class StatsTracerFtl extends AbstractTracer {
 
   @Override
   public void flush() {
+  }
+
+  @Nonnull
+  private Map<String, Object> generateStatDescDataModel() {
+    Map<String, Object> dmStatList = new HashMap<String, Object>();
+    dmStatList.put("name", "Statistics");
+    List<String> dmHeader = new ArrayList<String>();
+    dmStatList.put("header", dmHeader);
+    List<List<Object>> dmDatas = new ArrayList<List<Object>>();
+    dmStatList.put("data", dmDatas);
+
+    // Add name column
+    dmHeader.add("Name");
+    dmHeader.add("string");
+    // Add description column
+    dmHeader.add("Description");
+    dmHeader.add("string");
+
+    Collection<StatisticId<? extends Statistic>> ids = getStatisticsIds();
+    for (StatisticId<? extends Statistic> id : Ordering.usingToString().immutableSortedCopy(ids)) {
+      List<Object> dmData = new ArrayList<Object>();
+      dmDatas.add(dmData);
+
+      // Name
+      dmData.add(id.getName().replace("'", "\\'"));
+      dmData.add(getFileName(id));
+
+      // Description
+      dmData.add(id.getDescription().replace("'", "\\'"));
+      dmData.add(null); // No HRef
+    }
+
+    return dmStatList;
   }
 }
