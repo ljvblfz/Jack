@@ -45,18 +45,18 @@ public class Variable {
 
   private boolean isParameter;
 
-  private boolean isSynthetic;
+  private final boolean isSynthetic;
 
   /* Index of local variable, -1 means the variable does not represent a local variable. */
   private final int localIdx;
 
   public Variable(@Nonnull String id, @Nonnull String name, @Nonnull Type type,
       @CheckForNull String signature) {
-    this(id, name, type, signature, NO_LOCAL_IDX);
+    this(id, name, type, signature, NO_LOCAL_IDX, true);
   }
 
   public Variable(@Nonnull String id, @Nonnull String name, @Nonnull Type type,
-      @CheckForNull String signature, int localIdx) {
+      @CheckForNull String signature, int localIdx, boolean isSynthetic) {
     this.id = id;
     this.name = name;
     this.type = type;
@@ -64,7 +64,7 @@ public class Variable {
     this.localIdx = localIdx;
     isThis = false;
     isParameter = false;
-    isSynthetic = false;
+    this.isSynthetic = isSynthetic;
   }
 
   public boolean hasLocalIndex() {
@@ -124,9 +124,5 @@ public class Variable {
 
   public boolean isSynthetic() {
     return isSynthetic;
-  }
-
-  public void setSynthetic() {
-    this.isSynthetic = true;
   }
 }
