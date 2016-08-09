@@ -333,6 +333,8 @@ import com.android.sched.util.log.TracerFactory;
 import com.android.sched.util.log.stats.Percent;
 import com.android.sched.util.log.stats.PercentImpl;
 import com.android.sched.util.log.stats.StatisticId;
+import com.android.sched.util.log.stats.Value;
+import com.android.sched.util.log.stats.ValueImpl;
 import com.android.sched.vfs.Container;
 import com.android.sched.vfs.ReadWriteZipFS;
 import com.android.sched.vfs.VFS;
@@ -487,6 +489,19 @@ public abstract class Jack {
 
       Tracer tracer = TracerFactory.getTracer();
       try (Event event = tracer.open(JackEventType.JACK_RUN)) {
+        if (tracer.isTracing()) {
+          StatisticId<Value> id = new StatisticId<>("jack.version.jack", "Version of Jack",
+              ValueImpl.class, Value.class);
+          tracer.getStatistic(id).set(getVersion().getVerboseVersion());
+
+          for (Plugin plugin : options.getPluginManager().getPlugins()) {
+            id = new StatisticId<>(
+                "jack.version.plugin." + plugin.getCanonicalName().replace('.', '-'),
+                "Version of plugin " + plugin.getFriendlyName(), ValueImpl.class, Value.class);
+            tracer.getStatistic(id).set(plugin.getVersion().getVerboseVersion());
+          }
+        }
+
         ConfigPrinterFactory.getConfigPrinter().printConfig(config);
 
         JSession session = getSession();
