@@ -96,7 +96,7 @@ public enum VFSStatCategory {
     if (id == null) {
       id = new StatisticId<Counter>(
           NAME_GLOBAL_PREFIX + '.' + namePrefix + '.' + infoString + '.' + nameSuffix,
-          description + " ('" + infoString + "')", CounterImpl.class, Counter.class);
+          description + " for '" + infoString + "'", CounterImpl.class, Counter.class);
       statMap.put(infoString, ((StatisticId<Statistic>) (Object) id));
     }
     return id;
@@ -111,7 +111,7 @@ public enum VFSStatCategory {
     if (id == null) {
       id = new StatisticId<Percent>(
           NAME_GLOBAL_PREFIX + '.' + namePrefix + '.' + infoString + '.' + nameSuffix,
-          description + " ('" + infoString + "')", PercentImpl.class, Percent.class);
+          description + " for '" + infoString + "'", PercentImpl.class, Percent.class);
       statMap.put(infoString, ((StatisticId<Statistic>) (Object) id));
     }
     return id;
