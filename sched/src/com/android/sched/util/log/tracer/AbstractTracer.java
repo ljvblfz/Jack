@@ -30,6 +30,7 @@ import com.android.sched.util.log.ThreadTracerState;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.stats.Statistic;
 import com.android.sched.util.log.stats.StatisticId;
+import com.android.sched.util.log.tracer.probe.HeapAllocationProbe;
 import com.android.sched.util.log.tracer.probe.Probe;
 import com.android.sched.util.log.tracer.watcher.ObjectWatcher;
 import com.android.sched.util.log.tracer.watcher.WatcherInstaller;
@@ -93,6 +94,8 @@ public abstract class AbstractTracer implements Tracer {
       for (WatcherInstaller watcher : watchers) {
         watcher.install(this);
       }
+
+      HeapAllocationProbe.ensureInstall();
     }
   }
 
