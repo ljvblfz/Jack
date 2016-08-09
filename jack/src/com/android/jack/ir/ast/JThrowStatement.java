@@ -76,4 +76,9 @@ public class JThrowStatement extends JStatement {
       throws Exception {
     visitor.visit(this, transformRequest);
   }
+
+  @Override
+  public boolean isUnconditionalBranch() {
+    return true;
+  }
 }

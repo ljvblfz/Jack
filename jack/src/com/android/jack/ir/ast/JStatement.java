@@ -79,4 +79,8 @@ public abstract class JStatement extends JNode {
       throw new JNodeInternalError(this, "Invalid parent");
     }
   }
+
+  public boolean isUnconditionalBranch() {
+    return false;
+  }
 }

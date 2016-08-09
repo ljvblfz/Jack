@@ -87,4 +87,9 @@ public class JReturnStatement extends JStatement {
       throws Exception {
     visitor.visit(this, transformRequest);
   }
+
+  @Override
+  public boolean isUnconditionalBranch() {
+    return true;
+  }
 }
