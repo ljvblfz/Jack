@@ -34,7 +34,11 @@
             '${value[0]}',
 </#if>
 <#else>
+<#if !value[0]?is_nan && !value[0]?is_infinite>
             {v: ${value[0]}, f: '${value[1]}'},
+<#else>
+            {v: 0, f: '${value[1]}'},
+</#if>
 </#if>
 </#if>
 </#list>
