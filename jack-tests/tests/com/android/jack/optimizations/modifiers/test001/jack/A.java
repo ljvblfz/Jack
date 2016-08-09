@@ -14,9 +14,22 @@
  * limitations under the License.
  */
 
-package com.android.jack.optimizations.modifiers.test001;
+package com.android.jack.optimizations.modifiers.test001.jack;
 
 public abstract class A {
+  private static void touch(Class clazz) {}
+  public static void touch() {
+    touch(A2final.class);
+    touch(IFooA.class);
+    touch(IFooB.class);
+    touch(IFooAB.class);
+    touch(IFooC.class);
+    touch(B.class);
+    touch(C2final.class);
+    touch(D.class);
+    touch(E.class);
+    touch(F2final.class);
+  }
 }
 
 class A2final {

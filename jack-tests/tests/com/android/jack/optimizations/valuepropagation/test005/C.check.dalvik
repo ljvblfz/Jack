@@ -1,6 +1,6 @@
-method: Lcom/android/jack/optimizations/valuepropagation/test005/C;->check()I
+method: Lcom/android/jack/optimizations/valuepropagation/test005/jack/C;->check()I
 registers: 2, in/out: 1/0
 instructions: 3
-    | sget v0, Lcom/android/jack/optimizations/valuepropagation/test005/C;->not_initialized_1:I
+    | sget v0, Lcom/android/jack/optimizations/valuepropagation/test005/jack/C;->not_initialized_1:I
     | add-int/lit8 v0, v0, 0
     | return v0

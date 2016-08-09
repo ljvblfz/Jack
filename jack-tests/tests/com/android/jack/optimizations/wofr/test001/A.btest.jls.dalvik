@@ -1,7 +1,7 @@
-method: Lcom/android/jack/optimizations/wofr/test001/A;->btest(Lcom/android/jack/optimizations/wofr/test001/B;)V
+method: Lcom/android/jack/optimizations/wofr/test001/jack/A;->btest(Lcom/android/jack/optimizations/wofr/test001/jack/B;)V
 registers: 3, in/out: 2/0
 instructions: 4
     | const/16 v0, 123
-    | sput v0, Lcom/android/jack/optimizations/wofr/test001/B;->fld:I
-    | sput v0, Lcom/android/jack/optimizations/wofr/test001/B;->fld:I
+    | sput v0, Lcom/android/jack/optimizations/wofr/test001/jack/B;->fld:I
+    | sput v0, Lcom/android/jack/optimizations/wofr/test001/jack/B;->fld:I
     | return-void

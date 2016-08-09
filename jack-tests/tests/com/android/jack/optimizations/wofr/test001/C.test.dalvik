@@ -1,4 +1,4 @@
-method: Lcom/android/jack/optimizations/wofr/test001/C;->test(Ljava/lang/String;I)V
+method: Lcom/android/jack/optimizations/wofr/test001/jack/C;->test(Ljava/lang/String;I)V
 registers: 4, in/out: 3/1
 instructions: 5
     | const-string/jumbo v0, string_id_item: Blah

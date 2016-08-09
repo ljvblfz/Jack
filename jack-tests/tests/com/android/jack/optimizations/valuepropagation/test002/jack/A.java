@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.jack.optimizations.valuepropagation.test002;
+package com.android.jack.optimizations.valuepropagation.test002.jack;
 
-class A {
+public class A {
   static int static_not_initialized;
 
   int instance;
@@ -29,6 +29,13 @@ class A {
 
   static boolean test() {
     return true;
+  }
+
+  private static void touch(Class clazz) { }
+  public static void touch() {
+    touch(B.class);
+    touch(C.class);
+    touch(D.class);
   }
 }
 

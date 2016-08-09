@@ -14,14 +14,21 @@
  * limitations under the License.
  */
 
-package com.android.jack.optimizations.valuepropagation.test103;
+package com.android.jack.optimizations.valuepropagation.test103.jack;
 
-class A {
+public class A {
   public String foo(String p) {
     return p; // Propagate "A"
   }
   private String test() {
     return foo("A");
+  }
+
+  private static void touch(Class clazz) { }
+  public static void touch() {
+    touch(B.class);
+    touch(C.class);
+    touch(D.class);
   }
 }
 

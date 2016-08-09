@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.android.jack.optimizations.valuepropagation.test102;
+package com.android.jack.optimizations.valuepropagation.test102.jack;
 
 interface I {
   void foo(String a, String b, String c, String d, String e, String f);
   void bar(String a, String b, String c, String d, String e, String f);
 }
 
-class A {
+public class A {
   void s(String s) { }
   public void foo(String a, String b, String c, String d, String e, String f) {
     // a + b + c + d + e + f
@@ -38,6 +38,17 @@ class A {
   static void test(I i) {
     i.foo(null, "B", "C", "D", "E", "F");
     i.bar(null, "B", "C", "D", "E", "F");
+  }
+
+  private static void touch(Class clazz) { }
+  public static void touch() {
+    touch(I.class);
+    touch(B.class);
+    touch(C.class);
+    touch(CC.class);
+    touch(D.class);
+    touch(DD.class);
+    touch(E.class);
   }
 }
 

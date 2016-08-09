@@ -1,6 +1,6 @@
-method: Lcom/android/jack/optimizations/valuepropagation/test106/C;->foo(Ljava/lang/String;)V
+method: Lcom/android/jack/optimizations/valuepropagation/test106/jack/C;->foo(Ljava/lang/String;)V
 registers: 3, in/out: 2/2
 instructions: 3
     | const-string/jumbo v0, string_id_item: ZZZ
-    | invoke-virtual v0, v1, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test106/C;->s(Ljava/lang/String;)V
+    | invoke-virtual v0, v1, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test106/jack/C;->s(Ljava/lang/String;)V
     | return-void

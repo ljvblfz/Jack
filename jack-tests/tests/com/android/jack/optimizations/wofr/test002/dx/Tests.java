@@ -1,14 +1,13 @@
-package com.android.jack.optimizations.wofr.test002;
+package com.android.jack.optimizations.wofr.test002.dx;
+
+import com.android.jack.optimizations.wofr.test002.jack.*;
 
 import org.junit.Test;
 
 /** Just touch all the classes */
 public class Tests {
-  void touch(Class clazz) {
-  }
-
   @Test
   public void test00() {
-    touch(A.class);
+    A.touch();
   }
 }

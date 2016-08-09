@@ -48,26 +48,26 @@ public class ModifiersTighteningTests extends DexOutputBasedTest {
 
     DexFileTypesValidator validators =
         new DexFileTypesValidator()
-            .insert("Lcom/android/jack/optimizations/modifiers/test001/A;", isNotFinal)
-            .insert("Lcom/android/jack/optimizations/modifiers/test001/A2final;", isNotFinal)
-            .insert("Lcom/android/jack/optimizations/modifiers/test001/B;", isNotFinal)
-            .insert("Lcom/android/jack/optimizations/modifiers/test001/C2final;", isNotFinal)
-            .insert("Lcom/android/jack/optimizations/modifiers/test001/D;", isNotFinal)
-            .insert("Lcom/android/jack/optimizations/modifiers/test001/E;", isNotFinal)
-            .insert("Lcom/android/jack/optimizations/modifiers/test001/F2final;", isNotFinal)
-            .insert("Lcom/android/jack/optimizations/modifiers/test001/IFooA;", isNotFinal)
-            .insert("Lcom/android/jack/optimizations/modifiers/test001/IFooB;", isNotFinal)
-            .insert("Lcom/android/jack/optimizations/modifiers/test001/IFooAB;", isNotFinal)
-            .insert("Lcom/android/jack/optimizations/modifiers/test001/IFooC;", isNotFinal);
+            .insert("Lcom/android/jack/optimizations/modifiers/test001/jack/A;", isNotFinal)
+            .insert("Lcom/android/jack/optimizations/modifiers/test001/jack/A2final;", isNotFinal)
+            .insert("Lcom/android/jack/optimizations/modifiers/test001/jack/B;", isNotFinal)
+            .insert("Lcom/android/jack/optimizations/modifiers/test001/jack/C2final;", isNotFinal)
+            .insert("Lcom/android/jack/optimizations/modifiers/test001/jack/D;", isNotFinal)
+            .insert("Lcom/android/jack/optimizations/modifiers/test001/jack/E;", isNotFinal)
+            .insert("Lcom/android/jack/optimizations/modifiers/test001/jack/F2final;", isNotFinal)
+            .insert("Lcom/android/jack/optimizations/modifiers/test001/jack/IFooA;", isNotFinal)
+            .insert("Lcom/android/jack/optimizations/modifiers/test001/jack/IFooB;", isNotFinal)
+            .insert("Lcom/android/jack/optimizations/modifiers/test001/jack/IFooAB;", isNotFinal)
+            .insert("Lcom/android/jack/optimizations/modifiers/test001/jack/IFooC;", isNotFinal);
 
     compileAndValidate(testPackage, properties, validators);
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     validators
-        .update("Lcom/android/jack/optimizations/modifiers/test001/A2final;", isFinal)
-        .update("Lcom/android/jack/optimizations/modifiers/test001/C2final;", isFinal)
-        .update("Lcom/android/jack/optimizations/modifiers/test001/F2final;", isFinal);
+        .update("Lcom/android/jack/optimizations/modifiers/test001/jack/A2final;", isFinal)
+        .update("Lcom/android/jack/optimizations/modifiers/test001/jack/C2final;", isFinal)
+        .update("Lcom/android/jack/optimizations/modifiers/test001/jack/F2final;", isFinal);
 
     properties = properties.with(
         Optimizations.ClassFinalizer.ADD_FINAL_MODIFIER.getName(), Boolean.TRUE);
@@ -98,20 +98,20 @@ public class ModifiersTighteningTests extends DexOutputBasedTest {
     DexTypeMethodsValidator mD1 =
         new DexTypeMethodsValidator()
             .insert("bar()Ljava/lang/Object;", isNotFinal)
-            .insert("foo()Lcom/android/jack/optimizations/modifiers/test002/Base;", isNotFinal)
+            .insert("foo()Lcom/android/jack/optimizations/modifiers/test002/jack/Base;", isNotFinal)
             .insert("foo()Ljava/lang/Object;", isNotFinal)
             .insert("<init>()V", isNotFinal);
 
     DexTypeMethodsValidator mD2 =
         new DexTypeMethodsValidator()
             .insert("bar()Ljava/lang/Object;", isNotFinal)
-            .insert("foo()Lcom/android/jack/optimizations/modifiers/test002/Base;", isNotFinal)
-            .insert("foo()Lcom/android/jack/optimizations/modifiers/test002/D1;", isNotFinal)
+            .insert("foo()Lcom/android/jack/optimizations/modifiers/test002/jack/Base;", isNotFinal)
+            .insert("foo()Lcom/android/jack/optimizations/modifiers/test002/jack/D1;", isNotFinal)
             .insert("<init>()V", isNotFinal);
 
     DexTypeMethodsValidator mInter =
         new DexTypeMethodsValidator()
-            .insert("foo()Lcom/android/jack/optimizations/modifiers/test002/Base;", isNotFinal);
+            .insert("foo()Lcom/android/jack/optimizations/modifiers/test002/jack/Base;", isNotFinal);
 
     DexTypeMethodsValidator mPreBase =
         new DexTypeMethodsValidator()
@@ -126,12 +126,12 @@ public class ModifiersTighteningTests extends DexOutputBasedTest {
 
     DexFileTypesValidator validators =
         new DexFileTypesValidator()
-            .insert("Lcom/android/jack/optimizations/modifiers/test002/Base;", mBase)
-            .insert("Lcom/android/jack/optimizations/modifiers/test002/D1;", mD1)
-            .insert("Lcom/android/jack/optimizations/modifiers/test002/D2;", mD2)
-            .insert("Lcom/android/jack/optimizations/modifiers/test002/Inter;", mInter)
-            .insert("Lcom/android/jack/optimizations/modifiers/test002/PreBase;", mPreBase)
-            .insert("Lcom/android/jack/optimizations/modifiers/test002/PrePreBase;", mPrePreBase);
+            .insert("Lcom/android/jack/optimizations/modifiers/test002/jack/Base;", mBase)
+            .insert("Lcom/android/jack/optimizations/modifiers/test002/jack/D1;", mD1)
+            .insert("Lcom/android/jack/optimizations/modifiers/test002/jack/D2;", mD2)
+            .insert("Lcom/android/jack/optimizations/modifiers/test002/jack/Inter;", mInter)
+            .insert("Lcom/android/jack/optimizations/modifiers/test002/jack/PreBase;", mPreBase)
+            .insert("Lcom/android/jack/optimizations/modifiers/test002/jack/PrePreBase;", mPrePreBase);
 
     compileAndValidate(testPackage, properties, validators);
 
@@ -149,8 +149,8 @@ public class ModifiersTighteningTests extends DexOutputBasedTest {
     }
 
     mD2.update("bar()Ljava/lang/Object;", isFinal);
-    mD2.update("foo()Lcom/android/jack/optimizations/modifiers/test002/Base;", isFinal);
-    mD2.update("foo()Lcom/android/jack/optimizations/modifiers/test002/D1;", isFinal);
+    mD2.update("foo()Lcom/android/jack/optimizations/modifiers/test002/jack/Base;", isFinal);
+    mD2.update("foo()Lcom/android/jack/optimizations/modifiers/test002/jack/D1;", isFinal);
 
     properties = properties.with(
         Optimizations.MethodFinalizer.ADD_FINAL_MODIFIER.getName(), Boolean.TRUE);
@@ -197,9 +197,9 @@ public class ModifiersTighteningTests extends DexOutputBasedTest {
 
     DexFileTypesValidator validators =
         new DexFileTypesValidator()
-            .insert("Lcom/android/jack/optimizations/modifiers/test003/FldBase;", fBase)
-            .insert("Lcom/android/jack/optimizations/modifiers/test003/FldDerived;", fDerived)
-            .insert("Lcom/android/jack/optimizations/modifiers/test003/Outer$Inner;", fInner);
+            .insert("Lcom/android/jack/optimizations/modifiers/test003/jack/FldBase;", fBase)
+            .insert("Lcom/android/jack/optimizations/modifiers/test003/jack/FldDerived;", fDerived)
+            .insert("Lcom/android/jack/optimizations/modifiers/test003/jack/Outer$Inner;", fInner);
 
     compileAndValidate(testPackage, properties, validators);
 

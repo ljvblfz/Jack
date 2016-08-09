@@ -1,4 +1,4 @@
-method: Lcom/android/jack/optimizations/valuepropagation/test003/C;->check()Ljava/lang/String;
+method: Lcom/android/jack/optimizations/valuepropagation/test003/jack/C;->check()Ljava/lang/String;
 registers: 3, in/out: 1/2
 instructions: 11
     | new-instance v0, type_id_item: Ljava/lang/StringBuilder;

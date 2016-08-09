@@ -1,4 +1,4 @@
-method: Lcom/android/jack/optimizations/valuepropagation/test101/A;->private_(II)I
+method: Lcom/android/jack/optimizations/valuepropagation/test101/jack/A;->private_(II)I
 registers: 4, in/out: 3/0
 instructions: 2
     | add-int/lit8 v0, v3, 2

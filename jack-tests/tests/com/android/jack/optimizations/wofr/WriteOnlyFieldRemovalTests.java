@@ -68,9 +68,9 @@ public class WriteOnlyFieldRemovalTests extends DexOutputBasedTest {
   @Runtime
   public void test001() throws Exception {
     String test = "com.android.jack.optimizations.wofr.test001";
-    String aType = "Lcom/android/jack/optimizations/wofr/test001/A;";
-    String bType = "Lcom/android/jack/optimizations/wofr/test001/B;";
-    String cType = "Lcom/android/jack/optimizations/wofr/test001/C;";
+    String aType = "Lcom/android/jack/optimizations/wofr/test001/jack/A;";
+    String bType = "Lcom/android/jack/optimizations/wofr/test001/jack/B;";
+    String cType = "Lcom/android/jack/optimizations/wofr/test001/jack/C;";
 
     CompilationProperties properties = defaultProperties();
 
@@ -162,7 +162,7 @@ public class WriteOnlyFieldRemovalTests extends DexOutputBasedTest {
   @Runtime
   public void test002() throws Exception {
     String test = "com.android.jack.optimizations.wofr.test002";
-    String aType = "Lcom/android/jack/optimizations/wofr/test002/A;";
+    String aType = "Lcom/android/jack/optimizations/wofr/test002/jack/A;";
 
     compileAndValidate(test, defaultProperties(),
         new DexFileTypesValidator()

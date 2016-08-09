@@ -1,9 +1,9 @@
-method: Lcom/android/jack/optimizations/valuepropagation/test104/E;->foo(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+method: Lcom/android/jack/optimizations/valuepropagation/test104/jack/E;->foo(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 registers: 6, in/out: 6/2
 instructions: 6
-    | invoke-virtual v0, v0, v1, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test104/E;->sink(Ljava/lang/String;)V
-    | invoke-virtual v0, v0, v2, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test104/E;->sink(Ljava/lang/String;)V
-    | invoke-virtual v0, v0, v3, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test104/E;->sink(Ljava/lang/String;)V
-    | invoke-virtual v0, v0, v4, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test104/E;->sink(Ljava/lang/String;)V
-    | invoke-virtual v0, v0, v5, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test104/E;->sink(Ljava/lang/String;)V
+    | invoke-virtual v0, v0, v1, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test104/jack/E;->sink(Ljava/lang/String;)V
+    | invoke-virtual v0, v0, v2, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test104/jack/E;->sink(Ljava/lang/String;)V
+    | invoke-virtual v0, v0, v3, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test104/jack/E;->sink(Ljava/lang/String;)V
+    | invoke-virtual v0, v0, v4, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test104/jack/E;->sink(Ljava/lang/String;)V
+    | invoke-virtual v0, v0, v5, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test104/jack/E;->sink(Ljava/lang/String;)V
     | return-void

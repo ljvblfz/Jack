@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.jack.optimizations.valuepropagation.test106;
+package com.android.jack.optimizations.valuepropagation.test106.jack;
 
-class A {
+public class A {
   void s(String s) {
   }
   A(String x) {
@@ -32,6 +32,13 @@ class A {
     new A("AAA");
     new A("BBB", "CCC");
     foo("XXX");
+  }
+
+  private static void touch(Class clazz) { }
+  public static void touch() {
+    touch(B.class);
+    touch(C.class);
+    touch(D.class);
   }
 }
 

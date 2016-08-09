@@ -1,15 +1,15 @@
-method: Lcom/android/jack/optimizations/valuepropagation/test001/A;->use(I)I
+method: Lcom/android/jack/optimizations/valuepropagation/test001/jack/A;->use(I)I
 registers: 4, in/out: 2/0
 instructions: 12
     | add-int/lit16 v0, v3, 1001
-    | iget v1, v2, Lcom/android/jack/optimizations/valuepropagation/test001/A;->initialized2_reassigned_with_different_value:I
+    | iget v1, v2, Lcom/android/jack/optimizations/valuepropagation/test001/jack/A;->initialized2_reassigned_with_different_value:I
     | add-int/2addr v0, v1
     | add-int/lit16 v0, v0, 202
-    | iget v1, v2, Lcom/android/jack/optimizations/valuepropagation/test001/A;->not_initialized1_definitely_assigned_different_value:I
+    | iget v1, v2, Lcom/android/jack/optimizations/valuepropagation/test001/jack/A;->not_initialized1_definitely_assigned_different_value:I
     | add-int/2addr v0, v1
     | add-int/lit16 v0, v0, 333
     | add-int/lit8 v0, v0, 0
-    | iget v1, v2, Lcom/android/jack/optimizations/valuepropagation/test001/A;->not_initialized4_partially_assigned_different_value:I
+    | iget v1, v2, Lcom/android/jack/optimizations/valuepropagation/test001/jack/A;->not_initialized4_partially_assigned_different_value:I
     | add-int/2addr v0, v1
     | add-int/lit8 v0, v0, 0
     | return v0

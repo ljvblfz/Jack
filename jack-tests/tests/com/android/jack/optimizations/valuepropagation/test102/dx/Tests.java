@@ -1,20 +1,13 @@
-package com.android.jack.optimizations.valuepropagation.test102;
+package com.android.jack.optimizations.valuepropagation.test102.dx;
+
+import com.android.jack.optimizations.valuepropagation.test102.jack.*;
 
 import org.junit.Test;
 
 /** Just touch all the classes */
 public class Tests {
-  void touch(Class clazz) {
-  }
-
   @Test
   public void test00() {
-    touch(A.class);
-    touch(B.class);
-    touch(C.class);
-    touch(CC.class);
-    touch(D.class);
-    touch(DD.class);
-    touch(E.class);
+    A.touch();
   }
 }

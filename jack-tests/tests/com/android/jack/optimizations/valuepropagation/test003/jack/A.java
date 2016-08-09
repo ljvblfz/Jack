@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.jack.optimizations.valuepropagation.test003;
+package com.android.jack.optimizations.valuepropagation.test003.jack;
 
-class A {
+public class A {
   byte byteField = 1;
   char charField = '*';
   short shortField = 3;
@@ -54,6 +54,12 @@ class A {
     if (objFieldB.equals(objFieldA)) {
       String s = strFieldA + strFieldB;
     }
+  }
+
+  private static void touch(Class clazz) { }
+  public static void touch() {
+    touch(B.class);
+    touch(C.class);
   }
 }
 

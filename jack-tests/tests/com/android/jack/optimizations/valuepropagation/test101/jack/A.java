@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.android.jack.optimizations.valuepropagation.test101;
+package com.android.jack.optimizations.valuepropagation.test101.jack;
 
 interface I {
   int interface_(int a, int b, int c);
 }
 
-class A implements I {
+public class A implements I {
   int virtual(int a, int b) {
     return a + b; // 'a' to be replaced with 100
   }
@@ -46,6 +46,13 @@ class A implements I {
     a.static_(100+200, 30);
     a.interface_(1, 200, 30);
     i.interface_(10, 200, 30);
+  }
+  private static void touch(Class clazz) { }
+  public static void touch() {
+    touch(I.class);
+    touch(B.class);
+    touch(C.class);
+    touch(D.class);
   }
 }
 

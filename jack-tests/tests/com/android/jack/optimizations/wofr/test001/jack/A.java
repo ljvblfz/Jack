@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.android.jack.optimizations.wofr.test001;
+package com.android.jack.optimizations.wofr.test001.jack;
 
 // General test
-class A {
+public class A {
   static int _0_read_0_writes;
   static int _1_read_0_writes;
   static int _1_read_1_writes;
@@ -40,6 +40,12 @@ class A {
   void btest(B b) {
     B.fld = 123;
     b.fld = 123;
+  }
+
+  private static void touch(Class clazz) { }
+  public static void touch() {
+    touch(B.class);
+    touch(C.class);
   }
 }
 

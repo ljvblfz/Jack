@@ -1,8 +1,8 @@
-method: Lcom/android/jack/optimizations/valuepropagation/test105/B;->compareTo(Ljava/lang/Object;)I
+method: Lcom/android/jack/optimizations/valuepropagation/test105/jack/B;->compareTo(Ljava/lang/Object;)I
 registers: 3, in/out: 2/2
 instructions: 5
-    | invoke-virtual v0, v1, v2, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test105/B;->s(Ljava/lang/Object;)V
+    | invoke-virtual v0, v1, v2, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test105/jack/B;->s(Ljava/lang/Object;)V
     | const-string/jumbo v0, string_id_item: AAA
-    | invoke-super v0, v1, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test105/A;->compareTo(Ljava/lang/Object;)I
+    | invoke-super v0, v1, v0, v0, v0, method_id_item: Lcom/android/jack/optimizations/valuepropagation/test105/jack/A;->compareTo(Ljava/lang/Object;)I
     | move-result v0
     | return v0
