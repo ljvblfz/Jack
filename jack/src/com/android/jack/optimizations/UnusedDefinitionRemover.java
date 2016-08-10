@@ -45,6 +45,11 @@ import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.log.Tracer;
+import com.android.sched.util.log.TracerFactory;
+import com.android.sched.util.log.stats.Counter;
+import com.android.sched.util.log.stats.CounterImpl;
+import com.android.sched.util.log.stats.StatisticId;
 
 import java.util.List;
 
@@ -61,10 +66,18 @@ import javax.annotation.Nonnull;
 public class UnusedDefinitionRemover implements RunnableSchedulable<JMethod> {
 
   @Nonnull
+  public static final StatisticId<Counter> UNUSED_DEFINITION_REMOVED = new StatisticId<Counter>(
+      "jack.optimization.definition.removed", "Unused definition removed",
+      CounterImpl.class, Counter.class);
+
+  @Nonnull
+  private final Tracer tracer = TracerFactory.getTracer();
+
+  @Nonnull
   private final com.android.jack.util.filter.Filter<JMethod> filter =
       ThreadConfig.get(Options.METHOD_FILTER);
 
-  private static class Visitor extends JVisitor {
+  private class Visitor extends JVisitor {
 
     @Nonnull
     private final TransformationRequest tr;
@@ -93,6 +106,8 @@ public class UnusedDefinitionRemover implements RunnableSchedulable<JMethod> {
 
     private void removeUnusedDefinition(@Nonnull JAsgOperation binary) {
       assert !(binary.getRhs() instanceof JExceptionRuntimeValue);
+
+      tracer.getStatistic(UNUSED_DEFINITION_REMOVED).incValue();
 
       tr.append(new Remove(binary.getParent()));
 
