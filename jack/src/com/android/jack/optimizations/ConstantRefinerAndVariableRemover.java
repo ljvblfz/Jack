@@ -48,7 +48,6 @@ import com.android.jack.ir.ast.Number;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.ast.ImplicitCast;
-import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.CloneExpressionVisitor;
@@ -83,11 +82,6 @@ public class ConstantRefinerAndVariableRemover implements RunnableSchedulable<JM
   @Nonnull
   public static final StatisticId<Counter> REFINED_CONSTANT = new StatisticId<Counter>(
       "jack.constant.refined", "Refined constant",
-      CounterImpl.class, Counter.class);
-
-  @Nonnull
-  public static final StatisticId<Counter> REMOVED_CONSTANT_VARIABLE = new StatisticId<Counter>(
-      "jack.constant.variable.removed", "Variable removed since they are constant",
       CounterImpl.class, Counter.class);
 
   @Nonnull
@@ -180,12 +174,6 @@ public class ConstantRefinerAndVariableRemover implements RunnableSchedulable<JM
 
           udm.removeAllUsedDefinitions(varRef);
           tracer.getStatistic(CONSTANT_MOVE_TO_HIS_USAGE).incValue();
-
-
-          if (dm.isUnused()) {
-            tr.append(new Remove(dm.getDefinition().getParent()));
-            tracer.getStatistic(REMOVED_CONSTANT_VARIABLE).incValue();
-          }
 
           tr.commit();
         }
