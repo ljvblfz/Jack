@@ -298,4 +298,12 @@ public class Optimizations {
           .addDefaultValue(Boolean.FALSE)
           .addCategory(DumpInLibrary.class)
           .addCategory(PrebuiltCompatibility.class);
+
+  @Nonnull
+  public static final BooleanPropertyId REMOVE_UNUSED_NON_SYNTHETIC_DEFINITION = BooleanPropertyId
+      .create("jack.optimization.remove-unused-non-synthetic-definition",
+          "Allow to remove unused non synthetic definitions")
+      .addDefaultValue(Boolean.FALSE)
+      .addCategory(DumpInLibrary.class)
+      .addCategory(PrebuiltCompatibility.class);
 }

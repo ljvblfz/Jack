@@ -30,6 +30,7 @@ import com.android.jack.ir.ast.JFieldRef;
 import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNode;
+import com.android.jack.ir.ast.JNullLiteral;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JVariableRef;
@@ -77,6 +78,10 @@ public class UnusedDefinitionRemover implements RunnableSchedulable<JMethod> {
   private final com.android.jack.util.filter.Filter<JMethod> filter =
       ThreadConfig.get(Options.METHOD_FILTER);
 
+  private final boolean removeUnusedNonSyntheticDefinition =
+      ThreadConfig.get(Optimizations.REMOVE_UNUSED_NON_SYNTHETIC_DEFINITION).booleanValue();
+
+
   private class Visitor extends JVisitor {
 
     @Nonnull
@@ -92,10 +97,12 @@ public class UnusedDefinitionRemover implements RunnableSchedulable<JMethod> {
 
       if (binary instanceof JAsgOperation
           && !(rhs instanceof JExceptionRuntimeValue)
-          && !rhs.canThrow()) {
+          && !rhs.canThrow()
+          && !(rhs instanceof JNullLiteral)) {
 
         DefinitionMarker dm = binary.getMarker(DefinitionMarker.class);
-        if (dm != null && dm.isUnused() && dm.getDefinedVariable().isSynthetic()) {
+        if (dm != null && dm.isUnused()
+            && (removeUnusedNonSyntheticDefinition || dm.getDefinedVariable().isSynthetic())) {
           assert !(binary.getLhs() instanceof JFieldRef || binary.getLhs() instanceof JArrayRef);
           removeUnusedDefinition((JAsgOperation) binary);
         }

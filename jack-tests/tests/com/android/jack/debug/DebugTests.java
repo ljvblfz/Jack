@@ -16,6 +16,7 @@
 
 package com.android.jack.debug;
 
+import com.android.jack.optimizations.Optimizations;
 import com.android.jack.test.helper.CheckDexStructureTestHelper;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.junit.Runtime;
@@ -45,15 +46,18 @@ public class DebugTests {
   @Test
   @Runtime
   public void test001() throws Exception {
-    new RuntimeTestHelper(TEST001)
-        .setWithDebugInfos(true).compileAndRunTest(/* checkStructure  = */ true);
+    new RuntimeTestHelper(TEST001).setWithDebugInfos(true)
+        .compileAndRunTest(/* checkStructure = */ true);
   }
 
   @Test
   @Runtime
   public void test002() throws Exception {
     new RuntimeTestHelper(TEST002).addIgnoredCandidateToolchain(JillBasedToolchain.class)
-        .setWithDebugInfos(true).compileAndRunTest(/* checkStructure = */ true);
+        .setWithDebugInfos(true)
+        .addProperty(Optimizations.REMOVE_UNUSED_NON_SYNTHETIC_DEFINITION.getName(),
+            String.valueOf(false))
+        .compileAndRunTest(/* checkStructure = */ true);
   }
 
   @Test
@@ -66,7 +70,10 @@ public class DebugTests {
   @Runtime
   public void test004() throws Exception {
     new RuntimeTestHelper(TEST004).addIgnoredCandidateToolchain(JillBasedToolchain.class)
-        .setWithDebugInfos(true).compileAndRunTest(/* checkStructure  = */ true);
+        .setWithDebugInfos(true)
+        .addProperty(Optimizations.REMOVE_UNUSED_NON_SYNTHETIC_DEFINITION.getName(),
+            String.valueOf(false))
+        .compileAndRunTest(/* checkStructure  = */ true);
   }
 
   @Test
