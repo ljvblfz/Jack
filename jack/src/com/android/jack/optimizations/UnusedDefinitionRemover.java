@@ -19,20 +19,15 @@ package com.android.jack.optimizations;
 import com.android.jack.Options;
 import com.android.jack.analysis.DefinitionMarker;
 import com.android.jack.analysis.UseDefsMarker;
-import com.android.jack.cfg.BasicBlock;
-import com.android.jack.cfg.ControlFlowGraph;
 import com.android.jack.ir.ast.JArrayRef;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JBinaryOperation;
 import com.android.jack.ir.ast.JExceptionRuntimeValue;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JFieldRef;
-import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JNullLiteral;
-import com.android.jack.ir.ast.JStatement;
-import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
@@ -60,8 +55,7 @@ import javax.annotation.Nonnull;
  * Remove unused definition.
  */
 @Description("Remove useless variable copies.")
-@Constraint(need = {DefinitionMarker.class, UseDefsMarker.class, ThreeAddressCodeForm.class,
-    ControlFlowGraph.class})
+@Constraint(need = {DefinitionMarker.class, UseDefsMarker.class, ThreeAddressCodeForm.class})
 @Transform(add = {RefAsStatement.class})
 @Filter(TypeWithoutPrebuiltFilter.class)
 public class UnusedDefinitionRemover implements RunnableSchedulable<JMethod> {
@@ -139,20 +133,6 @@ public class UnusedDefinitionRemover implements RunnableSchedulable<JMethod> {
         }
       }
     }
-
-    @Override
-    public boolean visit(@Nonnull JIfStatement ifStmt) {
-      super.visit(ifStmt);
-      this.accept(ifStmt.getIfExpr());
-      return false;
-    }
-
-    @Override
-    public boolean visit(@Nonnull JSwitchStatement switchStmt) {
-      super.visit(switchStmt);
-      this.accept(switchStmt.getExpr());
-      return false;
-    }
   }
 
   @Override
@@ -161,18 +141,9 @@ public class UnusedDefinitionRemover implements RunnableSchedulable<JMethod> {
       return;
     }
 
-    ControlFlowGraph cfg = method.getMarker(ControlFlowGraph.class);
-    assert cfg != null;
-
     TransformationRequest tr = new TransformationRequest(method);
-
-    for (BasicBlock bb : cfg.getNodes()) {
-      for (JStatement stmt : bb.getStatements()) {
-        Visitor visitor = new Visitor(tr);
-        visitor.accept(stmt);
-      }
-    }
-
+    Visitor visitor = new Visitor(tr);
+    visitor.accept(method);
     tr.commit();
   }
 }

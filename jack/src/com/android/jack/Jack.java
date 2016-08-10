@@ -1603,9 +1603,6 @@ public abstract class Jack {
           if (features.contains(Optimizations.DefUseSimplifier.class)) {
             methodPlan4.append(DefUsesChainsSimplifier.class);
           }
-          // Instructions are removed by DefUsesChainsSimplifier thus rebuild the cfg.
-          methodPlan4.append(CfgMarkerRemover.class);
-          methodPlan4.append(CfgBuilder.class);
           methodPlan4.append(UnusedDefinitionRemover.class);
           methodPlan4.append(RefAsStatementRemover.class);
           methodPlan4.append(CfgMarkerRemover.class);
