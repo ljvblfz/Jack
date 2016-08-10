@@ -636,6 +636,8 @@ public abstract class Jack {
 
           if (config.get(Options.GENERATE_DEX_IN_LIBRARY).booleanValue()) {
             request.addProduction(DexInLibraryProduct.class);
+            // We generate a library with pre-dex: we need to check compatibility.
+            request.addFeature(CheckAndroidCompatibility.class);
           }
 
           if (config.get(Options.LAMBDA_TO_ANONYMOUS_CONVERTER).booleanValue()) {

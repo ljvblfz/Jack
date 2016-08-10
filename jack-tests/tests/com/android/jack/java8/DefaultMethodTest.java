@@ -225,11 +225,28 @@ public class DefaultMethodTest {
   }
 
   /**
-   * Ensure that we refuse to import a default method library in an api 23 dex.
+   * Ensure that we CANNOT compile a library WITH predexing in min api 23 because it contains
+   * default methods (because they are only allowed starting from min api 24).
    */
   @Test
   @KnownIssue(candidate=IncrementalToolchain.class)
-  public void testDefaultMethod001_2() throws Exception {
+  public void testDefaultMethod001_2_WithPredexing() throws Exception {
+    runTestDefaultMethod001_2(true);
+  }
+
+  /**
+   * Ensure that we can compile a library WITHOUT predexing in min api 23 even if it contains
+   * default methods.
+   * Then ensure that we refuse to import this library into a dex compiled in min api 23
+   * (because default methods are only allowed starting from min api 24).
+   */
+  @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
+  public void testDefaultMethod001_2_WithoutPredexing() throws Exception {
+    runTestDefaultMethod001_2(false);
+  }
+
+  private void runTestDefaultMethod001_2(boolean enablePredexing) throws Exception {
     List<Class<? extends IToolchain>> excludeClazz = new ArrayList<Class<? extends IToolchain>>(1);
     excludeClazz.add(JackApiV01.class);
     JackBasedToolchain toolchain =
@@ -239,35 +256,67 @@ public class DefaultMethodTest {
     toolchain.addProperty(
         Options.ANDROID_MIN_API_LEVEL.getName(),
         String.valueOf(23))
+    .addProperty(Options.GENERATE_DEX_IN_LIBRARY.getName(), Boolean.toString(enablePredexing))
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addToClasspath(toolchain.getDefaultBootClasspath())
-    .srcToLib(lib23,
-        /* zipFiles = */ true, new File(DEFAULTMETHOD001.directory, DEFAULTMETHOD001.srcDirName));
+    .addToClasspath(toolchain.getDefaultBootClasspath());
 
-    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
-    File dex23 = AbstractTestTools.createTempDir();
-    toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class, excludeClazz);
-    toolchain.addProperty(
-        Options.ANDROID_MIN_API_LEVEL.getName(),
-        String.valueOf(23))
-    .setErrorStream(errOut);
-    try {
-      toolchain.libToExe(lib23, dex23, /* zipFiles = */ false);
-      Assert.fail();
-    } catch (JackAbortException e) {
-      Assert.assertTrue(
-          errOut.toString().contains("not supported in Android API level less than 24"));
+    if (enablePredexing) {
+      // When enabling predexing, we should have run the checker and fail due to the presence
+      // of default methods.
+      ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+      toolchain.setErrorStream(errOut);
+      try {
+        toolchain.srcToLib(lib23, /* zipFiles = */ true,
+            new File(DEFAULTMETHOD001.directory, DEFAULTMETHOD001.srcDirName));
+        Assert.fail();
+      } catch (JackAbortException e) {
+        Assert.assertTrue(
+            errOut.toString().contains("not supported in Android API level less than 24"));
+      }
+    } else {
+      // We do not expect any error when producing the library ...
+      toolchain.srcToLib(lib23, /* zipFiles = */ true,
+          new File(DEFAULTMETHOD001.directory, DEFAULTMETHOD001.srcDirName));
+
+      // ... but we do expect one when using the library.
+      ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+      File dex23 = AbstractTestTools.createTempDir();
+      toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class, excludeClazz);
+      toolchain.addProperty(
+          Options.ANDROID_MIN_API_LEVEL.getName(),
+          String.valueOf(23))
+      .setErrorStream(errOut);
+      try {
+        toolchain.libToExe(lib23, dex23, /* zipFiles = */ false);
+        Assert.fail();
+      } catch (JackAbortException e) {
+        Assert.assertTrue(
+            errOut.toString().contains("not supported in Android API level less than 24"));
+      }
     }
   }
 
   /**
-   * Ensure that can compile a lib including a default method with min api 23 and then import it to
-   * a dex with min api 24.
+   * Ensure that we CANNOT compile a predexed lib including a default method with min api 23.
+   */
+  @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
+  public void testDefaultMethod001_3_WithPredexing() throws Exception {
+    runTestDefaultMethod001_3(true);
+  }
+
+  /**
+   * Ensure that we can compile a non-predexed lib including a default method with min api 23 and
+   * then import it into a dex with min api 24.
    */
   @Test
   @Runtime(from=RuntimeVersion.N)
   @KnownIssue(candidate=IncrementalToolchain.class)
-  public void testDefaultMethod001_3() throws Exception {
+  public void testDefaultMethod001_3_WithoutPredexing() throws Exception {
+    runTestDefaultMethod001_3(false);
+  }
+
+  private void runTestDefaultMethod001_3(boolean enablePredexing) throws Exception {
     List<Class<? extends IToolchain>> excludeClazz = new ArrayList<Class<? extends IToolchain>>(2);
     excludeClazz.add(JackApiV01.class);
     JackBasedToolchain toolchain =
@@ -277,22 +326,37 @@ public class DefaultMethodTest {
     toolchain.addProperty(
         Options.ANDROID_MIN_API_LEVEL.getName(),
         String.valueOf(23))
+    .addProperty(Options.GENERATE_DEX_IN_LIBRARY.getName(), Boolean.toString(enablePredexing))
     .setSourceLevel(SourceLevel.JAVA_8)
-    .addToClasspath(toolchain.getDefaultBootClasspath())
-    .srcToLib(lib23,
-        /* zipFiles = */ true, new File(DEFAULTMETHOD001.directory, DEFAULTMETHOD001.srcDirName));
+    .addToClasspath(toolchain.getDefaultBootClasspath());
 
-    File dex24 = AbstractTestTools.createTempDir();
-    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeClazz);
-    toolchain.addProperty(
-        Options.ANDROID_MIN_API_LEVEL.getName(),
-        String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL))
-    .libToExe(lib23, dex24, /* zipFiles = */ false);
+    if (enablePredexing) {
+      ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+      toolchain.setErrorStream(errOut);
+      try {
+        toolchain.srcToLib(lib23, /* zipFiles = */ true,
+            new File(DEFAULTMETHOD001.directory, DEFAULTMETHOD001.srcDirName));
+        Assert.fail();
+      } catch (JackAbortException e) {
+        Assert.assertTrue(
+            errOut.toString().contains("not supported in Android API level less than 24"));
+      }
+    } else {
+      toolchain.srcToLib(lib23,
+          /* zipFiles = */ true, new File(DEFAULTMETHOD001.directory, DEFAULTMETHOD001.srcDirName));
 
-    // Run to check everything went as expected
-    RuntimeTestHelper.runOnRuntimeEnvironments(
-        Collections.singletonList(DEFAULTMETHOD001.jUnit),
-        RuntimeTestHelper.getJunitDex(), new File(dex24, "classes.dex"));
+      File dex24 = AbstractTestTools.createTempDir();
+      toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeClazz);
+      toolchain.addProperty(
+          Options.ANDROID_MIN_API_LEVEL.getName(),
+          String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL))
+      .libToExe(lib23, dex24, /* zipFiles = */ false);
+
+      // Run to check everything went as expected
+      RuntimeTestHelper.runOnRuntimeEnvironments(
+          Collections.singletonList(DEFAULTMETHOD001.jUnit),
+          RuntimeTestHelper.getJunitDex(), new File(dex24, "classes.dex"));
+    }
 
   }
 
