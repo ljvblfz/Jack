@@ -804,7 +804,7 @@ public class Options {
         for (String name : names) {
           try {
             assert pluginManager != null;
-            pluginManager.getPlugin(name);
+            pluginManager.loadPlugin(name);
           } catch (PluginNotFoundException e) {
             throw new IllegalOptionsException("option --plugin: " + e.getMessage(), e);
           }

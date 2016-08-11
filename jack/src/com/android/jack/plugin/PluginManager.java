@@ -86,7 +86,7 @@ public class PluginManager {
   private final ConcurrentMap<String, Plugin> map = new ConcurrentHashMap<String, Plugin>();
 
   @Nonnull
-  public Plugin getPlugin(@Nonnull String name) throws PluginNotFoundException {
+  public Plugin loadPlugin(@Nonnull String name) throws PluginNotFoundException {
     Plugin plugin = map.get(name);
     if (plugin == null) {
       List<Plugin> plugins = new ArrayList<Plugin>();
