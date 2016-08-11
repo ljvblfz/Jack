@@ -51,6 +51,7 @@ import com.android.jack.shrob.seed.SeedPrinter;
 import com.android.jack.shrob.spec.Flags;
 import com.android.jack.transformations.renamepackage.PackageRenamer;
 import com.android.jack.util.ClassNameCodec;
+import com.android.jack.util.args4j.JackEnumOptionHandler;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.reflections.ReflectionFactory;
 import com.android.sched.util.HasDescription;
@@ -375,7 +376,8 @@ public class Options {
    */
   @VariableName("level")
   public enum VerbosityLevel {
-    ERROR("error"), WARNING("warning"), INFO("info"), DEBUG("debug"), TRACE("trace");
+    ERROR("error"), WARNING("warning"), INFO("info"), @Deprecated DEBUG("debug"),
+    @Deprecated TRACE("trace");
 
     @Nonnull
     private final String id;
@@ -419,7 +421,7 @@ public class Options {
       .addDefaultValue(VerbosityLevel.WARNING);
 
   @Option(name = "--verbose", usage = "set verbosity (default: warning)",
-      metaVar = "[error | warning | info]")
+      handler = JackEnumOptionHandler.class)
   private VerbosityLevel verbose = VerbosityLevel.WARNING;
 
   /**
@@ -591,7 +593,7 @@ public class Options {
 
   @Option(name = "--multi-dex",
       usage = "whether to split code into multiple dex files (default: none)",
-      metaVar = "[none | native | legacy]")
+      handler = JackEnumOptionHandler.class)
   private MultiDexKind multiDexKind = MultiDexKind.NONE;
 
   @Nonnull
