@@ -497,52 +497,56 @@ public class LambdaTest {
   }
 
   /**
-   * Test that warnings are NOT printed when compiling a Serializable lambda directly to a Jack
-   * library but are printed when compiling the library to a dex.
+   * Test that warnings ARE printed when compiling a Serializable lambda directly to a Jack
+   * library WITH predexing.
+   * Then test that warnings are NOT printed when compiling this library into a dex.
    */
   @Test
   @KnownIssue(candidate=IncrementalToolchain.class)
-  public void testLamba037ThroughLib() throws Exception {
-    List<Class<? extends IToolchain>> excludedToolchains =
-        new ArrayList<Class<? extends IToolchain>>();
-    excludedToolchains.add(JackApiV01.class);
+  public void testLamba037ThroughLib_WithPredexing() throws Exception {
+    runTestLamba037ThroughLib(false, true);
+  }
 
-    // src to lib
-    JackBasedToolchain toolchain =
-        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
-    File lib = AbstractTestTools.createTempFile("lib", toolchain.getLibraryExtension());
-    ByteArrayOutputStream err = new ByteArrayOutputStream();
-    toolchain.setErrorStream(err);
-    toolchain.setSourceLevel(SourceLevel.JAVA_8);
-    toolchain.addToClasspath(toolchain.getDefaultBootClasspath()).srcToLib(lib,
-        /* zipFile = */ true,
-        AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test037.jack"));
-    String errString = err.toString();
-    Assert.assertTrue(errString.isEmpty());
+  /**
+   * Test that warnings are NOT printed when compiling a Serializable lambda directly to a Jack
+   * library without DEX prebuilt.
+   * Then test that warnings ARE printed when compiling this library to a dex.
+   */
+  @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
+  public void testLamba037ThroughLib_WithoutPredexing() throws Exception {
+    runTestLamba037ThroughLib(false, false);
+  }
 
-    // lib to dex
-    toolchain =
-        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
-    err = new ByteArrayOutputStream();
-    toolchain.setErrorStream(err);
-    toolchain.setSourceLevel(SourceLevel.JAVA_8);
+  /**
+   * Test that warnings ARE printed when compiling a Serializable lambda directly to a Jack
+   * library WITH predexing.
+   * Then test that warnings are NOT printed when compiling this library into a dex.
+   */
+  @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
+  public void testLamba037ThroughLibPlusCheck_WithPredexing() throws Exception {
+    runTestLamba037ThroughLib(true, true);
+  }
 
-    toolchain.addToClasspath(toolchain.getDefaultBootClasspath()).libToExe(lib,
-        AbstractTestTools.createTempDir(), /* zipFile = */ false);
-    errString = err.toString();
-    Assert.assertTrue(errString.contains("Tests.java:34"));
-    Assert.assertTrue(errString.contains("Tests.java:43"));
-    Assert.assertTrue(errString.contains("Tests.java:55"));
-    Assert.assertTrue(errString.contains("Serializable lambda is not supported"));
+  /**
+   * Test that warnings ARE printed when compiling a Serializable lambda directly to a Jack
+   * library WITHOUT predexing.
+   * Then test that warnings ARE printed as well when compiling this library into a dex.
+   */
+  @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
+  public void testLamba037ThroughLibPlusCheck_WithoutPredexing() throws Exception {
+    runTestLamba037ThroughLib(true, false);
   }
 
   /**
    * Test that warnings are printed when compiling a Serializable lambda directly to a Jack
-   * library with checks manually enabled, as well as when compiling the library to a dex.
+   * library WITHOUT predexing and with checks manually enabled, as well as when compiling
+   * the library to a dex.
    */
-  @Test
-  @KnownIssue(candidate=IncrementalToolchain.class)
-  public void testLamba037ThroughLibPlusCheck() throws Exception {
+  private void runTestLamba037ThroughLib(boolean checkLib, boolean predexLib)
+      throws Exception {
     List<Class<? extends IToolchain>> excludedToolchains =
         new ArrayList<Class<? extends IToolchain>>();
     // This test can not be used with JillBasedToolchain because generated library will be a jar
@@ -561,16 +565,25 @@ public class LambdaTest {
       toolchain.setSourceLevel(SourceLevel.JAVA_8);
       // we need to enable the compatibility check manually since we haven't specified an Android
       // API level or a dex output
-      toolchain.addProperty(AndroidCompatibilityChecker.CHECK_COMPATIBILITY.getName(), "true");
-
+      if (checkLib) {
+        toolchain.addProperty(AndroidCompatibilityChecker.CHECK_COMPATIBILITY.getName(), "true");
+      }
+      toolchain.addProperty(Options.GENERATE_DEX_IN_LIBRARY.getName(), Boolean.toString(predexLib));
       toolchain.addToClasspath(toolchain.getDefaultBootClasspath()).srcToLib(lib,
           /* zipFile = */ true,
           AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test037.jack"));
       String errString = err.toString();
-      Assert.assertTrue(errString.contains("Tests.java:34"));
-      Assert.assertTrue(errString.contains("Tests.java:43"));
-      Assert.assertTrue(errString.contains("Tests.java:55"));
-      Assert.assertTrue(errString.contains("Serializable lambda is not supported"));
+      if (predexLib || checkLib) {
+        // When predexing, the compatibility check is always done. Otherwise, it is done only if
+        // it has been explicitly enabled.
+        Assert.assertTrue(errString.contains("Tests.java:34"));
+        Assert.assertTrue(errString.contains("Tests.java:43"));
+        Assert.assertTrue(errString.contains("Tests.java:55"));
+        Assert.assertTrue(errString.contains("Serializable lambda is not supported"));
+      } else {
+        // The lib is not predexed and we did not enable the compatibility checks.
+        Assert.assertTrue(errString.isEmpty());
+      }
     }
 
     // lib to dex
@@ -584,9 +597,19 @@ public class LambdaTest {
       toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
           .libToExe(lib, AbstractTestTools.createTempDir(), /* zipFile = */ false);
       String errString = err.toString();
-      Assert.assertTrue(errString.contains("Tests.java:34: Serializable lambda is not supported"));
-      Assert.assertTrue(errString.contains("Tests.java:43: Serializable lambda is not supported"));
-      Assert.assertTrue(errString.contains("Tests.java:55: Serializable lambda is not supported"));
+      if (predexLib) {
+        // The library is predex so the check must have been done. Therefore no warning is expected
+        // here.
+        Assert.assertTrue(errString.isEmpty());
+      } else {
+        // The library was not predexed so we expect warnings now.
+        Assert.assertTrue(errString.contains(
+            "Tests.java:34: Serializable lambda is not supported"));
+        Assert.assertTrue(errString.contains(
+            "Tests.java:43: Serializable lambda is not supported"));
+        Assert.assertTrue(errString.contains(
+            "Tests.java:55: Serializable lambda is not supported"));
+      }
     }
   }
 

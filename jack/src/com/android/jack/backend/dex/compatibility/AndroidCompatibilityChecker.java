@@ -27,8 +27,9 @@ import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.reporting.Reportable;
 import com.android.jack.reporting.Reporter.Severity;
-import com.android.jack.util.filter.Filter;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.sched.item.Description;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.util.config.HasKeyId;
@@ -44,6 +45,7 @@ import javax.annotation.Nonnull;
 @HasKeyId
 @Description("Checks that the IR is compatible with the dex output.")
 @Support(CheckAndroidCompatibility.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class AndroidCompatibilityChecker implements RunnableSchedulable<JMethod> {
 
   @Nonnull
@@ -64,7 +66,8 @@ public class AndroidCompatibilityChecker implements RunnableSchedulable<JMethod>
       Jack.getSession().getPhantomLookup().getInterface(CommonTypes.JAVA_IO_SERIALIZABLE);
 
   @Nonnull
-  private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
 
   @Nonnull
   private final JSession session = Jack.getSession();
