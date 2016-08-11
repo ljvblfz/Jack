@@ -109,252 +109,252 @@ public class JVisitor {
     throw new UnsupportedOperationException();
   }
 
-  public void endVisit(@Nonnull JAbsentArrayDimension x) {
-    endVisit((JLiteral) x);
+  public void endVisit(@Nonnull JAbsentArrayDimension absentArrayDimension) {
+    endVisit((JLiteral) absentArrayDimension);
   }
 
-  public void endVisit(@Nonnull JAbstractMethodBody x) {
-    endVisit((JNode) x);
+  public void endVisit(@Nonnull JAbstractMethodBody abstractMethodBody) {
+    endVisit((JNode) abstractMethodBody);
   }
 
-  public void endVisit(@Nonnull JAbstractStringLiteral x) {
-    endVisit((JValueLiteral) x);
+  public void endVisit(@Nonnull JAbstractStringLiteral abstractStringLiteral) {
+    endVisit((JValueLiteral) abstractStringLiteral);
   }
 
-  public void endVisit(@Nonnull JAlloc x) {
-    endVisit((JExpression) x);
+  public void endVisit(@Nonnull JAlloc alloc) {
+    endVisit((JExpression) alloc);
   }
 
   public void endVisit(@Nonnull JAnnotation annotation) {
     endVisit((JExpression) annotation);
   }
 
-  public void endVisit(@Nonnull JArrayLength x) {
-    endVisit((JExpression) x);
+  public void endVisit(@Nonnull JArrayLength arrayLength) {
+    endVisit((JExpression) arrayLength);
   }
 
   public void endVisit(@Nonnull JArrayLiteral arrayLiteral) {
     endVisit((JExpression) arrayLiteral);
   }
 
-  public void endVisit(@Nonnull JArrayRef x) {
-    endVisit((JExpression) x);
+  public void endVisit(@Nonnull JArrayRef arrayRef) {
+    endVisit((JExpression) arrayRef);
   }
 
-  public void endVisit(@Nonnull JArrayType x) {
-    endVisit((JReferenceType) x);
+  public void endVisit(@Nonnull JArrayType arrayType) {
+    endVisit((JReferenceType) arrayType);
   }
 
-  public void endVisit(@Nonnull JAssertStatement x) {
-    endVisit((JStatement) x);
+  public void endVisit(@Nonnull JAssertStatement assertStatement) {
+    endVisit((JStatement) assertStatement);
   }
 
-  public void endVisit(@Nonnull JBinaryOperation x) {
-    endVisit((JExpression) x);
+  public void endVisit(@Nonnull JBinaryOperation binaryOperation) {
+    endVisit((JExpression) binaryOperation);
   }
 
-  public void endVisit(@Nonnull JReinterpretCastOperation x) {
-    endVisit((JCastOperation) x);
+  public void endVisit(@Nonnull JReinterpretCastOperation reinterpretCastOperation) {
+    endVisit((JCastOperation) reinterpretCastOperation);
   }
 
-  public void endVisit(@Nonnull JBlock x) {
-    endVisit((JStatement) x);
+  public void endVisit(@Nonnull JBlock block) {
+    endVisit((JStatement) block);
   }
 
-  public void endVisit(@Nonnull JBooleanLiteral x) {
-    endVisit((JValueLiteral) x);
+  public void endVisit(@Nonnull JBooleanLiteral booleanLiteral) {
+    endVisit((JValueLiteral) booleanLiteral);
   }
 
-  public void endVisit(@Nonnull JBreakStatement x) {
-    endVisit((JStatement) x);
+  public void endVisit(@Nonnull JBreakStatement breakStatement) {
+    endVisit((JStatement) breakStatement);
   }
 
-  public void endVisit(@Nonnull JByteLiteral x) {
-    endVisit((JNumberValueLiteral) x);
+  public void endVisit(@Nonnull JByteLiteral byteLiteral) {
+    endVisit((JNumberValueLiteral) byteLiteral);
   }
 
-  public void endVisit(@Nonnull JCaseStatement x) {
-    endVisit((JStatement) x);
+  public void endVisit(@Nonnull JCaseStatement caseStatement) {
+    endVisit((JStatement) caseStatement);
   }
 
-  public void endVisit(@Nonnull JCastOperation x) {
-    endVisit((JExpression) x);
+  public void endVisit(@Nonnull JCastOperation castOperation) {
+    endVisit((JExpression) castOperation);
   }
 
-  public void endVisit(@Nonnull JCompositeStringLiteral x) {
-    endVisit((JAbstractStringLiteral) x);
+  public void endVisit(@Nonnull JCompositeStringLiteral compositeStringLiteral) {
+    endVisit((JAbstractStringLiteral) compositeStringLiteral);
   }
 
-  public void endVisit(@Nonnull JDynamicCastOperation x) {
-    endVisit((JCastOperation) x);
+  public void endVisit(@Nonnull JDynamicCastOperation dynamicCastOperation) {
+    endVisit((JCastOperation) dynamicCastOperation);
   }
 
-  public void endVisit(@Nonnull JCatchBlock x) {
-    endVisit((JStatement) x);
+  public void endVisit(@Nonnull JCatchBlock catchBlock) {
+    endVisit((JStatement) catchBlock);
   }
 
-  public void endVisit(@Nonnull JCharLiteral x) {
-    endVisit((JNumberValueLiteral) x);
+  public void endVisit(@Nonnull JCharLiteral charLiteral) {
+    endVisit((JNumberValueLiteral) charLiteral);
   }
 
-  public void endVisit(@Nonnull JClassLiteral x) {
-    endVisit((JLiteral) x);
+  public void endVisit(@Nonnull JClassLiteral classLiteral) {
+    endVisit((JLiteral) classLiteral);
   }
 
-  public void endVisit(@Nonnull JDefinedClass x) {
-    endVisit((JDefinedClassOrInterface) x);
+  public void endVisit(@Nonnull JDefinedClass definedClass) {
+    endVisit((JDefinedClassOrInterface) definedClass);
   }
 
-  public void endVisit(@Nonnull JConditionalExpression x) {
-    endVisit((JExpression) x);
+  public void endVisit(@Nonnull JConditionalExpression conditionalExpression) {
+    endVisit((JExpression) conditionalExpression);
   }
 
-  public void endVisit(@Nonnull JConstructor x) {
-    endVisit((JMethod) x);
+  public void endVisit(@Nonnull JConstructor constructor) {
+    endVisit((JMethod) constructor);
   }
 
-  public void endVisit(@Nonnull JContinueStatement x) {
-    endVisit((JStatement) x);
+  public void endVisit(@Nonnull JContinueStatement continueStatement) {
+    endVisit((JStatement) continueStatement);
   }
 
-  public void endVisit(@Nonnull JDefinedClassOrInterface x) {
-    endVisit((JReferenceType) x);
+  public void endVisit(@Nonnull JDefinedClassOrInterface definedClassOrInterface) {
+    endVisit((JReferenceType) definedClassOrInterface);
   }
 
-  public void endVisit(@Nonnull JDoStatement x) {
-    endVisit((JStatement) x);
+  public void endVisit(@Nonnull JDoStatement doStatement) {
+    endVisit((JStatement) doStatement);
   }
 
-  public void endVisit(@Nonnull JDoubleLiteral x) {
-    endVisit((JNumberValueLiteral) x);
+  public void endVisit(@Nonnull JDoubleLiteral doubleLiteral) {
+    endVisit((JNumberValueLiteral) doubleLiteral);
   }
 
   public void endVisit(@Nonnull JEnumLiteral enumLiteral) {
     endVisit((JNode) enumLiteral);
   }
 
-  public void endVisit(@Nonnull JExceptionRuntimeValue x) {
-    endVisit((JExpression) x);
+  public void endVisit(@Nonnull JExceptionRuntimeValue exceptionRuntimeValue) {
+    endVisit((JExpression) exceptionRuntimeValue);
   }
 
-  public void endVisit(@Nonnull JExpression x) {
-    endVisit((JNode) x);
+  public void endVisit(@Nonnull JExpression expression) {
+    endVisit((JNode) expression);
   }
 
-  public void endVisit(@Nonnull JExpressionStatement x) {
-    endVisit((JStatement) x);
+  public void endVisit(@Nonnull JExpressionStatement expressionStatement) {
+    endVisit((JStatement) expressionStatement);
   }
 
-  public void endVisit(@Nonnull JField x) {
-    endVisit((JNode) x);
+  public void endVisit(@Nonnull JField field) {
+    endVisit((JNode) field);
   }
 
-  public void endVisit(@Nonnull JFieldInitializer x) {
-    endVisit((JStatement) x);
+  public void endVisit(@Nonnull JFieldInitializer fieldInitializer) {
+    endVisit((JStatement) fieldInitializer);
   }
 
-  public void endVisit(@Nonnull JFieldNameLiteral x) {
-    endVisit((JAbstractStringLiteral) x);
+  public void endVisit(@Nonnull JFieldNameLiteral fieldNameLiteral) {
+    endVisit((JAbstractStringLiteral) fieldNameLiteral);
   }
 
-  public void endVisit(@Nonnull JFieldRef x) {
-    endVisit((JExpression) x);
+  public void endVisit(@Nonnull JFieldRef fieldRef) {
+    endVisit((JExpression) fieldRef);
   }
 
-  public void endVisit(@Nonnull JFloatLiteral x) {
-    endVisit((JNumberValueLiteral) x);
+  public void endVisit(@Nonnull JFloatLiteral floatLiteral) {
+    endVisit((JNumberValueLiteral) floatLiteral);
   }
 
-  public void endVisit(@Nonnull JForStatement x) {
-    endVisit((JStatement) x);
+  public void endVisit(@Nonnull JForStatement forStatement) {
+    endVisit((JStatement) forStatement);
   }
 
-  public void endVisit(@Nonnull JGoto x) {
-    endVisit((JStatement) x);
+  public void endVisit(@Nonnull JGoto gotoStatement) {
+    endVisit((JStatement) gotoStatement);
   }
 
-  public void endVisit(@Nonnull JIfStatement x) {
-    endVisit((JStatement) x);
+  public void endVisit(@Nonnull JIfStatement ifStatement) {
+    endVisit((JStatement) ifStatement);
   }
 
-  public void endVisit(@Nonnull JInstanceOf x) {
-    endVisit((JExpression) x);
+  public void endVisit(@Nonnull JInstanceOf instanceOf) {
+    endVisit((JExpression) instanceOf);
   }
 
-  public void endVisit(@Nonnull JDefinedInterface x) {
-    endVisit((JDefinedClassOrInterface) x);
+  public void endVisit(@Nonnull JDefinedInterface definedInterface) {
+    endVisit((JDefinedClassOrInterface) definedInterface);
   }
 
-  public void endVisit(@Nonnull JIntLiteral x) {
-    endVisit((JNumberValueLiteral) x);
+  public void endVisit(@Nonnull JIntLiteral intLiteral) {
+    endVisit((JNumberValueLiteral) intLiteral);
   }
 
-  public void endVisit(@Nonnull JLabel x) {
-    endVisit((JNode) x);
+  public void endVisit(@Nonnull JLabel label) {
+    endVisit((JNode) label);
   }
 
-  public void endVisit(@Nonnull JLabeledStatement x) {
-    endVisit((JStatement) x);
+  public void endVisit(@Nonnull JLabeledStatement labeledStatement) {
+    endVisit((JStatement) labeledStatement);
   }
 
-  public void endVisit(@Nonnull JLambda x) {
-    endVisit((JExpression) x);
+  public void endVisit(@Nonnull JLambda lambda) {
+    endVisit((JExpression) lambda);
   }
 
-  public void endVisit(@Nonnull JLiteral x) {
-    endVisit((JExpression) x);
+  public void endVisit(@Nonnull JLiteral literal) {
+    endVisit((JExpression) literal);
   }
 
-  public void endVisit(@Nonnull JLocal x) {
-    endVisit((JVariable) x);
+  public void endVisit(@Nonnull JLocal local) {
+    endVisit((JVariable) local);
   }
 
-  public void endVisit(@Nonnull JLocalRef x) {
-    endVisit((JVariableRef) x);
+  public void endVisit(@Nonnull JLocalRef localRef) {
+    endVisit((JVariableRef) localRef);
   }
 
-  public void endVisit(@Nonnull JLock x) {
-    endVisit((JStatement) x);
+  public void endVisit(@Nonnull JLock lock) {
+    endVisit((JStatement) lock);
   }
 
-  public void endVisit(@Nonnull JLongLiteral x) {
-    endVisit((JNumberValueLiteral) x);
+  public void endVisit(@Nonnull JLongLiteral longLiteral) {
+    endVisit((JNumberValueLiteral) longLiteral);
   }
 
-  public void endVisit(@Nonnull JMethod x) {
-    endVisit((JNode) x);
+  public void endVisit(@Nonnull JMethod method) {
+    endVisit((JNode) method);
   }
 
-  public void endVisit(@Nonnull JMethodBody x) {
-    endVisit((JAbstractMethodBody) x);
+  public void endVisit(@Nonnull JMethodBody methodBody) {
+    endVisit((JAbstractMethodBody) methodBody);
   }
 
-  public void endVisit(@Nonnull JMethodCall x) {
-    endVisit((JExpression) x);
+  public void endVisit(@Nonnull JMethodCall methodCall) {
+    endVisit((JExpression) methodCall);
   }
 
-  public void endVisit(@Nonnull JMethodIdRef x) {
-    endVisit((JNode) x);
+  public void endVisit(@Nonnull JMethodIdRef methodIdRef) {
+    endVisit((JNode) methodIdRef);
   }
 
-  public void endVisit(@Nonnull JMethodLiteral x) {
-    endVisit((JLiteral) x);
+  public void endVisit(@Nonnull JMethodLiteral methodLiteral) {
+    endVisit((JLiteral) methodLiteral);
   }
 
-  public void endVisit(@Nonnull JMethodNameLiteral x) {
-    endVisit((JAbstractStringLiteral) x);
+  public void endVisit(@Nonnull JMethodNameLiteral methodNameLiteral) {
+    endVisit((JAbstractStringLiteral) methodNameLiteral);
   }
 
-  public void endVisit(@Nonnull JMultiExpression x) {
-    endVisit((JExpression) x);
+  public void endVisit(@Nonnull JMultiExpression multiExpression) {
+    endVisit((JExpression) multiExpression);
   }
 
   public void endVisit(@Nonnull JNameValuePair nameValuePair) {
     endVisit((JNode) nameValuePair);
   }
 
-  public void endVisit(@Nonnull JNewArray x) {
-    endVisit((JExpression) x);
+  public void endVisit(@Nonnull JNewArray newArray) {
+    endVisit((JExpression) newArray);
   }
 
   public void endVisit(@Nonnull JNewInstance newInstance) {
@@ -369,388 +369,388 @@ public class JVisitor {
     // empty block
   }
 
-  public void endVisit(@Nonnull JNullLiteral x) {
-    endVisit((JValueLiteral) x);
+  public void endVisit(@Nonnull JNullLiteral nullLiteral) {
+    endVisit((JValueLiteral) nullLiteral);
   }
 
-  public void endVisit(@Nonnull JNullType x) {
-    endVisit((JReferenceType) x);
+  public void endVisit(@Nonnull JNullType nullType) {
+    endVisit((JReferenceType) nullType);
   }
 
-  public void endVisit(@Nonnull JNumberValueLiteral x) {
-    endVisit((JValueLiteral) x);
+  public void endVisit(@Nonnull JNumberValueLiteral numberValueLiteral) {
+    endVisit((JValueLiteral) numberValueLiteral);
   }
 
-  public void endVisit(@Nonnull JPackage x) {
-    endVisit((JNode) x);
+  public void endVisit(@Nonnull JPackage packageDeclaration) {
+    endVisit((JNode) packageDeclaration);
   }
 
-  public void endVisit(@Nonnull JParameter x) {
-    endVisit((JVariable) x);
+  public void endVisit(@Nonnull JParameter parameter) {
+    endVisit((JVariable) parameter);
   }
 
-  public void endVisit(@Nonnull JParameterRef x) {
-    endVisit((JVariableRef) x);
+  public void endVisit(@Nonnull JParameterRef parameterRef) {
+    endVisit((JVariableRef) parameterRef);
   }
 
-  public void endVisit(@Nonnull JPhantomAnnotationType x) {
-    endVisit((JPhantomInterface) x);
+  public void endVisit(@Nonnull JPhantomAnnotationType phantomAnnotationType) {
+    endVisit((JPhantomInterface) phantomAnnotationType);
   }
 
-  public void endVisit(@Nonnull JPhantomClass x) {
-    endVisit((JPhantomClassOrInterface) x);
+  public void endVisit(@Nonnull JPhantomClass phantomClass) {
+    endVisit((JPhantomClassOrInterface) phantomClass);
   }
 
-  public void endVisit(@Nonnull JPhantomClassOrInterface x) {
-    endVisit((JReferenceType) x);
+  public void endVisit(@Nonnull JPhantomClassOrInterface phantomClassOrInterface) {
+    endVisit((JReferenceType) phantomClassOrInterface);
   }
 
-  public void endVisit(@Nonnull JPhantomInterface x) {
-    endVisit((JPhantomClassOrInterface) x);
+  public void endVisit(@Nonnull JPhantomInterface phantomInterface) {
+    endVisit((JPhantomClassOrInterface) phantomInterface);
   }
 
-  public void endVisit(@Nonnull JPostfixOperation x) {
-    endVisit((JUnaryOperation) x);
+  public void endVisit(@Nonnull JPostfixOperation postfixOperation) {
+    endVisit((JUnaryOperation) postfixOperation);
   }
 
-  public void endVisit(@Nonnull JPrefixOperation x) {
-    endVisit((JUnaryOperation) x);
+  public void endVisit(@Nonnull JPrefixOperation prefixOperation) {
+    endVisit((JUnaryOperation) prefixOperation);
   }
 
-  public void endVisit(@Nonnull JPrimitiveType x) {
-    endVisit((JType) x);
+  public void endVisit(@Nonnull JPrimitiveType primitiveType) {
+    endVisit((JType) primitiveType);
   }
 
-  public void endVisit(@Nonnull JSession x) {
-    endVisit((JNode) x);
+  public void endVisit(@Nonnull JSession session) {
+    endVisit((JNode) session);
   }
 
-  public void endVisit(@Nonnull JReferenceType x) {
-    endVisit((JType) x);
+  public void endVisit(@Nonnull JReferenceType referenceType) {
+    endVisit((JType) referenceType);
   }
 
-  public void endVisit(@Nonnull JReturnStatement x) {
-    endVisit((JStatement) x);
+  public void endVisit(@Nonnull JReturnStatement returnStatement) {
+    endVisit((JStatement) returnStatement);
   }
 
-  public void endVisit(@Nonnull JShortLiteral x) {
-    endVisit((JNumberValueLiteral) x);
+  public void endVisit(@Nonnull JShortLiteral shortLiteral) {
+    endVisit((JNumberValueLiteral) shortLiteral);
   }
 
-  public void endVisit(@Nonnull JStatement x) {
-    endVisit((JNode) x);
+  public void endVisit(@Nonnull JStatement statement) {
+    endVisit((JNode) statement);
   }
 
-  public void endVisit(@Nonnull JStringLiteral x) {
-    endVisit((JAbstractStringLiteral) x);
+  public void endVisit(@Nonnull JStringLiteral stringLiteral) {
+    endVisit((JAbstractStringLiteral) stringLiteral);
   }
 
-  public void endVisit(@Nonnull JSwitchStatement x) {
-    endVisit((JStatement) x);
+  public void endVisit(@Nonnull JSwitchStatement switchStatement) {
+    endVisit((JStatement) switchStatement);
   }
 
-  public void endVisit(@Nonnull JSynchronizedBlock x) {
-    endVisit((JStatement) x);
+  public void endVisit(@Nonnull JSynchronizedBlock synchronizedBlock) {
+    endVisit((JStatement) synchronizedBlock);
   }
 
-  public void endVisit(@Nonnull JThis x) {
-    endVisit((JVariable) x);
+  public void endVisit(@Nonnull JThis thisKeyword) {
+    endVisit((JVariable) thisKeyword);
   }
 
-  public void endVisit(@Nonnull JThisRef x) {
-    endVisit((JVariableRef) x);
+  public void endVisit(@Nonnull JThisRef thisRef) {
+    endVisit((JVariableRef) thisRef);
   }
 
-  public void endVisit(@Nonnull JThrowStatement x) {
-    endVisit((JStatement) x);
+  public void endVisit(@Nonnull JThrowStatement throwStatement) {
+    endVisit((JStatement) throwStatement);
   }
 
-  public void endVisit(@Nonnull JTryStatement x) {
-    endVisit((JStatement) x);
+  public void endVisit(@Nonnull JTryStatement tryStatement) {
+    endVisit((JStatement) tryStatement);
   }
 
-  public void endVisit(@Nonnull JType x) {
-    endVisit((JNode) x);
+  public void endVisit(@Nonnull JType type) {
+    endVisit((JNode) type);
   }
 
-  public void endVisit(@Nonnull JTypeStringLiteral x) {
-    endVisit((JAbstractStringLiteral) x);
+  public void endVisit(@Nonnull JTypeStringLiteral typeStringLiteral) {
+    endVisit((JAbstractStringLiteral) typeStringLiteral);
   }
 
-  public void endVisit(@Nonnull JUnaryOperation x) {
-    endVisit((JExpression) x);
+  public void endVisit(@Nonnull JUnaryOperation unaryOperation) {
+    endVisit((JExpression) unaryOperation);
   }
 
-  public void endVisit(@Nonnull JUnlock x) {
-    endVisit((JStatement) x);
+  public void endVisit(@Nonnull JUnlock unlock) {
+    endVisit((JStatement) unlock);
   }
 
-  public void endVisit(@Nonnull JValueLiteral x) {
-    endVisit((JLiteral) x);
+  public void endVisit(@Nonnull JValueLiteral valueLiteral) {
+    endVisit((JLiteral) valueLiteral);
   }
 
-  public void endVisit(@Nonnull JVariable x) {
-    endVisit((JNode) x);
+  public void endVisit(@Nonnull JVariable variable) {
+    endVisit((JNode) variable);
   }
 
-  public void endVisit(@Nonnull JVariableRef x) {
-    endVisit((JExpression) x);
+  public void endVisit(@Nonnull JVariableRef variableRef) {
+    endVisit((JExpression) variableRef);
   }
 
-  public void endVisit(@Nonnull JWhileStatement x) {
-    endVisit((JStatement) x);
+  public void endVisit(@Nonnull JWhileStatement whileStatement) {
+    endVisit((JStatement) whileStatement);
   }
 
-  public boolean visit(@Nonnull JAbsentArrayDimension x) {
-    return visit((JLiteral) x);
+  public boolean visit(@Nonnull JAbsentArrayDimension absentArrayDimension) {
+    return visit((JLiteral) absentArrayDimension);
   }
 
-  public boolean visit(@Nonnull JAbstractMethodBody x) {
-    return visit((JNode) x);
+  public boolean visit(@Nonnull JAbstractMethodBody abstractMethodBody) {
+    return visit((JNode) abstractMethodBody);
   }
 
-  public boolean visit(@Nonnull JAbstractStringLiteral x) {
-    return visit((JValueLiteral) x);
+  public boolean visit(@Nonnull JAbstractStringLiteral abstractStringLiteral) {
+    return visit((JValueLiteral) abstractStringLiteral);
   }
 
-  public boolean visit(@Nonnull JAlloc x) {
-    return visit((JExpression) x);
+  public boolean visit(@Nonnull JAlloc alloc) {
+    return visit((JExpression) alloc);
   }
 
   public boolean visit(@Nonnull JAnnotation annotation) {
     return visit((JExpression) annotation);
   }
 
-  public boolean visit(@Nonnull JArrayLength x) {
-    return visit((JExpression) x);
+  public boolean visit(@Nonnull JArrayLength arrayLength) {
+    return visit((JExpression) arrayLength);
   }
 
   public boolean visit(@Nonnull JArrayLiteral arrayLiteral) {
     return visit((JExpression) arrayLiteral);
   }
 
-  public boolean visit(@Nonnull JArrayRef x) {
-    return visit((JExpression) x);
+  public boolean visit(@Nonnull JArrayRef arrayRef) {
+    return visit((JExpression) arrayRef);
   }
 
-  public boolean visit(@Nonnull JArrayType x) {
-    return visit((JReferenceType) x);
+  public boolean visit(@Nonnull JArrayType arrayType) {
+    return visit((JReferenceType) arrayType);
   }
 
-  public boolean visit(@Nonnull JAssertStatement x) {
-    return visit((JStatement) x);
+  public boolean visit(@Nonnull JAssertStatement assertStatement) {
+    return visit((JStatement) assertStatement);
   }
 
-  public boolean visit(@Nonnull JBinaryOperation x) {
-    return visit((JExpression) x);
+  public boolean visit(@Nonnull JBinaryOperation binaryOperation) {
+    return visit((JExpression) binaryOperation);
   }
 
-  public boolean visit(@Nonnull JReinterpretCastOperation x) {
-    return visit((JCastOperation) x);
+  public boolean visit(@Nonnull JReinterpretCastOperation reinterpretCastOperation) {
+    return visit((JCastOperation) reinterpretCastOperation);
   }
 
-  public boolean visit(@Nonnull JBlock x) {
-    return visit((JStatement) x);
+  public boolean visit(@Nonnull JBlock block) {
+    return visit((JStatement) block);
   }
 
-  public boolean visit(@Nonnull JBooleanLiteral x) {
-    return visit((JValueLiteral) x);
+  public boolean visit(@Nonnull JBooleanLiteral booleanLiteral) {
+    return visit((JValueLiteral) booleanLiteral);
   }
 
-  public boolean visit(@Nonnull JBreakStatement x) {
-    return visit((JStatement) x);
+  public boolean visit(@Nonnull JBreakStatement breakStatement) {
+    return visit((JStatement) breakStatement);
   }
 
-  public boolean visit(@Nonnull JCaseStatement x) {
-    return visit((JStatement) x);
+  public boolean visit(@Nonnull JCaseStatement caseStatement) {
+    return visit((JStatement) caseStatement);
   }
 
-  public boolean visit(@Nonnull JByteLiteral x) {
-    return visit((JNumberValueLiteral) x);
+  public boolean visit(@Nonnull JByteLiteral byteLiteral) {
+    return visit((JNumberValueLiteral) byteLiteral);
   }
 
-  public boolean visit(@Nonnull JCastOperation x) {
-    return visit((JExpression) x);
+  public boolean visit(@Nonnull JCastOperation castOperation) {
+    return visit((JExpression) castOperation);
   }
 
-  public boolean visit(@Nonnull JDynamicCastOperation x) {
-    return visit((JCastOperation) x);
+  public boolean visit(@Nonnull JDynamicCastOperation dynamicCastOperation) {
+    return visit((JCastOperation) dynamicCastOperation);
   }
 
-  public boolean visit(@Nonnull JCatchBlock x) {
-    return visit((JStatement) x);
+  public boolean visit(@Nonnull JCatchBlock catchBlock) {
+    return visit((JStatement) catchBlock);
   }
 
-  public boolean visit(@Nonnull JCharLiteral x) {
-    return visit((JNumberValueLiteral) x);
+  public boolean visit(@Nonnull JCharLiteral charLiteral) {
+    return visit((JNumberValueLiteral) charLiteral);
   }
 
-  public boolean visit(@Nonnull JClassLiteral x) {
-    return visit((JLiteral) x);
+  public boolean visit(@Nonnull JClassLiteral classLiteral) {
+    return visit((JLiteral) classLiteral);
   }
 
-  public boolean visit(@Nonnull JCompositeStringLiteral x) {
-    return visit((JAbstractStringLiteral) x);
+  public boolean visit(@Nonnull JCompositeStringLiteral compositeStringLiteral) {
+    return visit((JAbstractStringLiteral) compositeStringLiteral);
   }
 
-  public boolean visit(@Nonnull JDefinedClass x) {
-    return visit((JDefinedClassOrInterface) x);
+  public boolean visit(@Nonnull JDefinedClass definedClass) {
+    return visit((JDefinedClassOrInterface) definedClass);
   }
 
-  public boolean visit(@Nonnull JConditionalExpression x) {
-    return visit((JExpression) x);
+  public boolean visit(@Nonnull JConditionalExpression conditionalExpression) {
+    return visit((JExpression) conditionalExpression);
   }
 
-  public boolean visit(@Nonnull JConstructor x) {
-    return visit((JMethod) x);
+  public boolean visit(@Nonnull JConstructor constructor) {
+    return visit((JMethod) constructor);
   }
 
-  public boolean visit(@Nonnull JContinueStatement x) {
-    return visit((JStatement) x);
+  public boolean visit(@Nonnull JContinueStatement continueStatement) {
+    return visit((JStatement) continueStatement);
   }
 
-  public boolean visit(@Nonnull JDefinedClassOrInterface x) {
-    return visit((JReferenceType) x);
+  public boolean visit(@Nonnull JDefinedClassOrInterface definedClassOrInterface) {
+    return visit((JReferenceType) definedClassOrInterface);
   }
 
-  public boolean visit(@Nonnull JDoStatement x) {
-    return visit((JStatement) x);
+  public boolean visit(@Nonnull JDoStatement doStatement) {
+    return visit((JStatement) doStatement);
   }
 
-  public boolean visit(@Nonnull JDoubleLiteral x) {
-    return visit((JNumberValueLiteral) x);
+  public boolean visit(@Nonnull JDoubleLiteral doubleLiteral) {
+    return visit((JNumberValueLiteral) doubleLiteral);
   }
 
   public boolean visit(@Nonnull JEnumLiteral enumLiteral) {
     return visit((JNode) enumLiteral);
   }
 
-  public boolean visit(@Nonnull JExceptionRuntimeValue x) {
-    return visit((JExpression) x);
+  public boolean visit(@Nonnull JExceptionRuntimeValue exceptionRuntimeValue) {
+    return visit((JExpression) exceptionRuntimeValue);
   }
 
-  public boolean visit(@Nonnull JExpression x) {
-    return visit((JNode) x);
+  public boolean visit(@Nonnull JExpression expression) {
+    return visit((JNode) expression);
   }
 
-  public boolean visit(@Nonnull JExpressionStatement x) {
-    return visit((JStatement) x);
+  public boolean visit(@Nonnull JExpressionStatement expressionStatement) {
+    return visit((JStatement) expressionStatement);
   }
 
-  public boolean visit(@Nonnull JField x) {
-    return visit((JNode) x);
+  public boolean visit(@Nonnull JField field) {
+    return visit((JNode) field);
   }
 
-  public boolean visit(@Nonnull JFieldInitializer x) {
-    return visit((JStatement) x);
+  public boolean visit(@Nonnull JFieldInitializer fieldInitializer) {
+    return visit((JStatement) fieldInitializer);
   }
 
-  public boolean visit(@Nonnull JFieldNameLiteral x) {
-    return visit((JAbstractStringLiteral) x);
+  public boolean visit(@Nonnull JFieldNameLiteral fieldNameLiteral) {
+    return visit((JAbstractStringLiteral) fieldNameLiteral);
   }
 
-  public boolean visit(@Nonnull JFieldRef x) {
-    return visit((JExpression) x);
+  public boolean visit(@Nonnull JFieldRef fieldRef) {
+    return visit((JExpression) fieldRef);
   }
 
-  public boolean visit(@Nonnull JFloatLiteral x) {
-    return visit((JNumberValueLiteral) x);
+  public boolean visit(@Nonnull JFloatLiteral floatLiteral) {
+    return visit((JNumberValueLiteral) floatLiteral);
   }
 
-  public boolean visit(@Nonnull JForStatement x) {
-    return visit((JStatement) x);
+  public boolean visit(@Nonnull JForStatement forStatement) {
+    return visit((JStatement) forStatement);
   }
 
-  public boolean visit(@Nonnull JGoto x) {
-    return visit((JStatement) x);
+  public boolean visit(@Nonnull JGoto gotoStatement) {
+    return visit((JStatement) gotoStatement);
   }
 
-  public boolean visit(@Nonnull JIfStatement x) {
-    return visit((JStatement) x);
+  public boolean visit(@Nonnull JIfStatement ifStatement) {
+    return visit((JStatement) ifStatement);
   }
 
-  public boolean visit(@Nonnull JInstanceOf x) {
-    return visit((JExpression) x);
+  public boolean visit(@Nonnull JInstanceOf instanceOf) {
+    return visit((JExpression) instanceOf);
   }
 
-  public boolean visit(@Nonnull JDefinedInterface x) {
-    return visit((JDefinedClassOrInterface) x);
+  public boolean visit(@Nonnull JDefinedInterface definedInterface) {
+    return visit((JDefinedClassOrInterface) definedInterface);
   }
 
-  public boolean visit(@Nonnull JIntLiteral x) {
-    return visit((JNumberValueLiteral) x);
+  public boolean visit(@Nonnull JIntLiteral intLiteral) {
+    return visit((JNumberValueLiteral) intLiteral);
   }
 
-  public boolean visit(@Nonnull JLabel x) {
-    return visit((JNode) x);
+  public boolean visit(@Nonnull JLabel label) {
+    return visit((JNode) label);
   }
 
-  public boolean visit(@Nonnull JLabeledStatement x) {
-    return visit((JStatement) x);
+  public boolean visit(@Nonnull JLabeledStatement labeledStatement) {
+    return visit((JStatement) labeledStatement);
   }
 
-  public boolean visit(@Nonnull JLambda x) {
-    return visit((JExpression) x);
+  public boolean visit(@Nonnull JLambda lambda) {
+    return visit((JExpression) lambda);
   }
 
-  public boolean visit(@Nonnull JLiteral x) {
-    return visit((JExpression) x);
+  public boolean visit(@Nonnull JLiteral literal) {
+    return visit((JExpression) literal);
   }
 
-  public boolean visit(@Nonnull JLocal x) {
-    return visit((JVariable) x);
+  public boolean visit(@Nonnull JLocal local) {
+    return visit((JVariable) local);
   }
 
-  public boolean visit(@Nonnull JLocalRef x) {
-    return visit((JVariableRef) x);
+  public boolean visit(@Nonnull JLocalRef localRef) {
+    return visit((JVariableRef) localRef);
   }
 
-  public boolean visit(@Nonnull JLock x) {
-    return visit((JStatement) x);
+  public boolean visit(@Nonnull JLock lock) {
+    return visit((JStatement) lock);
   }
 
-  public boolean visit(@Nonnull JLongLiteral x) {
-    return visit((JNumberValueLiteral) x);
+  public boolean visit(@Nonnull JLongLiteral longLiteral) {
+    return visit((JNumberValueLiteral) longLiteral);
   }
 
-  public boolean visit(@Nonnull JMethod x) {
-    return visit((JNode) x);
+  public boolean visit(@Nonnull JMethod method) {
+    return visit((JNode) method);
   }
 
-  public boolean visit(@Nonnull JMethodBody x) {
-    return visit((JAbstractMethodBody) x);
+  public boolean visit(@Nonnull JMethodBody methodBody) {
+    return visit((JAbstractMethodBody) methodBody);
   }
 
-  public boolean visit(@Nonnull JMethodCall x) {
-    return visit((JExpression) x);
+  public boolean visit(@Nonnull JMethodCall methodCall) {
+    return visit((JExpression) methodCall);
   }
 
-  public boolean visit(@Nonnull JMethodIdRef x) {
-    return visit((JNode) x);
+  public boolean visit(@Nonnull JMethodIdRef methodIdRef) {
+    return visit((JNode) methodIdRef);
   }
 
-  public boolean visit(@Nonnull JMethodLiteral x) {
-    return visit((JLiteral) x);
+  public boolean visit(@Nonnull JMethodLiteral methodLiteral) {
+    return visit((JLiteral) methodLiteral);
   }
 
-  public boolean visit(@Nonnull JMethodNameLiteral x) {
-    return visit((JAbstractStringLiteral) x);
+  public boolean visit(@Nonnull JMethodNameLiteral methodNameLiteral) {
+    return visit((JAbstractStringLiteral) methodNameLiteral);
   }
 
-  public boolean visit(@Nonnull JMultiExpression x) {
-    return visit((JExpression) x);
+  public boolean visit(@Nonnull JMultiExpression multiExpression) {
+    return visit((JExpression) multiExpression);
   }
 
-  public boolean visit(@Nonnull JNewArray x) {
-    return visit((JExpression) x);
+  public boolean visit(@Nonnull JNewArray newArray) {
+    return visit((JExpression) newArray);
   }
 
   public boolean visit(@Nonnull JNameValuePair nameValuePair) {
     return visit((JNode) nameValuePair);
   }
 
-  public boolean visit(@Nonnull JNewInstance x) {
-    return visit((JMethodCall) x);
+  public boolean visit(@Nonnull JNewInstance newInstance) {
+    return visit((JMethodCall) newInstance);
   }
 
   /**
@@ -761,160 +761,160 @@ public class JVisitor {
     return true;
   }
 
-  public boolean visit(@Nonnull JNullLiteral x) {
-    return visit((JValueLiteral) x);
+  public boolean visit(@Nonnull JNullLiteral nullLiteral) {
+    return visit((JValueLiteral) nullLiteral);
   }
 
-  public boolean visit(@Nonnull JNullType x) {
-    return visit((JReferenceType) x);
+  public boolean visit(@Nonnull JNullType nullType) {
+    return visit((JReferenceType) nullType);
   }
 
-  public boolean visit(@Nonnull JNumberValueLiteral x) {
-    return visit((JValueLiteral) x);
+  public boolean visit(@Nonnull JNumberValueLiteral numberValueLiteral) {
+    return visit((JValueLiteral) numberValueLiteral);
   }
 
-  public boolean visit(@Nonnull JPackage x) {
-    return visit((JNode) x);
+  public boolean visit(@Nonnull JPackage packageDeclaration) {
+    return visit((JNode) packageDeclaration);
   }
 
-  public boolean visit(@Nonnull JParameter x) {
-    return visit((JVariable) x);
+  public boolean visit(@Nonnull JParameter parameter) {
+    return visit((JVariable) parameter);
   }
 
-  public boolean visit(@Nonnull JParameterRef x) {
-    return visit((JVariableRef) x);
+  public boolean visit(@Nonnull JParameterRef parameterRef) {
+    return visit((JVariableRef) parameterRef);
   }
 
-  public boolean visit(@Nonnull JPhantomAnnotationType x) {
-    return visit((JPhantomInterface) x);
+  public boolean visit(@Nonnull JPhantomAnnotationType phantomAnnotationType) {
+    return visit((JPhantomInterface) phantomAnnotationType);
   }
 
-  public boolean visit(@Nonnull JPhantomClass x) {
-    return visit((JPhantomClassOrInterface) x);
+  public boolean visit(@Nonnull JPhantomClass phantomClass) {
+    return visit((JPhantomClassOrInterface) phantomClass);
   }
 
-  public boolean visit(@Nonnull JPhantomClassOrInterface x) {
-    return visit((JReferenceType) x);
+  public boolean visit(@Nonnull JPhantomClassOrInterface phantomClassOrInterface) {
+    return visit((JReferenceType) phantomClassOrInterface);
   }
 
-  public boolean visit(@Nonnull JPhantomInterface x) {
-    return visit((JPhantomClassOrInterface) x);
+  public boolean visit(@Nonnull JPhantomInterface phantomInterface) {
+    return visit((JPhantomClassOrInterface) phantomInterface);
   }
 
-  public boolean visit(@Nonnull JPostfixOperation x) {
-    return visit((JUnaryOperation) x);
+  public boolean visit(@Nonnull JPostfixOperation postfixOperation) {
+    return visit((JUnaryOperation) postfixOperation);
   }
 
-  public boolean visit(@Nonnull JPrefixOperation x) {
-    return visit((JUnaryOperation) x);
+  public boolean visit(@Nonnull JPrefixOperation prefixOperation) {
+    return visit((JUnaryOperation) prefixOperation);
   }
 
-  public boolean visit(@Nonnull JPrimitiveType x) {
-    return visit((JType) x);
+  public boolean visit(@Nonnull JPrimitiveType primitiveType) {
+    return visit((JType) primitiveType);
   }
 
-  public boolean visit(@Nonnull JSession x) {
-    return visit((JNode) x);
+  public boolean visit(@Nonnull JSession session) {
+    return visit((JNode) session);
   }
 
-  public boolean visit(@Nonnull JReferenceType x) {
-    return visit((JType) x);
+  public boolean visit(@Nonnull JReferenceType referenceType) {
+    return visit((JType) referenceType);
   }
 
-  public boolean visit(@Nonnull JReturnStatement x) {
-    return visit((JStatement) x);
+  public boolean visit(@Nonnull JReturnStatement returnStatement) {
+    return visit((JStatement) returnStatement);
   }
 
-  public boolean visit(@Nonnull JShortLiteral x) {
-    return visit((JNumberValueLiteral) x);
+  public boolean visit(@Nonnull JShortLiteral shortLiteral) {
+    return visit((JNumberValueLiteral) shortLiteral);
   }
 
-  public boolean visit(@Nonnull JStatement x) {
-    return visit((JNode) x);
+  public boolean visit(@Nonnull JStatement statement) {
+    return visit((JNode) statement);
   }
 
-  public boolean visit(@Nonnull JStringLiteral x) {
-    return visit((JAbstractStringLiteral) x);
+  public boolean visit(@Nonnull JStringLiteral stringLiteral) {
+    return visit((JAbstractStringLiteral) stringLiteral);
   }
 
-  public boolean visit(@Nonnull JSwitchStatement x) {
-    return visit((JStatement) x);
+  public boolean visit(@Nonnull JSwitchStatement switchStatement) {
+    return visit((JStatement) switchStatement);
   }
 
-  public boolean visit(@Nonnull JSynchronizedBlock x) {
-    return visit((JStatement) x);
+  public boolean visit(@Nonnull JSynchronizedBlock synchronizedBlock) {
+    return visit((JStatement) synchronizedBlock);
   }
 
-  public boolean visit(@Nonnull JThis x) {
-    return visit((JVariable) x);
+  public boolean visit(@Nonnull JThis thisKeyword) {
+    return visit((JVariable) thisKeyword);
   }
 
-  public boolean visit(@Nonnull JThisRef x) {
-    return visit((JVariableRef) x);
+  public boolean visit(@Nonnull JThisRef thisRef) {
+    return visit((JVariableRef) thisRef);
   }
 
-  public boolean visit(@Nonnull JThrowStatement x) {
-    return visit((JStatement) x);
+  public boolean visit(@Nonnull JThrowStatement throwStatement) {
+    return visit((JStatement) throwStatement);
   }
 
-  public boolean visit(@Nonnull JTryStatement x) {
-    return visit((JStatement) x);
+  public boolean visit(@Nonnull JTryStatement tryStatement) {
+    return visit((JStatement) tryStatement);
   }
 
-  public boolean visit(@Nonnull JType x) {
-    return visit((JNode) x);
+  public boolean visit(@Nonnull JType type) {
+    return visit((JNode) type);
   }
 
-  public boolean visit(@Nonnull JTypeStringLiteral x) {
-    return visit((JAbstractStringLiteral) x);
+  public boolean visit(@Nonnull JTypeStringLiteral typeStringLiteral) {
+    return visit((JAbstractStringLiteral) typeStringLiteral);
   }
 
-  public boolean visit(@Nonnull JUnaryOperation x) {
-    return visit((JExpression) x);
+  public boolean visit(@Nonnull JUnaryOperation unaryOperation) {
+    return visit((JExpression) unaryOperation);
   }
 
-  public boolean visit(@Nonnull JUnlock x) {
-    return visit((JStatement) x);
+  public boolean visit(@Nonnull JUnlock unlock) {
+    return visit((JStatement) unlock);
   }
 
-  public boolean visit(@Nonnull JValueLiteral x) {
-    return visit((JLiteral) x);
+  public boolean visit(@Nonnull JValueLiteral valueLiteral) {
+    return visit((JLiteral) valueLiteral);
   }
 
-  public boolean visit(@Nonnull JVariable x) {
-    return visit((JNode) x);
+  public boolean visit(@Nonnull JVariable variable) {
+    return visit((JNode) variable);
   }
 
-  public boolean visit(@Nonnull JVariableRef x) {
-    return visit((JExpression) x);
+  public boolean visit(@Nonnull JVariableRef variableRef) {
+    return visit((JExpression) variableRef);
   }
 
-  public boolean visit(@Nonnull JWhileStatement x) {
-    return visit((JStatement) x);
+  public boolean visit(@Nonnull JWhileStatement whileStatement) {
+    return visit((JStatement) whileStatement);
   }
 
   /*
    * Without context
    */
 
-  public void visit(@Nonnull JAbsentArrayDimension x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JLiteral) x, transformRequest);
+  public void visit(@Nonnull JAbsentArrayDimension absentArrayDimension,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JLiteral) absentArrayDimension, transformRequest);
   }
 
-  public void visit(@Nonnull JAbstractMethodBody x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JNode) x, transformRequest);
+  public void visit(@Nonnull JAbstractMethodBody abstractMethodBody,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JNode) abstractMethodBody, transformRequest);
   }
 
-  public void visit(@Nonnull JAbstractStringLiteral x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JValueLiteral) x, transformRequest);
+  public void visit(@Nonnull JAbstractStringLiteral abstractStringLiteral,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JValueLiteral) abstractStringLiteral, transformRequest);
   }
 
-  public void visit(@Nonnull JAlloc x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JAlloc alloc, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JExpression) x, transformRequest);
+    visit((JExpression) alloc, transformRequest);
   }
 
   public void visit(@Nonnull JAnnotation annotation, @Nonnull TransformRequest transformRequest)
@@ -922,9 +922,9 @@ public class JVisitor {
     visit((JExpression) annotation, transformRequest);
   }
 
-  public void visit(@Nonnull JArrayLength x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JArrayLength arrayLength, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JExpression) x, transformRequest);
+    visit((JExpression) arrayLength, transformRequest);
   }
 
   public void visit(@Nonnull JArrayLiteral arrayLiteral, @Nonnull TransformRequest transformRequest)
@@ -932,115 +932,115 @@ public class JVisitor {
     visit((JExpression) arrayLiteral, transformRequest);
   }
 
-  public void visit(@Nonnull JArrayRef x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JArrayRef arrayRef, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JExpression) x, transformRequest);
+    visit((JExpression) arrayRef, transformRequest);
   }
 
-  public void visit(@Nonnull JArrayType x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JArrayType arrayType, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JReferenceType) x, transformRequest);
+    visit((JReferenceType) arrayType, transformRequest);
   }
 
-  public void visit(@Nonnull JAssertStatement x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JStatement) x, transformRequest);
+  public void visit(@Nonnull JAssertStatement assertStatement,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JStatement) assertStatement, transformRequest);
   }
 
-  public void visit(@Nonnull JBinaryOperation x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JExpression) x, transformRequest);
+  public void visit(@Nonnull JBinaryOperation binaryOperation,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JExpression) binaryOperation, transformRequest);
   }
 
   public void visit(
-      @Nonnull JReinterpretCastOperation x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JExpression) x, transformRequest);
+      @Nonnull JReinterpretCastOperation reinterpretCastOperation,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JExpression) reinterpretCastOperation, transformRequest);
   }
 
-  public void visit(@Nonnull JBlock x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JBlock block, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JStatement) x, transformRequest);
+    visit((JStatement) block, transformRequest);
   }
 
-  public void visit(@Nonnull JBooleanLiteral x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JValueLiteral) x, transformRequest);
+  public void visit(@Nonnull JBooleanLiteral booleanLiteral,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JValueLiteral) booleanLiteral, transformRequest);
   }
 
-  public void visit(@Nonnull JBreakStatement x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JStatement) x, transformRequest);
+  public void visit(@Nonnull JBreakStatement breakStatement,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JStatement) breakStatement, transformRequest);
   }
 
-  public void visit(@Nonnull JCaseStatement x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JStatement) x, transformRequest);
+  public void visit(@Nonnull JCaseStatement caseStatement,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JStatement) caseStatement, transformRequest);
   }
 
-  public void visit(@Nonnull JCastOperation x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JExpression) x, transformRequest);
+  public void visit(@Nonnull JCastOperation castOperation,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JExpression) castOperation, transformRequest);
   }
 
-  public void visit(@Nonnull JDynamicCastOperation x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JCastOperation) x, transformRequest);
+  public void visit(@Nonnull JDynamicCastOperation dynamicCastOperation,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JCastOperation) dynamicCastOperation, transformRequest);
   }
 
-  public void visit(@Nonnull JCatchBlock x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JCatchBlock catchBlock, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JStatement) x, transformRequest);
+    visit((JStatement) catchBlock, transformRequest);
   }
 
-  public void visit(@Nonnull JCharLiteral x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JCharLiteral charLiteral, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JNumberValueLiteral) x, transformRequest);
+    visit((JNumberValueLiteral) charLiteral, transformRequest);
   }
 
-  public void visit(@Nonnull JClassLiteral x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JClassLiteral classLiteral, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JLiteral) x, transformRequest);
+    visit((JLiteral) classLiteral, transformRequest);
   }
 
-  public void visit(@Nonnull JCompositeStringLiteral x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JAbstractStringLiteral) x, transformRequest);
+  public void visit(@Nonnull JCompositeStringLiteral compositeStringLiteral,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JAbstractStringLiteral) compositeStringLiteral, transformRequest);
   }
 
-  public void visit(@Nonnull JDefinedClass x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JDefinedClass definedClass, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JDefinedClassOrInterface) x, transformRequest);
+    visit((JDefinedClassOrInterface) definedClass, transformRequest);
   }
 
-  public void visit(@Nonnull JConditionalExpression x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JExpression) x, transformRequest);
+  public void visit(@Nonnull JConditionalExpression conditionalExpression,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JExpression) conditionalExpression, transformRequest);
   }
 
-  public void visit(@Nonnull JConstructor x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JConstructor constructor, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JMethod) x, transformRequest);
+    visit((JMethod) constructor, transformRequest);
   }
 
-  public void visit(@Nonnull JContinueStatement x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JStatement) x, transformRequest);
+  public void visit(@Nonnull JContinueStatement continueStatement,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JStatement) continueStatement, transformRequest);
   }
 
-  public void visit(@Nonnull JDefinedClassOrInterface x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JReferenceType) x, transformRequest);
+  public void visit(@Nonnull JDefinedClassOrInterface definedClassOrInterface,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JReferenceType) definedClassOrInterface, transformRequest);
   }
 
-  public void visit(@Nonnull JDoStatement x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JDoStatement doStatement, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JStatement) x, transformRequest);
+    visit((JStatement) doStatement, transformRequest);
   }
 
-  public void visit(@Nonnull JDoubleLiteral x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JNumberValueLiteral) x, transformRequest);
+  public void visit(@Nonnull JDoubleLiteral doubleLiteral,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JNumberValueLiteral) doubleLiteral, transformRequest);
   }
 
   public void visit(@Nonnull JEnumLiteral enumLiteral, @Nonnull TransformRequest transformRequest)
@@ -1049,152 +1049,154 @@ public class JVisitor {
   }
 
 
-  public void visit(@Nonnull JExceptionRuntimeValue x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JExpression) x, transformRequest);
-  }
-
-  public void visit(@Nonnull JExpression x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JNode) x, transformRequest);
-  }
-
-  public void visit(@Nonnull JExpressionStatement x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JStatement) x, transformRequest);
-  }
-
-  public void visit(@Nonnull JField x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JNode) x, transformRequest);
-  }
-
-  public void visit(@Nonnull JFieldInitializer x,
+  public void visit(@Nonnull JExceptionRuntimeValue exceptionRuntimeValue,
       @Nonnull TransformRequest transformRequest) throws Exception {
-    visit((JStatement) x, transformRequest);
+    visit((JExpression) exceptionRuntimeValue, transformRequest);
   }
 
-  public void visit(@Nonnull JFieldNameLiteral x,
+  public void visit(@Nonnull JExpression expression, @Nonnull TransformRequest transformRequest)
+      throws Exception {
+    visit((JNode) expression, transformRequest);
+  }
+
+  public void visit(@Nonnull JExpressionStatement expressionStatement,
       @Nonnull TransformRequest transformRequest) throws Exception {
-    visit((JAbstractStringLiteral) x, transformRequest);
+    visit((JStatement) expressionStatement, transformRequest);
   }
 
-  public void visit(@Nonnull JFieldRef x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JField field, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JExpression) x, transformRequest);
+    visit((JNode) field, transformRequest);
   }
 
-  public void visit(@Nonnull JFloatLiteral x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JFieldInitializer fieldInitializer,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JStatement) fieldInitializer, transformRequest);
+  }
+
+  public void visit(@Nonnull JFieldNameLiteral fieldNameLiteral,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JAbstractStringLiteral) fieldNameLiteral, transformRequest);
+  }
+
+  public void visit(@Nonnull JFieldRef fieldRef, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JNumberValueLiteral) x, transformRequest);
+    visit((JExpression) fieldRef, transformRequest);
   }
 
-  public void visit(@Nonnull JForStatement x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JFloatLiteral floatLiteral, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JStatement) x, transformRequest);
+    visit((JNumberValueLiteral) floatLiteral, transformRequest);
   }
 
-  public void visit(@Nonnull JGoto x, @Nonnull TransformRequest transformRequest) throws Exception {
-    visit((JStatement) x, transformRequest);
-  }
-
-  public void visit(@Nonnull JIfStatement x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JForStatement forStatement, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JStatement) x, transformRequest);
+    visit((JStatement) forStatement, transformRequest);
   }
 
-  public void visit(@Nonnull JInstanceOf x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JGoto gotoStatement, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JExpression) x, transformRequest);
+    visit((JStatement) gotoStatement, transformRequest);
   }
 
-  public void visit(@Nonnull JDefinedInterface x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JIfStatement ifStatement, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JDefinedClassOrInterface) x, transformRequest);
+    visit((JStatement) ifStatement, transformRequest);
   }
 
-  public void visit(@Nonnull JIntLiteral x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JInstanceOf instanceOf, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JNumberValueLiteral) x, transformRequest);
+    visit((JExpression) instanceOf, transformRequest);
   }
 
-  public void visit(@Nonnull JLabel x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JDefinedInterface definedInterface,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JDefinedClassOrInterface) definedInterface, transformRequest);
+  }
+
+  public void visit(@Nonnull JIntLiteral intLiteral, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JNode) x, transformRequest);
+    visit((JNumberValueLiteral) intLiteral, transformRequest);
   }
 
-  public void visit(@Nonnull JLabeledStatement x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JLabel label, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JStatement) x, transformRequest);
+    visit((JNode) label, transformRequest);
   }
 
-  public void visit(@Nonnull JLambda x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JLabeledStatement labeledStatement,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JStatement) labeledStatement, transformRequest);
+  }
+
+  public void visit(@Nonnull JLambda lambda, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JExpression) x, transformRequest);
+    visit((JExpression) lambda, transformRequest);
   }
 
-  public void visit(@Nonnull JLiteral x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JLiteral literal, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JExpression) x, transformRequest);
+    visit((JExpression) literal, transformRequest);
   }
 
-  public void visit(@Nonnull JLocal x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JLocal local, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JVariable) x, transformRequest);
+    visit((JVariable) local, transformRequest);
   }
 
-  public void visit(@Nonnull JLocalRef x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JLocalRef localRef, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JVariableRef) x, transformRequest);
+    visit((JVariableRef) localRef, transformRequest);
   }
 
-  public void visit(@Nonnull JLock x, @Nonnull TransformRequest transformRequest) throws Exception {
-    visit((JStatement) x, transformRequest);
-  }
-
-  public void visit(@Nonnull JLongLiteral x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JLock lock, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JNumberValueLiteral) x, transformRequest);
+    visit((JStatement) lock, transformRequest);
   }
 
-  public void visit(@Nonnull JMethod x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JLongLiteral longLiteral, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JNode) x, transformRequest);
+    visit((JNumberValueLiteral) longLiteral, transformRequest);
   }
 
-  public void visit(@Nonnull JMethodBody x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JMethod method, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JAbstractMethodBody) x, transformRequest);
+    visit((JNode) method, transformRequest);
   }
 
-  public void visit(@Nonnull JMethodCall x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JMethodBody methodBody, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JExpression) x, transformRequest);
+    visit((JAbstractMethodBody) methodBody, transformRequest);
   }
 
-  public void visit(@Nonnull JMethodIdRef x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JMethodCall methodCall, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JNode) x, transformRequest);
+    visit((JExpression) methodCall, transformRequest);
   }
 
-  public void visit(@Nonnull JMethodLiteral x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JMethodIdRef methodIdRef, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JLiteral) x, transformRequest);
+    visit((JNode) methodIdRef, transformRequest);
   }
 
-  public void visit(@Nonnull JMethodNameLiteral x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JAbstractStringLiteral) x, transformRequest);
+  public void visit(@Nonnull JMethodLiteral methodLiteral,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JLiteral) methodLiteral, transformRequest);
   }
 
-  public void visit(@Nonnull JMultiExpression x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JExpression) x, transformRequest);
+  public void visit(@Nonnull JMethodNameLiteral methodNameLiteral,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JAbstractStringLiteral) methodNameLiteral, transformRequest);
   }
 
-  public void visit(@Nonnull JNewArray x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JMultiExpression multiExpression,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JExpression) multiExpression, transformRequest);
+  }
+
+  public void visit(@Nonnull JNewArray newArray, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JExpression) x, transformRequest);
+    visit((JExpression) newArray, transformRequest);
   }
 
   public void visit(
@@ -1203,9 +1205,9 @@ public class JVisitor {
     visit((JNode) nameValuePair, transformRequest);
   }
 
-  public void visit(@Nonnull JNewInstance x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JNewInstance newInstance, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JMethodCall) x, transformRequest);
+    visit((JMethodCall) newInstance, transformRequest);
   }
 
   /**
@@ -1216,154 +1218,155 @@ public class JVisitor {
   public void visit(@Nonnull JNode jnode, @Nonnull TransformRequest transformRequest)
       throws Exception {}
 
-  public void visit(@Nonnull JNullLiteral x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JNullLiteral nullLiteral, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JValueLiteral) x, transformRequest);
+    visit((JValueLiteral) nullLiteral, transformRequest);
   }
 
-  public void visit(@Nonnull JNullType x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JNullType nullType, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JReferenceType) x, transformRequest);
+    visit((JReferenceType) nullType, transformRequest);
   }
 
-  public void visit(@Nonnull JNumberValueLiteral x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JValueLiteral) x, transformRequest);
+  public void visit(@Nonnull JNumberValueLiteral numberValueLiteral,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JValueLiteral) numberValueLiteral, transformRequest);
   }
 
 
-  public void visit(@Nonnull JParameter x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JParameter parameter, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JVariable) x, transformRequest);
+    visit((JVariable) parameter, transformRequest);
   }
 
-  public void visit(@Nonnull JParameterRef x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JParameterRef parameterRef, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JVariableRef) x, transformRequest);
+    visit((JVariableRef) parameterRef, transformRequest);
   }
 
-  public void visit(@Nonnull JPhantomAnnotationType x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JPhantomInterface) x, transformRequest);
+  public void visit(@Nonnull JPhantomAnnotationType phantomAnnotationType,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JPhantomInterface) phantomAnnotationType, transformRequest);
   }
 
-  public void visit(@Nonnull JPhantomClass x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JPhantomClass phantomClass, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JPhantomClassOrInterface) x, transformRequest);
+    visit((JPhantomClassOrInterface) phantomClass, transformRequest);
   }
 
-  public void visit(@Nonnull JPhantomClassOrInterface x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JReferenceType) x, transformRequest);
+  public void visit(@Nonnull JPhantomClassOrInterface phantomClassOrInterface,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JReferenceType) phantomClassOrInterface, transformRequest);
   }
 
-  public void visit(@Nonnull JPhantomInterface x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JPhantomClassOrInterface) x, transformRequest);
+  public void visit(@Nonnull JPhantomInterface phantomInterface,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JPhantomClassOrInterface) phantomInterface, transformRequest);
   }
 
-  public void visit(@Nonnull JPostfixOperation x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JUnaryOperation) x, transformRequest);
+  public void visit(@Nonnull JPostfixOperation postfixOperation,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JUnaryOperation) postfixOperation, transformRequest);
   }
 
-  public void visit(@Nonnull JPrefixOperation x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JUnaryOperation) x, transformRequest);
+  public void visit(@Nonnull JPrefixOperation prefixOperation,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JUnaryOperation) prefixOperation, transformRequest);
   }
 
-  public void visit(@Nonnull JPrimitiveType x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JType) x, transformRequest);
+  public void visit(@Nonnull JPrimitiveType primitiveType,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JType) primitiveType, transformRequest);
   }
 
-  public void visit(@Nonnull JSession x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JSession session, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JNode) x, transformRequest);
+    visit((JNode) session, transformRequest);
   }
 
-  public void visit(@Nonnull JReferenceType x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JType) x, transformRequest);
+  public void visit(@Nonnull JReferenceType referenceType,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JType) referenceType, transformRequest);
   }
 
-  public void visit(@Nonnull JReturnStatement x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JStatement) x, transformRequest);
+  public void visit(@Nonnull JReturnStatement returnStatement,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JStatement) returnStatement, transformRequest);
   }
 
-  public void visit(@Nonnull JStatement x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JStatement statement, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JNode) x, transformRequest);
+    visit((JNode) statement, transformRequest);
   }
 
-  public void visit(@Nonnull JStringLiteral x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JAbstractStringLiteral) x, transformRequest);
+  public void visit(@Nonnull JStringLiteral stringLiteral,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JAbstractStringLiteral) stringLiteral, transformRequest);
   }
 
-  public void visit(@Nonnull JSwitchStatement x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JStatement) x, transformRequest);
+  public void visit(@Nonnull JSwitchStatement switchStatement,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JStatement) switchStatement, transformRequest);
   }
 
-  public void visit(@Nonnull JSynchronizedBlock x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JStatement) x, transformRequest);
+  public void visit(@Nonnull JSynchronizedBlock synchronizedBlock,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JStatement) synchronizedBlock, transformRequest);
   }
 
-  public void visit(@Nonnull JThisRef x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JThisRef thisRef, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JExpression) x, transformRequest);
+    visit((JExpression) thisRef, transformRequest);
   }
 
-  public void visit(@Nonnull JThrowStatement x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JStatement) x, transformRequest);
+  public void visit(@Nonnull JThrowStatement throwStatement,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JStatement) throwStatement, transformRequest);
   }
 
-  public void visit(@Nonnull JTryStatement x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JTryStatement tryStatement, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JStatement) x, transformRequest);
+    visit((JStatement) tryStatement, transformRequest);
   }
 
-  public void visit(@Nonnull JType x, @Nonnull TransformRequest transformRequest) throws Exception {
-    visit((JNode) x, transformRequest);
+  public void visit(@Nonnull JType type, @Nonnull TransformRequest transformRequest)
+      throws Exception {
+    visit((JNode) type, transformRequest);
   }
 
-  public void visit(@Nonnull JTypeStringLiteral x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JAbstractStringLiteral) x, transformRequest);
+  public void visit(@Nonnull JTypeStringLiteral typeStringLiteral,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JAbstractStringLiteral) typeStringLiteral, transformRequest);
   }
 
-  public void visit(@Nonnull JUnaryOperation x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JExpression) x, transformRequest);
+  public void visit(@Nonnull JUnaryOperation unaryOperation,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JExpression) unaryOperation, transformRequest);
   }
 
-  public void visit(@Nonnull JUnlock x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JUnlock unlock, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JStatement) x, transformRequest);
+    visit((JStatement) unlock, transformRequest);
   }
 
-  public void visit(@Nonnull JValueLiteral x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JValueLiteral valueLiteral, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JLiteral) x, transformRequest);
+    visit((JLiteral) valueLiteral, transformRequest);
   }
 
-  public void visit(@Nonnull JVariable x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JVariable variable, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JNode) x, transformRequest);
+    visit((JNode) variable, transformRequest);
   }
 
-  public void visit(@Nonnull JVariableRef x, @Nonnull TransformRequest transformRequest)
+  public void visit(@Nonnull JVariableRef variableRef, @Nonnull TransformRequest transformRequest)
       throws Exception {
-    visit((JExpression) x, transformRequest);
+    visit((JExpression) variableRef, transformRequest);
   }
 
-  public void visit(@Nonnull JWhileStatement x, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-    visit((JStatement) x, transformRequest);
+  public void visit(@Nonnull JWhileStatement whileStatement,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JStatement) whileStatement, transformRequest);
   }
 
 }
