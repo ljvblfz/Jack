@@ -25,14 +25,7 @@ import javax.annotation.Nonnull;
  */
 public abstract class RuntimeRunner {
 
-  @Nonnull
-  protected File rtEnvironmentRootDir;
-
   protected boolean isVerbose = false;
-
-  protected RuntimeRunner(@Nonnull File rtEnvironmentRootDir) {
-    this.rtEnvironmentRootDir = rtEnvironmentRootDir;
-  }
 
   public abstract int run(@Nonnull String[] options, @Nonnull String mainClasses,
       @Nonnull File... classpathFiles) throws RuntimeRunnerException;

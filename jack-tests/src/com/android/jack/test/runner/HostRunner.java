@@ -29,8 +29,11 @@ import javax.annotation.Nonnull;
  */
 public abstract class HostRunner extends AbstractRuntimeRunner {
 
+  @Nonnull
+  protected File rtEnvironmentRootDir;
+
   public HostRunner(@Nonnull File rtEnvironmentRootDir) {
-    super(rtEnvironmentRootDir);
+    this.rtEnvironmentRootDir = rtEnvironmentRootDir;
   }
 
   protected int runOnHost(@Nonnull List<String> commandLine, @Nonnull String rtEnvRootDirVarName)

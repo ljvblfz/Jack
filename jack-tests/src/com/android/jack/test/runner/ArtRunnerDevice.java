@@ -16,6 +16,8 @@
 
 package com.android.jack.test.runner;
 
+import com.google.common.base.Joiner;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,25 +45,21 @@ public class ArtRunnerDevice extends DeviceRunner {
 
   @Override
   @Nonnull
-  protected List<String> buildCommandLine(@Nonnull String[] options, @Nonnull String[] mainClasses,
-      @Nonnull File... classpathFiles) {
+  protected List<String> buildCommandLine(
+      @Nonnull File rootDir,
+      @Nonnull String[] options,
+      @Nonnull String[] mainClasses,
+      @Nonnull String... classpathFiles) {
     List<String> commandLine = new ArrayList<String>();
 
-    commandLine.add(rtEnvironmentRootDir.getAbsolutePath() + "/bin/dalvikvm");
+    commandLine.add(convertToTargetPath(new File(rootDir, "/bin/dalvikvm")));
 
     for (String option : options) {
       commandLine.add(option);
     }
 
     commandLine.add("-classpath");
-    StringBuffer sb = new StringBuffer();
-    for (int i = 0; i < classpathFiles.length; i++) {
-      if (i > 0) {
-        sb.append(File.pathSeparatorChar);
-      }
-      sb.append(classpathFiles[i].getAbsolutePath());
-    }
-    commandLine.add(sb.toString());
+    commandLine.add(Joiner.on(PATH_SEPARATOR_CHAR).join(classpathFiles));
 
     for (String className : mainClasses) {
       commandLine.add(className);
