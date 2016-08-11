@@ -54,6 +54,8 @@ import com.android.jack.ir.sourceinfo.SourceInfoFactory;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.ast.RefAsStatement;
 import com.android.jack.transformations.ast.switches.UselessSwitches;
+import com.android.jack.transformations.request.Remove;
+import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.jack.util.ControlFlowHelper;
 import com.android.sched.item.Description;
@@ -116,6 +118,11 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
       CounterImpl.class, Counter.class);
 
   @Nonnull
+  public static final StatisticId<Counter> REMOVED_STATEMENT = new StatisticId<Counter>(
+      "jack.cfg.removed-statements", "Statements removed from the IR",
+      CounterImpl.class, Counter.class);
+
+  @Nonnull
   private final com.android.jack.util.filter.Filter<JMethod> filter =
       ThreadConfig.get(Options.METHOD_FILTER);
 
@@ -146,7 +153,7 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
   class BuilderVisitor extends JVisitor {
 
     @Nonnegative
-    private int basicBlockId;
+    private int basicBlockId = 0;
 
     @Nonnull
     private final EntryBlock entryBlock;
@@ -434,7 +441,7 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
     public ControlFlowGraph getCfg() {
       try (Event optEvent = tracer.open(JackEventType.REMOVE_DEAD_CODE)) {
         tracer.getStatistic(CREATED_BASIC_BLOCK).incValue(blocks.size() + /*exitBlock*/ 1);
-        removeUnaccessibleNode(blocks, entryBlock, exitBlock, basicBlockId);
+        removeUnaccessibleNode(blocks, entryBlock, exitBlock, basicBlockId, method);
       }
       return new ControlFlowGraph(method, basicBlockId, entryBlock, exitBlock, blocks);
     }
@@ -512,8 +519,8 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
   }
 
   private void removeUnaccessibleNode(@Nonnull ArrayList<BasicBlock> nodes,
-      @Nonnull BasicBlock entryNode, @Nonnull BasicBlock exitNode,
-      @Nonnegative int maxBasicBlockId) {
+      @Nonnull BasicBlock entryNode, @Nonnull BasicBlock exitNode, @Nonnegative int maxBasicBlockId,
+      @Nonnull JMethod method) {
 
     if (nodes.isEmpty()) {
       return;
@@ -527,6 +534,11 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
 
     int accessibleNodesCount = 0;
 
+    // List of block that are reachable but which does not contains statement, these basic blocks
+    // represent virtual statements such as label, block that are needed during the built of the
+    // CFG.
+    List<BasicBlock> basicBlockOfVirtualStmt = new ArrayList<>();
+
     // Do not use recursion to compute accessible node to avoid stack overflow on very big method.
     while (!workingList.isEmpty()) {
       BasicBlock currentBb = workingList.remove(0);
@@ -535,6 +547,7 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
         assert currentBb instanceof NormalBasicBlock;
         BasicBlock newBlock = ((NormalBasicBlock) currentBb).getTarget();
         currentBb.replaceBy(newBlock);
+        basicBlockOfVirtualStmt.add(currentBb);
       } else {
         state[currentBb.getId()] = 2;
         ++accessibleNodesCount;
@@ -564,5 +577,75 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
     nodes.clear();
     nodes.addAll(accessibleBlocks);
     nodes.trimToSize();
+
+    // Dead code is remove from CFG, but remove it also from Jack IR
+    TransformationRequest tr = new TransformationRequest(method);
+    new DeadCodeRemover(state, tr, exitNode, basicBlockOfVirtualStmt).accept(method);
+    tr.commit();
+  }
+
+
+  class DeadCodeRemover extends JVisitor {
+    @Nonnull
+    private final byte[] blockState;
+
+    @Nonnull
+    private final BasicBlock exiBlock;
+
+    @Nonnull
+    private final TransformationRequest tr;
+
+    @Nonnull
+    private final List<BasicBlock> basicBlockOfVirtualStmt;
+
+    public DeadCodeRemover(@Nonnull byte[] blockState, @Nonnull TransformationRequest tr,
+        @Nonnull BasicBlock exiBlock, @Nonnull List<BasicBlock> basicBlockOfVirtualStmt) {
+      this.blockState = blockState;
+      this.tr = tr;
+      this.exiBlock = exiBlock;
+      this.basicBlockOfVirtualStmt = basicBlockOfVirtualStmt;
+    }
+
+    @Override
+    public boolean visit(@Nonnull JStatement stmt) {
+      boolean deadStatement = isDeadStatement(stmt);
+      if (deadStatement) {
+        assert !(stmt instanceof JBlock) || !(stmt.getParent() instanceof JIfStatement
+            || stmt.getParent() instanceof JLabeledStatement
+            || stmt.getParent() instanceof JSwitchStatement);
+        // statement is dead remove it
+        tracer.getStatistic(REMOVED_STATEMENT).incValue();
+        tr.append(new Remove(stmt));
+      }
+
+      List<JCatchBlock> uselessCatchBlock = new ArrayList<>(0);
+      for (JCatchBlock catchBlock : stmt.getJCatchBlocks()) {
+        BasicBlockMarker bbmOfCatch = catchBlock.getMarker(BasicBlockMarker.class);
+        assert bbmOfCatch != null;
+        if (blockState[bbmOfCatch.getBasicBlock().getId()] != 2) {
+          // Catch block is dead remove it from catch list of statement
+          uselessCatchBlock.add(catchBlock);
+        }
+      }
+      if (!uselessCatchBlock.isEmpty()) {
+        stmt.removeCatchBlocks(uselessCatchBlock);
+      }
+
+      return !deadStatement;
+    }
+
+    private boolean isDeadStatement(@Nonnull JStatement stmt) {
+      BasicBlockMarker bbm = stmt.getMarker(BasicBlockMarker.class);
+      assert bbm != null;
+      BasicBlock basicBlock = bbm.getBasicBlock();
+      // Exit block can not be removed. Statement associated with a basic block representing a
+      // virtual statement can not be removed otherwise the Jack IR will become invalid.
+      // For instance, it can be a label at the end of a 'then' statement of a 'if' that finish also
+      // a method body, in this case the CFG will branch directly to the exit node rather than to a
+      // basic block that will branch in its turn to the exit block. Nevertheless the statement must
+      // not be remove from the IR since it is used as a target of a 'goto' statement for instance.
+      return basicBlock != exiBlock && blockState[basicBlock.getId()] != 2
+          && !basicBlockOfVirtualStmt.contains(basicBlock);
+    }
   }
 }

@@ -15,6 +15,7 @@
  */
 package com.android.jack.ir.ast;
 
+import com.android.jack.Jack;
 import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Description;
@@ -65,12 +66,20 @@ public abstract class JStatement extends JNode {
   }
 
   /**
+   * Remove catch blocks for the statement.
+   * @param catchBlock Catch blocks to remove.
+   */
+  public void removeCatchBlocks(@Nonnull List<JCatchBlock> catchBlocksToRemove) {
+    catchBlocks.removeAll(catchBlocksToRemove);
+  }
+
+  /**
    * Get all catch blocks related to this statement.
    * @return Catch list.
    */
   @Nonnull
   public List<JCatchBlock> getJCatchBlocks() {
-    return catchBlocks;
+    return Jack.getUnmodifiableCollections().getUnmodifiableList(catchBlocks);
   }
 
   @Override
