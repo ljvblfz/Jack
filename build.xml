@@ -266,10 +266,29 @@
 
     <copy file="${jack-api.dist.dir}/${jack-api-src.name}" tofile="${jack-top-dist.dir}/${jack-api-src.name}" />
 
-    <jar destfile="${jack-top-dist.dir}/${jack.execname}" filesetmanifest="merge">
+    <jarjar jarfile="${jack-sign.tmp}/${jack.execname}" filesetmanifest="merge">
       <zipfileset src="${jack.dist.dir}/${jack.execname}"
       excludes="jack-version.properties"/>
+      <rule pattern="com.google.common.**" result="com.android.jack.google.common.@1"/>
+      <rule pattern="com.google.thirdparty.**" result="com.android.jack.google.thirdparty.@1"/>
+      <rule pattern="com.tonicsystems.**" result="com.android.jack.tonicsystems.@1"/>
+      <rule pattern="freemarker.**" result="com.android.jack.freemarker.@1"/>
+      <rule pattern="org.antlr.**" result="com.android.jack.antlr.@1"/>
+      <rule pattern="org.kohsuke.**" result="com.android.jack.kohsuke.@1"/>
+      <rule pattern="org.objectweb.**" result="com.android.jack.objectweb.@1"/>
+      <rule pattern="org.uncommons.**" result="com.android.jack.uncommons.@1"/>
+      <rule pattern="org.eclipse.**" result="com.android.jack.eclipse.@1"/>
+    </jarjar>
+    <mkdir dir="${jack-sign.tmp}/with-empty-directories" />
+    <mkdir dir="${jack-sign.tmp}/without-empty-directories" />
+    <unzip src="${jack-sign.tmp}/${jack.execname}" dest="${jack-sign.tmp}/with-empty-directories"/>
+    <copy includeemptydirs="false" todir="${jack-sign.tmp}/without-empty-directories">
+      <fileset dir="${jack-sign.tmp}/with-empty-directories" />
+    </copy>
+    <jar  destfile="${jack-top-dist.dir}/${jack.execname}" manifest="${jack.dir}/etc/manifest.txt">
+      <fileset dir="${jack-sign.tmp}/without-empty-directories"/>
     </jar>
+
     <copy file="${jack-sign.tmp}/version.properties" tofile="${jack-sign.tmp}/jack-version.properties"/>
     <jar destfile="${jack-top-dist.dir}/${jack.execname}" update="true"
       basedir="${jack-sign.tmp}"
@@ -600,28 +619,10 @@
     <unzip dest="${jack.exec.build.outdir}" src="${jack.intermediate.dist.dir}/${jack.intermediatename}"/>
     <mkdir dir="${jack.exec.build.outdir}/jack-default-lib"/>
     <unzip src="${jack-default-lib.build.jack}" dest="${jack.exec.build.outdir}/jack-default-lib"/>
-    <jarjar  destfile="${jack.exec.build.dir}/${jack.execname}"
+    <jar destfile="${jack.dist.dir}/${jack.execname}"
       manifest="${jack.dir}/etc/manifest.txt"
       basedir="${jack.exec.build.outdir}"
       includes="**">
-      <rule pattern="com.google.common.**" result="com.android.jack.google.common.@1"/>
-      <rule pattern="com.google.thirdparty.**" result="com.android.jack.google.thirdparty.@1"/>
-      <rule pattern="com.tonicsystems.**" result="com.android.jack.tonicsystems.@1"/>
-      <rule pattern="freemarker.**" result="com.android.jack.freemarker.@1"/>
-      <rule pattern="org.antlr.**" result="com.android.jack.antlr.@1"/>
-      <rule pattern="org.kohsuke.**" result="com.android.jack.kohsuke.@1"/>
-      <rule pattern="org.objectweb.**" result="com.android.jack.objectweb.@1"/>
-      <rule pattern="org.uncommons.**" result="com.android.jack.uncommons.@1"/>
-      <rule pattern="org.eclipse.**" result="com.android.jack.eclipse.@1"/>
-    </jarjar>
-    <mkdir dir="${jack.exec.build.dir}/with-empty-directories" />
-    <mkdir dir="${jack.exec.build.dir}/without-empty-directories" />
-    <unzip src="${jack.exec.build.dir}/${jack.execname}" dest="${jack.exec.build.dir}/with-empty-directories"/>
-    <copy includeemptydirs="false" todir="${jack.exec.build.dir}/without-empty-directories">
-      <fileset dir="${jack.exec.build.dir}/with-empty-directories" />
-    </copy>
-    <jar  destfile="${jack.dist.dir}/${jack.execname}" manifest="${jack.dir}/etc/manifest.txt">
-      <fileset dir="${jack.exec.build.dir}/without-empty-directories"/>
     </jar>
   </target>
 
