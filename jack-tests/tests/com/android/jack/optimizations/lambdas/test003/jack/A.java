@@ -14,29 +14,38 @@
  * limitations under the License.
  */
 
-package com.android.jack.test.dex;
+package com.android.jack.optimizations.lambdas.test003.jack;
 
-import com.android.dx.rop.code.AccessFlags;
+interface I0<T> {
+  T foo();
+}
 
-import org.jf.dexlib.ClassDataItem;
+interface I1<T> {
+  Object foo();
+}
 
-import javax.annotation.Nonnull;
+interface I2 {
+  <T> T foo();
+}
 
-/** Represents DEX field */
-public class DexField {
-  @Nonnull
-  private final ClassDataItem.EncodedField item;
+interface I3<T> extends I2 {
+  T foo();
+}
 
-  public DexField(@Nonnull ClassDataItem.EncodedField item) {
-    this.item = item;
+public class A {
+  <T> T s0(I0<T> i) {
+    return i.foo();
   }
 
-  public boolean isFinal() {
-    return ((item.accessFlags & AccessFlags.ACC_FINAL) != 0);
+  String s1(I1<String> i) {
+    return (String) i.foo();
   }
 
-  @Nonnull
-  public String getId() {
-    return item.field.getShortFieldString();
+  <T> T s2(I3<T> i) {
+    return i.foo();
+  }
+
+  public String testGenerics() throws Throwable {
+    return s0(() -> "{i0}") + s1(() -> "{i1}") + s2(() -> "{i3}");
   }
 }

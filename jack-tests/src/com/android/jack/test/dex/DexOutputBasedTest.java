@@ -74,6 +74,11 @@ public abstract class DexOutputBasedTest {
     public CompilationProperties excludeJillToolchain() {
       return new CompilationProperties(properties, false);
     }
+
+    @Nonnull
+    public CompilationProperties enableJava8() {
+      return with("jack.java.source.version", "1.8");
+    }
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

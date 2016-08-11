@@ -956,6 +956,12 @@
       <exclude name="com/android/jack/frontend/test007/**"/>
       <exclude name="com/android/jack/jill/test001/**"/>
       <exclude name="com/android/jack/jill/test002/**"/>
+      <exclude name="com/android/jack/optimizations/lambdas/test001/**"/>
+      <exclude name="com/android/jack/optimizations/lambdas/test002/**"/>
+      <exclude name="com/android/jack/optimizations/lambdas/test003/**"/>
+      <exclude name="com/android/jack/optimizations/lambdas/test004/**"/>
+      <exclude name="com/android/jack/optimizations/lambdas/test005/**"/>
+      <exclude name="com/android/jack/optimizations/lambdas/test006/**"/>
       <exclude name="com/android/jack/sourcepath/test002/jack/Sourcepath002.java"/>
       <exclude name="com/android/jack/shrob/test062/jack/**"/>
       <classpath>
@@ -1774,7 +1780,7 @@
         <fileset dir="${watchmaker.build.outdir}"/>
       </targets>
     </dependset>
-    <javac encoding="UTF-8" 
+    <javac encoding="UTF-8"
       srcdir="${watchmaker.dir}/framework/src/java/main"
       destdir="${watchmaker.build.outdir}"
       source="1.6" target="1.6"

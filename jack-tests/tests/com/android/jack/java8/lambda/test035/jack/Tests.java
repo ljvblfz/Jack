@@ -193,9 +193,9 @@ public class Tests {
     Assert.assertFalse(lambdaClass.isLocalClass());
     Assert.assertNull(lambdaClass.getEnclosingMethod());
     Assert.assertNull(lambdaClass.getEnclosingConstructor());
-    Assert.assertNotNull(lambdaClass.getDeclaringClass());
-    Assert.assertNotNull(lambdaClass.getEnclosingClass());
-    Assert.assertTrue(lambdaClass.isMemberClass());
+    Assert.assertNull(lambdaClass.getDeclaringClass());
+    Assert.assertNull(lambdaClass.getEnclosingClass());
+    Assert.assertFalse(lambdaClass.isMemberClass());
     Assert.assertEquals(1, lambdaClass.getConstructors().length);
 
     Assert.assertNotNull(lambdaClass.getSimpleName());
@@ -208,7 +208,7 @@ public class Tests {
     Assert.assertNull(lambdaClass.getComponentType());
     Assert.assertTrue((Modifier.isFinal(lambdaClass.getModifiers())));
     // Unexpected modifiers
-    int unexpectedModifiers = Modifier.PRIVATE | Modifier.PUBLIC | Modifier.PROTECTED
+    int unexpectedModifiers = Modifier.PRIVATE | Modifier.PROTECTED
         | Modifier.STATIC | Modifier.SYNCHRONIZED | Modifier.VOLATILE | Modifier.TRANSIENT
         | Modifier.NATIVE | Modifier.INTERFACE | Modifier.ABSTRACT | Modifier.STRICT;
     Assert.assertTrue((unexpectedModifiers & lambdaClass.getModifiers()) == 0);

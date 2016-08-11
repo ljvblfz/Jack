@@ -14,29 +14,19 @@
  * limitations under the License.
  */
 
-package com.android.jack.test.dex;
+package com.android.jack.optimizations.lambdas.test005.dx;
 
-import com.android.dx.rop.code.AccessFlags;
+import com.android.jack.optimizations.lambdas.test005.jack.*;
 
-import org.jf.dexlib.ClassDataItem;
+import junit.framework.Assert;
+import org.junit.Test;
 
-import javax.annotation.Nonnull;
-
-/** Represents DEX field */
-public class DexField {
-  @Nonnull
-  private final ClassDataItem.EncodedField item;
-
-  public DexField(@Nonnull ClassDataItem.EncodedField item) {
-    this.item = item;
-  }
-
-  public boolean isFinal() {
-    return ((item.accessFlags & AccessFlags.ACC_FINAL) != 0);
-  }
-
-  @Nonnull
-  public String getId() {
-    return item.field.getShortFieldString();
+/** Just touch all the classes */
+public class Tests {
+  @Test
+  public void test001() throws Throwable {
+    A a = new A();
+    Assert.assertEquals(
+      "{m1}{m1}{m1}{m3}{m3}{m3}{m4}{m4}{m5}{m5}", a.test(a));
   }
 }

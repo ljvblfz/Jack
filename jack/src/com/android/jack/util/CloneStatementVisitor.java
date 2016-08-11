@@ -114,6 +114,11 @@ public class CloneStatementVisitor extends CloneExpressionVisitor {
     this.targetMethod = targetMethod;
   }
 
+  @Nonnull
+  public JMethod getTargetMethod() {
+    return targetMethod;
+  }
+
   public  List<Marker> getClonedMarkers() {
     return clonedMarkers;
   }

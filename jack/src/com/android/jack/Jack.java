@@ -288,7 +288,10 @@ import com.android.jack.transformations.exceptions.TryCatchRemover;
 import com.android.jack.transformations.finallyblock.FinallyRemover;
 import com.android.jack.transformations.flow.FlowNormalizer;
 import com.android.jack.transformations.lambda.DefaultBridgeInLambdaAdder;
+import com.android.jack.transformations.lambda.LambdaCollector;
 import com.android.jack.transformations.lambda.LambdaConverter;
+import com.android.jack.transformations.lambda.LambdaGroupClassCreator;
+import com.android.jack.transformations.lambda.LambdaGroupClassFinalizer;
 import com.android.jack.transformations.lambda.LambdaToAnonymousConverter;
 import com.android.jack.transformations.parent.AstChecker;
 import com.android.jack.transformations.parent.TypeAstChecker;
@@ -1422,10 +1425,27 @@ public abstract class Jack {
     }
 
     if (features.contains(LambdaToAnonymousConverter.class)) {
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-      SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
-      methodPlan.append(LambdaConverter.class);
+      // Collect and group lambdas
+      planBuilder
+          .appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
+          .appendSubPlan(JMethodAdapter.class)
+          .append(LambdaCollector.class);
+
+      // NOTE: wait until all lambdas are collected
+
+      // Create classes and fill in their content
+      planBuilder.append(LambdaGroupClassCreator.class);
+      planBuilder
+          .appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
+          .append(LambdaGroupClassFinalizer.class);
+
+      // NOTE: wait until all lambdas classes are created
+
+      // Replace all references to lambdas
+      planBuilder
+          .appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
+          .appendSubPlan(JMethodAdapter.class)
+          .append(LambdaConverter.class);
     }
 
     {

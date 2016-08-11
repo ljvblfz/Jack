@@ -49,6 +49,7 @@ import com.android.jack.shrob.obfuscation.annotation.AnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.ParameterAnnotationRemover;
 import com.android.jack.shrob.seed.SeedPrinter;
 import com.android.jack.shrob.spec.Flags;
+import com.android.jack.transformations.lambda.LambdaGroupingScope;
 import com.android.jack.transformations.renamepackage.PackageRenamer;
 import com.android.jack.util.ClassNameCodec;
 import com.android.jack.util.args4j.JackEnumOptionHandler;
@@ -226,6 +227,38 @@ public class Options {
       .create("jack.lambda.anonymous", "Enable lambda support with an anonymous class")
       .addDefaultValue(Boolean.TRUE)
       .addCategory(DumpInLibrary.class);
+
+  @Nonnull
+  public static final EnumPropertyId<LambdaGroupingScope> LAMBDA_GROUPING_SCOPE = EnumPropertyId
+      .create(
+          "jack.lambda.grouping-scope", "Defines the scope for lambda grouping",
+          LambdaGroupingScope.class, LambdaGroupingScope.values())
+      .ignoreCase()
+      .addDefaultValue(LambdaGroupingScope.NONE)
+      .requiredIf(LAMBDA_TO_ANONYMOUS_CONVERTER.getValue().isTrue())
+      .addCategory(DumpInLibrary.class)
+      .addCategory(PrebuiltCompatibility.class)
+      .addCategory(Private.class);
+
+  @Nonnull
+  public static final BooleanPropertyId LAMBDA_MERGE_INTERFACES = BooleanPropertyId
+      .create("jack.lambda.merge-interfaces",
+          "Allows merging functional interfaces")
+      .addDefaultValue(Boolean.FALSE)
+      .requiredIf(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getValue().isTrue())
+      .addCategory(DumpInLibrary.class)
+      .addCategory(PrebuiltCompatibility.class)
+      .addCategory(Private.class);
+
+  @Nonnull
+  public static final BooleanPropertyId LAMBDA_SIMPLIFY_STATELESS = BooleanPropertyId
+      .create("jack.lambda.simplify-stateless",
+          "Simplifies stateless lambda to use single-instance implementation")
+      .addDefaultValue(Boolean.FALSE)
+      .requiredIf(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getValue().isTrue())
+      .addCategory(DumpInLibrary.class)
+      .addCategory(PrebuiltCompatibility.class)
+      .addCategory(Private.class);
 
   @Nonnull
   public static final BooleanPropertyId GENERATE_JACK_LIBRARY = BooleanPropertyId.create(

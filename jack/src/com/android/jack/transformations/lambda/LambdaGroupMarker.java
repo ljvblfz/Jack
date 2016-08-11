@@ -14,29 +14,34 @@
  * limitations under the License.
  */
 
-package com.android.jack.test.dex;
+package com.android.jack.transformations.lambda;
 
-import com.android.dx.rop.code.AccessFlags;
-
-import org.jf.dexlib.ClassDataItem;
+import com.android.jack.ir.ast.JDefinedClass;
+import com.android.sched.item.Description;
+import com.android.sched.marker.Marker;
+import com.android.sched.marker.ValidOn;
 
 import javax.annotation.Nonnull;
 
-/** Represents DEX field */
-public class DexField {
+/** Represent a lambda group information on lambda classes */
+@Description("Represent a lambda group information on lambda classes")
+@ValidOn(JDefinedClass.class)
+final class LambdaGroupMarker implements Marker {
   @Nonnull
-  private final ClassDataItem.EncodedField item;
+  private final LambdaGroup group;
 
-  public DexField(@Nonnull ClassDataItem.EncodedField item) {
-    this.item = item;
-  }
-
-  public boolean isFinal() {
-    return ((item.accessFlags & AccessFlags.ACC_FINAL) != 0);
+  LambdaGroupMarker(@Nonnull LambdaGroup group) {
+    this.group = group;
   }
 
   @Nonnull
-  public String getId() {
-    return item.field.getShortFieldString();
+  LambdaGroup getGroup() {
+    return group;
+  }
+
+  @Override
+  @Nonnull
+  public Marker cloneIfNeeded() {
+    throw new AssertionError();
   }
 }

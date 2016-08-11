@@ -14,29 +14,30 @@
  * limitations under the License.
  */
 
-package com.android.jack.test.dex;
+package com.android.jack.transformations.lambda;
 
-import com.android.dx.rop.code.AccessFlags;
-
-import org.jf.dexlib.ClassDataItem;
+import com.android.sched.util.HasDescription;
+import com.android.sched.util.codec.VariableName;
 
 import javax.annotation.Nonnull;
 
-/** Represents DEX field */
-public class DexField {
-  @Nonnull
-  private final ClassDataItem.EncodedField item;
-
-  public DexField(@Nonnull ClassDataItem.EncodedField item) {
-    this.item = item;
-  }
-
-  public boolean isFinal() {
-    return ((item.accessFlags & AccessFlags.ACC_FINAL) != 0);
-  }
+/** Defines how to group lambdas into lambda classes */
+@VariableName("scope")
+public enum LambdaGroupingScope implements HasDescription {
+  NONE("one lambda class for each lambda"),
+  TYPE("one lambda class for all lambdas inside a top-level type"),
+  PACKAGE("one lambda class for all lambdas inside a package");
 
   @Nonnull
-  public String getId() {
-    return item.field.getShortFieldString();
+  private final String description;
+
+  LambdaGroupingScope(@Nonnull String description) {
+    this.description = description;
+  }
+
+  @Override
+  @Nonnull
+  public String getDescription() {
+    return description;
   }
 }

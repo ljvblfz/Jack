@@ -16,11 +16,14 @@
 
 package com.android.jack.test.dex;
 
+import com.google.common.collect.Lists;
+
 import com.android.dx.rop.code.AccessFlags;
 
 import org.jf.dexlib.ClassDataItem;
 import org.jf.dexlib.ClassDefItem;
 import org.jf.dexlib.TypeIdItem;
+import org.jf.dexlib.TypeListItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,9 +35,11 @@ public class DexType {
   @Nonnull
   private final ClassDefItem item;
   @Nonnull
-  private final List<DexMethod> methods = new ArrayList<DexMethod>();
+  private final List<DexMethod> methods = new ArrayList<>();
   @Nonnull
-  private final List<DexField> fields = new ArrayList<DexField>();
+  private final List<DexField> fields = new ArrayList<>();
+  @Nonnull
+  private final List<String> interfaceNames = new ArrayList<>();
 
   public DexType(@Nonnull ClassDefItem item) {
     this.item = item;
@@ -45,6 +50,12 @@ public class DexType {
       addMethods(classData.getDirectMethods());
       addFields(classData.getInstanceFields());
       addFields(classData.getStaticFields());
+
+      // Get implemented interfaces
+      TypeListItem interfaces = item.getInterfaces();
+      if (interfaces != null) {
+        interfaceNames.addAll(Lists.newArrayList(interfaces.getTypeListString(":").split(":")));
+      }
     }
   }
 
@@ -58,6 +69,11 @@ public class DexType {
     for (ClassDataItem.EncodedField f : flds) {
       fields.add(new DexField(f));
     }
+  }
+
+  @Nonnull
+  public List<String> getInterfaceNames() {
+    return Collections.unmodifiableList(interfaceNames);
   }
 
   @Nonnull
