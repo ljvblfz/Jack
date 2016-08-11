@@ -468,7 +468,7 @@ public class SCCP {
             int vAb = ((CstLiteral32) cA).getIntBits();
             int vBb = ((CstLiteral32) cB).getIntBits();
             vR = vAb ^ vBb;
-            return CstBoolean.make(vR);
+            return CstInteger.make(vR);
           default:
             return null;
         }

@@ -887,7 +887,7 @@ class RopBuilderVisitor extends JVisitor {
 
     switch (primitiveType) {
       case BOOLEAN:
-        cst = CstBoolean.make(((JBooleanLiteral) literal).getValue());
+        cst = CstInteger.make(((JBooleanLiteral) literal).getValue() ? 1 : 0);
         break;
       case BYTE:
         cst = CstInteger.make(((JByteLiteral) literal).getValue());
