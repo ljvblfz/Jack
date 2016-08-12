@@ -18,7 +18,6 @@ package com.android.jack.dx;
 
 import com.android.jack.Options;
 import com.android.jack.TestTools;
-import com.android.jack.dx.dex.DexFormat;
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.FileChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
@@ -28,9 +27,7 @@ import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
-import com.android.jack.test.toolchain.JackApiV01;
 import com.android.jack.test.toolchain.JackApiV02;
-import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 
 import junit.framework.Assert;
@@ -53,7 +50,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
-import javax.xml.bind.attachment.AttachmentMarshaller;
 
 public class DxTests extends RuntimeTest {
 
@@ -189,6 +185,22 @@ public class DxTests extends RuntimeTest {
 
     Assert.assertEquals(dex37Magic, new String(magic));
 
+  }
+
+  @Test
+  public void testCarnacBinaryOr() throws Exception {
+    File srcDir = AbstractTestTools.getTestRootDir("com.android.jack.dx.jacklibs");
+    File carnacLib = new File(srcDir, "carnac-binary-or.jack");
+
+    Assert.assertTrue(carnacLib.isFile());
+
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    toolchain.addStaticLibs(carnacLib);
+    File dexOutDir = AbstractTestTools.createTempDir();
+    File outFile = new File(dexOutDir, "classes.dex");
+    toolchain.srcToExe(dexOutDir, /* zipFile = */ false,
+        AbstractTestTools.getTestRootDir("com.android.jack.dx.jacklibs"));
   }
 
   private boolean hasOpcode(@Nonnull CodeItem codeItem, @Nonnull Opcode opcode) {
