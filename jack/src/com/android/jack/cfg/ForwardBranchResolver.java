@@ -32,6 +32,13 @@ import javax.annotation.Nonnull;
  */
 class ForwardBranchResolver {
 
+  @Nonnull
+  private final ExitBlock exitBlock;
+
+  public ForwardBranchResolver(@Nonnull ExitBlock exitBlock) {
+    this.exitBlock = exitBlock;
+  }
+
   private static interface BlockToResolve {
     void resolve();
   }
@@ -105,7 +112,7 @@ class ForwardBranchResolver {
     }
   }
 
-  private static class ConditionalBasicBlockToResolve implements BlockToResolve {
+  private  class ConditionalBasicBlockToResolve implements BlockToResolve {
     @Nonnull
     private final ConditionalBasicBlock block;
     @Nonnull
@@ -125,7 +132,17 @@ class ForwardBranchResolver {
     @Override
     public void resolve() {
       block.setThenBlock(getTargetBlock(ifStatement));
-      if (elseStatement != null) {
+      if (elseStatement == null) {
+        // elseStatement means statement contained by the else block of the JIfStatement or the
+        // statement following the JIfStatement.
+        // A conditional block without an else statement will target the exit block. Indeed, by
+        // building a conditional block must have two targets (it is required by the backend).
+        // A conditional without else statement can happen after FinallyRemover where a finally
+        // block containing a JIfStatement is inlined at the end of the try block that is composed
+        // by an infinite loop for instance. In this case, JIfStatement will be dead code and
+        // elseStatement will be null.
+        block.setElseBlock(exitBlock);
+      } else {
         block.setElseBlock(getTargetBlock(elseStatement));
       }
     }
