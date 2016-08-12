@@ -28,6 +28,7 @@ import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
+import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.ExclusiveAccess;
 import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
@@ -43,13 +44,19 @@ import javax.annotation.Nonnull;
  */
 @Description("Remove bridges from interfaces based on the value of the minumun Android API level")
 @Support(EnsureAndroidCompatibility.class)
+@Constraint(need = DefaultBridgeIntoInterface.class)
+@Transform(add = InvalidDefaultBridgeInInterfaceRemoved.class)
 // This schedulable can be run in parallel on methods belonging to the same type that can lead to
 // remove several methods in the same time on the same type and it is not supported, thus this
 // schedulable must be synchronized
-@Transform(remove = DefaultBridgeIntoInterface.class)
 @Synchronized
 // This schedulable removes some methods
 @ExclusiveAccess(JDefinedClassOrInterface.class)
+// We do not process methods coming from predexed libraries to allow the optimization of the
+// compilation flow (like pure dex merging). If the predexed library was targeting an API level
+// where default bridge methods are not supported, these methods have been removed from the code.
+// However, note that these methods are NOT removed from the jayce, thus they do exist in the
+// IR.
 @Filter(TypeWithoutPrebuiltFilter.class)
 public class BridgeInInterfaceRemover implements RunnableSchedulable<JMethod> {
 
