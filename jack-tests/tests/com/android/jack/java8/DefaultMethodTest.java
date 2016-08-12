@@ -320,7 +320,7 @@ public class DefaultMethodTest {
     List<Class<? extends IToolchain>> excludeClazz = new ArrayList<Class<? extends IToolchain>>(2);
     excludeClazz.add(JackApiV01.class);
     JackBasedToolchain toolchain =
-        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeClazz);
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class, excludeClazz);
     File lib23 =
         AbstractTestTools.createTempFile("lib23", toolchain.getLibraryExtension());
     toolchain.addProperty(
@@ -346,7 +346,7 @@ public class DefaultMethodTest {
           /* zipFiles = */ true, new File(DEFAULTMETHOD001.directory, DEFAULTMETHOD001.srcDirName));
 
       File dex24 = AbstractTestTools.createTempDir();
-      toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeClazz);
+      toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class, excludeClazz);
       toolchain.addProperty(
           Options.ANDROID_MIN_API_LEVEL.getName(),
           String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL))
