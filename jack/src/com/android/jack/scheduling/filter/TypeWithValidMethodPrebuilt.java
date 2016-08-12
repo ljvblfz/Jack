@@ -14,19 +14,25 @@
  * limitations under the License.
  */
 
-package com.android.jack.backend.dex;
+package com.android.jack.scheduling.filter;
 
-import com.android.jack.scheduling.marker.ClassDefItemMarker;
-import com.android.jack.scheduling.marker.ImportedDexClassMarker;
+import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.sched.item.Description;
-import com.android.sched.schedulable.Constraint;
-import com.android.sched.schedulable.Produce;
+import com.android.sched.schedulable.ComponentFilter;
+
+import javax.annotation.Nonnull;
 
 /**
- * A {@link DexInLibraryWriter} processing all types.
+ * A filter that only accepts types with a corresponding prebuilt code. The whole type prebuilt does
+ * not need to be valid.
  */
-@Description("Write dex files in library")
-@Constraint(need = {ClassDefItemMarker.Complete.class, ImportedDexClassMarker.class})
-@Produce(DexInLibraryProduct.class)
-public class DexInLibraryWriterAll extends DexInLibraryWriter {}
+@Description("Filter accepting types with valid code prebuilt")
+public class TypeWithValidMethodPrebuilt implements ComponentFilter<JDefinedClassOrInterface> {
+
+  @Override
+  public boolean accept(@Nonnull JDefinedClassOrInterface clOrI) {
+    return TypeWithoutPrebuiltFilter.hasPrebuilt(clOrI);
+  }
+
+}
 

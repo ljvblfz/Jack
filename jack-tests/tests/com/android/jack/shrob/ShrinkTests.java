@@ -18,6 +18,7 @@ package com.android.jack.shrob;
 
 import com.android.jack.Options;
 import com.android.jack.ProguardFlags;
+import com.android.jack.comparator.DexComparator;
 import com.android.jack.shrob.shrink.ShrinkStructurePrinter;
 import com.android.jack.test.category.SlowTests;
 import com.android.jack.test.comparator.ComparatorMapping;
@@ -143,7 +144,9 @@ public class ShrinkTests extends AbstractTest {
   public void test020() throws Exception {
     File libOut = AbstractTestTools.createTempDir();
     File testOut = null;
-    File shrinkOut = null;
+    File shrunkJackOut = null;
+    File dexFromShrunkJackOut = null;
+    File dexShrunkFromJackOut = null;
 
     JackApiToolchainBase toolchain =
         AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
@@ -161,7 +164,7 @@ public class ShrinkTests extends AbstractTest {
         /* zipFiles = */ false,
         new File(shrobTestsDir, "test020/jack"));
 
-    shrinkOut = AbstractTestTools.createTempDir();
+    shrunkJackOut = AbstractTestTools.createTempDir();
     toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     toolchain.addProguardFlags(
         dontObfuscateFlagFile,
@@ -169,8 +172,37 @@ public class ShrinkTests extends AbstractTest {
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
     toolchain.libToLib(
         testOut,
-        shrinkOut,
+        shrunkJackOut,
         /* zipFile = */ false);
+
+    dexFromShrunkJackOut = AbstractTestTools.createTempDir();
+    toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    toolchain.addProperty("jack.library.prebuilt.use", "false");
+    toolchain.libToExe(
+        shrunkJackOut,
+        dexFromShrunkJackOut,
+        /* zipFile = */ false);
+
+    dexShrunkFromJackOut = AbstractTestTools.createTempDir();
+    toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    toolchain.addProguardFlags(
+        dontObfuscateFlagFile,
+        new ProguardFlags(new File(shrobTestsDir, "test020"),"proguard.flags"));
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
+    toolchain.libToExe(
+        testOut,
+        dexShrunkFromJackOut,
+        /* zipFile = */ false);
+
+    DexComparator comparator = new DexComparator(
+        /* compareDebugInfo = */ true,
+        /* strict = */ true,
+        /* compareDebugInfoBinarily = */ true,
+        /* compareCodeBinarily = */ true);
+
+    comparator.compare(new File(dexFromShrunkJackOut, "classes.dex"),
+        new File(dexShrunkFromJackOut, "classes.dex"));
+
   }
 
   @Test
@@ -258,12 +290,12 @@ public class ShrinkTests extends AbstractTest {
   public void test028() throws Exception {
     File testFolder = new File(shrobTestsDir, "test028");
     File jackar = null;
-    File shrinkedjackar = null;
+    File shrunkjackar = null;
 
     JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
 
     jackar = AbstractTestTools.createTempFile("jackar", toolchain.getLibraryExtension());
-    shrinkedjackar = AbstractTestTools.createTempFile("shrinkedjackar", toolchain.getLibraryExtension());
+    shrunkjackar = AbstractTestTools.createTempFile("shrunkjackar", toolchain.getLibraryExtension());
     ProguardFlags flags = new ProguardFlags(testFolder, "proguard.flags001");
 
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
@@ -273,7 +305,7 @@ public class ShrinkTests extends AbstractTest {
         testFolder);
 
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
-    toolchain.libToLib(jackar, shrinkedjackar, /* zipFiles = */ true);
+    toolchain.libToLib(jackar, shrunkjackar, /* zipFiles = */ true);
   }
 
   @Test

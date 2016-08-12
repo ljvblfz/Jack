@@ -196,4 +196,68 @@ public class ImportedDebugInfoItem extends OffsettedItem {
       }
     }
   }
+
+  public void loadDebugInfoItemConstants() {
+    com.android.jack.dx.io.DexBuffer.Section in = dexBuffer.open(debugInfoOffset);
+
+    in.readUleb128();
+
+    int parametersSize = in.readUleb128();
+
+    for (int p = 0; p < parametersSize; p++) {
+      int parameterName = in.readUleb128p1();
+      if (parameterName != ClassDef.NO_INDEX) {
+        cstIndexMap.getCstString(parameterName);
+      }
+    }
+
+    int nameIndex; // uleb128p1 string index. Needs indexMap adjustment.
+    int typeIndex; // uleb128p1 type index. Needs indexMap adjustment.
+    int sigIndex; // uleb128p1 string index. Needs indexMap adjustment.
+
+    while (true) {
+      int opcode = in.readByte();
+
+      switch (opcode) {
+        case DBG_END_SEQUENCE:
+          return;
+
+        case DBG_ADVANCE_PC:
+          in.readUleb128(); // addrDiff
+          break;
+
+        case DBG_ADVANCE_LINE:
+          in.readSleb128(); // lineDiff
+          break;
+
+        case DBG_START_LOCAL:
+        case DBG_START_LOCAL_EXTENDED:
+          in.readUleb128(); // registerNum
+          nameIndex = in.readUleb128p1();
+          cstIndexMap.getCstString(nameIndex);
+          typeIndex = in.readUleb128p1();
+          cstIndexMap.getType(typeIndex);
+          if (opcode == DBG_START_LOCAL_EXTENDED) {
+            sigIndex = in.readUleb128p1();
+            cstIndexMap.getCstString(sigIndex);
+          }
+          break;
+
+        case DBG_END_LOCAL:
+        case DBG_RESTART_LOCAL:
+          in.readUleb128(); // registerNum
+          break;
+
+        case DBG_SET_FILE:
+          nameIndex = in.readUleb128p1();
+          cstIndexMap.getCstString(nameIndex);
+          break;
+
+        case DBG_SET_PROLOGUE_END:
+        case DBG_SET_EPILOGUE_BEGIN:
+        default:
+          break;
+      }
+    }
+  }
 }

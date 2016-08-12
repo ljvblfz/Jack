@@ -36,7 +36,7 @@ import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.reporting.Reportable;
 import com.android.jack.reporting.Reporter.Severity;
-import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
+import com.android.jack.scheduling.filter.TypeWithoutValidTypePrebuilt;
 import com.android.jack.transformations.InvalidDefaultBridgeInInterfaceRemoved;
 import com.android.jack.util.AndroidApiLevel;
 import com.android.sched.item.Description;
@@ -64,7 +64,7 @@ import javax.annotation.Nonnull;
 @Transform(
     add = JLambda.DefaultBridgeAddedInLambda.class,
     modify = JLambda.class)
-@Filter(TypeWithoutPrebuiltFilter.class)
+@Filter(TypeWithoutValidTypePrebuilt.class)
 // Access implements.
 @Access(JSession.class)
 public class DefaultBridgeInLambdaAdder implements RunnableSchedulable<JMethod> {

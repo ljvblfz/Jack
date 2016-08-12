@@ -18,6 +18,10 @@ package com.android.jack.dx.rop.cst;
 import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.dx.dex.file.IndexedItem;
 import com.android.jack.dx.io.DexBuffer;
+import com.android.jack.dx.io.MethodHandleId;
+import com.android.jack.dx.io.TypeList;
+import com.android.jack.dx.rop.cst.CstMethodHandleRef.MethodHandleKind;
+import com.android.jack.dx.rop.type.StdTypeList;
 import com.android.jack.dx.rop.type.Type;
 
 import javax.annotation.Nonnegative;
@@ -30,30 +34,30 @@ public class CstIndexMap {
 
   /** Mapping between index and {@link CstString} value of a dex file.*/
   @Nonnull
-  private final CstString[] strings;
+  protected final CstString[] strings;
 
   /** Mapping between index and {@link Type} value of a dex file.*/
   @Nonnull
-  private final Type[] types;
+  protected final Type[] types;
 
   /** Mapping between index and {@link CstMethodRef} value of a dex file.*/
   @Nonnull
-  private final CstMethodRef[] methods;
+  protected final CstMethodRef[] methods;
 
   /** Mapping between index and {@link CstFieldRef} value of a dex file.*/
   @Nonnull
-  private final CstFieldRef[] fields;
+  protected final CstFieldRef[] fields;
 
   /** Mapping between index and {@link CstPrototypeRef} value of a dex file. */
   @Nonnull
-  private final CstPrototypeRef[] prototypes;
+  protected final CstPrototypeRef[] prototypes;
 
   /** Mapping between index and {@link CstMethodHandleRef} value of a dex file. */
   @Nonnull
-  private final CstMethodHandleRef[] methodHandles;
+  protected final CstMethodHandleRef[] methodHandles;
 
   /** Mapping between index and {@link CstCallSiteRef} value of a dex file. */
-  private final CstCallSiteRef[] callSites;
+  protected final CstCallSiteRef[] callSites;
 
   public CstIndexMap(@Nonnull DexBuffer dexBuffer) {
     strings = new CstString[dexBuffer.strings().size()];
@@ -271,7 +275,52 @@ public class CstIndexMap {
   }
 
   @Nonnull
+  public CstCallSiteRef getCstCallSite(@Nonnegative int index) {
+    CstCallSiteRef cstCallSite = callSites[index];
+    assert cstCallSite != null;
+    return cstCallSite;
+  }
+
+  @Nonnull
   public CstCallSiteRef[] getCstCallSitesType() {
     return callSites;
+  }
+  @Nonnull
+  public StdTypeList getStdTypeList(@Nonnull TypeList typeList) {
+    short[] type = typeList.getTypes();
+    int typesLength = type.length;
+    StdTypeList stdTypeList = new StdTypeList(typesLength);
+    for (int i = 0; i < typesLength; i++) {
+      stdTypeList.set(i, getType(type[i]));
+    }
+    stdTypeList.setImmutable();
+    return stdTypeList;
+  }
+
+  @Nonnull
+  public CstMethodHandleRef getCstMethodHandleRef(@Nonnull MethodHandleId methodHandleId) {
+    MethodHandleKind kind = methodHandleId.getKind();
+    CstMethodHandleRef cstMethodHandleRef;
+
+    switch (kind) {
+      case PUT_INSTANCE:
+      case PUT_STATIC:
+      case GET_INSTANCE:
+      case GET_STATIC: {
+        cstMethodHandleRef = new CstMethodHandleRef(kind,
+            getCstFieldRef(methodHandleId.getMemberIndex()));
+        break;
+      }
+      case INVOKE_CONSTRUCTOR:
+      case INVOKE_INSTANCE:
+      case INVOKE_STATIC: {
+        cstMethodHandleRef = new CstMethodHandleRef(kind,
+            getCstMethodRef(methodHandleId.getMemberIndex()));
+        break;
+      }
+      default:
+        throw new AssertionError();
+    }
+    return cstMethodHandleRef;
   }
 }

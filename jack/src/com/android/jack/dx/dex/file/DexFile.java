@@ -387,7 +387,7 @@ public final class DexFile {
    *
    * @return {@code non-null;} the prototype identifiers section
    */
-  /*package*/ProtoIdsSection getProtoIds() {
+  public ProtoIdsSection getProtoIds() {
     return protoIds;
   }
 
@@ -401,7 +401,7 @@ public final class DexFile {
    * @return {@code non-null;} the method handle identifiers section
    */
   @Nonnull
-  /* package */MethodHandleIdsSection getMethodHandleIds() {
+  public MethodHandleIdsSection getMethodHandleIds() {
     return methodHandleIds;
   }
 
@@ -415,7 +415,7 @@ public final class DexFile {
    * @return {@code non-null;} the call site identifiers section
    */
   @Nonnull
-  /*package*/CallSiteIdsSection getCallSiteIds() {
+  public CallSiteIdsSection getCallSiteIds() {
     return callSiteIds;
   }
 

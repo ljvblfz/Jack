@@ -22,7 +22,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JReturnStatement;
 import com.android.jack.ir.ast.JStatement;
-import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
+import com.android.jack.scheduling.filter.TypeWithoutValidTypePrebuilt;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
@@ -42,7 +42,7 @@ import javax.annotation.Nonnull;
 @Description("Remove empty clinit methods")
 @Constraint(no = {InitializationExpression.class})
 @Transform(remove = {EmptyClinit.class})
-@Filter(TypeWithoutPrebuiltFilter.class)
+@Filter(TypeWithoutValidTypePrebuilt.class)
 // This schedulable removes some methods
 @ExclusiveAccess(JDefinedClassOrInterface.class)
 public class EmptyClinitRemover implements RunnableSchedulable<JMethod> {

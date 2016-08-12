@@ -24,7 +24,7 @@ import com.android.jack.dx.rop.cst.CstFieldRef;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JLiteral;
-import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
+import com.android.jack.scheduling.filter.TypeWithoutValidTypePrebuilt;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
@@ -47,7 +47,7 @@ import javax.annotation.Nonnull;
 @Constraint(need = ClassDefItemMarker.class)
 @Transform(add = ClassDefItemMarker.Field.class, modify = ClassDefItemMarker.class)
 @Protect(add = JField.class, modify = JField.class, remove = JField.class)
-@Filter(TypeWithoutPrebuiltFilter.class)
+@Filter(TypeWithoutValidTypePrebuilt.class)
 public class EncodedFieldBuilder implements RunnableSchedulable<JField> {
 
   /**

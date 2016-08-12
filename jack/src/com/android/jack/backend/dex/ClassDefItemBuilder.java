@@ -33,7 +33,7 @@ import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
-import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
+import com.android.jack.scheduling.filter.TypeWithoutValidTypePrebuilt;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
@@ -70,7 +70,7 @@ import javax.annotation.Nonnull;
 @Transform(add = ClassDefItemMarker.class)
 @Protect(add = JDefinedClassOrInterface.class, modify = JDefinedClassOrInterface.class,
     remove = JDefinedClassOrInterface.class)
-@Filter(TypeWithoutPrebuiltFilter.class)
+@Filter(TypeWithoutValidTypePrebuilt.class)
 //Access isAnonymous which may depend on TypeName that is accessing enclosing type name.
 @Access(JSession.class)
 public class ClassDefItemBuilder implements RunnableSchedulable<JDefinedClassOrInterface> {
@@ -82,10 +82,6 @@ public class ClassDefItemBuilder implements RunnableSchedulable<JDefinedClassOrI
    * Creates the {@code ClassDefItem} for the given {@code JDeclaredType}. The
    * created {@code ClassDefItem} instance is then attached to the {@code JDeclaredType}
    * in a {@code ClassDefItemMarker} to be accessible from other schedulables.
-   *
-   * <p>If the given type is external (not declared in the source files being
-   * compiled), it is ignored. No {@code ClassDefItem} is created for it and no
-   * marker is attached to it.
    *
    * @param declaredType a non-null {@code JDeclaredType} for which a {@code ClassDefItem}
    * is created.
