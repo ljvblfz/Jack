@@ -46,9 +46,9 @@ class ForwardBranchResolver {
   @Nonnull
   private final ArrayList<BlockToResolve> blocksToResolve = new ArrayList<BlockToResolve>();
 
-  void addNormalBasicBlock(@Nonnull NormalBasicBlock block, @Nonnull JStatement targetStatement) {
+  void addNormalBasicBlock(@Nonnull NormalBasicBlock block,
+      @CheckForNull JStatement targetStatement) {
     assert block != null;
-    assert targetStatement != null;
     blocksToResolve.add(new NormalBasicBlockToResolve(block, targetStatement));
   }
 
@@ -92,23 +92,26 @@ class ForwardBranchResolver {
     return targetBb;
   }
 
-  private static class NormalBasicBlockToResolve implements BlockToResolve {
+  private class NormalBasicBlockToResolve implements BlockToResolve {
     @Nonnull
     private final NormalBasicBlock block;
-    @Nonnull
+    @CheckForNull
     private final JStatement statement;
 
     public NormalBasicBlockToResolve(@Nonnull NormalBasicBlock block,
-        @Nonnull JStatement statement) {
+        @CheckForNull JStatement statement) {
       assert block != null;
-      assert statement != null;
       this.block = block;
       this.statement = statement;
     }
 
     @Override
     public void resolve() {
-      block.setTarget(getTargetBlock(statement));
+      if (statement == null) {
+        block.setTarget(exitBlock);
+      } else {
+        block.setTarget(getTargetBlock(statement));
+      }
     }
   }
 

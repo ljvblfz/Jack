@@ -189,6 +189,14 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
 
     @Override
     public void endVisit(@Nonnull JMethodBody methodBody) {
+      assert currentStmts.isEmpty();
+      if (!virtualStmts.isEmpty()) {
+        // Pending virtual statements are associated with the exit block
+        BasicBlockMarker marker = new BasicBlockMarker(exitBlock);
+        for (JStatement statement : virtualStmts) {
+          statement.addMarker(marker);
+        }
+      }
       // Generate all edges by resolving forward branch.
       forwardBranchResolver.resolve();
     }
@@ -208,49 +216,24 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
               catchBlock.getCatchVar());
       setBlockOfStatement(catchBasicBlock);
 
-      JStatement nextStatement =
+      JStatement nextStatementAfterExceptionAssign =
           ControlFlowHelper.getNextStatement(getConcreteStatement(catchBlock));
-      if (nextStatement != null) {
-        forwardBranchResolver.addNormalBasicBlock(catchBasicBlock, nextStatement);
-      }
+
+      forwardBranchResolver.addNormalBasicBlock(catchBasicBlock, nextStatementAfterExceptionAssign);
 
       accept(catchStmts.subList(1, catchStmts.size()));
 
+      if (nextStatementAfterExceptionAssign != null) {
+        // Catch block contains a statement, Jack must end this catch block and branch to the
+        // statement after the catch block
+        NormalBasicBlock endOfBlock = new NormalBasicBlock(basicBlockId++, currentStmts);
+        setBlockOfStatement(endOfBlock);
+
+        forwardBranchResolver.addNormalBasicBlock(endOfBlock,
+            ControlFlowHelper.getNextStatement(catchBlock));
+      }
+
       return false;
-    }
-
-    @Override
-    public void endVisit(@Nonnull JCatchBlock block) {
-      // if currentStmts is empty all statements are already managed, no need to create an
-      // empty block that will be a dead code
-      if (!currentStmts.isEmpty()) {
-        NormalBasicBlock endOfBlock = new NormalBasicBlock(basicBlockId++, currentStmts);
-        setBlockOfStatement(endOfBlock);
-
-        JStatement nextStatement = ControlFlowHelper.getNextStatement(block);
-        if (nextStatement != null) {
-          forwardBranchResolver.addNormalBasicBlock(endOfBlock, nextStatement);
-        }
-      }
-    }
-
-    @Override
-    public void endVisit(@Nonnull JBlock block) {
-      JNode parent = block.getParent();
-      if (!currentStmts.isEmpty() || parent instanceof JLabeledStatement
-          || parent instanceof JIfStatement || !block.getJCatchBlocks().isEmpty()) {
-        // A basic block must be created if there are pending statements or if the block is the
-        // target of a branch (explicitly through label or implicitly through if statement) or
-        // if the block must reach a specific program point as for a try block which must branch
-        // after catches.
-        NormalBasicBlock endOfBlock = new NormalBasicBlock(basicBlockId++, currentStmts);
-        setBlockOfStatement(endOfBlock);
-
-        JStatement nextStatement = ControlFlowHelper.getNextStatement(block);
-        if (nextStatement != null) {
-          forwardBranchResolver.addNormalBasicBlock(endOfBlock, nextStatement);
-        }
-      }
     }
 
     @Override
@@ -286,13 +269,38 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
       accept(ifStmt.getThenStmt());
 
       JStatement elseStmt = ifStmt.getElseStmt();
+
+      if (!currentStmts.isEmpty() || (elseStmt != null && !virtualStmts.isEmpty())) {
+        // Current statement must be move into a basic block. Pending virtual statements must also
+        // be associated with a block if the 'if' statement has an 'else' statement otherwise
+        // virtual statement of the 'then' statement will be associated with a wrong basic block
+        // from the 'else' statement. Without 'else' statement, virtual statements will be
+        // associated with the basic block of the instruction following the 'if' statement.
+        NormalBasicBlock endOfBlock = new NormalBasicBlock(basicBlockId++, currentStmts);
+        setBlockOfStatement(endOfBlock);
+
+        JStatement nextStatement = ControlFlowHelper.getNextStatement(ifStmt);
+        forwardBranchResolver.addNormalBasicBlock(endOfBlock, nextStatement);
+      }
+
       if (elseStmt != null) {
         accept(elseStmt);
+
+        if (!currentStmts.isEmpty()) {
+          // Current statement must be move into a basic block. No need to manage pending virtual
+          // statements, they will be associated with the basic block of the instruction following
+          // the 'if' statement.
+          NormalBasicBlock endOfBlock = new NormalBasicBlock(basicBlockId++, currentStmts);
+          setBlockOfStatement(endOfBlock);
+
+          JStatement nextStatement = ControlFlowHelper.getNextStatement(ifStmt);
+          forwardBranchResolver.addNormalBasicBlock(endOfBlock, nextStatement);
+        }
       } else {
         elseStmt = ControlFlowHelper.getNextStatement(ifStmt);
       }
-      forwardBranchResolver.addConditionalBasicBlock(condBlock, ifStmt.getThenStmt(),
-          elseStmt);
+
+      forwardBranchResolver.addConditionalBasicBlock(condBlock, ifStmt.getThenStmt(), elseStmt);
 
       return false;
     }
