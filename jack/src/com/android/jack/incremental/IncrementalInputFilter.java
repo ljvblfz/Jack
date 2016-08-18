@@ -171,7 +171,11 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
     JSession session = Jack.getSession();
 
     boolean mergingEnabled;
-    if (incrementalInputLibrary != null) {
+    // An incremental input library without dependencies must not be used with union vfs otherwise
+    // wrong dependencies can be read, moreover the method fillDependencies expects to have a
+    // dependencies section into the Jack library.
+    if (incrementalInputLibrary != null
+        && incrementalInputLibrary.containsFileType(FileType.DEPENDENCIES)) {
 
       mergingEnabled = incrementalInputLibrary.canBeMerged(importedLibrariesFromCommandLine);
       if (mergingEnabled) {
