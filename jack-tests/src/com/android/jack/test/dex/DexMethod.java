@@ -16,9 +16,12 @@
 
 package com.android.jack.test.dex;
 
+import com.google.common.collect.ImmutableList;
+
 import com.android.dx.rop.code.AccessFlags;
 
 import org.jf.dexlib.ClassDataItem;
+import org.jf.dexlib.Code.Instruction;
 
 import javax.annotation.Nonnull;
 
@@ -43,5 +46,10 @@ public class DexMethod {
   @Nonnull
   String getSource() {
     return DexCodeItemPrinter.print(item.method, item.codeItem);
+  }
+
+  @Nonnull
+  public ImmutableList<Instruction> getInstructions() {
+    return ImmutableList.copyOf(item.codeItem.getInstructions());
   }
 }

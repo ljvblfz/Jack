@@ -84,14 +84,25 @@ public abstract class DexOutputBasedTest {
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   public final void compileAndValidate(
       @Nonnull String testPackage,
       @Nonnull CompilationProperties properties,
-      @Nonnull DexValidator<DexFile> validator) throws Exception {
+      @Nonnull DexValidator<DexFile> validator,
+      @Nonnull String... extraPackages) throws Exception {
 
     File testFolder = new File(AbstractTestTools.getTestRootDir(testPackage), "jack");
     File unitTestFolder = new File(AbstractTestTools.getTestRootDir(testPackage), "dx");
+
+    // Plus testFolder and unitTestFolder.
+    File[] allTestFolders = new File[extraPackages.length + 2];
+
+    for (int i = 0; i < extraPackages.length; i++) {
+      allTestFolders[i] = AbstractTestTools.getTestRootDir(extraPackages[i]);
+    }
+
+    allTestFolders[extraPackages.length] = testFolder;
+    allTestFolders[extraPackages.length + 1] = unitTestFolder;
+
     File outFolder = AbstractTestTools.createTempDir();
     File out = new File(outFolder, DexFileWriter.DEX_FILENAME);
 
@@ -110,7 +121,7 @@ public abstract class DexOutputBasedTest {
     toolchain.addProperty(Optimizations.REMOVE_UNUSED_NON_SYNTHETIC_DEFINITION.getName(),
         String.valueOf(false));
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
-        .srcToExe(outFolder, /* zipFile = */false, testFolder, unitTestFolder);
+        .srcToExe(outFolder, /* zipFile = */false, allTestFolders);
 
     validator.validate(new DexFile(out));
 
