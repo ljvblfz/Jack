@@ -135,6 +135,58 @@ public class DependenciesTest015 {
   }
 
   /**
+   * Check that incremental compilation works when library on import options is modified, and also
+   * adding a new source file (which modifies the number of Jayce file in the incremental folder).
+   */
+  @Test
+  public void testDependency002b() throws Exception {
+    IncrementalTestHelper iteLib =
+        new IncrementalTestHelper(AbstractTestTools.createTempDir());
+
+    iteLib.addJavaFile("jack.incremental", "A.java", "package jack.incremental; \n"
+        + "public class A { \n" + "public void m() {} }");
+
+    iteLib.incrementalBuildFromFolder();
+    iteLib.snapshotJackFilesModificationDate();
+    Assert.assertEquals(1, iteLib.getJayceCount());
+
+
+    IncrementalTestHelper iteProg =
+        new IncrementalTestHelper(AbstractTestTools.createTempDir());
+
+    iteProg.addJavaFile("jack.incremental", "B.java", "package jack.incremental; \n"
+        + "public class B { \n" + " public void m(){} }");
+
+    iteProg.incrementalBuildFromFolder(null /* classpath */,
+        Arrays.asList(iteLib.getCompilerStateFolder()));
+    iteProg.snapshotJackFilesModificationDate();
+    Assert.assertEquals(1, iteProg.getJayceCount());
+
+    DexBuffer db = new DexBuffer(new FileInputStream(iteProg.getDexFile()));
+    Assert.assertTrue(db.typeNames().contains("Ljack/incremental/A;"));
+    Assert.assertTrue(db.typeNames().contains("Ljack/incremental/B;"));
+
+    iteLib.addJavaFile("jack.incremental", "C.java", "package jack.incremental; \n"
+        + "public class C { \n" + "public void m() {} }");
+    iteLib.incrementalBuildFromFolder();
+    iteLib.snapshotJackFilesModificationDate();
+    Assert.assertEquals(2, iteLib.getJayceCount());
+
+    iteProg.addJavaFile("jack.incremental", "D.java", "package jack.incremental; \n"
+        + "public class D { \n" + " public void m(){} }");
+
+    iteProg.incrementalBuildFromFolder(null, Arrays.asList(iteLib.getCompilerStateFolder()));
+    iteProg.snapshotJackFilesModificationDate();
+    Assert.assertEquals(2, iteProg.getJayceCount());
+
+    db = new DexBuffer(new FileInputStream(iteProg.getDexFile()));
+    Assert.assertTrue(db.typeNames().contains("Ljack/incremental/A;"));
+    Assert.assertTrue(db.typeNames().contains("Ljack/incremental/B;"));
+    Assert.assertTrue(db.typeNames().contains("Ljack/incremental/C;"));
+    Assert.assertTrue(db.typeNames().contains("Ljack/incremental/D;"));
+  }
+
+  /**
    * Check that incremental compilation works when library on import options is modified and that
    * multi-dex native option is enabled.
    */

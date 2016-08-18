@@ -263,6 +263,17 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
       session.setFileDependencies(new FileDependencies());
       session.setTypeDependencies(new TypeDependencies());
       importedLibraries = importedLibrariesFromCommandLine;
+
+      // incremental dir won't be used as an input library since we need a full build, so let's
+      // close its "input" side
+      if (incrementalInputLibrary != null) {
+        try {
+          incrementalInputLibrary.close();
+        } catch (LibraryIOException e) {
+          // should not happen since we only close it as an input
+          throw new AssertionError(e);
+        }
+      }
     } else {
       try {
         updateIncrementalState();
