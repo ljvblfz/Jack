@@ -23,6 +23,7 @@ import com.android.jack.test.category.SlowTests;
 import com.android.jack.test.comparator.ComparatorMapping;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -394,6 +395,30 @@ public class ShrinkTests extends AbstractTest {
   @Test
   public void test57_006() throws Exception {
     runTest("057", "006", "");
+  }
+
+  @Test
+  @KnownIssue
+  public void test60_001() throws Exception {
+    runTest("060", "001", "");
+  }
+
+  @Test
+  @KnownIssue
+  public void test60_002() throws Exception {
+    runTest("060", "002", "");
+  }
+
+  @Test
+  @KnownIssue
+  public void test60_003() throws Exception {
+    runTest("060", "003", "");
+  }
+
+  @Test
+  @KnownIssue
+  public void test60_004() throws Exception {
+    runTest("060", "004", "");
   }
 
   @Test

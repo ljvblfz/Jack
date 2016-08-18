@@ -1,0 +1,6 @@
+Lcom/android/jack/shrob/test060/jack/MyClass;:
+<init>()V
+getWithBridge()Lcom/android/jack/shrob/test060/jack/MyClass;
+getWithBridge()Ljava/lang/Object;
+Lcom/android/jack/shrob/test060/jack/MySuperClass;:
+<init>()V

@@ -1,0 +1,5 @@
+Lcom/android/jack/shrob/test060/jack/MyClass;:
+I transientField
+<init>()V
+Lcom/android/jack/shrob/test060/jack/MySuperClass;:
+<init>()V
