@@ -191,7 +191,6 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
       this.method = method;
       blocks = new ArrayList<BasicBlock>();
       entryBlock = new EntryBlock(basicBlockId++);
-      blocks.add(entryBlock);
     }
 
     @Override
@@ -564,7 +563,8 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
     ArrayList<BasicBlock> accessibleBlocks = new ArrayList<BasicBlock>(accessibleNodesCount);
     for (int i = 0, len = nodes.size(); i < len; ++i) {
       BasicBlock block = nodes.get(i);
-      if (state[i] == 2) {
+      /* +1 to skip the entry block id that is 0 and that is not contained by nodes. */
+      if (state[i + 1] == 2) {
         accessibleBlocks.add(block);
       } else {
         for (BasicBlock succ : block.getSuccessors()) {
