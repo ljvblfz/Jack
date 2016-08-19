@@ -16,8 +16,11 @@
 
 package com.android.jack.annotation;
 
+import com.android.dex.Annotation;
 import com.android.jack.Options;
 import com.android.jack.TestTools;
+import com.android.jack.backend.dex.AnnotationBuilder;
+import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.ir.ast.JDefinedAnnotationType;
 import com.android.jack.ir.ast.JDefinedEnum;
 import com.android.jack.ir.ast.JEnumLiteral;
@@ -36,17 +39,26 @@ import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackApiV01;
 import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.JackCliToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 import com.android.sched.util.RunnableHooks;
 
 import junit.framework.Assert;
 
+import org.jf.dexlib.AnnotationItem;
+import org.jf.dexlib.ClassDefItem;
+import org.jf.dexlib.DexFile;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
+import java.util.Set;
+import java.util.TreeSet;
+
+import javax.annotation.Nonnull;
 
 public class AnnotationTests extends RuntimeTest {
 
@@ -439,6 +451,71 @@ public class AnnotationTests extends RuntimeTest {
     .setSourceLevel(SourceLevel.JAVA_8)
     .addIgnoredCandidateToolchain(JackApiV01.class)
     .compileAndRunTest();
+  }
+
+  /**
+   * About annotation visibility.
+   *
+   * Tests that:
+   * 1) we drop annotations with SOURCE retention.
+   * 2) we drop or keep annotations with CLASS retention depending on a property.
+   * 3) we keep annotations with RUNTIME retention.
+   */
+  @Test
+  public void test020() throws Exception {
+    File dexOutDir = AbstractTestTools.createTempDir();
+    File testSourceDir =
+        AbstractTestTools.getTestRootDir("com.android.jack.annotation.test020.jack");
+
+    final String sourceAnnotationSignature =
+        "Lcom/android/jack/annotation/test020/jack/SourceAnnotation;";
+    final String classAnnotationSignature =
+        "Lcom/android/jack/annotation/test020/jack/ClassAnnotation;";
+    final String runtimeAnnotationSignature =
+        "Lcom/android/jack/annotation/test020/jack/RuntimeAnnotation;";
+    final String annotatedClassSignature =
+        "Lcom/android/jack/annotation/test020/jack/AnnotatedClass;";
+
+    // Check that annotations with CLASS retention are kept.
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
+    toolchain.addProperty(AnnotationBuilder.CLASS_RETENTION.getName(), Boolean.toString(true))
+    .srcToExe(dexOutDir, /* zipFile = */ false, testSourceDir);
+
+    Set<String> classes = getAnnotationsFromClass(dexOutDir, annotatedClassSignature);
+    Assert.assertFalse(classes.contains(sourceAnnotationSignature));
+    Assert.assertTrue(classes.contains(classAnnotationSignature));
+    Assert.assertTrue(classes.contains(runtimeAnnotationSignature));
+
+    // Check that annotations with CLASS retention are dropped.
+    toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
+    toolchain.addProperty(AnnotationBuilder.CLASS_RETENTION.getName(), Boolean.toString(false))
+    .srcToExe(dexOutDir, /* zipFile = */ false, testSourceDir);
+
+    classes = getAnnotationsFromClass(dexOutDir, annotatedClassSignature);
+    Assert.assertFalse(classes.contains(sourceAnnotationSignature));
+    Assert.assertFalse(classes.contains(classAnnotationSignature));
+    Assert.assertTrue(classes.contains(runtimeAnnotationSignature));
+  }
+
+  private static Set<String> getAnnotationsFromClass(@Nonnull File dexOutDir,
+      @Nonnull String annotatedClassSignature) throws IOException {
+    DexFile dexFile = new DexFile(new File(dexOutDir, DexFileWriter.DEX_FILENAME));
+    for (ClassDefItem classDefItem : dexFile.ClassDefsSection.getItems()) {
+      if (annotatedClassSignature.equals(classDefItem.getClassType().getTypeDescriptor())) {
+        AnnotationItem[] annotations =
+            classDefItem.getAnnotations().getClassAnnotations().getAnnotations();
+        Set<String> classes = new TreeSet<>();
+        for (AnnotationItem annot : annotations) {
+          classes.add(annot.getEncodedAnnotation().annotationType.getTypeDescriptor());
+        }
+        return classes;
+      }
+    }
+    throw new AssertionError();
   }
 
 
