@@ -94,7 +94,7 @@ public class ClassSpecification implements Specification<JDefinedClassOrInterfac
       return false;
     }
 
-    if (modifier != null && !modifier.matches(Integer.valueOf(type.getModifier()))) {
+    if (modifier != null && !modifier.matches(type)) {
       return false;
     }
 

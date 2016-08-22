@@ -13,7 +13,7 @@ package com.android.jack.shrob.proguard;
 
 import com.android.jack.shrob.spec.*;
 import com.android.jack.shrob.spec.ClassTypeSpecification.TypeEnum;
-import com.android.jack.ir.ast.JModifier;
+import com.android.jack.shrob.spec.ModifierSpecification.*;
 import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.shrob.proguard.GrammarActions.FilterSeparator;
 }
@@ -21,7 +21,6 @@ import com.android.jack.shrob.proguard.GrammarActions.FilterSeparator;
 @lexer::header {
 package com.android.jack.shrob.proguard;
 
-import com.android.jack.ir.ast.JModifier;
 import com.android.jack.shrob.spec.KeepModifier;
 }
 
@@ -158,10 +157,10 @@ private classModifierAndType[ModifierSpecification modifier] returns [ClassTypeS
   :
   (NEGATOR {hasNegator = true;})?
   (
-  'public' {GrammarActions.addModifier(modifier, JModifier.PUBLIC, hasNegator);} cmat=classModifierAndType[modifier] {cType = $cmat.cType;}
-  | 'abstract' {GrammarActions.addModifier(modifier, JModifier.ABSTRACT, hasNegator);} cmat=classModifierAndType[modifier] {cType = $cmat.cType;}
-  | 'final' {GrammarActions.addModifier(modifier, JModifier.FINAL, hasNegator);} cmat=classModifierAndType[modifier] {cType = $cmat.cType;}
-  | '@' {GrammarActions.addModifier(modifier, JModifier.ANNOTATION, hasNegator);} cmat=classModifierAndType[modifier] {cType = $cmat.cType;}
+  'public' {GrammarActions.addAccessFlag(modifier, AccessFlags.PUBLIC, hasNegator);} cmat=classModifierAndType[modifier] {cType = $cmat.cType;}
+  | 'abstract' {GrammarActions.addModifier(modifier, Modifier.ABSTRACT, hasNegator);} cmat=classModifierAndType[modifier] {cType = $cmat.cType;}
+  | 'final' {GrammarActions.addModifier(modifier, Modifier.FINAL, hasNegator);} cmat=classModifierAndType[modifier] {cType = $cmat.cType;}
+  | '@' {GrammarActions.addModifier(modifier, Modifier.ANNOTATION, hasNegator);} cmat=classModifierAndType[modifier] {cType = $cmat.cType;}
   | classType {cType=GrammarActions.classType($classType.type, hasNegator); }
   )
   ;
@@ -214,20 +213,20 @@ private modifier [ModifierSpecification modifiers]
   :
   (NEGATOR {hasNegator = true;})?
   (
-    'public' {modifiers.addModifier(JModifier.PUBLIC, hasNegator);}
-    | 'private' {modifiers.addModifier(JModifier.PRIVATE, hasNegator);}
-    | 'protected' {modifiers.addModifier(JModifier.PROTECTED, hasNegator);}
-    | 'static' {modifiers.addModifier(JModifier.STATIC, hasNegator);}
-    | 'synchronized' {modifiers.addModifier(JModifier.SYNCHRONIZED, hasNegator);}
-    | 'native' {modifiers.addModifier(JModifier.NATIVE, hasNegator);}
-    | 'abstract' {modifiers.addModifier(JModifier.ABSTRACT, hasNegator);}
-    | 'strictfp' {modifiers.addModifier(JModifier.STRICTFP, hasNegator);}
-    | 'final' {modifiers.addModifier(JModifier.FINAL, hasNegator);}
-    | 'transient' {modifiers.addModifier(JModifier.TRANSIENT, hasNegator);}
-    | 'synthetic' {modifiers.addModifier(JModifier.SYNTHETIC, hasNegator);}
-    | 'bridge' {modifiers.addModifier(JModifier.BRIDGE, hasNegator);}
-    | 'varargs' {modifiers.addModifier(JModifier.VARARGS, hasNegator);}
-    | 'volatile' {modifiers.addModifier(JModifier.VOLATILE, hasNegator);}
+    'public' {modifiers.addAccessFlag(AccessFlags.PUBLIC, hasNegator);}
+    | 'private' {modifiers.addAccessFlag(AccessFlags.PRIVATE, hasNegator);}
+    | 'protected' {modifiers.addAccessFlag(AccessFlags.PROTECTED, hasNegator);}
+    | 'static' {modifiers.addModifier(Modifier.STATIC, hasNegator);}
+    | 'synchronized' {modifiers.addModifier(Modifier.SYNCHRONIZED, hasNegator);}
+    | 'native' {modifiers.addModifier(Modifier.NATIVE, hasNegator);}
+    | 'abstract' {modifiers.addModifier(Modifier.ABSTRACT, hasNegator);}
+    | 'strictfp' {modifiers.addModifier(Modifier.STRICTFP, hasNegator);}
+    | 'final' {modifiers.addModifier(Modifier.FINAL, hasNegator);}
+    | 'transient' {modifiers.addModifier(Modifier.TRANSIENT, hasNegator);}
+    | 'synthetic' {modifiers.addModifier(Modifier.SYNTHETIC, hasNegator);}
+    | 'bridge' {modifiers.addModifier(Modifier.BRIDGE, hasNegator);}
+    | 'varargs' {modifiers.addModifier(Modifier.VARARGS, hasNegator);}
+    | 'volatile' {modifiers.addModifier(Modifier.VOLATILE, hasNegator);}
   )
   ;
 

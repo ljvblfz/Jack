@@ -48,7 +48,7 @@ public class MethodSpecification implements Specification<JMethod>{
 
   @Override
   public boolean matches(@Nonnull JMethod t) {
-    if (modifier != null && !modifier.matches(Integer.valueOf(t.getModifier()))) {
+    if (modifier != null && !modifier.matches(t)) {
       return false;
     }
 

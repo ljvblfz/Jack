@@ -52,7 +52,7 @@ public class FieldSpecification implements Specification<JField> {
 
   @Override
   public boolean matches(@Nonnull JField f) {
-    if (modifier != null && !modifier.matches(Integer.valueOf(f.getModifier()))) {
+    if (modifier != null && !modifier.matches(f)) {
       return false;
     }
 

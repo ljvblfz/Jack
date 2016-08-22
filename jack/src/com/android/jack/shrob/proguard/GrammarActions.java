@@ -31,6 +31,8 @@ import com.android.jack.shrob.spec.InheritanceSpecification;
 import com.android.jack.shrob.spec.KeepModifier;
 import com.android.jack.shrob.spec.MethodSpecification;
 import com.android.jack.shrob.spec.ModifierSpecification;
+import com.android.jack.shrob.spec.ModifierSpecification.AccessFlags;
+import com.android.jack.shrob.spec.ModifierSpecification.Modifier;
 import com.android.jack.shrob.spec.NameSpecification;
 import com.android.jack.util.NamingTools;
 import com.android.sched.util.file.AbstractStreamFile;
@@ -236,9 +238,15 @@ public class GrammarActions {
   }
 
   static void addModifier(@Nonnull ModifierSpecification modSpec,
-      int modifier, boolean hasNegator) {
+      @Nonnull Modifier modifier, boolean hasNegator) {
     modSpec.addModifier(modifier, hasNegator);
   }
+
+  static void addAccessFlag(@Nonnull ModifierSpecification modSpec,
+      @Nonnull AccessFlags accessFlag, boolean hasNegator) {
+    modSpec.addAccessFlag(accessFlag, hasNegator);
+  }
+
 
   @Nonnull
   static ClassTypeSpecification classType(/*@Nonnull*/ TypeEnum type, boolean hasNegator) {
