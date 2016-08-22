@@ -1,0 +1,2 @@
+This test contains a volatile field and a bridge method to make sure modifiers
+are properly handled.
