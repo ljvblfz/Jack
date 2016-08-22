@@ -233,7 +233,25 @@ public final class NormalSsaInsn extends SsaInsn implements Cloneable {
       case RegOps.MOVE_RESULT:
       case RegOps.MOVE:
       case RegOps.CONST:
+
+      // Basic arithmetic are side effect free except for DIV and REM which would be a branching
+      // instruction because of possible ArithmeticExceptions.
+      case RegOps.ADD:
+      case RegOps.SUB:
+      case RegOps.MUL:
+      case RegOps.NEG:
+      case RegOps.AND:
       case RegOps.XOR:
+      case RegOps.SHL:
+      case RegOps.SHR:
+      case RegOps.USHR:
+      case RegOps.NOT:
+      case RegOps.CMPL:
+      case RegOps.CMPG:
+      case RegOps.CONV:
+      case RegOps.TO_BYTE:
+      case RegOps.TO_CHAR:
+      case RegOps.TO_SHORT:
         return hasLocalSideEffect;
       default:
         return true;
