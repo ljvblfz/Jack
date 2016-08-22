@@ -146,4 +146,22 @@ public class Tests {
     Assert.assertFalse(NotSimplifier.test015(false, true));
     Assert.assertTrue(NotSimplifier.test015(true, false));
   }
+
+  @Test
+  public void test016() {
+    Assert.assertTrue(NotSimplifier.test016(false, true));
+    Assert.assertFalse(NotSimplifier.test016(false, false));
+  }
+
+  @Test
+  public void test017() {
+    Assert.assertTrue(NotSimplifier.test017(false, true));
+    Assert.assertFalse(NotSimplifier.test017(false, false));
+  }
+
+  @Test
+  public void test018() {
+    Assert.assertTrue(NotSimplifier.test017(false, true));
+    Assert.assertFalse(NotSimplifier.test017(false, false));
+  }
 }

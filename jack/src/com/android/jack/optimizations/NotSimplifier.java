@@ -154,16 +154,13 @@ public class NotSimplifier implements RunnableSchedulable<JMethod> {
           Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_BOOLEAN));
       JBinaryOperator op = binaryOp.getOp();
 
-      if (op.isComparison() || op.isConditionalOperation()
-          || op == JBinaryOperator.BIT_AND
-          || op == JBinaryOperator.BIT_OR) {
-        try {
-          tr.append(new Replace(binaryOp, JBinaryOperation.create(binaryOp.getSourceInfo(),
-              binaryOp.getOp().getReverseOperator(), binaryOp.getLhs(),
-              binaryOp.getRhs())));
-        } catch (UnsupportedOperatorException e) {
-          throw new JNodeInternalError("Failures into not simplifier", e);
-        }
+      assert op.isComparison() || op.isConditionalOperation() || op == JBinaryOperator.BIT_AND
+          || op == JBinaryOperator.BIT_OR || op == JBinaryOperator.BIT_XOR;
+      try {
+        tr.append(new Replace(binaryOp, JBinaryOperation.create(binaryOp.getSourceInfo(),
+            binaryOp.getOp().getReverseOperator(), binaryOp.getLhs(), binaryOp.getRhs())));
+      } catch (UnsupportedOperatorException e) {
+        throw new JNodeInternalError("Failures into not simplifier", e);
       }
 
       // Continue to inverse operator only if it is '&&', '||', '|', '&' otherwise stop inversion.
