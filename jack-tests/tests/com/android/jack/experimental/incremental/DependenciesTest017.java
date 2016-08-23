@@ -23,6 +23,7 @@ import com.android.jack.library.FileType;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.test.helper.IncrementalTestHelper;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.IncrementalToolchain;
@@ -109,6 +110,95 @@ public class DependenciesTest017 {
 
     // check the content of the output jack lib
     Assert.assertEquals(2, getCount(outputJack, FileType.JAYCE));
+  }
+
+  /**
+   * Check that an incremental build can recover after an exception, after a first successful run.
+   */
+  @Test
+  @KnownIssue
+  public void testError2() throws Exception {
+
+    IncrementalTestHelper helper =
+        new IncrementalTestHelper(AbstractTestTools.createTempDir());
+
+    File source1 = helper.addJavaFile("jack.source", "Source1.java", "package jack.source; \n"
+        + "public class Source1 { \n"
+        + "public void m(){} }");
+
+    helper.addJavaFile("jack.source", "Source2.java", "package jack.source; \n"
+        + "public class Source2 extends Source1 { \n"
+        + "@Override public void m(){} }");
+
+    File outputDex1 = AbstractTestTools.createTempDir();
+
+    List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(3);
+    excludeList.add(JillBasedToolchain.class);
+    excludeList.add(IncrementalToolchain.class);
+    excludeList.add(TwoStepsToolchain.class);
+    // API-only because we catch an exception
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class, excludeList);
+    File outputJack = AbstractTestTools.createTempFile("output", toolchain.getLibraryExtension());
+
+    File[] defaultClasspath = toolchain.getDefaultBootClasspath();
+    toolchain.setIncrementalFolder(helper.getCompilerStateFolder());
+    toolchain.setOutputJack(outputJack, /* zipFiles = */ true);
+    toolchain.addToClasspath(defaultClasspath).srcToExe(outputDex1, /* zipFiles = */ false,
+        helper.getSourceFolder());
+
+    // check the content of the incremental dir
+    Assert.assertEquals(2, getCount(helper.getCompilerStateFolder(), FileType.JAYCE));
+
+    source1 = helper.addJavaFile("jack.source", "Source1.java", "package jack.source; \n"
+        + "public class Source1 { \n"
+        + "public m(){} }"); // missing return type
+
+    File outputDex2 = AbstractTestTools.createTempDir();
+
+    toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class, excludeList);
+    outputJack = AbstractTestTools.createTempFile("output", toolchain.getLibraryExtension());
+
+    toolchain.setIncrementalFolder(helper.getCompilerStateFolder());
+    toolchain.setOutputJack(outputJack, /* zipFiles = */ true);
+    toolchain.setErrorStream(ByteStreams.nullOutputStream()); // ignore stderr
+    try {
+      toolchain.addToClasspath(defaultClasspath).srcToExe(outputDex2,
+          /* zipFiles = */ false, helper.getSourceFolder());
+      Assert.fail();
+    } catch (FrontendCompilationException e) {
+      // expected
+    }
+
+    // check the content of the incremental dir
+    Assert.assertEquals(2, getCount(helper.getCompilerStateFolder(), FileType.JAYCE));
+
+    source1 = helper.addJavaFile("jack.source", "Source1.java", "package jack.source; \n"
+        + "public class Source1 { \n"
+        + "public void m(){}; public void n(){}; }");
+
+    helper.addJavaFile("jack.source", "Source3.java", "package jack.source; \n"
+        + "public class Source3 extends Source1 { \n"
+        + "@Override public void m(){}; @Override public void n(){}; }");
+
+    helper.addJavaFile("jack.source", "Source4.java", "package jack.source; \n"
+        + "public class Source4 extends Source2 { \n"
+        + "@Override public void m(){};}");
+
+    File outputDex3 = AbstractTestTools.createTempDir();
+
+    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeList);
+    toolchain.setIncrementalFolder(helper.getCompilerStateFolder());
+    toolchain.setOutputJack(outputJack, /* zipFiles = */ true);
+    toolchain.addToClasspath(defaultClasspath).srcToExe(outputDex3,
+        /* zipFiles = */ false, helper.getSourceFolder());
+
+    // check the content of the incremental dir
+    Assert.assertEquals(4, getCount(helper.getCompilerStateFolder(), FileType.JAYCE));
+
+    // check the content of the output jack lib
+    Assert.assertEquals(4, getCount(outputJack, FileType.JAYCE));
   }
 
   @Nonnegative
