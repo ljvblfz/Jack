@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.sched.util.file;
+package com.android.jack.plugin;
 
+import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.location.HasLocation;
 import com.android.sched.util.location.Location;
 
@@ -23,29 +24,29 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * Exception when a path is not a Jar file.
+ * Exception when a path is not a Jack plugin jar file.
  */
-public class NotJarFileException extends NotFileOrDirectoryException {
+public class NotJackPluginFileException extends NotFileOrDirectoryException {
   private static final long serialVersionUID = 1L;
 
-  public NotJarFileException(@Nonnull Location location) {
+  public NotJackPluginFileException(@Nonnull Location location) {
     super(location, null);
   }
 
-  public NotJarFileException(@Nonnull Location location, @CheckForNull Throwable cause) {
+  public NotJackPluginFileException(@Nonnull Location location, @CheckForNull Throwable cause) {
     super(location, cause);
   }
 
-  public NotJarFileException(@Nonnull HasLocation locationProvider) {
+  public NotJackPluginFileException(@Nonnull HasLocation locationProvider) {
     super(locationProvider, null);
   }
 
-  public NotJarFileException(@Nonnull HasLocation location, @CheckForNull Throwable cause) {
+  public NotJackPluginFileException(@Nonnull HasLocation location, @CheckForNull Throwable cause) {
     super(location, cause);
   }
 
   @Override
   protected String createMessage(@Nonnull String description) {
-    return description + " is not actually a jar file";
+    return description + " is not a Jack plugin jar file";
   }
 }
