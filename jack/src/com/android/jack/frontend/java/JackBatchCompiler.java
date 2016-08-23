@@ -343,7 +343,7 @@ public class JackBatchCompiler extends Main {
   private static boolean checkFileAccess(@Nonnull String fileName) {
     try {
       File file = new File(fileName);
-      FileOrDirectory.checkPermissions(file, new FileLocation(file), Permission.READ);
+      FileOrDirectory.checkPermissions(file, new FileLocation(fileName), Permission.READ);
     } catch (WrongPermissionException e) {
       return false;
     }

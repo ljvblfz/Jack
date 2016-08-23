@@ -50,7 +50,6 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
-import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -204,7 +203,7 @@ class JAstBuilder extends JavaParser {
          * code and didn't complete processing */
         if (binding != null && binding.constantPoolName() != null) {
           types.add(EcjSourceTypeLoader.createType(refMap, enclosingPackage, binding, null,
-              new FileLocation(new File(new String(unit.getFileName())))));
+              new FileLocation(new String(unit.getFileName()))));
         }
       }
     }
@@ -221,7 +220,7 @@ class JAstBuilder extends JavaParser {
 
     EcjSourceTypeLoader.createType(refMap, enclosingPackage,
         typeDeclaration.binding, typeDeclaration,
-        new FileLocation(new File(new String(typeDeclaration.compilationResult.fileName))));
+        new FileLocation(new String(typeDeclaration.compilationResult.fileName)));
 
     if (typeDeclaration.memberTypes != null) {
       for (TypeDeclaration memberType : typeDeclaration.memberTypes) {
