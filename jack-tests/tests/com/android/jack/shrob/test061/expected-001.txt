@@ -1,0 +1,6 @@
+Lcom/android/jack/shrob/test061/jack/A;:
+<init>()V
+m(Lcom/android/jack/shrob/test061/jack/A;)V
+Lcom/android/jack/shrob/test061/lib/GetMethod;:
+<init>()V
+keptMethod()Ljava/lang/reflect/Method;

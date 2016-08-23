@@ -214,6 +214,38 @@ public class ShrinkTests extends AbstractTest {
 
   }
 
+  @Test
+  public void test027() throws Exception {
+    File testFolder = new File(shrobTestsDir, "test027");
+    File jackFolder = new File(testFolder, "jack");
+    File libFolder = new File(testFolder, "lib");
+    File jarInput = new File(libFolder, "jarInput.jar");
+
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    File dex = AbstractTestTools.createTempFile("dex", toolchain.getExeExtension());
+    File candidateNodeListing = AbstractTestTools.createTempFile("nodeListing", ".txt");
+    toolchain.addProperty(ShrinkStructurePrinter.STRUCTURE_PRINTING.getName(), "true");
+    toolchain.addProperty(ShrinkStructurePrinter.STRUCTURE_PRINTING_FILE.getName(),
+        candidateNodeListing.getPath());
+    toolchain.addProguardFlags(
+        dontObfuscateFlagFile,
+        new ProguardFlags(testFolder,"proguard.flags001"));
+
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
+    toolchain.addStaticLibs(jarInput);
+
+    SourceToDexComparisonTestHelper env =
+        new SourceToDexComparisonTestHelper(new File(testFolder, "jack"));
+
+    env.setWithDebugInfo(true);
+    env.setCandidateTestTools(toolchain);
+    env.setReferenceTestTools(new DummyToolchain());
+
+    env.runTest(new ComparatorMapping(new File(testFolder, "expected-001.txt"),
+        candidateNodeListing));
+  }
+
   /**
    * The only purpose of this test is to use jack shrink capabilities and to have no reference to
    * java/lang/Class. This test will make Jack fail if java/lang/Class methods like getField and
@@ -419,6 +451,39 @@ public class ShrinkTests extends AbstractTest {
   @KnownIssue
   public void test60_004() throws Exception {
     runTest("060", "004", "");
+  }
+
+  @Test
+  @KnownIssue
+  public void test061() throws Exception {
+    File testFolder = new File(shrobTestsDir, "test061");
+    File jackFolder = new File(testFolder, "jack");
+    File libFolder = new File(testFolder, "lib");
+    File jarInput = new File(libFolder, "jarInput.jar");
+
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    File dex = AbstractTestTools.createTempFile("dex", toolchain.getExeExtension());
+    File candidateNodeListing = AbstractTestTools.createTempFile("nodeListing", ".txt");
+    toolchain.addProperty(ShrinkStructurePrinter.STRUCTURE_PRINTING.getName(), "true");
+    toolchain.addProperty(ShrinkStructurePrinter.STRUCTURE_PRINTING_FILE.getName(),
+        candidateNodeListing.getPath());
+    toolchain.addProguardFlags(
+        dontObfuscateFlagFile,
+        new ProguardFlags(testFolder,"proguard.flags001"));
+
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
+    toolchain.addStaticLibs(jarInput);
+
+    SourceToDexComparisonTestHelper env =
+        new SourceToDexComparisonTestHelper(new File(testFolder, "jack"));
+
+    env.setWithDebugInfo(true);
+    env.setCandidateTestTools(toolchain);
+    env.setReferenceTestTools(new DummyToolchain());
+
+    env.runTest(new ComparatorMapping(new File(testFolder, "expected-001.txt"),
+        candidateNodeListing));
   }
 
   @Test
