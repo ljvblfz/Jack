@@ -23,7 +23,6 @@ import com.android.jack.library.FileType;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.test.helper.IncrementalTestHelper;
-import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.IncrementalToolchain;
@@ -93,6 +92,8 @@ public class DependenciesTest017 {
     // check the content of the incremental dir
     Assert.assertEquals(0, getCount(helper.getCompilerStateFolder(), FileType.JAYCE));
 
+    Thread.sleep(1000);
+
     source1 = helper.addJavaFile("jack.source", "Source1.java", "package jack.source; \n"
         + "public class Source1 { \n"
         + "public void m(){} }");
@@ -116,7 +117,6 @@ public class DependenciesTest017 {
    * Check that an incremental build can recover after an exception, after a first successful run.
    */
   @Test
-  @KnownIssue
   public void testError2() throws Exception {
 
     IncrementalTestHelper helper =
@@ -129,6 +129,10 @@ public class DependenciesTest017 {
     helper.addJavaFile("jack.source", "Source2.java", "package jack.source; \n"
         + "public class Source2 extends Source1 { \n"
         + "@Override public void m(){} }");
+
+    helper.addJavaFile("jack.source", "UnrelatedSource.java", "package jack.source; \n"
+        + "public class UnrelatedSource { \n"
+        + "public void u(){} }");
 
     File outputDex1 = AbstractTestTools.createTempDir();
 
@@ -148,7 +152,9 @@ public class DependenciesTest017 {
         helper.getSourceFolder());
 
     // check the content of the incremental dir
-    Assert.assertEquals(2, getCount(helper.getCompilerStateFolder(), FileType.JAYCE));
+    Assert.assertEquals(3, getCount(helper.getCompilerStateFolder(), FileType.JAYCE));
+
+    Thread.sleep(1000);
 
     source1 = helper.addJavaFile("jack.source", "Source1.java", "package jack.source; \n"
         + "public class Source1 { \n"
@@ -172,7 +178,10 @@ public class DependenciesTest017 {
     }
 
     // check the content of the incremental dir
-    Assert.assertEquals(2, getCount(helper.getCompilerStateFolder(), FileType.JAYCE));
+    int numJayce = 1; // Source1 was modified and Source2 depends on it so both have been deleted
+    Assert.assertEquals(numJayce, getCount(helper.getCompilerStateFolder(), FileType.JAYCE));
+
+    Thread.sleep(1000);
 
     source1 = helper.addJavaFile("jack.source", "Source1.java", "package jack.source; \n"
         + "public class Source1 { \n"
@@ -195,10 +204,10 @@ public class DependenciesTest017 {
         /* zipFiles = */ false, helper.getSourceFolder());
 
     // check the content of the incremental dir
-    Assert.assertEquals(4, getCount(helper.getCompilerStateFolder(), FileType.JAYCE));
+    Assert.assertEquals(5, getCount(helper.getCompilerStateFolder(), FileType.JAYCE));
 
     // check the content of the output jack lib
-    Assert.assertEquals(4, getCount(outputJack, FileType.JAYCE));
+    Assert.assertEquals(5, getCount(outputJack, FileType.JAYCE));
   }
 
   @Nonnegative
