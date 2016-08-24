@@ -73,6 +73,14 @@ public enum JBinaryOperator {
       case BIT_OR: {
         return BIT_AND;
       }
+      // XOR:          EQ:
+      // T XOR T = F   T EQ T = T
+      // T XOR F = T   T EQ F = F
+      // F XOR T = T   F EQ T = F
+      // F XOR F = F   F EQ F = T
+      case BIT_XOR: {
+        return EQ;
+      }
       case AND: {
         return OR;
       }

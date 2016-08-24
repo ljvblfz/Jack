@@ -133,4 +133,24 @@ public class NotSimplifier {
     // Check that expression is replaced by b1 & !b2
     return !(!b1 | b2);
   }
+
+  public static boolean test016(boolean b1, boolean b2) {
+    return !(!b1 && (b2 ^ true));
+  }
+
+  public static boolean test017(boolean b1, boolean b2) {
+    // Make sure the subexpression are correctly by replacing
+    // b1 = (!(!b1 && (b2 ^ true)))
+    boolean result1 = !(!b1 && (b2 ^ true));
+    boolean result2 = !(!(!(!b1 && (b2 ^ true))) && (b2 ^ true));
+    boolean result3 = !(!(!(!(!(!b1 && (b2 ^ true))) && (b2 ^ true))) && (b2 ^ true));
+    boolean result4 =
+        !(!(!(!(!(!(!(!b1 && (b2 ^ true))) && (b2 ^ true))) && (b2 ^ true))) && (b2 ^ true));
+    return result1 && result2 && result3 && result4;
+  }
+
+  public static boolean test018(boolean b1, boolean b2) {
+    // Exact statement from the bug report.
+    return !(!(new Boolean(b1))  & (b2 ^ true));
+  }
 }
