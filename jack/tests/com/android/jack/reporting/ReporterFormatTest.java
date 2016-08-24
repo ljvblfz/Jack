@@ -28,6 +28,7 @@ import com.android.sched.util.config.ConfigurationException;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.CannotChangePermissionException;
 import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.findbugs.SuppressFBWarnings;
 import com.android.sched.util.location.ColumnAndLineLocation;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.log.LogFormatter;
@@ -55,7 +56,12 @@ import java.util.logging.Level;
 
 import javax.annotation.Nonnull;
 
+@SuppressFBWarnings("DMI_HARDCODED_ABSOLUTE_FILENAME")
 public class ReporterFormatTest {
+
+  private static final String FILE_PATH = "/my/file";
+
+  private static final String ESCAPED_FILE_PATH = "\\/my\\/file";
 
   private File reportFile;
 
@@ -106,7 +112,7 @@ public class ReporterFormatTest {
 
     DefaultReporter reporter = new DefaultReporter();
 
-    checkPrintFilteredProblem(reporter, refFile);
+    checkPrintFilteredProblem(reporter, refFile, FILE_PATH, FILE_PATH);
   }
 
   @Test
@@ -116,14 +122,17 @@ public class ReporterFormatTest {
         "jack/tests/com/android/jack/reporting/sdkreporter-ref.txt");
 
     SdkReporter reporter = new SdkReporter();
+    String expectedFileString =
+        new File(FILE_PATH).getAbsolutePath().replace("\\", "\\\\").replace("/", "\\/");
 
-    checkPrintFilteredProblem(reporter, refFile);
+    checkPrintFilteredProblem(reporter, refFile, ESCAPED_FILE_PATH, expectedFileString);
   }
 
-  private void checkPrintFilteredProblem(@Nonnull CommonReporter reporter, @Nonnull File refFile)
+  private void checkPrintFilteredProblem(@Nonnull CommonReporter reporter, @Nonnull File refFile,
+      @Nonnull String pathStringInFile, @Nonnull String expectedFileString)
       throws FileNotFoundException, IOException {
     try {
-      FileLocation fileLoc = new FileLocation("/my/file");
+      FileLocation fileLoc = new FileLocation(FILE_PATH);
 
       reporter.printFilteredProblem(ProblemLevel.WARNING, "message", /* location = */ null);
       reporter.printFilteredProblem(ProblemLevel.WARNING, "message", fileLoc);
@@ -142,16 +151,20 @@ public class ReporterFormatTest {
     } finally {
       hooks.runHooks();
 
-      assertFilesAreEqual(refFile, reportFile);
+      assertFilesAreEqual(refFile, reportFile, pathStringInFile, expectedFileString);
     }
   }
 
-  private void assertFilesAreEqual(@Nonnull File expected, @Nonnull File actual)
+  private void assertFilesAreEqual(@Nonnull File expected, @Nonnull File actual,
+      @Nonnull String pathStringInFile, @Nonnull String expectedPathString)
       throws FileNotFoundException, IOException {
     try (BufferedReader expectedReader = new BufferedReader(new FileReader(expected));
         BufferedReader actualReader = new BufferedReader(new FileReader(actual));) {
       String line;
       while ((line = expectedReader.readLine()) != null) {
+        if (!pathStringInFile.equals(expectedPathString)) {
+          line = line.replace(pathStringInFile, expectedPathString);
+        }
         Assert.assertEquals(line, actualReader.readLine());
       }
       Assert.assertNull(actualReader.readLine());
