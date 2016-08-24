@@ -24,12 +24,22 @@ import javax.annotation.Nonnull;
  * Class describing a file location.
  */
 public class FileLocation extends FileOrDirLocation {
-  public FileLocation(@Nonnull File file) {
-    super(file);
-  }
 
+  /**
+   * Creates a {@link FileLocation} using a {@link String} path.
+   */
   public FileLocation(@Nonnull String path) {
     super(path);
+  }
+
+  /**
+   * Creates a {@link FileLocation} using a {@link File}.
+   * The constructor {@link #FileLocation(String)} should be preferred when the original path String
+   * is available. Using a {@link File} may transform the original path (e.g. replacing '/' in the
+   * input by '\' on Windows).
+   */
+  public FileLocation(@Nonnull File file) {
+    super(file);
   }
 
   @Override
