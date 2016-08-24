@@ -19,9 +19,11 @@ package com.android.jack.frontend.java;
 import com.android.jack.Jack;
 import com.android.jack.ir.HasSourceInfo;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.ir.sourceinfo.SourceInfoFactory;
 import com.android.jack.reporting.Reportable;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 
 import javax.annotation.Nonnull;
 
@@ -44,8 +46,18 @@ public class EcjProblem implements Reportable, HasSourceInfo {
     if (problem.getOriginatingFileName() == null) {
       sourceInfo = SourceInfo.UNKNOWN;
     } else {
-      sourceInfo = Jack.getSession().getSourceInfoFactory().create(problem.getSourceLineNumber(),
-          SourceInfo.UNKNOWN_LINE_NUMBER, String.valueOf(problem.getOriginatingFileName()));
+      int lineProblem = problem.getSourceLineNumber();
+      SourceInfoFactory sourceInfoFactory = Jack.getSession().getSourceInfoFactory();
+      if (problem instanceof DefaultProblem) {
+        // Problem has a line and a column information
+        int columnProblem = ((DefaultProblem) problem).getSourceColumnNumber();
+        sourceInfo =
+            sourceInfoFactory.create(columnProblem, SourceInfo.UNKNOWN_COLUMN_NUMBER, lineProblem,
+                SourceInfo.UNKNOWN_LINE_NUMBER, String.valueOf(problem.getOriginatingFileName()));
+      } else {
+        sourceInfo = sourceInfoFactory.create(lineProblem, SourceInfo.UNKNOWN_LINE_NUMBER,
+            String.valueOf(problem.getOriginatingFileName()));
+      }
     }
   }
 
