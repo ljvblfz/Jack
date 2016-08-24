@@ -69,6 +69,9 @@ import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.log.Event;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
+import com.android.sched.util.log.stats.Counter;
+import com.android.sched.util.log.stats.CounterImpl;
+import com.android.sched.util.log.stats.StatisticId;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -101,6 +104,16 @@ import javax.annotation.Nonnull;
 @Use(SourceInfoFactory.class)
 @Filter(TypeWithoutPrebuiltFilter.class)
 public class CfgBuilder implements RunnableSchedulable<JMethod> {
+
+  @Nonnull
+  public static final StatisticId<Counter> CREATED_BASIC_BLOCK = new StatisticId<>(
+      "jack.cfg.created-basic-blocks", "Basic blocks created",
+      CounterImpl.class, Counter.class);
+
+  @Nonnull
+  public static final StatisticId<Counter> REMOVED_BASIC_BLOCK = new StatisticId<>(
+      "jack.cfg.removed-basic-blocks", "Unaccessible basic blocks removed",
+      CounterImpl.class, Counter.class);
 
   @Nonnull
   private final com.android.jack.util.filter.Filter<JMethod> filter =
@@ -412,6 +425,7 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
     @Nonnull
     public ControlFlowGraph getCfg() {
       try (Event optEvent = tracer.open(JackEventType.REMOVE_DEAD_CODE)) {
+        tracer.getStatistic(CREATED_BASIC_BLOCK).incValue(blocks.size() + /*exitBlock*/ 1);
         removeUnaccessibleNode(blocks, entryBlock, exitBlock, basicBlockId);
       }
       return new ControlFlowGraph(method, basicBlockId, entryBlock, exitBlock, blocks);
@@ -489,7 +503,7 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
     method.addMarker(cfgBuilder.getCfg());
   }
 
-  private static void removeUnaccessibleNode(@Nonnull ArrayList<BasicBlock> nodes,
+  private void removeUnaccessibleNode(@Nonnull ArrayList<BasicBlock> nodes,
       @Nonnull BasicBlock entryNode, @Nonnull BasicBlock exitNode,
       @Nonnegative int maxBasicBlockId) {
 
@@ -537,6 +551,8 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
         }
       }
     }
+
+    tracer.getStatistic(REMOVED_BASIC_BLOCK).incValue(nodes.size() - accessibleNodesCount);
     nodes.clear();
     nodes.addAll(accessibleBlocks);
     nodes.trimToSize();
