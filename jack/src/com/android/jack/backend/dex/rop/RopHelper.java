@@ -166,13 +166,11 @@ public class RopHelper {
    */
   @Nonnull
   public static SourcePosition getSourcePosition(@Nonnull JNode stmt) {
-    if (stmt.getSourceInfo() != SourceInfo.UNKNOWN) {
-      return (new SourcePosition(new CstString(stmt.getSourceInfo().getFileName()), -1,
-          stmt.getSourceInfo().getStartLine()));
-    } else {
-      return (new SourcePosition(null, -1, -1));
+    if (stmt.getSourceInfo() == SourceInfo.UNKNOWN) {
+      return SourcePosition.NO_INFO;
     }
-
+    return (new SourcePosition(new CstString(stmt.getSourceInfo().getFileName()), -1,
+        stmt.getSourceInfo().getStartLine()));
   }
 
   /**
