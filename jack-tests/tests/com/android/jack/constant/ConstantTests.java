@@ -20,6 +20,7 @@ import com.android.jack.TestTools;
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.FileChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
@@ -86,6 +87,10 @@ public class ConstantTests extends RuntimeTest {
   private RuntimeTestInfo TEST007 = new RuntimeTestInfo(
     AbstractTestTools.getTestRootDir("com.android.jack.constant.test007"),
     "com.android.jack.constant.test007.dx.Tests");
+
+  private RuntimeTestInfo TEST009 = new RuntimeTestInfo(
+    AbstractTestTools.getTestRootDir("com.android.jack.constant.test009"),
+    "com.android.jack.constant.test009.dx.Tests");
 
   @Test
   @Runtime
@@ -166,6 +171,14 @@ public class ConstantTests extends RuntimeTest {
         AbstractTestTools.getTestRootDir("com.android.jack.constant.test008"));
   }
 
+  @Test
+  @Runtime
+  @KnownIssue
+  @Category(RuntimeRegressionTest.class)
+  public void test009() throws Exception {
+    new RuntimeTestHelper(TEST009).compileAndRunTest();
+  }
+
   @Override
   protected void fillRtTestInfos() {
     rtTestInfos.add(CLAZZ);
@@ -175,5 +188,6 @@ public class ConstantTests extends RuntimeTest {
     rtTestInfos.add(TEST004);
     rtTestInfos.add(TEST006);
     rtTestInfos.add(TEST007);
+//    rtTestInfos.add(TEST009); // KnownIssue
   }
 }
