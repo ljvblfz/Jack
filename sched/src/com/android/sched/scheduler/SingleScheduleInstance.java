@@ -44,7 +44,7 @@ public class SingleScheduleInstance<T extends Component> extends ScheduleInstanc
   @Nonnull
   private static final Logger logger = LoggerFactory.getLogger();
 
-  public SingleScheduleInstance(Plan<T> plan) throws Exception {
+  protected SingleScheduleInstance(Plan<T> plan) throws Exception {
     super(plan);
   }
 

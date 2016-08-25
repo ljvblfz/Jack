@@ -91,7 +91,7 @@ public class MultiWorkersScheduleInstance<T extends Component>
   @Nonnull
   private final Synchronized[] syncs;
 
-  public MultiWorkersScheduleInstance(@Nonnull Plan<T> plan) throws Exception {
+  protected MultiWorkersScheduleInstance(@Nonnull Plan<T> plan) throws Exception {
     super(plan);
 
     boolean isSynchronizedManaged = ThreadConfig.get(MANAGED_SYNC).booleanValue();

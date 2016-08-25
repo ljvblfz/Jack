@@ -17,9 +17,9 @@
 package com.android.sched.scheduler;
 
 import com.android.sched.filter.ManagedComponentFilter;
-import com.android.sched.filter.NoFilter;
 import com.android.sched.item.Component;
 import com.android.sched.item.ManagedItem;
+import com.android.sched.item.TagOrMarkerOrComponent;
 import com.android.sched.schedulable.AdapterSchedulable;
 import com.android.sched.schedulable.ComponentFilter;
 import com.android.sched.schedulable.RunnableSchedulable;
@@ -63,12 +63,13 @@ public abstract class ScheduleInstance<T extends Component> {
   public static final ReflectFactoryPropertyId<ScheduleInstance> DEFAULT_RUNNER =
       ReflectFactoryPropertyId
           .create("sched.runner", "Kind of runner for runnable", ScheduleInstance.class)
-          .addArgType(Plan.class).addDefaultValue("multi-threaded");
+          .addArgType(Plan.class).addDefaultValue("multi-threaded")
+          .bypassAccessibility();
 
   @Nonnull
   public static final BooleanPropertyId SKIP_ADAPTER =
       BooleanPropertyId
-          .create("sched.filter.skip-adapter", "Skip adapter as soon as possible")
+          .create("sched.filter.skip-adapters", "Skip adapters as soon as possible")
           .addDefaultValue(true);
   public boolean skipAdapter = ThreadConfig.get(SKIP_ADAPTER).booleanValue();
 
@@ -108,7 +109,18 @@ public abstract class ScheduleInstance<T extends Component> {
 
   @SuppressWarnings("unchecked")
   public static <T extends Component> ScheduleInstance<T> createScheduleInstance(Plan<T> plan) {
-    return ThreadConfig.get(DEFAULT_RUNNER).create(plan);
+    ScheduleInstance<T> schedInstance = ThreadConfig.get(DEFAULT_RUNNER).create(plan);
+
+    if (ThreadConfig.get(SKIP_ADAPTER).booleanValue()) {
+      TagOrMarkerOrComponentSet components = plan.getScheduler().createTagOrMarkerOrComponentSet();
+      components.add(plan.getRunOn());
+      for (ScheduleInstance<? extends Component>.SchedStep<? extends Component> step
+          : schedInstance.steps) {
+        step.makeAdaptersSkippable(components);
+      }
+    }
+
+    return schedInstance;
   }
 
   /**
@@ -118,7 +130,7 @@ public abstract class ScheduleInstance<T extends Component> {
    * @throws Exception if an Exception is thrown when instantiating a {@code Schedulable}
    */
   @SuppressWarnings("unchecked")
-  public ScheduleInstance(@Nonnull Plan<T> plan) throws Exception {
+  protected ScheduleInstance(@Nonnull Plan<T> plan) throws Exception {
     scheduler = plan.getScheduler();
     this.features = plan.getFeatures();
 
@@ -304,6 +316,7 @@ public abstract class ScheduleInstance<T extends Component> {
     public abstract boolean isSkippable(@Nonnull ComponentFilterSet current);
     @Nonnull
     public abstract ComponentFilterSet getRequiredFilters();
+    protected abstract void makeAdaptersSkippable(@Nonnull TagOrMarkerOrComponentSet components);
 
     @Nonnull
     public String getName() {
@@ -319,6 +332,11 @@ public abstract class ScheduleInstance<T extends Component> {
     protected RunnableSchedStep(@Nonnull ManagedRunnable managed) throws Exception {
       super(managed);
       runnableFilters.addAll(managed.getFilters());
+
+
+      logger.log(Level.FINEST, "Runner filters for runner ''{0}'' are {1} ", new Object[] {
+        getName(),
+        runnableFilters});
     }
 
     @Override
@@ -331,6 +349,10 @@ public abstract class ScheduleInstance<T extends Component> {
     public ComponentFilterSet getRequiredFilters() {
       return runnableFilters.clone();
     }
+
+    @Override
+    protected void makeAdaptersSkippable(@Nonnull TagOrMarkerOrComponentSet components) {
+    }
   }
 
   /**
@@ -338,37 +360,60 @@ public abstract class ScheduleInstance<T extends Component> {
    */
   protected class AdapterSchedStep<T> extends SchedStep<T> {
     @Nonnull
+    private final ManagedVisitor managed;
+    @Nonnull
     private final ScheduleInstance<? extends Component> subSchedInstance;
     @Nonnull
-    protected final ComponentFilterSet adapterFilters;
+    protected ComponentFilterSet adapterFilters;
+    private boolean canBeSkipped = false;
 
-    @SuppressWarnings({"rawtypes"})
     protected AdapterSchedStep(@Nonnull ManagedVisitor managed,
         @Nonnull ScheduleInstance<? extends Component> subSchedInstance) throws Exception {
       super(managed);
 
-      adapterFilters = scheduler.createComponentFilterSet();
+      this.managed = managed;
       this.subSchedInstance = subSchedInstance;
-      for (ScheduleInstance<? extends Component>.SchedStep<? extends Component> step :
-          subSchedInstance.steps) {
+      this.adapterFilters = scheduler.createComponentFilterSet();
+      for (ScheduleInstance<? extends Component>.SchedStep<? extends Component> step
+            : subSchedInstance.steps) {
         runnableFilters.addAll(step.runnableFilters);
-        if (step instanceof AdapterSchedStep) {
-          adapterFilters.addAll(((AdapterSchedStep) step).adapterFilters);
-        } else {
-          adapterFilters.addAll(step.runnableFilters);
-        }
       }
+    }
 
-      Iterator<ManagedItem> iter = adapterFilters.managedIterator();
+    @Override
+    protected void makeAdaptersSkippable(@Nonnull TagOrMarkerOrComponentSet components) {
+      canBeSkipped = true;
+      adapterFilters.clear();
+      Iterator<ManagedItem> iter = runnableFilters.managedIterator();
       while (iter.hasNext()) {
         ManagedComponentFilter mcf = (ManagedComponentFilter) iter.next();
-        if (mcf.getFilterOn().isAssignableFrom(managed.getRunOnAfter())) {
-          adapterFilters.remove(mcf);
+        for (Class<? extends TagOrMarkerOrComponent> component : components) {
+          if (mcf.getFilterOn().isAssignableFrom(component)) {
+            adapterFilters.add(mcf.getComponentFilter());
+            break;
+          }
+        }
+
+        if (!adapterFilters.contains(mcf.getComponentFilter())) {
+          canBeSkipped = false;
+          adapterFilters.clear();
+          break;
         }
       }
 
-      if (adapterFilters.isEmpty()) {
-        adapterFilters.add(NoFilter.class);
+      TagOrMarkerOrComponentSet nextComponents = components.clone();
+      nextComponents.add(managed.getRunOnAfter());
+      for (ScheduleInstance<? extends Component>.SchedStep<? extends Component> step
+          : subSchedInstance.steps) {
+        step.makeAdaptersSkippable(nextComponents);
+      }
+
+      if (!canBeSkipped) {
+        logger.log(Level.FINER, "Adapter ''{0}'' cannot be skipped", getName());
+      } else {
+        logger.log(Level.FINER, "Adapter ''{0}'' is skippable if no filter {1}", new Object[] {
+          getName(),
+          runnableFilters});
       }
     }
 
@@ -379,13 +424,13 @@ public abstract class ScheduleInstance<T extends Component> {
 
     @Override
     public boolean isSkippable(@Nonnull ComponentFilterSet current) {
-      return skipAdapter && !current.containsOne(adapterFilters);
+      return canBeSkipped && !current.containsOne(adapterFilters);
     }
 
     @Override
     @Nonnull
     public ComponentFilterSet getRequiredFilters() {
-      return adapterFilters.clone();
+      return runnableFilters.clone();
     }
   }
 
