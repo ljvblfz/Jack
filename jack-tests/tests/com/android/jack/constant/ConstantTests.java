@@ -20,6 +20,7 @@ import com.android.jack.TestTools;
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.FileChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
@@ -172,6 +173,7 @@ public class ConstantTests extends RuntimeTest {
 
   @Test
   @Runtime
+  @KnownIssue
   @Category(RuntimeRegressionTest.class)
   public void test009() throws Exception {
     new RuntimeTestHelper(TEST009).compileAndRunTest();
@@ -186,6 +188,6 @@ public class ConstantTests extends RuntimeTest {
     rtTestInfos.add(TEST004);
     rtTestInfos.add(TEST006);
     rtTestInfos.add(TEST007);
-    rtTestInfos.add(TEST009);
+//    rtTestInfos.add(TEST009); // KnownIssue
   }
 }

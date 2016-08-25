@@ -723,67 +723,56 @@ public class JackIrBuilder {
     @Nonnull
     private JExpression generateImplicitConversion(int implicitConversionCode,
         @Nonnull JExpression expr) {
-
-      if (implicitConversionCode == TypeIds.T_undefined) {
-        return expr;
-      }
-
       JExpression convertedExpression = expr;
 
       if ((implicitConversionCode & TypeIds.UNBOXING) != 0) {
         final int typeId = implicitConversionCode & TypeIds.COMPILE_TYPE_MASK;
-        convertedExpression =
-            TypeLegalizer.unbox(convertedExpression, getJType(typeId).getWrapperType());
+        convertedExpression = TypeLegalizer.unbox(convertedExpression, getJType(typeId));
       }
 
-      final int typeId = (implicitConversionCode & TypeIds.IMPLICIT_CONVERSION_MASK) >> 4;
-      JPrimitiveType primitiveType = getJType(typeId);
-      convertedExpression = new JDynamicCastOperation(convertedExpression.getSourceInfo(),
-          convertedExpression, primitiveType);
-
       if ((implicitConversionCode & TypeIds.BOXING) != 0) {
-        convertedExpression = TypeLegalizer.box(convertedExpression,
-            primitiveType.getWrapperType());
+        final int typeId = (implicitConversionCode & TypeIds.IMPLICIT_CONVERSION_MASK) >> 4;
+        convertedExpression = TypeLegalizer.box(convertedExpression, getJType(typeId));
       }
 
       return convertedExpression;
     }
 
     @Nonnull
-    private JPrimitiveType getJType(final int typeId) throws AssertionError {
-      JPrimitiveType type = null;
+    private JClass getJType(final int typeId) throws AssertionError {
+      JClass boxedType = null;
 
       switch (typeId) {
         case TypeIds.T_byte:
-          type = JPrimitiveTypeEnum.BYTE.getType();
+          boxedType = Jack.getSession().getLookup().getClass(CommonTypes.JAVA_LANG_BYTE);
           break;
         case TypeIds.T_short:
-          type = JPrimitiveTypeEnum.SHORT.getType();
+          boxedType = Jack.getSession().getLookup().getClass(CommonTypes.JAVA_LANG_SHORT);
           break;
         case TypeIds.T_char:
-          type = JPrimitiveTypeEnum.CHAR.getType();
+          boxedType = Jack.getSession().getLookup().getClass(CommonTypes.JAVA_LANG_CHAR);
           break;
         case TypeIds.T_int:
-          type = JPrimitiveTypeEnum.INT.getType();
+          boxedType = Jack.getSession().getLookup().getClass(CommonTypes.JAVA_LANG_INTEGER);
           break;
         case TypeIds.T_long:
-          type = JPrimitiveTypeEnum.LONG.getType();
+          boxedType = Jack.getSession().getLookup().getClass(CommonTypes.JAVA_LANG_LONG);
           break;
         case TypeIds.T_float:
-          type = JPrimitiveTypeEnum.FLOAT.getType();
+          boxedType = Jack.getSession().getLookup().getClass(CommonTypes.JAVA_LANG_FLOAT);
           break;
         case TypeIds.T_double:
-          type = JPrimitiveTypeEnum.DOUBLE.getType();
+          boxedType = Jack.getSession().getLookup().getClass(CommonTypes.JAVA_LANG_DOUBLE);
           break;
         case TypeIds.T_boolean:
-          type = JPrimitiveTypeEnum.BOOLEAN.getType();
+          boxedType = Jack.getSession().getLookup().getClass(CommonTypes.JAVA_LANG_BOOLEAN);
           break;
         default: {
           throw new AssertionError();
         }
       }
 
-      return type;
+      return boxedType;
     }
 
     @Override
