@@ -16,14 +16,20 @@
 
 package com.android.jack.transformations.ast.string;
 
+import com.android.jack.Options;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JSession;
+import com.android.jack.shrob.spec.FilterSpecification;
+import com.android.jack.shrob.spec.Flags;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Access;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
+import com.android.sched.util.config.ThreadConfig;
+
+import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -37,12 +43,18 @@ import javax.annotation.Nonnull;
 @Access(JSession.class)
 public class FieldStringLiteralRefiner implements RunnableSchedulable<JField> {
 
+  @Nonnull
+  private final List<FilterSpecification> adaptClassStrings =
+      ThreadConfig.get(Options.FLAGS).getAdaptClassStrings();
+
   @Override
   public void run(@Nonnull JField field) {
-    TransformationRequest tr = new TransformationRequest(field);
-    StringLiteralRefinerVisitor visitor = new StringLiteralRefinerVisitor(tr);
-    visitor.accept(field);
-    tr.commit();
+    if (Flags.acceptClass(field.getEnclosingType(), adaptClassStrings)) {
+      TransformationRequest tr = new TransformationRequest(field);
+      StringLiteralRefinerVisitor visitor = new StringLiteralRefinerVisitor(tr);
+      visitor.accept(field);
+      tr.commit();
+    }
   }
 
 }

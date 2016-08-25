@@ -16,6 +16,9 @@
 
 package com.android.jack.shrob.spec;
 
+import com.android.jack.ir.ast.JClassOrInterface;
+import com.android.jack.shrob.proguard.GrammarActions;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -390,5 +393,11 @@ public class Flags {
   @Nonnull
   public List<FilterSpecification> getAdaptResourceFileContents() {
     return adaptResourceFileContents;
+  }
+
+  public static boolean acceptClass(@Nonnull JClassOrInterface type,
+      @Nonnull List<FilterSpecification> specs) {
+    return specs.stream()
+        .anyMatch(x -> x.matches(GrammarActions.getSourceFormatter().getName(type)));
   }
 }

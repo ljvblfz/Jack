@@ -16,14 +16,20 @@
 
 package com.android.jack.transformations.ast.string;
 
+import com.android.jack.Options;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JSession;
+import com.android.jack.shrob.spec.FilterSpecification;
+import com.android.jack.shrob.spec.Flags;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Access;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
+import com.android.sched.util.config.ThreadConfig;
+
+import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -37,12 +43,18 @@ import javax.annotation.Nonnull;
 @Transform(add = StringLiteralRefined.Method.class)
 public class MethodStringLiteralRefiner implements RunnableSchedulable<JMethod> {
 
+  @Nonnull
+  private final List<FilterSpecification> adaptClassStrings =
+      ThreadConfig.get(Options.FLAGS).getAdaptClassStrings();
+
   @Override
   public void run(@Nonnull JMethod method) {
-    TransformationRequest tr = new TransformationRequest(method);
-    StringLiteralRefinerVisitor visitor = new StringLiteralRefinerVisitor(tr);
-    visitor.accept(method);
-    tr.commit();
+    if (Flags.acceptClass(method.getEnclosingType(), adaptClassStrings)) {
+      TransformationRequest tr = new TransformationRequest(method);
+      StringLiteralRefinerVisitor visitor = new StringLiteralRefinerVisitor(tr);
+      visitor.accept(method);
+      tr.commit();
+    }
   }
 
 }

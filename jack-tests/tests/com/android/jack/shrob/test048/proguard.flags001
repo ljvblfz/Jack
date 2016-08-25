@@ -1,5 +1,6 @@
 -dontshrink
 -applymapping mapping.txt
+-adaptclassstrings
 
 -keepclasseswithmembers public class * {
     public static java.lang.String testMethod();

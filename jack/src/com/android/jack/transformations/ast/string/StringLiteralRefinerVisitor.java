@@ -70,8 +70,8 @@ public class StringLiteralRefinerVisitor extends JVisitor {
       return false;
     }
 
-
-    JType type = getTypeFromString(strValue);
+    String signatureName = getSignatureName(strValue);
+    JType type = getTypeFromSignature(signatureName);
     if (type != null) {
       tr.append(new Replace(stringLiteral, new JTypeStringLiteral(stringLiteral.getSourceInfo(),
           hasDot ? Kind.SRC_QN : Kind.BINARY_QN, type)));
@@ -80,8 +80,7 @@ public class StringLiteralRefinerVisitor extends JVisitor {
   }
 
   @CheckForNull
-  private JType getTypeFromString(@Nonnull String str) {
-    String signatureName = getSignatureName(str);
+  private JType getTypeFromSignature(@Nonnull String signatureName) {
     if (NamingTools.isTypeDescriptor(signatureName)) {
       try {
         JType type = lookup.getType(signatureName);

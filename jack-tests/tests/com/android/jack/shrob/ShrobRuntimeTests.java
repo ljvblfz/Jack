@@ -42,6 +42,16 @@ public class ShrobRuntimeTests extends RuntimeTest {
       "com.android.jack.shrob.test016.dx.Tests").addProguardFlagsFileName("proguard.flags001")
       .addProguardFlagsFileName("applyMapping.flags");
 
+  private RuntimeTestInfo TEST016_003 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.shrob.test016"),
+      "com.android.jack.shrob.test016.dx.Tests").addProguardFlagsFileName("proguard.flags003")
+      .addProguardFlagsFileName("applyMapping.flags");
+
+  private RuntimeTestInfo TEST016_004 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.shrob.test016"),
+      "com.android.jack.shrob.test016.dx.Tests2").addProguardFlagsFileName("proguard.flags004")
+      .addProguardFlagsFileName("applyMapping.flags");
+
   private RuntimeTestInfo TEST025 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.shrob.test025"),
       "com.android.jack.shrob.test025.dx.Tests").addProguardFlagsFileName("proguard.flags001");
@@ -87,6 +97,20 @@ public class ShrobRuntimeTests extends RuntimeTest {
   @Runtime
   public void test016() throws Exception {
     new RuntimeTestHelper(TEST016)
+    .compileAndRunTest();
+  }
+
+  @Test
+  @Runtime
+  public void test016_003() throws Exception {
+    new RuntimeTestHelper(TEST016_003)
+    .compileAndRunTest();
+  }
+
+  @Test
+  @Runtime
+  public void test016_004() throws Exception {
+    new RuntimeTestHelper(TEST016_004)
     .compileAndRunTest();
   }
 

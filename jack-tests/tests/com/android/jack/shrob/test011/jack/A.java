@@ -26,7 +26,7 @@ public class A {
     Object o = bClass.newInstance();
 
     try {
-      String cName = "com.android.jack.shrob.test011.jack.C";
+      final String cName = "com.android.jack.shrob.test011.jack.C";
       Class<?> cClass = Class.forName(cName);
       throw new RuntimeException();
     } catch (ClassNotFoundException e) {

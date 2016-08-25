@@ -1,0 +1,8 @@
+-dontshrink
+-keepclassmembernames class ** {
+  <methods>;
+}
+-adaptclassstrings com.android.jack.shrob.test016.jack.KeepClass
+-keepattributes RuntimeVisibleAnnotations
+
+-keepnames class com.android.jack.shrob.test016.jack.KeepClass,**.KeepClass2,**.KeepClass3
