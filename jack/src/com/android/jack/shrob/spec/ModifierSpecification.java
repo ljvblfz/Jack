@@ -33,10 +33,13 @@ import javax.annotation.Nonnull;
  */
 public class ModifierSpecification implements Specification<HasModifier> {
 
+  /**
+   * Different types of accessibility modifiers
+   */
   public enum AccessFlags {
-    PUBLIC(         "public",       JModifier.PUBLIC),
-    PRIVATE (       "private",      JModifier.PRIVATE),
-    PROTECTED (     "protected",    JModifier.PROTECTED);
+    PUBLIC          ("public",       JModifier.PUBLIC),
+    PRIVATE         ("private",      JModifier.PRIVATE),
+    PROTECTED       ("protected",    JModifier.PROTECTED);
 
     private final int value;
 
@@ -48,22 +51,25 @@ public class ModifierSpecification implements Specification<HasModifier> {
     }
   }
 
+  /**
+   * Different types of non-accessibility modifiers
+   */
   public enum Modifier {
-    STATIC(         "static",       JModifier.STATIC),
-    FINAL(          "final",        JModifier.FINAL),
-    SUPER(          "super",        JModifier.SUPER),
-    SYNCHRONIZED(   "synchronized", JModifier.SYNCHRONIZED),
-    VOLATILE (      "volatile",     JModifier.VOLATILE),
-    BRIDGE(         "bridge",       JModifier.BRIDGE),
-    TRANSIENT(      "transient",    JModifier.TRANSIENT),
-    VARARGS(        "varargs",      JModifier.VARARGS),
-    NATIVE(         "native",       JModifier.NATIVE),
-    INTERFACE(      "interface",    JModifier.INTERFACE),
-    ABSTRACT(       "abstract",     JModifier.ABSTRACT),
-    STRICTFP(       "strictfp",     JModifier.STRICTFP),
-    SYNTHETIC(      "synthetic",    JModifier.SYNTHETIC),
-    ANNOTATION(     "annotation",   JModifier.ANNOTATION),
-    ENUM(           "enum",         JModifier.ENUM);
+    STATIC          ("static",       JModifier.STATIC),
+    FINAL           ("final",        JModifier.FINAL),
+    SUPER           ("super",        JModifier.SUPER),
+    SYNCHRONIZED    ("synchronized", JModifier.SYNCHRONIZED),
+    VOLATILE        ("volatile",     JModifier.VOLATILE),
+    BRIDGE          ("bridge",       JModifier.BRIDGE),
+    TRANSIENT       ("transient",    JModifier.TRANSIENT),
+    VARARGS         ("varargs",      JModifier.VARARGS),
+    NATIVE          ("native",       JModifier.NATIVE),
+    INTERFACE       ("interface",    JModifier.INTERFACE),
+    ABSTRACT        ("abstract",     JModifier.ABSTRACT),
+    STRICTFP        ("strictfp",     JModifier.STRICTFP),
+    SYNTHETIC       ("synthetic",    JModifier.SYNTHETIC),
+    ANNOTATION      ("annotation",   JModifier.ANNOTATION),
+    ENUM            ("enum",         JModifier.ENUM);
 
     private final int value;
 
