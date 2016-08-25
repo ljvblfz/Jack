@@ -21,6 +21,7 @@ import com.android.sched.util.config.ChainedException.ChainedExceptionBuilder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.regex.Pattern;
 
 import javax.annotation.CheckForNull;
@@ -44,6 +45,7 @@ public class ListCodec<T> implements StringCodec<List<T>> {
   private String regexp;
   @Nonnull
   private String separator;
+  private boolean unicity = false;
 
   public ListCodec(@Nonnull StringCodec<T> parser) {
     this.separator = ",";
@@ -79,6 +81,12 @@ public class ListCodec<T> implements StringCodec<List<T>> {
     assert max >  0;
 
     this.max = max;
+
+    return this;
+  }
+
+  public ListCodec<T> ensureUnicity() {
+    this.unicity = true;
 
     return this;
   }
@@ -130,15 +138,23 @@ public class ListCodec<T> implements StringCodec<List<T>> {
     List<T> list = new ArrayList<T>(values.length);
     for (String v : values) {
       try {
-        T elt = parser.checkString(context, v.trim());
-
-        // If one element is null, do not compute the list
-        if (elt == null) {
-          list = null;
+        T element = parser.checkString(context, v.trim());
+        if (element == null) {
+          if (unicity) {
+            element = parser.parseString(context, v.trim());
+          } else {
+            // If one element is null, do not compute the list
+            list = null;
+          }
         }
 
         if (list != null) {
-          list.add(elt);
+          if (list.contains(element)) {
+            exceptions.appendException(new ListParsingException(index,
+                "'" + v + "' is redundant with element #" + (list.indexOf(element) + 1)));
+          }
+
+          list.add(element);
         }
       } catch (ParsingException e) {
         exceptions.appendException(new ListParsingException(index, e));
@@ -170,11 +186,23 @@ public class ListCodec<T> implements StringCodec<List<T>> {
           "The maximal number of element in the list must be " + max + " but is " + size));
     }
 
-    for (T element : list) {
+    List<T> uniq = new ArrayList<>(list.size());
+    ListIterator<T> iter = list.listIterator();
+    while (iter.hasNext()) {
+      int index = iter.nextIndex();
+      T element = iter.next();
       try {
         parser.checkValue(context, element);
+        if (unicity) {
+          if (uniq.contains(element)) {
+            exceptions.appendException(
+                new ListCheckingException(index, "'" + parser.formatValue(element)
+                    + "' is redundant with element #" + list.indexOf(element)));
+          }
+          uniq.add(element);
+        }
       } catch (CheckingException e) {
-        exceptions.appendException(e);
+        exceptions.appendException(new ListCheckingException(index, e));
       }
     }
 
@@ -234,6 +262,9 @@ public class ListCodec<T> implements StringCodec<List<T>> {
 
     sb.append(" where <").append(var).append("-i> is ");
     sb.append(parser.getUsage());
+    if (unicity) {
+      sb.append(" and unique");
+    }
 
     return sb.toString();
   }

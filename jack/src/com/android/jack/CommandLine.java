@@ -274,7 +274,6 @@ public abstract class CommandLine {
         // Value descriptions
         List<ValueDescription> descriptions = property.getCodec().getValueDescriptions();
         if (descriptions.size() != 0) {
-          sb.append(" where");
           for (ValueDescription entry : descriptions) {
             sb.append(TextUtils.LINE_SEPARATOR);
             sb.append("          ");
