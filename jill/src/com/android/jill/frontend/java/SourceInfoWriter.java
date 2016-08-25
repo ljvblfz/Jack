@@ -76,7 +76,7 @@ public class SourceInfoWriter {
   private void writeDebugBeginInternal(@CheckForNull String sourceFile, int startLine)
       throws IOException {
     writeFileNameIfDifferentFromCurrent(sourceFile);
-    writeLineIfDifferentFromCurrent(startLine, true);
+    writeLineIfDifferentFromCurrent(startLine);
   }
 
   public void writeDebugEnd(@Nonnull ClassNode cn)
@@ -93,12 +93,12 @@ public class SourceInfoWriter {
     if (cn.sourceFile == null) {
       writeUnknownDebugEnd();
     } else {
-      writeLineIfDifferentFromCurrent(endLine, false);
+      writeLineIfDifferentFromCurrent(endLine);
     }
   }
 
   public void writeUnknownDebugEnd() throws IOException {
-    writeLineIfDifferentFromCurrent(NO_LINE, false);
+    writeLineIfDifferentFromCurrent(NO_LINE);
   }
 
   private void writeFileNameIfDifferentFromCurrent(@CheckForNull String fileName)
@@ -115,8 +115,7 @@ public class SourceInfoWriter {
     currentFileName = fileName;
   }
 
-  private void writeLineIfDifferentFromCurrent(@Nonnegative int lineNumber,
-      boolean isStartLine)
+  private void writeLineIfDifferentFromCurrent(@Nonnegative int lineNumber)
       throws IOException {
     if (lineNumber != currentLineNumber) {
       writeCurrentLine(lineNumber);
