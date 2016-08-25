@@ -65,15 +65,16 @@ public class SourceInfoFactory {
    * canonicalized instances of SourceInfo objects.
    */
   @Nonnull
-  public SourceInfo create(int startCol, int endCol,
+  public SourceInfo create(@Nonnegative int startCol, @Nonnegative int endCol,
       @Nonnegative int startLine, @Nonnegative int endLine, @Nonnull String fileName) {
-    FileSourceInfo fileSourceInfo = create(fileName);
-    LineSourceInfo lineSourceOrigin = create(startLine, endLine, fileSourceInfo);
-    if (startCol <= 0 && endCol <= 0) {
-      return lineSourceOrigin;
+    SourceInfo si = create(startLine, endLine, fileName);
+
+    if (startCol == SourceInfo.UNKNOWN_COLUMN_NUMBER || si instanceof FileSourceInfo) {
+       assert endCol == SourceInfo.UNKNOWN_COLUMN_NUMBER;
+       return si;
     }
 
-    ColumnSourceInfo newInstance = new ColumnSourceInfo(lineSourceOrigin, startCol, endCol);
+    ColumnSourceInfo newInstance = new ColumnSourceInfo((LineSourceInfo) si, startCol, endCol);
     ColumnSourceInfo canonical = canonicalColumnSourceInfos.get(newInstance);
 
     assert canonical == null || (newInstance != canonical && newInstance.equals(canonical));
@@ -97,6 +98,12 @@ public class SourceInfoFactory {
   public SourceInfo create(@Nonnegative int startLine, @Nonnegative int endLine,
       @Nonnull String fileName) {
     FileSourceInfo fileSourceInfo = create(fileName);
+
+    if (startLine == SourceInfo.UNKNOWN_LINE_NUMBER) {
+      assert endLine == SourceInfo.UNKNOWN_LINE_NUMBER;
+      return fileSourceInfo;
+    }
+
     return create(startLine, endLine, fileSourceInfo);
   }
 
