@@ -88,7 +88,7 @@ public class JarLibraryCodec extends FileOrDirCodec<JarLibrary> {
   @Override
   @Nonnull
   public String getUsage() {
-    return "a path to a Jar";
+    return "a path to a jar file (" + getDetailedUsage() + ")";
   }
 
   @Override
