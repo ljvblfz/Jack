@@ -190,8 +190,8 @@ public abstract class CommandLine {
   }
 
   public static void printVersion(@Nonnull PrintStream printStream, @Nonnull Plugin plugin) {
-    printStream.println("Jack plugin:   " + plugin.getFriendlyName()
-                                          + " (" + plugin.getCanonicalName() + ") "
+    printStream.println("Jack plugin:   " + plugin.getCanonicalName()
+                                          + " (" + plugin.getFriendlyName() + ") "
                                           + plugin.getVersion().getVerboseVersion() + '.');
     printStream.println("               " + plugin.getDescription() + '.');
   }
