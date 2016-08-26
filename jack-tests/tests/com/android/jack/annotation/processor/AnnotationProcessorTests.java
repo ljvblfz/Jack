@@ -22,21 +22,14 @@ import com.android.jack.comparator.util.BytesStreamSucker;
 import com.android.jack.library.FileType;
 import com.android.jack.library.FileTypeDoesNotExistException;
 import com.android.jack.library.InputJackLibrary;
-import com.android.jack.library.JackLibraryFactory;
-import com.android.jack.library.LibraryFormatException;
-import com.android.jack.library.LibraryVersionException;
-import com.android.jack.library.NotJackLibraryException;
 import com.android.jack.test.TestsProperties;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.util.ExecFileException;
 import com.android.jack.test.util.ExecuteFile;
-import com.android.sched.util.codec.CaseInsensitiveDirectFSCodec;
-import com.android.sched.util.codec.CodecContext;
-import com.android.sched.util.codec.ParsingException;
-import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.vfs.VPath;
 import com.android.sched.vfs.ZipUtils;
 
@@ -67,58 +60,44 @@ public class AnnotationProcessorTests {
   @Nonnull
   private static final File ANNOTATIONS_DIR = AbstractTestTools.getTestRootDir(
       "com.android.jack.annotation.processor.sample.annotations");
-
-  @CheckForNull
-  private static File noConfigProcessors;
-
-  @CheckForNull
-  private static File autoProcessors;
-
-  @BeforeClass
-  public static void setupClass() {
-    noConfigProcessors = null;
-    autoProcessors = null;
-  }
+  @Nonnull
+  private static final File TEST2_DIR = AbstractTestTools.getTestRootDir(
+      "com.android.jack.annotation.processor.sample2.src");
 
   @Nonnull
   private static File getNoConfigProcessors() throws Exception {
-    if (noConfigProcessors == null) {
-      File processorsDir = AbstractTestTools.createTempDir();
-      File processorsJar = AbstractTestTools.createTempFile("processor", ".jar");
+    File processorsDir = AbstractTestTools.createTempDir();
+    File processorsJar = AbstractTestTools.createTempFile("processor", ".jar");
 
-      File processorsSrcDir = compileProcessorsToDir(processorsDir);
-
-      makeZipFromDir(processorsDir, processorsJar);
-
-      noConfigProcessors = processorsJar;
-    }
-    return noConfigProcessors;
-  }
-
-  @Nonnull
-  private static File getAutoProcessors() throws Exception {
-    if (autoProcessors == null) {
-      File processorsDir = AbstractTestTools.createTempDir();
-      File processorsJar = AbstractTestTools.createTempFile("autoProcessor", ".jar");
-
-      File processorsSrcDir = compileProcessorsToDir(processorsDir);
-
-      AbstractTestTools.copyFileToDir(new File(processorsSrcDir,
-          "javax.annotation.processing.Processor"),
-          "META-INF/services/javax.annotation.processing.Processor", processorsDir);
-
-      makeZipFromDir(processorsDir, processorsJar);
-
-      autoProcessors = processorsJar;
-    }
-    return autoProcessors;
-  }
-
-  @Nonnull
-  private static File compileProcessorsToDir(@Nonnull File outputDir) throws ExecFileException {
-    File compiler = AbstractTestTools.getPrebuilt("legacy-java-compiler");
-    File processorsSrcDir = AbstractTestTools.getTestRootDir(
+    File processorsSrcDir = compileProcessorsToDir(processorsDir,
         "com.android.jack.annotation.processor.sample.processors");
+
+    makeZipFromDir(processorsDir, processorsJar);
+
+    return processorsJar;
+  }
+
+  @Nonnull
+  private static File getAutoProcessors(@Nonnull String processorName) throws Exception {
+    File processorsDir = AbstractTestTools.createTempDir();
+    File processorsJar = AbstractTestTools.createTempFile("autoProcessor", ".jar");
+
+    File processorsSrcDir = compileProcessorsToDir(processorsDir, processorName);
+
+    AbstractTestTools.copyFileToDir(
+        new File(processorsSrcDir, "javax.annotation.processing.Processor"),
+        "META-INF/services/javax.annotation.processing.Processor", processorsDir);
+
+    makeZipFromDir(processorsDir, processorsJar);
+
+    return processorsJar;
+  }
+
+  @Nonnull
+  private static File compileProcessorsToDir(@Nonnull File outputDir, @Nonnull String processorName)
+      throws ExecFileException {
+    File compiler = AbstractTestTools.getPrebuilt("legacy-java-compiler");
+    File processorsSrcDir = AbstractTestTools.getTestRootDir(processorName);
     List<String> compilerArgs = new ArrayList<String>();
     compilerArgs.add("-cp");
     compilerArgs.add(
@@ -184,7 +163,7 @@ public class AnnotationProcessorTests {
     JackBasedToolchain jack =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     File jackOut = AbstractTestTools.createTempDir();
-    File processors = getAutoProcessors();
+    File processors = getAutoProcessors("com.android.jack.annotation.processor.sample.processors");
     jack.addToClasspath(jack.getDefaultBootClasspath());
     jack.addToClasspath(processors);
     jack.srcToLib(jackOut, /*zipFiles=*/false,
@@ -203,7 +182,7 @@ public class AnnotationProcessorTests {
     JackBasedToolchain jack =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     File jackOut = AbstractTestTools.createTempDir();
-    File processors = getAutoProcessors();
+    File processors = getAutoProcessors("com.android.jack.annotation.processor.sample.processors");
     jack.setAnnotationProcessorPath(processors.getPath());
     jack.addToClasspath(jack.getDefaultBootClasspath());
     jack.srcToLib(jackOut,
@@ -296,7 +275,7 @@ public class AnnotationProcessorTests {
     JackBasedToolchain jack =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     File jackOut = AbstractTestTools.createTempDir();
-    File processors = getAutoProcessors();
+    File processors = getAutoProcessors("com.android.jack.annotation.processor.sample.processors");
     jack.addAnnotationProcessorOption(
         SourceAnnotationProcessor.SOURCE_ANNOTATION_PROCESSOR_SUFFIX, "WithOption");
     jack.addToClasspath(jack.getDefaultBootClasspath());
@@ -307,5 +286,26 @@ public class AnnotationProcessorTests {
             );
     InputJackLibrary libOut = AbstractTestTools.getInputJackLibrary(jackOut);
     libOut.getFile(FileType.JAYCE, new VPath("Annotated2WithOption", '/'));
+  }
+
+  /**
+   * Checks that type resolution succeed when a source file depends on a type generated by an
+   * annotation processor.
+   */
+  @Test
+  @KnownIssue
+  public void annotationProcessorTest2() throws Exception {
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(JillBasedToolchain.class);
+    JackBasedToolchain jack =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
+    File jackOut = AbstractTestTools.createTempDir();
+    File srcOut = AbstractTestTools.createTempDir();
+    File processors = getAutoProcessors("com.android.jack.annotation.processor.sample2.processors");
+    jack.addToClasspath(jack.getDefaultBootClasspath());
+    jack.addToClasspath(new File(
+        "/home/mikaelpeltier/works/jacks/ub-jack/toolchain/jack/jsr305/dist/jsr305-lib.jar"));
+    jack.addToClasspath(processors);
+    jack.srcToLib(jackOut, /* zipFiles= */false, TEST2_DIR, srcOut);
   }
 }
