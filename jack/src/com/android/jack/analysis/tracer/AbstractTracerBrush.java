@@ -55,21 +55,21 @@ public abstract class AbstractTracerBrush<M extends BaseTracerMarker> implements
   }
 
   @Override
-  public boolean startTrace(@Nonnull JMethod type) {
-    return markIfNecessary(type);
+  public boolean startTrace(@Nonnull JMethod method) {
+    return markIfNecessary(method);
   }
 
   @Override
-  public void endTrace(@Nonnull JMethod type) {
+  public void endTrace(@Nonnull JMethod method) {
   }
 
   @Override
-  public boolean startTrace(@Nonnull JField type) {
-    return markIfNecessary(type);
+  public boolean startTrace(@Nonnull JField field) {
+    return markIfNecessary(field);
   }
 
   @Override
-  public void endTrace(@Nonnull JField type) {
+  public void endTrace(@Nonnull JField field) {
   }
 
   @Override

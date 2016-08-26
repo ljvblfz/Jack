@@ -75,12 +75,12 @@ public class ComposedTracerBrush implements TracerBrush {
   }
 
   @Override
-  public boolean startTrace(@Nonnull JMethod type) {
+  public boolean startTrace(@Nonnull JMethod method) {
     boolean status = false;
     BitSet currentStatus = composedStatus.peek();
     BitSet nextStatus = new BitSet(brushes.length);
     for (int i = 0; i < brushes.length; i++) {
-      boolean b = currentStatus.get(i) && brushes[i].startTrace(type);
+      boolean b = currentStatus.get(i) && brushes[i].startTrace(method);
       nextStatus.set(i, b);
       status |= b;
     }
@@ -91,20 +91,20 @@ public class ComposedTracerBrush implements TracerBrush {
   }
 
   @Override
-  public void endTrace(@Nonnull JMethod type) {
+  public void endTrace(@Nonnull JMethod method) {
     composedStatus.pop();
     for (TracerBrush config : brushes) {
-      config.endTrace(type);
+      config.endTrace(method);
     }
   }
 
   @Override
-  public boolean startTrace(@Nonnull JField type) {
+  public boolean startTrace(@Nonnull JField field) {
     boolean status = false;
     BitSet currentStatus = composedStatus.peek();
     BitSet nextStatus = new BitSet(brushes.length);
     for (int i = 0; i < brushes.length; i++) {
-      boolean b = currentStatus.get(i) && brushes[i].startTrace(type);
+      boolean b = currentStatus.get(i) && brushes[i].startTrace(field);
       nextStatus.set(i, b);
       status |= b;
     }
@@ -115,10 +115,10 @@ public class ComposedTracerBrush implements TracerBrush {
   }
 
   @Override
-  public void endTrace(@Nonnull JField type) {
+  public void endTrace(@Nonnull JField field) {
     composedStatus.pop();
     for (TracerBrush config : brushes) {
-      config.endTrace(type);
+      config.endTrace(field);
     }
   }
 
@@ -221,7 +221,7 @@ public class ComposedTracerBrush implements TracerBrush {
   }
 
   @Override
-  public void endTraceSeed(@Nonnull JDefinedClassOrInterface method) {
+  public void endTraceSeed(@Nonnull JDefinedClassOrInterface type) {
     composedStatus.pop();
   }
 
