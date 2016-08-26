@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
+import com.android.sched.util.file.CannotGetModificationTimeException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
@@ -33,6 +34,7 @@ import com.android.sched.vfs.UnionVFS.UnionVFile;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -601,7 +603,8 @@ public class UnionVFS extends BaseVFS<UnionVDir, UnionVFile> implements VFS {
   }
 
   @Override
-  long getLastModified(@Nonnull UnionVFile file) {
+  @Nonnull
+  FileTime getLastModified(@Nonnull UnionVFile file) throws CannotGetModificationTimeException {
     return file.getWrappedFile().getLastModified();
   }
 

@@ -19,6 +19,7 @@ package com.android.sched.vfs;
 import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
+import com.android.sched.util.file.CannotGetModificationTimeException;
 import com.android.sched.util.file.CannotReadException;
 import com.android.sched.util.file.CannotWriteException;
 import com.android.sched.util.file.NoSuchFileException;
@@ -31,6 +32,7 @@ import com.android.sched.vfs.DeflateFS.DeflateVFile;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -204,7 +206,8 @@ public class DeflateFS extends BaseVFS<DeflateVDir, DeflateVFile> implements VFS
   }
 
   @Override
-  long getLastModified(@Nonnull DeflateVFile file) {
+  @Nonnull
+  FileTime getLastModified(@Nonnull DeflateVFile file) throws CannotGetModificationTimeException {
     return vfs.getLastModified(file.getWrappedFile());
   }
 

@@ -18,6 +18,7 @@ package com.android.jack.shrob.obfuscation.resource;
 
 import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.file.CannotDeleteFileException;
+import com.android.sched.util.file.CannotGetModificationTimeException;
 import com.android.sched.util.file.CannotReadException;
 import com.android.sched.util.file.CannotWriteException;
 import com.android.sched.util.file.WrongPermissionException;
@@ -30,6 +31,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.attribute.FileTime;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.TreeSet;
@@ -301,7 +303,8 @@ public class RefinedVFile implements VFile {
   }
 
   @Override
-  public long getLastModified() {
+  @Nonnull
+  public FileTime getLastModified() throws CannotGetModificationTimeException {
     return file.getLastModified();
   }
 

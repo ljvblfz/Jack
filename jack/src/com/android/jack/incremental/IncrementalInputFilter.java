@@ -41,6 +41,7 @@ import com.android.jack.library.LibraryWritingException;
 import com.android.jack.library.NotJackLibraryException;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.meta.Meta;
+import com.android.jack.reporting.ReportableIOException;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.config.Config;
@@ -48,8 +49,10 @@ import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.file.CannotDeleteFileException;
+import com.android.sched.util.file.CannotGetModificationTimeException;
 import com.android.sched.util.file.CannotReadException;
 import com.android.sched.util.file.WrongPermissionException;
+import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
 import com.android.sched.util.log.stats.Counter;
@@ -62,6 +65,7 @@ import com.android.sched.vfs.VPath;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -468,8 +472,20 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
           } catch (FileTypeDoesNotExistException e) {
             dexFile = null;
           }
-          if (dexFile == null || ((javaFile.lastModified() > dexFile.getLastModified()))) {
-            modifiedFileNames.add(javaFileName);
+          try {
+            try {
+              if (dexFile == null || ((Files.getLastModifiedTime(javaFile.toPath())
+                  .compareTo(dexFile.getLastModified()) > 0))) {
+                modifiedFileNames.add(javaFileName);
+              }
+            } catch (IOException e) {
+              throw new CannotReadException(new FileLocation(javaFile), e);
+            }
+          } catch (CannotReadException | CannotGetModificationTimeException e) {
+            ReportableIOException reportable =
+                new ReportableIOException("Computing incremental state", e);
+            Jack.getSession().getReporter().report(Severity.FATAL, reportable);
+            throw new JackAbortException(reportable);
           }
         }
       }

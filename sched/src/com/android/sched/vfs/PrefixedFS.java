@@ -18,6 +18,7 @@ package com.android.sched.vfs;
 
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
+import com.android.sched.util.file.CannotGetModificationTimeException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
@@ -26,6 +27,7 @@ import com.android.sched.util.location.Location;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.attribute.FileTime;
 import java.util.Collection;
 import java.util.Set;
 
@@ -165,7 +167,8 @@ public class PrefixedFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS {
   }
 
   @Override
-  long getLastModified(@Nonnull BaseVFile file) {
+  @Nonnull
+  FileTime getLastModified(@Nonnull BaseVFile file) throws CannotGetModificationTimeException {
     return vfs.getLastModified(file);
   }
 
