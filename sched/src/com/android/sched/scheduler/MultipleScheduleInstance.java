@@ -66,7 +66,7 @@ public abstract class MultipleScheduleInstance<T extends Component> extends Sche
   @Nonnegative
   private int threadPoolSize;
 
-  public MultipleScheduleInstance(@Nonnull Plan<T> plan) throws Exception {
+  protected MultipleScheduleInstance(@Nonnull Plan<T> plan) throws Exception {
     super(plan);
 
     switch (ThreadConfig.get(NUM_THREADS_POLICY)) {
