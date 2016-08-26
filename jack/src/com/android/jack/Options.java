@@ -745,7 +745,7 @@ public class Options {
   @Nonnull
   private String pluginPath = "";
 
-  @Option(name = "--plugin", usage = "jack plugin names", metaVar = "<NAME>[,<NAME>...]")
+  @Option(name = "--plugin", usage = "jack plugin names", metaVar = "<NAME>[,<NAME>...] (unique)")
   @Nonnull
   private String pluginNames = "";
 
@@ -770,7 +770,9 @@ public class Options {
 
   @Nonnull
   public static final ListCodec<String> PLUGIN_NAMES_CODEC =
-      new ListCodec<String>(new StringValueCodec("a Jack plugin name", "plugin")).setSeparator(",");
+      new ListCodec<String>(new StringValueCodec("a Jack plugin name", "plugin"))
+          .setSeparator(",")
+          .ensureUnicity();
 
   public synchronized void ensurePluginManager()
       throws IllegalOptionsException {
