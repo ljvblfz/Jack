@@ -67,7 +67,10 @@ public abstract class AbstractTracer implements Tracer {
       "sched.tracer.watchers",
       "Define which watchers use for tracing",
       new ListCodec<WatcherInstaller>(new ImplementationSelector<WatcherInstaller>(
-          WatcherInstaller.class)).setMin(0)).addDefaultValue("");
+          WatcherInstaller.class))
+            .setMin(0)
+            .ensureUnicity())
+         .addDefaultValue("");
 
   @Nonnull
   public static final BooleanPropertyId PARENT_THREAD_SUPORT = BooleanPropertyId.create(

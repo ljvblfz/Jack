@@ -37,7 +37,8 @@ public class ProbeManagerCodec implements StringCodec<ProbeManager> {
 
   public ProbeManagerCodec() {
     parser = new ListCodec<Probe>(new ImplementationSelector<Probe>(Probe.class))
-        .setMin(1);
+        .setMin(1)
+        .ensureUnicity();
   }
 
   @Override
