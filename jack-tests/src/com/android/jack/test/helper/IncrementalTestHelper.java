@@ -238,8 +238,6 @@ public class IncrementalTestHelper {
     }
 
     jackToolchain.srcToExe(dexOutDir, /* zipFile = */ false, sourceFolder);
-
-    Thread.sleep(1000);
   }
 
   @Nonnull

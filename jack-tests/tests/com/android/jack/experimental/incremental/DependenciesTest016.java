@@ -104,7 +104,6 @@ public class DependenciesTest016 {
     toolchain.addResourceDir(rscDir);
     toolchain.addToClasspath(defaultClasspath).srcToExe(outputDex1,
         /* zipFiles = */ false, helper.getSourceFolder());
-    Thread.sleep(1000); // "lastModified()" lacks precision...
     helper.snapshotJackFilesModificationDate();
 
     // check the content of the incremental dir
@@ -145,7 +144,6 @@ public class DependenciesTest016 {
     toolchain.addResourceDir(rscDir);
     toolchain.addToClasspath(defaultClasspath).srcToExe(outputDex2,
         /* zipFiles = */ false, helper.getSourceFolder());
-    Thread.sleep(1000);
 
     // check which files have been recompiled
     List<String> recompiledTypes = helper.getFQNOfRebuiltTypes();
@@ -215,7 +213,6 @@ public class DependenciesTest016 {
     toolchain.addResourceDir(rscDir);
     toolchain.addToClasspath(defaultClasspath).srcToExe(outputDex1,
         /* zipFiles = */ false, helper.getSourceFolder());
-    Thread.sleep(1000); // "lastModified()" lacks precision...
     helper.snapshotJackFilesModificationDate();
 
     // check the content of the incremental dir
@@ -247,7 +244,6 @@ public class DependenciesTest016 {
     toolchain.addResourceDir(rscDir);
     toolchain.addToClasspath(defaultClasspath).srcToExe(outputDex2,
         /* zipFiles = */ false, helper.getSourceFolder());
-    Thread.sleep(1000);
 
     // check which files have been recompiled
     List<String> recompiledTypes = helper.getFQNOfRebuiltTypes();
@@ -346,7 +342,6 @@ public class DependenciesTest016 {
     toolchain.setErrorStream(errorStream);
     toolchain.addToClasspath(defaultClasspath).srcToExe(outputDex1,
         /* zipFiles = */ false, helper.getSourceFolder());
-    Thread.sleep(1000); // "lastModified()" lacks precision...
     helper.snapshotJackFilesModificationDate();
 
     // check the content of the incremental dir
@@ -384,7 +379,6 @@ public class DependenciesTest016 {
     toolchain.addProperty(ResourceImporter.RESOURCE_COLLISION_POLICY.getName(), collisionPolicy);
     toolchain.addToClasspath(defaultClasspath).srcToExe(outputDex2,
         /* zipFiles = */ false, helper.getSourceFolder());
-    Thread.sleep(1000); // "lastModified()" lacks precision...
     helper.snapshotJackFilesModificationDate();
 
     // check the content of the incremental dir
@@ -428,7 +422,6 @@ public class DependenciesTest016 {
     toolchain.addProperty(ResourceImporter.RESOURCE_COLLISION_POLICY.getName(), collisionPolicy);
     toolchain.addToClasspath(defaultClasspath).srcToExe(outputDex3,
         /* zipFiles = */ false, helper.getSourceFolder());
-    Thread.sleep(1000); // "lastModified()" lacks precision...
     helper.snapshotJackFilesModificationDate();
 
     // check the content of the incremental dir
@@ -471,7 +464,6 @@ public class DependenciesTest016 {
     toolchain.addProperty(ResourceImporter.RESOURCE_COLLISION_POLICY.getName(), collisionPolicy);
     toolchain.addToClasspath(defaultClasspath).srcToExe(outputDex4,
         /* zipFiles = */ false, helper.getSourceFolder());
-    Thread.sleep(1000); // "lastModified()" lacks precision...
     helper.snapshotJackFilesModificationDate();
 
     // check the content of the incremental dir

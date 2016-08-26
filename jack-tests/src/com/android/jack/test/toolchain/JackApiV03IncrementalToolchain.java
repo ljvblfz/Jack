@@ -40,7 +40,6 @@ public class JackApiV03IncrementalToolchain
       throws Exception {
     setIncrementalFolder(AbstractTestTools.createTempDir());
     super.srcToExe(out, zipFile, sources);
-    Thread.sleep(1000);
     touchSourceFile(sources);
     super.srcToExe(out, zipFile, sources);
   }
@@ -50,7 +49,6 @@ public class JackApiV03IncrementalToolchain
       throws Exception {
     setIncrementalFolder(AbstractTestTools.createTempDir());
     super.srcToLib(out, zipFiles, sources);
-    Thread.sleep(1000);
     touchSourceFile(sources);
     super.srcToLib(out, zipFiles, sources);
   }
