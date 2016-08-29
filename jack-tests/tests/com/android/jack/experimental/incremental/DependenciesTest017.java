@@ -92,6 +92,8 @@ public class DependenciesTest017 {
     // check the content of the incremental dir
     Assert.assertEquals(0, getCount(helper.getCompilerStateFolder(), FileType.JAYCE));
 
+    Thread.sleep(1000);
+
     source1 = helper.addJavaFile("jack.source", "Source1.java", "package jack.source; \n"
         + "public class Source1 { \n"
         + "public void m(){} }");
@@ -152,6 +154,8 @@ public class DependenciesTest017 {
     // check the content of the incremental dir
     Assert.assertEquals(3, getCount(helper.getCompilerStateFolder(), FileType.JAYCE));
 
+    Thread.sleep(1000);
+
     source1 = helper.addJavaFile("jack.source", "Source1.java", "package jack.source; \n"
         + "public class Source1 { \n"
         + "public m(){} }"); // missing return type
@@ -176,6 +180,8 @@ public class DependenciesTest017 {
     // check the content of the incremental dir
     int numJayce = 1; // Source1 was modified and Source2 depends on it so both have been deleted
     Assert.assertEquals(numJayce, getCount(helper.getCompilerStateFolder(), FileType.JAYCE));
+
+    Thread.sleep(1000);
 
     source1 = helper.addJavaFile("jack.source", "Source1.java", "package jack.source; \n"
         + "public class Source1 { \n"
