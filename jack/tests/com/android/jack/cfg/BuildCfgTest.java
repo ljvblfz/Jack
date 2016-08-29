@@ -66,16 +66,16 @@ public class BuildCfgTest {
 
   @Test
   public void cfg001() throws Exception {
-    Assert.assertEquals(6, bbCodeOder.size());
-    Assert.assertEquals(true, bbCodeOder.get(1).getLastInstruction() instanceof JIfStatement);
-    Assert.assertEquals(2, bbCodeOder.get(1).getSuccessors().size());
-    JStatement lastInstruction = bbCodeOder.get(3).getLastInstruction();
+    Assert.assertEquals(5, bbCodeOder.size());
+    Assert.assertEquals(true, bbCodeOder.get(0).getLastInstruction() instanceof JIfStatement);
+    Assert.assertEquals(2, bbCodeOder.get(0).getSuccessors().size());
+    JStatement lastInstruction = bbCodeOder.get(2).getLastInstruction();
     Assert.assertEquals(true,
         lastInstruction instanceof JExpressionStatement);
     Assert.assertTrue(
         ((JExpressionStatement) lastInstruction).getExpr() instanceof JAsgOperation);
     Assert.assertEquals(true,
-        bbCodeOder.get(4).getLastInstruction() instanceof JExpressionStatement);
+        bbCodeOder.get(3).getLastInstruction() instanceof JExpressionStatement);
   }
 
   @Test

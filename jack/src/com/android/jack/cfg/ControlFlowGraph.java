@@ -54,6 +54,10 @@ public class ControlFlowGraph extends Graph<BasicBlock> implements Marker {
       @Nonnull ArrayList<BasicBlock> blocks) {
     super(entryBlock, exitBlock, blocks);
     assert method != null;
+    assert entryBlock.getStatements().isEmpty();
+    assert exitBlock.getStatements().isEmpty();
+    assert !blocks.contains(entryBlock);
+    assert !blocks.contains(exitBlock);
 
     this.method = method;
     this.basicBlockMaxId = basicBlockMaxId;
