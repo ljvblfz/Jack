@@ -30,7 +30,7 @@ import javax.annotation.Nonnull;
  *
  * @param <N> The type of graph node.
  */
-public class GraphNode<N extends GraphNode<N>> extends LocalMarkerManager {
+public abstract class GraphNode<N extends GraphNode<N>> extends LocalMarkerManager {
 
   // TODO(mikaelpeltier) Think about new implementation of sparse list due to index usage and
   // append usage to fill successors.
@@ -74,15 +74,7 @@ public class GraphNode<N extends GraphNode<N>> extends LocalMarkerManager {
   }
 
   @Nonnull
-  public List<N> getSuccessors() {
-    List<N> filteredSuccessors = new ArrayList<N>();
-    for (N succ : successors) {
-      if (succ != null) {
-        filteredSuccessors.add(succ);
-      }
-    }
-    return Jack.getUnmodifiableCollections().getUnmodifiableList(filteredSuccessors);
-  }
+  public abstract List<N> getSuccessors();
 
   @Nonnull
   protected List<N> getInternalSuccessors() {
