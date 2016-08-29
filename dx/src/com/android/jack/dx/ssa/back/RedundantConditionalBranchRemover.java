@@ -22,6 +22,7 @@ import com.android.jack.dx.rop.code.Rop;
 import com.android.jack.dx.rop.code.Rops;
 import com.android.jack.dx.ssa.NormalSsaInsn;
 import com.android.jack.dx.ssa.SsaBasicBlock;
+import com.android.jack.dx.ssa.SsaBasicBlock.Visitor;
 import com.android.jack.dx.ssa.SsaInsn;
 import com.android.jack.dx.ssa.SsaMethod;
 import com.android.jack.dx.util.BitIntSet;
@@ -67,9 +68,12 @@ class RedundantConditionalBranchRemover {
   }
 
   void process() {
-    for (SsaBasicBlock block : blocks) {
-      pruneRedundantConditionalBranch(block);
-    }
+    method.forEachBlockDepthFirst(true, new Visitor() {
+      @Override
+      public void visitBlock(SsaBasicBlock block, SsaBasicBlock parent) {
+        pruneRedundantConditionalBranch(block);
+      }
+    });
   }
 
   private void pruneRedundantConditionalBranch(@Nonnull SsaBasicBlock block) {
