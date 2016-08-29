@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.sched.util.file;
+package com.android.sched.util.codec;
 
+import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.location.HasLocation;
 import com.android.sched.util.location.Location;
 
@@ -23,29 +24,43 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * Exception when a path is not a Jar file.
+ * Exception when a path is not a service jar file.
  */
-public class NotJarFileException extends NotFileOrDirectoryException {
+public class NotServiceFileException extends NotFileOrDirectoryException {
   private static final long serialVersionUID = 1L;
 
-  public NotJarFileException(@Nonnull Location location) {
+  @Nonnull
+  private final Class<?> type;
+
+  public NotServiceFileException(@Nonnull Location location, @Nonnull Class<?> type) {
     super(location, null);
+    this.type = type;
   }
 
-  public NotJarFileException(@Nonnull Location location, @CheckForNull Throwable cause) {
+  public NotServiceFileException(@Nonnull Location location, @Nonnull Class<?> type,
+      @CheckForNull Throwable cause) {
     super(location, cause);
+    this.type = type;
   }
 
-  public NotJarFileException(@Nonnull HasLocation locationProvider) {
+  public NotServiceFileException(@Nonnull HasLocation locationProvider, @Nonnull Class<?> type) {
     super(locationProvider, null);
+    this.type = type;
   }
 
-  public NotJarFileException(@Nonnull HasLocation location, @CheckForNull Throwable cause) {
+  public NotServiceFileException(@Nonnull HasLocation location, @Nonnull Class<?> type,
+      @CheckForNull Throwable cause) {
     super(location, cause);
+    this.type = type;
+  }
+
+  @Nonnull
+  public Class<?> getServiceType() {
+    return type;
   }
 
   @Override
   protected String createMessage(@Nonnull String description) {
-    return description + " is not actually a jar file";
+    return description + " is not a '" + type.getCanonicalName() + "' service jar file";
   }
 }

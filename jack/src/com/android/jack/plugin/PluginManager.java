@@ -28,6 +28,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
@@ -59,20 +60,28 @@ public class PluginManager {
   private static final Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
-  private final ServiceLoader<Plugin> serviceLoader;
+  private final List<ServiceLoader<Plugin>> serviceLoaders = new LinkedList<>();
 
-  public PluginManager(@Nonnull ServiceLoader<Plugin> serviceLoader) {
-    this.serviceLoader = serviceLoader;
-  }
-
-  public PluginManager(@Nonnull ClassLoader classLoader) {
-    this.serviceLoader = ServiceLoader.load(Plugin.class, classLoader);
+  public void addPlugin(@Nonnull List<URL> urls) throws NotJackPluginException {
+    addPlugin(urls.toArray(new URL[urls.size()]));
   }
 
   @SuppressFBWarnings("DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED")
-  public PluginManager(@Nonnull List<URL> urls) {
-    this(new URLClassLoader(urls.toArray(new URL[urls.size()]),
-        PluginManager.class.getClassLoader()));
+  public void addPlugin(@Nonnull URL[] urls) throws NotJackPluginException {
+    addPlugin(new URLClassLoader(urls, PluginManager.class.getClassLoader()));
+  }
+
+  public void addPlugin(@Nonnull ClassLoader classLoader) throws NotJackPluginException {
+    addPlugin(ServiceLoader.load(Plugin.class, classLoader));
+  }
+
+  public void addPlugin(@Nonnull ServiceLoader<Plugin> serviceLoader)
+      throws NotJackPluginException {
+    if (!serviceLoader.iterator().hasNext()) {
+      throw new NotJackPluginException();
+    }
+
+    serviceLoaders.add(serviceLoader);
   }
 
   // STOPSHIP Use property
@@ -90,17 +99,21 @@ public class PluginManager {
     Plugin plugin = map.get(name);
     if (plugin == null) {
       List<Plugin> plugins = new ArrayList<Plugin>();
-      for (Plugin candidate : serviceLoader) {
-        if (candidate.getCanonicalName().equals(name)) {
-          if (candidate.isCompatibileWithJack(Jack.getVersion())) {
-            if (filter.accept(candidate)) {
-              plugins.add(candidate);
+
+      for (ServiceLoader<Plugin> serviceLoader : serviceLoaders) {
+        for (Plugin candidate : serviceLoader) {
+          if (candidate.getCanonicalName().equals(name)) {
+            if (candidate.isCompatibileWithJack(Jack.getVersion())) {
+              if (filter.accept(candidate)) {
+                plugins.add(candidate);
+              }
+            } else {
+              logger.log(Level.INFO,
+                  "For plugin ''{0}'', "
+                      + "rejected version {1} because not compatible with Jack version {2}",
+                  new Object[] {candidate.getCanonicalName(), candidate.getVersion().getVersion(),
+                                Jack.getVersion().getVersion()});
             }
-          } else {
-            logger.log(Level.INFO, "For plugin ''{0}'', "
-                + "rejected version {1} because not compatible with Jack version {2}",
-                new Object[] {candidate.getCanonicalName(), candidate.getVersion().getVersion(),
-                    Jack.getVersion().getVersion()});
           }
         }
       }
@@ -147,8 +160,10 @@ public class PluginManager {
   @Nonnull
   public Collection<Plugin> getAvailablePlugins() {
     List<Plugin> plugins = new ArrayList<Plugin>();
-    for (Plugin plugin : serviceLoader) {
-      plugins.add(plugin);
+    for (ServiceLoader<Plugin> serviceLoader : serviceLoaders) {
+      for (Plugin plugin : serviceLoader) {
+        plugins.add(plugin);
+      }
     }
 
     return plugins;

@@ -16,9 +16,7 @@
 
 package com.android.jack;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.dex.MultiDexLegacy;
@@ -34,6 +32,8 @@ import com.android.jack.library.InputLibrary;
 import com.android.jack.library.InputLibraryCodec;
 import com.android.jack.library.PrebuiltCompatibility;
 import com.android.jack.meta.MetaImporter;
+import com.android.jack.plugin.JackPluginJarCodec;
+import com.android.jack.plugin.NotJackPluginException;
 import com.android.jack.plugin.PluginManager;
 import com.android.jack.plugin.PluginNotFoundException;
 import com.android.jack.reporting.Reportable;
@@ -62,7 +62,6 @@ import com.android.sched.util.codec.CodecContext;
 import com.android.sched.util.codec.DirectDirOutputVFSCodec;
 import com.android.sched.util.codec.DirectoryCodec;
 import com.android.sched.util.codec.InputFileOrDirectoryCodec;
-import com.android.sched.util.codec.InputJarCodec;
 import com.android.sched.util.codec.InputStreamOrDirectoryCodec;
 import com.android.sched.util.codec.ListCodec;
 import com.android.sched.util.codec.PairCodec;
@@ -766,7 +765,7 @@ public class Options {
 
   @Nonnull
   public static final ListCodec<InputJarFile> PLUGIN_PATH_CODEC =
-      new ListCodec<InputJarFile>(new InputJarCodec()).setSeparator(File.pathSeparator);
+      new ListCodec<InputJarFile>(new JackPluginJarCodec()).setSeparator(File.pathSeparator);
 
   @Nonnull
   public static final ListCodec<String> PLUGIN_NAMES_CODEC =
@@ -777,23 +776,20 @@ public class Options {
   public synchronized void ensurePluginManager()
       throws IllegalOptionsException {
     if (pluginManager == null) {
-      List<InputJarFile> path;
+      List<InputJarFile> jars;
       try {
-        path = PLUGIN_PATH_CODEC.checkString(getCondecContext(), pluginPath);
-        if (path == null) {
-          path = PLUGIN_PATH_CODEC.parseString(getCondecContext(), pluginPath);
+        jars = PLUGIN_PATH_CODEC.checkString(getCondecContext(), pluginPath);
+        if (jars == null) {
+          jars = PLUGIN_PATH_CODEC.parseString(getCondecContext(), pluginPath);
         }
-        pluginManager = new PluginManager(
-            Lists.<InputJarFile, URL>transform(path, new Function<InputJarFile, URL>() {
-              @Override
-              public URL apply(InputJarFile jarFile) {
-                try {
-                  return jarFile.getFile().toURI().toURL();
-                } catch (MalformedURLException e) {
-                  throw new AssertionError(e);
-                }
-              }
-            }));
+        pluginManager = new PluginManager();
+        try {
+          for (InputJarFile jar : jars) {
+            pluginManager.addPlugin(new URL[]{jar.getFile().toURI().toURL()});
+          }
+        } catch (NotJackPluginException | MalformedURLException e) {
+          throw new AssertionError(e);
+        }
       } catch (ParsingException e) {
         throw new IllegalOptionsException("option --pluginpath: " + e.getMessage(), e);
       }
