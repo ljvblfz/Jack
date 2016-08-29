@@ -47,12 +47,7 @@ public class LineNumberRemover implements RunnableSchedulable<JDefinedClassOrInt
     public boolean visit(@Nonnull JNode node) {
       SourceInfo info = node.getSourceInfo();
       if (info != SourceInfo.UNKNOWN) {
-        node.setSourceInfo(sourceInfoFactory.create(
-            SourceInfo.UNKNOWN_COLUMN_NUMBER,
-            SourceInfo.UNKNOWN_COLUMN_NUMBER,
-            SourceInfo.UNKNOWN_LINE_NUMBER,
-            SourceInfo.UNKNOWN_LINE_NUMBER,
-            info.getFileName()));
+        node.setSourceInfo(info.getFileSourceInfo());
       }
       return false;
     }
