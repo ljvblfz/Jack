@@ -81,7 +81,7 @@ public class SourceInfoWriter {
 
   public void writeDebugEnd(@Nonnull ClassNode cn)
       throws IOException {
-    writeDebugEnd(cn, NO_LINE);
+    writeUnknownDebugEnd();
   }
 
   public void writeDebugEnd(@Nonnull ClassNode cn, @Nonnull FieldNode fn)

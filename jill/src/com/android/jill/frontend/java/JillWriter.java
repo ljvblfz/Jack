@@ -241,7 +241,7 @@ public abstract class JillWriter {
     return objectArray;
   }
 
-  private void writeDebugBegin(@CheckForNull ClassNode classNode, @Nonnegative int currentLine)
+  protected void writeDebugBegin(@CheckForNull ClassNode classNode, @Nonnegative int currentLine)
       throws IOException {
     if (classNode != null && currentLine != SourceInfoWriter.NO_LINE) {
       sourceInfoWriter.writeDebugBegin(classNode, currentLine);
@@ -250,7 +250,7 @@ public abstract class JillWriter {
     }
   }
 
-  private void writeDebugEnd(@CheckForNull ClassNode classNode, @Nonnegative int currentLine)
+  protected void writeDebugEnd(@CheckForNull ClassNode classNode, @Nonnegative int currentLine)
       throws IOException {
     if (classNode != null && currentLine != SourceInfoWriter.NO_LINE) {
       sourceInfoWriter.writeDebugEnd(classNode, currentLine + 1);

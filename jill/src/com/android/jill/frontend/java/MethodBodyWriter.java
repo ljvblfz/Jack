@@ -467,7 +467,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
 
   private void writeBody() throws IOException {
 
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeCatchBlockIds(currentCatchList);
     writer.writeKeyword(Token.BLOCK);
     writer.writeOpen();
@@ -475,7 +475,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
 
     if (currentMethod.instructions.size() == 0) {
       if (options.isTolerant()) {
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeCatchBlockIds(currentCatchList);
         writer.writeKeyword(Token.THROW_STATEMENT);
         writer.writeOpen();
@@ -489,7 +489,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         writer.writeOpenNodeList();
         writer.writeCloseNodeList();
         writer.writeClose();
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
       } else {
         throw new JillException("Method should have instructions.");
@@ -497,11 +497,11 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     } else {
       for (Map.Entry<Variable, Variable> entry : parameter2Var.entrySet()) {
         Variable p = entry.getKey();
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeCatchBlockIds(currentCatchList);
         writer.writeKeyword(Token.EXPRESSION_STATEMENT);
         writer.writeOpen();
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.ASG_OPERATION);
         writer.writeOpen();
         writeLocalRef(entry.getValue());
@@ -510,9 +510,9 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         } else {
           writeLocalRef(p);
         }
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
       }
 
@@ -590,7 +590,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     }
 
     writer.writeCloseNodeList();
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
   }
 
@@ -598,17 +598,17 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
       @Nonnull InvokeDynamicInsnNode iDyn) throws IOException {
     Handle mthImplementingLambda = (Handle) iDyn.bsmArgs[1];
 
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeCatchBlockIds(currentCatchList);
     writer.writeKeyword(Token.EXPRESSION_STATEMENT);
     writer.writeOpen();
 
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeKeyword(Token.ASG_OPERATION);
     writer.writeOpen();
     writeStackAccess(nextFrame, TOP_OF_STACK);
 
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeKeyword(Token.LAMBDA);
     writer.writeOpen();
 
@@ -684,12 +684,12 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     writer.writeClose();
     writer.writeClose();
 
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
 
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
   }
 
@@ -954,7 +954,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
           insnIntoCatch = insnIntoCatch.getNext();
         }
 
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeCatchBlockIds(currentCatchList);
         writer.writeKeyword(Token.CATCH_BLOCK);
         writer.writeOpen();
@@ -981,25 +981,25 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         writer.writeOpenNodeList();
 
         if (frames[labelIdx] != null) {
-          sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+          writeDebugBegin(currentClass, currentLine);
           writer.writeCatchBlockIds(currentCatchList);
           writer.writeKeyword(Token.EXPRESSION_STATEMENT);
           writer.writeOpen();
-          sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+          writeDebugBegin(currentClass, currentLine);
           writer.writeKeyword(Token.ASG_OPERATION);
           writer.writeOpen();
           writeStackAccess(frames[labelIdx], TOP_OF_STACK);
           writeLocalRef(declaringCatchVariable);
-          sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+          writeDebugEnd(currentClass, currentLine);
           writer.writeClose();
-          sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+          writeDebugEnd(currentClass, currentLine);
           writer.writeClose();
         }
         writeGoto(tryCatchNode.handler);
 
         writer.writeCloseNodeList();
 
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
         break; // Write catch block only one time even if the handler is used severals times.
       }
@@ -1025,7 +1025,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
 
   private void writeLabelInsn(@Nonnegative int insnIdx)
         throws IOException {
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeCatchBlockIds(currentCatchList);
     writer.writeKeyword(Token.LABELED_STATEMENT);
     writer.writeOpen();
@@ -1033,18 +1033,18 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     writer.writeString(id);
     writer.writeId(id);
     writeEmptyBlock();
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
   }
 
   private void writeEmptyBlock() throws IOException {
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeCatchBlockIds(currentCatchList);
     writer.writeKeyword(Token.BLOCK);
     writer.writeOpen();
     writer.writeOpenNodeList();
     writer.writeCloseNodeList();
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
   }
 
@@ -1052,35 +1052,35 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
       @Nonnull IincInsnNode iincInsn) throws IOException {
     // Uninitialized variable means dead store. Do not generate them.
     if (nextFrame.getLocal(iincInsn.var) != BasicValue.UNINITIALIZED_VALUE) {
-      sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+      writeDebugBegin(currentClass, currentLine);
       writer.writeCatchBlockIds(currentCatchList);
       writer.writeKeyword(Token.EXPRESSION_STATEMENT);
       writer.writeOpen();
-      sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+      writeDebugBegin(currentClass, currentLine);
       writer.writeKeyword(Token.ASG_OPERATION);
       writer.writeOpen();
       writeLocalAccess(nextFrame, iincInsn.var);
-      sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+      writeDebugBegin(currentClass, currentLine);
       writer.writeKeyword(Token.ADD_OPERATION);
       writer.writeOpen();
       writeLocalAccess(frame, iincInsn.var);
       writeValue(iincInsn.incr, currentClass, currentLine);
-      sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+      writeDebugEnd(currentClass, currentLine);
       writer.writeClose();
-      sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+      writeDebugEnd(currentClass, currentLine);
       writer.writeClose();
-      sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+      writeDebugEnd(currentClass, currentLine);
       writer.writeClose();
     }
   }
 
   private void writeInsn(@Nonnull Frame<BasicValue> frame, @Nonnull Frame<BasicValue> nextFrame,
       @Nonnull IntInsnNode intInsn) throws IOException {
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeCatchBlockIds(currentCatchList);
     writer.writeKeyword(Token.EXPRESSION_STATEMENT);
     writer.writeOpen();
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeKeyword(Token.ASG_OPERATION);
     writer.writeOpen();
     writeStackAccess(nextFrame, TOP_OF_STACK);
@@ -1140,33 +1140,33 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
       }
     }
 
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
   }
 
   private void writeInsn(@Nonnull Frame<BasicValue> frame, @Nonnull Frame<BasicValue> nextFrame,
       @Nonnull MultiANewArrayInsnNode manaIns) throws IOException {
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeCatchBlockIds(currentCatchList);
     writer.writeKeyword(Token.EXPRESSION_STATEMENT);
     writer.writeOpen();
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeKeyword(Token.ASG_OPERATION);
     writer.writeOpen();
     writeStackAccess(nextFrame, TOP_OF_STACK);
     writeNewArray(frame, manaIns.desc, manaIns.dims);
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
   }
 
   private void writeNewArray(
       @Nonnull Frame<BasicValue> frame, @Nonnull String typeDesc, @Nonnegative int dims)
       throws IOException {
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeKeyword(Token.NEW_ARRAY);
     writer.writeOpen();
     writer.writeId(typeDesc);
@@ -1177,13 +1177,13 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     writer.writeCloseNodeList();
     writer.writeOpenNodeList(); // Empty initializers list.
     writer.writeCloseNodeList();
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
   }
 
   private void writeArrayRef(@Nonnull Frame<BasicValue> frame, int startIdx,
       @Nonnegative int opcode) throws IOException {
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeKeyword(Token.ARRAY_REF);
     writer.writeOpen();
     Type refType = frame.getStack(frame.getStackSize() + startIdx).getType();
@@ -1193,7 +1193,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     // return a[0] <- aload_0, iconst_0, iaload
     assert refType.getSort() == Type.ARRAY || "null".equals(refType.getInternalName());
 
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeKeyword(Token.REINTERPRETCAST_OPERATION);
     writer.writeOpen();
     switch (opcode) {
@@ -1246,11 +1246,11 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
       }
     }
     writeStackAccess(frame, startIdx);
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
 
     writeStackAccess(frame, startIdx + 1);
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
   }
 
@@ -1289,43 +1289,43 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
   private void writeSwitch(@Nonnull Frame<BasicValue> frame, @Nonnull List<String> cases,
       @Nonnull List<Case> casesLabelNodeAndKey)
       throws IOException {
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeCatchBlockIds(currentCatchList);
     writer.writeKeyword(Token.SWITCH_STATEMENT);
     writer.writeOpen();
     writeStackAccess(frame, TOP_OF_STACK);
     writer.writeIds(cases);
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeCatchBlockIds(currentCatchList);
     writer.writeKeyword(Token.BLOCK);
     writer.writeOpen();
     writer.writeOpenNodeList();
     for (Case c : casesLabelNodeAndKey) {
-      sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+      writeDebugBegin(currentClass, currentLine);
       writer.writeCatchBlockIds(currentCatchList);
       writer.writeKeyword(Token.CASE_STATEMENT);
       writer.writeOpen();
       writer.writeId(c.caseId);
       writeValue(c.key, currentClass, currentLine);
-      sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+      writeDebugEnd(currentClass, currentLine);
       writer.writeClose();
       writeGoto(c.labelNode);
     }
     writer.writeCloseNodeList();
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
   }
 
   private void writeInsn(@Nonnull Frame<BasicValue> frame, @Nonnull Frame<BasicValue> nextFrame,
       @Nonnull TypeInsnNode typeInsn) throws IOException {
 
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeCatchBlockIds(currentCatchList);
     writer.writeKeyword(Token.EXPRESSION_STATEMENT);
     writer.writeOpen();
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeKeyword(Token.ASG_OPERATION);
     writer.writeOpen();
     writeStackAccess(nextFrame, TOP_OF_STACK);
@@ -1334,11 +1334,11 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
 
     switch (typeInsn.getOpcode()) {
       case NEW: {
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.ALLOC);
         writer.writeOpen();
         writer.writeId(descriptor);
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
         break;
       }
@@ -1347,16 +1347,16 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         break;
       }
       case INSTANCEOF: {
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.REINTERPRETCAST_OPERATION);
         writer.writeOpen();
         writer.writeId(Type.BOOLEAN_TYPE.getDescriptor());
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.INSTANCE_OF);
         writer.writeOpen();
         writeStackAccess(frame, TOP_OF_STACK);
         writer.writeId(descriptor);
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
         sourceInfoWriter.writeDebugEnd(currentClass,
             currentLine + 1);
@@ -1372,19 +1372,19 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
       }
     }
 
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
   }
 
   private void writeInsn(@Nonnull Frame<BasicValue> frame, @Nonnull Frame<BasicValue> nextFrame,
       @Nonnull FieldInsnNode fldInsn) throws IOException {
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeCatchBlockIds(currentCatchList);
     writer.writeKeyword(Token.EXPRESSION_STATEMENT);
     writer.writeOpen();
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeKeyword(Token.ASG_OPERATION);
     writer.writeOpen();
 
@@ -1412,7 +1412,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
       case GETFIELD: {
         writeStackAccess(nextFrame, TOP_OF_STACK);
         if (Type.getType(fldInsn.desc) == Type.BOOLEAN_TYPE) {
-          sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+          writeDebugBegin(currentClass, currentLine);
           writer.writeKeyword(Token.REINTERPRETCAST_OPERATION);
           writer.writeOpen();
           writer.writeId(Type.INT_TYPE.getDescriptor());
@@ -1428,7 +1428,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
       case GETSTATIC: {
         writeStackAccess(nextFrame, TOP_OF_STACK);
         if (Type.getType(fldInsn.desc) == Type.BOOLEAN_TYPE) {
-          sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+          writeDebugBegin(currentClass, currentLine);
           writer.writeKeyword(Token.REINTERPRETCAST_OPERATION);
           writer.writeOpen();
           writer.writeId(Type.INT_TYPE.getDescriptor());
@@ -1445,9 +1445,9 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         throw new JillException("Not yet supported " + Printer.OPCODES[fldInsn.getOpcode()]);
     }
 
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
 
   }
@@ -1459,19 +1459,19 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
       case INVOKESTATIC:
       case INVOKEVIRTUAL:
       case INVOKESPECIAL: {
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeCatchBlockIds(currentCatchList);
         writer.writeKeyword(Token.EXPRESSION_STATEMENT);
         writer.writeOpen();
 
         Type returnType = Type.getReturnType(mthInsn.desc);
         if (returnType != Type.VOID_TYPE) {
-          sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+          writeDebugBegin(currentClass, currentLine);
           writer.writeKeyword(Token.ASG_OPERATION);
           writer.writeOpen();
           writeStackAccess(nextFrame, TOP_OF_STACK);
           if (returnType == Type.BOOLEAN_TYPE) {
-            sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+            writeDebugBegin(currentClass, currentLine);
             writer.writeKeyword(Token.REINTERPRETCAST_OPERATION);
             writer.writeOpen();
             writer.writeId(Type.INT_TYPE.getDescriptor());
@@ -1517,7 +1517,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
           }
         }
 
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.METHOD_CALL);
         writer.writeOpen();
         Type receiverType = Type.getObjectType(mthInsn.owner);
@@ -1574,7 +1574,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         }
         writer.writeCloseNodeList();
         writer.writeDispatchKindEnum(dispatchKind);
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
 
         if (returnType != Type.VOID_TYPE) {
@@ -1583,11 +1583,11 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
                 currentLine + 1);
             writer.writeClose();
           }
-          sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+          writeDebugEnd(currentClass, currentLine);
           writer.writeClose();
         }
 
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
         break;
       }
@@ -1605,11 +1605,11 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
       case LLOAD:
       case ILOAD:
       case ALOAD: {
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeCatchBlockIds(currentCatchList);
         writer.writeKeyword(Token.EXPRESSION_STATEMENT);
         writer.writeOpen();
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.ASG_OPERATION);
         writer.writeOpen();
         writeStackAccess(nextFrame, TOP_OF_STACK);
@@ -1619,9 +1619,9 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         } else {
           writeLocalAccess(frame, varInsn.var);
         }
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
         break;
       }
@@ -1632,11 +1632,11 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
       case ASTORE: {
         // Uninitialized variable means dead store. Do not generate them.
         if (nextFrame.getLocal(varInsn.var) != BasicValue.UNINITIALIZED_VALUE) {
-          sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+          writeDebugBegin(currentClass, currentLine);
           writer.writeCatchBlockIds(currentCatchList);
           writer.writeKeyword(Token.EXPRESSION_STATEMENT);
           writer.writeOpen();
-          sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+          writeDebugBegin(currentClass, currentLine);
           writer.writeKeyword(Token.ASG_OPERATION);
           writer.writeOpen();
           writeLocalAccess(nextFrame, varInsn.var);
@@ -1650,9 +1650,9 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
           } else {
             writeStackAccess(frame, TOP_OF_STACK);
           }
-          sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+          writeDebugEnd(currentClass, currentLine);
           writer.writeClose();
-          sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+          writeDebugEnd(currentClass, currentLine);
           writer.writeClose();
         }
         break;
@@ -1674,53 +1674,53 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
       case ICONST_4:
       case ICONST_5: {
         assert nextFrame != null;
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeCatchBlockIds(currentCatchList);
         writer.writeKeyword(Token.EXPRESSION_STATEMENT);
         writer.writeOpen();
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.ASG_OPERATION);
         writer.writeOpen();
         writeStackAccess(nextFrame, TOP_OF_STACK);
         writeValue(insn.getOpcode() - ICONST_0, currentClass, currentLine);
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
         break;
       }
       case ACONST_NULL: {
         assert nextFrame != null;
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeCatchBlockIds(currentCatchList);
         writer.writeKeyword(Token.EXPRESSION_STATEMENT);
         writer.writeOpen();
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.ASG_OPERATION);
         writer.writeOpen();
         writeStackAccess(nextFrame, TOP_OF_STACK);
         writeValue(currentClass, currentLine);
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
         break;
       }
       case LCONST_0:
       case LCONST_1: {
         assert nextFrame != null;
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeCatchBlockIds(currentCatchList);
         writer.writeKeyword(Token.EXPRESSION_STATEMENT);
         writer.writeOpen();
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.ASG_OPERATION);
         writer.writeOpen();
         writeStackAccess(nextFrame, TOP_OF_STACK);
         writeValue((long) (insn.getOpcode() - LCONST_0), currentClass, currentLine);
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
         break;
       }
@@ -1728,36 +1728,36 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
       case FCONST_1:
       case FCONST_2: {
         assert nextFrame != null;
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeCatchBlockIds(currentCatchList);
         writer.writeKeyword(Token.EXPRESSION_STATEMENT);
         writer.writeOpen();
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.ASG_OPERATION);
         writer.writeOpen();
         writeStackAccess(nextFrame, TOP_OF_STACK);
         writeValue((float) (insn.getOpcode() - FCONST_0), currentClass, currentLine);
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
         break;
       }
       case DCONST_0:
       case DCONST_1: {
         assert nextFrame != null;
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeCatchBlockIds(currentCatchList);
         writer.writeKeyword(Token.EXPRESSION_STATEMENT);
         writer.writeOpen();
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.ASG_OPERATION);
         writer.writeOpen();
         writeStackAccess(nextFrame, TOP_OF_STACK);
         writeValue((double) (insn.getOpcode() - DCONST_0), currentClass, currentLine);
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
         break;
       }
@@ -1813,13 +1813,13 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
       case ARETURN:
       case IRETURN: {
         Type returnType = Type.getReturnType(currentMethod.desc);
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeCatchBlockIds(currentCatchList);
         writer.writeKeyword(Token.RETURN_STATEMENT);
         writer.writeOpen();
         writeCastOperation(Token.REINTERPRETCAST_OPERATION, frame, returnType.getDescriptor(),
             TOP_OF_STACK);
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
         break;
       }
@@ -1884,23 +1884,23 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
       case INEG:
       case LNEG: {
         assert nextFrame != null;
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeCatchBlockIds(currentCatchList);
         writer.writeKeyword(Token.EXPRESSION_STATEMENT);
         writer.writeOpen();
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.ASG_OPERATION);
         writer.writeOpen();
         writeStackAccess(nextFrame, TOP_OF_STACK);
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.PREFIX_NEG_OPERATION);
         writer.writeOpen();
         writeStackAccess(frame, TOP_OF_STACK);
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
         break;
       }
@@ -1942,23 +1942,23 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
       }
       case ARRAYLENGTH: {
         assert nextFrame != null;
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeCatchBlockIds(currentCatchList);
         writer.writeKeyword(Token.EXPRESSION_STATEMENT);
         writer.writeOpen();
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.ASG_OPERATION);
         writer.writeOpen();
         writeStackAccess(nextFrame, TOP_OF_STACK);
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.ARRAY_LENGTH);
         writer.writeOpen();
         writeStackAccess(frame, TOP_OF_STACK);
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
         break;
       }
@@ -1972,18 +1972,18 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
       case CALOAD:
       case SALOAD: {
         assert nextFrame != null;
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeCatchBlockIds(currentCatchList);
         writer.writeKeyword(Token.EXPRESSION_STATEMENT);
         writer.writeOpen();
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.ASG_OPERATION);
         writer.writeOpen();
         writeStackAccess(nextFrame, TOP_OF_STACK);
         writeArrayRef(frame, TOP_OF_STACK - 1, insn.getOpcode());
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
         break;
       }
@@ -1995,38 +1995,38 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
       case BASTORE:
       case CASTORE:
       case SASTORE: {
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeCatchBlockIds(currentCatchList);
         writer.writeKeyword(Token.EXPRESSION_STATEMENT);
         writer.writeOpen();
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.ASG_OPERATION);
         writer.writeOpen();
         writeArrayRef(frame, TOP_OF_STACK - 2, insn.getOpcode());
         writeStackAccess(frame, TOP_OF_STACK);
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
         break;
       }
       case MONITORENTER: {
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeCatchBlockIds(currentCatchList);
         writer.writeKeyword(Token.LOCK);
         writer.writeOpen();
         writeStackAccess(frame, TOP_OF_STACK);
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
         break;
       }
       case MONITOREXIT: {
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeCatchBlockIds(currentCatchList);
         writer.writeKeyword(Token.UNLOCK);
         writer.writeOpen();
         writeStackAccess(frame, TOP_OF_STACK);
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
         break;
       }
@@ -2037,18 +2037,18 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         Variable tmpVar = getTempVarFromTopOfStackMinus1(frame);
 
         // tmpVar = frame.stack[frame.stack.size() + TOP_OF_STACK - 1]
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeCatchBlockIds(currentCatchList);
         writer.writeKeyword(Token.EXPRESSION_STATEMENT);
         writer.writeOpen();
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.ASG_OPERATION);
         writer.writeOpen();
         writeLocalRef(tmpVar);
         writeStackAccess(frame, TOP_OF_STACK - 1);
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
 
         // nexFrame.stack[nexFrame.stack.size() + TOP_OF_STACK - 1] =
@@ -2056,18 +2056,18 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         writeAssign(frame, TOP_OF_STACK, nextFrame, TOP_OF_STACK - 1);
 
         // nextFrame.stack[nextFrame.stack.size() + TOP_OF_STACK] = tmpVar
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeCatchBlockIds(currentCatchList);
         writer.writeKeyword(Token.EXPRESSION_STATEMENT);
         writer.writeOpen();
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.ASG_OPERATION);
         writer.writeOpen();
         writeStackAccess(nextFrame, TOP_OF_STACK);
         writeLocalRef(tmpVar);
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
         break;
       }
@@ -2157,12 +2157,12 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         break;
       }
       case ATHROW: {
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeCatchBlockIds(currentCatchList);
         writer.writeKeyword(Token.THROW_STATEMENT);
         writer.writeOpen();
         writeStackAccess(frame, TOP_OF_STACK);
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
         break;
       }
@@ -2174,18 +2174,18 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
 
   private void writeInsn(@Nonnull Frame<BasicValue> nextFrame, @Nonnull LdcInsnNode ldcInsn)
       throws IOException {
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeCatchBlockIds(currentCatchList);
     writer.writeKeyword(Token.EXPRESSION_STATEMENT);
     writer.writeOpen();
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeKeyword(Token.ASG_OPERATION);
     writer.writeOpen();
     writeStackAccess(nextFrame, TOP_OF_STACK);
     writeValue(ldcInsn.cst, currentClass, currentLine);
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
   }
 
@@ -2211,12 +2211,12 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
           Token comparisonToken = getConditionToken(jumpInsn.getOpcode());
           boolean needNotoperator = needNotOperator(comparisonToken, cmpOps);
 
-          sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+          writeDebugBegin(currentClass, currentLine);
           writer.writeCatchBlockIds(currentCatchList);
           writer.writeKeyword(Token.IF_STATEMENT);
           writer.writeOpen();
           if (needNotoperator) {
-            sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+            writeDebugBegin(currentClass, currentLine);
             writer.writeKeyword(Token.PREFIX_NOT_OPERATION);
             writer.writeOpen();
           } else {
@@ -2225,16 +2225,16 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
             comparisonToken = invertComparisonToken(comparisonToken);
           }
 
-          sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+          writeDebugBegin(currentClass, currentLine);
           writer.writeKeyword(comparisonToken);
           writer.writeOpen();
           writeLocalRef(cmpOps.lhs);
           writeLocalRef(cmpOps.rhs);
-          sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+          writeDebugEnd(currentClass, currentLine);
           writer.writeClose();
 
           if (needNotoperator) {
-            sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+            writeDebugEnd(currentClass, currentLine);
             writer.writeClose();
           }
 
@@ -2245,7 +2245,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
           writer.writeOpenNodeList();
           writeGoto(labeledStatmentIndex);
           writer.writeCloseNodeList();
-          sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+          writeDebugEnd(currentClass, currentLine);
           writer.writeClose();
           // Else block
           writer.writeKeyword(Token.BLOCK);
@@ -2253,21 +2253,21 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
           writer.writeOpenNodeList();
           writeGoto(jumpInsn.label);
           writer.writeCloseNodeList();
-          sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+          writeDebugEnd(currentClass, currentLine);
           writer.writeClose();
-          sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+          writeDebugEnd(currentClass, currentLine);
           writer.writeClose();
 
           insertLabeledStatementIfNecessary(labeledStatmentIndex);
 
           cmpOperands.remove(topOfStackVariable);
         } else {
-          sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+          writeDebugBegin(currentClass, currentLine);
           writer.writeCatchBlockIds(currentCatchList);
           writer.writeKeyword(Token.IF_STATEMENT);
           writer.writeOpen();
           Token conditionalToken = getConditionToken(jumpInsn.getOpcode());
-          sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+          writeDebugBegin(currentClass, currentLine);
           writer.writeKeyword(conditionalToken);
           writer.writeOpen();
           writeStackAccess(frame, TOP_OF_STACK);
@@ -2282,7 +2282,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
           } else {
             writeValue(currentClass, currentLine);
           }
-          sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+          writeDebugEnd(currentClass, currentLine);
           writer.writeClose();
           // Then block
           writer.writeKeyword(Token.BLOCK);
@@ -2290,11 +2290,11 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
           writer.writeOpenNodeList();
           writeGoto(jumpInsn.label);
           writer.writeCloseNodeList();
-          sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+          writeDebugEnd(currentClass, currentLine);
           writer.writeClose();
           // Else
           writer.writeNull();
-          sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+          writeDebugEnd(currentClass, currentLine);
           writer.writeClose();
         }
         break;
@@ -2307,17 +2307,17 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
       case IF_ICMPNE:
       case IF_ACMPEQ:
       case IF_ACMPNE: {
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeCatchBlockIds(currentCatchList);
         writer.writeKeyword(Token.IF_STATEMENT);
         writer.writeOpen();
         Token conditionalToken = getConditionToken(jumpInsn.getOpcode());
-        sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+        writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(conditionalToken);
         writer.writeOpen();
         writeStackAccess(frame, TOP_OF_STACK - 1);
         writeStackAccess(frame, TOP_OF_STACK);
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
         // Then block
         writer.writeKeyword(Token.BLOCK);
@@ -2325,11 +2325,11 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         writer.writeOpenNodeList();
         writeGoto(jumpInsn.label);
         writer.writeCloseNodeList();
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
         // Else
         writer.writeNull();
-        sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
         break;
       }
@@ -2441,17 +2441,17 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
   }
 
   private void writeGoto(int insIndex) throws IOException {
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeCatchBlockIds(currentCatchList);
     writer.writeKeyword(Token.GOTO);
     writer.writeOpen();
     writer.writeId(Integer.toString(insIndex));
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
   }
 
   private void writeReturn(@Nonnull Frame<BasicValue> frame, int stackIdx) throws IOException {
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeCatchBlockIds(currentCatchList);
     writer.writeKeyword(Token.RETURN_STATEMENT);
     writer.writeOpen();
@@ -2460,7 +2460,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     } else {
       writeStackAccess(frame, stackIdx);
     }
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
   }
 
@@ -2476,15 +2476,15 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
 
   private void writeLocalRef(@Nonnull Variable v) throws IOException {
     if (v.isThis()) {
-      sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+      writeDebugBegin(currentClass, currentLine);
       writer.writeKeyword(Token.THIS_REF);
       writer.writeOpen();
       writer.writeId(v.getType().getDescriptor());
-      sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+      writeDebugEnd(currentClass, currentLine);
       writer.writeClose();
     } else {
       Token token = v.isParameter() ? Token.PARAMETER_REF : Token.LOCAL_REF;
-      sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+      writeDebugBegin(currentClass, currentLine);
       writer.writeKeyword(token);
       writer.writeOpen();
       writer.writeId(v.getId());
@@ -2495,7 +2495,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         writer.writeCloseNodeList();
       }
 
-      sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+      writeDebugEnd(currentClass, currentLine);
       writer.writeClose();
     }
   }
@@ -2520,7 +2520,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
 
   private void writeInstanceFieldRef(@Nonnull FieldInsnNode fldInsn,
       @Nonnull Frame<BasicValue> frame, int offset) throws IOException {
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeKeyword(Token.FIELD_REF);
     writer.writeOpen();
     writer.writeId(fldInsn.name);
@@ -2528,13 +2528,13 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     writer.writeId(Type.getObjectType(fldInsn.owner).getDescriptor());
     writer.writeFieldRefKindEnum(FieldRefKind.INSTANCE);
     writeStackAccess(frame, offset);
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
   }
 
   private void writeStaticFieldRef(@Nonnull FieldInsnNode fldInsn)
       throws IOException {
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeKeyword(Token.FIELD_REF);
     writer.writeOpen();
     writer.writeId(fldInsn.name);
@@ -2542,7 +2542,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     writer.writeId(Type.getObjectType(fldInsn.owner).getDescriptor());
     writer.writeFieldRefKindEnum(FieldRefKind.STATIC);
     writer.writeNull();
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
   }
 
@@ -2605,26 +2605,26 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
 
   private void writePrimitiveTypeConversion(@Nonnull Class<?> targetType,
       @Nonnull Frame<BasicValue> frame, @Nonnull Frame<BasicValue> nextFrame) throws IOException {
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeCatchBlockIds(currentCatchList);
     writer.writeKeyword(Token.EXPRESSION_STATEMENT);
     writer.writeOpen();
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeKeyword(Token.ASG_OPERATION);
     writer.writeOpen();
     writeStackAccess(nextFrame, TOP_OF_STACK);
     writeCastOperation(Token.DYNAMIC_CAST_OPERATION, frame, Type.getDescriptor(targetType),
         TOP_OF_STACK);
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
   }
 
   private void writeCastOperation(@Nonnull Token cast, @Nonnull Variable var,
       @Nonnull String typeDesc) throws IOException {
     assert cast == Token.DYNAMIC_CAST_OPERATION || cast == Token.REINTERPRETCAST_OPERATION;
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeKeyword(cast);
     writer.writeOpen();
     if (cast == Token.DYNAMIC_CAST_OPERATION) {
@@ -2635,7 +2635,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
       writer.writeId(typeDesc);
     }
     writeLocalRef(var);
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
   }
 
@@ -2699,18 +2699,18 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     assert !isBooleanAssignIssue(
         getStackVariable(frame2, offset2),
         getStackVariable(frame1, offset1));
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeCatchBlockIds(currentCatchList);
     writer.writeKeyword(Token.EXPRESSION_STATEMENT);
     writer.writeOpen();
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeKeyword(Token.ASG_OPERATION);
     writer.writeOpen();
     writeStackAccess(frame2, offset2);
     writeStackAccess(frame1, offset1);
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
   }
 
@@ -2720,24 +2720,24 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     assert !isBooleanAssignIssue(
         getStackVariable(frame, TOP_OF_STACK - 1),
         getStackVariable(frame, TOP_OF_STACK));
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeCatchBlockIds(currentCatchList);
     writer.writeKeyword(Token.EXPRESSION_STATEMENT);
     writer.writeOpen();
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeKeyword(Token.ASG_OPERATION);
     writer.writeOpen();
     writeStackAccess(nextFrame, TOP_OF_STACK);
-    sourceInfoWriter.writeDebugBegin(currentClass, currentLine);
+    writeDebugBegin(currentClass, currentLine);
     writer.writeKeyword(op);
     writer.writeOpen();
     writeStackAccess(frame, TOP_OF_STACK - 1);
     writeStackAccess(frame, TOP_OF_STACK);
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
-    sourceInfoWriter.writeDebugEnd(currentClass, currentLine + 1);
+    writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
   }
 
