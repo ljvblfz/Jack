@@ -293,7 +293,6 @@ public class AnnotationProcessorTests {
    * annotation processor.
    */
   @Test
-  @KnownIssue
   public void annotationProcessorTest2() throws Exception {
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
     exclude.add(JillBasedToolchain.class);

@@ -377,7 +377,7 @@ public abstract class Jack {
   private static UnmodifiableCollections unmodifiableCollections;
 
   @Nonnull
-  private static final
+  public static final
       ReflectFactoryPropertyId<JaycePackageLoader> CLASSPATH_POLICY =
         ReflectFactoryPropertyId.create(
           "jack.internal.jayce.loader.classpath.policy",
@@ -389,7 +389,7 @@ public abstract class Jack {
           .addDefaultValue("type");
 
   @Nonnull
-  private static final
+  public static final
       ReflectFactoryPropertyId<JaycePackageLoader> IMPORT_POLICY = ReflectFactoryPropertyId.create(
           "jack.internal.jayce.loader.import.policy",
           "Hint on default load policy for import entries",

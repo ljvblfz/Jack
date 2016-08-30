@@ -69,9 +69,11 @@ class JAstBuilder extends JavaParser {
   private final JSession session;
 
   @Nonnull
-  private final JackIrBuilder astBuilder;
+  private JackIrBuilder astBuilder;
 
   private boolean hasErrors = false;
+
+  private boolean resetJack = false;
 
   /**
    * Creates ecj {@code Compiler} for jack.
@@ -255,5 +257,21 @@ class JAstBuilder extends JavaParser {
       // Call to assert methods of JUnit framework must not manage as assertions of language level
       btb.id = TypeIds.NoId;
     }
+  }
+
+  @Override
+  public void compile(ICompilationUnit[] sourceUnits) {
+    if (resetJack) {
+      session.reset();
+      astBuilder = new JackIrBuilder(lookupEnvironment, session);
+      resetJack = false;
+    }
+    super.compile(sourceUnits);
+  }
+
+  @Override
+  public void reset() {
+    resetJack = true;
+    super.reset();
   }
 }
