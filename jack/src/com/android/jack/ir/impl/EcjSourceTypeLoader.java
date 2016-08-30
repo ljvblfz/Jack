@@ -105,6 +105,7 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
   public static JDefinedClassOrInterface createType(@Nonnull ReferenceMapper refMap,
       @Nonnull JPackage enclosingPackage, @Nonnull SourceTypeBinding binding,
       @CheckForNull TypeDeclaration typeDeclaration, Location location) {
+
     EcjSourceTypeLoader loader = new EcjSourceTypeLoader(refMap, binding, typeDeclaration,
         location);
     CudInfo cuInfo =
@@ -118,6 +119,12 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
       name = new String(binding.compoundName[binding.compoundName.length - 1]);
     }
     name = intern(name);
+
+    // Do not use enclosingPackage.getType() or lookup.getType() otherwise it could load a type from
+    // a Jack library rather than create one from source file.
+    assert !typeAlreadyCreated(enclosingPackage, name);
+
+
     JDefinedClassOrInterface type;
     int accessFlags = binding.getAccessFlags();
     if (binding.isClass()) {
@@ -141,6 +148,16 @@ public class EcjSourceTypeLoader implements ClassOrInterfaceLoader {
       throw new AssertionError("ReferenceBinding is not a class, interface, or enum.");
     }
     return type;
+  }
+
+  private static boolean typeAlreadyCreated(@Nonnull JPackage enclosingPackage,
+      @Nonnull String name) {
+    for (JDefinedClassOrInterface type : enclosingPackage.getLoadedTypes()) {
+      if (type.getName().equals(name)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private EcjSourceTypeLoader(@Nonnull ReferenceMapper refMap, @Nonnull SourceTypeBinding binding,
