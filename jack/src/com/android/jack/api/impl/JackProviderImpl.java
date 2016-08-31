@@ -20,6 +20,7 @@ import com.android.jack.Jack;
 import com.android.jack.api.ConfigNotSupportedException;
 import com.android.jack.api.JackConfig;
 import com.android.jack.api.JackProvider;
+import com.android.jack.api.ResourceController;
 import com.android.jack.api.v01.Api01Config;
 import com.android.jack.api.v01.Cli01Config;
 import com.android.jack.api.v01.impl.Cli01ConfigImpl;
@@ -29,6 +30,7 @@ import com.android.jack.api.v04.Api04Config;
 import com.android.jack.api.v04.impl.Api04ConfigImpl;
 
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,7 +41,7 @@ import javax.annotation.Nonnull;
 /**
  * This class provides an implementation to build the requested {@link JackConfig}
  */
-public class JackProviderImpl implements JackProvider {
+public class JackProviderImpl implements JackProvider, ResourceController {
   @Nonnull
   private static final Map<Class<? extends JackConfig>, Class<? extends JackConfig>> map =
       new HashMap<Class<? extends JackConfig>, Class<? extends JackConfig>>();
@@ -134,5 +136,23 @@ public class JackProviderImpl implements JackProvider {
   @CheckForNull
   public String getCompilerBuildId() {
     return Jack.getVersion().getBuildId();
+  }
+
+  @Override
+  public void clean(@Nonnull EnumSet<Category> categories, @Nonnull EnumSet<Impact> impacts) {
+  }
+
+  @Override
+  public EnumSet<Category> getSupportedCategories() {
+    // Here, we cannot use EnumSet.allOf(...) because we want all elements that Jack
+    // supports, and not all elements that jack-api has.
+    return EnumSet.of(Category.CODE, Category.DISK, Category.MEMORY);
+  }
+
+  @Override
+  public EnumSet<Impact> getSupportedImpacts() {
+    // Here, we cannot use EnumSet.allOf(...) because we want all elements that Jack
+    // supports, and not all elements that jack-api has.
+    return EnumSet.of(Impact.LATENCY, Impact.PERFORMANCE);
   }
 }
