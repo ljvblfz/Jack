@@ -35,6 +35,7 @@ public class LineSourceInfo extends SourceInfo {
 
   LineSourceInfo(
       @Nonnull FileSourceInfo location, @Nonnegative int startLine, @Nonnegative int endLine) {
+    assert startLine != SourceInfo.UNKNOWN_LINE_NUMBER;
     this.fileSourceInfo = location;
     this.startLine = startLine;
     this.endLine = endLine;

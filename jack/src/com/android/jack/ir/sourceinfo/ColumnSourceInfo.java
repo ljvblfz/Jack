@@ -22,24 +22,31 @@ import javax.annotation.Nonnull;
 
 class ColumnSourceInfo extends SourceInfo {
 
+  @Nonnegative
   private final int endCol;
+
+  @Nonnegative
   private final int startCol;
 
   @Nonnull
   private final LineSourceInfo lineSourceInfo;
 
-  ColumnSourceInfo(@Nonnull LineSourceInfo location, int startCol, int endCol) {
+  ColumnSourceInfo(@Nonnull LineSourceInfo location, @Nonnegative int startCol,
+      @Nonnegative int endCol) {
+    assert startCol != SourceInfo.UNKNOWN_COLUMN_NUMBER;
     this.lineSourceInfo = location;
     this.startCol = startCol;
     this.endCol = endCol;
   }
 
   @Override
+  @Nonnegative
   public int getEndColumn() {
     return endCol;
   }
 
   @Override
+  @Nonnegative
   public int getStartColumn() {
     return startCol;
   }
