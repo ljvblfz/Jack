@@ -251,12 +251,11 @@ public class JayceInternalWriterImpl implements JayceInternalWriter {
     out.writeBuffer(b);
   }
 
-  public void writeFileNameIfDifferentFromCurrent(@CheckForNull String fileName)
+  public void writeFileNameIfDifferentFromCurrent(@Nonnull String fileName)
       throws IOException {
-   if (fileName != null && !fileName.equals(currentFileName)) {
+   if (!fileName.equals(currentFileName)) {
       writeCurrentFileName(fileName);
     }
-    // Assume that elements with unknown debug infos are in same file.
   }
 
   public void writeCurrentFileName(@Nonnull String fileName)  throws IOException {
