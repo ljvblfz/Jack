@@ -22,6 +22,7 @@ import com.android.jack.dx.util.IntIterator;
 
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.List;
 
 /**
  * Converts ROP methods to SSA Methods
@@ -256,7 +257,7 @@ int countPredecessors = block.getPredecessors().cardinality();
    * @return {@code true} if a Z node is needed
    */
   private static boolean needsNewSuccessor(SsaBasicBlock block, SsaBasicBlock succ) {
-    ArrayList<SsaInsn> insns = block.getInsns();
+    List<SsaInsn> insns = block.getInsns();
     SsaInsn lastInsn = insns.get(insns.size() - 1);
 
     return ((lastInsn.getResult() != null) || (lastInsn.getSources().size() > 0))

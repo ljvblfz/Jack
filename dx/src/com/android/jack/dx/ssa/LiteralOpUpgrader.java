@@ -30,7 +30,6 @@ import com.android.jack.dx.rop.cst.CstLiteralBits;
 import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.rop.type.TypeBearer;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -157,7 +156,7 @@ insn.setNewSources(RegisterSpecList.make(sources.get(1), sources.get(0)));
         // Remove the source as well if this is a move-result-pseudo
         if (opcode.getOpcode() == RegOps.MOVE_RESULT_PSEUDO) {
           int pred = insn.getBlock().getPredecessors().nextSetBit(0);
-          ArrayList<SsaInsn> predInsns = ssaMeth.getBlocks().get(pred).getInsns();
+          List<SsaInsn> predInsns = ssaMeth.getBlocks().get(pred).getInsns();
           NormalSsaInsn sourceInsn = (NormalSsaInsn) predInsns.get(predInsns.size() - 1);
           replacePlainInsn(sourceInsn, RegisterSpecList.EMPTY, RegOps.GOTO, null);
         }

@@ -51,7 +51,7 @@ public final class SsaBasicBlock {
   public static final Comparator<SsaBasicBlock> LABEL_COMPARATOR = new LabelComparator();
 
   /** {@code non-null;} insn list associated with this instance */
-  private ArrayList<SsaInsn> insns;
+  private List<SsaInsn> insns;
 
   /** {@code non-null;} predecessor set (by block list index) */
   private BitSet predecessors;
@@ -118,12 +118,14 @@ public final class SsaBasicBlock {
    *
    * @param basicBlockIndex index this block will have
    * @param ropLabel original rop-form label
+   * @param initNumInsns number of instructions this block is expected to hold
    * @param parent method of this block
    */
-  public SsaBasicBlock(final int basicBlockIndex, final int ropLabel, final SsaMethod parent) {
+  public SsaBasicBlock(final int basicBlockIndex, final int ropLabel, final int initNumInsns,
+      final SsaMethod parent) {
     this.parent = parent;
     this.index = basicBlockIndex;
-    this.insns = new ArrayList<SsaInsn>();
+    this.insns = new ArrayList<SsaInsn>(initNumInsns);
     this.ropLabel = ropLabel;
 
     this.predecessors = new BitSet(parent.getBlocks().size());
@@ -146,10 +148,9 @@ public final class SsaBasicBlock {
       final SsaMethod parent) {
     BasicBlockList ropBlocks = rmeth.getBlocks();
     BasicBlock bb = ropBlocks.get(basicBlockIndex);
-    SsaBasicBlock result = new SsaBasicBlock(basicBlockIndex, bb.getLabel(), parent);
     InsnList ropInsns = bb.getInsns();
-
-    result.insns.ensureCapacity(ropInsns.size());
+    SsaBasicBlock result =
+        new SsaBasicBlock(basicBlockIndex, bb.getLabel(), ropInsns.size(), parent);
 
     for (int i = 0, sz = ropInsns.size(); i < sz; i++) {
       result.insns.add(new NormalSsaInsn(ropInsns.get(i), result));
@@ -301,7 +302,7 @@ insns.subList(0, getCountPhiInsns()).clear();
    * @return {@code non-null;} the (mutable) instruction list for this block,
    * with phi insns at the beginning
    */
-  public ArrayList<SsaInsn> getInsns() {
+  public List<SsaInsn> getInsns() {
     return insns;
   }
 

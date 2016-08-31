@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * Converts a method in SSA form to ROP form.
@@ -270,7 +271,7 @@ public class SsaToRop {
    * @throws RuntimeException on error
    */
   private void verifyValidExitPredecessor(SsaBasicBlock b) {
-    ArrayList<SsaInsn> insns = b.getInsns();
+    List<SsaInsn> insns = b.getInsns();
     SsaInsn lastInsn = insns.get(insns.size() - 1);
     Rop opcode = lastInsn.getOpcode();
 
@@ -321,7 +322,7 @@ public class SsaToRop {
    * @param ssaInsns {@code non-null;} old instructions
    * @return {@code non-null;} immutable instruction list
    */
-  private InsnList convertInsns(ArrayList<SsaInsn> ssaInsns) {
+  private InsnList convertInsns(List<SsaInsn> ssaInsns) {
     int insnCount = ssaInsns.size();
     InsnList result = new InsnList(insnCount);
 

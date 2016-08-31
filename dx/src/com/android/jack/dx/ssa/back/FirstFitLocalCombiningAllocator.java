@@ -37,6 +37,7 @@ import com.android.jack.dx.util.IntSet;
 
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -531,7 +532,7 @@ public class FirstFitLocalCombiningAllocator extends RegisterAllocator {
       }
 
       SsaBasicBlock predBlock = ssaMeth.getBlocks().get(predBlocks.nextSetBit(0));
-      ArrayList<SsaInsn> insnList = predBlock.getInsns();
+      List<SsaInsn> insnList = predBlock.getInsns();
 
       /**
        * If the predecessor block has a check-cast, it will be the last

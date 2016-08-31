@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * Complete transformation to SSA form by renaming all registers accessed.<p>
@@ -375,7 +376,7 @@ block.forEachInsn(this);
       updateSuccessorPhis();
 
       // Delete all move insns in this block.
-      ArrayList<SsaInsn> insns = block.getInsns();
+      List<SsaInsn> insns = block.getInsns();
       int szInsns = insns.size();
 
       for (int i = szInsns - 1; i >= 0; i--) {
