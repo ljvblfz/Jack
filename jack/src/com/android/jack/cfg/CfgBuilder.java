@@ -107,6 +107,13 @@ import javax.annotation.Nonnull;
 @Filter(TypeWithoutPrebuiltFilter.class)
 public class CfgBuilder implements RunnableSchedulable<JMethod> {
 
+  @Nonnegative
+  private static final byte NO_STATE = 0;
+  @Nonnegative
+  private static final byte QUEUED = 1;
+  @Nonnegative
+  private static final byte ACCESSIBLE = 2;
+
   @Nonnull
   public static final StatisticId<Counter> CREATED_BASIC_BLOCK = new StatisticId<>(
       "jack.cfg.created-basic-blocks", "Basic blocks created",
@@ -525,7 +532,6 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
       return;
     }
 
-    // 0 - no state, 1 - queued, 2 - accessible
     byte[] state = new byte[maxBasicBlockId];
 
     List<BasicBlock> workingList = new LinkedList<BasicBlock>();
@@ -548,13 +554,13 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
         currentBb.replaceBy(newBlock);
         basicBlockOfVirtualStmt.add(currentBb);
       } else {
-        state[currentBb.getId()] = 2;
+        state[currentBb.getId()] = ACCESSIBLE;
         ++accessibleNodesCount;
       }
 
       for (BasicBlock succ : currentBb.getSuccessors()) {
-        if (succ != exitNode && state[succ.getId()] == 0) {
-          state[succ.getId()] = 1;
+        if (succ != exitNode && state[succ.getId()] == NO_STATE) {
+          state[succ.getId()] = QUEUED;
           workingList.add(succ);
         }
       }
@@ -564,7 +570,7 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
     for (int i = 0, len = nodes.size(); i < len; ++i) {
       BasicBlock block = nodes.get(i);
       /* +1 to skip the entry block id that is 0 and that is not contained by nodes. */
-      if (state[i + 1] == 2) {
+      if (state[i + 1] == ACCESSIBLE) {
         accessibleBlocks.add(block);
       } else {
         for (BasicBlock succ : block.getSuccessors()) {
@@ -622,7 +628,7 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
       for (JCatchBlock catchBlock : stmt.getJCatchBlocks()) {
         BasicBlockMarker bbmOfCatch = catchBlock.getMarker(BasicBlockMarker.class);
         assert bbmOfCatch != null;
-        if (blockState[bbmOfCatch.getBasicBlock().getId()] != 2) {
+        if (blockState[bbmOfCatch.getBasicBlock().getId()] != ACCESSIBLE) {
           // Catch block is dead remove it from catch list of statement
           uselessCatchBlock.add(catchBlock);
         }
@@ -644,7 +650,7 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
       // a method body, in this case the CFG will branch directly to the exit node rather than to a
       // basic block that will branch in its turn to the exit block. Nevertheless the statement must
       // not be remove from the IR since it is used as a target of a 'goto' statement for instance.
-      return basicBlock != exiBlock && blockState[basicBlock.getId()] != 2
+      return basicBlock != exiBlock && blockState[basicBlock.getId()] != ACCESSIBLE
           && !basicBlockOfVirtualStmt.contains(basicBlock);
     }
   }
