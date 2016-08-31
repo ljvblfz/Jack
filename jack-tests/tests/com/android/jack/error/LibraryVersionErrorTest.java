@@ -91,6 +91,37 @@ public class LibraryVersionErrorTest {
     }
   }
 
+  @Test
+  public void testTooOldJackLib() throws Exception {
+    ErrorTestHelper helper = new ErrorTestHelper();
+
+    // Build lib
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    File lib = AbstractTestTools.createTempFile("lib", ".jack");
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
+    toolchain.srcToLib(lib, /* zipFile = */ true,
+        AbstractTestTools.getTestRootDir("com.android.jack.error.library.jack"));
+
+    // Let's use a negative version number to be sure it's not supported anymore
+    int newMinorVersion = -1;
+
+    // Create new lib with hacked version
+    File hackedLib = hackLib(lib, Collections.singletonMap(JackLibrary.KEY_LIB_MINOR_VERSION,
+        String.valueOf(newMinorVersion)));
+
+    try {
+      File output = AbstractTestTools.createTempDir();
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath()).addStaticLibs(hackedLib)
+          .srcToExe(output, /* zipFile= */ false,
+              AbstractTestTools.getTestRootDir("com.android.jack.error.source.jack"));
+    } catch (PropertyIdException e) {
+      String message = e.getMessage();
+      Assert.assertTrue(message.contains("The version of the library"));
+      Assert.assertTrue(message.contains("is not supported anymore."));
+    }
+  }
+
   @Nonnull
   private static File hackLib(@Nonnull File lib, @Nonnull Map<String,String> customProp)
       throws IOException, CannotCreateFileException, CannotChangePermissionException {
