@@ -169,8 +169,10 @@ public class RopHelper {
     if (stmt.getSourceInfo() == SourceInfo.UNKNOWN) {
       return SourcePosition.NO_INFO;
     }
+    int startLine = stmt.getSourceInfo().getStartLine();
+    // Jack defines unknown line by UNKNOWN_LINE_NUMBER, but dx requires to use -1.
     return (new SourcePosition(new CstString(stmt.getSourceInfo().getFileName()), -1,
-        stmt.getSourceInfo().getStartLine()));
+        startLine == SourceInfo.UNKNOWN_LINE_NUMBER ? -1 : startLine));
   }
 
   /**
