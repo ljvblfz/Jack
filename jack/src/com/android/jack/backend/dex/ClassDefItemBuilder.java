@@ -142,14 +142,16 @@ public class ClassDefItemBuilder implements RunnableSchedulable<JDefinedClassOrI
     CstString sourceFile = null;
     SourceInfo sourceInfo = type.getSourceInfo();
 
-    // Only keep filename without the path
-    String sourceFileName = sourceInfo.getFileName();
-    String fileSeparator = FileUtils.getFileSeparator();
-    int separatorPos = sourceFileName.lastIndexOf(fileSeparator);
-    if (separatorPos > 0) {
-      sourceFileName = sourceFileName.substring(separatorPos + 1);
+    if (sourceInfo != SourceInfo.UNKNOWN) {
+      // Only keep filename without the path
+      String sourceFileName = sourceInfo.getFileName();
+      String fileSeparator = FileUtils.getFileSeparator();
+      int separatorPos = sourceFileName.lastIndexOf(fileSeparator);
+      if (separatorPos > 0) {
+        sourceFileName = sourceFileName.substring(separatorPos + 1);
+      }
+      sourceFile = new CstString(sourceFileName);
     }
-    sourceFile = new CstString(sourceFileName);
 
     return sourceFile;
   }

@@ -22,15 +22,20 @@ import javax.annotation.Nonnull;
 /**
  * Represents the source information when the origin of a node is unknown.
  */
-public class UnknownSourceInfo extends FileSourceInfo {
+public class UnknownSourceInfo extends SourceInfo {
 
   UnknownSourceInfo() {
-    super("Unknown");
   }
 
   @Override
   @Nonnull
   public String toString() {
     return "Unknown source info";
+  }
+
+  @Override
+  @Nonnull
+  public FileSourceInfo getFileSourceInfo() {
+    throw new UnsupportedOperationException();
   }
 }

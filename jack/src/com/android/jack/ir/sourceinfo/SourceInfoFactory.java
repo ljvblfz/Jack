@@ -49,6 +49,7 @@ public class SourceInfoFactory {
    */
   @Nonnull
   public FileSourceInfo create(@Nonnull String fileName) {
+    assert fileName != null;
     FileSourceInfo newInstance = canonicalFileSourceInfos.get(fileName);
     if (newInstance == null) {
       newInstance = new FileSourceInfo(fileName);
@@ -108,13 +109,19 @@ public class SourceInfoFactory {
   }
 
   /**
-   * Creates SourceInfo nodes. This factory method will provide
-   * canonicalized instances of SourceInfo objects.
+   * Creates SourceInfo nodes with a file name coming from another SourceInfo. This factory method
+   * will provide canonicalized instances of SourceInfo objects.
    */
   @Nonnull
-  public LineSourceInfo create(
-      @Nonnegative int startLine, @Nonnegative int endLine, @Nonnull FileSourceInfo fileName) {
-    LineSourceInfo newInstance = new LineSourceInfo(fileName, startLine, endLine);
+  public SourceInfo create(@Nonnegative int startLine, @Nonnegative int endLine,
+      @Nonnull SourceInfo originalSourceInfo) {
+    if (originalSourceInfo == SourceInfo.UNKNOWN) {
+      assert startLine == SourceInfo.UNKNOWN_LINE_NUMBER;
+      assert endLine == SourceInfo.UNKNOWN_LINE_NUMBER;
+      return SourceInfo.UNKNOWN;
+    }
+    LineSourceInfo newInstance =
+        new LineSourceInfo(originalSourceInfo.getFileSourceInfo(), startLine, endLine);
     LineSourceInfo canonical = canonicalLineSourceInfos.get(newInstance);
 
     assert canonical == null || (newInstance != canonical && newInstance.equals(canonical));

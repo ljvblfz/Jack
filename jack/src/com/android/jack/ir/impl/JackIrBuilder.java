@@ -2868,7 +2868,7 @@ public class JackIrBuilder {
         ((JMethodBody) body).getBlock().addStmt(
             new JReturnStatement(session.getSourceInfoFactory().create(
                 method.getSourceInfo().getEndLine(), method.getSourceInfo().getEndLine(),
-                method.getSourceInfo().getFileName()), null));
+                method.getSourceInfo()), null));
 
         addAnnotations(x.annotations, curClass.type);
 
@@ -3842,7 +3842,7 @@ public class JackIrBuilder {
       curMethod.body.getBlock().addStmt(new JReturnStatement(session.getSourceInfoFactory().create(
           curMethod.method.getSourceInfo().getEndLine(),
           curMethod.method.getSourceInfo().getEndLine(),
-          curMethod.method.getSourceInfo().getFileName()), null));
+          curMethod.method.getSourceInfo()), null));
     }
   }
 

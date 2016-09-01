@@ -109,6 +109,11 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
   public String readCurrentFileName() throws IOException {
     if (tokenizer.readOpenFileName()) {
       currentFileName = readString();
+      // UNKNOW_LINE_NUMBER is not dump for unknown debug information, reset it automatically.
+      // Current file name sets to null means unknown debug information.
+      if (currentFileName == null) {
+        currentLine = SourceInfo.UNKNOWN_LINE_NUMBER;
+      }
       tokenizer.readCloseFileName();
     }
     return currentFileName;
@@ -206,8 +211,6 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
       return null;
     }
 
-
-
     tokenizer.readOpen();
     NNode node;
     try {
@@ -238,8 +241,10 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
     if (nodeLevel != NodeLevel.TYPES) {
 
       if (node instanceof HasSourceInfo) {
+        fileName = readCurrentFileName();
         int endLine = readCurrentLine();
-        if (fileName == null && startLine == 0 && endLine == 0) {
+        if (fileName == null) {
+          assert startLine == 0 && endLine == 0;
           ((HasSourceInfo) node).setSourceInfos(SourceInfo.UNKNOWN);
         } else {
           assert fileName != null;

@@ -55,33 +55,26 @@ public class SourceInfoWriter {
     writeDebugBegin(cn, NO_LINE);
   }
 
-  public void writeDebugBegin(@Nonnull ClassNode cn, @Nonnull FieldNode fn)
-      throws IOException {
+  public void writeDebugBegin(@Nonnull ClassNode cn, @Nonnull FieldNode fn) throws IOException {
     writeUnknwonDebugBegin();
   }
 
-  public void writeDebugBegin(@Nonnull ClassNode cn, int startLine)
-      throws IOException {
+  public void writeDebugBegin(@Nonnull ClassNode cn, int startLine) throws IOException {
     if (cn.sourceFile == null) {
       writeUnknwonDebugBegin();
     } else {
-      writeDebugBeginInternal(cn.sourceFile, startLine);
+      writeFileNameIfDifferentFromCurrent(cn.sourceFile);
+      writeLineIfDifferentFromCurrent(startLine);
     }
   }
 
   public void writeUnknwonDebugBegin() throws IOException {
-    writeDebugBeginInternal(NO_FILENAME, NO_LINE);
-  }
-
-  private void writeDebugBeginInternal(@CheckForNull String sourceFile, int startLine)
-      throws IOException {
-    writeFileNameIfDifferentFromCurrent(sourceFile);
-    writeLineIfDifferentFromCurrent(startLine);
+    writeUnknowDebug();
   }
 
   public void writeDebugEnd(@Nonnull ClassNode cn)
       throws IOException {
-    writeUnknownDebugEnd();
+    writeDebugEnd(cn, NO_LINE);
   }
 
   public void writeDebugEnd(@Nonnull ClassNode cn, @Nonnull FieldNode fn)
@@ -91,32 +84,39 @@ public class SourceInfoWriter {
 
   public void writeDebugEnd(@Nonnull ClassNode cn, int endLine) throws IOException {
     if (cn.sourceFile == null) {
-      writeUnknownDebugEnd();
+      writeUnknwonDebugBegin();
     } else {
+      writeFileNameIfDifferentFromCurrent(cn.sourceFile);
       writeLineIfDifferentFromCurrent(endLine);
     }
   }
 
   public void writeUnknownDebugEnd() throws IOException {
-    writeLineIfDifferentFromCurrent(NO_LINE);
+    writeUnknowDebug();
   }
 
-  private void writeFileNameIfDifferentFromCurrent(@CheckForNull String fileName)
+  private void writeUnknowDebug()  throws IOException {
+    if (currentFileName != null) {
+      writeCurrentFileName(null);
+      currentLineNumber = 0;
+    }
+  }
+
+  private void writeFileNameIfDifferentFromCurrent(@Nonnull String fileName)
       throws IOException {
-    if (fileName != null && !fileName.equals(currentFileName)) {
+    if (!fileName.equals(currentFileName)) {
       writeCurrentFileName(fileName);
     }
-    // Assume that elements with unknown debug infos are in same file.
   }
 
-  private void writeCurrentFileName(@Nonnull String fileName)
+  private void writeCurrentFileName(@CheckForNull String fileName)
       throws IOException {
     writer.writeFileName(fileName);
     currentFileName = fileName;
   }
 
-  private void writeLineIfDifferentFromCurrent(@Nonnegative int lineNumber)
-      throws IOException {
+  private void writeLineIfDifferentFromCurrent(@Nonnegative int lineNumber) throws IOException {
+    assert currentFileName != NO_FILENAME || lineNumber == NO_LINE;
     if (lineNumber != currentLineNumber) {
       writeCurrentLine(lineNumber);
     }
