@@ -16,10 +16,11 @@
 
 package com.android.jack.annotation.processor.sample2.src;
 
-import javax.annotation.Nonnull;
+@interface MyAnnot {
+}
 
 public class A {
-  @Nonnull
+  @MyAnnot
   protected B.C getC() {
     return new B.C();
   }

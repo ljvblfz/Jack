@@ -302,8 +302,6 @@ public class AnnotationProcessorTests {
     File srcOut = AbstractTestTools.createTempDir();
     File processors = getAutoProcessors("com.android.jack.annotation.processor.sample2.processors");
     jack.addToClasspath(jack.getDefaultBootClasspath());
-    jack.addToClasspath(new File(
-        "/home/mikaelpeltier/works/jacks/ub-jack/toolchain/jack/jsr305/dist/jsr305-lib.jar"));
     jack.addToClasspath(processors);
     jack.srcToLib(jackOut, /* zipFiles= */false, TEST2_DIR, srcOut);
   }
