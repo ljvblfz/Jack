@@ -1358,8 +1358,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         writer.writeId(descriptor);
         writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
-        sourceInfoWriter.writeDebugEnd(currentClass,
-            currentLine + 1);
+        writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
         break;
       }
@@ -1417,8 +1416,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
           writer.writeOpen();
           writer.writeId(Type.INT_TYPE.getDescriptor());
           writeInstanceFieldRef(fldInsn, frame, TOP_OF_STACK);
-          sourceInfoWriter.writeDebugEnd(currentClass,
-              currentLine + 1);
+          writeDebugEnd(currentClass, currentLine);
           writer.writeClose();
         } else {
           writeInstanceFieldRef(fldInsn, frame, TOP_OF_STACK);
@@ -1433,8 +1431,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
           writer.writeOpen();
           writer.writeId(Type.INT_TYPE.getDescriptor());
           writeStaticFieldRef(fldInsn);
-          sourceInfoWriter.writeDebugEnd(currentClass,
-              currentLine + 1);
+          writeDebugEnd(currentClass, currentLine);
           writer.writeClose();
         } else {
           writeStaticFieldRef(fldInsn);
@@ -1579,8 +1576,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
 
         if (returnType != Type.VOID_TYPE) {
           if (returnType == Type.BOOLEAN_TYPE) {
-            sourceInfoWriter.writeDebugEnd(currentClass,
-                currentLine + 1);
+            writeDebugEnd(currentClass, currentLine);
             writer.writeClose();
           }
           writeDebugEnd(currentClass, currentLine);
