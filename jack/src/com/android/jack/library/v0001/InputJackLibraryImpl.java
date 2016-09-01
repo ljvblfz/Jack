@@ -165,7 +165,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
         try {
           currentSectionVFS = new GenericInputVFS(new MessageDigestFS(prefixedInputVFS,
               ThreadConfig.get(JackLibraryFactory.MESSAGE_DIGEST_ALGO)));
-        } catch (BadVFSFormatException e) {
+        } catch (BadVFSFormatException | WrongVFSTypeException e) {
           // If library is well formed this exception cannot be triggered
           throw new AssertionError(e);
         }

@@ -232,7 +232,8 @@ public class VFSTest {
   public void testMessageDigestFS()
       throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
       NoSuchFileException, FileAlreadyExistsException, IOException, CannotDeleteFileException,
-      NotFileOrDirectoryException, CannotCloseException, BadVFSFormatException {
+      NotFileOrDirectoryException, CannotCloseException, BadVFSFormatException,
+      WrongVFSTypeException {
     File file = null;
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
@@ -285,7 +286,8 @@ public class VFSTest {
   public void testMessageDigestFSWithCaseInsensitiveFS()
       throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
       NoSuchFileException, FileAlreadyExistsException, IOException, CannotDeleteFileException,
-      NotFileOrDirectoryException, CannotCloseException, BadVFSFormatException {
+      NotFileOrDirectoryException, CannotCloseException, BadVFSFormatException,
+      WrongVFSTypeException {
     File file = null;
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
@@ -392,7 +394,8 @@ public class VFSTest {
   public void testMessageDigestFSWithCachedDirectFS()
       throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
       NoSuchFileException, FileAlreadyExistsException, IOException, CannotDeleteFileException,
-      NotFileOrDirectoryException, CannotCloseException, BadVFSFormatException {
+      NotFileOrDirectoryException, CannotCloseException, BadVFSFormatException,
+      WrongVFSTypeException {
     File file = null;
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
@@ -1045,7 +1048,8 @@ public class VFSTest {
   public void testDeflateFSWithMessageDigestFS()
       throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
       NoSuchFileException, FileAlreadyExistsException, IOException, CannotDeleteFileException,
-      NotFileOrDirectoryException, ZipException, CannotCloseException, BadVFSFormatException {
+      NotFileOrDirectoryException, ZipException, CannotCloseException, BadVFSFormatException,
+      WrongVFSTypeException {
     File file = null;
     InputOutputVFS ioVFS1 = null;
     InputVFS ioVFS2 = null;

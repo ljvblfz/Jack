@@ -149,14 +149,19 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
 
         if (generateJacklibDigest && fileType == FileType.PREBUILT) {
 
-          outputVFS = new MessageDigestFS(outputVFS,
-              ThreadConfig.get(JackLibraryFactory.MESSAGE_DIGEST_ALGO));
+          try {
+            outputVFS = new MessageDigestFS(outputVFS,
+                ThreadConfig.get(JackLibraryFactory.MESSAGE_DIGEST_ALGO));
+          } catch (WrongVFSTypeException e) {
+            // we want the digest to be there;
+            throw new AssertionError(e);
+          }
         }
       } catch (WrongVFSTypeException e) {
         // prefix may not exist so this cannot happen
         throw new AssertionError(e);
       } catch (BadVFSFormatException e) {
-        // if library is well formed and digest exists this exception cannot be triggered
+        // if library is well formed this exception cannot be triggered
         throw new AssertionError(e);
       } catch (NotDirectoryException e) {
         // if library is well formed this exception cannot be triggered

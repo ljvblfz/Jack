@@ -172,7 +172,7 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
 
   @SuppressWarnings("unchecked")
   public MessageDigestFS(@Nonnull VFS vfs, @Nonnull MessageDigestFactory factory)
-      throws BadVFSFormatException {
+      throws BadVFSFormatException, WrongVFSTypeException {
     this.vfs = (BaseVFS<BaseVDir, BaseVFile>) vfs;
     this.mdFactory = factory;
 
@@ -184,7 +184,7 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
     init();
   }
 
-  private void init() throws BadVFSFormatException {
+  private void init() throws BadVFSFormatException, WrongVFSTypeException {
     BaseVFile digestFile;
 
     try {
@@ -193,7 +193,7 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
       throw new BadVFSFormatException(this, vfs.getLocation(), e);
     } catch (NoSuchFileException e) {
       if (!vfs.getRootDir().isEmpty()) {
-        throw new BadVFSFormatException(this, vfs.getLocation(), e);
+        throw new WrongVFSTypeException(vfs, vfs.getLocation(), getDescription(), e);
       }
 
       return;
