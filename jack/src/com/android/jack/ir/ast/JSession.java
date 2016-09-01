@@ -27,7 +27,9 @@ import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.ir.sourceinfo.SourceInfoFactory;
+import com.android.jack.jayce.JaycePackageLoader;
 import com.android.jack.library.FileType;
+import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.lookup.JNodeLookup;
@@ -39,6 +41,8 @@ import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.config.ReflectFactory;
+import com.android.sched.util.config.ThreadConfig;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -62,16 +66,16 @@ public class JSession extends JNode {
       new HashSet<JDefinedClassOrInterface>();
 
   @Nonnull
-  private final JPackage topLevelPackage;
+  private JPackage topLevelPackage;
 
   @Nonnull
-  private final JNodeLookup lookup;
+  private JNodeLookup lookup;
 
   @Nonnull
-  private final JPhantomLookup phantomLookup;
+  private JPhantomLookup phantomLookup;
 
   @Nonnull
-  private final JArrayType[] primitiveArrays = new JArrayType[JPrimitiveTypeEnum.values().length];
+  private JArrayType[] primitiveArrays = new JArrayType[JPrimitiveTypeEnum.values().length];
 
   @Nonnull
   private final SourceInfoFactory sourceInfoFactory = new SourceInfoFactory();
@@ -123,6 +127,31 @@ public class JSession extends JNode {
     topLevelPackage.updateParents(this);
     lookup = new JNodeLookup(topLevelPackage);
     phantomLookup = new JPhantomLookup(lookup);
+  }
+
+  public void reset() {
+    typesToEmit.clear();
+    topLevelPackage = new JPackage("", null);
+    topLevelPackage.updateParents(this);
+    lookup = new JNodeLookup(topLevelPackage);
+    phantomLookup = new JPhantomLookup(lookup);
+    primitiveArrays = new JArrayType[JPrimitiveTypeEnum.values().length];
+
+    ReflectFactory<JaycePackageLoader> importFactory =
+        ThreadConfig.getConfig().get(Jack.IMPORT_POLICY);
+    for (InputLibrary library : getImportedLibraries()) {
+      if (library instanceof InputJackLibrary) {
+        topLevelPackage.addLoader(importFactory.create(library, this));
+      }
+    }
+
+    ReflectFactory<JaycePackageLoader> classpathFactory =
+        ThreadConfig.getConfig().get(Jack.CLASSPATH_POLICY);
+    for (InputLibrary library : getLibraryOnClasspath()) {
+      if (library instanceof InputJackLibrary) {
+        topLevelPackage.addLoader(classpathFactory.create(library, this));
+      }
+    }
   }
 
   @CheckForNull
