@@ -45,5 +45,19 @@ public class Tests {
     Assert.assertEquals(4, Conditional.test_conditionalCode014(false));
     Assert.assertEquals(3, Conditional.test_conditionalCode015(false));
     Assert.assertEquals(4, Conditional.test_conditionalCode016(false));
+    Assert.assertEquals(6, Conditional.test_conditionalCode017(false));
+    Assert.assertEquals(6, Conditional.test_conditionalCode018(false));
+    Assert.assertEquals(6, Conditional.test_conditionalCode019());
+    Assert.assertEquals(5, Conditional.test_conditionalCode020(false));
+    Assert.assertEquals(5, Conditional.test_conditionalCode021(false));
+    Assert.assertEquals(9, Conditional.test_conditionalCode022(false));
+    Assert.assertEquals(9, Conditional.test_conditionalCode023(false));
+    Assert.assertEquals(9, Conditional.test_conditionalCode024());
+    Assert.assertEquals(7, Conditional.test_conditionalCode025(false));
+    Assert.assertEquals(7, Conditional.test_conditionalCode026(false));
+    Assert.assertEquals(8, Conditional.test_conditionalCode027(false));
+    Assert.assertEquals(8, Conditional.test_conditionalCode028(false));
+    Assert.assertEquals(8, Conditional.test_conditionalCode029());
+    Assert.assertEquals(8, Conditional.test_conditionalCode030(false));
   }
 }

@@ -75,7 +75,7 @@ public class Conditional {
   public static int test_conditionalCode010(boolean a) {
     byte b = 1;
     short c = 1;
-   return m(a ? c : b);
+    return m(a ? c : b);
   }
 
   public static int test_conditionalCode011(boolean a) {
@@ -85,27 +85,93 @@ public class Conditional {
 
   public static int test_conditionalCode012(boolean a) {
     byte b = 1;
-   return m(a ? 12 : b);
+    return m(a ? 12 : b);
   }
 
   public static int test_conditionalCode013(boolean a) {
     char b = 1;
-   return m(a ? 12 : b);
+    return m(a ? 12 : b);
   }
 
   public static int test_conditionalCode014(boolean a) {
     char b = 1;
-   return m(a ? -1 : b);
+    return m(a ? -1 : b);
   }
 
   public static int test_conditionalCode015(boolean a) {
     short b = 1;
-   return m(a ? -1 : b);
+    return m(a ? -1 : b);
   }
 
   public static int test_conditionalCode016(boolean a) {
     short b = 1;
-   return m(a ? 1234567890 : b);
+    return m(a ? 1234567890 : b);
+  }
+
+  public static int test_conditionalCode017(boolean a) {
+    long b = 1;
+    return m(a ? 1234567890L : b);
+  }
+
+  public static int test_conditionalCode018(boolean a) {
+    long b = 1;
+    return m(a ? 1234567890 : b);
+  }
+
+  public static int test_conditionalCode019() {
+    int b = 1;
+    return m(false ? 1234567890L : b);
+  }
+
+  public static int test_conditionalCode020(boolean a) {
+    Object b = 1;
+    return m(a ? "" : b);
+  }
+
+  public static int test_conditionalCode021(boolean a) {
+    Object b = 1;
+    return m(false ? "" : b);
+  }
+
+  public static int test_conditionalCode022(boolean a) {
+    String b = "1";
+    return m(a ? "" : b);
+  }
+
+  public static int test_conditionalCode023(boolean a) {
+    return m(a ? null : null);
+  }
+
+  public static int test_conditionalCode024() {
+    return m(false ? "" : null);
+  }
+
+  public static int test_conditionalCode025(boolean a) {
+    float b = 1;
+    return m(a ? 1234567890 : b);
+  }
+
+  public static int test_conditionalCode026(boolean a) {
+    float b = 1;
+    return m(a ? 1234567890f : b);
+  }
+
+  public static int test_conditionalCode027(boolean a) {
+    float b = 1;
+    return m(a ? 1234567890d : b);
+  }
+
+  public static int test_conditionalCode028(boolean a) {
+    return m(a ? 1234567890d : 1.0f);
+  }
+
+  public static int test_conditionalCode029() {
+    return m(false ? 1234567890d : 1.0f);
+  }
+
+  public static int test_conditionalCode030(boolean a) {
+    double b = 1;
+    return m(a ? 1234567890d : b);
   }
 
   public static int m(byte a) {
@@ -126,6 +192,22 @@ public class Conditional {
 
   public static int m(Object a) {
     return 5;
+  }
+
+  public static int m(long a) {
+    return 6;
+  }
+
+  public static int m(float a) {
+    return 7;
+  }
+
+  public static int m(double a) {
+    return 8;
+  }
+
+  public static int m(String a) {
+    return 9;
   }
 
   public static int getValue(int c) {
