@@ -409,7 +409,7 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
     for (BaseVElement element : elements) {
       // skip digest file
       if (dir == rootDir && element.getName().equals(DIGEST_FILE_NAME)) {
-        break;
+        continue;
       }
       BaseVElement newElement;
       if (element.isVDir()) {
