@@ -27,7 +27,9 @@ import com.android.jack.library.InputLibrary;
 import com.android.jack.meta.Meta;
 import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.file.ReaderFile;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -66,8 +68,12 @@ public class NoInputFilter extends CommonFilter implements InputFilter {
 
   @Override
   @Nonnull
-  public Set<String> getFileNamesToCompile() {
-    return fileNamesToCompile;
+  public Set<ReaderFile> getFileToCompile() {
+    Set<ReaderFile> fileToCompile = new HashSet<>();
+    for (String fileName : fileNamesToCompile) {
+      fileToCompile.add(path2ReaderFile.get(fileName));
+    }
+    return fileToCompile;
   }
 
   @Override

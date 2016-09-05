@@ -65,6 +65,7 @@ import com.android.sched.util.file.InputZipFile;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
+import com.android.sched.util.file.ReaderFile;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.file.ZipException;
 import com.android.sched.util.location.DirectoryLocation;
@@ -81,8 +82,10 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -93,6 +96,9 @@ import javax.annotation.Nonnull;
  */
 @HasKeyId
 public abstract class CommonFilter {
+
+  @Nonnull
+  protected final Map<String, ReaderFile> path2ReaderFile = new HashMap<>();
 
   @Nonnull
   public static final BooleanPropertyId IMPORTED_JAR_DEBUG_INFO = BooleanPropertyId.create(
@@ -197,13 +203,14 @@ public abstract class CommonFilter {
     Config config = options.getConfig();
     final String extension = ".java";
 
-    Set<String> javaFileNames = new HashSet<String>();
+    Set<String> javaFileNames = new HashSet<>();
     for (FileOrDirectory file : config.get(Options.SOURCES)) {
       if (file instanceof Directory) {
         fillFiles(((Directory) file).getFile(), extension, javaFileNames);
       } else if (file.getPath().endsWith(extension)) {
         // File already checked by codec
         javaFileNames.add(file.getPath());
+        path2ReaderFile.put(file.getPath(), (ReaderFile) file);
       }
     }
 
@@ -221,8 +228,8 @@ public abstract class CommonFilter {
       if (subFile.isDirectory()) {
         fillFiles(subFile, fileExt, fileNames);
       } else {
-        String path = subFile.getPath();
         if (subFile.getName().endsWith(fileExt)) {
+          String path = subFile.getPath();
           try {
             // Let's check the files contained in the folder since they have not checked by codec
             FileLocation location = new FileLocation(subFile);
@@ -230,6 +237,7 @@ public abstract class CommonFilter {
             AbstractStreamFile.check(subFile, location);
             FileOrDirectory.checkPermissions(subFile, location, Permission.READ);
             fileNames.add(path);
+            path2ReaderFile.put(path, new ReaderFile(subFile.getPath()));
           } catch (WrongPermissionException e) {
             throw new JackUserException(e);
           } catch (NotFileException e) {

@@ -62,12 +62,12 @@ import com.android.sched.util.codec.CodecContext;
 import com.android.sched.util.codec.DirectDirOutputVFSCodec;
 import com.android.sched.util.codec.DirectoryCodec;
 import com.android.sched.util.codec.InputFileOrDirectoryCodec;
-import com.android.sched.util.codec.InputStreamOrDirectoryCodec;
 import com.android.sched.util.codec.ListCodec;
 import com.android.sched.util.codec.PairCodec;
 import com.android.sched.util.codec.PairCodec.Pair;
 import com.android.sched.util.codec.PairListToMapCodecConverter;
 import com.android.sched.util.codec.ParsingException;
+import com.android.sched.util.codec.ReaderFileOrDirectoryCodec;
 import com.android.sched.util.codec.StringValueCodec;
 import com.android.sched.util.codec.VariableName;
 import com.android.sched.util.codec.ZipFSCodec;
@@ -572,7 +572,7 @@ public class Options {
   @Nonnull
   public static final ListPropertyId<FileOrDirectory> SOURCES =
       new ListPropertyId<FileOrDirectory>("jack.source", "Sources to compile",
-          new InputStreamOrDirectoryCodec()).on(File.pathSeparator).minElements(0)
+          new ReaderFileOrDirectoryCodec()).on(File.pathSeparator).minElements(0)
           .addDefaultValue(Collections.<FileOrDirectory>emptyList());
 
   @Nonnull

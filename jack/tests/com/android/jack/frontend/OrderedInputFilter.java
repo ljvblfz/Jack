@@ -32,7 +32,9 @@ import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileOrDirectory;
+import com.android.sched.util.file.ReaderFile;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -72,8 +74,12 @@ public class OrderedInputFilter extends CommonFilter implements InputFilter {
 
   @Override
   @Nonnull
-  public Set<String> getFileNamesToCompile() {
-    return fileNamesToCompile;
+  public Set<ReaderFile> getFileToCompile() {
+    Set<ReaderFile> fileToCompile = new LinkedHashSet<>();
+    for (String fileName : fileNamesToCompile) {
+      fileToCompile.add(path2ReaderFile.get(fileName));
+    }
+    return fileToCompile;
   }
 
   @Override

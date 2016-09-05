@@ -20,6 +20,7 @@ import com.android.jack.ir.ast.Resource;
 import com.android.jack.library.InputLibrary;
 import com.android.jack.meta.Meta;
 import com.android.sched.util.codec.VariableName;
+import com.android.sched.util.file.ReaderFile;
 
 import java.util.List;
 import java.util.Set;
@@ -33,7 +34,7 @@ import javax.annotation.Nonnull;
 public interface InputFilter {
 
   @Nonnull
-  public Set<String> getFileNamesToCompile();
+  public Set<ReaderFile> getFileToCompile();
 
   @Nonnull
   public List<? extends InputLibrary> getClasspath();

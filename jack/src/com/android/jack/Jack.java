@@ -326,6 +326,7 @@ import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.ReflectFactoryPropertyId;
 import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.file.CannotWriteException;
+import com.android.sched.util.file.ReaderFile;
 import com.android.sched.util.log.Event;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.Tracer;
@@ -1005,7 +1006,7 @@ public abstract class Jack {
       }
     }
 
-    Set<String> fileNamesToCompile = inputFilter.getFileNamesToCompile();
+    Set<ReaderFile> fileNamesToCompile = inputFilter.getFileToCompile();
     if (!fileNamesToCompile.isEmpty()) {
 
       JackBatchCompiler jbc = new JackBatchCompiler(session);
@@ -1015,7 +1016,9 @@ public abstract class Jack {
         List<String> ecjArguments =
             new ArrayList<String>(ecjExtraArguments.size() + fileNamesToCompile.size());
         ecjArguments.addAll(ecjExtraArguments);
-        ecjArguments.addAll(fileNamesToCompile);
+        for (ReaderFile rf : fileNamesToCompile) {
+          ecjArguments.add(rf.getPath() + "[" + rf.getCharset().name() + "]");
+        }
 
         try {
           if (!jbc.compile(ecjArguments.toArray(new String[ecjArguments.size()]))) {

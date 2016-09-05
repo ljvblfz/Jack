@@ -51,6 +51,7 @@ import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.CannotGetModificationTimeException;
 import com.android.sched.util.file.CannotReadException;
+import com.android.sched.util.file.ReaderFile;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.log.Tracer;
@@ -147,7 +148,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   private final Set<String> modifiedFileNames = new HashSet<String>();
 
   @Nonnull
-  private final Set<String> filesToRecompile;
+  private final Set<String> filesToRecompiles;
 
   @Nonnull
   private List<InputLibrary> importedLibraries;
@@ -229,7 +230,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
         config.get(Jack.STRICT_CLASSPATH).booleanValue());
     session.getLibraryDependencies().addImportedLibraries(importedLibrariesFromCommandLine);
     session.getLibraryDependencies().addLibrariesOnClasspath(librariesOnClasspath);
-    filesToRecompile = getInternalFileNamesToCompile();
+    filesToRecompiles = getInternalFileNamesToCompile();
 
     importedResources = importStandaloneResources();
     importedMetas = importStandaloneMetas();
@@ -252,7 +253,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
         incLog.writeStrings("added (" + addedFileNames.size() + ")", addedFileNames);
         incLog.writeStrings("deleted (" + deletedFileNames.size() + ")", deletedFileNames);
         incLog.writeStrings("modified (" + modifiedFileNames.size() + ")", modifiedFileNames);
-        incLog.writeStrings("compiled (" + filesToRecompile.size() + ")", filesToRecompile);
+        incLog.writeStrings("compiled (" + filesToRecompiles.size() + ")", filesToRecompiles);
         incLog.writeString(
             "imported libraries have " + (mergingEnabled ? "" : "not ") + "been unified");
         incLog.close();
@@ -296,8 +297,12 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
 
   @Override
   @Nonnull
-  public Set<String> getFileNamesToCompile() {
-    return filesToRecompile;
+  public Set<ReaderFile> getFileToCompile() {
+    Set<ReaderFile> fileToCompile = new HashSet<>();
+    for (String fileName : filesToRecompiles) {
+      fileToCompile.add(path2ReaderFile.get(fileName));
+    }
+    return fileToCompile;
   }
 
   @Nonnull
@@ -337,7 +342,7 @@ public class IncrementalInputFilter extends CommonFilter implements InputFilter 
   private void updateIncrementalState()
       throws IncrementalException {
     if (incrementalInputLibrary != null) {
-      for (String fileToRecompile : getFileNamesToCompile()) {
+      for (String fileToRecompile : filesToRecompiles) {
         deleteOldFilesFromJavaFiles(fileToRecompile);
       }
 
