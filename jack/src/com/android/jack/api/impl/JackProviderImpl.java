@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
@@ -139,7 +140,7 @@ public class JackProviderImpl implements JackProvider, ResourceController {
   }
 
   @Override
-  public void clean(@Nonnull EnumSet<Category> categories, @Nonnull EnumSet<Impact> impacts) {
+  public void clean(@Nonnull Set<Category> categories, @Nonnull Set<Impact> impacts) {
   }
 
   @Override
