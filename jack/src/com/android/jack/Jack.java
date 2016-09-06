@@ -385,7 +385,7 @@ public abstract class Jack {
       new ObjectId<JSession>("jack.session", JSession.class);
 
   @Nonnull
-  private static final EventBus requestBus = new EventBus(Jack.class.getSimpleName());
+  private static final EventBus requestBus = new EventBus("JackResourceRequest");
 
   // Compilation configuration kept in a static field to avoid ThreadConfig overhead
   @CheckForNull

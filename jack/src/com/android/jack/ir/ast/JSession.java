@@ -41,6 +41,7 @@ import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 import com.android.sched.util.RunnableHooks;
+import com.android.sched.util.config.Config;
 import com.android.sched.util.config.ReflectFactory;
 import com.android.sched.util.config.ThreadConfig;
 
@@ -119,10 +120,14 @@ public class JSession extends JNode {
   @CheckForNull
   private RunnableHooks hooks;
 
+  @Nonnull
+  private final Config config;
+
   private boolean mustAbortEventually = false;
 
   public JSession() {
     super(SourceInfo.UNKNOWN);
+    this.config = ThreadConfig.getConfig();
     topLevelPackage = new JPackage("", null);
     topLevelPackage.updateParents(this);
     lookup = new JNodeLookup(topLevelPackage);
@@ -152,6 +157,11 @@ public class JSession extends JNode {
         topLevelPackage.addLoader(classpathFactory.create(library, this));
       }
     }
+  }
+
+  @Nonnull
+  public Config getConfig() {
+    return config;
   }
 
   @CheckForNull
