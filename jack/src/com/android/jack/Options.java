@@ -136,7 +136,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -1399,9 +1398,6 @@ public class Options {
     }
     return proguardFlagsFileFromWorkingDir;
   }
-
-  @Nonnull
-  private static final Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
   private static Directory createTempDir(

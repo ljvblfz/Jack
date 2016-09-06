@@ -49,8 +49,6 @@ public class JayceHeader {
   @Nonnegative
   private static final int INT_MAX_DIGITS = String.valueOf(Integer.MAX_VALUE).length();
   @Nonnegative
-  private static final int CHARSET_NAME_MAX_LENGTH = 21;
-  @Nonnegative
   private static final int EMITTER_ID_MAX_LENGTH = 1024;
   @Nonnull
   private static final String VERSION_FORMAT = "%04d";

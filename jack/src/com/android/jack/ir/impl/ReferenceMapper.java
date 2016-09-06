@@ -44,7 +44,6 @@ import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.ir.formatter.TypePackageAndMethodFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.ir.sourceinfo.SourceInfoFactory;
-import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JLookup;
 import com.android.jack.lookup.JNodeLookup;
 
@@ -647,15 +646,6 @@ public class ReferenceMapper {
   private void cacheField(@Nonnull SignatureKey key, @Nonnull JField field) {
     assert !fields.containsKey(key);
     fields.put(key, field);
-  }
-
-  @Nonnull
-  private JDefinedClass getJavaLangString() throws JTypeLookupException {
-    if (javaLangString == null) {
-      javaLangString = (JDefinedClass) lookup.getClass(CommonTypes.JAVA_LANG_STRING);
-    }
-    assert javaLangString != null;
-    return javaLangString;
   }
 
   private static class SignatureKey {

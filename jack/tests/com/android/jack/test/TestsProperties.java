@@ -36,9 +36,6 @@ public class TestsProperties {
   private static final File JACK_ROOT_DIR;
 
   @Nonnull
-  private static final String JACK_TESTS_FOLDER = "jack-tests";
-
-  @Nonnull
   private static final Properties testsProperties;
 
   static {

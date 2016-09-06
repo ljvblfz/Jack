@@ -65,7 +65,6 @@ import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.library.DumpInLibrary;
-import com.android.jack.lookup.JLookup;
 import com.android.jack.lookup.JMethodLookupException;
 import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.jack.shrob.obfuscation.OriginalNames;
@@ -133,9 +132,6 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
       Jack.getSession().getPhantomLookup().getType("Ljava/lang/NoSuchFieldError;");
 
   private final boolean sortEnumField = ThreadConfig.get(SORT_ENUM_FIELD).booleanValue();
-
-  @Nonnull
-  private final JLookup lookup = Jack.getSession().getPhantomLookup();
 
   /**
    * Enum fields used into switch.

@@ -70,7 +70,6 @@ import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.file.ZipException;
 import com.android.sched.util.location.DirectoryLocation;
 import com.android.sched.util.location.FileLocation;
-import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.PrefixedFS;
 import com.android.sched.vfs.ReadZipFS;
 import com.android.sched.vfs.VFS;
@@ -87,7 +86,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
@@ -194,9 +192,6 @@ public abstract class CommonFilter {
       return ProblemLevel.WARNING;
     }
   }
-
-  @Nonnull
-  private static final Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
   protected Set<String> getJavaFileNamesSpecifiedOnCommandLine(@Nonnull Options options) {

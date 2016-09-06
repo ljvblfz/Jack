@@ -406,8 +406,8 @@ public class SwitchMapClassFiller {
             switchmapLocal.makeRef(SourceInfo.UNKNOWN)));
     transformRequest.append(new AppendStatement(initializerMethodBlock, putStaticFieldStmt));
 
-    createStatementsInitializingSwitchMapArrayField(
-        transformRequest, localVarCreator, initializerMethodBlock, switchmapLocal);
+    createStatementsInitializingSwitchMapArrayField(transformRequest, initializerMethodBlock,
+        switchmapLocal);
 
     transformRequest.append(new AppendStatement(initializerMethodBlock, new JReturnStatement(
         SourceInfo.UNKNOWN, switchmapLocal.makeRef(SourceInfo.UNKNOWN))));
@@ -416,13 +416,11 @@ public class SwitchMapClassFiller {
   /**
    * Initialize the synthetic switch map int[] field.
    * @param transformRequest Transformation utility
-   * @param localVarCreator JLocal creator
    * @param block Current block to emit code to
    * @param switchmapLocal Switch map int[] local
    */
   private void createStatementsInitializingSwitchMapArrayField(
       @Nonnull TransformationRequest transformRequest,
-      @Nonnull LocalVarCreator localVarCreator,
       @Nonnull JBlock block,
       @Nonnull JLocal switchmapLocal) {
     assert syntheticSwitchMapInitializer != null;

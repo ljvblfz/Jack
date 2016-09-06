@@ -33,7 +33,6 @@ import com.android.sched.util.file.FileOrDirectory;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.FileLocation;
-import com.android.sched.util.log.LoggerFactory;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CompilationProgress;
@@ -99,9 +98,6 @@ public class JackBatchCompiler extends Main {
     }
 
   }
-
-  @Nonnull
-  private static final java.util.logging.Logger jackLogger = LoggerFactory.getLogger();
 
   @Nonnull
   private final JSession session;

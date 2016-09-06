@@ -35,7 +35,6 @@ import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.util.collect.UnmodifiableCollections;
 import com.android.sched.util.codec.VariableName;
 import com.android.sched.util.location.Location;
-import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVElement;
 import com.android.sched.vfs.InputVFile;
@@ -43,7 +42,6 @@ import com.android.sched.vfs.InputVFile;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
@@ -52,9 +50,6 @@ import javax.annotation.Nonnull;
  */
 @VariableName("loader")
 public class JaycePackageLoader implements PackageLoader, HasInputLibrary {
-
-  @Nonnull
-  private static Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
   private final InputVDir packageVDir;

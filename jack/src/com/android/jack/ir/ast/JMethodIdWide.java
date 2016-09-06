@@ -22,8 +22,6 @@ import com.android.jack.ir.StringInterner;
 import com.android.jack.util.NamingTools;
 import com.android.sched.item.Component;
 import com.android.sched.marker.LocalMarkerManager;
-import com.android.sched.util.log.Tracer;
-import com.android.sched.util.log.TracerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,9 +39,6 @@ import javax.annotation.Nonnull;
  */
 @Deprecated
 public class JMethodIdWide extends LocalMarkerManager implements HasName, CanBeRenamed, Component {
-
-  @Nonnull
-  private final Tracer tracer = TracerFactory.getTracer();
 
   @Nonnull
   private String name;

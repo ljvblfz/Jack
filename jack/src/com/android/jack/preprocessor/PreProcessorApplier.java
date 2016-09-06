@@ -34,7 +34,6 @@ import com.android.sched.util.file.ReaderFile;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.HasLocation;
 import com.android.sched.util.location.Location;
-import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.InputVFile;
 
 import org.antlr.runtime.ANTLRReaderStream;
@@ -50,7 +49,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
@@ -60,9 +58,6 @@ import javax.annotation.Nonnull;
 @Description("Apply the rules defined in the PreProcessor file.")
 @Support(PreProcessor.class)
 public class PreProcessorApplier implements RunnableSchedulable<JSession> {
-
-  @Nonnull
-  private static final Logger logger = LoggerFactory.getLogger();
 
   @Override
   public void run(@Nonnull JSession session) {

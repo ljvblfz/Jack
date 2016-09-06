@@ -482,14 +482,4 @@ public class CloneStatementVisitor extends CloneExpressionVisitor {
     expression = parameter.makeRef(parameterRef.getSourceInfo());
     return false;
   }
-
-  @Nonnull
-  private JParameter getNewParameter(@Nonnull JParameter oldParameter) {
-    for (JParameter newParameter : targetMethod.getParams()) {
-      if (newParameter.getName().equals(oldParameter.getName())) {
-        return newParameter;
-      }
-    }
-    throw new AssertionError();
-  }
 }

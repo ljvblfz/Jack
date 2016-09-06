@@ -56,10 +56,6 @@ public class BridgeInInterfaceRemover implements RunnableSchedulable<JMethod> {
   private final long androidMinApiLevel =
       ThreadConfig.get(Options.ANDROID_MIN_API_LEVEL).longValue();
 
-  @Nonnull
-  private final com.android.jack.util.filter.Filter<JMethod> filter =
-      ThreadConfig.get(Options.METHOD_FILTER);
-
   @Override
   public void run(@Nonnull JMethod method) {
     if (androidMinApiLevel < AndroidCompatibilityChecker.N_API_LEVEL) {

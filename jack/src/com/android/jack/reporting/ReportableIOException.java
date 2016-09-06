@@ -17,7 +17,6 @@
 package com.android.jack.reporting;
 
 import com.android.sched.util.file.SchedIOException;
-import com.android.sched.util.location.Location;
 
 import java.io.IOException;
 
@@ -28,14 +27,12 @@ import javax.annotation.Nonnull;
  */
 public class ReportableIOException extends ReportableException {
   private static final long serialVersionUID = 1L;
-  @Nonnull
-  private final Location location;
+
   @Nonnull
   private final String module;
 
   public ReportableIOException(@Nonnull String module, @Nonnull SchedIOException cause) {
     super(cause);
-    this.location = cause.getLocation();
     this.module = module;
   }
 

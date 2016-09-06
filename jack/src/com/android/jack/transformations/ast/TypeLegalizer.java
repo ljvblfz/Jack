@@ -23,7 +23,6 @@ import com.android.jack.ir.ast.JAbsentArrayDimension;
 import com.android.jack.ir.ast.JArrayRef;
 import com.android.jack.ir.ast.JBinaryOperation;
 import com.android.jack.ir.ast.JCastOperation;
-import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JConditionalExpression;
 import com.android.jack.ir.ast.JDoStatement;
@@ -84,10 +83,6 @@ import javax.annotation.Nonnull;
 // Use getOrCreateMethodIdWide that scan hierarchy.
 @Access(JSession.class)
 public class TypeLegalizer implements RunnableSchedulable<JMethod> {
-
-  @Nonnull
-  private final JClass javaLangObject =
-      Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
 
   @Nonnull
   private final com.android.jack.util.filter.Filter<JMethod> filter =

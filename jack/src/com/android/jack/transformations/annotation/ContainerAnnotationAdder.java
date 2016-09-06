@@ -16,7 +16,6 @@
 
 package com.android.jack.transformations.annotation;
 
-import com.android.jack.Jack;
 import com.android.jack.ir.ast.Annotable;
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JAnnotationType;
@@ -124,10 +123,6 @@ public class ContainerAnnotationAdder {
       tr.commit();
     }
   }
-
-  @Nonnull
-  private final JAnnotationType repeatableAnnotationType =
-      Jack.getSession().getPhantomLookup().getAnnotationType("Ljava/lang/annotation/Repeatable;");
 
   protected void addContainerAnnotationIfNeeded(@Nonnull TransformationRequest tr,
       @Nonnull Annotable annotable) {

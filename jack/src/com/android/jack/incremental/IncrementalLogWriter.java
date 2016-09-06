@@ -47,14 +47,11 @@ class IncrementalLogWriter {
   @Nonnull
   private final PrintStream ps;
 
-  @Nonnull
-  private final OutputJackLibrary library;
 
   @Nonnull
   private static Joiner commaJoiner = Joiner.on(",").useForNull("");
 
   IncrementalLogWriter(@Nonnull OutputJackLibrary library) throws LibraryIOException {
-    this.library = library;
     OutputVFile vFile;
     try {
       vFile = library.getFile(FileType.LOG, vpath);

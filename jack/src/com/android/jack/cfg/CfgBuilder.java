@@ -16,7 +16,6 @@
 
 package com.android.jack.cfg;
 
-import com.android.jack.Jack;
 import com.android.jack.JackEventType;
 import com.android.jack.Options;
 import com.android.jack.ir.ast.JBinaryOperation;
@@ -40,7 +39,6 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JReturnStatement;
-import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JStatementList;
 import com.android.jack.ir.ast.JSwitchStatement;
@@ -136,8 +134,6 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
   @Nonnull
   private final Tracer tracer = TracerFactory.getTracer();
 
-  private final JSession session = Jack.getSession();
-
   private static class JCaseStatementComparator
       implements Comparator<JCaseStatement>, Serializable {
     private static final long serialVersionUID = 1L;
@@ -189,9 +185,6 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
 
     @Nonnull
     private List<JCatchBlock> previousCatchBlock = new ArrayList<JCatchBlock>();
-
-    @Nonnull
-    private final SourceInfoFactory sourceInfoFactory = session.getSourceInfoFactory();
 
     public BuilderVisitor(@Nonnull JMethod method) {
       assert method != null;

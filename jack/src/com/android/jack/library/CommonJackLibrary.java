@@ -18,7 +18,6 @@ package com.android.jack.library;
 
 import com.android.jack.Jack;
 import com.android.sched.util.location.Location;
-import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVElement;
 import com.android.sched.vfs.InputVFile;
@@ -32,7 +31,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -41,9 +39,6 @@ import javax.annotation.Nonnull;
  * Common part of {@link InputLibrary} and {@link OutputLibrary}
  */
 public abstract class CommonJackLibrary implements JackLibrary {
-
-  @Nonnull
-  private static Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
   protected VFS vfs;

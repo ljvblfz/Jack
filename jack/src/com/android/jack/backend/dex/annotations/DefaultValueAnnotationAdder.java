@@ -124,7 +124,7 @@ public class DefaultValueAnnotationAdder implements RunnableSchedulable<JMethod>
   @Nonnull
   private JAnnotation getDefaultAnnotation(@Nonnull JDefinedAnnotationType targetAnnotationType,
       @Nonnull TransformationRequest tr) {
-    JAnnotationType defaultAnnotationType = getDefaultAnnotationType(targetAnnotationType);
+    JAnnotationType defaultAnnotationType = getDefaultAnnotationType();
     JAnnotation defaultAnnotation = null;
     List<JAnnotation> defaultAnnotations =
         targetAnnotationType.getAnnotations(defaultAnnotationType);
@@ -146,10 +146,9 @@ public class DefaultValueAnnotationAdder implements RunnableSchedulable<JMethod>
 
   /**
    * Get the JInterfaceType representing {@code dalvik.annotation.AnnotationDefault}.
-   * @param type any JDeclaredType produced from source, it is only used to find the JLookup.
    */
   @Nonnull
-  private JAnnotationType getDefaultAnnotationType(@Nonnull JDefinedClassOrInterface type) {
+  private JAnnotationType getDefaultAnnotationType() {
     if (defaultAnnotationType == null) {
       defaultAnnotationType = Jack.getSession()
           .getPhantomLookup().getAnnotationType(DexAnnotations.ANNOTATION_ANNOTATION_DEFAULT);

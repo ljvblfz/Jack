@@ -151,14 +151,8 @@ public class AnnotationMerger extends MergerTools {
 
   private final class AnnotationValueReader extends EncodedValueReader {
 
-    @Nonnegative
-    private final int cstIndex = 0;
-
     @CheckForNull
     private Constant constantValue;
-
-    @CheckForNull
-    private CstString annotationName;
 
     @Nonnull
     private final DexBuffer dex;
