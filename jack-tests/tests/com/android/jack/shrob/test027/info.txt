@@ -1,0 +1,2 @@
+A jar used as static lib contains a forname referencing another class (in a
+StringConstant). This class should not be removed by the shrinking.

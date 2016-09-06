@@ -66,16 +66,6 @@ public abstract class AbstractTest {
     return new ProguardFlags(applyMapping);
   }
 
-  protected ProguardFlags generateInjars(@Nonnull File injar)
-      throws IOException, CannotCreateFileException, CannotChangePermissionException {
-    File injarFlags = AbstractTestTools.createTempFile("injars", ".flags");
-    BufferedWriter writer = new BufferedWriter(new FileWriter(injarFlags));
-    writer.append("-injars ");
-    writer.append(injar.getAbsolutePath());
-    writer.close();
-    return new ProguardFlags(injarFlags);
-  }
-
   @Nonnull
   protected File addOptionsToFlagsFile(@Nonnull File flagsFile, @Nonnull File baseDirectory,
       @Nonnull String options)

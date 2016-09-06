@@ -1,0 +1,2 @@
+A jar used as static lib contains a getMethod referencing another method (in a
+StringConstant). This method should not be removed by the shrinking.
