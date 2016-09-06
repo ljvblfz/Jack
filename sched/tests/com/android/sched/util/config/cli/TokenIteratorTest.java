@@ -36,6 +36,7 @@ import com.android.sched.util.location.NoLocation;
 import com.android.sched.util.location.StringLocation;
 
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Test;
 
 import java.io.File;
@@ -305,7 +306,7 @@ public class TokenIteratorTest {
     TokenIterator ti = null;
     File file = File.createTempFile(TokenIteratorTest.class.getSimpleName(), "-2");
     file.deleteOnExit();
-    file.setReadable(false);
+    Assume.assumeTrue(file.setReadable(false));
 
     try {
       test(ti = new TokenIterator(loc, "@" + file.getAbsolutePath()),
