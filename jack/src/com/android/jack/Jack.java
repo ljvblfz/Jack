@@ -19,6 +19,7 @@ package com.android.jack;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterators;
+import com.google.common.eventbus.EventBus;
 
 import com.android.jack.Options.AssertionPolicy;
 import com.android.jack.Options.SwitchEnumOptStrategy;
@@ -372,6 +373,9 @@ public abstract class Jack {
   @Nonnull
   public static final ObjectId<JSession> SESSION =
       new ObjectId<JSession>("jack.session", JSession.class);
+
+  @Nonnull
+  private static final EventBus requestBus = new EventBus(Jack.class.getSimpleName());
 
   // Compilation configuration kept in a static field to avoid ThreadConfig overhead
   @CheckForNull
@@ -1803,5 +1807,10 @@ public abstract class Jack {
   @Nonnull
   public static TypePackageAndMethodFormatter getUserFriendlyFormatter() {
     return userFriendlyFormatter;
+  }
+
+  @Nonnull
+  public static EventBus getResourceRequestBus() {
+    return requestBus;
   }
 }

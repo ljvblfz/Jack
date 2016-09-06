@@ -28,6 +28,9 @@ import com.android.jack.api.v02.Api02Config;
 import com.android.jack.api.v03.Api03Config;
 import com.android.jack.api.v04.Api04Config;
 import com.android.jack.api.v04.impl.Api04ConfigImpl;
+import com.android.jack.management.CleanCodeRequest;
+import com.android.jack.management.CleanDiskRequest;
+import com.android.jack.management.CleanMemoryRequest;
 
 import java.util.Collection;
 import java.util.EnumSet;
@@ -141,6 +144,29 @@ public class JackProviderImpl implements JackProvider, ResourceController {
 
   @Override
   public void clean(@Nonnull Set<Category> categories, @Nonnull Set<Impact> impacts) {
+    EnumSet<com.android.jack.management.Impact> impactsInternal =
+        EnumSet.noneOf(com.android.jack.management.Impact.class);
+
+    // Convert API into Jack internal
+    if (impacts.contains(Impact.LATENCY)) {
+      impactsInternal.add(com.android.jack.management.Impact.LATENCY);
+    }
+    if (impacts.contains(Impact.PERFORMANCE)) {
+      impactsInternal.add(com.android.jack.management.Impact.PERFORMANCE);
+    }
+
+    // Post events
+    if (categories.contains(Category.CODE)) {
+      Jack.getResourceRequestBus().post(new CleanCodeRequest(impactsInternal));
+    }
+
+    if (categories.contains(Category.MEMORY)) {
+      Jack.getResourceRequestBus().post(new CleanMemoryRequest(impactsInternal));
+    }
+
+    if (categories.contains(Category.DISK)) {
+      Jack.getResourceRequestBus().post(new CleanDiskRequest(impactsInternal));
+    }
   }
 
   @Override
