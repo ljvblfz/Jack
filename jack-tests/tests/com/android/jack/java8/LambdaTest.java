@@ -38,6 +38,7 @@ import junit.framework.Assert;
 
 import org.jf.dexlib.ClassDefItem;
 import org.jf.dexlib.DexFile;
+import org.jf.dexlib.StringIdItem;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -398,7 +399,10 @@ public class LambdaTest {
       Set<String> sourceFileInDex = new HashSet<String>();
 
       for (ClassDefItem classDef : dexFile.ClassDefsSection.getItems()) {
-        sourceFileInDex.add(classDef.getSourceFile().getStringValue());
+        StringIdItem sourceFile = classDef.getSourceFile();
+        if (sourceFile != null) {
+          sourceFileInDex.add(sourceFile.getStringValue());
+        }
       }
 
       for (String keptFile : keptFiles) {

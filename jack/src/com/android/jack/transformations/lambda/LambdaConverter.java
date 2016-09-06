@@ -54,7 +54,6 @@ import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.ast.marker.SimpleName;
 import com.android.jack.ir.formatter.IdentifierFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfo;
-import com.android.jack.ir.sourceinfo.SourceInfoFactory;
 import com.android.jack.load.NopClassOrInterfaceLoader;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JLookup;
@@ -340,8 +339,7 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
     @Nonnull
     private JDefinedClass createInnerClass(@Nonnull JLambda lambdaExpr) {
       String simpleName = lambdaClassNamePrefix + anonymousCountByMeth++;
-      JDefinedClass lambdaImpl = new JDefinedClass(
-          new SourceInfoFactory().create(currentClass.getSourceInfo().getFileName()),
+      JDefinedClass lambdaImpl = new JDefinedClass(SourceInfo.UNKNOWN,
           currentClass.getName() + "$" + simpleName, JModifier.FINAL | JModifier.SYNTHETIC,
           currentClass.getEnclosingPackage(), NopClassOrInterfaceLoader.INSTANCE);
 
