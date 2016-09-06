@@ -73,11 +73,6 @@ public class JByteLiteral extends JNumberValueLiteral
   }
 
   @Override
-  public boolean isValidValue(int value) {
-    return (Byte.MIN_VALUE <= value) && (value <= Byte.MAX_VALUE);
-  }
-
-  @Override
   @Nonnull
   public Number getNumber() {
     return new Number(Byte.valueOf(value));
