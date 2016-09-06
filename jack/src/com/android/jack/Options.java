@@ -127,6 +127,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -697,6 +698,13 @@ public class Options {
   }
 
   @CheckForNull
+  private Charset defaultCharset = null;
+
+  public void setDefaultCharset(@Nonnull Charset charset) {
+    this.defaultCharset = charset;
+  }
+
+  @CheckForNull
   private CodecContext codecContext = null;
 
   @Nonnull
@@ -722,6 +730,10 @@ public class Options {
 
       if (standardOutput != null) {
         codecContext.setStandardOutput(standardOutput);
+      }
+
+      if (defaultCharset != null) {
+        codecContext.setDefaultCharset(defaultCharset);
       }
 
       if (sanityChecks) {

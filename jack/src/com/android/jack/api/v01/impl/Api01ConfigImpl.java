@@ -35,6 +35,7 @@ import com.android.jack.api.v01.ResourceCollisionPolicy;
 import com.android.jack.api.v01.TypeCollisionPolicy;
 import com.android.jack.api.v01.UnrecoverableException;
 import com.android.jack.api.v01.VerbosityLevel;
+import com.android.jack.api.v04.impl.Api04ConfigImpl;
 import com.android.jack.config.id.JavaVersionPropertyId.JavaVersion;
 import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.reporting.Reporter;
@@ -177,7 +178,7 @@ public class Api01ConfigImpl implements Api01Config {
 
   @Override
   public void setJarJarConfigFiles(@Nonnull List<File> jarJarConfigFiles) {
-    options.setJarjarRulesFiles(jarJarConfigFiles);
+    options.setJarjarRulesFiles(Api04ConfigImpl.manageFilesCharsetAsList(jarJarConfigFiles));
   }
 
   @Override
@@ -244,7 +245,7 @@ public class Api01ConfigImpl implements Api01Config {
   public void setObfuscationMappingOutputFile(@Nonnull File obfuscationMappingOutputFile) {
     options.addProperty(MappingPrinter.MAPPING_OUTPUT_ENABLED.getName(), "true");
     options.addProperty(MappingPrinter.MAPPING_OUTPUT_FILE.getName(),
-        obfuscationMappingOutputFile.getPath());
+        Api04ConfigImpl.manageFileCharset(obfuscationMappingOutputFile).getPath());
   }
 
   @Override
@@ -279,7 +280,7 @@ public class Api01ConfigImpl implements Api01Config {
 
   @Override
   public void setProguardConfigFiles(@Nonnull List<File> proguardConfigFiles) {
-    options.setProguardFlagsFile(proguardConfigFiles);
+    options.setProguardFlagsFile(Api04ConfigImpl.manageFilesCharsetAsList(proguardConfigFiles));
   }
 
   @Override
@@ -338,7 +339,7 @@ public class Api01ConfigImpl implements Api01Config {
 
   @Override
   public void setSourceEntries(@Nonnull Collection<File> sourceEntries) {
-    options.setInputSources(sourceEntries);
+    options.setInputSources(Api04ConfigImpl.manageFilesCharsetAsList(sourceEntries));
   }
 
   @Override
