@@ -99,14 +99,13 @@ public class UselessSwitchesRemover implements RunnableSchedulable<JMethod> {
 
     @Override
     public boolean visit(@Nonnull JSwitchStatement jswitch) {
-      removeBreakOrCase.push(jswitch.getCases().isEmpty() ? Boolean.valueOf(true) :
-        Boolean.valueOf(false));
+      removeBreakOrCase.push(jswitch.getCases().isEmpty() ? Boolean.TRUE : Boolean.FALSE);
       return super.visit(jswitch);
     }
 
     @Override
     public boolean visit(@Nonnull JDoStatement doStmt) {
-      removeBreakOrCase.push(Boolean.valueOf(false));
+      removeBreakOrCase.push(Boolean.FALSE);
       return super.visit(doStmt);
     }
 
@@ -118,7 +117,7 @@ public class UselessSwitchesRemover implements RunnableSchedulable<JMethod> {
 
     @Override
     public boolean visit(@Nonnull JForStatement x) {
-      removeBreakOrCase.push(Boolean.valueOf(false));
+      removeBreakOrCase.push(Boolean.FALSE);
       return super.visit(x);
     }
 
@@ -130,7 +129,7 @@ public class UselessSwitchesRemover implements RunnableSchedulable<JMethod> {
 
     @Override
     public boolean visit(@Nonnull JWhileStatement x) {
-      removeBreakOrCase.push(Boolean.valueOf(false));
+      removeBreakOrCase.push(Boolean.FALSE);
       return super.visit(x);
     }
 
@@ -142,7 +141,7 @@ public class UselessSwitchesRemover implements RunnableSchedulable<JMethod> {
 
     @Override
     public boolean visit(@Nonnull JLabeledStatement x) {
-      removeBreakOrCase.push(Boolean.valueOf(false));
+      removeBreakOrCase.push(Boolean.FALSE);
       return super.visit(x);
     }
 
