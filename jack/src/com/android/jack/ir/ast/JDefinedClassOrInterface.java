@@ -336,6 +336,10 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
     return JModifier.isStrictfp(getModifier());
   }
 
+  public boolean isSynthetic() {
+    return JModifier.isSynthetic(getModifier());
+  }
+
   @Override
   public boolean isAbstract() {
     return JModifier.isAbstract(getModifier());
