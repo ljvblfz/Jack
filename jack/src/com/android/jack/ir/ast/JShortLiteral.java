@@ -73,11 +73,6 @@ public class JShortLiteral extends JNumberValueLiteral
   }
 
   @Override
-  public boolean isValidValue(int value) {
-    return (Short.MIN_VALUE <= value) && (value <= Short.MAX_VALUE);
-  }
-
-  @Override
   @Nonnull
   public Number getNumber() {
     return new Number(Short.valueOf(value));

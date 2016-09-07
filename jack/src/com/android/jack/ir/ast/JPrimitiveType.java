@@ -266,6 +266,13 @@ public abstract class JPrimitiveType extends JNode implements JType {
     public boolean isValidValue(int value) {
       return (Byte.MIN_VALUE <= value) && (value <= Byte.MAX_VALUE);
     }
+
+    @Nonnull
+    @Override
+    public JByteLiteral createLiteral(@Nonnull SourceInfo sourceInfo, int value) {
+      assert isValidValue(value);
+      return new JByteLiteral(sourceInfo, (byte) value);
+    }
   }
 
   /**
@@ -304,6 +311,13 @@ public abstract class JPrimitiveType extends JNode implements JType {
     @Override
     public boolean isValidValue(int value) {
       return (Character.MIN_VALUE <= value) && (value <= Character.MAX_VALUE);
+    }
+
+    @Nonnull
+    @Override
+    public JCharLiteral createLiteral(@Nonnull SourceInfo sourceInfo, int value) {
+      assert isValidValue(value);
+      return new JCharLiteral(sourceInfo, (char) value);
     }
   }
 
@@ -412,6 +426,12 @@ public abstract class JPrimitiveType extends JNode implements JType {
     public boolean isValidValue(int value) {
       return true;
     }
+
+    @Nonnull
+    @Override
+    public JIntLiteral createLiteral(@Nonnull SourceInfo sourceInfo, int value) {
+      return new JIntLiteral(sourceInfo, value);
+    }
   }
 
   /**
@@ -484,6 +504,13 @@ public abstract class JPrimitiveType extends JNode implements JType {
     @Override
     public boolean isValidValue(int value) {
       return (Short.MIN_VALUE <= value) && (value <= Short.MAX_VALUE);
+    }
+
+    @Nonnull
+    @Override
+    public JShortLiteral createLiteral(@Nonnull SourceInfo sourceInfo, int value) {
+      assert isValidValue(value);
+      return new JShortLiteral(sourceInfo, (short) value);
     }
   }
 

@@ -71,11 +71,6 @@ public class JCharLiteral extends JNumberValueLiteral
   }
 
   @Override
-  public boolean isValidValue(int value) {
-    return (Character.MIN_VALUE <= value) && (value <= Character.MAX_VALUE);
-  }
-
-  @Override
   @Nonnull
   public Number getNumber() {
     return new Number(Character.valueOf(value));

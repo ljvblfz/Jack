@@ -16,14 +16,12 @@
 
 package com.android.jack.ir.ast;
 
-import com.android.jack.ir.types.JIntegralType32;
 import com.android.sched.item.Description;
 
 /**
  * Base class for any 32-bits java constant.
  */
 @Description("32-bits java constant")
-public interface JIntegralConstant32 extends JIntegralType32 {
-
+public interface JIntegralConstant32 {
   public int getIntValue();
 }

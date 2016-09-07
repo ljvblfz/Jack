@@ -71,11 +71,6 @@ public class JIntLiteral extends JNumberValueLiteral implements JIntegralConstan
   }
 
   @Override
-  public boolean isValidValue(int value) {
-    return true;
-  }
-
-  @Override
   @Nonnull
   public Number getNumber() {
     return new Number(Integer.valueOf(value));

@@ -16,6 +16,11 @@
 
 package com.android.jack.ir.types;
 
+import com.android.jack.ir.ast.JNumberValueLiteral;
+import com.android.jack.ir.sourceinfo.SourceInfo;
+
+import javax.annotation.Nonnull;
+
 /**
  * Interface representing integral type smaller or equals to 32-bits.
  */
@@ -27,4 +32,8 @@ public interface JIntegralType32 extends JIntegralType {
    * @return true if value is inside range of IntegralType32.
    */
   public boolean isValidValue(int value);
+
+  /** Creates a literal representing the value */
+  @Nonnull
+  JNumberValueLiteral createLiteral(@Nonnull SourceInfo sourceInfo, int value);
 }
