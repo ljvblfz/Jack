@@ -20,12 +20,15 @@ import com.google.common.base.Joiner;
 
 import com.android.jack.Options;
 import com.android.jack.Options.VerbosityLevel;
+import com.android.jack.api.v01.ConfigurationException;
+import com.android.jack.test.TestConfigurationException;
 import com.android.jack.test.util.ExecFileException;
 import com.android.jack.test.util.ExecuteFile;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -64,6 +67,9 @@ public class JackCliToolchain extends JackBasedToolchain {
   List<String> pluginNames = Collections.emptyList();
   @Nonnull
   List<File> pluginPath = Collections.emptyList();
+
+  @CheckForNull
+  private Charset defaultCharset;
 
   JackCliToolchain(@Nonnull File prebuilt) {
     this.jackPrebuilt = prebuilt;
@@ -290,6 +296,9 @@ public class JackCliToolchain extends JackBasedToolchain {
 
       commandLine.add("java");
       commandLine.add(assertEnable ? "-ea" : "-da");
+      if (defaultCharset != null) {
+        commandLine.add("-Dfile.encoding=" + defaultCharset.name());
+      }
       commandLine.add("-jar");
     }
 
@@ -407,6 +416,12 @@ public class JackCliToolchain extends JackBasedToolchain {
       commandLine.add("--pluginpath");
       commandLine.add(Joiner.on(',').join(pluginPath));
     }
+  }
+
+  @Nonnull
+  public JackCliToolchain setDefaultCharset(@Nonnull Charset charset) {
+    this.defaultCharset = charset;
+    return this;
   }
 
   @Override
