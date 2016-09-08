@@ -121,8 +121,8 @@ public class ExtendedSample extends Statistic {
            Double.valueOf(getMedian()),
            Double.valueOf(getThirdQuartile()),
            Double.valueOf(getMax()),
-           getMinObject(),
-           getMaxObject());
+           convertMarker(getMinObject()),
+           convertMarker(getMaxObject()));
   }
 
   @Nonnull
@@ -144,5 +144,10 @@ public class ExtendedSample extends Statistic {
   @Nonnull
   public DataView getDataView() {
     return DATA_VIEW;
+  }
+
+  @Nonnull
+  private String convertMarker(@CheckForNull Object data) {
+    return data == null ? "n/a" : data.toString();
   }
 }

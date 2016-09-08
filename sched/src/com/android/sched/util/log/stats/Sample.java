@@ -94,15 +94,15 @@ public class Sample extends Statistic {
   @Nonnull
   @Override
   public synchronized Iterator<Object> iterator() {
-    return Iterators.forArray(
+    return Iterators.<Object> forArray(
         Integer.valueOf(getCount()),
         Integer.valueOf(getNaNCount()),
         Double.valueOf(getTotal()),
         Double.valueOf(getMin()),
         Double.valueOf(getAverage()),
         Double.valueOf(getMax()),
-        getMinObject(),
-        getMaxObject());
+        convertMarker(getMinObject()),
+        convertMarker(getMaxObject()));
   }
 
   @Nonnull
@@ -126,5 +126,10 @@ public class Sample extends Statistic {
   @Nonnull
   static DataView getStaticDataView() {
     return DATA_VIEW;
+  }
+
+  @Nonnull
+  private String convertMarker(@CheckForNull Object data) {
+    return data == null ? "n/a" : data.toString();
   }
 }

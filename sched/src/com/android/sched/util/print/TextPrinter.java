@@ -24,7 +24,6 @@ import com.android.sched.util.codec.ImplementationName;
 import com.android.sched.util.codec.NumberFormatter;
 import com.android.sched.util.codec.PercentFormatter;
 import com.android.sched.util.codec.QuantityFormatter;
-import com.android.sched.util.codec.ToStringFormatter;
 
 import java.io.PrintWriter;
 import java.text.NumberFormat;
@@ -56,10 +55,19 @@ public class TextPrinter extends AbstractPrinter {
         new FormatterAdapter<Number>(new NumberFormatter().setNumberFormatter(formatter)));
     printers.put(DataType.PERCENT, new FormatterAdapter<Double>(new PercentFormatter()));
     printers.put(DataType.QUANTITY, new FormatterAdapter<Long>(new QuantityFormatter()));
-    printers.put(DataType.STRING, new FormatterAdapter<Object>(new ToStringFormatter()));
+    printers.put(DataType.STRING, new TextStringFormatter());
     printers.put(DataType.BUNDLE, new WithBundlePrinter());
     printers.put(DataType.STRUCT, new TextStructurePrinter());
     printers.put(DataType.LIST, new TextListPrinter());
+  }
+
+  private static class TextStringFormatter implements TypePrinter<String> {
+    @Override
+    public boolean print(@Nonnull PrintWriter printer, @Nonnull String value) {
+      printer.print(value);
+
+      return true;
+    }
   }
 
   private class TextListPrinter implements TypePrinter<DataModel> {

@@ -47,7 +47,7 @@ public enum DataType {
    */
   DURATION,
   /**
-   * String type ({@link Object}, use {@link Object#toString()})
+   * String type ({@link String})
    */
   STRING,
   /**
