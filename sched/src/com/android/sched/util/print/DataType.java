@@ -35,11 +35,11 @@ public enum DataType {
    */
   NUMBER,
   /**
-   * Percent type ({@link Long})
+   * Percent type ({@link Double})
    */
   PERCENT,
   /**
-   * Quantity type ({@link Double})
+   * Quantity type ({@link Long})
    */
   QUANTITY,
   /**
