@@ -1,0 +1,2 @@
+This test contains a lambda expression with that uses final parameters from
+its enclosing method.

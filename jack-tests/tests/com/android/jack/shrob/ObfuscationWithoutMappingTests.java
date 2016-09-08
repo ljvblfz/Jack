@@ -30,7 +30,9 @@ import com.android.jack.test.toolchain.DummyToolchain;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
+import com.android.jack.test.toolchain.JackApiV01;
 import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
 import org.junit.Test;
 
@@ -237,6 +239,18 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
         "com.android.jack.shrob.test059.dx.Tests");
     runtimeTestInfo.addProguardFlagsFileName("proguard.flags001");
     new RuntimeTestHelper(runtimeTestInfo).compileAndRunTest(/* checkStructure = */ false);
+  }
+
+  @Test
+  @Runtime
+  public void test62() throws Exception {
+    RuntimeTestInfo runtimeTestInfo = new RuntimeTestInfo(new File(shrobTestsDir, "test062"),
+        "com.android.jack.shrob.test062.jack.Tests");
+    runtimeTestInfo.addProguardFlagsFileName("proguard.flags001");
+    new RuntimeTestHelper(runtimeTestInfo).setSourceLevel(SourceLevel.JAVA_8)
+    .addIgnoredCandidateToolchain(JackApiV01.class)
+    .setWithDebugInfos(true)
+    .compileAndRunTest();
   }
 
 }
