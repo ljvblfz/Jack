@@ -57,12 +57,12 @@ public class TextPrinter extends AbstractPrinter {
     printers.put(DataType.PERCENT, new FormatterAdapter<Double>(new PercentFormatter()));
     printers.put(DataType.QUANTITY, new FormatterAdapter<Long>(new QuantityFormatter()));
     printers.put(DataType.STRING, new FormatterAdapter<Object>(new ToStringFormatter()));
-    printers.put(DataType.BUNDLE, new BundlePrinter());
-    printers.put(DataType.STRUCT, new StructurePrinter());
-    printers.put(DataType.LIST, new ListPrinter());
+    printers.put(DataType.BUNDLE, new WithBundlePrinter());
+    printers.put(DataType.STRUCT, new TextStructurePrinter());
+    printers.put(DataType.LIST, new TextListPrinter());
   }
 
-  private class ListPrinter implements TypePrinter<DataModel> {
+  private class TextListPrinter implements TypePrinter<DataModel> {
     @Override
     @Nonnull
     public boolean print(@Nonnull PrintWriter printer, @Nonnull DataModel model) {
@@ -80,7 +80,7 @@ public class TextPrinter extends AbstractPrinter {
     }
   }
 
-  private class StructurePrinter implements TypePrinter<DataModel> {
+  private class TextStructurePrinter implements TypePrinter<DataModel> {
     @Override
     @Nonnull
     public boolean print(@Nonnull PrintWriter printer, @Nonnull DataModel model) {

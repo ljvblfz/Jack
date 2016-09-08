@@ -20,7 +20,6 @@ import com.google.common.collect.Iterators;
 
 import com.android.sched.util.HasDescription;
 import com.android.sched.util.print.DataModel;
-import com.android.sched.util.print.DataType;
 import com.android.sched.util.print.TextPrinter;
 
 import java.io.ByteArrayOutputStream;
@@ -64,18 +63,30 @@ public abstract class Statistic implements DataModel, HasDescription {
 
   @Nonnull
   @Deprecated
-  public final String getDescription(int columnIdx) {
+  public final String getDescription(@Nonnegative int columnIdx) {
     return getDataView().getDataNames()[columnIdx];
   }
 
   @Nonnull
   @Deprecated
-  public final String getType(int columnIdx) {
-    if (getDataView().getDataTypes()[columnIdx] == DataType.STRING) {
-      return "string";
-    } else {
-      return "number";
+  public final String getType(@Nonnegative int columnIdx) {
+    switch (getDataView().getDataTypes()[columnIdx]) {
+      case STRING:
+      case BUNDLE:
+        return "string";
+      case BOOLEAN:
+      case DURATION:
+      case NUMBER:
+      case PERCENT:
+      case QUANTITY:
+        return "number";
+      case LIST:
+      case NOTHING:
+      case STRUCT:
+        throw new AssertionError(getDataView().getDataTypes()[columnIdx].toString());
     }
+
+    throw new AssertionError(getDataView().getDataTypes()[columnIdx].toString());
   }
 
   @Nonnull

@@ -109,7 +109,7 @@ public abstract class AbstractPrinter implements Printer {
   /**
    * Default bundle key printer
    */
-  protected class BundlePrinter implements TypePrinter<String> {
+  protected class WithBundlePrinter implements TypePrinter<String> {
     @Override
     @Nonnull
     public boolean print(@Nonnull PrintWriter printer, @Nonnull String key) {

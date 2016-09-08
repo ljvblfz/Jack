@@ -30,18 +30,18 @@ public class JsonPrinter extends AbstractPrinter {
   public JsonPrinter(@Nonnull PrintWriter printer) {
     super(printer);
     printers.put(DataType.NOTHING, new NothingPrinter());
-    printers.put(DataType.BOOLEAN, new BooleanFormatter());
-    printers.put(DataType.DURATION, new NumberFormatter());
-    printers.put(DataType.NUMBER, new NumberFormatter());
-    printers.put(DataType.PERCENT, new NumberFormatter());
-    printers.put(DataType.QUANTITY, new NumberFormatter());
-    printers.put(DataType.STRING, new StringFormatter());
-    printers.put(DataType.BUNDLE, new StringFormatter());
-    printers.put(DataType.STRUCT, new StructureFormatter());
-    printers.put(DataType.LIST, new ListFormatter());
+    printers.put(DataType.BOOLEAN, new JsonBooleanFormatter());
+    printers.put(DataType.DURATION, new JsonNumberFormatter());
+    printers.put(DataType.NUMBER, new JsonNumberFormatter());
+    printers.put(DataType.PERCENT, new JsonNumberFormatter());
+    printers.put(DataType.QUANTITY, new JsonNumberFormatter());
+    printers.put(DataType.STRING, new JsonStringFormatter());
+    printers.put(DataType.BUNDLE, new JsonStringFormatter());
+    printers.put(DataType.STRUCT, new JsonStructureFormatter());
+    printers.put(DataType.LIST, new JsonListFormatter());
   }
 
-  private static class NumberFormatter implements TypePrinter<Number> {
+  private static class JsonNumberFormatter implements TypePrinter<Number> {
     @Override
     @Nonnull
     public boolean print(@Nonnull PrintWriter printer, @Nonnull Number value) {
@@ -66,7 +66,7 @@ public class JsonPrinter extends AbstractPrinter {
     }
   }
 
-  private static class BooleanFormatter implements TypePrinter<Boolean> {
+  private static class JsonBooleanFormatter implements TypePrinter<Boolean> {
     @Override
     @Nonnull
     public boolean print(@Nonnull PrintWriter printer, @Nonnull Boolean value) {
@@ -76,7 +76,7 @@ public class JsonPrinter extends AbstractPrinter {
     }
   }
 
-  private static class StringFormatter implements TypePrinter<String> {
+  private static class JsonStringFormatter implements TypePrinter<String> {
     @Override
     public boolean print(@Nonnull PrintWriter printer, @Nonnull String value) {
       printer.print("\"" + value.replace("\"", "\\\"") + "\"");
@@ -85,7 +85,7 @@ public class JsonPrinter extends AbstractPrinter {
     }
   }
 
-  private class ListFormatter implements TypePrinter<DataModel> {
+  private class JsonListFormatter implements TypePrinter<DataModel> {
     @Override
     @Nonnull
     public boolean print(@Nonnull PrintWriter printer, @Nonnull DataModel model) {
@@ -110,7 +110,7 @@ public class JsonPrinter extends AbstractPrinter {
     }
   }
 
-  private class StructureFormatter implements TypePrinter<DataModel> {
+  private class JsonStructureFormatter implements TypePrinter<DataModel> {
     @Override
     @Nonnull
     public boolean print(@Nonnull PrintWriter printer, @Nonnull DataModel model) {
