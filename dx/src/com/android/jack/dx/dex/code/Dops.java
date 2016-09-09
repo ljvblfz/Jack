@@ -735,12 +735,6 @@ public final class Dops {
   public static final Dop UNBOX_LAMBDA = new Dop(Opcodes.UNBOX_LAMBDA, Opcodes.UNBOX_LAMBDA,
       Opcodes.NO_NEXT, Form22c.THE_ONE, /* hasResult= */ true);
 
-  public static final Dop RETURN_LAMBDA = new Dop(Opcodes.RETURN_LAMBDA, Opcodes.RETURN_LAMBDA,
-      Opcodes.NO_NEXT, Form11x.THE_ONE, /* hasResult= */ false);
-
-  public static final Dop MOVE_RESULT_LAMBDA = new Dop(Opcodes.MOVE_RESULT_LAMBDA,
-      Opcodes.MOVE_RESULT_LAMBDA, Opcodes.NO_NEXT, Form11x.THE_ONE, /* hasResult= */ true);
-
   // END(dops)
 
   // Static initialization.
@@ -974,8 +968,6 @@ public final class Dops {
     set(CREATE_LAMBDA);
     set(BOX_LAMBDA);
     set(UNBOX_LAMBDA);
-    set(RETURN_LAMBDA);
-    set(MOVE_RESULT_LAMBDA);
     // END(dops-init)
   }
 

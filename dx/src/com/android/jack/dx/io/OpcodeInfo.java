@@ -724,12 +724,6 @@ public final class OpcodeInfo {
   public static final Info UNBOX_LAMBDA = new Info(Opcodes.UNBOX_LAMBDA, "unbox-lambda",
       InstructionCodec.FORMAT_22C, IndexType.TYPE_REF);
 
-  public static final Info RETURN_LAMBDA =
-      new Info(Opcodes.RETURN_LAMBDA, "return-lambda", InstructionCodec.FORMAT_11X, IndexType.NONE);
-
-  public static final Info MOVE_RESULT_LAMBDA = new Info(Opcodes.MOVE_RESULT_LAMBDA,
-      "move-result-lambda", InstructionCodec.FORMAT_11X, IndexType.NONE);
-
   // END(opcode-info-defs)
 
   // Static initialization.
@@ -969,8 +963,6 @@ public final class OpcodeInfo {
     set(CREATE_LAMBDA);
     set(BOX_LAMBDA);
     set(UNBOX_LAMBDA);
-    set(RETURN_LAMBDA);
-    set(MOVE_RESULT_LAMBDA);
     // END(opcode-info-init)
   }
 

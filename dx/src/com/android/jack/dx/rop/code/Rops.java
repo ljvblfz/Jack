@@ -1804,7 +1804,6 @@ public final class Rops {
     switch (type.getBasicFrameType()) {
       case Type.BT_INT:
         return RETURN_INT;
-      case Type.BT_CLOSURE:
       case Type.BT_LONG:
         return RETURN_LONG;
       case Type.BT_FLOAT:

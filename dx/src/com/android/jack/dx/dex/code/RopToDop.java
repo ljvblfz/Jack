@@ -105,8 +105,6 @@ public final class RopToDop {
   //     Opcodes.IF_GEZ
   //     Opcodes.IF_GTZ
   //     Opcodes.IF_LEZ
-  //     Opcodes.MOVE_RESULT_LAMBDA
-  //     Opcodes.RETURN_LAMBDA
   //     Opcodes.AGET
   //     Opcodes.AGET_WIDE
   //     Opcodes.AGET_OBJECT
@@ -520,7 +518,6 @@ switch (rop.getOpcode()) {
             case Type.BT_CHAR:
             case Type.BT_SHORT:
               return Dops.MOVE_RESULT;
-            case Type.BT_CLOSURE:
             case Type.BT_LONG:
             case Type.BT_DOUBLE:
               return Dops.MOVE_RESULT_WIDE;
@@ -624,12 +621,6 @@ switch (rop.getOpcode()) {
         return Dops.BOX_LAMBDA;
       case RegOps.UNBOX_LAMBDA:
         return Dops.UNBOX_LAMBDA;
-      case RegOps.RETURN: {
-        assert insn.getSources().size() == 1;
-        assert insn.getSources().get(0).isClosure();
-        // Others types are managed by the map {@code MAP}
-        return Dops.RETURN_LAMBDA;
-      }
     }
     throw new RuntimeException("unknown rop: " + rop);
   }
