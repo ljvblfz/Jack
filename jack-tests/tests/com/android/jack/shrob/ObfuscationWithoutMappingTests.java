@@ -130,6 +130,12 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
     super.test15_001();
   }
 
+  @Test
+  @Runtime
+  public void test49_001() throws Exception {
+    runTest("049", "001", "");
+  }
+
   /**
    * Test Obfuscation when a whole package is missing from the classpath.
    */

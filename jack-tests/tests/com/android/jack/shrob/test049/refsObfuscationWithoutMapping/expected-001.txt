@@ -1,0 +1,6 @@
+com.android.jack.shrob.test049.jack.MyInterface -> pbz.naqebvq.wnpx.fuebo.grfg049.wnpx.ZlVagresnpr:
+com.android.jack.shrob.test049.jack.MyClass -> pbz.naqebvq.wnpx.fuebo.grfg049.wnpx.ZlPynff:
+    com.android.jack.shrob.test049.jack.MyClass$Inner field -> field
+    void <init>() -> <init>
+com.android.jack.shrob.test049.jack.MyClass$Inner -> pbz.naqebvq.wnpx.fuebo.grfg049.wnpx.ZlPynff$Vaare:
+    void <init>() -> <init>

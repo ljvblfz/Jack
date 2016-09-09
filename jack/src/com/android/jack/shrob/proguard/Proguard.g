@@ -204,7 +204,7 @@ private member [ClassSpecification classSpec]
       (typeSig=type)? name=(NAME|'<init>') (signature=arguments {GrammarActions.method(classSpec, $annotation.annotSpec, typeSig, $name.text, signature, $modifiers.modifiers);}
                   | {assert $name != null; GrammarActions.fieldOrAnyMember(classSpec, $annotation.annotSpec, typeSig, $name.text, $modifiers.modifiers, $name.getInputStream());})
       | '<methods>' {GrammarActions.method(classSpec, $annotation.annotSpec,
-          GrammarActions.getSignature("***", 0), "*", "\\("+ GrammarActions.getSignature("...", 0) + "\\)",
+          GrammarActions.getSignatureRegex("***", 0), "*", "\\("+ GrammarActions.getSignatureRegex("...", 0) + "\\)",
           $modifiers.modifiers);}
       | fields='<fields>' {GrammarActions.field(classSpec, $annotation.annotSpec, null, "*", $modifiers.modifiers, $fields.getInputStream());}
     ) ';'
@@ -274,7 +274,7 @@ private type returns [String signature]
 }
   :
   (
-    typeName=('%' | NAME) ('[]' {dim++;})*  {String sig = $typeName.text; signature = GrammarActions.getSignature(sig == null ? "" : sig, dim);}
+    typeName=('%' | NAME) ('[]' {dim++;})*  {String sig = $typeName.text; signature = GrammarActions.getSignatureRegex(sig == null ? "" : sig, dim);}
   )
   ;
 

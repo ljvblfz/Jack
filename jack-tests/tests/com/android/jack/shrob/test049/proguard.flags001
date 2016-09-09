@@ -1,0 +1,4 @@
+-dontshrink
+-keepclassmembernames class * implements **.MyInterface {
+  public static com.android.jack.shrob.test049.jack.MyClass$Inner field;
+}

@@ -150,7 +150,7 @@ public class GrammarActions {
   }
 
   @Nonnull
-  static String getSignature(@Nonnull String name, int dim) {
+  static String getSignatureRegex(@Nonnull String name, int dim) {
     assert name != null;
 
     StringBuilder sig = new StringBuilder();
@@ -188,14 +188,14 @@ public class GrammarActions {
       sig.append('V');
     } else {
       sig.append(
-          convertNameToPattern(NamingTools.getTypeSignatureName(name), FilterSeparator.CLASS));
+          convertNameToRegex(NamingTools.getTypeSignatureName(name), FilterSeparator.CLASS));
     }
 
     return sig.toString();
   }
 
   @Nonnull
-  private static String convertNameToPattern(
+  private static String convertNameToRegex(
       @Nonnull String name, @Nonnull FilterSeparator separator) {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < name.length(); i++) {
@@ -232,7 +232,7 @@ public class GrammarActions {
   static NameSpecification name(/*@Nonnull*/ String name, @Nonnull FilterSeparator separator) {
     assert name != null;
     String transformedName = "^" +
-        convertNameToPattern(name, separator) + "$";
+        convertNameToRegex(name, separator) + "$";
 
     Pattern pattern = Pattern.compile(transformedName);
     return new NameSpecification(pattern);
@@ -297,13 +297,13 @@ public class GrammarActions {
 
   static void method(@Nonnull ClassSpecification classSpec,
       @CheckForNull AnnotationSpecification annotationType,
-      @CheckForNull String typeSig, /*@Nonnull*/ String name, @Nonnull String signature,
+      @CheckForNull String typeSigRegex, /*@Nonnull*/ String name, @Nonnull String signature,
       @CheckForNull ModifierSpecification modifier) {
     assert name != null;
-    String fullName = "^" + convertNameToPattern(name, FilterSeparator.CLASS);
+    String fullName = "^" + convertNameToRegex(name, FilterSeparator.CLASS);
     fullName += signature;
-    if (typeSig != null) {
-      fullName += typeSig;
+    if (typeSigRegex != null) {
+      fullName += typeSigRegex;
     } else {
       fullName += "V";
     }
@@ -325,22 +325,23 @@ public class GrammarActions {
       // This is the "any member" case, we have to handle methods as well.
       method(classSpec,
           annotationType,
-          getSignature("***", 0),
+          getSignatureRegex("***", 0),
           "*",
-          "\\(" + getSignature("...", 0) + "\\)",
+          "\\(" + getSignatureRegex("...", 0) + "\\)",
           modifier);
     }
     field(classSpec, annotationType, typeSig, name, modifier, inputStream);
   }
 
   static void field(@Nonnull ClassSpecification classSpec,
-      @CheckForNull AnnotationSpecification annotationType, @CheckForNull String typeSig,
+      @CheckForNull AnnotationSpecification annotationType, @CheckForNull String typeSigRegex,
       /* @Nonnull */ String name, @Nonnull ModifierSpecification modifier,
       @Nonnull CharStream inputStream) throws RecognitionException {
     assert name != null;
     NameSpecification typeSignature = null;
-    if (typeSig != null) {
-      typeSignature = name(typeSig, FilterSeparator.CLASS);
+    if (typeSigRegex != null) {
+      Pattern pattern = Pattern.compile(typeSigRegex);
+      typeSignature = new NameSpecification(pattern);
     } else {
       if (!name.equals("*")) {
         throw new RecognitionException(inputStream);
