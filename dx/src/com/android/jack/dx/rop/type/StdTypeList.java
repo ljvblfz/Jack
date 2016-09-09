@@ -55,9 +55,6 @@ public final class StdTypeList extends FixedSizeList implements TypeList {
   /** {@code non-null;} the list {@code [long, long]} */
   public static final StdTypeList LONG_LONG = StdTypeList.make(Type.LONG, Type.LONG);
 
-  /** {@code non-null;} the list {@code [Closure, Closure]} */
-  public static final StdTypeList CLOSURE_CLOSURE = StdTypeList.make(Type.CLOSURE, Type.CLOSURE);
-
   /** {@code non-null;} the list {@code [float, float]} */
   public static final StdTypeList FLOAT_FLOAT = StdTypeList.make(Type.FLOAT, Type.FLOAT);
 
