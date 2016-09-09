@@ -742,12 +742,6 @@ public final class OpcodeInfo {
   public static final Info SPUT_LAMBDA = new Info(Opcodes.SPUT_LAMBDA, "sput-lambda",
       InstructionCodec.FORMAT_21C, IndexType.FIELD_REF);
 
-  public static final Info AGET_LAMBDA =
-      new Info(Opcodes.AGET_LAMBDA, "aget-lambda", InstructionCodec.FORMAT_23X, IndexType.NONE);
-
-  public static final Info APUT_LAMBDA =
-      new Info(Opcodes.APUT_LAMBDA, "aput-lambda", InstructionCodec.FORMAT_23X, IndexType.NONE);
-
   // END(opcode-info-defs)
 
   // Static initialization.
@@ -993,8 +987,6 @@ public final class OpcodeInfo {
     set(IPUT_LAMBDA);
     set(SGET_LAMBDA);
     set(SPUT_LAMBDA);
-    set(AGET_LAMBDA);
-    set(APUT_LAMBDA);
     // END(opcode-info-init)
   }
 

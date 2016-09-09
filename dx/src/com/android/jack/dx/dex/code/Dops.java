@@ -753,12 +753,6 @@ public final class Dops {
   public static final Dop SGET_LAMBDA =
       new Dop(Opcodes.SGET_LAMBDA, Opcodes.SGET_LAMBDA, Opcodes.NO_NEXT, Form21c.THE_ONE, true);
 
-  public static final Dop AGET_LAMBDA =
-      new Dop(Opcodes.AGET_LAMBDA, Opcodes.AGET_LAMBDA, Opcodes.NO_NEXT, Form23x.THE_ONE, true);
-
-  public static final Dop APUT_LAMBDA =
-      new Dop(Opcodes.APUT_LAMBDA, Opcodes.APUT_LAMBDA, Opcodes.NO_NEXT, Form23x.THE_ONE, false);
-
   // END(dops)
 
   // Static initialization.
@@ -998,8 +992,6 @@ public final class Dops {
     set(IPUT_LAMBDA);
     set(SGET_LAMBDA);
     set(SPUT_LAMBDA);
-    set(APUT_LAMBDA);
-    set(AGET_LAMBDA);
     // END(dops-init)
   }
 

@@ -97,9 +97,6 @@ public final class StdTypeList extends FixedSizeList implements TypeList {
   /** {@code non-null;} the list {@code [Object[], int]} */
   public static final StdTypeList OBJECTARR_INT = StdTypeList.make(Type.OBJECT_ARRAY, Type.INT);
 
-  /** {@code non-null;} the list {@code [Closure[], int]} */
-  public static final StdTypeList CLOSUREARR_INT = StdTypeList.make(Type.CLOSURE_ARRAY, Type.INT);
-
   /** {@code non-null;} the list {@code [boolean[], int]} */
   public static final StdTypeList BOOLEANARR_INT = StdTypeList.make(Type.BOOLEAN_ARRAY, Type.INT);
 
@@ -131,10 +128,6 @@ public final class StdTypeList extends FixedSizeList implements TypeList {
   /** {@code non-null;} the list {@code [Object, Object[], int]} */
   public static final StdTypeList OBJECT_OBJECTARR_INT =
       StdTypeList.make(Type.OBJECT, Type.OBJECT_ARRAY, Type.INT);
-
-  /** {@code non-null;} the list {@code [Closure, Closure[], int]} */
-  public static final StdTypeList CLOSURE_CLOSUREARR_INT =
-      StdTypeList.make(Type.CLOSURE, Type.CLOSURE_ARRAY, Type.INT);
 
   /** {@code non-null;} the list {@code [int, boolean[], int]} */
   public static final StdTypeList INT_BOOLEANARR_INT =

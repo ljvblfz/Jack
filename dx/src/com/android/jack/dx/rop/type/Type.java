@@ -266,9 +266,6 @@ public final class Type implements TypeBearer, Comparable<Type> {
   /** {@code non-null;} instance representing {@code Object[]} */
   public static final Type OBJECT_ARRAY = OBJECT.getArrayType();
 
-  /** {@code non-null;} instance representing {@code Closure[]} */
-  public static final Type CLOSURE_ARRAY = CLOSURE.getArrayType();
-
   /** {@code non-null;} instance representing {@code short[]} */
   public static final Type SHORT_ARRAY = SHORT.getArrayType();
 
