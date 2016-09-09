@@ -1107,23 +1107,9 @@ public final class Rops {
       case RegOps.CREATE_LAMBDA: {
         return opCreateLambda();
       }
-      case RegOps.BOX_LAMBDA: {
-        return opBoxLambda(dest, sources);
-      }
-      case RegOps.UNBOX_LAMBDA: {
-        return opUnboxLambda(dest, sources);
-      }
     }
 
     throw new RuntimeException("unknown opcode " + RegOps.opName(opcode));
-  }
-
-  public static Rop opBoxLambda(TypeBearer type, TypeList sources) {
-    return new Rop(RegOps.BOX_LAMBDA, type.getType(), sources, "box-lambda");
-  }
-
-  public static Rop opUnboxLambda(TypeBearer type, TypeList sources) {
-    return new Rop(RegOps.UNBOX_LAMBDA, type.getType(), sources, "unbox-lambda");
   }
 
   public static Rop opCaptureVariable(TypeList sources) {
@@ -1836,7 +1822,6 @@ public final class Rops {
         return AGET_FLOAT;
       case Type.BT_DOUBLE:
         return AGET_DOUBLE;
-      case Type.BT_CLOSURE:
       case Type.BT_OBJECT:
         return AGET_OBJECT;
       case Type.BT_BOOLEAN:
@@ -1869,7 +1854,6 @@ public final class Rops {
         return APUT_FLOAT;
       case Type.BT_DOUBLE:
         return APUT_DOUBLE;
-      case Type.BT_CLOSURE:
       case Type.BT_OBJECT:
         return APUT_OBJECT;
       case Type.BT_BOOLEAN:
@@ -1913,7 +1897,6 @@ public final class Rops {
         return NEW_ARRAY_CHAR;
       case Type.BT_SHORT:
         return NEW_ARRAY_SHORT;
-      case Type.BT_CLOSURE:
       case Type.BT_OBJECT: {
         return new Rop(RegOps.NEW_ARRAY, type, StdTypeList.INT,
             Exceptions.LIST_Error_NegativeArraySizeException, "new-array-object");
@@ -1970,7 +1953,6 @@ public final class Rops {
         return GET_FIELD_FLOAT;
       case Type.BT_DOUBLE:
         return GET_FIELD_DOUBLE;
-      case Type.BT_CLOSURE:
       case Type.BT_OBJECT:
         return GET_FIELD_OBJECT;
       case Type.BT_BOOLEAN:
@@ -2003,7 +1985,6 @@ public final class Rops {
         return PUT_FIELD_FLOAT;
       case Type.BT_DOUBLE:
         return PUT_FIELD_DOUBLE;
-      case Type.BT_CLOSURE:
       case Type.BT_OBJECT:
         return PUT_FIELD_OBJECT;
       case Type.BT_BOOLEAN:
@@ -2036,7 +2017,6 @@ public final class Rops {
         return GET_STATIC_FLOAT;
       case Type.BT_DOUBLE:
         return GET_STATIC_DOUBLE;
-      case Type.BT_CLOSURE:
       case Type.BT_OBJECT:
         return GET_STATIC_OBJECT;
       case Type.BT_BOOLEAN:
@@ -2069,7 +2049,6 @@ public final class Rops {
         return PUT_STATIC_FLOAT;
       case Type.BT_DOUBLE:
         return PUT_STATIC_DOUBLE;
-      case Type.BT_CLOSURE:
       case Type.BT_OBJECT:
         return PUT_STATIC_OBJECT;
       case Type.BT_BOOLEAN:

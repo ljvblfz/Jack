@@ -729,12 +729,6 @@ public final class Dops {
   public static final Dop INVOKE_LAMBDA = new Dop(Opcodes.INVOKE_LAMBDA, Opcodes.INVOKE_LAMBDA,
       Opcodes.NO_NEXT, Form25x.THE_ONE, /*hasResult=*/ false);
 
-  public static final Dop BOX_LAMBDA = new Dop(Opcodes.BOX_LAMBDA, Opcodes.BOX_LAMBDA,
-      Opcodes.NO_NEXT, Form22x.THE_ONE, /* hasResult= */ true);
-
-  public static final Dop UNBOX_LAMBDA = new Dop(Opcodes.UNBOX_LAMBDA, Opcodes.UNBOX_LAMBDA,
-      Opcodes.NO_NEXT, Form22c.THE_ONE, /* hasResult= */ true);
-
   // END(dops)
 
   // Static initialization.
@@ -966,8 +960,6 @@ public final class Dops {
     set(LIBERATE_VARIABLE);
     set(INVOKE_LAMBDA);
     set(CREATE_LAMBDA);
-    set(BOX_LAMBDA);
-    set(UNBOX_LAMBDA);
     // END(dops-init)
   }
 

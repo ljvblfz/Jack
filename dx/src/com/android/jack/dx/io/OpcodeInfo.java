@@ -718,12 +718,6 @@ public final class OpcodeInfo {
   public static final Info INVOKE_LAMBDA =
       new Info(Opcodes.INVOKE_LAMBDA, "invoke-lambda", InstructionCodec.FORMAT_25X, IndexType.NONE);
 
-  public static final Info BOX_LAMBDA =
-      new Info(Opcodes.BOX_LAMBDA, "box-lambda", InstructionCodec.FORMAT_22X, IndexType.TYPE_REF);
-
-  public static final Info UNBOX_LAMBDA = new Info(Opcodes.UNBOX_LAMBDA, "unbox-lambda",
-      InstructionCodec.FORMAT_22C, IndexType.TYPE_REF);
-
   // END(opcode-info-defs)
 
   // Static initialization.
@@ -961,8 +955,6 @@ public final class OpcodeInfo {
     set(LIBERATE_VARIABLE);
     set(INVOKE_LAMBDA);
     set(CREATE_LAMBDA);
-    set(BOX_LAMBDA);
-    set(UNBOX_LAMBDA);
     // END(opcode-info-init)
   }
 

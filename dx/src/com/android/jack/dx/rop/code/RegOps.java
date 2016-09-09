@@ -312,12 +312,6 @@ public final class RegOps {
    */
   public static final int INVOKE_LAMBDA = 59;
 
-  /** {@code Tr: Object; T: Closure; r: Tr; v0: T ::  r = box-lambda v0;} */
-  public static final int BOX_LAMBDA = 62;
-
-  /** {@code Tr: Closure; T: Object; r: Tr; v0: T ::  r = unbox-lambda v0;} */
-  public static final int UNBOX_LAMBDA = 63;
-
   /**
    * This class is uninstantiable.
    */
@@ -453,10 +447,6 @@ public final class RegOps {
         return "invoke-lambda";
       case CREATE_LAMBDA:
         return "create-lambda";
-      case BOX_LAMBDA:
-        return "box-lambda";
-      case UNBOX_LAMBDA:
-        return "unbox-lambda";
     }
 
     return "unknown-" + Hex.u1(opcode);
