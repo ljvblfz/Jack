@@ -216,8 +216,6 @@ public final class RopToDop {
   //     Opcodes.SHL_INT_LIT8
   //     Opcodes.SHR_INT_LIT8
   //     Opcodes.USHR_INT_LIT8
-  //     Opcodes.CAPTURE_VARIABLE
-  //     Opcodes.LIBERATE_VARIABLE
   // END(first-opcodes)
 
   static {
@@ -605,10 +603,6 @@ switch (rop.getOpcode()) {
         }
         break;
       }
-      case RegOps.CAPTURE_VARIABLE:
-        return Dops.CAPTURE_VARIABLE;
-      case RegOps.LIBERATE_VARIABLE:
-        return Dops.LIBERATE_VARIABLE;
     }
 
     throw new RuntimeException("unknown rop: " + rop);

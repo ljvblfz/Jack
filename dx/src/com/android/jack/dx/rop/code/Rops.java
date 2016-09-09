@@ -1091,25 +1091,9 @@ public final class Rops {
         meth = meth.withFirstParameter(definer.getClassType());
         return opInvokeInterface(meth);
       }
-      case RegOps.CAPTURE_VARIABLE: {
-        return opCaptureVariable(sources);
-      }
-      case RegOps.LIBERATE_VARIABLE: {
-        return opLiberateVariable(dest, sources);
-      }
     }
 
     throw new RuntimeException("unknown opcode " + RegOps.opName(opcode));
-  }
-
-  public static Rop opCaptureVariable(TypeList sources) {
-    return new Rop(RegOps.CAPTURE_VARIABLE, Type.VOID, sources, StdTypeList.EMPTY, Rop.BRANCH_NONE,
-        true, null);
-  }
-
-  public static Rop opLiberateVariable(TypeBearer type, TypeList sources) {
-    return new Rop(RegOps.LIBERATE_VARIABLE, type.getType(), sources, StdTypeList.EMPTY,
-        Rop.BRANCH_THROW, "liberate-lambda");
   }
 
   /**

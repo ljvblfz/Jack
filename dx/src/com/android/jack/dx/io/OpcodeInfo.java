@@ -706,11 +706,6 @@ public final class OpcodeInfo {
   public static final Info USHR_INT_LIT8 =
       new Info(Opcodes.USHR_INT_LIT8, "ushr-int/lit8", InstructionCodec.FORMAT_22B, IndexType.NONE);
 
-  public static final Info CAPTURE_VARIABLE = new Info(Opcodes.CAPTURE_VARIABLE, "capture-variable",
-      InstructionCodec.FORMAT_21C, IndexType.STRING_REF);
-
-  public static final Info LIBERATE_VARIABLE = new Info(Opcodes.LIBERATE_VARIABLE,
-      "liberate-variable", InstructionCodec.FORMAT_22C, IndexType.STRING_REF);
   // END(opcode-info-defs)
 
   // Static initialization.
@@ -944,8 +939,6 @@ public final class OpcodeInfo {
     set(SHL_INT_LIT8);
     set(SHR_INT_LIT8);
     set(USHR_INT_LIT8);
-    set(CAPTURE_VARIABLE);
-    set(LIBERATE_VARIABLE);
     // END(opcode-info-init)
   }
 

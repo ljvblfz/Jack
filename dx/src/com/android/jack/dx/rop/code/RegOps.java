@@ -296,12 +296,6 @@ public final class RegOps {
   /** <code>T: Any primitive type; v0..vx: T :: {v0, ..., vx}</code> */
   public static final int FILL_ARRAY_DATA = 57;
 
-  /** {@code T: any type; v: T; s: string :: capture-variable v, s;} */
-  public static final int CAPTURE_VARIABLE = 60;
-
-  /** {@code T: closure; v0: T; r : Any Type; s: string :: r = liberate-variable v0, s;} */
-  public static final int LIBERATE_VARIABLE = 61;
-
   /**
    * This class is uninstantiable.
    */
@@ -429,10 +423,6 @@ public final class RegOps {
         return "move-result-pseudo";
       case FILL_ARRAY_DATA:
         return "fill-array-data";
-      case CAPTURE_VARIABLE:
-        return "capture-variable";
-      case LIBERATE_VARIABLE:
-        return "liberate-variable";
     }
 
     return "unknown-" + Hex.u1(opcode);
