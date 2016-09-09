@@ -198,8 +198,7 @@ public final class DalvInsnList extends FixedSizeList {
         continue;
       }
 
-      boolean isStatic = (insn.getOpcode().getFamily() == Opcodes.INVOKE_STATIC
-          || insn.getOpcode().getFamily() == Opcodes.CREATE_LAMBDA);
+      boolean isStatic = (insn.getOpcode().getFamily() == Opcodes.INVOKE_STATIC);
       int count = ((CstBaseMethodRef) cst).getParameterWordCount(isStatic);
 
       if (count > result) {

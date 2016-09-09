@@ -711,13 +711,6 @@ public final class OpcodeInfo {
 
   public static final Info LIBERATE_VARIABLE = new Info(Opcodes.LIBERATE_VARIABLE,
       "liberate-variable", InstructionCodec.FORMAT_22C, IndexType.STRING_REF);
-
-  public static final Info CREATE_LAMBDA = new Info(Opcodes.CREATE_LAMBDA, "create-lambda",
-      InstructionCodec.FORMAT_21C, IndexType.METHOD_REF);
-
-  public static final Info INVOKE_LAMBDA =
-      new Info(Opcodes.INVOKE_LAMBDA, "invoke-lambda", InstructionCodec.FORMAT_25X, IndexType.NONE);
-
   // END(opcode-info-defs)
 
   // Static initialization.
@@ -953,8 +946,6 @@ public final class OpcodeInfo {
     set(USHR_INT_LIT8);
     set(CAPTURE_VARIABLE);
     set(LIBERATE_VARIABLE);
-    set(INVOKE_LAMBDA);
-    set(CREATE_LAMBDA);
     // END(opcode-info-init)
   }
 

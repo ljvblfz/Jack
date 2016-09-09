@@ -302,16 +302,6 @@ public final class RegOps {
   /** {@code T: closure; v0: T; r : Any Type; s: string :: r = liberate-variable v0, s;} */
   public static final int LIBERATE_VARIABLE = 61;
 
-  /** {@code T: closure; r: T; m: instance or static method :: r = create-lambda m;} */
-  public static final int CREATE_LAMBDA = 58;
-
-  /**
-   * {@code Tr, T0, T1...: any types; r: Tr; x: Closure; m: interface
-   * (instance) method spec; y0: T0; y1: T1 ... :: r = x.m(y0, y1,
-   * ...)} (call lambda method)
-   */
-  public static final int INVOKE_LAMBDA = 59;
-
   /**
    * This class is uninstantiable.
    */
@@ -443,10 +433,6 @@ public final class RegOps {
         return "capture-variable";
       case LIBERATE_VARIABLE:
         return "liberate-variable";
-      case INVOKE_LAMBDA:
-        return "invoke-lambda";
-      case CREATE_LAMBDA:
-        return "create-lambda";
     }
 
     return "unknown-" + Hex.u1(opcode);
