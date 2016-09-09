@@ -240,7 +240,6 @@ public final class RopToDop {
     MAP.put(Rops.MOVE_FLOAT, Dops.MOVE);
     MAP.put(Rops.MOVE_DOUBLE, Dops.MOVE_WIDE);
     MAP.put(Rops.MOVE_OBJECT, Dops.MOVE_OBJECT);
-    MAP.put(Rops.MOVE_LAMBDA, Dops.MOVE_LAMBDA);
     MAP.put(Rops.MOVE_PARAM_INT, Dops.MOVE);
     MAP.put(Rops.MOVE_PARAM_LONG, Dops.MOVE_WIDE);
     MAP.put(Rops.MOVE_PARAM_FLOAT, Dops.MOVE);
@@ -253,7 +252,7 @@ public final class RopToDop {
      * add to the map.)
      */
 
-    MAP.put(Rops.CONST_INT, Dops.CONST_4);
+MAP.put(Rops.CONST_INT, Dops.CONST_4);
     MAP.put(Rops.CONST_LONG, Dops.CONST_WIDE_16);
     MAP.put(Rops.CONST_FLOAT, Dops.CONST_4);
     MAP.put(Rops.CONST_DOUBLE, Dops.CONST_WIDE_16);

@@ -948,10 +948,6 @@ public final class Rops {
       new Rop(RegOps.APUT, Type.VOID, StdTypeList.CLOSURE_CLOSUREARR_INT,
           Exceptions.LIST_Error_Null_ArrayIndex_ArrayStore, "aput-lambda");
 
-  /** {@code r,x: Closure :: r = x;} */
-  public static final Rop MOVE_LAMBDA =
-      new Rop(RegOps.MOVE, Type.CLOSURE, StdTypeList.CLOSURE, "move-lambda");
-
   /**
    * Returns the appropriate rop for the given opcode, destination,
    * and sources. The result is typically, but not necessarily, a
@@ -1195,8 +1191,6 @@ public final class Rops {
         return MOVE_FLOAT;
       case Type.BT_DOUBLE:
         return MOVE_DOUBLE;
-      case Type.BT_CLOSURE:
-        return MOVE_LAMBDA;
       case Type.BT_OBJECT:
         return MOVE_OBJECT;
       case Type.BT_ADDR:
