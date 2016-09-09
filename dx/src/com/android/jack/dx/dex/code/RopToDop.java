@@ -411,38 +411,33 @@ MAP.put(Rops.CONST_INT, Dops.CONST_4);
     MAP.put(Rops.GET_FIELD_FLOAT, Dops.IGET);
     MAP.put(Rops.GET_FIELD_DOUBLE, Dops.IGET_WIDE);
     MAP.put(Rops.GET_FIELD_OBJECT, Dops.IGET_OBJECT);
-    MAP.put(Rops.GET_FIELD_LAMBDA, Dops.IGET_LAMBDA);
     /*
      * Note: No map entries for get_field_* for non-long integral types,
      * since they need to be handled specially (see dopFor() below).
      */
 
-    MAP.put(Rops.GET_STATIC_LONG, Dops.SGET_WIDE);
+MAP.put(Rops.GET_STATIC_LONG, Dops.SGET_WIDE);
     MAP.put(Rops.GET_STATIC_FLOAT, Dops.SGET);
     MAP.put(Rops.GET_STATIC_DOUBLE, Dops.SGET_WIDE);
     MAP.put(Rops.GET_STATIC_OBJECT, Dops.SGET_OBJECT);
-    MAP.put(Rops.GET_STATIC_LAMBDA, Dops.SGET_LAMBDA);
-
     /*
      * Note: No map entries for get_static* for non-long integral types,
      * since they need to be handled specially (see dopFor() below).
      */
 
-    MAP.put(Rops.PUT_FIELD_LONG, Dops.IPUT_WIDE);
+MAP.put(Rops.PUT_FIELD_LONG, Dops.IPUT_WIDE);
     MAP.put(Rops.PUT_FIELD_FLOAT, Dops.IPUT);
     MAP.put(Rops.PUT_FIELD_DOUBLE, Dops.IPUT_WIDE);
     MAP.put(Rops.PUT_FIELD_OBJECT, Dops.IPUT_OBJECT);
-    MAP.put(Rops.PUT_FIELD_LAMBDA, Dops.IPUT_LAMBDA);
     /*
      * Note: No map entries for put_field_* for non-long integral types,
      * since they need to be handled specially (see dopFor() below).
      */
 
-    MAP.put(Rops.PUT_STATIC_LONG, Dops.SPUT_WIDE);
+MAP.put(Rops.PUT_STATIC_LONG, Dops.SPUT_WIDE);
     MAP.put(Rops.PUT_STATIC_FLOAT, Dops.SPUT);
     MAP.put(Rops.PUT_STATIC_DOUBLE, Dops.SPUT_WIDE);
     MAP.put(Rops.PUT_STATIC_OBJECT, Dops.SPUT_OBJECT);
-    MAP.put(Rops.PUT_STATIC_LAMBDA, Dops.SPUT_LAMBDA);
     /*
      * Note: No map entries for put_static* for non-long integral types,
      * since they need to be handled specially (see dopFor() below).

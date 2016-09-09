@@ -40,9 +40,6 @@ public final class StdTypeList extends FixedSizeList implements TypeList {
   /** {@code non-null;} the list {@code [Object]} */
   public static final StdTypeList OBJECT = StdTypeList.make(Type.OBJECT);
 
-  /** {@code non-null;} the list {@code [Closure]} */
-  public static final StdTypeList CLOSURE = StdTypeList.make(Type.CLOSURE);
-
   /** {@code non-null;} the list {@code [ReturnAddress]} */
   public static final StdTypeList RETURN_ADDRESS = StdTypeList.make(Type.RETURN_ADDRESS);
 
@@ -63,9 +60,6 @@ public final class StdTypeList extends FixedSizeList implements TypeList {
 
   /** {@code non-null;} the list {@code [Object, Object]} */
   public static final StdTypeList OBJECT_OBJECT = StdTypeList.make(Type.OBJECT, Type.OBJECT);
-
-  /** {@code non-null;} the list {@code [Closure, Object]} */
-  public static final StdTypeList CLOSURE_OBJECT = StdTypeList.make(Type.CLOSURE, Type.OBJECT);
 
   /** {@code non-null;} the list {@code [int, Object]} */
   public static final StdTypeList INT_OBJECT = StdTypeList.make(Type.INT, Type.OBJECT);

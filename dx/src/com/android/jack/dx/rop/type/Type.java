@@ -167,9 +167,6 @@ public final class Type implements TypeBearer, Comparable<Type> {
   /** {@code non-null;} instance representing {@code java.lang.Object} */
   public static final Type OBJECT = intern("Ljava/lang/Object;");
 
-  /** {@code non-null;} instance representing {@code java.lang.Object} closure*/
-  public static final Type CLOSURE = intern("\\java/lang/Object;");
-
   /** {@code non-null;} instance representing {@code java.io.Serializable} */
   public static final Type SERIALIZABLE = intern("Ljava/io/Serializable;");
 
@@ -356,8 +353,14 @@ public final class Type implements TypeBearer, Comparable<Type> {
       validateClassName(descriptor);
       result = new Type(descriptor, BT_OBJECT);
     } else {
-      assert firstChar == '\\';
+      assert firstChar == '\\' : "Descriptor must be a closure";
+
       validateClassName(descriptor);
+      // STOPSHIP: use same descriptor for object and closure since closure are not supported by the
+      // runtime
+      char[] array = descriptor.toCharArray();
+      array[0] = 'L';
+      descriptor = new String(array);
       result = new Type(descriptor, BT_CLOSURE);
     }
 
@@ -596,12 +599,6 @@ public final class Type implements TypeBearer, Comparable<Type> {
    * @return {@code non-null;} the descriptor
    */
   public String getDescriptor() {
-    if (isClosure()) {
-      char[] array = descriptor.toCharArray();
-      array[0] = 'L';
-      return new String(array);
-    }
-
     return descriptor;
   }
 
@@ -897,7 +894,7 @@ public final class Type implements TypeBearer, Comparable<Type> {
    */
   private static Type putIntern(Type type) {
     synchronized (internTable) {
-      String descriptor = type.descriptor;
+      String descriptor = type.getDescriptor();
       Type already = internTable.get(descriptor);
       if (already != null) {
         return already;
