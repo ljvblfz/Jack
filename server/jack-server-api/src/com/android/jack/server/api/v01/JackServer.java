@@ -20,6 +20,9 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
+/**
+ * A server manageable by the launcher.
+ */
 public interface JackServer {
 
   void setHandle(@Nonnull LauncherHandle handle);
