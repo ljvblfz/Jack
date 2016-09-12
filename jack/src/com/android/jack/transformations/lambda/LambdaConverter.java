@@ -242,10 +242,10 @@ public class LambdaConverter implements RunnableSchedulable<JMethod> {
               name = field.getName();
             }
           }
-          if (name == null) {
-            name = "arg" + nameIdx;
-            nameIdx++;
-          }
+        }
+        if (name == null) {
+          name = "arg" + nameIdx;
+          nameIdx++;
         }
 
         JField field = new JField(SourceInfo.UNKNOWN, "val$" + name, lambdaImplClass,
