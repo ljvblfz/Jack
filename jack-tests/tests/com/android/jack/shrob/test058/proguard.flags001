@@ -1,0 +1,6 @@
+-keep, allowobfuscation class **.MyClass
+-keepclassmembers class * implements **.MyInterface {
+  public static final *.* field;
+  public *.* m(...);
+  public *** m(*.*);
+}

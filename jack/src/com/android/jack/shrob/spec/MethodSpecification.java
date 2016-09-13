@@ -34,16 +34,21 @@ public class MethodSpecification implements Specification<JMethod>{
   @CheckForNull
   private final ModifierSpecification modifier;
 
+  @CheckForNull
+  private final NameSpecification type;
+
   @Nonnull
-  private final NameSpecification sigPattern;
+  private final NameSpecification fullSourceName;
 
   public MethodSpecification(
       @Nonnull NameSpecification sigPattern,
       @CheckForNull ModifierSpecification modifier,
+      @CheckForNull NameSpecification type,
       @CheckForNull AnnotationSpecification annotationType) {
-    this.sigPattern = sigPattern;
+    this.fullSourceName = sigPattern;
     this.modifier = modifier;
     this.annotationType = annotationType;
+    this.type = type;
   }
 
   @Override
@@ -56,20 +61,26 @@ public class MethodSpecification implements Specification<JMethod>{
       return false;
     }
 
-    String signature = GrammarActions.getSignatureFormatter().getName(t);
+    if (type != null
+        && !type.matches(GrammarActions.getSourceFormatter().getName(t.getType()))) {
+      return false;
+    }
+
+    String signature =
+        GrammarActions.getSourceFormatter().getNameWithoutReturnType(t.getMethodIdWide());
     if (t instanceof JConstructor) {
       String methodName = signature.replace(NamingTools.INIT_NAME, t.getEnclosingType().getName());
-      if (sigPattern.matches(methodName)) {
+      if (fullSourceName.matches(methodName)) {
         return true;
       }
       methodName = signature.replace(NamingTools.INIT_NAME,
           GrammarActions.getSourceFormatter().getName(t.getEnclosingType()));
-      if (sigPattern.matches(methodName)) {
+      if (fullSourceName.matches(methodName)) {
         return true;
       }
     }
 
-    return sigPattern.matches(signature);
+    return fullSourceName.matches(signature);
   }
 
   @Override
@@ -87,7 +98,12 @@ public class MethodSpecification implements Specification<JMethod>{
       sb.append(' ');
     }
 
-    sb.append(sigPattern);
+    if (type != null) {
+      sb.append(type);
+      sb.append(' ');
+    }
+
+    sb.append(fullSourceName);
     sb.append(';');
 
     return sb.toString();

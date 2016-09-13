@@ -1,0 +1,2 @@
+This test contains a class which contains an inner class and members using this
+inner class.

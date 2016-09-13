@@ -1,0 +1,2 @@
+com.android.jack.shrob.test058.jack.MyClass -> pbz.naqebvq.wnpx.fuebo.grfg058.wnpx.ZlPynff:
+    void <init>() -> <init>

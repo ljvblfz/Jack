@@ -65,7 +65,7 @@ public class FieldSpecification implements Specification<JField> {
     }
 
     if (type != null
-        && !type.matches(GrammarActions.getSignatureFormatter().getName(f.getType()))) {
+        && !type.matches(GrammarActions.getSourceFormatter().getName(f.getType()))) {
       return false;
     }
 

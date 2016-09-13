@@ -267,6 +267,11 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
     runTest("056", "001", "");
   }
 
+  @Test
+  public void test58_001() throws Exception {
+    runTest("058", "001", "");
+  }
+
   @Nonnull
   private static File shrobTestsDir =
       AbstractTestTools.getTestRootDir("com.android.jack.shrob");

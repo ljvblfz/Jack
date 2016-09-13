@@ -79,10 +79,10 @@ public class GrammarActions {
       SourceFormatter.getFormatter();
 
   enum FilterSeparator {
-    GENERAL(".", "[^./]*"),
-    FILE(".", "[^/]*"),
-    CLASS("[^.]", "[^.]*"),
-    ATTRIBUTE(".", ".*");
+    GENERAL(".", "[^./]*", ".*"),
+    FILE(".", "[^/]*", ".*"),
+    CLASS("[^.]", "[^.]*", "[^\\[\\]]*"),
+    ATTRIBUTE(".", ".*", ".*");
 
     /**
      * Represents the pattern equivalent to Proguard's "?"
@@ -96,9 +96,17 @@ public class GrammarActions {
     @Nonnull
     private final String multipleCharWildcard;
 
-    FilterSeparator(@Nonnull String singleCharWilcard, @Nonnull String multipleCharWildcard) {
+    /**
+     * Represents the pattern equivalent to Proguard's "**"
+     */
+    @Nonnull
+    private final String multipleCharWildcardWithSeparator;
+
+    FilterSeparator(@Nonnull String singleCharWilcard, @Nonnull String multipleCharWildcard,
+        @Nonnull String multipleCharWildcardWithSeparator) {
       this.singleCharWilcard = singleCharWilcard;
       this.multipleCharWildcard = multipleCharWildcard;
+      this.multipleCharWildcardWithSeparator = multipleCharWildcardWithSeparator;
     }
   }
 
@@ -117,7 +125,6 @@ public class GrammarActions {
 
   @Nonnull
   public static String getSignature(@Nonnull String name) {
-    assert name != null;
     int lastOpeningBracketPos = name.lastIndexOf('[');
     if (lastOpeningBracketPos != -1) {
       String nameWithoutArray = name.substring(0, lastOpeningBracketPos);
@@ -149,15 +156,14 @@ public class GrammarActions {
     return sig.toString();
   }
 
+  private static final String PRIMITIVE_TYPE_NON_VOID =
+      "(boolean|byte|char|short|int|float|double|long)";
+
   @Nonnull
-  static String getSignatureRegex(@Nonnull String name, int dim) {
+  static String getSourceNamePattern(@Nonnull String name, int dim) {
     assert name != null;
 
     StringBuilder sig = new StringBuilder();
-
-    for (int i = 0; i < dim; i++) {
-      sig.append("\\[");
-    }
 
     // ... matches any number of arguments of any type
     if (name.equals("...")) {
@@ -167,28 +173,16 @@ public class GrammarActions {
       sig.append(".*");
       // % matches any primitive type ("boolean", "int", etc, but not "void")
     } else if (name.equals("%")) {
-      sig.append("(B|C|D|F|I|J|S|Z)");
-    } else if (name.equals("boolean")) {
-      sig.append('Z');
-    } else if (name.equals("byte")) {
-      sig.append('B');
-    } else if (name.equals("char")) {
-      sig.append('C');
-    } else if (name.equals("short")) {
-      sig.append('S');
-    } else if (name.equals("int")) {
-      sig.append('I');
-    } else if (name.equals("float")) {
-      sig.append('F');
-    } else if (name.equals("double")) {
-      sig.append('D');
-    } else if (name.equals("long")) {
-      sig.append('J');
-    } else if (name.equals("void")) {
-      sig.append('V');
+      sig.append(PRIMITIVE_TYPE_NON_VOID);
+    } else if (name.equals("**")) {
+      sig.append("[^\\[\\[]*(?<!" + PRIMITIVE_TYPE_NON_VOID + ")");
     } else {
       sig.append(
-          convertNameToRegex(NamingTools.getTypeSignatureName(name), FilterSeparator.CLASS));
+          convertNameToRegex(name, FilterSeparator.CLASS));
+    }
+
+    for (int i = 0; i < dim; i++) {
+      sig.append("\\[\\]");
     }
 
     return sig.toString();
@@ -209,7 +203,7 @@ public class GrammarActions {
           if (j < name.length() && name.charAt(j) == '*') {
             // ** matches any part of a name, possibly containing
             // any number of package separators or directory separators
-            sb.append(".*");
+            sb.append(separator.multipleCharWildcardWithSeparator);
             i++;
           } else {
             // * matches any part of a name not containing
@@ -302,15 +296,15 @@ public class GrammarActions {
     assert name != null;
     String fullName = "^" + convertNameToRegex(name, FilterSeparator.CLASS);
     fullName += signature;
+    NameSpecification typeSignature = null;
     if (typeSigRegex != null) {
-      fullName += typeSigRegex;
-    } else {
-      fullName += "V";
+      Pattern pattern = Pattern.compile("^" + typeSigRegex + "$");
+      typeSignature = new NameSpecification(pattern);
     }
     fullName += "$";
     Pattern pattern = Pattern.compile(fullName);
     classSpec.add(new MethodSpecification(new NameSpecification(pattern),
-        modifier, annotationType));
+        modifier, typeSignature, annotationType));
   }
 
   static void fieldOrAnyMember(@Nonnull ClassSpecification classSpec,
@@ -325,9 +319,9 @@ public class GrammarActions {
       // This is the "any member" case, we have to handle methods as well.
       method(classSpec,
           annotationType,
-          getSignatureRegex("***", 0),
+          getSourceNamePattern("***", 0),
           "*",
-          "\\(" + getSignatureRegex("...", 0) + "\\)",
+          "\\(" + getSourceNamePattern("...", 0) + "\\)",
           modifier);
     }
     field(classSpec, annotationType, typeSig, name, modifier, inputStream);
@@ -340,7 +334,7 @@ public class GrammarActions {
     assert name != null;
     NameSpecification typeSignature = null;
     if (typeSigRegex != null) {
-      Pattern pattern = Pattern.compile(typeSigRegex);
+      Pattern pattern = Pattern.compile("^" + typeSigRegex + "$");
       typeSignature = new NameSpecification(pattern);
     } else {
       if (!name.equals("*")) {
