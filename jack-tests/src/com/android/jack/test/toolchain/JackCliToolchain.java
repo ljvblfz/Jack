@@ -20,8 +20,6 @@ import com.google.common.base.Joiner;
 
 import com.android.jack.Options;
 import com.android.jack.Options.VerbosityLevel;
-import com.android.jack.api.v01.ConfigurationException;
-import com.android.jack.test.TestConfigurationException;
 import com.android.jack.test.util.ExecFileException;
 import com.android.jack.test.util.ExecuteFile;
 
