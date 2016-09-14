@@ -29,7 +29,8 @@ import javax.annotation.Nonnull;
 public class ReaderFileOrDirectoryCodec extends OrCodec<FileOrDirectory> {
   @SuppressWarnings("unchecked")
   public ReaderFileOrDirectoryCodec() {
-    super(new ReaderFileCodec(), new DirectoryCodec(Existence.MUST_EXIST, Permission.READ));
+    super(new ReaderFileCodec().allowCharset(),
+        new DirectoryCodec(Existence.MUST_EXIST, Permission.READ));
   }
 
   @Override
