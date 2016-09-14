@@ -921,6 +921,7 @@
       <exclude name="com/android/jack/annotation/processor/sample2/src/**"/>
       <exclude name="com/android/jack/annotation/test019/jack/**"/>
       <exclude name="com/android/jack/classpath/test002/lib1override/**"/>
+      <exclude name="com/android/jack/encoding/tests/**"/>
       <exclude name="com/android/jack/enums/test003/link/Other.java"/>
       <exclude name="com/android/jack/enums/test003/link/Values.java"/>
       <exclude name="com/android/jack/error/test001/jack/A.java"/>

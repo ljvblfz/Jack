@@ -1,2 +1,5 @@
 eclipse.preferences.version=1
+encoding//tests/com/android/jack/encoding/tests/iso8859dash1/EncodingIso8859dash1Tests.java=ISO-8859-1
+encoding//tests/com/android/jack/encoding/tests/utf16/EncodingUtf16Tests.java=UTF-16
+encoding//tests/com/android/jack/encoding/tests/utf8/EncodingUtf8Tests.java=UTF-8
 encoding/<project>=UTF-8
