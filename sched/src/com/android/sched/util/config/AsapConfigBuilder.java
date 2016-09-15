@@ -520,7 +520,10 @@ public class AsapConfigBuilder {
           String value = envKeyValue.getValue();
 
           if (keyIdName.equalsIgnoreCase(variable)
-              || keyIdName.replace('.', '_').equalsIgnoreCase(variable)) {
+              || keyIdName
+                    .replace('.', '_')
+                    .replace('-', '_')
+                    .equalsIgnoreCase(variable)) {
 
             if (entry.getValue() instanceof PropertyId) {
               PropertyId<?> previousPropertyId = propertyId;
