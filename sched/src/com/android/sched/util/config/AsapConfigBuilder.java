@@ -539,7 +539,7 @@ public class AsapConfigBuilder {
                     new VariableMatchesSeveralConfigurationException(envKey, propertyId));
               }
 
-              logger.log(Level.INFO,
+              logger.log(Level.WARNING,
                   "Property ''{0}'' is overridden by environment variable ''{1}'' with ''{2}''",
                   new Object[] {keyIdName, envKey, value});
 
@@ -550,7 +550,7 @@ public class AsapConfigBuilder {
                 exceptions.appendException(e);
               }
             } else {
-              logger.log(Level.WARNING,
+              logger.log(Level.SEVERE,
                   "Environment variable ''{0}'' try to overridde an object-id ''{1}'' with ''{2}''",
                   new Object[] {envKey, keyIdName, value});
             }
