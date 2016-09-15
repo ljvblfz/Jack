@@ -60,14 +60,7 @@ public class SeedPrinter implements RunnableSchedulable<JSession> {
       new WriterFileCodec(Existence.MAY_EXIST).allowStandardOutputOrError().allowCharset())
       .addDefaultValue("-");
 
-  @Nonnull
-  private final CustomPrintWriter writer;
-
   private static final char TYPE_AND_MEMBER_SEPARATOR = ':';
-
-  public SeedPrinter() {
-    writer = ThreadConfig.get(SEEDS_OUTPUT_FILE).getPrintWriter();
-  }
 
   private void appendQualifiedName(
       @Nonnull StringBuilder nameBuilder, @Nonnull JType type) {
@@ -76,6 +69,7 @@ public class SeedPrinter implements RunnableSchedulable<JSession> {
 
   @Override
   public void run(@Nonnull JSession session) {
+    CustomPrintWriter writer = ThreadConfig.get(SEEDS_OUTPUT_FILE).getPrintWriter();
     try {
       for (JDefinedClassOrInterface type : session.getTypesToEmit()) {
         StringBuilder typeNameBuilder = new StringBuilder();

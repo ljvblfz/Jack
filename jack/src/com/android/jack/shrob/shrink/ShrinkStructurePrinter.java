@@ -56,15 +56,9 @@ public class ShrinkStructurePrinter implements RunnableSchedulable<JSession> {
       new WriterFileCodec(Existence.MAY_EXIST).allowStandardOutputOrError().allowCharset())
       .addDefaultValue("-").requiredIf(STRUCTURE_PRINTING.getValue().isTrue());
 
-  @Nonnull
-  private final CustomPrintWriter writer;
-
-  public ShrinkStructurePrinter() {
-    writer = ThreadConfig.get(STRUCTURE_PRINTING_FILE).getPrintWriter();
-  }
-
   @Override
   public void run(@Nonnull JSession session) {
+    CustomPrintWriter writer = ThreadConfig.get(STRUCTURE_PRINTING_FILE).getPrintWriter();
     try {
       StructurePrinter visitor = new StructurePrinter(writer);
       visitor.accept(session.getTypesToEmit());
