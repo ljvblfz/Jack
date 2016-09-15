@@ -35,6 +35,7 @@ import java.security.DigestException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.zip.Adler32;
 
 import javax.annotation.Nonnull;
@@ -477,7 +478,8 @@ public final class DexFile {
    * particular offsets.
    */
   public void prepare() {
-    prepare(null, null, null, null);
+    prepare(Collections.<CstString>emptyList(), Collections.<CstFieldRef>emptyList(),
+        Collections.<CstMethodRef>emptyList(), Collections.<CstType>emptyList());
   }
 
   /**
@@ -492,25 +494,17 @@ public final class DexFile {
   public void prepare(@Nonnull Collection<CstString> cstStrings,
       @Nonnull Collection<CstFieldRef> cstFieldRefs,
       @Nonnull Collection<CstMethodRef> cstMethodRefs, @Nonnull Collection<CstType> cstTypes) {
-    if (cstStrings != null) {
-      for (CstString cst : cstStrings) {
-        stringIds.intern(cst);
-      }
+    for (CstString cst : cstStrings) {
+      stringIds.intern(cst);
     }
-    if (cstFieldRefs != null) {
-      for (CstFieldRef cst : cstFieldRefs) {
-        fieldIds.intern(cst);
-      }
+    for (CstFieldRef cst : cstFieldRefs) {
+      fieldIds.intern(cst);
     }
-    if (cstMethodRefs != null) {
-      for (CstMethodRef cst : cstMethodRefs) {
-        methodIds.intern(cst);
-      }
+    for (CstMethodRef cst : cstMethodRefs) {
+      methodIds.intern(cst);
     }
-    if (cstTypes != null) {
-      for (CstType cst : cstTypes) {
-        typeIds.intern(cst);
-      }
+    for (CstType cst : cstTypes) {
+      typeIds.intern(cst);
     }
 
     /**
