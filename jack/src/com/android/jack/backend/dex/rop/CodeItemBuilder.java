@@ -74,6 +74,7 @@ import com.android.jack.library.DumpInLibrary;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.scheduling.marker.DexCodeMarker;
 import com.android.jack.transformations.EmptyClinit;
+import com.android.jack.transformations.InvalidDefaultBridgeInInterfaceRemoved;
 import com.android.jack.transformations.ast.BooleanTestOutsideIf;
 import com.android.jack.transformations.ast.ImplicitBoxingAndUnboxing;
 import com.android.jack.transformations.ast.ImplicitCast;
@@ -116,13 +117,18 @@ import javax.annotation.Nonnull;
 @HasKeyId
 @Description("Builds CodeItem from JMethod")
 @Name("CodeItemBuilder")
-@Constraint(need = {ControlFlowGraph.class,
+@Constraint(
+  need = {
+    ControlFlowGraph.class,
     JExceptionRuntimeValue.class,
     NewInstanceRemoved.class,
     ThreeAddressCodeForm.class,
     RopLegalCast.class,
-    InnerAccessor.class},
-    no = {BooleanTestOutsideIf.class,
+    InnerAccessor.class,
+    InvalidDefaultBridgeInInterfaceRemoved.class
+  },
+  no = {
+    BooleanTestOutsideIf.class,
     InitInNewArray.class,
     JAsgOperation.class,
     JPrimitiveClassLiteral.class,
@@ -143,7 +149,9 @@ import javax.annotation.Nonnull;
     EmptyClinit.class,
     UselessSwitches.class,
     SourceCast.class,
-    JCastOperation.WithIntersectionType.class})
+    JCastOperation.WithIntersectionType.class
+  }
+)
 @Transform(add = DexCodeMarker.class)
 @Use(RopHelper.class)
 @Filter(TypeWithoutPrebuiltFilter.class)

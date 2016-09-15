@@ -38,6 +38,7 @@ import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.reporting.Reportable;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
+import com.android.jack.transformations.InvalidDefaultBridgeInInterfaceRemoved;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Access;
 import com.android.sched.schedulable.Constraint;
@@ -56,7 +57,10 @@ import javax.annotation.Nonnull;
  * generated into interfaces when using Jill.
  */
 @Description("Add bridges into JLambda that comes from default bridges generated into interfaces")
-@Constraint(need = DefaultBridgeIntoInterface.class)
+@Constraint(
+    need = DefaultBridgeIntoInterface.class,
+    no = InvalidDefaultBridgeInInterfaceRemoved.class
+)
 @Transform(
     add = JLambda.DefaultBridgeAddedInLambda.class,
     modify = JLambda.class)

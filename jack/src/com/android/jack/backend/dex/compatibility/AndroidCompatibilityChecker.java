@@ -28,7 +28,9 @@ import com.android.jack.lookup.CommonTypes;
 import com.android.jack.reporting.Reportable;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
+import com.android.jack.transformations.InvalidDefaultBridgeInInterfaceRemoved;
 import com.android.sched.item.Description;
+import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
@@ -45,6 +47,9 @@ import javax.annotation.Nonnull;
 @HasKeyId
 @Description("Checks that the IR is compatible with the dex output.")
 @Support(CheckAndroidCompatibility.class)
+@Constraint(need = InvalidDefaultBridgeInInterfaceRemoved.class)
+// We do not want to check methods coming from predexed libraries. Indeed, this schedulable has
+// already processed these methods when emitting the library so there is no need to do it twice.
 @Filter(TypeWithoutPrebuiltFilter.class)
 public class AndroidCompatibilityChecker implements RunnableSchedulable<JMethod> {
 
