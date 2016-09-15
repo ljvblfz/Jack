@@ -16,6 +16,7 @@
 
 package com.android.sched.scheduler;
 
+import com.android.sched.filter.ComponentFilterManager;
 import com.android.sched.filter.ManagedComponentFilter;
 import com.android.sched.item.Component;
 import com.android.sched.item.ManagedItem;
@@ -203,7 +204,7 @@ public abstract class ScheduleInstance<T extends Component> {
 
     visitStack.push(new ElementStack(features, managedSchedulable));
 
-    try (Event event = logAndTrace(runner, data)) {
+    try (Event event = logAndTraceSchedulable(runner, data)) {
       try {
         runner.run(data);
       } catch (Throwable e) {
@@ -223,7 +224,7 @@ public abstract class ScheduleInstance<T extends Component> {
 
     visitStack.push(new ElementStack(features, managedSchedulable));
 
-    try (Event event = logAndTrace(visitor, data)) {
+    try (Event event = logAndTraceSchedulable(visitor, data)) {
       assert data instanceof SchedulerVisitable<?>;
       try {
         ((SchedulerVisitable<X>) data).visit((X) visitor, new TransformRequest());
@@ -238,7 +239,7 @@ public abstract class ScheduleInstance<T extends Component> {
   @Nonnull
   protected <DST extends Component> Iterator<DST> adaptWithLog(
       @Nonnull AdapterSchedulable<T, DST> adapter, @Nonnull T data) throws AdapterProcessException {
-    try (Event event = logAndTrace(adapter, data)) {
+    try (Event event = logAndTraceSchedulable(adapter, data)) {
       return adapter.adapt(data);
     } catch (Throwable e) {
       ManagedSchedulable managedSchedulable =
@@ -249,7 +250,7 @@ public abstract class ScheduleInstance<T extends Component> {
   }
 
   @Nonnull
-  private <U extends Component> Event logAndTrace(@Nonnull Schedulable schedulable,
+  private <U extends Component> Event logAndTraceSchedulable(@Nonnull Schedulable schedulable,
       @Nonnull U data) {
     if (logger.isLoggable(Level.FINEST)) {
       logger.log(Level.FINEST, "Run {0} ''{1}'' on ''{2}''",
@@ -444,6 +445,17 @@ public abstract class ScheduleInstance<T extends Component> {
     return name;
   }
 
+  @Nonnull
+  private String getComponentFilerName(@Nonnull Class<? extends ComponentFilter<T>> filter) {
+    ComponentFilterManager manager = scheduler.getFilterManager();
+    ManagedComponentFilter managed = manager.getManagedComponentFilter(filter);
+    String name = (managed != null)
+            ? managed.getName()
+            : ("<" + filter.getClass().getSimpleName() + ">");
+
+    return name;
+  }
+
   private static class ElementStack {
     @CheckForNull
     private final FeatureSet features;
@@ -503,15 +515,40 @@ public abstract class ScheduleInstance<T extends Component> {
         // If the filter was already applied in a parent, and it is true, just check that the filter
         // is true also on the current component. Remove the filter if it is not the case.
         if (currentFilters.contains(configFilter.filterItem)
-            && !configFilter.filter.accept(component)) {
+            && !filterWithLog(configFilter.filter, component)) {
           currentFilters.remove(configFilter.filterItem);
         }
       } else {
-        if (configFilter.filter.accept(component)) {
+        if (filterWithLog(configFilter.filter, component)) {
           currentFilters.add(configFilter.filterItem);
         }
       }
     }
     return currentFilters;
+  }
+
+  private boolean filterWithLog(@Nonnull ComponentFilter<T> filter, @Nonnull T component) {
+    try (Event event = logAndTraceFilter(filter, component)) {
+      return filter.accept(component);
+    }
+  }
+
+  private Event logAndTraceFilter(@Nonnull ComponentFilter<T> filter, @Nonnull T component) {
+    if (logger.isLoggable(Level.FINEST)) {
+      @SuppressWarnings("unchecked")
+      Class<? extends ComponentFilter<T>> filterClass =
+          (Class<? extends ComponentFilter<T>>) filter.getClass();
+      logger.log(Level.FINEST, "Run filter ''{0}'' on ''{1}''",
+          new Object[] { getComponentFilerName(filterClass), component});
+    }
+
+    if (tracer.isTracing()) {
+      @SuppressWarnings("unchecked")
+      Class<? extends ComponentFilter<T>> filterClass =
+          (Class<? extends ComponentFilter<T>>) filter.getClass();
+      return tracer.open(getComponentFilerName(filterClass));
+    } else {
+      return tracer.open("<no-name>");
+    }
   }
 }

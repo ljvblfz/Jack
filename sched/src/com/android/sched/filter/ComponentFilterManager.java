@@ -39,6 +39,7 @@ import java.lang.reflect.Modifier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -145,5 +146,11 @@ public class ComponentFilterManager extends AbstractItemManager {
   @Nonnull
   public Class<? extends Item> getType() {
     return ComponentFilter.class;
+  }
+
+  @CheckForNull
+  public <T extends Component> ManagedComponentFilter getManagedComponentFilter(
+      @Nonnull Class<? extends ComponentFilter<T>> filter) {
+    return (ManagedComponentFilter) map.get(filter);
   }
 }
