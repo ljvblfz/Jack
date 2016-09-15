@@ -51,8 +51,7 @@ public class ValueImpl extends Value {
     ValueImpl value = (ValueImpl) statistic;
 
     if (value.value != null) {
-      assert this.value != null : "Wrong merge of value, target=" + this.value + ", source="
-          + value.value;
+      assert this.value == null : "Wrong merge of value, target=" + this.value;
 
       this.value = value.value;
     }
