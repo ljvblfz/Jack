@@ -401,6 +401,13 @@ public abstract class Insn implements ToHuman {
     public void visitThrowingCstInsn(ThrowingCstInsn insn);
 
     /**
+     * Visits a {@link ThrowingDualCstInsn}.
+     *
+     * @param insn {@code non-null;} the instruction to visit
+     */
+    public void visitThrowingDualCstInsn(ThrowingDualCstInsn insn);
+
+    /**
      * Visits a {@link ThrowingInsn}.
      *
      * @param insn {@code non-null;} the instruction to visit
@@ -441,6 +448,12 @@ public abstract class Insn implements ToHuman {
     /** {@inheritDoc} */
     @Override
     public void visitThrowingCstInsn(ThrowingCstInsn insn) {
+      // This space intentionally left blank.
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void visitThrowingDualCstInsn(ThrowingDualCstInsn insn) {
       // This space intentionally left blank.
     }
 

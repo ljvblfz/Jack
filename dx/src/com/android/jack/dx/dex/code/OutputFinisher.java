@@ -35,6 +35,8 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashSet;
 
+import javax.annotation.Nonnull;
+
 /**
  * Processor for instruction lists, which takes a "first cut" of
  * instruction selection as a basis and produces a "final cut" in the
@@ -179,8 +181,10 @@ public final class OutputFinisher {
    */
   private static void addConstants(HashSet<Constant> result, DalvInsn insn) {
     if (insn instanceof CstInsn) {
-      Constant cst = ((CstInsn) insn).getConstant();
-      result.add(cst);
+      result.add(((CstInsn) insn).getConstant());
+    } else if (insn instanceof DualCstInsn) {
+      result.add(((DualCstInsn) insn).getFirstConstant());
+      result.add(((DualCstInsn) insn).getSecondConstant());
     } else if (insn instanceof LocalSnapshot) {
       RegisterSpecSet specs = ((LocalSnapshot) insn).getLocals();
       int size = specs.size();
@@ -188,8 +192,7 @@ public final class OutputFinisher {
         addConstants(result, specs.get(i));
       }
     } else if (insn instanceof LocalStart) {
-      RegisterSpec spec = ((LocalStart) insn).getLocal();
-      addConstants(result, spec);
+      addConstants(result, ((LocalStart) insn).getLocal());
     }
   }
 
@@ -314,7 +317,32 @@ public final class OutputFinisher {
     for (DalvInsn insn : insns) {
       if (insn instanceof CstInsn) {
         assignIndices((CstInsn) insn, callback);
+      } else if (insn instanceof DualCstInsn) {
+        assignIndices((DualCstInsn) insn, callback);
       }
+    }
+  }
+
+  /**
+   * Helper for {@link #assignIndices} which does assignment for one instruction.
+   *
+   * @param insn {@code non-null;} the instruction
+   * @param callback {@code non-null;} the callback
+   */
+  private static void assignIndices(@Nonnull DualCstInsn insn,
+      @Nonnull DalvCode.AssignIndicesCallback callback) {
+    Constant firstCst = insn.getFirstConstant();
+    int firstindex = callback.getIndex(firstCst);
+
+    if (firstindex >= 0) {
+      insn.setFirstIndex(firstindex);
+    }
+
+    Constant secondCst = insn.getSecondConstant();
+    int secondIndex = callback.getIndex(secondCst);
+
+    if (secondIndex >= 0) {
+      insn.setSecondIndex(secondIndex);
     }
   }
 

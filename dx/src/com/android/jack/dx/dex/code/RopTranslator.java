@@ -34,6 +34,7 @@ import com.android.jack.dx.rop.code.RopMethod;
 import com.android.jack.dx.rop.code.SourcePosition;
 import com.android.jack.dx.rop.code.SwitchInsn;
 import com.android.jack.dx.rop.code.ThrowingCstInsn;
+import com.android.jack.dx.rop.code.ThrowingDualCstInsn;
 import com.android.jack.dx.rop.code.ThrowingInsn;
 import com.android.jack.dx.rop.cst.Constant;
 import com.android.jack.dx.rop.cst.CstInteger;
@@ -265,7 +266,7 @@ public final class RopTranslator {
      * which block will get output next.
      */
 
-if ((succ >= 0) && (succ != nextLabel)) {
+    if ((succ >= 0) && (succ != nextLabel)) {
       /*
        * The block has a "primary successor" and that primary
        * successor isn't the next block to be output.
@@ -461,7 +462,7 @@ if ((succ >= 0) && (succ != nextLabel)) {
        * instead of one of form 23x
        */
 
-regs = RegisterSpecList.make(regs.get(1), regs.get(0));
+      regs = RegisterSpecList.make(regs.get(1), regs.get(0));
     }
 
     if (resultReg == null) {
@@ -564,7 +565,7 @@ regs = RegisterSpecList.make(regs.get(1), regs.get(0));
            * We need to add moves.
            */
 
-RegisterSpec dest = insn.getResult();
+          RegisterSpec dest = insn.getResult();
           int param = ((CstInteger) insn.getConstant()).getValue();
           RegisterSpec source = RegisterSpec.make(regCount - paramSize + param, dest.getType());
           di = new SimpleInsn(opcode, pos, RegisterSpecList.make(dest, source));
@@ -644,6 +645,12 @@ RegisterSpec dest = insn.getResult();
       } else {
         return insn.getResult();
       }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void visitThrowingDualCstInsn(ThrowingDualCstInsn insn) {
+      throw new UnsupportedOperationException();
     }
 
     /** {@inheritDoc} */

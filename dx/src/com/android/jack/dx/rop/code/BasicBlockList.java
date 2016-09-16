@@ -353,6 +353,12 @@ public final class BasicBlockList extends LabeledList {
 
     /** {@inheritDoc} */
     @Override
+    public void visitThrowingDualCstInsn(ThrowingDualCstInsn insn) {
+      visit(insn);
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public void visitThrowingInsn(ThrowingInsn insn) {
       visit(insn);
     }
