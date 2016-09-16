@@ -23,6 +23,8 @@ import com.android.jack.Jack;
 import com.android.jack.JackAbortException;
 import com.android.jack.JackUserException;
 import com.android.jack.Options;
+import com.android.jack.api.impl.ApiFeature;
+import com.android.jack.api.impl.JackConfigImpl;
 import com.android.jack.api.v01.Api01CompilationTask;
 import com.android.jack.api.v01.Api01Config;
 import com.android.jack.api.v01.CompilationException;
@@ -50,15 +52,18 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
  * A configuration implementation for API level 01 of the Jack compiler.
  */
-public class Api01ConfigImpl implements Api01Config {
+public class Api01ConfigImpl implements JackConfigImpl, Api01Config {
 
   @Nonnull
   protected final Options options;
+  @CheckForNull
+  private Class<? extends ApiFeature> api;
 
   public Api01ConfigImpl() {
     options = new Options();
@@ -67,9 +72,11 @@ public class Api01ConfigImpl implements Api01Config {
   @Override
   @Nonnull
   public Api01CompilationTask getTask() throws ConfigurationException {
+    assert api != null;
+
     RunnableHooks configHooks = new RunnableHooks();
     try {
-      Jack.check(options, configHooks);
+      Jack.check(api, options, configHooks);
     } catch (com.android.sched.util.config.ConfigurationException e) {
       configHooks.runHooks();
       throw new ConfigurationException(e.getMessage(), e);
@@ -78,18 +85,22 @@ public class Api01ConfigImpl implements Api01Config {
       throw new ConfigurationException(e.getMessage(), e);
     }
 
-    return new Api01CompilationTaskImpl(options, configHooks);
+    return new Api01CompilationTaskImpl(api, options, configHooks);
   }
 
   private static class Api01CompilationTaskImpl implements Api01CompilationTask {
-
+    @Nonnull
+    private final Class<? extends ApiFeature> api;
     @Nonnull
     private final Options options;
     @Nonnull
     private final RunnableHooks runSessionHooks;
 
-    public Api01CompilationTaskImpl(@Nonnull Options options,
+    public Api01CompilationTaskImpl(
+        @Nonnull Class<? extends ApiFeature> api,
+        @Nonnull Options options,
         @Nonnull RunnableHooks runSessionHooks) {
+      this.api = api;
       this.options = options;
       this.runSessionHooks = runSessionHooks;
     }
@@ -100,7 +111,7 @@ public class Api01ConfigImpl implements Api01Config {
 
       try {
         try {
-          Jack.run(options, runSessionHooks);
+          Jack.run(api, options, runSessionHooks);
         } catch (ProcessException e) {
           // Handle the cause, but keep the ProcessException in case of Internal Compiler Error only
           pe = e;
@@ -389,5 +400,10 @@ public class Api01ConfigImpl implements Api01Config {
       }
     }
     options.setVerbosityLevel(jackVerbosityLevel);
+  }
+
+  @Override
+  public void setApi(Class<? extends ApiFeature> api) {
+    this.api = api;
   }
 }

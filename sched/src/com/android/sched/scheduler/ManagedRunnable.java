@@ -20,6 +20,7 @@ import com.android.sched.filter.NoFilter;
 import com.android.sched.item.Component;
 import com.android.sched.item.Feature;
 import com.android.sched.item.MarkerOrComponent;
+import com.android.sched.item.NoFeature;
 import com.android.sched.item.Production;
 import com.android.sched.item.TagOrMarker;
 import com.android.sched.item.TagOrMarkerOrComponent;
@@ -102,6 +103,10 @@ public class ManagedRunnable extends ManagedSchedulable {
   // @Filter
   @Nonnull
   private final ComponentFilterSet neededFilters;
+  @Nonnull
+  private final FeatureSet filtersIfAll;
+  @Nonnull
+  private final FeatureSet filtersUnlessOne;
 
   // @ExclusiveAccess
   @Nonnull
@@ -138,6 +143,8 @@ public class ManagedRunnable extends ManagedSchedulable {
     unprotectByAddingTags = scheduler.createTagOrMarkerOrComponentSet();
     unprotectByRemovingTags = scheduler.createTagOrMarkerOrComponentSet();
     neededFilters = scheduler.createComponentFilterSet();
+    filtersIfAll = scheduler.createFeatureSet();
+    filtersUnlessOne = scheduler.createFeatureSet();
     supportedFeatures = scheduler.createFeatureSet();
 
     extractUse(runnable);
@@ -466,8 +473,13 @@ public class ManagedRunnable extends ManagedSchedulable {
    * @return a copy of the set of filters
    */
   @Nonnull
-  public ComponentFilterSet getFilters() {
-    return neededFilters.clone();
+  public ComponentFilterSet getFilters(@Nonnull FeatureSet features) {
+    if (features.containsAll(filtersIfAll) &&
+        features.containsNone(filtersUnlessOne)) {
+      return neededFilters.clone();
+    } else {
+      return scheduler.createComponentFilterSet();
+    }
   }
 
   /**
@@ -612,6 +624,16 @@ public class ManagedRunnable extends ManagedSchedulable {
       if (filters.value() != null) {
         for (Class<? extends ComponentFilter<? extends Component>> filter : filters.value()) {
           neededFilters.add(filter);
+        }
+        for (Class<? extends Feature> feature : filters.ifAll()) {
+          if (feature != NoFeature.class) {
+            filtersIfAll.add(feature);
+          }
+        }
+        for (Class<? extends Feature> feature : filters.unlessOne()) {
+          if (feature != NoFeature.class) {
+            filtersUnlessOne.add(feature);
+          }
         }
       } else {
         neededFilters.add(NoFilter.class);

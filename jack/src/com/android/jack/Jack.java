@@ -39,6 +39,10 @@ import com.android.jack.analysis.dependency.type.TypeDependenciesCollector;
 import com.android.jack.analysis.dependency.type.TypeDependenciesInLibraryWriter;
 import com.android.jack.analysis.dfa.reachingdefs.ReachingDefinitions;
 import com.android.jack.analysis.tracer.SubClassOrInterfaceFinder;
+import com.android.jack.api.impl.ApiFeature;
+import com.android.jack.api.v01.impl.Api01Feature;
+import com.android.jack.api.v02.impl.Api02Feature;
+import com.android.jack.api.v03.impl.Api03Feature;
 import com.android.jack.backend.ResourceWriter;
 import com.android.jack.backend.dex.ClassAnnotationBuilder;
 import com.android.jack.backend.dex.ClassDefItemBuilder;
@@ -435,20 +439,24 @@ public abstract class Jack {
     return unmodifiableCollections;
   }
 
-  public static void checkAndRun(@Nonnull Options options)
-      throws IllegalOptionsException,
-      ConfigurationException,
-      JackUserException, ProcessException {
+  public static void checkAndRun(
+      @Nonnull Class<? extends ApiFeature> api,
+      @Nonnull Options options)
+      throws IllegalOptionsException, ConfigurationException, JackUserException, ProcessException {
     RunnableHooks hooks = new RunnableHooks();
     try {
-      check(options, hooks);
-      run(options, hooks);
+      check(api, options, hooks);
+      run(api, options, hooks);
     } finally {
       hooks.runHooks();
     }
   }
 
-  public static void check(@Nonnull Options options, @Nonnull RunnableHooks hooks)
+  public static void check(
+      @SuppressWarnings("unused")
+      @Nonnull Class<? extends ApiFeature> api,
+      @Nonnull Options options,
+      @Nonnull RunnableHooks hooks)
       throws IllegalOptionsException, ConfigurationException {
 
     if (options.proguardFlagsFiles != null && !options.proguardFlagsFiles.isEmpty()) {
@@ -484,8 +492,11 @@ public abstract class Jack {
    * @throws JackUserException thrown to report information to the user
    * @throws ProcessException thrown during schedulable execution
    */
-  public static void run(@Nonnull Options options, @Nonnull RunnableHooks hooks)
-      throws JackUserException, ProcessException {
+  public static void run(
+      @Nonnull Class<? extends ApiFeature> api,
+      @Nonnull Options options,
+      @Nonnull RunnableHooks hooks)
+    throws JackUserException, ProcessException {
 
     try {
       Config config = options.getConfig();
@@ -524,8 +535,9 @@ public abstract class Jack {
               new Scheduler(pluginManager.getReflectionManager(ReflectionFactory.getManager()));
 
           Request request = createInitialRequest(scheduler);
-          request.addFeature(PreProcessor.class);
+          request.addFeature(api);
 
+          request.addFeature(PreProcessor.class);
           request.addFeature(Resources.class);
 
           JavaVersion sourceVersion = config.get(Options.JAVA_SOURCE_VERSION);
@@ -641,8 +653,11 @@ public abstract class Jack {
 
           if (config.get(Options.GENERATE_DEX_IN_LIBRARY).booleanValue()) {
             request.addProduction(DexInLibraryProduct.class);
-            // We generate a library with pre-dex: we need to check compatibility.
-            request.addFeature(CheckAndroidCompatibility.class);
+            if (!(api == Api01Feature.class &&
+                  api == Api02Feature.class &&
+                  api == Api03Feature.class)) {
+              request.addFeature(CheckAndroidCompatibility.class);
+            }
           }
 
           if (config.get(Options.LAMBDA_TO_ANONYMOUS_CONVERTER).booleanValue()) {

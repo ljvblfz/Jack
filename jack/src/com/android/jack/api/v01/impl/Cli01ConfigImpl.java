@@ -17,6 +17,8 @@
 package com.android.jack.api.v01.impl;
 
 import com.android.jack.Options;
+import com.android.jack.api.impl.ApiFeature;
+import com.android.jack.api.impl.JackConfigImpl;
 import com.android.jack.api.v01.Cli01CompilationTask;
 import com.android.jack.api.v01.Cli01Config;
 import com.android.jack.api.v01.ConfigurationException;
@@ -41,7 +43,7 @@ import javax.annotation.Nonnull;
 /**
  * A configuration implementation for CLI level 01 of the Jack compiler.
  */
-public class Cli01ConfigImpl implements Cli01Config {
+public class Cli01ConfigImpl implements Cli01Config, JackConfigImpl {
 
   @Nonnull
   private PrintStream standardOutput = System.out;
@@ -108,5 +110,9 @@ public class Cli01ConfigImpl implements Cli01Config {
   @Nonnull
   public File getWorkingDirectory() {
     return workingDirectory;
+  }
+
+  @Override
+  public void setApi(Class<? extends ApiFeature> api) {
   }
 }

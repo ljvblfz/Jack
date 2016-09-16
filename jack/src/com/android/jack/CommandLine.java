@@ -16,6 +16,7 @@
 
 package com.android.jack;
 
+import com.android.jack.api.v04.impl.Api04Feature;
 import com.android.jack.config.id.Douarn;
 import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.load.JackLoadingException;
@@ -79,7 +80,7 @@ public abstract class CommandLine {
 
     try {
       try {
-        Jack.checkAndRun(options);
+        Jack.checkAndRun(Api04Feature.class, options);
         return (ExitStatus.SUCCESS);
       } catch (ProcessException e) {
         // Handle the cause, but keep the ProcessException in case of

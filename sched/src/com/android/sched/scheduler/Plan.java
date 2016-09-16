@@ -302,8 +302,10 @@ public class Plan<T extends Component> implements Iterable<PlanStep>  {
     }
   }
 
-  @CheckForNull
+  @Nonnull
   public FeatureSet getFeatures() {
+    assert features != null;
+
     return features;
   }
 

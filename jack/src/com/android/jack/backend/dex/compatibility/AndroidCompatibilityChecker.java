@@ -18,6 +18,9 @@ package com.android.jack.backend.dex.compatibility;
 
 import com.android.jack.Jack;
 import com.android.jack.Options;
+import com.android.jack.api.v01.impl.Api01Feature;
+import com.android.jack.api.v02.impl.Api02Feature;
+import com.android.jack.api.v03.impl.Api03Feature;
 import com.android.jack.config.id.Carnac;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JLambda;
@@ -50,7 +53,8 @@ import javax.annotation.Nonnull;
 @Constraint(need = InvalidDefaultBridgeInInterfaceRemoved.class)
 // We do not want to check methods coming from predexed libraries. Indeed, this schedulable has
 // already processed these methods when emitting the library so there is no need to do it twice.
-@Filter(TypeWithoutPrebuiltFilter.class)
+@Filter(value = TypeWithoutPrebuiltFilter.class,
+    unlessOne = {Api01Feature.class, Api02Feature.class, Api03Feature.class})
 public class AndroidCompatibilityChecker implements RunnableSchedulable<JMethod> {
 
   @Nonnull
