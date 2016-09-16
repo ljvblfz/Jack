@@ -21,9 +21,12 @@ import com.google.common.collect.Lists;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.ObjectId;
+import com.android.sched.util.log.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
@@ -36,6 +39,8 @@ import javax.annotation.Nonnull;
  */
 @HasKeyId
 public class RunnableHooks {
+  @Nonnull
+  private final Logger logger = LoggerFactory.getLogger();
   @Nonnull
   private static final ObjectId<RunnableHooks> SHUTDOWN_HOOKS =
       new ObjectId<RunnableHooks>("sched.internal.shutdown", RunnableHooks.class);
@@ -56,11 +61,30 @@ public class RunnableHooks {
   }
 
   public synchronized void runHooks() {
+    Throwable current = null;
+
     for (Runnable hook : Lists.reverse(hooks)) {
-      hook.run();
+      try {
+        hook.run();
+      } catch (Error | RuntimeException e) {
+        logger.log(Level.SEVERE, "Uncaught exception during RunnableHook", e);
+        if (current == null) {
+          // Throw only the first one
+          current = e;
+        }
+      }
     }
 
     hooks.clear();
+    if (current != null) {
+      if (current instanceof Error) {
+        throw (Error) current;
+      } else if (current instanceof RuntimeException)  {
+        throw (RuntimeException) current;
+      } else {
+        throw new AssertionError(current);
+      }
+    }
   }
 
   /**
