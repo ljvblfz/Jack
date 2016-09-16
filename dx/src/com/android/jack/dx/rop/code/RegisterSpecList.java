@@ -416,11 +416,12 @@ public final class RegisterSpecList extends FixedSizeList implements TypeList {
         if (!duplicateFirst) {
           base += expandedReg.getCategory();
         }
-        duplicateFirst = false;
       } else {
         expandedReg = registerToExpand;
       }
 
+      // Reset duplicateFirst boolean when the first register is managed.
+      duplicateFirst = false;
       result.set0(regIdx, expandedReg);
     }
 
