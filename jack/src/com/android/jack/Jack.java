@@ -439,17 +439,23 @@ public abstract class Jack {
     return unmodifiableCollections;
   }
 
-  public static void checkAndRun(
-      @Nonnull Class<? extends ApiFeature> api,
-      @Nonnull Options options)
+  public static void checkAndRun(@Nonnull Class<? extends ApiFeature> api, @Nonnull Options options)
       throws IllegalOptionsException, ConfigurationException, JackUserException, ProcessException {
     RunnableHooks hooks = new RunnableHooks();
     try {
       check(api, options, hooks);
       run(api, options, hooks);
-    } finally {
-      hooks.runHooks();
+    } catch (Throwable e1) {
+      // If any exception, run hooks and ignore exceptions
+      try {
+        hooks.runHooks();
+      } catch (Error | RuntimeException e2) {
+        // Ignored but already logged in runHooks.
+      }
+      throw e1;
     }
+    // If everything goes well, run hooks and report exception
+    hooks.runHooks();
   }
 
   public static void check(
