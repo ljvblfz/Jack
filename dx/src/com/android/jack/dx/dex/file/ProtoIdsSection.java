@@ -17,12 +17,15 @@
 package com.android.jack.dx.dex.file;
 
 import com.android.jack.dx.rop.cst.Constant;
+import com.android.jack.dx.rop.cst.CstPrototypeRef;
 import com.android.jack.dx.rop.type.Prototype;
 import com.android.jack.dx.util.AnnotatedOutput;
 import com.android.jack.dx.util.Hex;
 
 import java.util.Collection;
 import java.util.TreeMap;
+
+import javax.annotation.Nonnull;
 
 /**
  * Proto (method prototype) identifiers list section of a
@@ -53,8 +56,14 @@ public final class ProtoIdsSection extends UniformItemSection {
 
   /** {@inheritDoc} */
   @Override
-  public IndexedItem get(Constant cst) {
-    throw new UnsupportedOperationException("unsupported");
+  @Nonnull
+  public IndexedItem get(@Nonnull Constant cst) {
+    throwIfNotPrepared();
+
+    IndexedItem result = protoIds.get(((CstPrototypeRef) cst).getPrototype());
+    assert result != null;
+
+    return result;
   }
 
   /**

@@ -23,6 +23,7 @@ import com.android.jack.dx.rop.cst.CstBaseMethodRef;
 import com.android.jack.dx.rop.cst.CstEnumRef;
 import com.android.jack.dx.rop.cst.CstFieldRef;
 import com.android.jack.dx.rop.cst.CstMethodRef;
+import com.android.jack.dx.rop.cst.CstPrototypeRef;
 import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.util.ByteArrayAnnotatedOutput;
@@ -442,6 +443,8 @@ public final class DexFile {
       fieldIds.intern((CstFieldRef) cst);
     } else if (cst instanceof CstEnumRef) {
       fieldIds.intern(((CstEnumRef) cst).getFieldRef());
+    } else if (cst instanceof CstPrototypeRef) {
+      protoIds.intern(((CstPrototypeRef) cst).getPrototype());
     } else if (cst == null) {
       throw new NullPointerException("cst == null");
     }
@@ -467,6 +470,8 @@ public final class DexFile {
       return methodIds.get(cst);
     } else if (cst instanceof CstFieldRef) {
       return fieldIds.get(cst);
+    } else if (cst instanceof CstPrototypeRef) {
+      return protoIds.get(cst);
     } else {
       return null;
     }
