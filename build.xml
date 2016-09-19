@@ -2818,6 +2818,7 @@
         <arg value="./jack/jackstyle.xml"/>
         <arg value="jack/src"/>
         <arg value="jack-api/src"/>
+        <arg value="jack-tests/src"/>
         <arg value="dx/src"/>
         <arg value="sched/src"/>
         <arg value="server/jack-server/src"/>

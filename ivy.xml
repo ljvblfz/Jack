@@ -1,0 +1,6 @@
+<ivy-module version="2.0">
+   <info organisation="com.android.jack" module="jack-ivy"/>
+   <dependencies>
+       <dependency org="com.puppycrawl.tools" name="checkstyle" rev="7.1.1"/>
+   </dependencies>
+</ivy-module>
