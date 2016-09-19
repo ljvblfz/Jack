@@ -255,7 +255,7 @@ public class RuntimeTestHelper {
           AbstractTestTools.createTempFile("testRef", referenceTestTools.getLibraryExtension());
       referenceTestTools.addToClasspath(referenceClasspath)
       .srcToLib(testLib, /* zipFiles = */ true,
-          getSrcDir());
+          sourcesAsArray);
 
       List<File> referenceClasspathAsList = new ArrayList<File>();
       for (File f : referenceBootClasspath) {
