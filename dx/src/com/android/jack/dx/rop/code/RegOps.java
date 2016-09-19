@@ -297,6 +297,12 @@ public final class RegOps {
   public static final int FILL_ARRAY_DATA = 57;
 
   /**
+   * {@code Tr, T0, T1...: any types; r: Tr; x: Object; m: polymorphic
+   * method spec; y0: T0; y1: T1 ... :: r = x.m(y0, y1, ...)} (call polymorphic method)
+   */
+  public static final int INVOKE_POLYMORPHIC = 58;
+
+  /**
    * This class is uninstantiable.
    */
   private RegOps() {
@@ -417,6 +423,8 @@ public final class RegOps {
         return "invoke-direct";
       case INVOKE_INTERFACE:
         return "invoke-interface";
+      case INVOKE_POLYMORPHIC:
+        return "invoke-polymorphic";
       case MOVE_RESULT:
         return "move-result";
       case MOVE_RESULT_PSEUDO:

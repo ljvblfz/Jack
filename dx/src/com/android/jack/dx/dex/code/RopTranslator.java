@@ -650,7 +650,16 @@ public final class RopTranslator {
     /** {@inheritDoc} */
     @Override
     public void visitThrowingDualCstInsn(ThrowingDualCstInsn insn) {
-      throw new UnsupportedOperationException();
+      assert insn.getOpcode().getBranchingness() == Rop.BRANCH_THROW;
+      assert insn.getOpcode().isCallLike();
+
+      addOutput(lastAddress);
+
+      RegisterSpecList regs = insn.getSources();
+      DalvInsn di = new DualCstInsn(RopToDop.dopFor(insn), insn.getPosition(), regs,
+          insn.getFirstConstant(), insn.getSecondConstant());
+
+      addOutput(di);
     }
 
     /** {@inheritDoc} */

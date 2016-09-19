@@ -244,7 +244,7 @@ public final class RopToDop {
      * add to the map.)
      */
 
-MAP.put(Rops.CONST_INT, Dops.CONST_4);
+    MAP.put(Rops.CONST_INT, Dops.CONST_4);
     MAP.put(Rops.CONST_LONG, Dops.CONST_WIDE_16);
     MAP.put(Rops.CONST_FLOAT, Dops.CONST_4);
     MAP.put(Rops.CONST_DOUBLE, Dops.CONST_WIDE_16);
@@ -408,7 +408,7 @@ MAP.put(Rops.CONST_INT, Dops.CONST_4);
      * since they need to be handled specially (see dopFor() below).
      */
 
-MAP.put(Rops.GET_STATIC_LONG, Dops.SGET_WIDE);
+    MAP.put(Rops.GET_STATIC_LONG, Dops.SGET_WIDE);
     MAP.put(Rops.GET_STATIC_FLOAT, Dops.SGET);
     MAP.put(Rops.GET_STATIC_DOUBLE, Dops.SGET_WIDE);
     MAP.put(Rops.GET_STATIC_OBJECT, Dops.SGET_OBJECT);
@@ -417,7 +417,7 @@ MAP.put(Rops.GET_STATIC_LONG, Dops.SGET_WIDE);
      * since they need to be handled specially (see dopFor() below).
      */
 
-MAP.put(Rops.PUT_FIELD_LONG, Dops.IPUT_WIDE);
+    MAP.put(Rops.PUT_FIELD_LONG, Dops.IPUT_WIDE);
     MAP.put(Rops.PUT_FIELD_FLOAT, Dops.IPUT);
     MAP.put(Rops.PUT_FIELD_DOUBLE, Dops.IPUT_WIDE);
     MAP.put(Rops.PUT_FIELD_OBJECT, Dops.IPUT_OBJECT);
@@ -426,7 +426,7 @@ MAP.put(Rops.PUT_FIELD_LONG, Dops.IPUT_WIDE);
      * since they need to be handled specially (see dopFor() below).
      */
 
-MAP.put(Rops.PUT_STATIC_LONG, Dops.SPUT_WIDE);
+    MAP.put(Rops.PUT_STATIC_LONG, Dops.SPUT_WIDE);
     MAP.put(Rops.PUT_STATIC_FLOAT, Dops.SPUT);
     MAP.put(Rops.PUT_STATIC_DOUBLE, Dops.SPUT_WIDE);
     MAP.put(Rops.PUT_STATIC_OBJECT, Dops.SPUT_OBJECT);
@@ -479,7 +479,7 @@ MAP.put(Rops.PUT_STATIC_LONG, Dops.SPUT_WIDE);
      * classes.
      */
 
-switch (rop.getOpcode()) {
+    switch (rop.getOpcode()) {
       case RegOps.MOVE_EXCEPTION:
         return Dops.MOVE_EXCEPTION;
       case RegOps.INVOKE_STATIC:
@@ -492,6 +492,8 @@ switch (rop.getOpcode()) {
         return Dops.INVOKE_DIRECT;
       case RegOps.INVOKE_INTERFACE:
         return Dops.INVOKE_INTERFACE;
+      case RegOps.INVOKE_POLYMORPHIC:
+        return Dops.INVOKE_POLYMORPHIC;
       case RegOps.NEW_ARRAY:
         return Dops.NEW_ARRAY;
       case RegOps.FILLED_NEW_ARRAY:
