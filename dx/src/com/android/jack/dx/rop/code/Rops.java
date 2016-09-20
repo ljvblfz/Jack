@@ -1141,8 +1141,6 @@ public final class Rops {
         return MOVE_PARAM_DOUBLE;
       case Type.BT_OBJECT:
         return MOVE_PARAM_OBJECT;
-      case Type.BT_CLOSURE:
-        return MOVE_PARAM_LONG;
     }
 
     return throwBadType(type);

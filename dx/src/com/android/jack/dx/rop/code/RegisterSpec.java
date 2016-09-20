@@ -396,10 +396,6 @@ public final class RegisterSpec implements TypeBearer, ToHuman, Comparable<Regis
     return type.getType().isCategory2();
   }
 
-  public boolean isClosure() {
-    return type.getType().isClosure();
-  }
-
   /**
    * Gets the string form for just the register number of this instance.
    *

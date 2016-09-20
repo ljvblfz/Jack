@@ -21,7 +21,6 @@ import com.android.jack.dx.util.Hex;
 import java.util.HashMap;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 
 /**
  * Representation of a value type, such as may appear in a field, in a
@@ -30,30 +29,6 @@ import javax.annotation.Nonnull;
  * other using {@code ==}.
  */
 public final class Type implements TypeBearer, Comparable<Type> {
-
-  @Deprecated
-  public static String replaceClosureFromDescriptor(@Nonnull String descriptor) {
-    int pos = descriptor.indexOf("\\");
-    if (pos == -1) {
-      return descriptor;
-    }
-    String newDescriptor = "";
-    int index = 0;
-    while (index < descriptor.length()) {
-      char c = descriptor.charAt(index);
-      if (descriptor.charAt(index) == '\\') {
-        while (descriptor.charAt(index) != ';') {
-          index++;
-        }
-        newDescriptor += "J";
-      } else {
-        newDescriptor += c;
-      }
-      index++;
-    }
-
-    return newDescriptor;
-  }
 
   /**
    * {@code non-null;} intern table mapping string descriptors to
@@ -94,11 +69,8 @@ public final class Type implements TypeBearer, Comparable<Type> {
   /** basic type constant for a return address */
   public static final int BT_ADDR = 10;
 
-  /** basic type constant for {@code Closure} */
-  public static final int BT_CLOSURE = 11;
-
   /** count of basic type constants */
-  public static final int BT_COUNT = 12;
+  public static final int BT_COUNT = 11;
 
   /** {@code non-null;} instance representing {@code boolean} */
   public static final Type BOOLEAN = new Type("Z", BT_BOOLEAN);
@@ -349,38 +321,26 @@ public final class Type implements TypeBearer, Comparable<Type> {
       return result.getArrayType();
     }
 
-    if (firstChar == 'L') {
-      validateClassName(descriptor);
-      result = new Type(descriptor, BT_OBJECT);
-    } else {
-      assert firstChar == '\\' : "Descriptor must be a closure";
+    /*
+     * If the first character isn't '[' and it wasn't found in the
+     * intern cache, then it had better be the descriptor for a class.
+     */
 
-      validateClassName(descriptor);
-      // STOPSHIP: use same descriptor for object and closure since closure are not supported by the
-      // runtime
-      char[] array = descriptor.toCharArray();
-      array[0] = 'L';
-      descriptor = new String(array);
-      result = new Type(descriptor, BT_CLOSURE);
-    }
-
-    return putIntern(result);
-  }
-
-  /*
-   * Validate the characters of the class name itself. Note that vmspec-2 does not have a
-   * coherent definition for valid internal-form class names, and the definition here is fairly
-   * liberal: A name is considered valid as long as it doesn't contain any of '[' ';' '.' '('
-   * ')', and it has no more than one '/' in a row, and no '/' at either end.
-   */
-  private static void validateClassName(@Nonnull String descriptor) {
-    int length = descriptor.length();
-
-    if (descriptor.charAt(length - 1) != ';') {
+int length = descriptor.length();
+    if ((firstChar != 'L') || (descriptor.charAt(length - 1) != ';')) {
       throw new IllegalArgumentException("bad descriptor: " + descriptor);
     }
 
-    int limit = (length - 1); // Skip the final ';'.
+    /*
+     * Validate the characters of the class name itself. Note that
+     * vmspec-2 does not have a coherent definition for valid
+     * internal-form class names, and the definition here is fairly
+     * liberal: A name is considered valid as long as it doesn't
+     * contain any of '[' ';' '.' '(' ')', and it has no more than one
+     * '/' in a row, and no '/' at either end.
+     */
+
+int limit = (length - 1); // Skip the final ';'.
     for (int i = 1; i < limit; i++) {
       char c = descriptor.charAt(i);
       switch (c) {
@@ -399,6 +359,9 @@ public final class Type implements TypeBearer, Comparable<Type> {
         }
       }
     }
+
+    result = new Type(descriptor, BT_OBJECT);
+    return putIntern(result);
   }
 
   /**
@@ -424,6 +387,31 @@ public final class Type implements TypeBearer, Comparable<Type> {
     }
 
     return intern(descriptor);
+  }
+
+  /**
+   * Returns the unique instance corresponding to the type of the
+   * class with the given name. Calling this method is equivalent to
+   * calling {@code intern(name)} if {@code name} begins
+   * with {@code "["} and calling {@code intern("L" + name + ";")}
+   * in all other cases.
+   *
+   * @param name {@code non-null;} the name of the class whose type
+   * is desired
+   * @return {@code non-null;} the corresponding type
+   * @throws IllegalArgumentException thrown if the name has
+   * invalid syntax
+   */
+  public static Type internClassName(String name) {
+    if (name == null) {
+      throw new NullPointerException("name == null");
+    }
+
+    if (name.startsWith("[")) {
+      return intern(name);
+    }
+
+    return intern('L' + name + ';');
   }
 
   /**
@@ -528,7 +516,6 @@ public final class Type implements TypeBearer, Comparable<Type> {
         return "long";
       case BT_SHORT:
         return "short";
-      case BT_CLOSURE:
       case BT_OBJECT:
         break;
       default:
@@ -612,7 +599,7 @@ public final class Type implements TypeBearer, Comparable<Type> {
    */
   public String getClassName() {
     if (className == null) {
-      if (!isReference() && !isClosure()) {
+      if (!isReference()) {
         throw new IllegalArgumentException("not an object type: " + descriptor);
       }
 
@@ -627,8 +614,8 @@ public final class Type implements TypeBearer, Comparable<Type> {
   }
 
   /**
-   * Gets the category. Most instances are category 1. {@code long},
-   * {@code double} and {@code closure} are the only category 2 types.
+   * Gets the category. Most instances are category 1. {@code long}
+   * and {@code double} are the only category 2 types.
    *
    * @see #isCategory1
    * @see #isCategory2
@@ -636,7 +623,6 @@ public final class Type implements TypeBearer, Comparable<Type> {
    */
   public int getCategory() {
     switch (basicType) {
-      case BT_CLOSURE:
       case BT_LONG:
       case BT_DOUBLE: {
         return 2;
@@ -655,7 +641,6 @@ public final class Type implements TypeBearer, Comparable<Type> {
    */
   public boolean isCategory1() {
     switch (basicType) {
-      case BT_CLOSURE:
       case BT_LONG:
       case BT_DOUBLE: {
         return false;
@@ -674,7 +659,6 @@ public final class Type implements TypeBearer, Comparable<Type> {
    */
   public boolean isCategory2() {
     switch (basicType) {
-      case BT_CLOSURE:
       case BT_LONG:
       case BT_DOUBLE: {
         return true;
@@ -739,15 +723,6 @@ public final class Type implements TypeBearer, Comparable<Type> {
    */
   public boolean isReference() {
     return (basicType == BT_OBJECT);
-  }
-
-  /**
-   * Gets whether this type is a closure reference type.
-   *
-   * @return whether this type is a closure type
-   */
-  public boolean isClosure() {
-    return (basicType == BT_CLOSURE);
   }
 
   /**
