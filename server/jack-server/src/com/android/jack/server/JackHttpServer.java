@@ -23,6 +23,9 @@ import com.google.common.cache.RemovalNotification;
 import com.google.common.cache.Weigher;
 
 import com.android.jack.api.JackProvider;
+import com.android.jack.api.ResourceController;
+import com.android.jack.api.ResourceController.Category;
+import com.android.jack.api.ResourceController.Impact;
 import com.android.jack.server.ServerLogConfiguration.ServerLogConfigurationException;
 import com.android.jack.server.api.v01.LauncherHandle;
 import com.android.jack.server.api.v01.ServerException;
@@ -116,6 +119,7 @@ import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -131,6 +135,7 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -176,6 +181,7 @@ public class JackHttpServer implements HasVersion {
       @Nonnull
       protected abstract T newReference(@CheckForNull U program);
 
+      @CheckForNull
       public U get(@Nonnull Assertion assertion) {
         switch (assertion) {
           case ENABLED:
@@ -362,6 +368,31 @@ public class JackHttpServer implements HasVersion {
     }
   }
 
+  private class TimedServerMode {
+    @Nonnegative
+    private final long delay;
+
+    private final ServerMode newMode;
+
+    public TimedServerMode(@Nonnegative long delay, @Nonnull ServerMode serverMode) {
+      this.delay = delay;
+      this.newMode = serverMode;
+    }
+
+    public void registerTo(@Nonnull Timer timer) {
+      timer.schedule(new TimerTask() {
+        @Override
+        public void run() {
+          setServerMode(newMode);
+        }
+      }, delay);
+    }
+  }
+
+  private static interface ServerModeWatcher {
+    void changedMode(@Nonnull ServerMode oldMode, @Nonnull ServerMode newMode);
+  }
+
   @Nonnull
   private static final String JAR_SUFFIX = ".jar";
 
@@ -429,8 +460,6 @@ public class JackHttpServer implements HasVersion {
   @Nonnull
   private final Object lock = new Object();
 
-  private int timeout;
-
   private int maxServices;
 
   @Nonnull
@@ -461,6 +490,15 @@ public class JackHttpServer implements HasVersion {
   @Nonnull
   private final FinalizerRunner finalizer = new FinalizerRunner("Server finalizer");
 
+  private ServerMode serverMode = ServerMode.WAIT;
+
+  @Nonnull
+  private final List<TimedServerMode> delayedModes =
+    new ArrayList<JackHttpServer.TimedServerMode>();
+
+  @Nonnull
+  private final Map<ServerMode, ServerModeWatcher> modeWatchers = new HashMap<>();
+
   @Nonnull
   public static Version getServerVersion() {
     try {
@@ -481,6 +519,52 @@ public class JackHttpServer implements HasVersion {
         serverDir.getPath().replace(File.separatorChar, '/') + '/' + LOG_FILE_PATTERN);
 
     currentUser = getCurrentUser(serverDir);
+
+    addServerModeWatcher(ServerMode.WORK, new ServerModeWatcher() {
+      @Override
+      public void changedMode(@Nonnull ServerMode oldMode, @Nonnull ServerMode newMode) {
+        cancelTimer();
+      }
+    });
+    addServerModeWatcher(ServerMode.WAIT, new ServerModeWatcher() {
+      @Override
+      public void changedMode(@Nonnull ServerMode oldMode, @Nonnull ServerMode newMode) {
+        startTimer();
+        cleanJacks(EnumSet.of(Category.CODE, Category.MEMORY), Collections.<Impact>emptySet());
+      }
+    });
+    addServerModeWatcher(ServerMode.IDLE, new ServerModeWatcher() {
+      @Override
+      public void changedMode(@Nonnull ServerMode oldMode, @Nonnull ServerMode newMode) {
+
+        cleanJacks(EnumSet.of(Category.CODE, Category.MEMORY), EnumSet.of(Impact.LATENCY));
+
+        assert timer != null;
+        timer.schedule(new TimerTask() {
+          // Even if its just a hint, a gc would be nice.
+          @SuppressFBWarnings("DM_GC")
+          @Override
+          public void run() {
+            System.gc();
+          }
+        }, 0L, 60 * 60 * 1000);
+      }
+
+    });
+    addServerModeWatcher(ServerMode.DEEP_IDLE, new ServerModeWatcher() {
+      @Override
+      public void changedMode(@Nonnull ServerMode oldMode, @Nonnull ServerMode newMode) {
+        cleanJacks(EnumSet.of(Category.CODE, Category.MEMORY),
+            EnumSet.of(Impact.LATENCY, Impact.PERFORMANCE));
+      }
+
+    });
+    addServerModeWatcher(ServerMode.SLEEP, new ServerModeWatcher() {
+      @Override
+      public void changedMode(@Nonnull ServerMode oldMode, @Nonnull ServerMode newMode) {
+        freeLoadedPrograms();
+      }
+    });
 
     loadConfig();
   }
@@ -629,8 +713,12 @@ public class JackHttpServer implements HasVersion {
 
     portService = config.getServicePort();
     portAdmin = config.getAdminPort();
-    timeout = config.getTimeout();
     maxJarSize = config.getMaxJarSize();
+
+    delayedModes.clear();
+    addServerMode(config.getIdleDelay(), ServerMode.IDLE);
+    addServerMode(config.getDeepIdleDelay(), ServerMode.DEEP_IDLE);
+    addServerMode(config.getTimeout(), ServerMode.SLEEP);
 
     maxServices = config.getMaxServices();
     List<Pair<Integer, Long>> maxServicesByMem = config.getMaxServiceByMem();
@@ -897,24 +985,21 @@ public class JackHttpServer implements HasVersion {
 
   private void startTimer() {
     synchronized (lock) {
-      if (timeout == ConfigFile.TIMEOUT_DISABLED) {
-        return;
-      }
       if (timer != null) {
         cancelTimer();
+      }
+
+      if (delayedModes.isEmpty()) {
+        return;
       }
 
       logger.log(Level.INFO, "Start timer");
 
       timer = new Timer("jack-server-timeout");
       assert timer != null;
-      timer.schedule(new TimerTask() {
-        @Override
-        public void run() {
-          cancelTimer();
-          freeLoadedPrograms();
-        }
-      }, timeout * 1000L);
+      for (TimedServerMode mode : delayedModes) {
+        mode.registerTo(timer);
+      }
     }
   }
 
@@ -937,6 +1022,19 @@ public class JackHttpServer implements HasVersion {
 
         shuttingDown = true;
         lock.notifyAll();
+      }
+    }
+  }
+
+  private void cleanJacks(@Nonnull Set<Category> categories, @Nonnull Set<Impact> impacts) {
+    for (Program<JackProvider> program : getInstalledJacks()) {
+      JackProvider provider = program.getLoadedProgram(Assertion.DISABLED);
+      if (provider instanceof ResourceController) {
+        ((ResourceController) provider).clean(categories, impacts);
+      }
+      provider = program.getLoadedProgram(Assertion.ENABLED);
+      if (provider instanceof ResourceController) {
+        ((ResourceController) provider).clean(categories, impacts);
       }
     }
   }
@@ -979,7 +1077,7 @@ public class JackHttpServer implements HasVersion {
 
   private void shutdownSimpleServer() {
     synchronized (lock) {
-      timeout = ConfigFile.TIMEOUT_DISABLED;
+      delayedModes.clear();
       cancelTimer();
     }
 
@@ -1047,9 +1145,7 @@ public class JackHttpServer implements HasVersion {
       }
       id = info.totalLocal;
       info.totalLocal++;
-      if (info.currentLocal == 0) {
-        cancelTimer();
-      }
+      setServerMode(ServerMode.WORK);
 
       info.currentLocal++;
       if (info.currentLocal > info.maxLocal) {
@@ -1063,8 +1159,9 @@ public class JackHttpServer implements HasVersion {
   private void endingTask(@Nonnull ServerInfo info) {
     synchronized (lock) {
       info.currentLocal--;
-      if (info.currentLocal == 0) {
-        startTimer();
+      if (adminInfo.currentLocal == 0
+          && serviceInfo.currentLocal == 0) {
+        setServerMode(ServerMode.WAIT);
       }
       lock.notifyAll();
     }
@@ -1329,5 +1426,30 @@ public class JackHttpServer implements HasVersion {
 
     engine.setEnabledCipherSuites(filteredCiphersArray);
     engine.setNeedClientAuth(true);
+  }
+
+  private void addServerMode(@Nonnegative int delay, @Nonnull ServerMode newMode) {
+    delayedModes.add(new TimedServerMode(delay * 1000L, newMode));
+  }
+
+  private void setServerMode(@Nonnull ServerMode newMode) {
+    synchronized (lock) {
+      if (this.serverMode.equals(newMode)) {
+        return;
+      }
+      ServerMode oldMode = this.serverMode;
+      this.serverMode = newMode;
+      logger.log(Level.INFO, "Server mode changing from " + oldMode + " to " + newMode);
+      ServerModeWatcher watcher = modeWatchers.get(newMode);
+      if (watcher != null) {
+        watcher.changedMode(oldMode, newMode);
+      }
+    }
+  }
+
+  private void addServerModeWatcher(@Nonnull ServerMode newMode,
+      @Nonnull ServerModeWatcher watcher) {
+    assert modeWatchers.get(newMode) == null;
+    modeWatchers.put(newMode, watcher);
   }
 }
