@@ -57,6 +57,7 @@ class AnnotationUtils {
   static final String DOCUMENTED_ANNOTATION = "Ljava/lang/annotation/Documented;";
   static final String INHERITED_ANNOTATION = "Ljava/lang/annotation/Inherited;";
   static final String ELEMENT_TYPE = "Ljava/lang/annotation/ElementType;";
+  static final String SAFEVARARGS_ANNOTATION = "Ljava/lang/SafeVarargs;";
 
   static final String RETENTION_POLICY_SOURCE = "SOURCE";
   static final String RETENTION_POLICY_CLASS = "CLASS";
@@ -199,6 +200,9 @@ class AnnotationUtils {
     }
     if (getAnnotation(annotable, INHERITED_ANNOTATION) != null) {
       tagBits |= TagBits.AnnotationInherited;
+    }
+    if (getAnnotation(annotable, SAFEVARARGS_ANNOTATION) != null) {
+      tagBits |= TagBits.AnnotationSafeVarargs;
     }
     return tagBits;
   }
