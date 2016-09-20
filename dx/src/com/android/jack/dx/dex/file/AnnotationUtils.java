@@ -31,8 +31,6 @@ import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.rop.type.TypeList;
 
-import java.util.ArrayList;
-
 /**
  * Utility class for dealing with annotations.
  */
@@ -56,10 +54,6 @@ public final class AnnotationUtils {
   /** {@code non-null;} type for {@code MemberClasses} annotations */
   private static final CstType MEMBER_CLASSES_TYPE =
       CstType.intern(Type.intern("Ldalvik/annotation/MemberClasses;"));
-
-  /** {@code non-null;} type for {@code Signature} annotations */
-  private static final CstType SIGNATURE_TYPE =
-      CstType.intern(Type.intern("Ldalvik/annotation/Signature;"));
 
   /** {@code non-null;} type for {@code Throws} annotations */
   private static final CstType THROWS_TYPE =
@@ -155,69 +149,7 @@ public final class AnnotationUtils {
     return result;
   }
 
-  /**
-   * Constructs a standard {@code Signature} annotation.
-   *
-   * @param signature {@code non-null;} the signature string
-   * @return {@code non-null;} the annotation
-   */
-  public static Annotation makeSignature(CstString signature) {
-    Annotation result = new Annotation(SIGNATURE_TYPE, SYSTEM);
-
-    /*
-     * Split the string into pieces that are likely to be common
-     * across many signatures and the rest of the file.
-     */
-
-String raw = signature.getString();
-    int rawLength = raw.length();
-    ArrayList<String> pieces = new ArrayList<String>(20);
-
-    for (int at = 0; at < rawLength; /*at*/) {
-      char c = raw.charAt(at);
-      int endAt = at + 1;
-      if (c == 'L') {
-        // Scan to ';' or '<'. Consume ';' but not '<'.
-        while (endAt < rawLength) {
-          c = raw.charAt(endAt);
-          if (c == ';') {
-            endAt++;
-            break;
-          } else if (c == '<') {
-            break;
-          }
-          endAt++;
-        }
-      } else {
-        // Scan to 'L' without consuming it.
-        while (endAt < rawLength) {
-          c = raw.charAt(endAt);
-          if (c == 'L') {
-            break;
-          }
-          endAt++;
-        }
-      }
-
-      pieces.add(raw.substring(at, endAt));
-      at = endAt;
-    }
-
-    int size = pieces.size();
-    CstArray.List list = new CstArray.List(size);
-
-    for (int i = 0; i < size; i++) {
-      list.set(i, new CstString(pieces.get(i)));
-    }
-
-    list.setImmutable();
-
-    result.put(new NameValuePair(VALUE_STRING, new CstArray(list)));
-    result.setImmutable();
-    return result;
-  }
-
-  /**
+   /**
    * Constructs a standard {@code Throws} annotation.
    *
    * @param types {@code non-null;} the list of thrown types

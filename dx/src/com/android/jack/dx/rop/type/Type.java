@@ -326,7 +326,7 @@ public final class Type implements TypeBearer, Comparable<Type> {
      * intern cache, then it had better be the descriptor for a class.
      */
 
-int length = descriptor.length();
+    int length = descriptor.length();
     if ((firstChar != 'L') || (descriptor.charAt(length - 1) != ';')) {
       throw new IllegalArgumentException("bad descriptor: " + descriptor);
     }
@@ -340,7 +340,7 @@ int length = descriptor.length();
      * '/' in a row, and no '/' at either end.
      */
 
-int limit = (length - 1); // Skip the final ';'.
+    int limit = (length - 1); // Skip the final ';'.
     for (int i = 1; i < limit; i++) {
       char c = descriptor.charAt(i);
       switch (c) {
@@ -387,31 +387,6 @@ int limit = (length - 1); // Skip the final ';'.
     }
 
     return intern(descriptor);
-  }
-
-  /**
-   * Returns the unique instance corresponding to the type of the
-   * class with the given name. Calling this method is equivalent to
-   * calling {@code intern(name)} if {@code name} begins
-   * with {@code "["} and calling {@code intern("L" + name + ";")}
-   * in all other cases.
-   *
-   * @param name {@code non-null;} the name of the class whose type
-   * is desired
-   * @return {@code non-null;} the corresponding type
-   * @throws IllegalArgumentException thrown if the name has
-   * invalid syntax
-   */
-  public static Type internClassName(String name) {
-    if (name == null) {
-      throw new NullPointerException("name == null");
-    }
-
-    if (name.startsWith("[")) {
-      return intern(name);
-    }
-
-    return intern('L' + name + ';');
   }
 
   /**
