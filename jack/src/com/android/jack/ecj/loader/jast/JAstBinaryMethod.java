@@ -32,6 +32,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 
 import java.util.List;
 
@@ -218,6 +219,11 @@ class JAstBinaryMethod implements IBinaryMethod {
   @Override
   public long getTagBits() {
     long tagBits = AnnotationUtils.getTagBits(jMethod);
+
+    if (jMethod.hasPolymorphicSignature()) {
+      tagBits |= TagBits.AnnotationPolymorphicSignature;
+    }
+
     return tagBits;
   }
 

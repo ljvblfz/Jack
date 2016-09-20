@@ -18,11 +18,13 @@ package com.android.jack.ir.ast;
 
 import com.android.jack.Jack;
 import com.android.jack.ir.JNodeInternalError;
+import com.android.jack.ir.formatter.UserFriendlyFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.load.MethodLoader;
 import com.android.jack.load.NopMethodLoader;
 import com.android.jack.util.AnnotationUtils;
 import com.android.jack.util.NamingTools;
+import com.android.jack.util.TriStateBoolean;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
@@ -67,6 +69,9 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
 
   @Nonnull
   private MethodLoader loader;
+
+  @Nonnull
+  TriStateBoolean hasPolymorphicSignature = TriStateBoolean.UNDEFINED;
 
   public JMethod(@Nonnull SourceInfo info,
       @Nonnull JMethodId methodId,
@@ -116,6 +121,7 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
     assert JModifier.isMethodModifier(modifier);
     assert JModifier.isValidMethodModifier(modifier);
     this.modifier = modifier;
+    hasPolymorphicSignature = TriStateBoolean.UNDEFINED;
   }
 
   /**
@@ -123,6 +129,7 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
    */
   public void addParam(JParameter parameter) {
     params.add(parameter);
+    hasPolymorphicSignature = TriStateBoolean.UNDEFINED;
   }
 
   /**
@@ -130,6 +137,7 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
    */
   public void prependParam(JParameter parameter) {
     params.add(0, parameter);
+    hasPolymorphicSignature = TriStateBoolean.UNDEFINED;
   }
 
   /**
@@ -371,6 +379,8 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
       if (!transform(annotations, existingNode, (JAnnotation) newNode, transformation)) {
         super.transform(existingNode, newNode, transformation);
       }
+    } else {
+      hasPolymorphicSignature = TriStateBoolean.UNDEFINED;
     }
   }
 
@@ -464,5 +474,22 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
     }
 
     return true;
+  }
+
+  public boolean hasPolymorphicSignature() {
+    if (hasPolymorphicSignature.isUndefined()) {
+      UserFriendlyFormatter formatter = UserFriendlyFormatter.getFormatter();
+
+      if (formatter.getName(getEnclosingType()).equals("java.lang.invoke.MethodHandle")
+          && (isVarags() && params.size() == 1
+              && formatter.getName(params.get(0).getType()).equals("java.lang.Object[]"))
+          && formatter.getName(getType()).equals("java.lang.Object") && isNative()) {
+        hasPolymorphicSignature = TriStateBoolean.TRUE;
+      } else {
+        hasPolymorphicSignature = TriStateBoolean.FALSE;
+      }
+    }
+
+    return hasPolymorphicSignature.isTrue();
   }
 }
