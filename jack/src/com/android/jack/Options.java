@@ -136,6 +136,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -144,6 +145,9 @@ import javax.annotation.Nonnull;
  */
 @HasKeyId
 public class Options {
+
+  @Nonnull
+  private static final Logger logger = LoggerFactory.getLogger();
 
   private static class DeprecatedVerbosity implements Reportable {
     @Nonnull
@@ -965,7 +969,7 @@ public class Options {
       String sep = PackageRenamer.JARJAR_FILES.getCodec().getSeparator();
       configBuilder.setString(PackageRenamer.JARJAR_FILES, Joiner.on(sep).join(jarjarRulesFiles));
       configBuilder.set(Options.USE_PREBUILT_FROM_LIBRARY, false);
-      LoggerFactory.getLogger().log(Level.WARNING,
+      logger.log(Level.WARNING,
           "Prebuilts from libraries are not used due to usage of jarjar");
     }
 
@@ -1009,7 +1013,7 @@ public class Options {
     if (flags != null) {
       configBuilder.set(SHROB_ENABLED, true);
       configBuilder.set(Options.USE_PREBUILT_FROM_LIBRARY, false);
-      LoggerFactory.getLogger().log(Level.WARNING,
+      logger.log(Level.WARNING,
           "Prebuilts from libraries are not used due to usage of shrinking or obfuscation");
 
       if (flags.obfuscate()) { // keepAttribute only makes sense when obfuscating
@@ -1183,16 +1187,16 @@ public class Options {
     boolean isIncrementalEnabled = false;
     if (incrementalFolder != null) {
       if (multiDexKind == MultiDexKind.LEGACY) {
-        LoggerFactory.getLogger().log(Level.WARNING,
+        logger.log(Level.WARNING,
             "Incremental mode is disabled due to multi-dex legacy mode");
       } else if (flags != null) {
-        LoggerFactory.getLogger().log(Level.WARNING,
+        logger.log(Level.WARNING,
             "Incremental mode is disabled due to usage of shrinking or obfuscation");
       } else if (!jarjarRulesFiles.isEmpty()) {
-        LoggerFactory.getLogger().log(Level.WARNING,
+        logger.log(Level.WARNING,
             "Incremental mode is disabled due to usage of jarjar");
       } else if (properties.containsKey(SOURCE_PATH.getName())) {
-        LoggerFactory.getLogger().log(Level.WARNING,
+        logger.log(Level.WARNING,
             "Incremental mode is disabled due to usage of source path");
       } else {
         configBuilder.set(Options.INCREMENTAL_MODE, true);
