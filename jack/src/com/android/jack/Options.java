@@ -966,7 +966,7 @@ public class Options {
       configBuilder.setString(PackageRenamer.JARJAR_FILES, Joiner.on(sep).join(jarjarRulesFiles));
       configBuilder.set(Options.USE_PREBUILT_FROM_LIBRARY, false);
       LoggerFactory.getLogger().log(Level.WARNING,
-          "Prebuilts from libraries are not use due to usage of jarjar");
+          "Prebuilts from libraries are not used due to usage of jarjar");
     }
 
     if (processor != null) {
@@ -1010,7 +1010,7 @@ public class Options {
       configBuilder.set(SHROB_ENABLED, true);
       configBuilder.set(Options.USE_PREBUILT_FROM_LIBRARY, false);
       LoggerFactory.getLogger().log(Level.WARNING,
-          "Prebuilts from libraries are not use due to usage of shrinking or obfuscation");
+          "Prebuilts from libraries are not used due to usage of shrinking or obfuscation");
 
       if (flags.obfuscate()) { // keepAttribute only makes sense when obfuscating
         boolean emitRuntimeInvisibleAnnotation = flags.keepAttribute("RuntimeInvisibleAnnotations");
