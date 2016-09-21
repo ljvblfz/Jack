@@ -18,6 +18,7 @@ package com.android.jack.flow;
 
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -37,12 +38,14 @@ public class FlowTests extends RuntimeTest {
 
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void cfg001() throws Exception {
     new RuntimeTestHelper(CFG001).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void loop() throws Exception {
     new RuntimeTestHelper(LOOP).compileAndRunTest();

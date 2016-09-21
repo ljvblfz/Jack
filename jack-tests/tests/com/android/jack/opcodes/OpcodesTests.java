@@ -19,6 +19,7 @@ package com.android.jack.opcodes;
 import com.android.jack.test.TestsProperties;
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -606,6 +607,7 @@ public class OpcodesTests extends RuntimeTest {
 
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void invoke_static() throws Exception {
     new RuntimeTestHelper(INVOKE_STATIC)
@@ -613,6 +615,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void array_length() throws Exception {
     new RuntimeTestHelper(ARRAY_LENGTH)
@@ -620,6 +623,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void neg_float() throws Exception {
     new RuntimeTestHelper(NEG_FLOAT)
@@ -627,6 +631,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void sub_double() throws Exception {
     new RuntimeTestHelper(SUB_DOUBLE)
@@ -634,6 +639,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void aget() throws Exception {
     new RuntimeTestHelper(AGET)
@@ -641,6 +647,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void aput_byte() throws Exception {
     new RuntimeTestHelper(APUT_BYTE)
@@ -648,6 +655,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void opc_new() throws Exception {
     new RuntimeTestHelper(OPC_NEW)
@@ -655,6 +663,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void cmpl_double() throws Exception {
     new RuntimeTestHelper(CMPL_DOUBLE)
@@ -662,6 +671,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void if_gtz() throws Exception {
     new RuntimeTestHelper(IF_GTZ)
@@ -669,6 +679,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void float_to_long() throws Exception {
     new RuntimeTestHelper(FLOAT_TO_LONG)
@@ -676,6 +687,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void add_long() throws Exception {
     new RuntimeTestHelper(ADD_LONG)
@@ -683,6 +695,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void add_float() throws Exception {
     new RuntimeTestHelper(ADD_FLOAT)
@@ -690,6 +703,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void iput() throws Exception {
     new RuntimeTestHelper(IPUT)
@@ -697,6 +711,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void div_float() throws Exception {
     new RuntimeTestHelper(DIV_FLOAT)
@@ -704,6 +719,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void ushr_long() throws Exception {
     new RuntimeTestHelper(USHR_LONG)
@@ -711,6 +727,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void const_wide() throws Exception {
     new RuntimeTestHelper(CONST_WIDE)
@@ -718,6 +735,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void xor_int() throws Exception {
     new RuntimeTestHelper(XOR_INT)
@@ -725,6 +743,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void aget_object() throws Exception {
     new RuntimeTestHelper(AGET_OBJECT)
@@ -732,6 +751,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void const4_16() throws Exception {
     new RuntimeTestHelper(CONST4_16)
@@ -739,6 +759,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void rem_long() throws Exception {
     new RuntimeTestHelper(REM_LONG)
@@ -746,6 +767,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void ushr_int() throws Exception {
     new RuntimeTestHelper(USHR_INT)
@@ -753,6 +775,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void if_ge() throws Exception {
     new RuntimeTestHelper(IF_GE)
@@ -760,6 +783,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void sub_long() throws Exception {
     new RuntimeTestHelper(SUB_LONG)
@@ -767,6 +791,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void float_to_int() throws Exception {
     new RuntimeTestHelper(FLOAT_TO_INT)
@@ -774,6 +799,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void int_to_long() throws Exception {
     new RuntimeTestHelper(INT_TO_LONG)
@@ -781,6 +807,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void or_long() throws Exception {
     new RuntimeTestHelper(OR_LONG)
@@ -788,6 +815,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void if_gez() throws Exception {
     new RuntimeTestHelper(IF_GEZ)
@@ -795,6 +823,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void shl_int() throws Exception {
     new RuntimeTestHelper(SHL_INT)
@@ -802,6 +831,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void long_to_float() throws Exception {
     new RuntimeTestHelper(LONG_TO_FLOAT)
@@ -809,6 +839,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void div_int() throws Exception {
     new RuntimeTestHelper(DIV_INT)
@@ -816,6 +847,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void and_long() throws Exception {
     new RuntimeTestHelper(AND_LONG)
@@ -823,6 +855,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void double_to_long() throws Exception {
     new RuntimeTestHelper(DOUBLE_TO_LONG)
@@ -830,6 +863,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void mul_long() throws Exception {
     new RuntimeTestHelper(MUL_LONG)
@@ -837,6 +871,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void double_to_int() throws Exception {
     new RuntimeTestHelper(DOUBLE_TO_INT)
@@ -844,6 +879,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void if_nez() throws Exception {
     new RuntimeTestHelper(IF_NEZ)
@@ -851,6 +887,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void aput_object() throws Exception {
     new RuntimeTestHelper(APUT_OBJECT)
@@ -858,6 +895,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void if_lt() throws Exception {
     new RuntimeTestHelper(IF_LT)
@@ -865,6 +903,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void int_to_double() throws Exception {
     new RuntimeTestHelper(INT_TO_DOUBLE)
@@ -872,6 +911,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void mul_int() throws Exception {
     new RuntimeTestHelper(MUL_INT)
@@ -879,6 +919,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void sput() throws Exception {
     new RuntimeTestHelper(SPUT)
@@ -886,6 +927,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void shl_long() throws Exception {
     new RuntimeTestHelper(SHL_LONG)
@@ -893,6 +935,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void neg_long() throws Exception {
     new RuntimeTestHelper(NEG_LONG)
@@ -900,6 +943,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void long_to_int() throws Exception {
     new RuntimeTestHelper(LONG_TO_INT)
@@ -907,6 +951,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void opc_goto() throws Exception {
     new RuntimeTestHelper(OPC_GOTO)
@@ -914,6 +959,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void int_to_float() throws Exception {
     new RuntimeTestHelper(INT_TO_FLOAT)
@@ -921,6 +967,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void xor_long() throws Exception {
     new RuntimeTestHelper(XOR_LONG)
@@ -928,6 +975,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void monitor_enter() throws Exception {
     new RuntimeTestHelper(MONITOR_ENTER)
@@ -935,6 +983,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void if_eqz() throws Exception {
     new RuntimeTestHelper(IF_EQZ)
@@ -942,6 +991,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void invoke_direct() throws Exception {
     new RuntimeTestHelper(INVOKE_DIRECT)
@@ -949,6 +999,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void cmpl_float() throws Exception {
     new RuntimeTestHelper(CMPL_FLOAT)
@@ -956,6 +1007,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void check_cast() throws Exception {
     new RuntimeTestHelper(CHECK_CAST)
@@ -963,6 +1015,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void opc_throw() throws Exception {
     new RuntimeTestHelper(OPC_THROW)
@@ -970,6 +1023,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void int_to_short() throws Exception {
     new RuntimeTestHelper(INT_TO_SHORT)
@@ -977,6 +1031,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void packed_switch() throws Exception {
     new RuntimeTestHelper(PACKED_SWITCH)
@@ -984,6 +1039,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void aget_char() throws Exception {
     new RuntimeTestHelper(AGET_CHAR)
@@ -991,6 +1047,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void return_object() throws Exception {
     new RuntimeTestHelper(RETURN_OBJECT)
@@ -998,6 +1055,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void opc_const() throws Exception {
     new RuntimeTestHelper(OPC_CONST)
@@ -1005,6 +1063,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void sub_int() throws Exception {
     new RuntimeTestHelper(SUB_INT)
@@ -1012,6 +1071,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void aput_char() throws Exception {
     new RuntimeTestHelper(APUT_CHAR)
@@ -1019,6 +1079,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void neg_int() throws Exception {
     new RuntimeTestHelper(NEG_INT)
@@ -1026,6 +1087,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void mul_double() throws Exception {
     new RuntimeTestHelper(MUL_DOUBLE)
@@ -1033,6 +1095,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void double_to_float() throws Exception {
     new RuntimeTestHelper(DOUBLE_TO_FLOAT)
@@ -1040,6 +1103,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void int_to_byte() throws Exception {
     new RuntimeTestHelper(INT_TO_BYTE)
@@ -1047,6 +1111,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void if_le() throws Exception {
     new RuntimeTestHelper(IF_LE)
@@ -1054,6 +1119,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void invoke_virtual() throws Exception {
     new RuntimeTestHelper(INVOKE_VIRTUAL)
@@ -1061,6 +1127,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void div_double() throws Exception {
     new RuntimeTestHelper(DIV_DOUBLE)
@@ -1068,6 +1135,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void if_gt() throws Exception {
     new RuntimeTestHelper(IF_GT)
@@ -1075,6 +1143,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void aget_short() throws Exception {
     new RuntimeTestHelper(AGET_SHORT)
@@ -1082,6 +1151,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void const_string() throws Exception {
     new RuntimeTestHelper(CONST_STRING)
@@ -1089,6 +1159,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void or_int() throws Exception {
     new RuntimeTestHelper(OR_INT)
@@ -1096,6 +1167,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void rem_int() throws Exception {
     new RuntimeTestHelper(REM_INT)
@@ -1103,6 +1175,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void rem_double() throws Exception {
     new RuntimeTestHelper(REM_DOUBLE)
@@ -1110,6 +1183,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void long_to_double() throws Exception {
     new RuntimeTestHelper(LONG_TO_DOUBLE)
@@ -1117,6 +1191,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void if_ne() throws Exception {
     new RuntimeTestHelper(IF_NE)
@@ -1124,6 +1199,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void cmp_long() throws Exception {
     new RuntimeTestHelper(CMP_LONG)
@@ -1131,6 +1207,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void sget() throws Exception {
     new RuntimeTestHelper(SGET)
@@ -1138,6 +1215,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void aget_wide() throws Exception {
     new RuntimeTestHelper(AGET_WIDE)
@@ -1145,6 +1223,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void if_ltz() throws Exception {
     new RuntimeTestHelper(IF_LTZ)
@@ -1152,6 +1231,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void opc_instanceof() throws Exception {
     new RuntimeTestHelper(OPC_INSTANCEOF)
@@ -1159,6 +1239,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void neg_double() throws Exception {
     new RuntimeTestHelper(NEG_DOUBLE)
@@ -1166,6 +1247,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void return_wide() throws Exception {
     new RuntimeTestHelper(RETURN_WIDE)
@@ -1173,6 +1255,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void float_to_double() throws Exception {
     new RuntimeTestHelper(FLOAT_TO_DOUBLE)
@@ -1180,6 +1263,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void aput_short() throws Exception {
     new RuntimeTestHelper(APUT_SHORT)
@@ -1187,6 +1271,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void cmpg_double() throws Exception {
     new RuntimeTestHelper(CMPG_DOUBLE)
@@ -1194,6 +1279,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void if_lez() throws Exception {
     new RuntimeTestHelper(IF_LEZ)
@@ -1201,6 +1287,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void if_eq() throws Exception {
     new RuntimeTestHelper(IF_EQ)
@@ -1208,6 +1295,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void new_array() throws Exception {
     new RuntimeTestHelper(NEW_ARRAY)
@@ -1215,6 +1303,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void shr_long() throws Exception {
     new RuntimeTestHelper(SHR_LONG)
@@ -1222,6 +1311,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void add_double() throws Exception {
     new RuntimeTestHelper(ADD_DOUBLE)
@@ -1229,6 +1319,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void div_long() throws Exception {
     new RuntimeTestHelper(DIV_LONG)
@@ -1236,6 +1327,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void sparse_switch() throws Exception {
     new RuntimeTestHelper(SPARSE_SWITCH)
@@ -1243,6 +1335,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void invoke_interface() throws Exception {
     new RuntimeTestHelper(INVOKE_INTERFACE)
@@ -1250,6 +1343,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void aput_wide() throws Exception {
     new RuntimeTestHelper(APUT_WIDE)
@@ -1257,6 +1351,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void aget_byte() throws Exception {
     new RuntimeTestHelper(AGET_BYTE)
@@ -1264,6 +1359,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void aput() throws Exception {
     new RuntimeTestHelper(APUT)
@@ -1271,6 +1367,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void shr_int() throws Exception {
     new RuntimeTestHelper(SHR_INT)
@@ -1278,6 +1375,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void shr_const_int() throws Exception {
     new RuntimeTestHelper(SHR_CONST_INT)
@@ -1285,6 +1383,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void shr_const_long() throws Exception {
     new RuntimeTestHelper(SHR_CONST_LONG)
@@ -1292,6 +1391,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void shl_const_int() throws Exception {
     new RuntimeTestHelper(SHL_CONST_INT)
@@ -1299,6 +1399,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void shl_const_long() throws Exception {
     new RuntimeTestHelper(SHL_CONST_LONG)
@@ -1306,6 +1407,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void ushr_const_int() throws Exception {
     new RuntimeTestHelper(USHR_CONST_INT)
@@ -1313,6 +1415,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void ushr_const_long() throws Exception {
     new RuntimeTestHelper(USHR_CONST_LONG)
@@ -1320,6 +1423,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void opc_return() throws Exception {
     new RuntimeTestHelper(OPC_RETURN)
@@ -1327,6 +1431,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void invoke_super() throws Exception {
     new RuntimeTestHelper(INVOKE_SUPER)
@@ -1334,6 +1439,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void mul_float() throws Exception {
     new RuntimeTestHelper(MUL_FLOAT)
@@ -1341,6 +1447,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void sub_float() throws Exception {
     new RuntimeTestHelper(SUB_FLOAT)
@@ -1348,6 +1455,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void add_int() throws Exception {
     new RuntimeTestHelper(ADD_INT)
@@ -1355,6 +1463,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void int_to_char() throws Exception {
     new RuntimeTestHelper(INT_TO_CHAR)
@@ -1362,6 +1471,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void and_int() throws Exception {
     new RuntimeTestHelper(AND_INT)
@@ -1369,6 +1479,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void cmpg_float() throws Exception {
     new RuntimeTestHelper(CMPG_FLOAT)
@@ -1376,6 +1487,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void iget() throws Exception {
     new RuntimeTestHelper(IGET)
@@ -1383,6 +1495,7 @@ public class OpcodesTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void rem_float() throws Exception {
     new RuntimeTestHelper(REM_FLOAT)

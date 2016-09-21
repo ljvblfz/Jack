@@ -18,6 +18,7 @@ package com.android.jack.cast;
 
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -67,36 +68,42 @@ public class CastTests extends RuntimeTest {
       "com.android.jack.cast.useless004.dx.Tests");
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void explicit001() throws Exception {
     new RuntimeTestHelper(EXPLICIT001).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void explicit002() throws Exception {
     new RuntimeTestHelper(EXPLICIT002).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void implicit001() throws Exception {
     new RuntimeTestHelper(IMPLICIT001).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void implicit002() throws Exception {
     new RuntimeTestHelper(IMPLICIT002).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void implicit003() throws Exception {
     new RuntimeTestHelper(IMPLICIT003).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void implicit004() throws Exception {
     new RuntimeTestHelper(IMPLICIT004).compileAndRunTest();
@@ -113,18 +120,21 @@ public class CastTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void useless001() throws Exception {
     new RuntimeTestHelper(USELESS001).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void useless002() throws Exception {
     new RuntimeTestHelper(USELESS002).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void useless004() throws Exception {
     new RuntimeTestHelper(USELESS004).compileAndRunTest();

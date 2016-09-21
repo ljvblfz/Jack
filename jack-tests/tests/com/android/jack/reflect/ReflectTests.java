@@ -16,7 +16,9 @@
 
 package com.android.jack.reflect;
 
+import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -24,6 +26,7 @@ import com.android.jack.unary.UnaryTests;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 public class ReflectTests extends RuntimeTest {
 
@@ -42,12 +45,14 @@ public class ReflectTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   public void simpleName001() throws Exception {
     new RuntimeTestHelper(TEST001_WITHOUT_SHRINK_SCHEDULABLE).compileAndRunTest();
   }
 
 
   @Test
+  @Runtime
   public void simpleName002() throws Exception {
     new RuntimeTestHelper(TEST001_WITH_SHRINK_SCHEDULABLE).compileAndRunTest();
   }

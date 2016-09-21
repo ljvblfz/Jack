@@ -18,6 +18,7 @@ package com.android.jack.returnstatement;
 
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -40,12 +41,14 @@ public class ReturnstatementTests extends RuntimeTest {
 
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void returns() throws Exception {
     new RuntimeTestHelper(RETURNS).compileAndRunTest();
   }
 
   @Test
+  @Runtime
   @Category(RuntimeRegressionTest.class)
   public void returnvoid() throws Exception {
     new RuntimeTestHelper(RETURNVOID).compileAndRunTest();

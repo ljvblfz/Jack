@@ -22,6 +22,8 @@ import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
 import com.android.jack.test.helper.FileChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.junit.KnownIssue;
+import com.android.jack.test.junit.Runtime;
+import com.android.jack.test.junit.RuntimeVersion;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
@@ -176,6 +178,7 @@ public class DefaultMethodTest {
           "com.android.jack.java8.defaultmethod.test018.jack.Tests");
 
   @Test
+  @Runtime(from=RuntimeVersion.N)
   public void testDefaultMethod001() throws Exception {
     run(DEFAULTMETHOD001);
   }
@@ -257,6 +260,7 @@ public class DefaultMethodTest {
    * a dex with min api 24.
    */
   @Test
+  @Runtime(from=RuntimeVersion.N)
   @KnownIssue(candidate=IncrementalToolchain.class)
   public void testDefaultMethod001_3() throws Exception {
     List<Class<? extends IToolchain>> excludeClazz = new ArrayList<Class<? extends IToolchain>>(2);
@@ -292,6 +296,7 @@ public class DefaultMethodTest {
    * a dex with min api 24.
    */
   @Test
+  @Runtime(from=RuntimeVersion.N)
   @KnownIssue(candidate=IncrementalToolchain.class)
   public void testDefaultMethod001_4() throws Exception {
     List<Class<? extends IToolchain>> excludeClazz = new ArrayList<Class<? extends IToolchain>>(2);
@@ -322,87 +327,104 @@ public class DefaultMethodTest {
   }
 
   @Test
+  @Runtime(from=RuntimeVersion.N)
   public void testDefaultMethod002() throws Exception {
     run(DEFAULTMETHOD002);
   }
 
   @Test
+  @Runtime(from=RuntimeVersion.N)
   public void testDefaultMethod003() throws Exception {
     run(DEFAULTMETHOD003);
   }
 
   @Test
+  @Runtime(from=RuntimeVersion.N)
   public void testDefaultMethod004() throws Exception {
     run(DEFAULTMETHOD004);
   }
 
   @Test
+  @Runtime(from=RuntimeVersion.N)
   public void testDefaultMethod005() throws Exception {
     run(DEFAULTMETHOD005);
   }
 
   @Test
+  @Runtime(from=RuntimeVersion.N)
   @KnownIssue
   public void testDefaultMethod006() throws Exception {
     run(DEFAULTMETHOD006);
   }
 
   @Test
+  @Runtime(from=RuntimeVersion.N)
   public void testDefaultMethod007() throws Exception {
     run(DEFAULTMETHOD007);
   }
 
   @Test
+  @Runtime(from=RuntimeVersion.N)
   public void testDefaultMethod008() throws Exception {
     run(DEFAULTMETHOD008);
   }
 
   @Test
+  @Runtime(from=RuntimeVersion.N)
   public void testDefaultMethod009() throws Exception {
     run(DEFAULTMETHOD009);
   }
 
   @Test
+  @Runtime(from=RuntimeVersion.N)
   public void testDefaultMethod010() throws Exception {
     run(DEFAULTMETHOD010);
   }
 
   @Test
+  @Runtime(from=RuntimeVersion.N)
   public void testDefaultMethod011() throws Exception {
     run(DEFAULTMETHOD011);
   }
 
   @Test
+  @Runtime(from=RuntimeVersion.N)
   public void testDefaultMethod012() throws Exception {
     run(DEFAULTMETHOD012);
   }
 
   @Test
+  @Runtime(from=RuntimeVersion.N)
   public void testDefaultMethod013() throws Exception {
     run(DEFAULTMETHOD013);
   }
 
   @Test
+  @Runtime(from=RuntimeVersion.N)
   public void testDefaultMethod014() throws Exception {
     run(DEFAULTMETHOD014);
   }
 
   @Test
+  @Runtime(from=RuntimeVersion.N)
   public void testDefaultMethod015() throws Exception {
     run(DEFAULTMETHOD015);
   }
 
   @Test
+  @Runtime(from=RuntimeVersion.N)
   public void testDefaultMethod016() throws Exception {
     run(DEFAULTMETHOD016);
   }
 
   @Test
+  @Runtime(from=RuntimeVersion.N)
   public void testDefaultMethod017() throws Exception {
     run(DEFAULTMETHOD017);
   }
 
   @Test
+  @Runtime(from=RuntimeVersion.N)
   public void testDefaultMethod018() throws Exception {
     new RuntimeTestHelper(DEFAULTMETHOD018)
     .addProperty(

@@ -21,6 +21,8 @@ import com.android.jack.Options;
 import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.junit.KnownIssue;
+import com.android.jack.test.junit.Runtime;
+import com.android.jack.test.junit.RuntimeVersion;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
@@ -48,6 +50,7 @@ public class BridgeTestPostM {
       "com.android.jack.java8.bridges.test002.jack.Tests");
 
   @Test
+  @Runtime(from=RuntimeVersion.N)
   public void testBridge002() throws Exception {
     new RuntimeTestHelper(BRIDGE002)
         .setSourceLevel(SourceLevel.JAVA_8)
@@ -61,6 +64,7 @@ public class BridgeTestPostM {
    * a dex with min api 24.
    */
   @Test
+  @Runtime(from=RuntimeVersion.N)
   @KnownIssue
   public void testBridge002_2() throws Exception {
     List<Class<? extends IToolchain>> excludeClazz = new ArrayList<Class<? extends IToolchain>>(2);
@@ -97,6 +101,7 @@ public class BridgeTestPostM {
    * a dex with min api 24.
    */
   @Test
+  @Runtime(from=RuntimeVersion.N)
   @KnownIssue(candidate=IncrementalToolchain.class)
   public void testBridge002_3() throws Exception {
     List<Class<? extends IToolchain>> excludeClazz = new ArrayList<Class<? extends IToolchain>>(2);

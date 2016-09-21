@@ -19,6 +19,7 @@ package com.android.jack.java8;
 import com.android.jack.JackAbortException;
 import com.android.jack.Options;
 import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
@@ -59,6 +60,7 @@ public class BridgeTestPreN {
       "com.android.jack.java8.bridges.test006.jack.Tests");
 
   @Test
+  @Runtime
   public void testBridge001() throws Exception {
     new RuntimeTestHelper(BRIDGE001).setSourceLevel(SourceLevel.JAVA_8)
         .addIgnoredCandidateToolchain(JackApiV01.class)
@@ -103,6 +105,7 @@ public class BridgeTestPreN {
   }
 
   @Test
+  @Runtime
   public void testBridge003() throws Exception {
     new RuntimeTestHelper(BRIDGE003).setSourceLevel(SourceLevel.JAVA_8)
         .addIgnoredCandidateToolchain(JackApiV01.class)
@@ -110,6 +113,7 @@ public class BridgeTestPreN {
   }
 
   @Test
+  @Runtime
   public void testBridge004() throws Exception {
     new RuntimeTestHelper(BRIDGE004).setSourceLevel(SourceLevel.JAVA_8)
         .addIgnoredCandidateToolchain(JackApiV01.class)
@@ -117,6 +121,7 @@ public class BridgeTestPreN {
   }
 
   @Test
+  @Runtime
   public void testBridge005() throws Exception {
     new RuntimeTestHelper(BRIDGE005).setSourceLevel(SourceLevel.JAVA_8)
         .addIgnoredCandidateToolchain(JackApiV01.class)
@@ -124,6 +129,7 @@ public class BridgeTestPreN {
   }
 
   @Test
+  @Runtime
   public void testBridge006() throws Exception {
     new RuntimeTestHelper(BRIDGE006).setSourceLevel(SourceLevel.JAVA_8)
         .addIgnoredCandidateToolchain(JackApiV01.class)
