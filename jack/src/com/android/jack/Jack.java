@@ -653,9 +653,9 @@ public abstract class Jack {
 
           if (config.get(Options.GENERATE_DEX_IN_LIBRARY).booleanValue()) {
             request.addProduction(DexInLibraryProduct.class);
-            if (!(api == Api01Feature.class &&
-                  api == Api02Feature.class &&
-                  api == Api03Feature.class)) {
+            if (api != Api01Feature.class &&
+                api != Api02Feature.class &&
+                api != Api03Feature.class) {
               request.addFeature(CheckAndroidCompatibility.class);
             }
           }

@@ -29,6 +29,9 @@ import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackApiV01;
+import com.android.jack.test.toolchain.JackApiV01Toolchain;
+import com.android.jack.test.toolchain.JackApiV02Toolchain;
+import com.android.jack.test.toolchain.JackApiV03Toolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
@@ -85,6 +88,9 @@ public class BridgeTestPostM {
     excludeClazz.add(JillBasedToolchain.class);
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeClazz);
+    boolean pre04 = (toolchain instanceof JackApiV01Toolchain ||
+                     toolchain instanceof JackApiV02Toolchain ||
+                     toolchain instanceof JackApiV03Toolchain);
     File lib23 =
         AbstractTestTools.createTempFile("lib23", toolchain.getLibraryExtension());
     toolchain.addProperty(
@@ -94,7 +100,7 @@ public class BridgeTestPostM {
     .setSourceLevel(SourceLevel.JAVA_8)
     .addToClasspath(toolchain.getDefaultBootClasspath());
 
-    if (enablePredexing) {
+    if (!pre04 && enablePredexing) {
       ByteArrayOutputStream errOut = new ByteArrayOutputStream();
       toolchain.setErrorStream(errOut);
       try {
@@ -185,6 +191,9 @@ public class BridgeTestPostM {
     excludeClazz.add(JackApiV01.class);
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class, excludeClazz);
+    boolean pre04 = (toolchain instanceof JackApiV01Toolchain ||
+                     toolchain instanceof JackApiV02Toolchain ||
+                     toolchain instanceof JackApiV03Toolchain);
     File lib23 =
         AbstractTestTools.createTempFile("lib23", toolchain.getLibraryExtension());
     toolchain.addProperty(
@@ -194,7 +203,7 @@ public class BridgeTestPostM {
     .setSourceLevel(SourceLevel.JAVA_8)
     .addToClasspath(toolchain.getDefaultBootClasspath());
 
-    if (enablePredexing) {
+    if (!pre04 && enablePredexing) {
       ByteArrayOutputStream errOut = new ByteArrayOutputStream();
       toolchain.setErrorStream(errOut);
       try {

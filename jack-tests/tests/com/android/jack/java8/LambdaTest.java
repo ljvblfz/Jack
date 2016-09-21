@@ -30,6 +30,8 @@ import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackApiV01;
+import com.android.jack.test.toolchain.JackApiV02;
+import com.android.jack.test.toolchain.JackApiV03;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
@@ -55,6 +57,8 @@ import javax.annotation.Nonnull;
  * JUnit test for compilation of lambda expressions.
  */
 public class LambdaTest {
+  public static final boolean SUCCESS = true;
+  public static final boolean FAILED = false;
 
   private RuntimeTestInfo LAMBDA001 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test001"),
@@ -494,10 +498,10 @@ public class LambdaTest {
         AbstractTestTools.createTempDir(), /* zipFile = */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test037.jack"));
     String errString = err.toString();
-    Assert.assertTrue(errString.contains("Tests.java:34"));
-    Assert.assertTrue(errString.contains("Tests.java:43"));
-    Assert.assertTrue(errString.contains("Tests.java:55"));
-    Assert.assertTrue(errString.contains("Serializable lambda is not supported"));
+    Assert.assertTrue(errString, errString.contains("Tests.java:34"));
+    Assert.assertTrue(errString, errString.contains("Tests.java:43"));
+    Assert.assertTrue(errString, errString.contains("Tests.java:55"));
+    Assert.assertTrue(errString, errString.contains("Serializable lambda is not supported"));
   }
 
   /**
@@ -565,6 +569,8 @@ public class LambdaTest {
       JackBasedToolchain toolchain =
           AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
       ByteArrayOutputStream err = new ByteArrayOutputStream();
+      boolean pre04 = (toolchain instanceof JackApiV02 ||
+                       toolchain instanceof JackApiV03);
       toolchain.setErrorStream(err);
       toolchain.setSourceLevel(SourceLevel.JAVA_8);
       // we need to enable the compatibility check manually since we haven't specified an Android
@@ -577,16 +583,17 @@ public class LambdaTest {
           /* zipFile = */ true,
           AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test037.jack"));
       String errString = err.toString();
-      if (predexLib || checkLib) {
+      if (( pre04 && checkLib) ||
+          (!pre04 && (predexLib || checkLib))) {
         // When predexing, the compatibility check is always done. Otherwise, it is done only if
         // it has been explicitly enabled.
-        Assert.assertTrue(errString.contains("Tests.java:34"));
-        Assert.assertTrue(errString.contains("Tests.java:43"));
-        Assert.assertTrue(errString.contains("Tests.java:55"));
-        Assert.assertTrue(errString.contains("Serializable lambda is not supported"));
+        Assert.assertTrue(errString, errString.contains("Tests.java:34"));
+        Assert.assertTrue(errString, errString.contains("Tests.java:43"));
+        Assert.assertTrue(errString, errString.contains("Tests.java:55"));
+        Assert.assertTrue(errString, errString.contains("Serializable lambda is not supported"));
       } else {
         // The lib is not predexed and we did not enable the compatibility checks.
-        Assert.assertTrue(errString.isEmpty());
+        Assert.assertTrue(errString, errString.isEmpty());
       }
     }
 
@@ -594,6 +601,8 @@ public class LambdaTest {
     {
       JackBasedToolchain toolchain =
           AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
+      boolean pre04 = (toolchain instanceof JackApiV02 ||
+                       toolchain instanceof JackApiV03);
       ByteArrayOutputStream err = new ByteArrayOutputStream();
       toolchain.setErrorStream(err);
       toolchain.setSourceLevel(SourceLevel.JAVA_8);
@@ -601,18 +610,28 @@ public class LambdaTest {
       toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
           .libToExe(lib, AbstractTestTools.createTempDir(), /* zipFile = */ false);
       String errString = err.toString();
-      if (predexLib) {
-        // The library is predex so the check must have been done. Therefore no warning is expected
-        // here.
-        Assert.assertTrue(errString.isEmpty());
+      if (!pre04) {
+        if (predexLib) {
+          // The library is predex so the check must have been done. Therefore no warning is
+          // expected here.
+          Assert.assertTrue(errString.isEmpty());
+        } else {
+          // The library was not predexed so we expect warnings now.
+          Assert.assertTrue(errString,
+              errString.contains("Tests.java:34: Serializable lambda is not supported"));
+          Assert.assertTrue(errString,
+              errString.contains("Tests.java:43: Serializable lambda is not supported"));
+          Assert.assertTrue(errString,
+              errString.contains("Tests.java:55: Serializable lambda is not supported"));
+        }
       } else {
-        // The library was not predexed so we expect warnings now.
-        Assert.assertTrue(errString.contains(
-            "Tests.java:34: Serializable lambda is not supported"));
-        Assert.assertTrue(errString.contains(
-            "Tests.java:43: Serializable lambda is not supported"));
-        Assert.assertTrue(errString.contains(
-            "Tests.java:55: Serializable lambda is not supported"));
+        // All checks must be done during final dex generation
+        Assert.assertTrue(errString,
+            errString.contains("Tests.java:34: Serializable lambda is not supported"));
+        Assert.assertTrue(errString,
+            errString.contains("Tests.java:43: Serializable lambda is not supported"));
+        Assert.assertTrue(errString,
+            errString.contains("Tests.java:55: Serializable lambda is not supported"));
       }
     }
   }

@@ -478,7 +478,7 @@ public class ManagedRunnable extends ManagedSchedulable {
         features.containsNone(filtersUnlessOne)) {
       return neededFilters.clone();
     } else {
-      return scheduler.createComponentFilterSet();
+      return (ComponentFilterSet) scheduler.createComponentFilterSet().add(NoFilter.class);
     }
   }
 
