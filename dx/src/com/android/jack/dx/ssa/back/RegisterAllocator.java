@@ -30,7 +30,7 @@ import com.android.jack.dx.ssa.SsaMethod;
 import com.android.jack.dx.util.IntIterator;
 import com.android.jack.dx.util.IntSet;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Base class of all register allocators.
@@ -133,7 +133,7 @@ public abstract class RegisterAllocator {
    */
   protected final RegisterSpec insertMoveBefore(SsaInsn insn, RegisterSpec reg) {
     SsaBasicBlock block = insn.getBlock();
-    ArrayList<SsaInsn> insns = block.getInsns();
+    List<SsaInsn> insns = block.getInsns();
     int insnIndex = insns.indexOf(insn);
 
     if (insnIndex < 0) {

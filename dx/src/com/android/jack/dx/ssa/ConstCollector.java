@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -174,7 +175,7 @@ public class ConstCollector {
       // Find defining instruction for move-result-pseudo instructions
       if (insn.getOpcode().getOpcode() == RegOps.MOVE_RESULT_PSEUDO) {
         int pred = insn.getBlock().getPredecessors().nextSetBit(0);
-        ArrayList<SsaInsn> predInsns;
+        List<SsaInsn> predInsns;
         predInsns = ssaMeth.getBlocks().get(pred).getInsns();
         insn = predInsns.get(predInsns.size() - 1);
       }
@@ -288,7 +289,7 @@ public class ConstCollector {
       SsaInsn newInsn = SsaInsn.makeFromRop(new PlainInsn(Rops.opMarkLocal(newReg),
           SourcePosition.NO_INFO, null, RegisterSpecList.make(newReg)), use.getBlock());
 
-      ArrayList<SsaInsn> insns = use.getBlock().getInsns();
+      List<SsaInsn> insns = use.getBlock().getInsns();
 
       insns.add(insns.indexOf(use) + 1, newInsn);
     }

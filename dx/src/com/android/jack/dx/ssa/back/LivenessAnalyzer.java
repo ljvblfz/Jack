@@ -22,7 +22,6 @@ import com.android.jack.dx.ssa.SsaBasicBlock;
 import com.android.jack.dx.ssa.SsaInsn;
 import com.android.jack.dx.ssa.SsaMethod;
 
-import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
@@ -192,7 +191,7 @@ public class LivenessAnalyzer {
 
       blockN.addLiveOut(regV);
 
-      ArrayList<SsaInsn> insns;
+      List<SsaInsn> insns;
 
       insns = blockN.getInsns();
 

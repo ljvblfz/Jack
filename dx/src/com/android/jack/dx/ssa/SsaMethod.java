@@ -193,7 +193,7 @@ public final class SsaMethod {
     }
 
     exitBlockIndex = blocks.size();
-    SsaBasicBlock exitBlock = new SsaBasicBlock(exitBlockIndex, maxLabel++, this);
+    SsaBasicBlock exitBlock = new SsaBasicBlock(exitBlockIndex, maxLabel++, 0, this);
 
     blocks.add(exitBlock);
 
@@ -230,7 +230,7 @@ public final class SsaMethod {
    */
   public SsaBasicBlock makeNewGotoBlock() {
     int newIndex = blocks.size();
-    SsaBasicBlock newBlock = new SsaBasicBlock(newIndex, maxLabel++, this);
+    SsaBasicBlock newBlock = new SsaBasicBlock(newIndex, maxLabel++, 1, this);
 
     newBlock.getInsns().add(getGoto(newBlock));
     blocks.add(newBlock);
@@ -829,7 +829,7 @@ public final class SsaMethod {
    */
   public void deleteInsns(Set<SsaInsn> deletedInsns) {
     for (SsaBasicBlock block : getBlocks()) {
-      ArrayList<SsaInsn> insns = block.getInsns();
+      List<SsaInsn> insns = block.getInsns();
 
       for (int i = insns.size() - 1; i >= 0; i--) {
         SsaInsn insn = insns.get(i);
