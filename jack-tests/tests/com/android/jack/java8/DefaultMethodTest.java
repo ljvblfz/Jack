@@ -191,9 +191,6 @@ public class DefaultMethodTest {
     run(DEFAULTMETHOD001);
   }
 
-  public static final boolean SUCCESS = true;
-  public static final boolean FAILED = false;
-
   /**
    * Ensure that we refuse to import a default method library in an api 23 dex.
    */
@@ -347,19 +344,20 @@ public class DefaultMethodTest {
     .addToClasspath(toolchain.getDefaultBootClasspath());
 
     if (enablePredexing) {
-      boolean expected = (toolchain instanceof JackApiV02 ||
-                          toolchain instanceof JackApiV03) ? SUCCESS : FAILED;
+      boolean pre04 = (toolchain instanceof JackApiV01 ||
+                       toolchain instanceof JackApiV02 ||
+                       toolchain instanceof JackApiV03);
 
       ByteArrayOutputStream errOut = new ByteArrayOutputStream();
       toolchain.setErrorStream(errOut);
       try {
         toolchain.srcToLib(lib23, /* zipFiles = */ true,
             new File(DEFAULTMETHOD001.directory, DEFAULTMETHOD001.srcDirName));
-        if (expected == FAILED) {
+        if (!pre04) {
           Assert.fail();
         }
       } catch (JackAbortException e) {
-        if (expected == FAILED) {
+        if (!pre04) {
           Assert.assertTrue(
               errOut.toString().contains("not supported in Android API level less than 24"));
         } else {

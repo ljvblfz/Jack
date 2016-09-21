@@ -617,21 +617,17 @@ public class LambdaTest {
           Assert.assertTrue(errString.isEmpty());
         } else {
           // The library was not predexed so we expect warnings now.
-          Assert.assertTrue(errString,
-              errString.contains("Tests.java:34: Serializable lambda is not supported"));
-          Assert.assertTrue(errString,
-              errString.contains("Tests.java:43: Serializable lambda is not supported"));
-          Assert.assertTrue(errString,
-              errString.contains("Tests.java:55: Serializable lambda is not supported"));
+          Assert.assertTrue(errString, errString.contains("Tests.java:34"));
+          Assert.assertTrue(errString, errString.contains("Tests.java:43"));
+          Assert.assertTrue(errString, errString.contains("Tests.java:55"));
+          Assert.assertTrue(errString, errString.contains("Serializable lambda is not supported"));
         }
       } else {
         // All checks must be done during final dex generation
-        Assert.assertTrue(errString,
-            errString.contains("Tests.java:34: Serializable lambda is not supported"));
-        Assert.assertTrue(errString,
-            errString.contains("Tests.java:43: Serializable lambda is not supported"));
-        Assert.assertTrue(errString,
-            errString.contains("Tests.java:55: Serializable lambda is not supported"));
+        Assert.assertTrue(errString, errString.contains("Tests.java:34"));
+        Assert.assertTrue(errString, errString.contains("Tests.java:43"));
+        Assert.assertTrue(errString, errString.contains("Tests.java:55"));
+        Assert.assertTrue(errString, errString.contains("Serializable lambda is not supported"));
       }
     }
   }
