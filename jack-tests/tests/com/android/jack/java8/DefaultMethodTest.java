@@ -30,6 +30,9 @@ import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackApiV01;
+import com.android.jack.test.toolchain.JackApiV02;
+import com.android.jack.test.toolchain.JackApiV03;
+import com.android.jack.test.toolchain.JackApiV04;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
@@ -188,6 +191,9 @@ public class DefaultMethodTest {
     run(DEFAULTMETHOD001);
   }
 
+  public static final boolean SUCCESS = true;
+  public static final boolean FAILED = false;
+
   /**
    * Ensure that we refuse to import a default method library in an api 23 dex.
    */
@@ -198,6 +204,8 @@ public class DefaultMethodTest {
     excludeClazz.add(JackApiV01.class);
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class, excludeClazz);
+    boolean expected = (toolchain instanceof JackApiV02 ||
+                        toolchain instanceof JackApiV03) ? SUCCESS : FAILED;
     File lib24 =
         AbstractTestTools.createTempFile("lib24", toolchain.getLibraryExtension());
     toolchain.addProperty(
@@ -217,10 +225,16 @@ public class DefaultMethodTest {
     .setErrorStream(errOut);
     try {
       toolchain.libToExe(lib24, dex23, /* zipFiles = */ false);
-      Assert.fail();
+      if (expected == FAILED) {
+        Assert.fail();
+      }
     } catch (JackAbortException e) {
-      Assert.assertTrue(
-          errOut.toString().contains("not supported in Android API level less than 24"));
+      if (expected == FAILED) {
+        Assert.assertTrue(
+            errOut.toString().contains("not supported in Android API level less than 24"));
+      } else {
+        Assert.fail();
+      }
     }
   }
 
@@ -251,6 +265,8 @@ public class DefaultMethodTest {
     excludeClazz.add(JackApiV01.class);
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class, excludeClazz);
+    boolean expected = (toolchain instanceof JackApiV02 ||
+                        toolchain instanceof JackApiV03) ? SUCCESS : FAILED;
     File lib23 =
         AbstractTestTools.createTempFile("lib23", toolchain.getLibraryExtension());
     toolchain.addProperty(
@@ -268,10 +284,16 @@ public class DefaultMethodTest {
       try {
         toolchain.srcToLib(lib23, /* zipFiles = */ true,
             new File(DEFAULTMETHOD001.directory, DEFAULTMETHOD001.srcDirName));
-        Assert.fail();
+        if (expected == FAILED) {
+          Assert.fail();
+        }
       } catch (JackAbortException e) {
-        Assert.assertTrue(
-            errOut.toString().contains("not supported in Android API level less than 24"));
+        if (expected == FAILED) {
+          Assert.assertTrue(
+              errOut.toString().contains("not supported in Android API level less than 24"));
+        } else {
+          Assert.fail();
+        }
       }
     } else {
       // We do not expect any error when producing the library ...
@@ -288,10 +310,16 @@ public class DefaultMethodTest {
       .setErrorStream(errOut);
       try {
         toolchain.libToExe(lib23, dex23, /* zipFiles = */ false);
-        Assert.fail();
+        if (expected == FAILED) {
+          Assert.fail();
+        }
       } catch (JackAbortException e) {
-        Assert.assertTrue(
-            errOut.toString().contains("not supported in Android API level less than 24"));
+        if (expected == FAILED) {
+          Assert.assertTrue(
+              errOut.toString().contains("not supported in Android API level less than 24"));
+        } else {
+          Assert.fail();
+        }
       }
     }
   }
@@ -331,15 +359,24 @@ public class DefaultMethodTest {
     .addToClasspath(toolchain.getDefaultBootClasspath());
 
     if (enablePredexing) {
+      boolean expected = (toolchain instanceof JackApiV02 ||
+                          toolchain instanceof JackApiV03) ? SUCCESS : FAILED;
+
       ByteArrayOutputStream errOut = new ByteArrayOutputStream();
       toolchain.setErrorStream(errOut);
       try {
         toolchain.srcToLib(lib23, /* zipFiles = */ true,
             new File(DEFAULTMETHOD001.directory, DEFAULTMETHOD001.srcDirName));
-        Assert.fail();
+        if (expected == FAILED) {
+          Assert.fail();
+        }
       } catch (JackAbortException e) {
-        Assert.assertTrue(
-            errOut.toString().contains("not supported in Android API level less than 24"));
+        if (expected == FAILED) {
+          Assert.assertTrue(
+              errOut.toString().contains("not supported in Android API level less than 24"));
+        } else {
+          Assert.fail();
+        }
       }
     } else {
       toolchain.srcToLib(lib23,

@@ -17,6 +17,9 @@
 package com.android.jack.transformations;
 
 import com.android.jack.Options;
+import com.android.jack.api.v01.impl.Api01Feature;
+import com.android.jack.api.v02.impl.Api02Feature;
+import com.android.jack.api.v03.impl.Api03Feature;
 import com.android.jack.backend.dex.EnsureAndroidCompatibility;
 import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
@@ -57,7 +60,8 @@ import javax.annotation.Nonnull;
 // where default bridge methods are not supported, these methods have been removed from the code.
 // However, note that these methods are NOT removed from the jayce, thus they do exist in the
 // IR.
-@Filter(TypeWithoutPrebuiltFilter.class)
+@Filter(value = TypeWithoutPrebuiltFilter.class,
+    unlessOne = {Api01Feature.class, Api02Feature.class, Api03Feature.class})
 public class BridgeInInterfaceRemover implements RunnableSchedulable<JMethod> {
 
   private final long androidMinApiLevel =

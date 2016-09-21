@@ -23,11 +23,15 @@ import com.android.jack.api.JackProvider;
 import com.android.jack.api.ResourceController;
 import com.android.jack.api.v01.Api01Config;
 import com.android.jack.api.v01.Cli01Config;
+import com.android.jack.api.v01.impl.Api01Feature;
 import com.android.jack.api.v01.impl.Cli01ConfigImpl;
 import com.android.jack.api.v02.Api02Config;
+import com.android.jack.api.v02.impl.Api02Feature;
 import com.android.jack.api.v03.Api03Config;
+import com.android.jack.api.v03.impl.Api03Feature;
 import com.android.jack.api.v04.Api04Config;
 import com.android.jack.api.v04.impl.Api04ConfigImpl;
+import com.android.jack.api.v04.impl.Api04Feature;
 import com.android.jack.management.CleanCodeRequest;
 import com.android.jack.management.CleanDiskRequest;
 import com.android.jack.management.CleanMemoryRequest;
@@ -47,27 +51,40 @@ import javax.annotation.Nonnull;
  */
 public class JackProviderImpl implements JackProvider, ResourceController {
   @Nonnull
-  private static final Map<Class<? extends JackConfig>, Class<? extends JackConfig>> map =
-      new HashMap<Class<? extends JackConfig>, Class<? extends JackConfig>>();
+  private static final Map<Class<? extends JackConfig>, Class<? extends JackConfigImpl>> impl =
+      new HashMap<>();
+  @Nonnull
+  private static final Map<Class<? extends JackConfig>, Class<? extends ApiFeature>> features =
+      new HashMap<>();
 
   static {
-    map.put(Api01Config.class, Api04ConfigImpl.class);
-    map.put(Api02Config.class, Api04ConfigImpl.class);
-    map.put(Api03Config.class, Api04ConfigImpl.class);
-    map.put(Api04Config.class, Api04ConfigImpl.class);
-    map.put(Cli01Config.class, Cli01ConfigImpl.class);
+    impl.put(Api01Config.class, Api04ConfigImpl.class);
+    impl.put(Api02Config.class, Api04ConfigImpl.class);
+    impl.put(Api03Config.class, Api04ConfigImpl.class);
+    impl.put(Api04Config.class, Api04ConfigImpl.class);
+    impl.put(Cli01Config.class, Cli01ConfigImpl.class);
+
+    features.put(Api01Config.class, Api01Feature.class);
+    features.put(Api02Config.class, Api02Feature.class);
+    features.put(Api03Config.class, Api03Feature.class);
+    features.put(Api04Config.class, Api04Feature.class);
+    features.put(Cli01Config.class, Api04Feature.class);
   }
 
   @Override
   @SuppressWarnings("unchecked")
   public <T extends JackConfig> T createConfig(Class<T> cls) throws ConfigNotSupportedException {
-    Class<? extends JackConfig> clsImpl = map.get(cls);
+    Class<? extends JackConfigImpl> clsImpl = impl.get(cls);
     if (clsImpl == null) {
       throw new ConfigNotSupportedException(cls.getName() + " is not supported");
     }
 
     try {
-      return (T) clsImpl.newInstance();
+      JackConfigImpl config = clsImpl.newInstance();
+      assert(features.containsKey(cls));
+      config.setApi(features.get(cls));
+
+      return (T) config;
     } catch (InstantiationException e) {
       throw new AssertionError(e);
     } catch (IllegalAccessException e) {
@@ -77,13 +94,13 @@ public class JackProviderImpl implements JackProvider, ResourceController {
 
   @Override
   public Collection<Class<? extends JackConfig>> getSupportedConfigs() {
-    return map.keySet();
+    return impl.keySet();
   }
 
   @Override
   @Nonnull
   public <T extends JackConfig> boolean isConfigSupported(@Nonnull Class<T> cls) {
-    return map.containsKey(cls);
+    return impl.containsKey(cls);
   }
 
   @Override

@@ -88,7 +88,7 @@ public abstract class ScheduleInstance<T extends Component> {
 
   @Nonnull
   protected final SchedStep<T>[] steps;
-  @CheckForNull
+  @Nonnull
   private final FeatureSet features;
 
   @Nonnull
@@ -331,8 +331,7 @@ public abstract class ScheduleInstance<T extends Component> {
 
     protected RunnableSchedStep(@Nonnull ManagedRunnable managed) throws Exception {
       super(managed);
-      runnableFilters.addAll(managed.getFilters());
-
+      runnableFilters.addAll(managed.getFilters(features));
 
       logger.log(Level.FINEST, "Runner filters for runner ''{0}'' are {1} ", new Object[] {
         getName(),
