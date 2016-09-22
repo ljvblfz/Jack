@@ -91,7 +91,7 @@ checkJava() {
 
   JAVA_VERSION=$("$JAVA_COMMAND" -version 2>&1 | head -1 | grep --only-matching -e \"1\\.[0-9]* | cut -c 4-)
   if [ -z "$JAVA_VERSION" ] ; then
-    echo "'$CURL_COMMAND': Failed to parse version, please ensure you're running a supported java"
+    echo "'$JAVA_COMMAND': Failed to parse version, please ensure you're running a supported java"
     return 255
   fi
 
