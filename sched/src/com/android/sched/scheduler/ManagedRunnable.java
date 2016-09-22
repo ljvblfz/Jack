@@ -20,7 +20,6 @@ import com.android.sched.filter.NoFilter;
 import com.android.sched.item.Component;
 import com.android.sched.item.Feature;
 import com.android.sched.item.MarkerOrComponent;
-import com.android.sched.item.NoFeature;
 import com.android.sched.item.Production;
 import com.android.sched.item.TagOrMarker;
 import com.android.sched.item.TagOrMarkerOrComponent;
@@ -478,7 +477,10 @@ public class ManagedRunnable extends ManagedSchedulable {
         features.containsNone(filtersUnlessOne)) {
       return neededFilters.clone();
     } else {
-      return (ComponentFilterSet) scheduler.createComponentFilterSet().add(NoFilter.class);
+      ComponentFilterSet set = scheduler.createComponentFilterSet();
+      set.add(NoFilter.class);
+
+      return set;
     }
   }
 
@@ -626,14 +628,10 @@ public class ManagedRunnable extends ManagedSchedulable {
           neededFilters.add(filter);
         }
         for (Class<? extends Feature> feature : filters.ifAll()) {
-          if (feature != NoFeature.class) {
-            filtersIfAll.add(feature);
-          }
+          filtersIfAll.add(feature);
         }
         for (Class<? extends Feature> feature : filters.unlessOne()) {
-          if (feature != NoFeature.class) {
-            filtersUnlessOne.add(feature);
-          }
+          filtersUnlessOne.add(feature);
         }
       } else {
         neededFilters.add(NoFilter.class);

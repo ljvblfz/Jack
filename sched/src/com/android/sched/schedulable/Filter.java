@@ -18,7 +18,6 @@ package com.android.sched.schedulable;
 
 import com.android.sched.item.Component;
 import com.android.sched.item.Feature;
-import com.android.sched.item.NoFeature;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -39,9 +38,9 @@ public @interface Filter {
   /**
    * All {@link Feature} the filter need to be taken into account.
    */
-  public Class<? extends Feature>[] ifAll() default NoFeature.class;
+  public Class<? extends Feature>[] ifAll() default {};
   /**
    * {@link Feature}s that disable the filter if one is present.
    */
-  public Class<? extends Feature>[] unlessOne() default NoFeature.class;
+  public Class<? extends Feature>[] unlessOne() default {};
 }
