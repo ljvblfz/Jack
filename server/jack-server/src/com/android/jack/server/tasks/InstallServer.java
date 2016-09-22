@@ -19,16 +19,31 @@ package com.android.jack.server.tasks;
 import com.android.jack.server.JackHttpServer;
 import com.android.jack.server.api.v01.NotInstalledException;
 import com.android.jack.server.api.v01.ServerException;
+import com.android.sched.util.UncomparableVersion;
+import com.android.sched.util.Version;
+import com.android.sched.util.file.CannotChangePermissionException;
+import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.CannotReadException;
+import com.android.sched.util.file.CannotWriteException;
+import com.android.sched.util.file.Files;
+import com.android.sched.util.location.FileLocation;
+import com.android.sched.util.location.StringLocation;
+import com.android.sched.util.stream.LocationByteStreamSucker;
 
 import org.simpleframework.http.Part;
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
 import org.simpleframework.http.Status;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import javax.annotation.Nonnull;
 
@@ -36,6 +51,9 @@ import javax.annotation.Nonnull;
  * Administrative task: Install new server.
  */
 public class InstallServer extends SynchronousAdministrativeTask {
+
+  @Nonnull
+  private static final String VERSION_FILE_SUFFIX = "-version.properties";
 
   @Nonnull
   private static final Logger logger = Logger.getLogger(InstallServer.class.getName());
@@ -55,6 +73,50 @@ public class InstallServer extends SynchronousAdministrativeTask {
     InputStream jarIn = null;
     try {
       jarIn = jarPart.getInputStream();
+      if (!force) {
+        File tmpServer = Files.createTempFile("jackserver-");
+        try (FileOutputStream out = new FileOutputStream(tmpServer)) {
+          new LocationByteStreamSucker(jarIn, out, new StringLocation("Request input"),
+              new FileLocation(tmpServer)).suck();
+        }
+
+        try (ZipFile zip = new ZipFile(tmpServer)) {
+          ZipEntry entry = zip.getEntry(JackHttpServer.VERSION_CODE + VERSION_FILE_SUFFIX);
+          if (entry == null) {
+            throw new IOException("Given server jar is invalid, it is missing a version file");
+          }
+          try (InputStream versionInput = zip.getInputStream(entry);) {
+            Version candidateVersion = new Version(versionInput);
+            Version currentVerion = jackServer.getVersion();
+
+            try {
+              if (!candidateVersion.isNewerThan(currentVerion)) {
+                if (candidateVersion.equals(currentVerion)) {
+                  logger.log(Level.INFO, "Server version "
+                      + currentVerion.getVerboseVersion() + " was already installed");
+                  return;
+                } else {
+                  throw new NotInstalledException("Not installing server "
+                      + candidateVersion.getVerboseVersion()
+                      + " since it is not newer than current server "
+                      + currentVerion.getVerboseVersion());
+                }
+              }
+            } catch (UncomparableVersion e) {
+              if (!candidateVersion.isComparable()) {
+                throw new NotInstalledException("Not installing server '"
+                    + candidateVersion.getVerboseVersion() + "' without force request");
+              }
+              // else: current is experimental or eng, candidate is not, lets proceed
+            }
+          }
+        }
+
+        // replace jarIn, the server jar is no longer available from the request
+        jarIn.close();
+        jarIn = new FileInputStream(tmpServer);
+      }
+
       jackServer.shutdownServerOnly();
       jackServer.getLauncherHandle().replaceServer(
           jarIn,
@@ -64,7 +126,8 @@ public class InstallServer extends SynchronousAdministrativeTask {
       logger.log(Level.SEVERE, e.getMessage(), e);
       response.setStatus(Status.INTERNAL_SERVER_ERROR);
       return;
-    } catch (IOException e) {
+    } catch (CannotChangePermissionException | CannotReadException | CannotCreateFileException
+           | CannotWriteException | IOException e) {
       logger.log(Level.SEVERE, e.getMessage(), e);
       response.setStatus(Status.INTERNAL_SERVER_ERROR);
       return;
