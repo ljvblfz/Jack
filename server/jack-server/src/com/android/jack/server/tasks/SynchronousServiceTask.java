@@ -17,7 +17,6 @@
 package com.android.jack.server.tasks;
 
 import com.android.jack.server.JackHttpServer;
-import com.android.jack.server.JackHttpServer.ServerClosedException;
 
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
@@ -47,9 +46,6 @@ abstract class SynchronousServiceTask implements Container {
     try {
       long taskId = jackServer.startingServiceTask();
       handle(taskId, request, response);
-    } catch (ServerClosedException e) {
-      response.setContentLength(0);
-      response.setStatus(Status.SERVICE_UNAVAILABLE);
     } catch (Error | RuntimeException e) {
       logger.log(Level.SEVERE, e.getMessage(), e);
       response.setContentLength(0);

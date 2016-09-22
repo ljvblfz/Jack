@@ -1117,7 +1117,7 @@ public class JackHttpServer implements HasVersion {
     }
   }
 
-  public long startingServiceTask() throws ServerClosedException {
+  public long startingServiceTask() {
     return startingTask(serviceInfo);
   }
 
@@ -1126,20 +1126,23 @@ public class JackHttpServer implements HasVersion {
   }
 
   public long startingAdministrativeTask() throws ServerClosedException {
-    return startingTask(adminInfo);
+    synchronized (lock) {
+      if (shuttingDown) {
+        throw new ServerClosedException();
+      }
+
+      return startingTask(adminInfo);
+    }
   }
 
   public void endingAdministrativeTask() {
     endingTask(adminInfo);
   }
 
-  private long startingTask(@Nonnull ServerInfo info) throws ServerClosedException{
+  private long startingTask(@Nonnull ServerInfo info) {
     long id;
 
     synchronized (lock) {
-      if (shuttingDown) {
-        throw new ServerClosedException();
-      }
       id = info.totalLocal;
       info.totalLocal++;
       setServerMode(ServerMode.WORK);
