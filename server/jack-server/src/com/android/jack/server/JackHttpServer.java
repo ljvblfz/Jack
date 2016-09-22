@@ -147,6 +147,9 @@ import javax.net.ssl.TrustManagerFactory;
  */
 public class JackHttpServer implements HasVersion {
 
+  @Nonnull
+  public static final String VERSION_CODE = "jack-server";
+
   /**
    * Define an assertion status.
    */
@@ -502,7 +505,7 @@ public class JackHttpServer implements HasVersion {
   @Nonnull
   public static Version getServerVersion() {
     try {
-      return new Version("jack-server", JackHttpServer.class.getClassLoader());
+      return new Version(VERSION_CODE, JackHttpServer.class.getClassLoader());
     } catch (IOException e) {
       logger.log(Level.SEVERE, "Failed to read Jack-server version properties", e);
       throw new AssertionError();
