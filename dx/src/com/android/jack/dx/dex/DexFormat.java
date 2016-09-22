@@ -75,6 +75,12 @@ public final class DexFormat {
   public static final int MAX_TYPE_IDX = 0xFFFF;
 
   /**
+   * Maximum addressable prototype index. The largest addressable prototype is 0xffff, in the
+   * "instruction formats" spec as prototype@CCCC.
+   */
+  public static final int MAX_PROTOTYPE_IDX = 0xFFFF;
+
+  /**
    * Returns the API level corresponding to the given magic number,
    * or {@code -1} if the given array is not a well-formed dex file
    * magic number.

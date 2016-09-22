@@ -39,11 +39,15 @@ public class CstIndexMap {
   /** Mapping between index and {@link CstFieldRef} value of a dex file.*/
   private final CstFieldRef[] fields;
 
+  /** Mapping between index and {@link CstPrototypeRef} value of a dex file. */
+  private final CstPrototypeRef[] prototypes;
+
   public CstIndexMap(DexBuffer dexBuffer) {
     strings = new CstString[dexBuffer.strings().size()];
     types = new CstType[dexBuffer.typeNames().size()];
     methods = new CstMethodRef[dexBuffer.methodIds().size()];
     fields = new CstFieldRef[dexBuffer.fieldIds().size()];
+    prototypes = new CstPrototypeRef[dexBuffer.protoIds().size()];
   }
   /**
    * Keeps string mapping of a dex file.
@@ -81,6 +85,19 @@ public class CstIndexMap {
 
     if (methods[index] == null) {
       methods[index] = methodRef;
+    }
+  }
+
+  /**
+   * Keeps prototype mapping of a dex file.
+   * @param index Protototype index.
+   * @param prototypeRef The prototype.
+   */
+  public void addPrototypeMapping(@Nonnegative int index, CstPrototypeRef prototypeRef) {
+    assert prototypes[index] == null || prototypes[index].compareTo(prototypeRef) == 0;
+
+    if (prototypes[index] == null) {
+      prototypes[index] = prototypeRef;
     }
   }
 
@@ -141,6 +158,18 @@ public class CstIndexMap {
    */
   public int getRemappedCstFieldRefIndex(DexFile file, @Nonnegative int index) {
     IndexedItem indexedItem = file.findItemOrNull(fields[index]);
+    assert indexedItem != null;
+    return indexedItem.getIndex();
+  }
+
+  /**
+   * Return the remapped index of a {@code CstPrototypeRef} into {@code file}.
+   * @param file The file where the remapped index apply to.
+   * @param index The old index to remap into {@code file}.
+   * @return The new index remapped into {@code file}.
+   */
+  public int getRemappedCstPrototypeRefIndex(DexFile file, @Nonnegative int index) {
+    IndexedItem indexedItem = file.findItemOrNull(prototypes[index]);
     assert indexedItem != null;
     return indexedItem.getIndex();
   }

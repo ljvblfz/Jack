@@ -26,8 +26,10 @@ import com.android.jack.dx.rop.cst.CstFieldRef;
 import com.android.jack.dx.rop.cst.CstIndexMap;
 import com.android.jack.dx.rop.cst.CstMethodRef;
 import com.android.jack.dx.rop.cst.CstNat;
+import com.android.jack.dx.rop.cst.CstPrototypeRef;
 import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.rop.cst.CstType;
+import com.android.jack.dx.rop.type.Prototype;
 import com.android.jack.dx.rop.type.Type;
 
 import java.util.ArrayList;
@@ -46,6 +48,9 @@ public class ConstantManager extends MergerTools {
 
   @Nonnull
   private final Map<String, CstString> string2CstStrings = new HashMap<String, CstString>();
+
+  @Nonnull
+  private final HashSet<CstPrototypeRef> cstPrototypeRefs = new HashSet<>();
 
   @Nonnull
   private final HashSet<CstFieldRef> cstFieldRefs = new HashSet<CstFieldRef>();
@@ -80,10 +85,16 @@ public class ConstantManager extends MergerTools {
   }
 
   @Nonnull
+  public Collection<CstPrototypeRef> getCstPrototypeRefs() {
+    return Jack.getUnmodifiableCollections().getUnmodifiableCollection(cstPrototypeRefs);
+  }
+
+  @Nonnull
   public CstIndexMap addDexFile(@Nonnull DexBuffer dexBuffer) throws MergingOverflowException {
     CstIndexMap cstIndexMap = new CstIndexMap(dexBuffer);
 
     List<String> cstStringsNewlyAdded = new ArrayList<String>();
+    List<CstPrototypeRef> cstPrototypeRefsNewlyAdded = new ArrayList<>();
     List<CstFieldRef> cstFieldRefsNewlyAdded = new ArrayList<CstFieldRef>();
     List<CstMethodRef> cstMethodRefsNewlyAdded = new ArrayList<CstMethodRef>();
     List<CstType> cstTypesNewlyAdded = new ArrayList<CstType>();
@@ -137,17 +148,24 @@ public class ConstantManager extends MergerTools {
     List<ProtoId> protoIds = dexBuffer.protoIds();
     String[] protoIdx2String = new String[protoIds.size()];
 
+    for (ProtoId protoId : protoIds) {
+      String protoStr = dexBuffer.readTypeList(protoId.getParametersOffset()).toString();
+      protoStr += typeNames.get(protoId.getReturnTypeIndex());
+      protoIdx2String[idx] = protoStr;
+      Prototype prototype = Prototype.intern(protoStr);
+      CstPrototypeRef cstProtoRef = new CstPrototypeRef(prototype);
+      if (cstPrototypeRefs.add(cstProtoRef)) {
+        cstPrototypeRefsNewlyAdded.add(cstProtoRef);
+      }
+      cstIndexMap.addPrototypeMapping(idx++, cstProtoRef);
+    }
+
+    idx = 0;
+
     for (MethodId methodId : dexBuffer.methodIds()) {
       int protoIdx = methodId.getProtoIndex();
       String protoStr = protoIdx2String[protoIdx];
-      ProtoId protoId = protoIds.get(protoIdx);
-
-      if (protoStr == null) {
-        protoStr = dexBuffer.readTypeList(protoId.getParametersOffset()).toString();
-        protoIdx2String[protoIdx] = protoStr;
-      }
-
-      protoStr += typeNames.get(protoId.getReturnTypeIndex());
+      assert protoStr != null;
 
       CstString protoCstString = protoStr2CstString.get(protoStr);
       if (protoCstString == null) {
@@ -167,20 +185,26 @@ public class ConstantManager extends MergerTools {
 
     if ((cstFieldRefs.size()) > DexFormat.MAX_MEMBER_IDX + 1) {
       removeItems(cstStringsNewlyAdded, cstFieldRefsNewlyAdded, cstMethodRefsNewlyAdded,
-          cstTypesNewlyAdded);
+          cstTypesNewlyAdded, cstPrototypeRefsNewlyAdded);
       throw new FieldIdOverflowException();
     }
 
     if ((cstMethodRefs.size()) > DexFormat.MAX_MEMBER_IDX + 1) {
       removeItems(cstStringsNewlyAdded, cstFieldRefsNewlyAdded, cstMethodRefsNewlyAdded,
-          cstTypesNewlyAdded);
+          cstTypesNewlyAdded, cstPrototypeRefsNewlyAdded);
       throw new MethodIdOverflowException();
     }
 
     if ((cstTypes.size()) > DexFormat.MAX_TYPE_IDX + 1) {
       removeItems(cstStringsNewlyAdded, cstFieldRefsNewlyAdded, cstMethodRefsNewlyAdded,
-          cstTypesNewlyAdded);
+          cstTypesNewlyAdded, cstPrototypeRefsNewlyAdded);
       throw new TypeIdOverflowException();
+    }
+
+    if ((cstPrototypeRefs.size()) > DexFormat.MAX_PROTOTYPE_IDX + 1) {
+      removeItems(cstStringsNewlyAdded, cstFieldRefsNewlyAdded, cstMethodRefsNewlyAdded,
+          cstTypesNewlyAdded, cstPrototypeRefsNewlyAdded);
+      throw new PrototypedOverflowException();
     }
 
     return cstIndexMap;
@@ -188,11 +212,13 @@ public class ConstantManager extends MergerTools {
 
   private void removeItems(@Nonnull List<String> cstStringsToRemove,
       @Nonnull List<CstFieldRef> cstFieldRefsToRemove,
-      @Nonnull List<CstMethodRef> cstMethodRefsToRemove, @Nonnull List<CstType> cstTypesToRemove) {
+      @Nonnull List<CstMethodRef> cstMethodRefsToRemove, @Nonnull List<CstType> cstTypesToRemove,
+      @Nonnull List<CstPrototypeRef> cstPrototypeRefsToRemove) {
     string2CstStrings.keySet().removeAll(cstStringsToRemove);
     cstFieldRefs.removeAll(cstFieldRefsToRemove);
     cstMethodRefs.removeAll(cstMethodRefsToRemove);
     cstTypes.removeAll(cstTypesToRemove);
+    cstPrototypeRefs.removeAll(cstPrototypeRefsToRemove);
   }
 
   public boolean validate(@Nonnull DexFile dexFile) {

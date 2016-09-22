@@ -145,7 +145,7 @@ public class JackMerger extends MergerTools {
 
   public void finish(@Nonnull OutputStream out) throws IOException {
     dexResult.prepare(cstManager.getCstStrings(), cstManager.getCstFieldRefs(),
-        cstManager.getCstMethodRefs(), cstManager.getCstTypes());
+        cstManager.getCstMethodRefs(), cstManager.getCstTypes(), cstManager.getCstPrototypeRefs());
     if (!cstManager.validate(dexResult)) {
       throw new AssertionError();
     }
