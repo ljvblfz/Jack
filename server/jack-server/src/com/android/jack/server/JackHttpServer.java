@@ -872,9 +872,6 @@ public class JackHttpServer implements HasVersion {
       NoSuchAlgorithmException {
     {
       File clientPEM = new File(getServerDir(), PEM_CLIENT);
-      if (clientPEM.exists() && !clientPEM.delete()) {
-        throw new IOException("Failed to delete '" + clientPEM.getPath() + "'");
-      }
 
       PEMWriter pem = new PEMWriter(clientPEM);
       try {
@@ -886,9 +883,6 @@ public class JackHttpServer implements HasVersion {
     }
     {
       File serverPEM = new File(getServerDir(), PEM_SERVER);
-      if (serverPEM.exists() && !serverPEM.delete()) {
-        throw new IOException("Failed to delete '" + serverPEM.getPath() + "'");
-      }
       PEMWriter pem = new PEMWriter(serverPEM);
       try {
         pem.writeCertificate(keystoreServer.getCertificate(SERVER_KEY_ALIAS));

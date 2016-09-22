@@ -54,21 +54,30 @@ public class PEMWriter implements Closeable {
   @Nonnull
   private final Writer out;
 
+  @Nonnull
+  private final File targetFile;
+
+
+  @Nonnull
+  private final File tmpFile;
+
   public PEMWriter(@Nonnull File file) throws IOException {
-    if (!file.exists()) {
-      if (!file.createNewFile()) {
-        throw new IOException("Failed to create file '" + file.getPath() + "'");
+    targetFile = file;
+    tmpFile = File.createTempFile("jackserver-", file.getName(), file.getParentFile());
+    if (!tmpFile.exists()) {
+      if (!tmpFile.createNewFile()) {
+        throw new IOException("Failed to create temp file '" + tmpFile.getPath() + "'");
       }
-      if  (!(file.setExecutable(false, false)
-          && file.setWritable(false, false)
-          && file.setReadable(false, false)
-          && file.setWritable(true, true)
-          && file.setReadable(true, true))) {
-        throw new IOException("Failed to set permission of '" + file.getPath() + "'");
+      if  (!(tmpFile.setExecutable(false, false)
+          && tmpFile.setWritable(false, false)
+          && tmpFile.setReadable(false, false)
+          && tmpFile.setWritable(true, true)
+          && tmpFile.setReadable(true, true))) {
+        throw new IOException("Failed to set permission of '" + tmpFile.getPath() + "'");
       }
     }
 
-    out = new OutputStreamWriter(new FileOutputStream(file), CHARSET);
+    out = new OutputStreamWriter(new FileOutputStream(tmpFile), CHARSET);
   }
 
   public void writeCertificate(@Nonnull Certificate certificate) throws IOException {
@@ -96,5 +105,9 @@ public class PEMWriter implements Closeable {
   @Override
   public void close() throws IOException {
     out.close();
+    if (!tmpFile.renameTo(targetFile)) {
+      throw new IOException("Failed to rename \"" + tmpFile.getPath() + "\" to \""
+          + targetFile.getPath() + "\"");
+    }
   }
 }
