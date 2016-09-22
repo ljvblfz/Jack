@@ -17,10 +17,12 @@
 package com.android.jack.api.impl;
 
 import com.android.jack.Jack;
+import com.android.jack.api.ConfigNotSupportedAnymoreException;
 import com.android.jack.api.ConfigNotSupportedException;
 import com.android.jack.api.JackConfig;
 import com.android.jack.api.JackProvider;
 import com.android.jack.api.ResourceController;
+import com.android.jack.api.UnknownConfigException;
 import com.android.jack.api.v01.Api01Config;
 import com.android.jack.api.v01.Cli01Config;
 import com.android.jack.api.v01.impl.Api01Feature;
@@ -74,9 +76,13 @@ public class JackProviderImpl implements JackProvider, ResourceController {
   @Override
   @SuppressWarnings("unchecked")
   public <T extends JackConfig> T createConfig(Class<T> cls) throws ConfigNotSupportedException {
+    if (!impl.containsKey(cls)) {
+      throw new UnknownConfigException(cls.getName() + " is not supported");
+    }
+
     Class<? extends JackConfigImpl> clsImpl = impl.get(cls);
     if (clsImpl == null) {
-      throw new ConfigNotSupportedException(cls.getName() + " is not supported");
+      throw new ConfigNotSupportedAnymoreException(cls.getName() + " is not supported anymore");
     }
 
     try {
