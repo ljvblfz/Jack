@@ -26,9 +26,14 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.security.Key;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -37,6 +42,9 @@ import javax.annotation.Nonnull;
  * Write PEM files.
  */
 public class PEMWriter implements Closeable {
+
+  @Nonnull
+  private static Logger logger = Logger.getLogger(PEMWriter.class.getName());
 
   @Nonnegative
   private static final int MAX_LINE_SIZE = 65;
@@ -105,9 +113,13 @@ public class PEMWriter implements Closeable {
   @Override
   public void close() throws IOException {
     out.close();
-    if (!tmpFile.renameTo(targetFile)) {
-      throw new IOException("Failed to rename \"" + tmpFile.getPath() + "\" to \""
-          + targetFile.getPath() + "\"");
+    try {
+      Files.move(tmpFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING,
+          StandardCopyOption.ATOMIC_MOVE);
+    } catch (AtomicMoveNotSupportedException e) {
+      logger.log(Level.WARNING, "Atomic move not supported for renaming '" + tmpFile.getPath()
+        + "' to '" + targetFile.getPath() + "'");
+      Files.move(tmpFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
   }
 }

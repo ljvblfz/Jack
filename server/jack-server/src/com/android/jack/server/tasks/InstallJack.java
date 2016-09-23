@@ -38,6 +38,9 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -109,9 +112,25 @@ public class InstallJack extends SynchronousAdministrativeTask {
         // expected
       }
       File newInstalledJack = File.createTempFile("jack-", ".jar", jackDir);
-      if (!tmpJack.renameTo(newInstalledJack)) {
+
+      try {
+        try {
+          Files.move(
+              tmpJack.toPath(),
+              newInstalledJack.toPath(),
+              StandardCopyOption.REPLACE_EXISTING,
+              StandardCopyOption.ATOMIC_MOVE);
+        } catch (AtomicMoveNotSupportedException e) {
+          logger.log(Level.WARNING, "Atomic move not supported for renaming '" + tmpJack.getPath()
+            + "' to '" + newInstalledJack.getPath() + "'");
+          Files.move(
+              tmpJack.toPath(),
+              newInstalledJack.toPath(),
+              StandardCopyOption.REPLACE_EXISTING);
+        }
+      } catch (IOException e) {
         logger.log(Level.SEVERE, "Failed to rename '" + tmpJack
-            + "' to '" + newInstalledJack + "'");
+            + "' to '" + newInstalledJack + "'", e);
         if (!newInstalledJack.delete()) {
           logger.log(Level.WARNING, "Failed to delete empty file '" + newInstalledJack + "'");
         }

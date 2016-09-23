@@ -40,6 +40,9 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -179,8 +182,13 @@ class ConfigFile extends Properties {
       try (Writer writer = new OutputStreamWriter(new FileOutputStream(tmpOut), CONFIG_CHARSET)) {
         store(writer, "");
       }
-      if (!tmpOut.renameTo(storageFile)) {
-        throw new IOException("failed to rename temp config file '" + tmpOut);
+      try {
+        Files.move(tmpOut.toPath(), storageFile.toPath(), StandardCopyOption.REPLACE_EXISTING,
+            StandardCopyOption.ATOMIC_MOVE);
+      } catch (AtomicMoveNotSupportedException e) {
+        logger.log(Level.WARNING, "Atomic move not supported for renaming '" + tmpOut.getPath()
+          + "' to '" + storageFile.getPath() + "'");
+        Files.move(tmpOut.toPath(), storageFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
       }
       tmpOut = null;
     } finally {
