@@ -204,7 +204,7 @@ public class SwitchMapClassFiller {
           objectClass,
           superConstruct.getMethodIdWide(),
           JPrimitiveTypeEnum.VOID.getType(),
-          superConstruct.canBePolymorphic());
+          superConstruct.canBeVirtual());
       transformRequest.append(new AppendStatement(block, superCall.makeStatement()));
 
       transformRequest.append(
@@ -391,7 +391,7 @@ public class SwitchMapClassFiller {
             enumType,
             valuesMethod.getMethodIdWide(),
             valuesMethod.getType(),
-            valuesMethod.canBePolymorphic()));
+            valuesMethod.canBeVirtual()));
 
     JLocal switchmapLocal = createSwitchmapArrayStatement(
         localVarCreator, transformRequest, initializerMethodBlock, valuesLength);
@@ -463,7 +463,7 @@ public class SwitchMapClassFiller {
           enumType,
           ordinalMethod.getMethodIdWide(),
           JPrimitiveTypeEnum.INT.getType(),
-          ordinalMethod.canBePolymorphic());
+          ordinalMethod.canBeVirtual());
 
       transformRequest.append(new AppendStatement(tryBlock,
           JBinaryOperation.create(SourceInfo.UNKNOWN, JBinaryOperator.ASG,

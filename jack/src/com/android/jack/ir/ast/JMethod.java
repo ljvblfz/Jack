@@ -145,7 +145,7 @@ public class JMethod extends JNode implements HasEnclosingType, HasName, HasType
    * true for non-private instance methods; false for static methods, private
    * instance methods, and constructors.
    */
-  public boolean canBePolymorphic() {
+  public boolean canBeVirtual() {
     return !isStatic() && !isPrivate();
   }
 

@@ -65,7 +65,7 @@ public class JConstructor extends JMethod {
   }
 
   @Override
-  public boolean canBePolymorphic() {
+  public boolean canBeVirtual() {
     return false;
   }
 

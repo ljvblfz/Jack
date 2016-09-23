@@ -188,7 +188,7 @@ public class OptimizedSwitchEnumSupport implements RunnableSchedulable<JMethod> 
         JExpression getSwitchMapInvocExpr =
             new JMethodCall(switchStmt.getSourceInfo(), null /*static method*/, switchMapClass,
                 syntheticInitializer.getMethodIdWide(), syntheticInitializer.getType(),
-                syntheticInitializer.canBePolymorphic());
+                syntheticInitializer.canBeVirtual());
 
         JMethod ordinalMethod =
             Jack.getSession().getLookup().getClass("Ljava/lang/Enum;").
@@ -198,7 +198,7 @@ public class OptimizedSwitchEnumSupport implements RunnableSchedulable<JMethod> 
             new Replace(switchExpr, new JArrayRef(switchStmt.getSourceInfo(), getSwitchMapInvocExpr,
                     new JMethodCall(switchStmt.getSourceInfo(), switchExpr, enumType,
                         ordinalMethod.getMethodIdWide(), ordinalMethod.getType(),
-                        ordinalMethod.canBePolymorphic()))));
+                        ordinalMethod.canBeVirtual()))));
       }
       // keep traversing because case statement needs transformation as well
       return super.visit(switchStmt);
