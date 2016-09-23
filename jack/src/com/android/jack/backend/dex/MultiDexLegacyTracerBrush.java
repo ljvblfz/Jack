@@ -45,11 +45,6 @@ public class MultiDexLegacyTracerBrush
   @ValidOn({JDefinedClassOrInterface.class, JMethod.class, JField.class})
   @Description("Indicates that this node was identified during the main dex legacy tracing")
   public static class TracerMarker extends BaseTracerMarker {
-    @Nonnull
-    public static final TracerMarker INSTANCE = new TracerMarker();
-
-    private TracerMarker() {
-    }
   }
 
   /**
@@ -80,7 +75,7 @@ public class MultiDexLegacyTracerBrush
   @Nonnull
   @Override
   protected TracerMarker createMarkerFor(@Nonnull JNode node) {
-    return TracerMarker.INSTANCE;
+    return new TracerMarker();
   }
 
 }
