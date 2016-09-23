@@ -18,6 +18,7 @@ package com.android.jack.server.tasks;
 
 import com.android.jack.server.JackHttpServer;
 import com.android.jack.server.api.v01.ServerException;
+import com.android.sched.util.file.CannotChangePermissionException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.WrongPermissionException;
@@ -52,8 +53,8 @@ public class ReloadConfig extends SynchronousAdministrativeTask {
       jackServer.reloadConfig();
       response.setStatus(Status.OK);
     } catch (NotFileException | ServerException | WrongPermissionException | IOException
-        | CannotCreateFileException e) {
-      logger.log(Level.SEVERE, "Failed to reload configuration: " + e.getMessage());
+        | CannotCreateFileException | CannotChangePermissionException e) {
+      logger.log(Level.SEVERE, "Failed to reload configuration", e);
       response.setStatus(Status.INTERNAL_SERVER_ERROR);
     }
   }

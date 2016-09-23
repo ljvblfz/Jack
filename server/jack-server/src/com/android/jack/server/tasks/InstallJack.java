@@ -23,6 +23,16 @@ import com.android.jack.server.NoSuchVersionException;
 import com.android.jack.server.type.ExactCodeVersionFinder;
 import com.android.sched.util.SubReleaseKind;
 import com.android.sched.util.Version;
+import com.android.sched.util.file.CannotChangePermissionException;
+import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.Directory;
+import com.android.sched.util.file.FileAlreadyExistsException;
+import com.android.sched.util.file.FileOrDirectory.ChangePermission;
+import com.android.sched.util.file.FileOrDirectory.Existence;
+import com.android.sched.util.file.FileOrDirectory.Permission;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotDirectoryException;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.findbugs.SuppressFBWarnings;
 import com.android.sched.util.stream.ByteStreamSucker;
 
@@ -79,10 +89,14 @@ public class InstallJack extends SynchronousAdministrativeTask {
     InputStream jarIn = null;
     FileOutputStream out = null;
     File tmpJack = null;
-    File jackDir = new File(jackServer.getServerDir(), programName);
     try {
+      Directory jackDir = new Directory(new File(jackServer.getServerDir(), programName).getPath(),
+          null,
+          Existence.MUST_EXIST,
+          Permission.READ | Permission.WRITE,
+          ChangePermission.NOCHANGE);
       jarIn = jarPart.getInputStream();
-      tmpJack = File.createTempFile("jackserver-", ".tmp", jackDir);
+      tmpJack = com.android.sched.util.file.Files.createTempFile("jackserver-", ".tmp", jackDir);
       out = new FileOutputStream(tmpJack);
       new ByteStreamSucker(jarIn, out).suck();
       out.close();
@@ -111,7 +125,8 @@ public class InstallJack extends SynchronousAdministrativeTask {
       } catch (NoSuchVersionException e) {
         // expected
       }
-      File newInstalledJack = File.createTempFile("jack-", ".jar", jackDir);
+      File newInstalledJack = com.android.sched.util.file.Files.createTempFile("jack-", ".jar",
+          jackDir);
 
       try {
         try {
@@ -139,7 +154,9 @@ public class InstallJack extends SynchronousAdministrativeTask {
       }
       jackServer.addInstalledJack(
           new Program<JackProvider>(version, newInstalledJack, null));
-    } catch (IOException e) {
+    } catch (IOException | CannotCreateFileException | CannotChangePermissionException
+        | NotDirectoryException | WrongPermissionException | NoSuchFileException
+        | FileAlreadyExistsException e) {
       logger.log(Level.SEVERE, e.getMessage(), e);
       response.setStatus(Status.INTERNAL_SERVER_ERROR);
       return;
