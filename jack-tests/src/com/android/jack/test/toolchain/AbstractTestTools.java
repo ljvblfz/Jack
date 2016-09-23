@@ -32,16 +32,26 @@ import com.android.jack.util.NamingTools;
 import com.android.sched.util.Version;
 import com.android.sched.util.codec.CodecContext;
 import com.android.sched.util.file.CannotChangePermissionException;
+import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.CannotReadException;
+import com.android.sched.util.file.CannotWriteException;
 import com.android.sched.util.file.Files;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.location.DirectoryLocation;
+import com.android.sched.util.location.FileLocation;
+import com.android.sched.util.location.ZipLocation;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.stream.ByteStreamSucker;
+import com.android.sched.util.stream.LocationByteStreamSucker;
+import com.android.sched.vfs.ZipUtils;
 
 import org.junit.Assume;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,6 +62,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -646,49 +658,148 @@ public abstract class AbstractTestTools {
     }
   }
 
-  public static void unzip(@Nonnull File jarfile, @Nonnull File outputFolder, boolean verbose) {
+  public static void unzip(@Nonnull File zipFile, @Nonnull File outputFolder, boolean verbose)
+      throws CannotCreateFileException, CannotReadException,
+          CannotWriteException, CannotCloseException, NoSuchFileException {
 
-    String options = verbose ? "-o" : "-qo";
+    if (verbose) {
+      System.out.println(
+          "Unzipping '" + zipFile.getPath() + "' to '" + outputFolder.getPath() + "'...");
+    }
 
-    String[] commandLine = new String[] {"unzip", options, jarfile.getAbsolutePath(), "-d",
-        outputFolder.getAbsolutePath()};
-
-    ExecuteFile execFile = new ExecuteFile(commandLine);
-    execFile.inheritEnvironment();
-    execFile.setVerbose(verbose);
-    execFile.setErr(System.err);
-    execFile.setOut(System.out);
-
+    FileInputStream fis;
     try {
-      if (execFile.run() != 0) {
-        throw new RuntimeException("Unzip exited with an error");
+      fis = new FileInputStream(zipFile);
+    } catch (FileNotFoundException e1) {
+      throw new NoSuchFileException(new FileLocation(zipFile));
+    }
+
+    try (ZipInputStream zis = new ZipInputStream(fis)) {
+
+      ZipEntry zipEntry;
+
+      try {
+        zipEntry = zis.getNextEntry();
+      } catch (IOException e) {
+        throw new CannotReadException(new FileLocation(zipFile), e);
       }
-    } catch (ExecFileException e) {
-      throw new RuntimeException("An error occurred while running unzip", e);
+
+      while (zipEntry != null) {
+
+        File outputFile = new File(outputFolder, zipEntry.getName());
+
+        if (verbose) {
+          System.out.println("Extracting: '" + outputFile.getPath() + "'");
+        }
+
+        if (zipEntry.isDirectory()) {
+          if (!outputFile.exists() && !outputFile.mkdirs()) {
+            throw new CannotCreateFileException(new DirectoryLocation(outputFile));
+          }
+        } else {
+
+          File parentDir = outputFile.getParentFile();
+          if (parentDir != null && !parentDir.exists() && !parentDir.mkdirs()) {
+            throw new CannotCreateFileException(new DirectoryLocation(outputFile.getParentFile()));
+          }
+
+          try (FileOutputStream fos = new FileOutputStream(outputFile)) {
+            new LocationByteStreamSucker(
+                zis,
+                fos,
+                new ZipLocation(new FileLocation(zipFile), zipEntry),
+                new FileLocation(outputFile))
+            .suck();
+          } catch (FileNotFoundException e) {
+            throw new NoSuchFileException(new FileLocation(outputFile), e);
+          } catch (IOException e) {
+            throw new CannotCloseException(new FileLocation(outputFile), e);
+          }
+        }
+
+        try {
+          zipEntry = zis.getNextEntry();
+        } catch (IOException e) {
+          throw new CannotReadException(new FileLocation(zipFile), e);
+        }
+     }
+    } catch (IOException e) {
+      throw new CannotCloseException(new FileLocation(zipFile), e);
     }
   }
 
   public static void zip(@Nonnull File directory, @Nonnull File outputFile, boolean verbose)
-      throws IOException {
+      throws CannotCloseException, CannotReadException,
+          CannotWriteException, NoSuchFileException {
+    assert directory.isDirectory();
 
-    String options = verbose ? "-r" : "-qr";
-
-    String[] commandLine;
-    commandLine = new String[] {"zip", options, outputFile.getAbsolutePath(), "."};
-
-    ExecuteFile execFile = new ExecuteFile(commandLine);
-    execFile.inheritEnvironment();
-    execFile.setVerbose(verbose);
-    execFile.setWorkingDir(directory, /* create = */ false);
-    execFile.setErr(System.err);
-    execFile.setOut(System.out);
-
+    FileOutputStream fos;
     try {
-      if (execFile.run() != 0) {
-        throw new RuntimeException("Zip exited with an error");
+      fos = new FileOutputStream(outputFile);
+    } catch (FileNotFoundException e) {
+      throw new NoSuchFileException(new FileLocation(outputFile), e);
+    }
+
+    try (ZipOutputStream out = new ZipOutputStream(fos)) {
+
+      if (verbose) {
+        System.out.println(
+            "Zipping '" + directory.getPath() + "' to '" + outputFile.getPath() + "'...");
       }
-    } catch (ExecFileException e) {
-      throw new RuntimeException("An error occurred while running zip", e);
+
+      addFilesToZip(out, directory, "", outputFile, verbose);
+    } catch (IOException e) {
+      throw new CannotCloseException(new FileLocation(outputFile), e);
+    }
+  }
+
+  private static void addFilesToZip(
+      @Nonnull ZipOutputStream zip,
+      @Nonnull File file,
+      @Nonnull String entryPath,
+      @Nonnull File outputZipFile,
+      boolean verbose)
+      throws CannotCloseException, CannotReadException, CannotWriteException, NoSuchFileException {
+
+    if (file.isFile()) {
+      if (verbose) {
+        System.out.println("Adding: '" + file.getPath() + "'");
+      }
+      ZipEntry zipEntry = new ZipEntry(entryPath);
+      try {
+        zip.putNextEntry(zipEntry);
+      } catch (IOException e) {
+        throw new CannotWriteException(new FileLocation(outputZipFile), e);
+      }
+      try (InputStream in = new FileInputStream(file)) {
+        new LocationByteStreamSucker(
+                in,
+                zip,
+                new FileLocation(file),
+                new ZipLocation(new FileLocation(outputZipFile), zipEntry))
+            .suck();
+        try {
+          zip.closeEntry();
+        } catch (IOException e) {
+          throw new CannotCloseException(
+              new ZipLocation(new FileLocation(outputZipFile), zipEntry), e);
+        }
+      } catch (FileNotFoundException e) {
+        // Thrown by FileInputStream ctor
+        throw new NoSuchFileException(new FileLocation(outputZipFile), e);
+      } catch (IOException e) {
+        throw new CannotCloseException(new FileLocation(file), e);
+      }
+    } else {
+      assert file.isDirectory();
+      File [] filesInDir = file.listFiles();
+      assert filesInDir != null;
+      for (File sub: filesInDir) {
+        // Zip entries names must not start with /
+        String subEntryPath = entryPath.isEmpty() ? sub.getName() :
+          entryPath + ZipUtils.ZIP_SEPARATOR + sub.getName();
+        addFilesToZip(zip, sub, subEntryPath, outputZipFile, verbose);
+      }
     }
   }
 

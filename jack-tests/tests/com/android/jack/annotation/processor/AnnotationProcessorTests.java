@@ -69,7 +69,7 @@ public class AnnotationProcessorTests {
     File processorsSrcDir = compileProcessorsToDir(processorsDir,
         "com.android.jack.annotation.processor.sample.processors");
 
-    makeZipFromDir(processorsDir, processorsJar);
+    AbstractTestTools.zip(processorsDir, processorsJar, /* verbose = */ false);
 
     return processorsJar;
   }
@@ -85,7 +85,7 @@ public class AnnotationProcessorTests {
         new File(processorsSrcDir, "javax.annotation.processing.Processor"),
         "META-INF/services/javax.annotation.processing.Processor", processorsDir);
 
-    makeZipFromDir(processorsDir, processorsJar);
+    AbstractTestTools.zip(processorsDir, processorsJar, /* verbose = */ false);
 
     return processorsJar;
   }
@@ -115,42 +115,6 @@ public class AnnotationProcessorTests {
       throw new AssertionError();
     }
     return processorsSrcDir;
-  }
-
-  private static void makeZipFromDir(@Nonnull File dir, @Nonnull File zip)
-      throws IOException {
-    assert dir.isDirectory();
-    ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zip));
-    try {
-      addFilesToZip(out, dir, "");
-    } finally {
-      out.close();
-    }
-  }
-
-  private static void addFilesToZip(ZipOutputStream zip, File file, String entryPath)
-      throws IOException {
-    if (file.isFile()) {
-      zip.putNextEntry(new ZipEntry(entryPath));
-      InputStream in = new FileInputStream(file);
-      try {
-        new BytesStreamSucker(in, zip).suck();
-        zip.closeEntry();
-      } finally {
-        try {
-          in.close();
-        } catch (IOException e) {
-          // ignore
-        }
-      }
-    } else {
-      for (File sub: file.listFiles()) {
-        // Zip entries names must not start with /
-        String subEntryPath = entryPath.isEmpty() ? sub.getName() :
-          entryPath + ZipUtils.ZIP_SEPARATOR + sub.getName();
-        addFilesToZip(zip, sub, subEntryPath);
-      }
-    }
   }
 
   @Test
