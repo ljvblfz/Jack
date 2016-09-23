@@ -31,12 +31,6 @@ import javax.annotation.Nonnull;
 @Description("Indicates that this class or member should not be removed when shrinking.")
 public class KeepMarker extends BaseTracerMarker {
 
-  @Nonnull
-  public static final KeepMarker INSTANCE = new KeepMarker();
-
-  private KeepMarker() {
-  }
-
   @DynamicValidOn
   public boolean isValidOn(@Nonnull JDefinedClassOrInterface type) {
     return type.isToEmit();
