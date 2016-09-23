@@ -24,9 +24,16 @@ import com.android.sched.util.codec.PairCodec;
 import com.android.sched.util.codec.PairCodec.Pair;
 import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.codec.StringCodec;
+import com.android.sched.util.file.CannotChangePermissionException;
 import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.Directory;
+import com.android.sched.util.file.FileAlreadyExistsException;
+import com.android.sched.util.file.FileOrDirectory.ChangePermission;
+import com.android.sched.util.file.FileOrDirectory.Existence;
+import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.InputStreamFile;
 import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.OutputStreamFile;
 import com.android.sched.util.file.WrongPermissionException;
@@ -165,13 +172,24 @@ class ConfigFile extends Properties {
   }
 
   public void store() throws WrongPermissionException, NotFileException, IOException,
-      CannotCreateFileException {
+      CannotCreateFileException, CannotChangePermissionException {
     setProperty(ConfigFile.CONFIG_VERSION_PROPERTY,
         Integer.toString(CURRENT_CONFIG_VERSION));  // FINDBUGS
 
     new OutputStreamFile(storageFile.getPath(), /* hooks = */ null);
-    File tmpOut = File.createTempFile("jackserver-" + storageFile.getName(), ".tmp",
-        storageFile.getParentFile());
+    File tmpOut;
+    try {
+      tmpOut = com.android.sched.util.file.Files.createTempFile(
+          "jackserver-" + storageFile.getName(), ".tmp",
+          new Directory(storageFile.getParentFile().getPath(),
+              null,
+              Existence.MUST_EXIST,
+              Permission.READ | Permission.WRITE,
+              ChangePermission.NOCHANGE));
+    } catch (NotDirectoryException | NoSuchFileException | FileAlreadyExistsException e) {
+      // storageFile.getParentFile() is serverDir, it is a directory and we do not ask for creation
+      throw new AssertionError(e.getMessage(), e);
+    }
     try {
       if (!(tmpOut.setExecutable(false, false)
           && tmpOut.setWritable(false, false)
