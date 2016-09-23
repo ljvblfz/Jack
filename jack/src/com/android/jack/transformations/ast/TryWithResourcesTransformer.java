@@ -194,13 +194,11 @@ public class TryWithResourcesTransformer implements RunnableSchedulable<JMethod>
       if (x.getResourcesDeclarations().size() > 0) {
 
         SourceInfo trySourceInfo = x.getSourceInfo();
-        SourceInfo endOfTrySourceInfos = sourceInfoFactory.create(
-            trySourceInfo.getEndLine(), trySourceInfo.getEndLine(),
-            trySourceInfo.getFileSourceInfo());
+        SourceInfo endOfTrySourceInfos = sourceInfoFactory.create(trySourceInfo.getEndLine(),
+            trySourceInfo.getEndLine(), trySourceInfo);
 
-        SourceInfo firstLineSourceInfos = sourceInfoFactory.create(
-            trySourceInfo.getStartLine(), trySourceInfo.getStartLine(),
-            trySourceInfo.getFileSourceInfo());
+        SourceInfo firstLineSourceInfos = sourceInfoFactory.create(trySourceInfo.getStartLine(),
+            trySourceInfo.getStartLine(), trySourceInfo);
 
         JBlock finalTryBlock = new JBlock(trySourceInfo);
 

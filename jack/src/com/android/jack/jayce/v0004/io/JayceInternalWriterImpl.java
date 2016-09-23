@@ -92,15 +92,24 @@ public class JayceInternalWriterImpl implements JayceInternalWriter {
   private void writeSourceInfoBegin(@Nonnull NNode node) throws IOException {
     if (node instanceof HasSourceInfo) {
       SourceInfo sourceInfo = ((HasSourceInfo) node).getSourceInfos();
-      writeFileNameIfDifferentFromCurrent(sourceInfo.getFileName());
-      writeLineIfDifferentFromCurrent(sourceInfo.getStartLine());
+      if (sourceInfo == SourceInfo.UNKNOWN) {
+        writeUnknowDebug();
+      } else {
+        writeFileNameIfDifferentFromCurrent(sourceInfo.getFileName());
+        writeLineIfDifferentFromCurrent(sourceInfo.getStartLine());
+      }
     }
   }
 
   private void writeSourceInfoEnd(@Nonnull NNode node) throws IOException {
     if (node instanceof HasSourceInfo) {
-      writeLineIfDifferentFromCurrent(
-          ((HasSourceInfo) node).getSourceInfos().getEndLine());
+      SourceInfo sourceInfo = ((HasSourceInfo) node).getSourceInfos();
+      if (sourceInfo == SourceInfo.UNKNOWN) {
+        writeUnknowDebug();
+      } else {
+        writeFileNameIfDifferentFromCurrent(sourceInfo.getFileName());
+        writeLineIfDifferentFromCurrent(sourceInfo.getEndLine());
+      }
     }
   }
 
@@ -258,22 +267,30 @@ public class JayceInternalWriterImpl implements JayceInternalWriter {
     }
   }
 
-  public void writeCurrentFileName(@Nonnull String fileName)  throws IOException {
+  private void writeUnknowDebug()  throws IOException {
+    if (currentFileName != null) {
+      writeOpenFileName();
+      writeString(null);
+      writeCloseFileName();
+      currentFileName = null;
+      currentLineNumber = 0;
+    }
+  }
+
+  private void writeCurrentFileName(@CheckForNull String fileName)  throws IOException {
     writeOpenFileName();
     writeString(fileName);
     writeCloseFileName();
     currentFileName = fileName;
   }
 
-  public void writeLineIfDifferentFromCurrent(@Nonnegative int lineNumber)
-      throws IOException {
+  public void writeLineIfDifferentFromCurrent(@Nonnegative int lineNumber) throws IOException {
     if (lineNumber != currentLineNumber) {
       writeCurrentLine(lineNumber);
     }
   }
 
-  public void writeCurrentLine(@Nonnegative int lineNumber)
-      throws IOException {
+  public void writeCurrentLine(@Nonnegative int lineNumber) throws IOException {
     writeOpenLineInfo();
     writeTrimmedInt(lineNumber);
     writeCloseLineInfo();

@@ -21,9 +21,9 @@ package com.android.jack.library.v0003;
  */
 public class Version {
 
-  public static final int MINOR_MIN = 1;
+  public static final int MINOR_MIN = 2;
 
-  public static final int MINOR = 1;
+  public static final int MINOR = 2;
 
   public static final int MAJOR = 3;
 }

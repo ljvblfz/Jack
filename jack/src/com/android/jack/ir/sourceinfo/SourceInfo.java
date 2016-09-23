@@ -19,6 +19,7 @@ import com.android.sched.util.location.ColumnAndLineLocation;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.HasLocation;
 import com.android.sched.util.location.Location;
+import com.android.sched.util.location.NoLocation;
 
 import javax.annotation.Nonnull;
 
@@ -61,28 +62,30 @@ public abstract class SourceInfo implements HasLocation {
   @Override
   @Nonnull
   public Location getLocation() {
-    Location location;
-    FileLocation fileLocation = new FileLocation(getFileName());
-    if (getStartLine() != UNKNOWN_LINE_NUMBER) {
-      int endLine = getEndLine();
-      if (endLine == UNKNOWN_LINE_NUMBER) {
-        endLine = ColumnAndLineLocation.UNKNOWN;
-      }
+    Location location = NoLocation.getInstance();
+    if (this != SourceInfo.UNKNOWN) {
+      FileLocation fileLocation = new FileLocation(getFileName());
+      if (getStartLine() != UNKNOWN_LINE_NUMBER) {
+        int endLine = getEndLine();
+        if (endLine == UNKNOWN_LINE_NUMBER) {
+          endLine = ColumnAndLineLocation.UNKNOWN;
+        }
 
-      int startColumn = getStartColumn();
-      if (startColumn == UNKNOWN_LINE_NUMBER) {
-        startColumn = ColumnAndLineLocation.UNKNOWN;
-      }
+        int startColumn = getStartColumn();
+        if (startColumn == UNKNOWN_LINE_NUMBER) {
+          startColumn = ColumnAndLineLocation.UNKNOWN;
+        }
 
-      int endColumn = getEndColumn();
-      if (endColumn == UNKNOWN_LINE_NUMBER) {
-        endColumn = ColumnAndLineLocation.UNKNOWN;
-      }
+        int endColumn = getEndColumn();
+        if (endColumn == UNKNOWN_LINE_NUMBER) {
+          endColumn = ColumnAndLineLocation.UNKNOWN;
+        }
 
-      location =
-          new ColumnAndLineLocation(fileLocation, getStartLine(), endLine, startColumn, endColumn);
-    } else {
-      location = fileLocation;
+        location = new ColumnAndLineLocation(fileLocation, getStartLine(), endLine, startColumn,
+            endColumn);
+      } else {
+        location = fileLocation;
+      }
     }
     return location;
   }
