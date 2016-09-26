@@ -25,7 +25,6 @@ import com.android.jack.dx.rop.code.RegisterSpecList;
 import com.android.jack.dx.rop.code.RegisterSpecSet;
 import com.android.jack.dx.rop.code.SourcePosition;
 import com.android.jack.dx.rop.cst.Constant;
-import com.android.jack.dx.rop.cst.CstMemberRef;
 import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Type;
@@ -332,15 +331,6 @@ public final class OutputFinisher {
 
     if (index >= 0) {
       insn.setIndex(index);
-    }
-
-    if (cst instanceof CstMemberRef) {
-      CstMemberRef member = (CstMemberRef) cst;
-      CstType definer = member.getDefiningClass();
-      index = callback.getIndex(definer);
-      if (index >= 0) {
-        insn.setClassIndex(index);
-      }
     }
   }
 

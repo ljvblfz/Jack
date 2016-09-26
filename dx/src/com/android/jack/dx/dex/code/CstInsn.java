@@ -35,12 +35,6 @@ public final class CstInsn extends FixedSizeInsn {
   private int index;
 
   /**
-   * {@code >= -1;} the constant pool index for the class reference in
-   * {@link #constant} if any, or {@code -1} if not yet set
-   */
-  private int classIndex;
-
-  /**
    * Constructs an instance. The output address of this instance is
    * initially unknown ({@code -1}) as is the constant pool index.
    *
@@ -61,7 +55,6 @@ public final class CstInsn extends FixedSizeInsn {
 
     this.constant = constant;
     this.index = -1;
-    this.classIndex = -1;
   }
 
   /** {@inheritDoc} */
@@ -71,10 +64,6 @@ public final class CstInsn extends FixedSizeInsn {
 
     if (index >= 0) {
       result.setIndex(index);
-    }
-
-    if (classIndex >= 0) {
-      result.setClassIndex(classIndex);
     }
 
     return result;
@@ -87,10 +76,6 @@ public final class CstInsn extends FixedSizeInsn {
 
     if (index >= 0) {
       result.setIndex(index);
-    }
-
-    if (classIndex >= 0) {
-      result.setClassIndex(classIndex);
     }
 
     return result;
@@ -146,53 +131,6 @@ public final class CstInsn extends FixedSizeInsn {
     }
 
     this.index = index;
-  }
-
-  /**
-   * Gets the constant's class index. It is only valid to call this after
-   * {@link #setClassIndex} has been called.
-   *
-   * @return {@code >= 0;} the constant's class's constant pool index
-   */
-  public int getClassIndex() {
-    if (classIndex < 0) {
-      throw new RuntimeException("class index not yet set");
-    }
-
-    return classIndex;
-  }
-
-  /**
-   * Returns whether the constant's class index has been set for this
-   * instance.
-   *
-   * @see #setClassIndex
-   *
-   * @return {@code true} iff the index has been set
-   */
-  public boolean hasClassIndex() {
-    return (classIndex >= 0);
-  }
-
-  /**
-   * Sets the constant's class index. This is the constant pool index
-   * for the class referred to by this instance's constant. Only
-   * reference constants have a class, so it is only on instances
-   * with reference constants that this method should ever be
-   * called. It is only valid to call this method once per instance.
-   *
-   * @param index {@code >= 0;} the constant's class's constant pool index
-   */
-  public void setClassIndex(int index) {
-    if (index < 0) {
-      throw new IllegalArgumentException("index < 0");
-    }
-
-    if (this.classIndex >= 0) {
-      throw new RuntimeException("class index already set");
-    }
-
-    this.classIndex = index;
   }
 
   /** {@inheritDoc} */
