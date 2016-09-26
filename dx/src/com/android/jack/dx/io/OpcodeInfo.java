@@ -401,6 +401,10 @@ public final class OpcodeInfo {
   public static final Info INVOKE_INTERFACE_RANGE = new Info(Opcodes.INVOKE_INTERFACE_RANGE,
       "invoke-interface/range", InstructionCodec.FORMAT_3RC, IndexType.METHOD_REF);
 
+  public static final Info INVOKE_POLYMORPHIC_RANGE =
+      new Info(Opcodes.INVOKE_POLYMORPHIC_RANGE, "invoke-polymorphic-range",
+          InstructionCodec.FORMAT_4RCC, IndexType.METHOD_REF, IndexType.PROTOTYPE_REF);
+
   public static final Info NEG_INT =
       new Info(Opcodes.NEG_INT, "neg-int", InstructionCodec.FORMAT_12X, IndexType.NONE);
 
@@ -843,6 +847,7 @@ public final class OpcodeInfo {
     set(INVOKE_DIRECT_RANGE);
     set(INVOKE_STATIC_RANGE);
     set(INVOKE_INTERFACE_RANGE);
+    set(INVOKE_POLYMORPHIC_RANGE);
     set(NEG_INT);
     set(NOT_INT);
     set(NEG_LONG);

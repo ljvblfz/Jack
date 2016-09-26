@@ -22,7 +22,7 @@ import com.android.jack.dx.io.IndexType;
  * A decoded Dalvik instruction which has register range arguments (an
  * "A" start register and a register count).
  */
-public final class RegisterRangeDecodedInstruction extends DecodedInstruction {
+public class RegisterRangeDecodedInstruction extends DecodedInstruction {
   /** register argument "A" */
   private final int a;
 
@@ -34,13 +34,16 @@ public final class RegisterRangeDecodedInstruction extends DecodedInstruction {
    */
   public RegisterRangeDecodedInstruction(InstructionCodec format,
       int opcode,
-      int index,
-      IndexType indexType,
+      int firstIndex,
+      IndexType firstIndexType,
       int target,
       long literal,
       int a,
-      int registerCount) {
-    super(format, opcode, index, indexType, target, literal);
+      int registerCount,
+      int secondIndex,
+      IndexType secondIndexType) {
+    super(format, opcode, firstIndex, firstIndexType, target, literal, secondIndex,
+        secondIndexType);
 
     this.a = a;
     this.registerCount = registerCount;
@@ -61,7 +64,6 @@ public final class RegisterRangeDecodedInstruction extends DecodedInstruction {
   @Override
   /** @inheritDoc */
   public DecodedInstruction withIndex(int newFirstIndex, int newSecondIndex) {
-    assert getSecondIndexType() == IndexType.NONE;
     return new RegisterRangeDecodedInstruction(getFormat(),
         getOpcode(),
         newFirstIndex,
@@ -69,6 +71,8 @@ public final class RegisterRangeDecodedInstruction extends DecodedInstruction {
         getTarget(),
         getLiteral(),
         a,
-        registerCount);
+        registerCount,
+        newSecondIndex,
+        getSecondIndexType());
   }
 }

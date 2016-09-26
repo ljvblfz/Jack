@@ -110,7 +110,7 @@ public final class Form4rcc extends InsnFormat {
     int count = regs.getWordCount();
     DualCstInsn dci = (DualCstInsn) insn;
 
-    write(out, opcodeUnit(insn, count), dci.getFirstIndex(), (short) firstReg,
+    write(out, opcodeUnit(insn, count), (short) dci.getFirstIndex(), (short) firstReg,
         (short) dci.getSecondIndex());
   }
 }

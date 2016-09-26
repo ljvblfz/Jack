@@ -700,6 +700,19 @@ public enum InstructionCodec {
       encodeRegisterList(insn, out);
       out.write(insn.getSecondIndexUnit());
     }
+  }
+  ,
+  FORMAT_4RCC() {
+    @Override
+    public DecodedInstruction decode(int opcodeUnit, CodeInput in) throws EOFException {
+      return decodeRegisterRange(this, opcodeUnit, in);
+    }
+
+    @Override
+    public void encode(DecodedInstruction insn, CodeOutput out) {
+      encodeRegisterRange(insn, out);
+      out.write(insn.getSecondIndexUnit());
+    }
   };
 
   /**
@@ -800,6 +813,12 @@ public enum InstructionCodec {
     int index = in.read();
     int a = in.read();
     IndexType indexType = OpcodeInfo.getFirstIndexType(opcode);
+    int index2 = 0;
+
+    if (OpcodeInfo.hasDualConstants(opcode)) {
+      index2 = in.read();
+    }
+
     return new RegisterRangeDecodedInstruction(format,
         opcode,
         index,
@@ -807,7 +826,9 @@ public enum InstructionCodec {
         0,
         0L,
         a,
-        registerCount);
+        registerCount,
+        index2,
+        OpcodeInfo.getSecondIndexType(opcode));
   }
 
   /**
