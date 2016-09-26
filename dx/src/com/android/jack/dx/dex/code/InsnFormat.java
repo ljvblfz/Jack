@@ -29,6 +29,9 @@ import com.android.jack.dx.util.Hex;
 
 import java.util.BitSet;
 
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+
 /**
  * Base class for all instruction format handlers. Instruction format
  * handlers know how to translate {@link DalvInsn} instances into
@@ -334,18 +337,27 @@ public abstract class InsnFormat {
   }
 
   /**
-   * Helper method to return the constant string for a {@link CstInsn}
-   * in human form.
+   * Helper method to return the constant string for a {@link CstInsn} in human form.
    *
    * @param insn {@code non-null;} a constant-bearing instruction
-   * @return {@code non-null;} the human string form of the contained
-   * constant
+   * @return {@code non-null;} the human string form of the contained constant
    */
-  protected static String cstString(DalvInsn insn) {
-    CstInsn ci = (CstInsn) insn;
+  @Nonnull
+  protected static String cstString(@Nonnull CstInsn ci) {
     Constant cst = ci.getConstant();
 
     return cst instanceof CstString ? ((CstString) cst).toQuoted() : cst.toHuman();
+  }
+
+  /**
+   * Helper method to return the constant string for a {@link DualCstInsn} in human form.
+   *
+   * @param insn {@code non-null;} a dual-constant-bearing instruction
+   * @return {@code non-null;} the human string form of the contained constants
+   */
+  @Nonnull
+  protected static String cstString(@Nonnull DualCstInsn insn) {
+    return insn.getFirstConstant().toHuman() + ", " + insn.getSecondConstant().toHuman();
   }
 
   /**
@@ -354,23 +366,46 @@ public abstract class InsnFormat {
    * @param insn {@code non-null;} a constant-bearing instruction
    * @return {@code non-null;} comment string representing the constant
    */
-  protected static String cstComment(DalvInsn insn) {
-    CstInsn ci = (CstInsn) insn;
-
+  @Nonnull
+  protected static String cstComment(@Nonnull CstInsn ci) {
     if (!ci.hasIndex()) {
       return "";
     }
 
-    StringBuilder sb = new StringBuilder(20);
-    int index = ci.getIndex();
+    return insnCommentCstWithIndex(ci.getConstant(), ci.getIndex());
+  }
 
-    sb.append(ci.getConstant().typeName());
+  /**
+   * Helper method to return an instruction comment for a dual constants.
+   *
+   * @param insn {@code non-null;} a dual-constant-bearing instruction
+   * @return {@code non-null;} comment string representing the constants
+   */
+  @Nonnull
+  protected static String cstComment(@Nonnull DualCstInsn insn) {
+    StringBuilder sb = new StringBuilder(20);
+
+    sb.append(insnCommentCstWithIndex(insn.getFirstConstant(), insn.getFirstIndex()));
+
+    sb.append(", ");
+
+    sb.append(insnCommentCstWithIndex(insn.getSecondConstant(), insn.getSecondIndex()));
+
+    return sb.toString();
+  }
+
+  @Nonnull
+  private static String insnCommentCstWithIndex(@Nonnull Constant cst,
+      @Nonnegative int firstIndex) {
+    StringBuilder sb = new StringBuilder();
+
+    sb.append(cst.typeName());
     sb.append('@');
 
-    if (index < 65536) {
-      sb.append(Hex.u2(index));
+    if (firstIndex < 65536) {
+      sb.append(Hex.u2(firstIndex));
     } else {
-      sb.append(Hex.u4(index));
+      sb.append(Hex.u4(firstIndex));
     }
 
     return sb.toString();

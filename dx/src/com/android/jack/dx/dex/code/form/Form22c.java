@@ -47,14 +47,15 @@ public final class Form22c extends InsnFormat {
   @Override
   public String insnArgString(DalvInsn insn) {
     RegisterSpecList regs = insn.getRegisters();
-    return regs.get(0).regString() + ", " + regs.get(1).regString() + ", " + cstString(insn);
+    return regs.get(0).regString() + ", " + regs.get(1).regString() + ", "
+        + cstString((CstInsn) insn);
   }
 
   /** {@inheritDoc} */
   @Override
   public String insnCommentString(DalvInsn insn, boolean noteIndices) {
     if (noteIndices) {
-      return cstComment(insn);
+      return cstComment((CstInsn) insn);
     } else {
       return "";
     }

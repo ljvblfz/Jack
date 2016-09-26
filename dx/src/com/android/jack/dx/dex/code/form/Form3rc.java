@@ -44,14 +44,14 @@ public final class Form3rc extends InsnFormat {
   /** {@inheritDoc} */
   @Override
   public String insnArgString(DalvInsn insn) {
-    return regRangeString(insn.getRegisters()) + ", " + cstString(insn);
+    return regRangeString(insn.getRegisters()) + ", " + cstString((CstInsn) insn);
   }
 
   /** {@inheritDoc} */
   @Override
   public String insnCommentString(DalvInsn insn, boolean noteIndices) {
     if (noteIndices) {
-      return cstComment(insn);
+      return cstComment((CstInsn) insn);
     } else {
       return "";
     }

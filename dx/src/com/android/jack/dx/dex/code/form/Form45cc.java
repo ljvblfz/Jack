@@ -21,12 +21,10 @@ import com.android.jack.dx.dex.code.DualCstInsn;
 import com.android.jack.dx.dex.code.InsnFormat;
 import com.android.jack.dx.rop.code.RegisterSpec;
 import com.android.jack.dx.rop.code.RegisterSpecList;
-import com.android.jack.dx.rop.cst.Constant;
 import com.android.jack.dx.rop.cst.CstMethodRef;
 import com.android.jack.dx.rop.cst.CstPrototypeRef;
 import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.util.AnnotatedOutput;
-import com.android.jack.dx.util.Hex;
 
 import java.util.BitSet;
 
@@ -60,8 +58,7 @@ public final class Form45cc extends InsnFormat {
   @Nonnull
   public String insnArgString(@Nonnull DalvInsn insn) {
     RegisterSpecList regs = explicitize(insn.getRegisters());
-    return regListString(regs) + ", " + ((DualCstInsn) insn).getFirstConstant().toHuman() + ", "
-        + ((DualCstInsn) insn).getSecondConstant().toHuman();
+    return regListString(regs) + ", " + cstString((DualCstInsn) insn);
   }
 
   /** {@inheritDoc} */
@@ -69,35 +66,10 @@ public final class Form45cc extends InsnFormat {
   @Nonnull
   public String insnCommentString(@Nonnull DalvInsn insn, boolean noteIndices) {
     if (noteIndices) {
-      StringBuilder sb = new StringBuilder(20);
-
-      sb.append(insnCommentCstWithIndex(((DualCstInsn) insn).getFirstConstant(),
-          ((DualCstInsn) insn).getFirstIndex()));
-
-      sb.append(", ");
-
-      sb.append(insnCommentCstWithIndex(((DualCstInsn) insn).getSecondConstant(),
-          ((DualCstInsn) insn).getSecondIndex()));
-      return sb.toString();
+      return cstComment((DualCstInsn) insn);
     } else {
       return "";
     }
-  }
-
-  @Nonnull
-  private String insnCommentCstWithIndex(@Nonnull Constant cst, @Nonnegative int firstIndex) {
-    StringBuilder sb = new StringBuilder();
-
-    sb.append(cst.typeName());
-    sb.append('@');
-
-    if (firstIndex < 65536) {
-      sb.append(Hex.u2(firstIndex));
-    } else {
-      sb.append(Hex.u4(firstIndex));
-    }
-
-    return sb.toString();
   }
 
   /** {@inheritDoc} */
