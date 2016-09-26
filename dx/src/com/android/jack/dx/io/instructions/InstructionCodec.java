@@ -234,7 +234,7 @@ public enum InstructionCodec {
     int opcode = byte0(opcodeUnit);
     int a = byte1(opcodeUnit);
     int index = in.read();
-    IndexType indexType = OpcodeInfo.getIndexType(opcode);
+    IndexType indexType = OpcodeInfo.getFirstIndexType(opcode);
     return new OneRegisterDecodedInstruction(this, opcode, index, indexType, 0, 0L, a);
   }
 
@@ -321,7 +321,7 @@ public enum InstructionCodec {
     int a = nibble2(opcodeUnit);
     int b = nibble3(opcodeUnit);
     int index = in.read();
-    IndexType indexType = OpcodeInfo.getIndexType(opcode);
+    IndexType indexType = OpcodeInfo.getFirstIndexType(opcode);
     return new TwoRegisterDecodedInstruction(this, opcode, index, indexType, 0, 0L, a, b);
   }
 
@@ -440,7 +440,7 @@ public enum InstructionCodec {
     int opcode = byte0(opcodeUnit);
     int a = byte1(opcodeUnit);
     int index = in.readInt();
-    IndexType indexType = OpcodeInfo.getIndexType(opcode);
+    IndexType indexType = OpcodeInfo.getFirstIndexType(opcode);
     return new OneRegisterDecodedInstruction(this, opcode, index, indexType, 0, 0L, a);
   }
 
@@ -706,7 +706,7 @@ public enum InstructionCodec {
     int b = nibble1(abcd);
     int c = nibble2(abcd);
     int d = nibble3(abcd);
-    IndexType indexType = OpcodeInfo.getIndexType(opcode);
+    IndexType indexType = OpcodeInfo.getFirstIndexType(opcode);
 
     // TODO(dx team): Having to switch like this is less than ideal.
     switch (registerCount) {
@@ -771,7 +771,7 @@ public enum InstructionCodec {
     int registerCount = byte1(opcodeUnit);
     int index = in.read();
     int a = in.read();
-    IndexType indexType = OpcodeInfo.getIndexType(opcode);
+    IndexType indexType = OpcodeInfo.getFirstIndexType(opcode);
     return new RegisterRangeDecodedInstruction(format,
         opcode,
         index,

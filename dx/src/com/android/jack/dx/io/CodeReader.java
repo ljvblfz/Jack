@@ -97,7 +97,7 @@ public final class CodeReader {
   private void callVisit(DecodedInstruction[] all, DecodedInstruction one) {
     Visitor visitor = null;
 
-    switch (OpcodeInfo.getIndexType(one.getOpcode())) {
+    switch (OpcodeInfo.getFirstIndexType(one.getOpcode())) {
       case STRING_REF:
         visitor = stringVisitor;
         break;

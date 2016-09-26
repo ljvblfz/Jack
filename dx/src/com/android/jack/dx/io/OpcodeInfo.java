@@ -19,6 +19,9 @@ package com.android.jack.dx.io;
 import com.android.jack.dx.io.instructions.InstructionCodec;
 import com.android.jack.dx.util.Hex;
 
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+
 /**
  * Information about each Dalvik opcode.
  */
@@ -987,10 +990,26 @@ public final class OpcodeInfo {
   }
 
   /**
-   * Gets the {@link IndexType} for the given opcode value.
+   * Gets the first {@link IndexType} for the given opcode value.
    */
-  public static IndexType getIndexType(int opcode) {
-    return get(opcode).getIndexType();
+  @Nonnull
+  public static IndexType getFirstIndexType(int opcode) {
+    return get(opcode).getFirstIndexType();
+  }
+
+  /**
+   * Gets the second {@link IndexType} for the given opcode value.
+   */
+  @Nonnull
+  public static IndexType getSecondIndexType(int opcode) {
+    return get(opcode).getSecondIndexType();
+  }
+
+  /**
+   * Tells if the instruction has two constants or not.
+   */
+  public static boolean hasDualConstants(int opcode) {
+    return get(opcode).hasDualConstants();
   }
 
   /**
@@ -1007,32 +1026,58 @@ public final class OpcodeInfo {
    * Information about an opcode.
    */
   public static class Info {
+    @Nonnegative
     private final int opcode;
+    @Nonnull
     private final String name;
+    @Nonnull
     private final InstructionCodec format;
-    private final IndexType indexType;
+    @Nonnull
+    private final IndexType firstIndexType;
+    @Nonnull
+    private final IndexType secondIndexType;
 
-    public Info(int opcode, String name, InstructionCodec format, IndexType indexType) {
+    public Info(@Nonnegative int opcode, @Nonnull String name, @Nonnull InstructionCodec format,
+        @Nonnull IndexType firstIndexType) {
+      this(opcode, name, format, firstIndexType, IndexType.NONE);
+    }
+
+    public Info(@Nonnegative int opcode, @Nonnull String name, @Nonnull InstructionCodec format,
+        @Nonnull IndexType firstIndexType, @Nonnull IndexType secondIndexType) {
       this.opcode = opcode;
       this.name = name;
       this.format = format;
-      this.indexType = indexType;
+      this.firstIndexType = firstIndexType;
+      this.secondIndexType = secondIndexType;
     }
 
+    @Nonnegative
     public int getOpcode() {
       return opcode;
     }
 
+    @Nonnull
     public String getName() {
       return name;
     }
 
+    @Nonnull
     public InstructionCodec getFormat() {
       return format;
     }
 
-    public IndexType getIndexType() {
-      return indexType;
+    @Nonnull
+    public IndexType getFirstIndexType() {
+      return firstIndexType;
+    }
+
+    @Nonnull
+    public IndexType getSecondIndexType() {
+      return secondIndexType;
+    }
+
+    public boolean hasDualConstants() {
+      return secondIndexType != IndexType.NONE;
     }
   }
 }
