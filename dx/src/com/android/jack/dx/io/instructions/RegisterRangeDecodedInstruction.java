@@ -60,11 +60,12 @@ public final class RegisterRangeDecodedInstruction extends DecodedInstruction {
 
   @Override
   /** @inheritDoc */
-  public DecodedInstruction withIndex(int newIndex) {
+  public DecodedInstruction withIndex(int newFirstIndex, int newSecondIndex) {
+    assert getSecondIndexType() == IndexType.NONE;
     return new RegisterRangeDecodedInstruction(getFormat(),
         getOpcode(),
-        newIndex,
-        getIndexType(),
+        newFirstIndex,
+        getFirstIndexType(),
         getTarget(),
         getLiteral(),
         a,

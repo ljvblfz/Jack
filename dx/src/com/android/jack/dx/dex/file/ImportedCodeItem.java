@@ -340,7 +340,7 @@ public final class ImportedCodeItem extends OffsettedItem implements
 
     @Override
     public void visit(DecodedInstruction[] all, DecodedInstruction decodedInst) {
-      int newIndex = cstIndexMap.getRemappedCstStringIndex(file, decodedInst.getIndex());
+      int newIndex = cstIndexMap.getRemappedCstStringIndex(file, decodedInst.getFirstIndex());
 
       if (decodedInst.getOpcode() != Opcodes.CONST_STRING_JUMBO && (newIndex > 0xffff)) {
         throw new DexException(
@@ -365,7 +365,7 @@ public final class ImportedCodeItem extends OffsettedItem implements
     @Override
     public void visit(DecodedInstruction[] all, DecodedInstruction decodedInst) {
       remappedInstructions[remappingIndex++] = decodedInst.withIndex(
-          cstIndexMap.getRemappedCstFieldRefIndex(file, decodedInst.getIndex()));
+          cstIndexMap.getRemappedCstFieldRefIndex(file, decodedInst.getFirstIndex()));
     }
   }
 
@@ -382,8 +382,8 @@ public final class ImportedCodeItem extends OffsettedItem implements
 
     @Override
     public void visit(DecodedInstruction[] all, DecodedInstruction decodedInst) {
-      remappedInstructions[remappingIndex++] =
-          decodedInst.withIndex(cstIndexMap.getRemappedCstTypeIndex(file, decodedInst.getIndex()));
+      remappedInstructions[remappingIndex++] = decodedInst
+          .withIndex(cstIndexMap.getRemappedCstTypeIndex(file, decodedInst.getFirstIndex()));
     }
   }
 
@@ -401,7 +401,7 @@ public final class ImportedCodeItem extends OffsettedItem implements
     @Override
     public void visit(DecodedInstruction[] all, DecodedInstruction decodedInst) {
       remappedInstructions[remappingIndex++] = decodedInst.withIndex(
-          cstIndexMap.getRemappedCstBaseMethodRefIndex(file, decodedInst.getIndex()));
+          cstIndexMap.getRemappedCstBaseMethodRefIndex(file, decodedInst.getFirstIndex()));
     }
   }
 }

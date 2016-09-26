@@ -65,11 +65,12 @@ public final class TwoRegisterDecodedInstruction extends DecodedInstruction {
 
   @Override
   /** @inheritDoc */
-  public DecodedInstruction withIndex(int newIndex) {
+  public DecodedInstruction withIndex(int newFirstIndex, int newSecondIndex) {
+    assert getSecondIndexType() == IndexType.NONE;
     return new TwoRegisterDecodedInstruction(getFormat(),
         getOpcode(),
-        newIndex,
-        getIndexType(),
+        newFirstIndex,
+        getFirstIndexType(),
         getTarget(),
         getLiteral(),
         a,

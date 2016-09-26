@@ -24,6 +24,9 @@ import com.android.jack.dx.util.Hex;
 
 import java.io.EOFException;
 
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+
 /**
  * A decoded Dalvik instruction. This consists of a format codec, a
  * numeric opcode, an optional index type, and any additional
@@ -39,22 +42,32 @@ import java.io.EOFException;
  */
 public abstract class DecodedInstruction {
   /** non-null; instruction format / codec */
+  @Nonnull
   private final InstructionCodec format;
 
   /** opcode number */
+  @Nonnegative
   private final int opcode;
 
-  /** constant index argument */
-  private final int index;
+  /** first constant index argument */
+  private final int firstIndex;
 
-  /** null-ok; index type */
-  private final IndexType indexType;
+  /** first index type */
+  @Nonnull
+  private final IndexType firstIndexType;
+
+  /** second constant index argument */
+  private final int secondIndex;
+
+  /** second index type */
+  @Nonnull
+  private final IndexType secondIndexType;
 
   /**
-   * target address argument. This is an absolute address, not just
-   * a signed offset. <b>Note:</b> The address is unsigned, even
-   * though it is stored in an {@code int}.
+   * target address argument. This is an absolute address, not just a signed offset. <b>Note:</b>
+   * The address is unsigned, even though it is stored in an {@code int}.
    */
+  @Nonnegative
   private final int target;
 
   /**
@@ -67,7 +80,8 @@ public abstract class DecodedInstruction {
   /**
    * Decodes an instruction from the given input source.
    */
-  public static DecodedInstruction decode(CodeInput in) throws EOFException {
+  @Nonnull
+  public static DecodedInstruction decode(@Nonnull CodeInput in) throws EOFException {
     int opcodeUnit = in.read();
     int opcode = Opcodes.extractOpcodeFromUnit(opcodeUnit);
     InstructionCodec format = OpcodeInfo.getFormat(opcode);
@@ -80,7 +94,8 @@ public abstract class DecodedInstruction {
    * elements at each offset that represents the start of an
    * instruction.
    */
-  public static DecodedInstruction[] decodeAll(short[] encodedInstructions) {
+  @Nonnull
+  public static DecodedInstruction[] decodeAll(@Nonnull short[] encodedInstructions) {
     int size = encodedInstructions.length;
     DecodedInstruction[] decoded = new DecodedInstruction[size];
     ShortArrayCodeInput in = new ShortArrayCodeInput(encodedInstructions);
@@ -99,32 +114,37 @@ public abstract class DecodedInstruction {
   /**
    * Constructs an instance.
    */
-  public DecodedInstruction(InstructionCodec format,
-      int opcode,
-      int index,
-      IndexType indexType,
-      int target,
-      long literal) {
-    if (format == null) {
-      throw new NullPointerException("format == null");
-    }
+  public DecodedInstruction(@Nonnull InstructionCodec format, @Nonnegative int opcode,
+      int firstIndex, @Nonnull IndexType firstIndexType, @Nonnegative int target, long literal) {
+    this(format, opcode, firstIndex, firstIndexType, target, literal, /* secondIndex = */ 0,
+        IndexType.NONE);
+  }
 
-    if (!Opcodes.isValidShape(opcode)) {
-      throw new IllegalArgumentException("invalid opcode");
-    }
+  /**
+   * Constructs an instance.
+   */
+  public DecodedInstruction(@Nonnull InstructionCodec format, @Nonnegative int opcode,
+      @Nonnegative int firstIndex, @Nonnull IndexType firstIndexType, @Nonnegative int target,
+      long literal, @Nonnegative int secondIndex, @Nonnull IndexType secondIndexType) {
+    assert format != null;
+    assert Opcodes.isValidShape(opcode);
 
     this.format = format;
     this.opcode = opcode;
-    this.index = index;
-    this.indexType = indexType;
+    this.firstIndex = firstIndex;
+    this.firstIndexType = firstIndexType;
     this.target = target;
     this.literal = literal;
+    this.secondIndex = secondIndex;
+    this.secondIndexType = secondIndexType;
   }
 
+  @Nonnull
   public final InstructionCodec getFormat() {
     return format;
   }
 
+  @Nonnegative
   public final int getOpcode() {
     return opcode;
   }
@@ -132,28 +152,51 @@ public abstract class DecodedInstruction {
   /**
    * Gets the opcode, as a code unit.
    */
+  @Nonnegative
   public final short getOpcodeUnit() {
     return (short) opcode;
   }
 
-  public final int getIndex() {
-    return index;
+  public final int getFirstIndex() {
+    assert firstIndexType != IndexType.NONE;
+    return firstIndex;
+  }
+
+  public final int getSecondIndex() {
+    assert secondIndexType != IndexType.NONE;
+    return secondIndex;
   }
 
   /**
-   * Gets the index, as a code unit.
+   * Gets the first index, as a code unit.
    */
-  public final short getIndexUnit() {
-    return (short) index;
+  public final short getFirstIndexUnit() {
+    assert firstIndexType != IndexType.NONE;
+    return (short) firstIndex;
   }
 
-  public final IndexType getIndexType() {
-    return indexType;
+  /**
+   * Gets the second index, as a code unit.
+   */
+  public final short getSecondIndexUnit() {
+    assert secondIndexType != IndexType.NONE;
+    return (short) secondIndex;
+  }
+
+  @Nonnull
+  public final IndexType getFirstIndexType() {
+    return firstIndexType;
+  }
+
+  @Nonnull
+  public final IndexType getSecondIndexType() {
+    return secondIndexType;
   }
 
   /**
    * Gets the raw target.
    */
+  @Nonnegative
   public final int getTarget() {
     return target;
   }
@@ -247,40 +290,32 @@ public abstract class DecodedInstruction {
     return (int) literal & 0xf;
   }
 
+  @Nonnegative
   public abstract int getRegisterCount();
 
+  @Nonnegative
   public int getA() {
     return 0;
   }
 
+  @Nonnegative
   public int getB() {
     return 0;
   }
 
+  @Nonnegative
   public int getC() {
     return 0;
   }
 
+  @Nonnegative
   public int getD() {
     return 0;
   }
 
+  @Nonnegative
   public int getE() {
     return 0;
-  }
-
-  /**
-   * Gets the register count, as a code unit. This will throw if the
-   * value is out of the range of an unsigned code unit.
-   */
-  public final short getRegisterCountUnit() {
-    int registerCount = getRegisterCount();
-
-    if ((registerCount & ~0xffff) != 0) {
-      throw new DexException("Register count out of range: " + Hex.u8(registerCount));
-    }
-
-    return (short) registerCount;
   }
 
   /**
@@ -291,34 +326,6 @@ public abstract class DecodedInstruction {
     int a = getA();
 
     if ((a & ~0xffff) != 0) {
-      throw new DexException("Register A out of range: " + Hex.u8(a));
-    }
-
-    return (short) a;
-  }
-
-  /**
-   * Gets the A register number, as a byte. This will throw if the
-   * value is out of the range of an unsigned byte.
-   */
-  public final short getAByte() {
-    int a = getA();
-
-    if ((a & ~0xff) != 0) {
-      throw new DexException("Register A out of range: " + Hex.u8(a));
-    }
-
-    return (short) a;
-  }
-
-  /**
-   * Gets the A register number, as a nibble. This will throw if the
-   * value is out of the range of an unsigned nibble.
-   */
-  public final short getANibble() {
-    int a = getA();
-
-    if ((a & ~0xf) != 0) {
       throw new DexException("Register A out of range: " + Hex.u8(a));
     }
 
@@ -340,135 +347,9 @@ public abstract class DecodedInstruction {
   }
 
   /**
-   * Gets the B register number, as a byte. This will throw if the
-   * value is out of the range of an unsigned byte.
-   */
-  public final short getBByte() {
-    int b = getB();
-
-    if ((b & ~0xff) != 0) {
-      throw new DexException("Register B out of range: " + Hex.u8(b));
-    }
-
-    return (short) b;
-  }
-
-  /**
-   * Gets the B register number, as a nibble. This will throw if the
-   * value is out of the range of an unsigned nibble.
-   */
-  public final short getBNibble() {
-    int b = getB();
-
-    if ((b & ~0xf) != 0) {
-      throw new DexException("Register B out of range: " + Hex.u8(b));
-    }
-
-    return (short) b;
-  }
-
-  /**
-   * Gets the C register number, as a code unit. This will throw if the
-   * value is out of the range of an unsigned code unit.
-   */
-  public final short getCUnit() {
-    int c = getC();
-
-    if ((c & ~0xffff) != 0) {
-      throw new DexException("Register C out of range: " + Hex.u8(c));
-    }
-
-    return (short) c;
-  }
-
-  /**
-   * Gets the C register number, as a byte. This will throw if the
-   * value is out of the range of an unsigned byte.
-   */
-  public final short getCByte() {
-    int c = getC();
-
-    if ((c & ~0xff) != 0) {
-      throw new DexException("Register C out of range: " + Hex.u8(c));
-    }
-
-    return (short) c;
-  }
-
-  /**
-   * Gets the C register number, as a nibble. This will throw if the
-   * value is out of the range of an unsigned nibble.
-   */
-  public final short getCNibble() {
-    int c = getC();
-
-    if ((c & ~0xf) != 0) {
-      throw new DexException("Register C out of range: " + Hex.u8(c));
-    }
-
-    return (short) c;
-  }
-
-  /**
-   * Gets the D register number, as a code unit. This will throw if the
-   * value is out of the range of an unsigned code unit.
-   */
-  public final short getDUnit() {
-    int d = getD();
-
-    if ((d & ~0xffff) != 0) {
-      throw new DexException("Register D out of range: " + Hex.u8(d));
-    }
-
-    return (short) d;
-  }
-
-  /**
-   * Gets the D register number, as a byte. This will throw if the
-   * value is out of the range of an unsigned byte.
-   */
-  public final short getDByte() {
-    int d = getD();
-
-    if ((d & ~0xff) != 0) {
-      throw new DexException("Register D out of range: " + Hex.u8(d));
-    }
-
-    return (short) d;
-  }
-
-  /**
-   * Gets the D register number, as a nibble. This will throw if the
-   * value is out of the range of an unsigned nibble.
-   */
-  public final short getDNibble() {
-    int d = getD();
-
-    if ((d & ~0xf) != 0) {
-      throw new DexException("Register D out of range: " + Hex.u8(d));
-    }
-
-    return (short) d;
-  }
-
-  /**
-   * Gets the E register number, as a nibble. This will throw if the
-   * value is out of the range of an unsigned nibble.
-   */
-  public final short getENibble() {
-    int e = getE();
-
-    if ((e & ~0xf) != 0) {
-      throw new DexException("Register E out of range: " + Hex.u8(e));
-    }
-
-    return (short) e;
-  }
-
-  /**
    * Encodes this instance to the given output.
    */
-  public final void encode(CodeOutput out) {
+  public final void encode(@Nonnull CodeOutput out) {
     format.encode(this, out);
   }
 
@@ -476,5 +357,15 @@ public abstract class DecodedInstruction {
    * Returns an instance just like this one, except with the index replaced
    * with the given one.
    */
-  public abstract DecodedInstruction withIndex(int newIndex);
+  @Nonnull
+  public DecodedInstruction withIndex(int newFirstIndex) {
+    return withIndex(newFirstIndex, /* newSecondIndex = */ 0);
+  }
+
+  /**
+   * Returns an instance just like this one, except with the indexes replaced with the given
+   * indexes.
+   */
+  @Nonnull
+  public abstract DecodedInstruction withIndex(int newFirstIndex, int newSecondIndex);
 }

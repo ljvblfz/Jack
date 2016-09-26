@@ -32,7 +32,7 @@ public enum InstructionCodec {
   FORMAT_00X() {
   @Override
     public DecodedInstruction decode(int opcodeUnit, CodeInput in) {
-      return new ZeroRegisterDecodedInstruction(this, opcodeUnit, 0, null, 0, 0L);
+      return new ZeroRegisterDecodedInstruction(this, opcodeUnit, 0, IndexType.NONE, 0, 0L);
     }
 
   @Override
@@ -46,7 +46,7 @@ public enum InstructionCodec {
     public DecodedInstruction decode(int opcodeUnit, CodeInput in) {
       int opcode = byte0(opcodeUnit);
       int literal = byte1(opcodeUnit); // should be zero
-      return new ZeroRegisterDecodedInstruction(this, opcode, 0, null, 0, literal);
+      return new ZeroRegisterDecodedInstruction(this, opcode, 0, IndexType.NONE, 0, literal);
     }
 
   @Override
@@ -61,7 +61,7 @@ public enum InstructionCodec {
       int opcode = byte0(opcodeUnit);
       int a = nibble2(opcodeUnit);
       int b = nibble3(opcodeUnit);
-      return new TwoRegisterDecodedInstruction(this, opcode, 0, null, 0, 0L, a, b);
+      return new TwoRegisterDecodedInstruction(this, opcode, 0, IndexType.NONE, 0, 0L, a, b);
     }
 
   @Override
@@ -76,7 +76,7 @@ public enum InstructionCodec {
       int opcode = byte0(opcodeUnit);
       int a = nibble2(opcodeUnit);
       int literal = (nibble3(opcodeUnit) << 28) >> 28; // sign-extend
-      return new OneRegisterDecodedInstruction(this, opcode, 0, null, 0, literal, a);
+      return new OneRegisterDecodedInstruction(this, opcode, 0, IndexType.NONE, 0, literal, a);
     }
 
   @Override
@@ -90,7 +90,7 @@ public enum InstructionCodec {
     public DecodedInstruction decode(int opcodeUnit, CodeInput in) {
       int opcode = byte0(opcodeUnit);
       int a = byte1(opcodeUnit);
-      return new OneRegisterDecodedInstruction(this, opcode, 0, null, 0, 0L, a);
+      return new OneRegisterDecodedInstruction(this, opcode, 0, IndexType.NONE, 0, 0L, a);
     }
 
   @Override
@@ -105,7 +105,8 @@ public enum InstructionCodec {
       int baseAddress = in.cursor() - 1;
       int opcode = byte0(opcodeUnit);
       int target = (byte) byte1(opcodeUnit); // sign-extend
-      return new ZeroRegisterDecodedInstruction(this, opcode, 0, null, baseAddress + target, 0L);
+      return new ZeroRegisterDecodedInstruction(this, opcode, 0, IndexType.NONE,
+          baseAddress + target, 0L);
     }
 
   @Override
@@ -125,7 +126,7 @@ public enum InstructionCodec {
       return new ZeroRegisterDecodedInstruction(this,
           opcode,
           0,
-          null,
+          IndexType.NONE,
           baseAddress + target,
           literal);
     }
@@ -149,7 +150,7 @@ public enum InstructionCodec {
 
   @Override
   public void encode(DecodedInstruction insn, CodeOutput out) {
-    out.write(codeUnit(insn.getOpcode(), insn.getLiteralByte()), insn.getIndexUnit());
+    out.write(codeUnit(insn.getOpcode(), insn.getLiteralByte()), insn.getFirstIndexUnit());
   }
 },
 
@@ -159,7 +160,7 @@ public enum InstructionCodec {
     int opcode = byte0(opcodeUnit);
     int a = byte1(opcodeUnit);
     int b = in.read();
-    return new TwoRegisterDecodedInstruction(this, opcode, 0, null, 0, 0L, a, b);
+    return new TwoRegisterDecodedInstruction(this, opcode, 0, IndexType.NONE, 0, 0L, a, b);
   }
 
   @Override
@@ -175,7 +176,8 @@ public enum InstructionCodec {
     int opcode = byte0(opcodeUnit);
     int a = byte1(opcodeUnit);
     int target = (short) in.read(); // sign-extend
-    return new OneRegisterDecodedInstruction(this, opcode, 0, null, baseAddress + target, 0L, a);
+      return new OneRegisterDecodedInstruction(this, opcode, 0, IndexType.NONE,
+          baseAddress + target, 0L, a);
   }
 
   @Override
@@ -191,7 +193,7 @@ public enum InstructionCodec {
     int opcode = byte0(opcodeUnit);
     int a = byte1(opcodeUnit);
     int literal = (short) in.read(); // sign-extend
-    return new OneRegisterDecodedInstruction(this, opcode, 0, null, 0, literal, a);
+    return new OneRegisterDecodedInstruction(this, opcode, 0, IndexType.NONE, 0, literal, a);
   }
 
   @Override
@@ -214,7 +216,7 @@ public enum InstructionCodec {
      */
     literal <<= (opcode == Opcodes.CONST_HIGH16) ? 16 : 48;
 
-    return new OneRegisterDecodedInstruction(this, opcode, 0, null, 0, literal, a);
+    return new OneRegisterDecodedInstruction(this, opcode, 0, IndexType.NONE, 0, literal, a);
   }
 
   @Override
@@ -240,7 +242,7 @@ public enum InstructionCodec {
 
   @Override
   public void encode(DecodedInstruction insn, CodeOutput out) {
-    out.write(codeUnit(insn.getOpcode(), insn.getA()), insn.getIndexUnit());
+    out.write(codeUnit(insn.getOpcode(), insn.getA()), insn.getFirstIndexUnit());
   }
 },
 
@@ -252,7 +254,7 @@ public enum InstructionCodec {
     int bc = in.read();
     int b = byte0(bc);
     int c = byte1(bc);
-    return new ThreeRegisterDecodedInstruction(this, opcode, 0, null, 0, 0L, a, b, c);
+    return new ThreeRegisterDecodedInstruction(this, opcode, 0, IndexType.NONE, 0, 0L, a, b, c);
   }
 
   @Override
@@ -269,7 +271,7 @@ public enum InstructionCodec {
     int bc = in.read();
     int b = byte0(bc);
     int literal = (byte) byte1(bc); // sign-extend
-    return new TwoRegisterDecodedInstruction(this, opcode, 0, null, 0, literal, a, b);
+    return new TwoRegisterDecodedInstruction(this, opcode, 0, IndexType.NONE, 0, literal, a, b);
   }
 
   @Override
@@ -287,7 +289,8 @@ public enum InstructionCodec {
     int a = nibble2(opcodeUnit);
     int b = nibble3(opcodeUnit);
     int target = (short) in.read(); // sign-extend
-    return new TwoRegisterDecodedInstruction(this, opcode, 0, null, baseAddress + target, 0L, a, b);
+      return new TwoRegisterDecodedInstruction(this, opcode, 0, IndexType.NONE,
+          baseAddress + target, 0L, a, b);
   }
 
   @Override
@@ -304,7 +307,7 @@ public enum InstructionCodec {
     int a = nibble2(opcodeUnit);
     int b = nibble3(opcodeUnit);
     int literal = (short) in.read(); // sign-extend
-    return new TwoRegisterDecodedInstruction(this, opcode, 0, null, 0, literal, a, b);
+    return new TwoRegisterDecodedInstruction(this, opcode, 0, IndexType.NONE, 0, literal, a, b);
   }
 
   @Override
@@ -327,7 +330,8 @@ public enum InstructionCodec {
 
   @Override
   public void encode(DecodedInstruction insn, CodeOutput out) {
-    out.write(codeUnit(insn.getOpcode(), makeByte(insn.getA(), insn.getB())), insn.getIndexUnit());
+      out.write(codeUnit(insn.getOpcode(), makeByte(insn.getA(), insn.getB())),
+          insn.getFirstIndexUnit());
   }
 },
 
@@ -350,7 +354,8 @@ public enum InstructionCodec {
 
   @Override
   public void encode(DecodedInstruction insn, CodeOutput out) {
-    out.write(codeUnit(insn.getOpcode(), makeByte(insn.getA(), insn.getB())), insn.getIndexUnit());
+      out.write(codeUnit(insn.getOpcode(), makeByte(insn.getA(), insn.getB())),
+          insn.getFirstIndexUnit());
   }
 },
 
@@ -361,7 +366,8 @@ public enum InstructionCodec {
     int opcode = byte0(opcodeUnit);
     int literal = byte1(opcodeUnit); // should be zero
     int target = in.readInt();
-    return new ZeroRegisterDecodedInstruction(this, opcode, 0, null, baseAddress + target, literal);
+      return new ZeroRegisterDecodedInstruction(this, opcode, 0, IndexType.NONE,
+          baseAddress + target, literal);
   }
 
   @Override
@@ -378,7 +384,7 @@ public enum InstructionCodec {
     int literal = byte1(opcodeUnit); // should be zero
     int a = in.read();
     int b = in.read();
-    return new TwoRegisterDecodedInstruction(this, opcode, 0, null, 0, literal, a, b);
+    return new TwoRegisterDecodedInstruction(this, opcode, 0, IndexType.NONE, 0, literal, a, b);
   }
 
   @Override
@@ -393,7 +399,7 @@ public enum InstructionCodec {
     int opcode = byte0(opcodeUnit);
     int a = byte1(opcodeUnit);
     int literal = in.readInt();
-    return new OneRegisterDecodedInstruction(this, opcode, 0, null, 0, literal, a);
+    return new OneRegisterDecodedInstruction(this, opcode, 0, IndexType.NONE, 0, literal, a);
   }
 
   @Override
@@ -423,7 +429,7 @@ public enum InstructionCodec {
       }
     }
 
-    return new OneRegisterDecodedInstruction(this, opcode, 0, null, target, 0L, a);
+    return new OneRegisterDecodedInstruction(this, opcode, 0, IndexType.NONE, target, 0L, a);
   }
 
   @Override
@@ -446,7 +452,7 @@ public enum InstructionCodec {
 
   @Override
   public void encode(DecodedInstruction insn, CodeOutput out) {
-    int index = insn.getIndex();
+    int index = insn.getFirstIndex();
     out.write(codeUnit(insn.getOpcode(), insn.getA()), unit0(index), unit1(index));
   }
 },
@@ -529,7 +535,7 @@ public enum InstructionCodec {
     int opcode = byte0(opcodeUnit);
     int a = byte1(opcodeUnit);
     long literal = in.readLong();
-    return new OneRegisterDecodedInstruction(this, opcode, 0, null, 0, literal, a);
+    return new OneRegisterDecodedInstruction(this, opcode, 0, IndexType.NONE, 0, literal, a);
   }
 
   @Override
@@ -759,7 +765,7 @@ public enum InstructionCodec {
    */
   private static void encodeRegisterList(DecodedInstruction insn, CodeOutput out) {
     out.write(codeUnit(insn.getOpcode(), makeByte(insn.getE(), insn.getRegisterCount())),
-        insn.getIndexUnit(), codeUnit(insn.getA(), insn.getB(), insn.getC(), insn.getD()));
+        insn.getFirstIndexUnit(), codeUnit(insn.getA(), insn.getB(), insn.getC(), insn.getD()));
   }
 
   /**
@@ -786,7 +792,7 @@ public enum InstructionCodec {
    * Helper method that encodes any of the three-unit register-range formats.
    */
   private static void encodeRegisterRange(DecodedInstruction insn, CodeOutput out) {
-    out.write(codeUnit(insn.getOpcode(), insn.getRegisterCount()), insn.getIndexUnit(),
+    out.write(codeUnit(insn.getOpcode(), insn.getRegisterCount()), insn.getFirstIndexUnit(),
         insn.getAUnit());
   }
 

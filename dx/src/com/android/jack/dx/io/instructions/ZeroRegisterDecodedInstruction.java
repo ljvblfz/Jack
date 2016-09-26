@@ -42,11 +42,12 @@ public final class ZeroRegisterDecodedInstruction extends DecodedInstruction {
 
   @Override
   /** @inheritDoc */
-  public DecodedInstruction withIndex(int newIndex) {
+  public DecodedInstruction withIndex(int newFirstIndex, int newSecondIndex) {
+    assert getSecondIndexType() == IndexType.NONE;
     return new ZeroRegisterDecodedInstruction(getFormat(),
         getOpcode(),
-        newIndex,
-        getIndexType(),
+        newFirstIndex,
+        getFirstIndexType(),
         getTarget(),
         getLiteral());
   }
