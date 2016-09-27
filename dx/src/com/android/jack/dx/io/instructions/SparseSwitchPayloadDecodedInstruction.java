@@ -16,6 +16,8 @@
 
 package com.android.jack.dx.io.instructions;
 
+import com.android.jack.dx.io.IndexType;
+
 /**
  * A decoded Dalvik instruction which contains the payload for
  * a {@code packed-switch} instruction.
@@ -35,7 +37,7 @@ public final class SparseSwitchPayloadDecodedInstruction extends DecodedInstruct
    */
   public SparseSwitchPayloadDecodedInstruction(InstructionCodec format, int opcode, int[] keys,
       int[] targets) {
-    super(format, opcode, 0, null, 0, 0L);
+    super(format, opcode, 0, IndexType.NONE, 0, 0L);
 
     if (keys.length != targets.length) {
       throw new IllegalArgumentException("keys/targets length mismatch");
@@ -61,7 +63,7 @@ public final class SparseSwitchPayloadDecodedInstruction extends DecodedInstruct
 
   @Override
   /** @inheritDoc */
-  public DecodedInstruction withIndex(int newIndex) {
+  public DecodedInstruction withIndex(int newFirstIndex, int newSecondIndex) {
     throw new UnsupportedOperationException("no index in instruction");
   }
 }

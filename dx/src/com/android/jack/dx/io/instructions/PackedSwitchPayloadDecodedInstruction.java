@@ -16,6 +16,8 @@
 
 package com.android.jack.dx.io.instructions;
 
+import com.android.jack.dx.io.IndexType;
+
 /**
  * A decoded Dalvik instruction which contains the payload for
  * a {@code packed-switch} instruction.
@@ -35,7 +37,7 @@ public final class PackedSwitchPayloadDecodedInstruction extends DecodedInstruct
    */
   public PackedSwitchPayloadDecodedInstruction(InstructionCodec format, int opcode, int firstKey,
       int[] targets) {
-    super(format, opcode, 0, null, 0, 0L);
+    super(format, opcode, 0, IndexType.NONE, 0, 0L);
 
     this.firstKey = firstKey;
     this.targets = targets;
@@ -57,7 +59,7 @@ public final class PackedSwitchPayloadDecodedInstruction extends DecodedInstruct
 
   @Override
   /** @inheritDoc */
-  public DecodedInstruction withIndex(int newIndex) {
+  public DecodedInstruction withIndex(int newFirstIndex, int newSecondIndex) {
     throw new UnsupportedOperationException("no index in instruction");
   }
 }
