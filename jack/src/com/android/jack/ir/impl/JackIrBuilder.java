@@ -222,6 +222,7 @@ import org.eclipse.jdt.internal.compiler.ast.WhileStatement;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.BooleanConstant;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -236,6 +237,7 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.NestedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SyntheticArgumentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SyntheticMethodBinding;
@@ -1861,47 +1863,59 @@ public class JackIrBuilder {
       return false;
     }
 
+    private boolean isNestedLambdaIntoSameType(@Nonnull LambdaExpression lambdaExpression) {
+      Scope scope = lambdaExpression.enclosingScope;
+      while (scope != null) {
+        ReferenceContext context = scope.referenceContext();
+        if (context instanceof LambdaExpression) {
+          return true;
+        } else if (context instanceof TypeDeclaration) {
+          break;
+        }
+        scope = scope.parent;
+      }
+      return false;
+    }
+
     @Nonnull
     private List<JExpression> getCapturedVariables(@Nonnull LambdaExpression lambdaExpression,
         @Nonnull MethodInfo lambdaMethodInfo) {
       SourceInfo lambdaSourceInfo = makeSourceInfo(lambdaExpression);
-
       List<JExpression> capturedVars = new ArrayList<JExpression>();
-
-      List<SyntheticArgumentBinding> argAlreadyCaptured = new ArrayList<SyntheticArgumentBinding>();
-
-      // Check if captured variables (outerLocalVariables) are already move into a field of the
-      // current class due to an inner class.
-      SyntheticArgumentBinding[] curClassSyntheticOuterLocalVariables =
-          curClass.typeDecl.binding.syntheticOuterLocalVariables();
-      if (curClassSyntheticOuterLocalVariables != null) {
-        for (SyntheticArgumentBinding curClassSynthArg : curClassSyntheticOuterLocalVariables) {
-          for (SyntheticArgumentBinding lambdaSynthArg : lambdaExpression.outerLocalVariables) {
-            if (curClassSynthArg.actualOuterLocalVariable
-                == lambdaSynthArg.actualOuterLocalVariable) {
-              assert curClassSynthArg.matchingField != null;
-              JField field = typeMap.get(curClassSynthArg.matchingField);
-              assert field != null;
-              JFieldRef fieldRef = makeInstanceFieldRef(lambdaSourceInfo, field);
-              capturedVars.add(fieldRef);
-              argAlreadyCaptured.add(lambdaSynthArg);
-              break;
-            }
-          }
-        }
-      }
-
       Iterator<JParameter> it = lambdaMethodInfo.method.getParams().iterator();
-      // Add remaining captured variables that are not yet move into a field due to an inner class
+
+      nextCaptureVariable:
       for (SyntheticArgumentBinding synthArg : lambdaExpression.outerLocalVariables) {
         JParameter jparameter = it.next();
         jparameter.setCapturedVariable();
         lambdaMethodInfo.addVariableMapping(synthArg.actualOuterLocalVariable, jparameter);
         jparameter.setName(new String(synthArg.actualOuterLocalVariable.name));
-        if (synthArg.matchingField == null && !argAlreadyCaptured.contains(synthArg)) {
-          JVariable var = curMethod.getJVariable(synthArg.actualOuterLocalVariable);
-          capturedVars.add(var.makeRef(lambdaSourceInfo));
+
+        if (!isNestedLambdaIntoSameType(lambdaExpression)) {
+          // Check if captured variables (outerLocalVariables) are already move into a field of the
+          // current class due to an inner class. In this case, we must capture the field containing
+          // the captured value. This must be done only for not nested lambda, because in case of
+          // nested lambda inside the same type, the field value is already captured and can be
+          // access as parameter of the method implementing the lambda.
+          SyntheticArgumentBinding[] curClassSyntheticOuterLocalVariables =
+              curClass.typeDecl.binding.syntheticOuterLocalVariables();
+          if (curClassSyntheticOuterLocalVariables != null) {
+            for (SyntheticArgumentBinding curClassSynthArg : curClassSyntheticOuterLocalVariables) {
+              if (curClassSynthArg.actualOuterLocalVariable == synthArg.actualOuterLocalVariable) {
+                assert curClassSynthArg.matchingField != null;
+                JField field = typeMap.get(curClassSynthArg.matchingField);
+                assert field != null;
+                JFieldRef fieldRef = makeInstanceFieldRef(lambdaSourceInfo, field);
+                capturedVars.add(fieldRef);
+                continue nextCaptureVariable;
+              }
+            }
+          }
         }
+
+        assert synthArg.matchingField == null;
+        JVariable var = curMethod.getJVariable(synthArg.actualOuterLocalVariable);
+        capturedVars.add(var.makeRef(lambdaSourceInfo));
       }
 
       return capturedVars;
