@@ -90,14 +90,17 @@ public class ReadWriteZipFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS 
   }
 
   @Override
-  public void close() throws CannotCloseException {
-    vfs.close();
-    try {
-      if (dir.exists()) {
-        FileUtils.deleteDir(dir);
+  public synchronized void close() throws CannotCloseException {
+    if (!closed) {
+      vfs.close();
+      try {
+        if (dir.exists()) {
+          FileUtils.deleteDir(dir);
+        }
+      } catch (IOException e) {
+        throw new CannotCloseException(new DirectoryLocation(dir), e);
       }
-    } catch (IOException e) {
-      throw new CannotCloseException(new DirectoryLocation(dir), e);
+      closed = true;
     }
   }
 
