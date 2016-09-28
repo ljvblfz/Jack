@@ -40,6 +40,7 @@ import com.android.jack.dx.dex.code.form.Form31t;
 import com.android.jack.dx.dex.code.form.Form32x;
 import com.android.jack.dx.dex.code.form.Form35c;
 import com.android.jack.dx.dex.code.form.Form3rc;
+import com.android.jack.dx.dex.code.form.Form45cc;
 import com.android.jack.dx.dex.code.form.Form51l;
 import com.android.jack.dx.dex.code.form.SpecialFormat;
 import com.android.jack.dx.io.Opcodes;
@@ -388,6 +389,9 @@ public final class Dops {
 
   public static final Dop INVOKE_INTERFACE = new Dop(Opcodes.INVOKE_INTERFACE,
       Opcodes.INVOKE_INTERFACE, Opcodes.INVOKE_INTERFACE_RANGE, Form35c.THE_ONE, false);
+
+  public static final Dop INVOKE_POLYMORPHIC = new Dop(Opcodes.INVOKE_POLYMORPHIC,
+      Opcodes.INVOKE_POLYMORPHIC, Opcodes.NO_NEXT, Form45cc.THE_ONE, false);
 
   public static final Dop INVOKE_VIRTUAL_RANGE = new Dop(Opcodes.INVOKE_VIRTUAL_RANGE,
       Opcodes.INVOKE_VIRTUAL, Opcodes.NO_NEXT, Form3rc.THE_ONE, false);

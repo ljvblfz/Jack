@@ -26,6 +26,8 @@ import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.rop.type.TypeBearer;
 import com.android.jack.dx.rop.type.TypeList;
 
+import javax.annotation.Nonnull;
+
 /**
  * Standard instances of {@link Rop}.
  */
@@ -2084,6 +2086,18 @@ public final class Rops {
    */
   public static Rop opInvokeInterface(Prototype meth) {
     return new Rop(RegOps.INVOKE_INTERFACE, meth.getParameterFrameTypes(), StdTypeList.THROWABLE);
+  }
+
+  /**
+   * Returns the appropriate {@code invoke-polymorphic} rop for the given type. The result is
+   * typically a newly-allocated instance.
+   *
+   * @param meth {@code non-null;} descriptor of the method, including the {@code this} parameter
+   * @return {@code non-null;} an appropriate instance
+   */
+  @Nonnull
+  public static Rop opInvokePolymorphic(@Nonnull Prototype meth) {
+    return new Rop(RegOps.INVOKE_POLYMORPHIC, meth.getParameterFrameTypes(), StdTypeList.THROWABLE);
   }
 
   /**

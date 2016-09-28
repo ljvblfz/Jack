@@ -685,7 +685,22 @@ public enum InstructionCodec {
       }
     }
   }
-};
+  }
+  ,
+
+  FORMAT_45CC() {
+
+    @Override
+    public DecodedInstruction decode(int opcodeUnit, CodeInput in) throws EOFException {
+      return decodeRegisterList(this, opcodeUnit, in);
+    }
+
+    @Override
+    public void encode(DecodedInstruction insn, CodeOutput out) {
+      encodeRegisterList(insn, out);
+      out.write(insn.getSecondIndexUnit());
+    }
+  };
 
   /**
    * Decodes an instruction specified by the given opcode unit, reading
@@ -713,6 +728,11 @@ public enum InstructionCodec {
     int c = nibble2(abcd);
     int d = nibble3(abcd);
     IndexType indexType = OpcodeInfo.getFirstIndexType(opcode);
+    int index2 = 0;
+
+    if (OpcodeInfo.hasDualConstants(opcode)) {
+      index2 = in.read();
+    }
 
     // TODO(dx team): Having to switch like this is less than ideal.
     switch (registerCount) {
@@ -754,7 +774,9 @@ public enum InstructionCodec {
             b,
             c,
             d,
-            e);
+            e,
+            index2,
+            OpcodeInfo.getSecondIndexType(opcode));
     }
 
     throw new DexException("bogus registerCount: " + Hex.uNibble(registerCount));
