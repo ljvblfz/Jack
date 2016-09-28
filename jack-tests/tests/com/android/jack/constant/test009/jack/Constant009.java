@@ -18,8 +18,8 @@ package com.android.jack.constant.test009.jack;
 
 public class Constant009 {
 
-  int i;
-  long j;
+  int i=-1;
+  long j=123456789123456789L;
 
   public long getAndIncLong0() {
     return ((false ? (j--) :  ( 1761670604)) >>> -1468536474L);
@@ -27,5 +27,21 @@ public class Constant009 {
 
   public long getAndIncInt0() {
     return ((false ? (i--) :  ( 1761670604)) >>> -1468536474L);
+  }
+
+  public long getAndIncLong1() {
+    return ((true ? (j--) :  ( 1761670604)) >>> -1468536474L);
+  }
+
+  public long getAndIncInt1() {
+    return ((true ? (i--) :  ( 1761670604)) >>> -1468536474L);
+  }
+
+  public long getAndIncLong2() {
+    return (true ? j-- :  (false ? 1868855630L : -1810748389L)) << Long.MAX_VALUE;
+  }
+
+  public long getAndIncInt2() {
+    return (true ? i-- :  (false ? 1868855630L : -1810748389L)) << Long.MAX_VALUE;
   }
 }

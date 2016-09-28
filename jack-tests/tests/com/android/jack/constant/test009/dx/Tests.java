@@ -32,4 +32,22 @@ public class Tests {
   public void testConstant2() {
     Assert.assertEquals(0, new Constant009().getAndIncLong0());
   }
+
+  @Test
+  public void testConstant3() {
+    Assert.assertEquals(67108863, new Constant009().getAndIncInt1());
+  }
+  @Test
+  public void testConstant4() {
+    Assert.assertEquals(449133, new Constant009().getAndIncLong1());
+  }
+
+  @Test
+  public void testConstant5() {
+    Assert.assertEquals(-9223372036854775808L, new Constant009().getAndIncInt2());
+  }
+  @Test
+  public void testConstant6() {
+    Assert.assertEquals(-9223372036854775808L, new Constant009().getAndIncLong2());
+  }
 }
