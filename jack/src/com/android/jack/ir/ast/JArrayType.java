@@ -46,11 +46,13 @@ public class JArrayType extends JDefinedReferenceType {
   }
 
   public int getDims() {
+    int dims = this.dims;
     if (dims == 0) {
       dims = 1;
       if (elementType instanceof JArrayType) {
         dims += ((JArrayType) elementType).getDims();
       }
+      this.dims = dims;
     }
     return dims;
   }
