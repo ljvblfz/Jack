@@ -287,7 +287,8 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
           }
           device.executeShellCommand(
               testScriptPathOnTarget + ' ' + args,
-              new MyShellOuputReceiver(outRedirectStream, errRedirectStream));
+              new MyShellOuputReceiver(outRedirectStream, errRedirectStream),
+              /* maxTimeToOutputResponse = */ 10000);
 
           File exitStatusFile = AbstractTestTools.createTempFile("exitStatus", "");
           if (isVerbose) {
