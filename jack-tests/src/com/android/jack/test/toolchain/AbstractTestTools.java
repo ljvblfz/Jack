@@ -89,6 +89,9 @@ public abstract class AbstractTestTools {
   private static final String TMP_PREFIX                = "jacktest-";
   @Nonnull
   private static final String LEGACY_COMPILER_KEY       = "toolchain.prebuilt.legacy-java-compiler";
+  @Nonnull
+  private static final String ANDROID_SDK_KEY           = "android.sdk";
+
 
   @Nonnull
   private static final String RUNTIME_TOLERANT          = "tests.runtime.tolerant";
@@ -872,8 +875,11 @@ public abstract class AbstractTestTools {
 
     String legacyCompiler = printProperty(LEGACY_COMPILER_KEY);
     if (!legacyCompiler.equals("")) {
-      System.out.println(LEGACY_COMPILER_KEY + ".version = " + getReferenceCompilerVersion());
+      System.out.println(
+          LEGACY_COMPILER_KEY + ".version = " + getReferenceCompilerVersion().trim());
     }
+
+    printProperty(ANDROID_SDK_KEY);
 
   }
 
@@ -1011,6 +1017,11 @@ public abstract class AbstractTestTools {
       } catch (IOException e) {
       }
     }
+  }
+
+  @CheckForNull
+  public static File getAndroidSdkLocation() {
+    return new File(TestsProperties.getProperty(ANDROID_SDK_KEY));
   }
 
 }
