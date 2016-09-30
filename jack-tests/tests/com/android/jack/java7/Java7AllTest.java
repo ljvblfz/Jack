@@ -29,7 +29,8 @@ import org.junit.runners.Suite.SuiteClasses;
     SwitchesTest.class,
     ExceptionsTest.class,
     BoxingTest.class,
-    TryWithResourcesTests.class
+    TryWithResourcesTests.class,
+    InvokePolymorphicTests.class
     })
 public class Java7AllTest {
 }

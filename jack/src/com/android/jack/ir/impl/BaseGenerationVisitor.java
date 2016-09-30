@@ -93,6 +93,7 @@ import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JParameterRef;
 import com.android.jack.ir.ast.JPhantomClassOrInterface;
+import com.android.jack.ir.ast.JPolymorphicMethodCall;
 import com.android.jack.ir.ast.JPostfixOperation;
 import com.android.jack.ir.ast.JPrefixOperation;
 import com.android.jack.ir.ast.JPrimitiveType;
@@ -893,6 +894,27 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
     print('.');
     printName(x.getMethodId().getMethodIdWide());
     visitCollectionJType(x.getMethodId().getMethodIdWide().getParamTypes().iterator());
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JPolymorphicMethodCall x) {
+    JExpression instance = x.getInstance();
+    assert instance != null;
+    JMethodIdWide target = x.getMethodId();
+    if (x.getInstance() instanceof JThisRef) {
+        print(CHARS_THIS);
+    } else {
+      // Instance call.
+      parenPush(x, instance);
+      accept(instance);
+      parenPop(x, instance);
+      print('.');
+      printName(target);
+    }
+    lparen();
+    visitCollectionWithCommas(x.getArgs().iterator());
+    rparen();
     return false;
   }
 

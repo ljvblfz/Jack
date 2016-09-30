@@ -22,6 +22,7 @@ import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.Annotable;
 import com.android.jack.ir.ast.JAbsentArrayDimension;
 import com.android.jack.ir.ast.JAbstractMethodBody;
+import com.android.jack.ir.ast.JAbstractMethodCall;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JAnnotationMethod;
@@ -94,6 +95,7 @@ import com.android.jack.ir.ast.JNullType;
 import com.android.jack.ir.ast.JNumberLiteral;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JParameterRef;
+import com.android.jack.ir.ast.JPolymorphicMethodCall;
 import com.android.jack.ir.ast.JPostfixOperation;
 import com.android.jack.ir.ast.JPrefixIncOperation;
 import com.android.jack.ir.ast.JPrefixNotOperation;
@@ -2067,16 +2069,22 @@ public class JackIrBuilder {
           }
         }
 
-        JMethodCall call;
-        // On a super ref, make a super call. Oddly enough,
-        // QualifiedSuperReference not derived from SuperReference!
-         boolean isSuperRef =
-             x.receiver instanceof SuperReference || x.receiver instanceof QualifiedSuperReference;
-         if (isSuperRef) {
-           call = makeSuperCall(info, receiver, receiverType, method);
-         } else {
-           call = makeMethodCall(info, receiver, receiverType, method);
-         }
+        JAbstractMethodCall call;
+
+        if (x.binding.isPolymorphic()) {
+          call = new JPolymorphicMethodCall(info, receiver, receiverType,
+              method.getMethodId(), getTypeMap().get(x.binding.returnType));
+        } else {
+          // On a super ref, make a super call. Oddly enough,
+          // QualifiedSuperReference not derived from SuperReference!
+          boolean isSuperRef =
+              x.receiver instanceof SuperReference || x.receiver instanceof QualifiedSuperReference;
+          if (isSuperRef) {
+            call = makeSuperCall(info, receiver, receiverType, method);
+          } else {
+            call = makeMethodCall(info, receiver, receiverType, method);
+          }
+        }
 
         // The arguments come first...
         call.addArgs(arguments);

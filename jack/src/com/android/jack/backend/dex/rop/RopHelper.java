@@ -34,10 +34,12 @@ import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JNullType;
 import com.android.jack.ir.ast.JParameter;
+import com.android.jack.ir.ast.JPolymorphicMethodCall;
 import com.android.jack.ir.ast.JPrimitiveType;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JReferenceType;
 import com.android.jack.ir.ast.JType;
+import com.android.jack.ir.formatter.BinarySignatureFormatter;
 import com.android.jack.ir.formatter.InternalFormatter;
 import com.android.jack.ir.formatter.TypeAndMethodFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfo;
@@ -79,6 +81,24 @@ public class RopHelper {
     CstNat nat = createSignature(method);
     CstMethodRef methodRef = new CstMethodRef(definingClass, nat);
     return methodRef;
+  }
+
+  @Nonnull
+  public static String getPolymorphicCallSiteSymbolicDescriptor(
+      @Nonnull JPolymorphicMethodCall methodCall) {
+    BinarySignatureFormatter formatter = BinarySignatureFormatter.getFormatter();
+    StringBuilder sb = new StringBuilder();
+    sb.append('(');
+
+    for (JType argType : methodCall.getCallSiteParameterTypes()) {
+      sb.append(formatter.getName(argType));
+    }
+
+    sb.append(')');
+
+    sb.append(formatter.getName(methodCall.getType()));
+
+    return sb.toString();
   }
 
   /**
@@ -143,6 +163,21 @@ public class RopHelper {
   }
 
   @Nonnull
+  public static String getMethodSignatureWithoutName(@Nonnull JPolymorphicMethodCall call) {
+    StringBuilder sb = new StringBuilder();
+    sb.append('(');
+
+    for (JType p : call.getMethodId().getParamTypes()) {
+      sb.append(formatter.getName(p));
+    }
+
+    sb.append(')');
+    sb.append(formatter.getName(call.getReturnTypeOfPolymorphicMethod()));
+
+    return sb.toString();
+  }
+
+  @Nonnull
   public static String getMethodSignatureWithoutName(@Nonnull JMethodCall call) {
     StringBuilder sb = new StringBuilder();
     sb.append('(');
@@ -155,7 +190,6 @@ public class RopHelper {
     sb.append(formatter.getName(call.getType()));
 
     return sb.toString();
-
   }
 
   /**

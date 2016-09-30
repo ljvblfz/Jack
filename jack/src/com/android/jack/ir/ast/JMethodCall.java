@@ -51,6 +51,8 @@ public class JMethodCall extends JAbstractMethodCall {
     super(other.getSourceInfo(), instance, other.getReceiverType(), other.getMethodId(),
         other.getType());
     dispatchKind = other.getDispatchKind();
+    assert other.getReceiverType() == null || !JPolymorphicMethodCall
+        .isCallToPolymorphicMethod(other.getReceiverType(), other.getMethodId(), other.getType());
   }
 
   public JMethodCall(@Nonnull SourceInfo info, @CheckForNull JExpression instance,
@@ -58,6 +60,8 @@ public class JMethodCall extends JAbstractMethodCall {
       @Nonnull JType returnType, boolean isVirtualDispatch) {
     super(info, instance, receiverType, methodId, returnType);
     assert methodId != null;
+    assert receiverType == null
+        || !JPolymorphicMethodCall.isCallToPolymorphicMethod(receiverType, methodId, returnType);
     assert (!isVirtualDispatch) || methodId.getKind() == MethodKind.INSTANCE_VIRTUAL;
     this.dispatchKind = isVirtualDispatch ? DispatchKind.VIRTUAL : DispatchKind.DIRECT;
   }
