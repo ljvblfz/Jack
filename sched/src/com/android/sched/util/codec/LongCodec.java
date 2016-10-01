@@ -44,7 +44,7 @@ public class LongCodec implements StringCodec<Long>{
   }
 
   public void setMax(long max) {
-    this.max = min;
+    this.max = max;
   }
 
   @Override
