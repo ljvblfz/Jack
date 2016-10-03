@@ -1449,6 +1449,11 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
 
   }
 
+  private boolean isCallToPolymorphicMethod(@Nonnull MethodInsnNode mthInsn) {
+    return mthInsn.owner.equals("java/lang/invoke/MethodHandle")
+        && (mthInsn.name.equals("invoke") || mthInsn.name.equals("invokeExact"));
+  }
+
   private void writeInsn(@Nonnull Frame<BasicValue> frame, @Nonnull Frame<BasicValue> nextFrame,
       @Nonnull MethodInsnNode mthInsn) throws IOException {
     switch (mthInsn.getOpcode()) {
@@ -1515,7 +1520,8 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         }
 
         writeDebugBegin(currentClass, currentLine);
-        writer.writeKeyword(Token.METHOD_CALL);
+        boolean isCallToPolymorphicMethod = isCallToPolymorphicMethod(mthInsn);
+        writer.writeKeyword(isCallToPolymorphicMethod ? Token.POLYMORPHIC_CALL : Token.METHOD_CALL);
         writer.writeOpen();
         Type receiverType = Type.getObjectType(mthInsn.owner);
         int stackArgIndex = Type.getArgumentTypes(mthInsn.desc).length;
@@ -1526,8 +1532,10 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
           // Add implicit argument 'this'
           stackArgIndex++;
           // Cast instance to receiver type
-          if (receiverType.equals(frame.getStack(frame.getStackSize() - stackArgIndex).getType())
-              || mthInsn.name.equals("<init>")) {
+          // Force to add the cast when it is a polymorphic call otherwise some checks will fails
+          // into Jack because instance will be type Object and not MethodHandle.
+          if ((receiverType.equals(frame.getStack(frame.getStackSize() - stackArgIndex).getType())
+              && !isCallToPolymorphicMethod) || mthInsn.name.equals("<init>")) {
             // It is not possible to add cast on object before call to init
             writeStackAccess(frame, -stackArgIndex);
           } else {
@@ -1551,10 +1559,23 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         for (Type argType : argumentTypes) {
           argsTypeIds.add(argType.getDescriptor());
         }
-        writer.writeIds(argsTypeIds);
+        if (isCallToPolymorphicMethod) {
+          // All methods that have polymorphic signature take an array of Object as parameter.
+          List<String> changedArgsTypeIds = new ArrayList<String>(1);
+          changedArgsTypeIds.add("[Ljava/lang/Object;");
+          writer.writeIds(changedArgsTypeIds);
+        } else {
+          writer.writeIds(argsTypeIds);
+        }
         writer.writeMethodKindEnum(methodKind);
 
-        writer.writeId(returnType.getDescriptor());
+        if (isCallToPolymorphicMethod) {
+          // All methods that have polymorphic signature return an Object.
+          writer.writeId("Ljava/lang/Object;");
+        } else {
+          writer.writeId(returnType.getDescriptor());
+        }
+
         int argIdx = 0;
         writer.writeOpenNodeList();
         while (stackArgIndex > 0) {
@@ -1570,7 +1591,13 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
           stackArgIndex--;
         }
         writer.writeCloseNodeList();
-        writer.writeDispatchKindEnum(dispatchKind);
+
+        if (isCallToPolymorphicMethod) {
+          writer.writeId(returnType.getDescriptor()); // Call site return type
+        } else {
+          writer.writeDispatchKindEnum(dispatchKind);
+        }
+
         writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
 
