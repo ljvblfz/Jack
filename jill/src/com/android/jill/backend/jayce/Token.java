@@ -133,6 +133,7 @@ public enum Token {
   ORIGIN_DIGEST("origin-digest"),
   PARAMETER("parameter"),
   PARAMETER_REF("parameter-ref"),
+  POLYMORPHIC_CALL("polymorphic-call"),
   POSTFIX_DEC_OPERATION("postfix-dec"),
   POSTFIX_INC_OPERATION("postfix-inc"),
   PREFIX_BIT_NOT_OPERATION("~"),

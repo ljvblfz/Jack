@@ -111,6 +111,7 @@ import com.android.jack.jayce.v0004.nodes.NOrOperation;
 import com.android.jack.jayce.v0004.nodes.NOriginDigest;
 import com.android.jack.jayce.v0004.nodes.NParameter;
 import com.android.jack.jayce.v0004.nodes.NParameterRef;
+import com.android.jack.jayce.v0004.nodes.NPolymorphicCall;
 import com.android.jack.jayce.v0004.nodes.NPostfixDecOperation;
 import com.android.jack.jayce.v0004.nodes.NPostfixIncOperation;
 import com.android.jack.jayce.v0004.nodes.NPrefixBitNotOperation;
@@ -804,6 +805,13 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NParameterRef();
+    }
+  },
+  POLYMORPHIC_CALL("polymorphic-call") {
+    @Nonnull
+    @Override
+    public NNode newNode() {
+      return new NPolymorphicCall();
     }
   },
   POSTFIX_DEC_OPERATION("postfix-dec") {

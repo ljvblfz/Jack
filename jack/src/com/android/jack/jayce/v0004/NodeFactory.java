@@ -109,6 +109,7 @@ import com.android.jack.ir.ast.JNullLiteral;
 import com.android.jack.ir.ast.JOrOperation;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JParameterRef;
+import com.android.jack.ir.ast.JPolymorphicMethodCall;
 import com.android.jack.ir.ast.JPostfixDecOperation;
 import com.android.jack.ir.ast.JPostfixIncOperation;
 import com.android.jack.ir.ast.JPrefixBitNotOperation;
@@ -229,6 +230,7 @@ import com.android.jack.jayce.v0004.nodes.NOrOperation;
 import com.android.jack.jayce.v0004.nodes.NOriginDigest;
 import com.android.jack.jayce.v0004.nodes.NParameter;
 import com.android.jack.jayce.v0004.nodes.NParameterRef;
+import com.android.jack.jayce.v0004.nodes.NPolymorphicCall;
 import com.android.jack.jayce.v0004.nodes.NPostfixDecOperation;
 import com.android.jack.jayce.v0004.nodes.NPostfixIncOperation;
 import com.android.jack.jayce.v0004.nodes.NPrefixBitNotOperation;
@@ -615,6 +617,12 @@ public class NodeFactory {
       } else {
         newNode = new NMethod();
       }
+      return false;
+    }
+
+    @Override
+    public boolean visit(@Nonnull JPolymorphicMethodCall polymorphicMethodCall) {
+      newNode = new NPolymorphicCall();
       return false;
     }
 
