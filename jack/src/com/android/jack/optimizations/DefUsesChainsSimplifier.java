@@ -40,7 +40,7 @@ import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.jack.util.ControlFlowHelper;
-import com.android.jack.util.OptimizationTools;
+import com.android.jack.util.DefsAndUsesChainOptimizationTools;
 import com.android.jack.util.ThreeAddressCodeFormUtils;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
@@ -48,6 +48,7 @@ import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
+import com.android.sched.schedulable.Use;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
@@ -98,6 +99,7 @@ import javax.annotation.Nonnull;
     ControlFlowGraph.class, UsedVariableMarker.class })
 // ReachingDefsMarker is no longer valid after this optimization, thus remove it directly
 @Transform(remove = { ReachingDefsMarker.class })
+@Use(DefsAndUsesChainOptimizationTools.class)
 @Support(Optimizations.DefUseSimplifier.class)
 @Filter(TypeWithoutPrebuiltFilter.class)
 public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
@@ -172,7 +174,7 @@ public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
         }
 
         // store variable -> referencing statement info
-        for (JVariableRef ref : OptimizationTools.getUsedVariables(stmt)) {
+        for (JVariableRef ref : DefsAndUsesChainOptimizationTools.getUsedVariables(stmt)) {
           JVariable variable = ref.getTarget();
           VarInfo info = defs.get(variable);
           if (info == null) {
@@ -388,7 +390,7 @@ public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
         }
 
         // Reads B?
-        List<JVariableRef> refs = OptimizationTools.getUsedVariables(stmt);
+        List<JVariableRef> refs = DefsAndUsesChainOptimizationTools.getUsedVariables(stmt);
         for (JVariableRef ref : refs) {
           if (ref.getTarget() == bVar) {
             return BB_ASSIGNS_OR_READS_B;
