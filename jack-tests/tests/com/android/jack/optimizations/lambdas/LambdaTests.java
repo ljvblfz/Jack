@@ -18,6 +18,7 @@ package com.android.jack.optimizations.lambdas;
 
 import com.android.jack.Options;
 import com.android.jack.test.dex.DexOutputBasedTest;
+import com.android.jack.test.junit.Runtime;
 import com.android.jack.transformations.lambda.LambdaGroupingScope;
 
 import org.junit.Test;
@@ -263,6 +264,7 @@ public class LambdaTests extends DexOutputBasedTest {
               "foo(Ljava/lang/String;)Ljava/lang/String;");
 
   @Test
+  @Runtime
   public void test001() throws Exception {
     compileAndValidate(PKG_001,
         config(LambdaGroupingScope.NONE, /* interfaces: */false, /* stateless: */false),
@@ -316,6 +318,7 @@ public class LambdaTests extends DexOutputBasedTest {
               "foo()Ljava/lang/String;");
 
   @Test
+  @Runtime
   public void test002() throws Exception {
     compileAndValidate(PKG_002,
         config(LambdaGroupingScope.NONE, /* interfaces: */false, /* stateless: */false),
@@ -352,6 +355,7 @@ public class LambdaTests extends DexOutputBasedTest {
               "$m$1()Ljava/lang/Object;", "$m$2()Ljava/lang/Object;", "foo()Ljava/lang/Object;");
 
   @Test
+  @Runtime
   public void test003() throws Exception {
     compileAndValidate(PKG_003,
         config(LambdaGroupingScope.NONE, /* interfaces: */false, /* stateless: */false),
@@ -442,6 +446,7 @@ public class LambdaTests extends DexOutputBasedTest {
               "foo()Ljava/lang/String;");
 
   @Test
+  @Runtime
   public void test004() throws Exception {
     compileAndValidate(PKG_004,
         config(LambdaGroupingScope.PACKAGE, /* interfaces: */false, /* stateless: */false),
@@ -543,6 +548,7 @@ public class LambdaTests extends DexOutputBasedTest {
               "foo()Ljava/lang/String;");
 
   @Test
+  @Runtime
   public void test005() throws Exception {
     compileAndValidate(PKG_005,
         config(LambdaGroupingScope.PACKAGE, /* interfaces: */false, /* stateless: */false),
@@ -603,6 +609,7 @@ public class LambdaTests extends DexOutputBasedTest {
       "";
 
   @Test
+  @Runtime
   public void test006() throws Exception {
     compileAndValidate(PKG_006,
         config(LambdaGroupingScope.NONE, /* interfaces: */false, /* stateless: */false),

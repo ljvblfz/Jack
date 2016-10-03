@@ -23,6 +23,7 @@ import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
+import com.android.jack.test.toolchain.Toolchain;
 
 import org.jf.dexlib.DexFile;
 
@@ -122,6 +123,7 @@ public abstract class DexOutputBasedTest {
     for (Map.Entry<String, Object> e : properties.properties.entrySet()) {
       toolchain.addProperty(e.getKey(), e.getValue().toString());
     }
+    toolchain.setSourceLevel(Toolchain.SourceLevel.JAVA_8);
 
     toolchain.addProperty(Optimizations.REMOVE_UNUSED_NON_SYNTHETIC_DEFINITION.getName(),
         String.valueOf(false));
