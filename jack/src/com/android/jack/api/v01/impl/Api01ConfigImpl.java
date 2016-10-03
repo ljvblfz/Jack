@@ -78,10 +78,18 @@ public class Api01ConfigImpl implements JackConfigImpl, Api01Config {
     try {
       Jack.check(api, options, configHooks);
     } catch (com.android.sched.util.config.ConfigurationException e) {
-      configHooks.runHooks();
+      try {
+        configHooks.runHooks();
+      } catch (Error | RuntimeException hooksExn) {
+        // Ignored since already logged by RunnableHooks.
+      }
       throw new ConfigurationException(e.getMessage(), e);
     } catch (IllegalOptionsException e) {
-      configHooks.runHooks();
+      try {
+        configHooks.runHooks();
+      } catch (Error | RuntimeException hooksExn) {
+        // Ignored since already logged by RunnableHooks.
+      }
       throw new ConfigurationException(e.getMessage(), e);
     }
 
@@ -110,13 +118,28 @@ public class Api01ConfigImpl implements JackConfigImpl, Api01Config {
       ProcessException pe = null;
 
       try {
+
         try {
-          Jack.run(api, options, runSessionHooks);
-        } catch (ProcessException e) {
-          // Handle the cause, but keep the ProcessException in case of Internal Compiler Error only
-          pe = e;
-          throw e.getCause();
+          try {
+            Jack.run(api, options, runSessionHooks);
+          } catch (ProcessException e) {
+            // Handle the cause, but keep the ProcessException in case of Internal Compiler Error
+            // only
+            pe = e;
+            throw e.getCause();
+          }
+        } catch (Throwable e1) {
+          // If any exception, run hooks and ignore exceptions
+          try {
+            runSessionHooks.runHooks();
+          } catch (Error | RuntimeException e2) {
+            // Ignored but already logged in runHooks.
+          }
+          throw e1;
         }
+
+        // If everything goes well, run hooks and report exception
+        runSessionHooks.runHooks();
       } catch (FrontendCompilationException e) {
         throw new CompilationException(e.getMessage(), e);
       } catch (JackUserException e) {
@@ -137,8 +160,6 @@ public class Api01ConfigImpl implements JackConfigImpl, Api01Config {
         } else {
           throw new RuntimeException(e);
         }
-      } finally {
-        runSessionHooks.runHooks();
       }
     }
 
