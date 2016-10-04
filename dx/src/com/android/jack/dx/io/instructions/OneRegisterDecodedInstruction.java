@@ -17,6 +17,7 @@
 package com.android.jack.dx.io.instructions;
 
 import com.android.jack.dx.io.IndexType;
+import com.android.jack.dx.io.OpcodeInfo;
 
 /**
  * A decoded Dalvik instruction which has one register argument.
@@ -28,14 +29,21 @@ public final class OneRegisterDecodedInstruction extends DecodedInstruction {
   /**
    * Constructs an instance.
    */
-  public OneRegisterDecodedInstruction(InstructionCodec format,
-      int opcode,
-      int index,
-      IndexType indexType,
-      int target,
-      long literal,
-      int a) {
-    super(format, opcode, index, indexType, target, literal);
+  public OneRegisterDecodedInstruction(InstructionCodec format, int opcode, int firstIndex,
+      IndexType firstIndexType, int target, long literal, int a) {
+    this(format, opcode, firstIndex, firstIndexType, target, literal, a, /* secondIndex = */ 0,
+        IndexType.NONE);
+    assert !OpcodeInfo.hasDualConstants(opcode);
+  }
+
+  /**
+   * Constructs an instance.
+   */
+  public OneRegisterDecodedInstruction(InstructionCodec format, int opcode, int firstIndex,
+      IndexType firstIndexType, int target, long literal, int a, int secondIndex,
+      IndexType secondIndexType) {
+    super(format, opcode, firstIndex, firstIndexType, target, literal, secondIndex,
+        secondIndexType);
 
     this.a = a;
   }
@@ -55,13 +63,7 @@ public final class OneRegisterDecodedInstruction extends DecodedInstruction {
   @Override
   /** @inheritDoc */
   public DecodedInstruction withIndex(int newFirstIndex, int newSecondIndex) {
-    assert getSecondIndexType() == IndexType.NONE;
-    return new OneRegisterDecodedInstruction(getFormat(),
-        getOpcode(),
-        newFirstIndex,
-        getFirstIndexType(),
-        getTarget(),
-        getLiteral(),
-        a);
+    return new OneRegisterDecodedInstruction(getFormat(), getOpcode(), newFirstIndex,
+        getFirstIndexType(), getTarget(), getLiteral(), a, newSecondIndex, getSecondIndexType());
   }
 }

@@ -37,17 +37,11 @@ public final class FourRegisterDecodedInstruction extends DecodedInstruction {
   /**
    * Constructs an instance.
    */
-  public FourRegisterDecodedInstruction(InstructionCodec format,
-      int opcode,
-      int index,
-      IndexType indexType,
-      int target,
-      long literal,
-      int a,
-      int b,
-      int c,
-      int d) {
-    super(format, opcode, index, indexType, target, literal);
+  public FourRegisterDecodedInstruction(InstructionCodec format, int opcode, int firstIndex,
+      IndexType firstIndexType, int target, long literal, int a, int b, int c, int d,
+      int secondIndex, IndexType secondIndexType) {
+    super(format, opcode, firstIndex, firstIndexType, target, literal, secondIndex,
+        secondIndexType);
 
     this.a = a;
     this.b = b;
@@ -88,16 +82,8 @@ public final class FourRegisterDecodedInstruction extends DecodedInstruction {
   @Override
   /** @inheritDoc */
   public DecodedInstruction withIndex(int newFirstIndex, int newSecondIndex) {
-    assert getSecondIndexType() == IndexType.NONE;
-    return new FourRegisterDecodedInstruction(getFormat(),
-        getOpcode(),
-        newFirstIndex,
-        getFirstIndexType(),
-        getTarget(),
-        getLiteral(),
-        a,
-        b,
-        c,
-        d);
+    return new FourRegisterDecodedInstruction(getFormat(), getOpcode(), newFirstIndex,
+        getFirstIndexType(), getTarget(), getLiteral(), a, b, c, d, newSecondIndex,
+        getSecondIndexType());
   }
 }

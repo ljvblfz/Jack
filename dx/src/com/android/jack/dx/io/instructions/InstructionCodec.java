@@ -742,6 +742,7 @@ public enum InstructionCodec {
     int d = nibble3(abcd);
     IndexType indexType = OpcodeInfo.getFirstIndexType(opcode);
     int index2 = 0;
+    IndexType secondIndexType = OpcodeInfo.getSecondIndexType(opcode);
 
     if (OpcodeInfo.hasDualConstants(opcode)) {
       index2 = in.read();
@@ -750,46 +751,23 @@ public enum InstructionCodec {
     // TODO(dx team): Having to switch like this is less than ideal.
     switch (registerCount) {
       case 0:
-        return new ZeroRegisterDecodedInstruction(format, opcode, index, indexType, 0, 0L);
+        return new ZeroRegisterDecodedInstruction(format, opcode, index, indexType, 0, 0L, index2,
+            secondIndexType);
       case 1:
-        return new OneRegisterDecodedInstruction(format, opcode, index, indexType, 0, 0L, a);
+        return new OneRegisterDecodedInstruction(format, opcode, index, indexType, 0, 0L, a, index2,
+            secondIndexType);
       case 2:
-        return new TwoRegisterDecodedInstruction(format, opcode, index, indexType, 0, 0L, a, b);
+        return new TwoRegisterDecodedInstruction(format, opcode, index, indexType, 0, 0L, a, b,
+            index2, secondIndexType);
       case 3:
-        return new ThreeRegisterDecodedInstruction(format,
-            opcode,
-            index,
-            indexType,
-            0,
-            0L,
-            a,
-            b,
-            c);
+        return new ThreeRegisterDecodedInstruction(format, opcode, index, indexType, 0, 0L, a, b, c,
+            index2, secondIndexType);
       case 4:
-        return new FourRegisterDecodedInstruction(format,
-            opcode,
-            index,
-            indexType,
-            0,
-            0L,
-            a,
-            b,
-            c,
-            d);
+        return new FourRegisterDecodedInstruction(format, opcode, index, indexType, 0, 0L, a, b, c,
+            d, index2, secondIndexType);
       case 5:
-        return new FiveRegisterDecodedInstruction(format,
-            opcode,
-            index,
-            indexType,
-            0,
-            0L,
-            a,
-            b,
-            c,
-            d,
-            e,
-            index2,
-            OpcodeInfo.getSecondIndexType(opcode));
+        return new FiveRegisterDecodedInstruction(format, opcode, index, indexType, 0, 0L, a, b, c,
+            d, e, index2, secondIndexType);
     }
 
     throw new DexException("bogus registerCount: " + Hex.uNibble(registerCount));
