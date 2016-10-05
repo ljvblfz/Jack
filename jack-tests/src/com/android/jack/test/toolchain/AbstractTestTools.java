@@ -65,7 +65,7 @@ public abstract class AbstractTestTools {
   @Nonnull
   public static final String JUNIT_RUNNER_NAME = "org.junit.runner.JUnitCore";
 
-  @Nonnull
+  @CheckForNull
   private static HashMap<String, ToolchainBuilder> toolchainBuilders;
 
   @Nonnull
@@ -93,8 +93,8 @@ public abstract class AbstractTestTools {
   @Nonnull
   private static final String RUNTIME_TOLERANT          = "tests.runtime.tolerant";
 
-  @Nonnull
-  private static final List<RuntimeRunner> runtimes = new ArrayList<RuntimeRunner>();
+  @CheckForNull
+  private static List<RuntimeRunner> runtimes;
 
   @Nonnull
   private static final Map<String, File> runtimeEnvironmentLocations = new HashMap<String, File>();
@@ -110,36 +110,8 @@ public abstract class AbstractTestTools {
 
     LoggerFactory.configure(LogLevel.ERROR);
 
-    toolchainBuilders = new HashMap<String, ToolchainBuilder>();
-    toolchainBuilders.put("jack-cli", new JackCliToolchainBuilder());
-    toolchainBuilders.put("jack-api-v01", new JackApiV01ToolchainBuilder());
-    toolchainBuilders.put("jack-api-v02", new JackApiV02ToolchainBuilder());
-    toolchainBuilders.put("jack-api-inc-v02", new JackApiV02IncrementalToolchainBuilder());
-    toolchainBuilders.put("jack-api-2steps-v02", new JackApiV02TwoStepsToolchainBuilder());
-    toolchainBuilders.put("jack-api-v03", new JackApiV03ToolchainBuilder());
-    toolchainBuilders.put("jack-api-inc-v03", new JackApiV03IncrementalToolchainBuilder());
-    toolchainBuilders.put("jack-api-2steps-v03", new JackApiV03TwoStepsToolchainBuilder());
-    toolchainBuilders.put("jack-api-v04", new JackApiV04ToolchainBuilder());
-    toolchainBuilders.put("jack-api-inc-v04", new JackApiV04IncrementalToolchainBuilder());
-    toolchainBuilders.put("jack-api-2steps-v04", new JackApiV04TwoStepsToolchainBuilder());
-    toolchainBuilders.put("legacy", new LegacyToolchainBuilder());
-    toolchainBuilders.put("jill-legacy", new EmbeddedJillBasedToolchainBuilder());
-    toolchainBuilders.put("jill-api-v01", new JillApiV01ToolchainBuilder());
-    toolchainBuilders.put("jill-legacy-prebuilt", new LegacyJillToolchainBuilder());
-
-    try {
-      runtimes.addAll(parseRuntimeList(TestsProperties.getProperty(RUNTIME_LIST_KEY)));
-
-      if (!Boolean.parseBoolean(System.getProperty("tests.dump", "false"))) {
-        printConfig();
-      }
-
-    } catch (SecurityException e) {
-      throw new TestConfigurationException(e);
-    } catch (IllegalArgumentException e) {
-      throw new TestConfigurationException(e);
-    } catch (RuntimeRunnerException e) {
-      throw new TestConfigurationException(e);
+    if (!Boolean.parseBoolean(System.getProperty("tests.dump", "false"))) {
+      printConfig();
     }
 
   }
@@ -397,6 +369,30 @@ public abstract class AbstractTestTools {
 
   @Nonnull
   private static ToolchainBuilder getToolchainBuilder(@Nonnull String toolchainName) {
+
+    if (toolchainBuilders == null) {
+      HashMap<String, ToolchainBuilder> toolchainBuildersTmp;
+      toolchainBuildersTmp = new HashMap<String, ToolchainBuilder>();
+      toolchainBuildersTmp.put("jack-cli", new JackCliToolchainBuilder());
+      toolchainBuildersTmp.put("jack-api-v01", new JackApiV01ToolchainBuilder());
+      toolchainBuildersTmp.put("jack-api-v02", new JackApiV02ToolchainBuilder());
+      toolchainBuildersTmp.put("jack-api-inc-v02", new JackApiV02IncrementalToolchainBuilder());
+      toolchainBuildersTmp.put("jack-api-2steps-v02", new JackApiV02TwoStepsToolchainBuilder());
+      toolchainBuildersTmp.put("jack-api-v03", new JackApiV03ToolchainBuilder());
+      toolchainBuildersTmp.put("jack-api-inc-v03", new JackApiV03IncrementalToolchainBuilder());
+      toolchainBuildersTmp.put("jack-api-2steps-v03", new JackApiV03TwoStepsToolchainBuilder());
+      toolchainBuildersTmp.put("jack-api-v04", new JackApiV04ToolchainBuilder());
+      toolchainBuildersTmp.put("jack-api-inc-v04", new JackApiV04IncrementalToolchainBuilder());
+      toolchainBuildersTmp.put("jack-api-2steps-v04", new JackApiV04TwoStepsToolchainBuilder());
+      toolchainBuildersTmp.put("legacy", new LegacyToolchainBuilder());
+      toolchainBuildersTmp.put("jill-legacy", new EmbeddedJillBasedToolchainBuilder());
+      toolchainBuildersTmp.put("jill-api-v01", new JillApiV01ToolchainBuilder());
+      toolchainBuildersTmp.put("jill-legacy-prebuilt", new LegacyJillToolchainBuilder());
+      toolchainBuilders = toolchainBuildersTmp;
+    }
+
+    assert toolchainBuilders != null;
+
     ToolchainBuilder toolchainBuilder = toolchainBuilders.get(toolchainName);
     if (toolchainBuilder == null) {
       throw new TestConfigurationException("Unknown toolchain: '" + toolchainName + "'");
@@ -731,6 +727,22 @@ public abstract class AbstractTestTools {
   public static List<RuntimeRunner> listRuntimeTestRunners(@CheckForNull Properties properties)
       throws SecurityException, IllegalArgumentException, RuntimeRunnerException {
 
+    if (runtimes == null) {
+      try {
+        List<RuntimeRunner> runtimesTmp = new ArrayList<RuntimeRunner>();
+        runtimesTmp.addAll(parseRuntimeList(TestsProperties.getProperty(RUNTIME_LIST_KEY)));
+        runtimes = runtimesTmp;
+      } catch (SecurityException e) {
+        throw new TestConfigurationException(e);
+      } catch (IllegalArgumentException e) {
+        throw new TestConfigurationException(e);
+      } catch (RuntimeRunnerException e) {
+        throw new TestConfigurationException(e);
+      }
+    }
+
+    assert runtimes != null;
+
     if (properties != null) {
       String rtAsString = properties.getProperty(RUNTIME_LIST_KEY);
       if (rtAsString != null) {
@@ -852,7 +864,7 @@ public abstract class AbstractTestTools {
     TestsProperties.getProperty(LEGACY_COMPILER_KEY);
     String runtimeList = printProperty(RUNTIME_LIST_KEY);
 
-    if (runtimes.size() != 0) {
+    if (runtimeList.trim().equals("")) {
       for (String runtimeName : listSplitter.split(runtimeList)) {
         printProperty(RUNTIME_LOCATION_PREFIX + runtimeName);
       }
@@ -873,32 +885,41 @@ public abstract class AbstractTestTools {
 
 
   private static String getReferenceCompilerVersion() {
-    File legacyCompilerPrebuilt = getPrebuilt("legacy-java-compiler");
-
-    String[] arguments = new String[2];
-    arguments[0] = legacyCompilerPrebuilt.getAbsolutePath();
-    arguments[1] = "-version";
-
-    ExecuteFile exec = new ExecuteFile(arguments);
-    exec.inheritEnvironment();
-
-    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    exec.setErr(bos);
-
     try {
-      if (exec.run() != 0) {
-        throw new RuntimeException("Could not fetch version of legacy compiler");
+      File legacyCompilerPrebuilt = getPrebuilt("legacy-java-compiler");
+
+      String[] arguments = new String[2];
+      arguments[0] = legacyCompilerPrebuilt.getAbsolutePath();
+      arguments[1] = "-version";
+
+      ExecuteFile exec = new ExecuteFile(arguments);
+      exec.inheritEnvironment();
+
+      ByteArrayOutputStream bos = new ByteArrayOutputStream();
+      exec.setErr(bos);
+
+      String path = System.getenv("PATH");
+      if (path != null) {
+        exec.addEnvVar("PATH", path);
       }
-
-      return bos.toString();
-
-    } catch (ExecFileException e) {
-      throw new RuntimeException("Could not fetch version of  legacy compiler", e);
-    } finally {
       try {
-        bos.close();
-      } catch (IOException e) {
+        if (exec.run() != 0) {
+          return "<unknown>";
+        }
+
+        return bos.toString();
+
+      } catch (ExecFileException e) {
+        return "<unknown> " + e.getMessage();
+      } finally {
+        try {
+          bos.close();
+        } catch (IOException e) {
+        }
       }
+    } catch (Throwable t) {
+      return "<unknown> " + t.getMessage();
+
     }
 
   }
@@ -942,8 +963,8 @@ public abstract class AbstractTestTools {
 
         return new Version(is).getVerboseVersion() + " (found on classpath)";
       }
-    } catch (IOException e) {
-      throw new TestConfigurationException(e);
+    } catch (Throwable t) {
+      return "<unknown> " + t.getMessage();
     } finally {
       if (is != null) {
         try {

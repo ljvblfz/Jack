@@ -144,10 +144,9 @@ public class JackTestRunner extends Categories {
     runtimeVersion =
         RuntimeVersion.valueOf(System.getProperty("runtime.version", "M").toUpperCase());
 
-    ToolchainFilter filter = new ToolchainFilter(AbstractTestTools.getCandidateToolchain(),
-        AbstractTestTools.getReferenceToolchain(), dumpTests, runtimeVersion);
-
     try {
+      ToolchainFilter filter = new ToolchainFilter(AbstractTestTools.getCandidateToolchain(),
+          AbstractTestTools.getReferenceToolchain(), dumpTests, runtimeVersion);
       filter(filter);
     } catch (NoTestsRemainException e) {
       if (!dumpTests) {
