@@ -34,7 +34,7 @@ import javax.annotation.Nonnull;
  * This {@link StringCodec} is used to create an instance of a {@link CaseInsensitiveFS} backed by a
  * {@link DirectFS}.
  */
-public class CaseInsensitiveDirectFSCodec implements StringCodec<VFS> {
+public class CaseInsensitiveDirectFSCodec implements VFSCodec {
 
   @Nonnull
   private final DirectFSCodec codec;

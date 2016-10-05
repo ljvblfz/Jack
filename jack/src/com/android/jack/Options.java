@@ -110,8 +110,8 @@ import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.TracerFactory;
 import com.android.sched.util.log.tracer.StatsTracerFtl;
 import com.android.sched.vfs.Container;
-import com.android.sched.vfs.OutputVFS;
-import com.android.sched.vfs.VFS;
+import com.android.sched.vfs.OutputVFSPropertyId;
+import com.android.sched.vfs.VFSPropertyId;
 
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
@@ -322,28 +322,36 @@ public class Options {
           Container.values()).ignoreCase().requiredIf(GENERATE_JACK_LIBRARY.getValue().isTrue());
 
   @Nonnull
-  public static final PropertyId<VFS> LIBRARY_OUTPUT_ZIP = PropertyId
+  public static final VFSPropertyId LIBRARY_OUTPUT_ZIP = VFSPropertyId
       .create("jack.library.output.zip", "Output zip archive for library",
           new ZipFSCodec(Existence.MAY_EXIST, Compression.UNCOMPRESSED).setInfoString("output-lib"))
+      .withoutAutoAction()
       .requiredIf(GENERATE_JACK_LIBRARY.getValue().isTrue()
           .and(LIBRARY_OUTPUT_CONTAINER_TYPE.is(Container.ZIP))
           .or(GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER.getValue().isTrue()));
 
   @Nonnull
-  public static final PropertyId<VFS> LIBRARY_OUTPUT_DIR = PropertyId
-      .create("jack.library.output.dir", "Output folder for library",
-          new CaseInsensitiveDirectFSCodec(Existence.MUST_EXIST).setInfoString("output-lib"))
-      .requiredIf(GENERATE_JACK_LIBRARY.getValue().isTrue()
-          .and(LIBRARY_OUTPUT_CONTAINER_TYPE.is(Container.DIR)));
+  public static final VFSPropertyId LIBRARY_OUTPUT_DIR =
+      VFSPropertyId.create(
+              "jack.library.output.dir",
+              "Output folder for library",
+              new CaseInsensitiveDirectFSCodec(Existence.MUST_EXIST).setInfoString("output-lib"))
+          .withoutAutoAction()
+          .requiredIf(
+              GENERATE_JACK_LIBRARY
+                  .getValue()
+                  .isTrue()
+                  .and(LIBRARY_OUTPUT_CONTAINER_TYPE.is(Container.DIR)));
 
   @Nonnull
-  public static final PropertyId<OutputVFS> DEX_OUTPUT_DIR = PropertyId.create(
+  public static final OutputVFSPropertyId DEX_OUTPUT_DIR = OutputVFSPropertyId.create(
       "jack.dex.output.dir", "Output folder for dex",
-      new DirectDirOutputVFSCodec(Existence.MUST_EXIST).setInfoString("output-dex")).requiredIf(
+      new DirectDirOutputVFSCodec(Existence.MUST_EXIST).setInfoString("output-dex"))
+      .withoutAutoAction().requiredIf(
       DEX_OUTPUT_CONTAINER_TYPE.is(Container.DIR));
 
   @Nonnull
-  public static final PropertyId<OutputVFS> DEX_OUTPUT_ZIP = PropertyId.create(
+  public static final OutputVFSPropertyId DEX_OUTPUT_ZIP = OutputVFSPropertyId.create(
       "jack.dex.output.zip", "Output zip archive for dex",
       new ZipOutputVFSCodec(Existence.MAY_EXIST).setInfoString("output-dex")).requiredIf(
       DEX_OUTPUT_CONTAINER_TYPE.is(Container.ZIP));
