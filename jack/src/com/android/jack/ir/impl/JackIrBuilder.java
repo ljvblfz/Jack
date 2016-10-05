@@ -734,8 +734,10 @@ public class JackIrBuilder {
 
       if ((implicitConversionCode & TypeIds.UNBOXING) != 0) {
         final int typeId = implicitConversionCode & TypeIds.COMPILE_TYPE_MASK;
+        JPrimitiveType typeToUnbox = getJType(typeId);
+        assert typeToUnbox != null;
         convertedExpression =
-            TypeLegalizer.unbox(convertedExpression, getJType(typeId).getWrapperType());
+            TypeLegalizer.unbox(convertedExpression, typeToUnbox.getWrapperType());
       }
 
       final int typeId = (implicitConversionCode & TypeIds.IMPLICIT_CONVERSION_MASK) >> 4;
