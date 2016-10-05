@@ -29,7 +29,7 @@ import com.android.jack.incremental.InputFilter;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.library.DumpInLibrary;
 import com.android.jack.library.InputLibrary;
-import com.android.jack.library.InputLibraryCodec;
+import com.android.jack.library.LibraryPathPropertyId;
 import com.android.jack.library.PrebuiltCompatibility;
 import com.android.jack.meta.MetaImporter;
 import com.android.jack.plugin.JackPluginJarCodec;
@@ -357,16 +357,17 @@ public class Options {
       DEX_OUTPUT_CONTAINER_TYPE.is(Container.ZIP));
 
   @Nonnull
-  public static final ListPropertyId<InputLibrary> IMPORTED_LIBRARIES =
-      new ListPropertyId<InputLibrary>("jack.library.import", "Libraries to import",
-          new InputLibraryCodec().setInfoString("imported-lib")).minElements(0).addDefaultValue(
-          Collections.<InputLibrary>emptyList());
+  public static final LibraryPathPropertyId IMPORTED_LIBRARIES =
+      new LibraryPathPropertyId("jack.library.import", "Libraries to import", "imported-lib")
+          .withoutAutoAction()
+          .addDefaultValue(Collections.<InputLibrary>emptyList());
 
   @Nonnull
-  public static final ListPropertyId<InputLibrary> CLASSPATH =
-      new ListPropertyId<InputLibrary>("jack.classpath", "Classpath",
-          new InputLibraryCodec().setInfoString("classpath-lib")).minElements(0)
-              .on(File.pathSeparator).addDefaultValue(Collections.<InputLibrary>emptyList());
+  public static final LibraryPathPropertyId CLASSPATH =
+      new LibraryPathPropertyId("jack.classpath", "Classpath", "classpath-lib")
+          .withoutAutoAction()
+          .on(File.pathSeparator)
+          .addDefaultValue(Collections.<InputLibrary>emptyList());
 
   @Nonnull
   public static final BooleanPropertyId ENABLE_COMPILED_FILES_STATISTICS = BooleanPropertyId.create(

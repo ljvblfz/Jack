@@ -57,6 +57,11 @@ public class GenericInputVFS extends AbstractVFS implements InputVFS {
   }
 
   @Override
+  public boolean isClosed() {
+    return vfs.isClosed();
+  }
+
+  @Override
   @CheckForNull
   public String getDigest() {
     return vfs.getDigest();

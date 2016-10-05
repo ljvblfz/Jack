@@ -198,6 +198,11 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   }
 
   @Override
+  public boolean isClosed() {
+    return closed;
+  }
+
+  @Override
   @Nonnegative
   public int getMajorVersion() {
     return Version.MAJOR;

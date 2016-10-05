@@ -185,6 +185,17 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   }
 
   @Override
+  public boolean isClosed() {
+    boolean baseVFSClosed = vfs.isClosed();
+    if (baseVFSClosed) {
+      for (InputVFS currentSectionVFS : sectionVFS.values()) {
+        assert currentSectionVFS.isClosed();
+      }
+    }
+    return baseVFSClosed;
+  }
+
+  @Override
   @Nonnegative
   public int getMajorVersion() {
     return Version.MAJOR;

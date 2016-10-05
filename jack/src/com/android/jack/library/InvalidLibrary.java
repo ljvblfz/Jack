@@ -56,6 +56,11 @@ public class InvalidLibrary implements InputLibrary {
   }
 
   @Override
+  public boolean isClosed() {
+    return true;
+  }
+
+  @Override
   public int getMinorVersion() {
     return 0;
   }

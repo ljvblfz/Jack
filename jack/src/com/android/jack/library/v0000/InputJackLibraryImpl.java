@@ -89,6 +89,11 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   }
 
   @Override
+  public boolean isClosed() {
+    return inputVFS.isClosed();
+  }
+
+  @Override
   @Nonnull
   public InputVFile getFile(@Nonnull FileType fileType, @Nonnull VPath typePath)
       throws FileTypeDoesNotExistException {
