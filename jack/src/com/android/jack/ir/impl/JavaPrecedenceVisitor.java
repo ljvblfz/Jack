@@ -44,6 +44,7 @@ import com.android.jack.ir.ast.JNewArray;
 import com.android.jack.ir.ast.JNewInstance;
 import com.android.jack.ir.ast.JNullLiteral;
 import com.android.jack.ir.ast.JParameterRef;
+import com.android.jack.ir.ast.JPolymorphicMethodCall;
 import com.android.jack.ir.ast.JPostfixOperation;
 import com.android.jack.ir.ast.JPrefixOperation;
 import com.android.jack.ir.ast.JShortLiteral;
@@ -184,6 +185,12 @@ class JavaPrecedenceVisitor extends JVisitor {
 
   @Override
   public boolean visit(@Nonnull JLongLiteral x) {
+    answer = 0;
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JPolymorphicMethodCall x) {
     answer = 0;
     return false;
   }

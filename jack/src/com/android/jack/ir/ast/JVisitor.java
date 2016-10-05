@@ -329,6 +329,10 @@ public class JVisitor {
     endVisit((JAbstractMethodBody) methodBody);
   }
 
+  public void endVisit(@Nonnull JPolymorphicMethodCall polymorphicMethodCall) {
+    endVisit((JExpression) polymorphicMethodCall);
+  }
+
   public void endVisit(@Nonnull JMethodCall methodCall) {
     endVisit((JExpression) methodCall);
   }
@@ -719,6 +723,10 @@ public class JVisitor {
 
   public boolean visit(@Nonnull JMethodBody methodBody) {
     return visit((JAbstractMethodBody) methodBody);
+  }
+
+  public boolean visit(@Nonnull JPolymorphicMethodCall polymorphicMethodCall) {
+    return visit((JExpression) polymorphicMethodCall);
   }
 
   public boolean visit(@Nonnull JMethodCall methodCall) {
@@ -1168,6 +1176,12 @@ public class JVisitor {
       throws Exception {
     visit((JAbstractMethodBody) methodBody, transformRequest);
   }
+
+  public void visit(@Nonnull JPolymorphicMethodCall polymorphicMethodCall,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JExpression) polymorphicMethodCall, transformRequest);
+  }
+
 
   public void visit(@Nonnull JMethodCall methodCall, @Nonnull TransformRequest transformRequest)
       throws Exception {

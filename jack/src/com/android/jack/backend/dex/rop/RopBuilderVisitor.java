@@ -31,6 +31,7 @@ import com.android.jack.dx.rop.code.Rops;
 import com.android.jack.dx.rop.code.SourcePosition;
 import com.android.jack.dx.rop.code.SwitchInsn;
 import com.android.jack.dx.rop.code.ThrowingCstInsn;
+import com.android.jack.dx.rop.code.ThrowingDualCstInsn;
 import com.android.jack.dx.rop.code.ThrowingInsn;
 import com.android.jack.dx.rop.cst.Constant;
 import com.android.jack.dx.rop.cst.CstBoolean;
@@ -43,6 +44,9 @@ import com.android.jack.dx.rop.cst.CstLiteral32;
 import com.android.jack.dx.rop.cst.CstLiteral64;
 import com.android.jack.dx.rop.cst.CstLong;
 import com.android.jack.dx.rop.cst.CstMethodRef;
+import com.android.jack.dx.rop.cst.CstNat;
+import com.android.jack.dx.rop.cst.CstPrototypeRef;
+import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Prototype;
 import com.android.jack.dx.rop.type.StdTypeList;
@@ -88,6 +92,7 @@ import com.android.jack.ir.ast.JMethodCall.DispatchKind;
 import com.android.jack.ir.ast.JNewArray;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JNullLiteral;
+import com.android.jack.ir.ast.JPolymorphicMethodCall;
 import com.android.jack.ir.ast.JPrefixNotOperation;
 import com.android.jack.ir.ast.JPrimitiveType;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
@@ -212,6 +217,12 @@ class RopBuilderVisitor extends JVisitor {
     @Override
     public boolean visit(@Nonnull JLambda lambda) {
       throw new AssertionError();
+    }
+
+    @Override
+    public boolean visit(@Nonnull JPolymorphicMethodCall methodCall) {
+      buildInvokePolymorphic(destReg, methodCall);
+      return false;
     }
 
     @Override
@@ -406,7 +417,9 @@ class RopBuilderVisitor extends JVisitor {
   public boolean visit(@Nonnull JExpressionStatement exprStmt) {
     JExpression expr = exprStmt.getExpr();
 
-    if (expr instanceof JMethodCall) {
+    if (expr instanceof JPolymorphicMethodCall) {
+      buildInvokePolymorphic(null, (JPolymorphicMethodCall) expr);
+    } else if (expr instanceof JMethodCall) {
       buildCall(null, (JMethodCall) expr);
     } else if (expr instanceof JLocalRef) {
       // "lv;" This is a nop, do nothing
@@ -1158,6 +1171,40 @@ class RopBuilderVisitor extends JVisitor {
       } else {
         addInstruction(new PlainCstInsn(opcode, declarationSrcPos, destReg, sources, cst));
       }
+    }
+  }
+
+  private void buildInvokePolymorphic(@CheckForNull RegisterSpec result,
+      @Nonnull JPolymorphicMethodCall methodCall) {
+    CstType definingClass = RopHelper.getCstType(methodCall.getReceiverType());
+    String signatureWithoutName = RopHelper.getMethodSignatureWithoutName(methodCall);
+    CstNat nat = new CstNat(new CstString(methodCall.getMethodName()),
+        new CstString(signatureWithoutName));
+    CstMethodRef methodRef = new CstMethodRef(definingClass, nat);
+    SourcePosition methodCallSrcPos = RopHelper.getSourcePosition(methodCall);
+    Prototype prototype =
+        Prototype.intern(RopHelper.getPolymorphicCallSiteSymbolicDescriptor(methodCall));
+    Rop callOp = Rops.opInvokePolymorphic(prototype);
+
+    /* 1 means that first register is always an instance of MethodHandle. */
+    RegisterSpecList sources = new RegisterSpecList(1 + methodCall.getArgs().size());
+
+    /* Set MethodHandle as first parameter */
+    JExpression instance = methodCall.getInstance();
+    assert instance != null;
+    int paramIndex = 0;
+    sources.set(paramIndex++, getRegisterSpec(instance));
+
+    for (JExpression exprArg : methodCall.getArgs()) {
+      sources.set(paramIndex++, getRegisterSpec(exprArg));
+    }
+
+    Insn callInst = new ThrowingDualCstInsn(callOp, methodCallSrcPos, sources, getCatchTypes(),
+        methodRef, new CstPrototypeRef(prototype));
+    addInstruction(callInst);
+
+    if (result != null) {
+      addMoveResultAsExtraInstruction(prototype.getReturnType(), result, methodCallSrcPos);
     }
   }
 

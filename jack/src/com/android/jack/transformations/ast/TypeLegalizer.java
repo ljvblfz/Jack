@@ -35,6 +35,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JNewArray;
+import com.android.jack.ir.ast.JPolymorphicMethodCall;
 import com.android.jack.ir.ast.JPrimitiveType;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JReferenceType;
@@ -268,6 +269,11 @@ public class TypeLegalizer implements RunnableSchedulable<JMethod> {
       castIfNeeded(maybeBoxOrUnbox(initializer, expectedType), expectedType);
 
       super.endVisit(init);
+    }
+
+    @Override
+    public void endVisit(@Nonnull JPolymorphicMethodCall polymorphicMethodCall) {
+      // Do not legalize argument types for a call to a method with a polymorphic signature.
     }
 
     @Override

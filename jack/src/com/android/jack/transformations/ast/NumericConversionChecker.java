@@ -32,6 +32,7 @@ import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JNewArray;
+import com.android.jack.ir.ast.JPolymorphicMethodCall;
 import com.android.jack.ir.ast.JPrimitiveType;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JReturnStatement;
@@ -238,6 +239,11 @@ public class NumericConversionChecker implements RunnableSchedulable<JMethod> {
       checkCast(initializer, expectedType);
 
       super.endVisit(init);
+    }
+
+    @Override
+    public void endVisit(@Nonnull JPolymorphicMethodCall polymorphicMethodCall) {
+      // Argument types for a call to a method with a polymorphic signature are not legalized.
     }
 
     @Override

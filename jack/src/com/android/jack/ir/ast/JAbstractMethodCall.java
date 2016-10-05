@@ -16,6 +16,7 @@
 package com.android.jack.ir.ast;
 
 
+import com.android.jack.ir.formatter.UserFriendlyFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
@@ -40,7 +41,7 @@ public abstract class JAbstractMethodCall extends JExpression {
   @Nonnull
   private JClassOrInterface receiverType;
   @Nonnull
-  private final ArrayList<JExpression> args = new ArrayList<JExpression>();
+  private final List<JExpression> args = new ArrayList<JExpression>();
   @Nonnull
   private JMethodIdWide methodId;
   @Nonnull
@@ -178,5 +179,19 @@ public abstract class JAbstractMethodCall extends JExpression {
   @Nonnull
   public String getMethodName() {
     return methodId.getName();
+  }
+
+  static boolean isCallToPolymorphicMethod(@Nonnull JClassOrInterface receiverType,
+      @Nonnull JMethodIdWide methodId, @Nonnull JType returnType) {
+    UserFriendlyFormatter formatter = UserFriendlyFormatter.getFormatter();
+    String calledMethodName = methodId.getName();
+    List<JType> paramTypes = methodId.getParamTypes();
+
+    return receiverType != null
+        && formatter.getName(returnType).equals("java.lang.Object")
+        && formatter.getName(receiverType).equals("java.lang.invoke.MethodHandle")
+        && (calledMethodName.equals("invoke") || calledMethodName.equals("invokeExact"))
+        && paramTypes.size() == 1
+        && formatter.getName(paramTypes.get(0)).equals("java.lang.Object[]");
   }
 }
