@@ -13,7 +13,7 @@ jack/src/com/android/jack/shrob/proguard/ProguardParser.java
 **/build/
 **/dist/
 **/libs/
-**/tools/
+*/tools/
 jack-tests/intermediates/
 tests-results/
 
