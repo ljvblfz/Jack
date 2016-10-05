@@ -484,7 +484,8 @@ public final class DexFile {
    */
   public void prepare() {
     prepare(Collections.<CstString>emptyList(), Collections.<CstFieldRef>emptyList(),
-        Collections.<CstMethodRef>emptyList(), Collections.<CstType>emptyList());
+        Collections.<CstMethodRef>emptyList(), Collections.<CstType>emptyList(),
+        Collections.<CstPrototypeRef>emptyList());
   }
 
   /**
@@ -495,10 +496,12 @@ public final class DexFile {
    * @param cstFieldRefs Collection of CstFieldRef to intern
    * @param cstMethodRefs Collection of CstMethodRef to intern
    * @param cstTypes Collection of CstType to intern
+   * @param cstPrototypeRefs Collection of CstPrototypeRef to intern
    */
   public void prepare(@Nonnull Collection<CstString> cstStrings,
       @Nonnull Collection<CstFieldRef> cstFieldRefs,
-      @Nonnull Collection<CstMethodRef> cstMethodRefs, @Nonnull Collection<CstType> cstTypes) {
+      @Nonnull Collection<CstMethodRef> cstMethodRefs, @Nonnull Collection<CstType> cstTypes,
+      @Nonnull Collection<CstPrototypeRef> cstPrototypeRefs) {
     for (CstString cst : cstStrings) {
       stringIds.intern(cst);
     }
@@ -510,6 +513,9 @@ public final class DexFile {
     }
     for (CstType cst : cstTypes) {
       typeIds.intern(cst);
+    }
+    for (CstPrototypeRef cts : cstPrototypeRefs) {
+      protoIds.intern(cts.getPrototype());
     }
 
     /**

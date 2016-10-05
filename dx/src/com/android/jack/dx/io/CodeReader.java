@@ -28,6 +28,7 @@ public final class CodeReader {
   private Visitor typeVisitor = null;
   private Visitor fieldVisitor = null;
   private Visitor methodVisitor = null;
+  private Visitor dualConstantVisitor = null;
 
   /**
    * Sets {@code visitor} as the visitor for all instructions.
@@ -38,6 +39,7 @@ public final class CodeReader {
     typeVisitor = visitor;
     fieldVisitor = visitor;
     methodVisitor = visitor;
+    dualConstantVisitor = visitor;
   }
 
   /**
@@ -76,6 +78,13 @@ public final class CodeReader {
     methodVisitor = visitor;
   }
 
+  /**
+   * Sets {@code visitor} as the visitor for all instructions with two constants.
+   */
+  public void setDualConstantVisitor(Visitor visitor) {
+    dualConstantVisitor = visitor;
+  }
+
   public void visitAll(DecodedInstruction[] decodedInstructions) throws DexException {
     int size = decodedInstructions.length;
 
@@ -97,21 +106,27 @@ public final class CodeReader {
   private void callVisit(DecodedInstruction[] all, DecodedInstruction one) {
     Visitor visitor = null;
 
-    switch (OpcodeInfo.getFirstIndexType(one.getOpcode())) {
-      case STRING_REF:
-        visitor = stringVisitor;
-        break;
-      case TYPE_REF:
-        visitor = typeVisitor;
-        break;
-      case FIELD_REF:
-        visitor = fieldVisitor;
-        break;
-      case METHOD_REF:
-        visitor = methodVisitor;
-        break;
-      default:
-        /* continue */
+    if (OpcodeInfo.hasDualConstants(one.getOpcode())) {
+      visitor = dualConstantVisitor;
+    } else {
+      switch (OpcodeInfo.getFirstIndexType(one.getOpcode())) {
+        case STRING_REF:
+          visitor = stringVisitor;
+          break;
+        case TYPE_REF:
+          visitor = typeVisitor;
+          break;
+        case FIELD_REF:
+          visitor = fieldVisitor;
+          break;
+        case METHOD_REF:
+          visitor = methodVisitor;
+          break;
+        case PROTOTYPE_REF:
+          throw new AssertionError();
+        default:
+          /* continue */
+      }
     }
 
     if (visitor == null) {

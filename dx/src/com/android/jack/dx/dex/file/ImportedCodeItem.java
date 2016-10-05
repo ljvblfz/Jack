@@ -267,6 +267,7 @@ public final class ImportedCodeItem extends OffsettedItem implements
     codeReader.setFieldVisitor(new FieldRemapper(file));
     codeReader.setTypeVisitor(new TypeRemapper(file));
     codeReader.setMethodVisitor(new MethodRemapper(file));
+    codeReader.setDualConstantVisitor(new DualConstantRemapper(file));
 
     codeReader.visitAll(decodedInstructions);
 
@@ -402,6 +403,25 @@ public final class ImportedCodeItem extends OffsettedItem implements
     public void visit(DecodedInstruction[] all, DecodedInstruction decodedInst) {
       remappedInstructions[remappingIndex++] = decodedInst.withIndex(
           cstIndexMap.getRemappedCstBaseMethodRefIndex(file, decodedInst.getFirstIndex()));
+    }
+  }
+
+  /**
+   * {@link com.android.jack.dx.io.CodeReader.Visitor} remapping instructions using two constants.
+   */
+  private class DualConstantRemapper implements CodeReader.Visitor {
+
+    private final DexFile file;
+
+    public DualConstantRemapper(DexFile dex) {
+      this.file = dex;
+    }
+
+    @Override
+    public void visit(DecodedInstruction[] all, DecodedInstruction decodedInst) {
+      remappedInstructions[remappingIndex++] = decodedInst.withIndex(
+          cstIndexMap.getRemappedCstBaseMethodRefIndex(file, decodedInst.getFirstIndex()),
+          cstIndexMap.getRemappedCstPrototypeRefIndex(file, decodedInst.getSecondIndex()));
     }
   }
 }
