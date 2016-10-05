@@ -17,6 +17,7 @@
 package com.android.jack.dx.io.instructions;
 
 import com.android.jack.dx.io.IndexType;
+import com.android.jack.dx.io.OpcodeInfo;
 
 /**
  * A decoded Dalvik instruction which has three register arguments.
@@ -34,16 +35,21 @@ public final class ThreeRegisterDecodedInstruction extends DecodedInstruction {
   /**
    * Constructs an instance.
    */
-  public ThreeRegisterDecodedInstruction(InstructionCodec format,
-      int opcode,
-      int index,
-      IndexType indexType,
-      int target,
-      long literal,
-      int a,
-      int b,
-      int c) {
-    super(format, opcode, index, indexType, target, literal);
+  public ThreeRegisterDecodedInstruction(InstructionCodec format, int opcode, int index,
+      IndexType indexType, int target, long literal, int a, int b, int c) {
+    this(format, opcode, index, indexType, target, literal, a, b, c, /* secondIndex = */ 0,
+        IndexType.NONE);
+    assert !OpcodeInfo.hasDualConstants(opcode);
+  }
+
+  /**
+   * Constructs an instance.
+   */
+  public ThreeRegisterDecodedInstruction(InstructionCodec format, int opcode, int firstIndex,
+      IndexType firstIndexType, int target, long literal, int a, int b, int c, int secondIndex,
+      IndexType secondIndexType) {
+    super(format, opcode, firstIndex, firstIndexType, target, literal, secondIndex,
+        secondIndexType);
 
     this.a = a;
     this.b = b;
@@ -77,15 +83,8 @@ public final class ThreeRegisterDecodedInstruction extends DecodedInstruction {
   @Override
   /** @inheritDoc */
   public DecodedInstruction withIndex(int newFirstIndex, int newSecondIndex) {
-    assert getSecondIndexType() == IndexType.NONE;
-    return new ThreeRegisterDecodedInstruction(getFormat(),
-        getOpcode(),
-        newFirstIndex,
-        getFirstIndexType(),
-        getTarget(),
-        getLiteral(),
-        a,
-        b,
-        c);
+    return new ThreeRegisterDecodedInstruction(getFormat(), getOpcode(), newFirstIndex,
+        getFirstIndexType(), getTarget(), getLiteral(), a, b, c, newSecondIndex,
+        getSecondIndexType());
   }
 }
