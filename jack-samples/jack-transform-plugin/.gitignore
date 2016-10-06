@@ -9,3 +9,7 @@ build/
 # Eclipse
 .classpath
 .project
+
+# Jack local dependencies
+libs/
+tools/
