@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.jack.api.v04;
+package com.android.jack.api.v04c;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -23,7 +23,7 @@ import javax.annotation.Nonnull;
 
 /**
  * A {@link File} with a {@link Charset} different from the default one (
- * {@link Api04Config#setDefaultCharset(Charset)}) must implement that interface.
+ * {@link Api04CandidateConfig#setDefaultCharset(Charset)}) must implement that interface.
  */
 public interface HasCharset {
   /**

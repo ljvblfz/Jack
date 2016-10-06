@@ -26,7 +26,7 @@ import com.android.jack.api.v01.DebugInfoLevel;
 import com.android.jack.api.v01.ReporterKind;
 import com.android.jack.api.v01.VerbosityLevel;
 import com.android.jack.api.v02.JavaSourceVersion;
-import com.android.jack.api.v04.Api04Config;
+import com.android.jack.api.v04c.Api04CandidateConfig;
 import com.android.jack.test.TestConfigurationException;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.vfs.Container;
@@ -47,11 +47,11 @@ import javax.annotation.Nonnull;
 public class JackApiV04Toolchain extends JackApiToolchainBase implements JackApiV04 {
 
   @Nonnull
-  private Api04Config apiV04Config;
+  private Api04CandidateConfig apiV04Config;
 
   JackApiV04Toolchain(@CheckForNull File jackPrebuilt) {
-    super(jackPrebuilt, Api04Config.class);
-    apiV04Config = (Api04Config) config;
+    super(jackPrebuilt, Api04CandidateConfig.class);
+    apiV04Config = (Api04CandidateConfig) config;
     addProperty(Options.USE_DEFAULT_LIBRARIES.getName(), "false");
   }
 
