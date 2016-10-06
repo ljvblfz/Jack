@@ -24,6 +24,7 @@ import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.scheduler.FeatureSet;
 import com.android.sched.scheduler.ProductionSet;
 import com.android.sched.scheduler.Scheduler;
+import com.android.sched.util.UncomparableVersion;
 import com.android.sched.util.Version;
 import com.android.sched.util.config.Config;
 
@@ -91,9 +92,20 @@ public class CodeCoveragePlugin extends SchedAnnotationProcessorBasedPlugin {
     return set;
   }
 
+  // Plugin is compatible starting from 1.3-b4.
+  private static final int JACK_COMPATIBLE_VERSION_RELEASE_CODE = 4;
+  private static final int JACK_COMPATIBLE_VERSION_SUBRELEASE_CODE = 9;
+
   @Override
   public boolean isCompatibileWithJack(@Nonnull Version jackVersion) {
-    return true;
+    try {
+      // Avoid binary incompatibilities.
+      return jackVersion.isNewerOrEqualThan(
+          JACK_COMPATIBLE_VERSION_RELEASE_CODE,
+          JACK_COMPATIBLE_VERSION_SUBRELEASE_CODE);
+    } catch (UncomparableVersion e) {
+      return true;
+    }
   }
 
   @Override
