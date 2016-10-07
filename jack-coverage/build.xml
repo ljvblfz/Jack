@@ -22,20 +22,31 @@
   <property name="jack-coverage-rsc.dir" value="rsc" />
   <property name="jack-coverage-build.dir" value="build" />
   <property name="jack-coverage-build-classes.dir" value="${jack-coverage-build.dir}/classes" />
+  <property name="jack-coverage-build-test-classes.dir"
+            value="${jack-coverage-build.dir}/testClasses" />
   <property name="jack-coverage-dist.dir" value="dist" />
   <property name="jack-coverage.execname" value="jack-coverage-plugin.jar" />
+  <property name="jack-coverage-tests.execname" value="jack-coverage-tests.jar" />
+  <property name="jack.tests.output" value="testResults" />
+  <property name="jack.coverage.tests.output" value="${jack.tests.output}/test-jack-coverage" />
+  <property name="jack.coverage.tests.dump.dir" value="${jack-coverage-dist.dir}/dump" />
+  <property name="jack.coverage.tests.suite.name"
+            value="com.android.jack.coverage.AllCoverageTests" />
 
   <target name="clean" description="deletes files produced by target 'jack-coverage-lib'">
-    <delete dir="build"/>
-    <delete dir="dist"/>
+    <delete dir="build" />
+    <delete dir="dist" />
   </target>
 
-  <target name ="update-libs" description="update the project libraries (must be used at least once to install them)">
-    <mkdir dir="libs"/>
-    <mkdir dir="tools"/>
+  <target name="update-libs"
+          description="update the project libraries (must be used at least once to install them)">
+    <mkdir dir="libs" />
+    <mkdir dir="tools" />
 
     <!-- Copy required libraries -->
     <copy file="../jack/dist/jack-lib.jar" todir="${jack-coverage-libs.dir}" />
+    <copy file="../jack-tests/dist/jack-tests.jar" todir="${jack-coverage-libs.dir}" />
+    <copy file="../gson/dist/gson.jar" todir="${jack-coverage-libs.dir}" />
     <copy file="../sched/dist/sched-lib.jar" todir="${jack-coverage-libs.dir}" />
     <copy file="../junit4/dist/junit4.jar" todir="${jack-coverage-libs.dir}" />
     <copy file="../jsr305/dist/jsr305-lib.jar" todir="${jack-coverage-libs.dir}" />
@@ -45,18 +56,24 @@
 
   </target>
 
-  <target name="jack-coverage-lib" description="build Jack code coverage support"
-      depends="update-libs">
+  <target name="jack-coverage-lib"
+          description="build Jack code coverage support"
+          depends="update-libs">
 
-    <mkdir dir="${jack-coverage-build-classes.dir}"/>
-    <javac srcdir="src" destdir="${jack-coverage-build-classes.dir}"
-      source="1.7" target="1.7"
-      encoding="UTF-8" debug="true" includeantruntime="false" includeDestClasses="false">
+    <mkdir dir="${jack-coverage-build-classes.dir}" />
+    <javac srcdir="src"
+           destdir="${jack-coverage-build-classes.dir}"
+           source="1.7"
+           target="1.7"
+           encoding="UTF-8"
+           debug="true"
+           includeantruntime="false"
+           includeDestClasses="false">
       <classpath>
         <filelist dir="${jack-coverage-libs.dir}">
-          <file name="jsr305-lib.jar"/>
-          <file name="sched-lib.jar"/>
-          <file name="jack-lib.jar"/>
+          <file name="jsr305-lib.jar" />
+          <file name="sched-lib.jar" />
+          <file name="jack-lib.jar" />
         </filelist>
       </classpath>
       <compilerarg line="-processorpath ${jack-coverage-tools.dir}/sched-build.jar" />
@@ -65,13 +82,133 @@
 
     <!-- copy resource files -->
     <copy todir="${jack-coverage-build-classes.dir}">
-      <fileset dir="${jack-coverage-rsc.dir}"/>
+      <fileset dir="${jack-coverage-rsc.dir}" />
     </copy>
 
-    <mkdir dir="${jack-coverage-dist.dir}"/>
+    <mkdir dir="${jack-coverage-dist.dir}" />
     <jar basedir="${jack-coverage-build-classes.dir}"
-      destfile="${jack-coverage-dist.dir}/${jack-coverage.execname}"/>
+         destfile="${jack-coverage-dist.dir}/${jack-coverage.execname}" />
 
+  </target>
+
+  <target name="jack-coverage-tests" description="build coverage tests" depends="jack-coverage-lib">
+
+    <mkdir dir="${jack-coverage-build-test-classes.dir}" />
+    <javac srcdir="tests"
+           destdir="${jack-coverage-build-test-classes.dir}"
+           source="1.7"
+           target="1.7"
+           encoding="UTF-8"
+           debug="true"
+           includeantruntime="false"
+           includeDestClasses="false">
+      <exclude name="com/android/jack/coverage/test*/**" />
+      <classpath>
+        <filelist dir="${jack-coverage-libs.dir}">
+          <file name="jsr305-lib.jar" />
+          <file name="sched-lib.jar" />
+          <file name="jack-tests.jar" />
+          <file name="gson.jar" />
+        </filelist>
+        <file name="${jack-coverage-dist.dir}/${jack-coverage.execname}" />
+      </classpath>
+    </javac>
+
+    <!-- Extract jack-tests classes to embed them in the final jar -->
+    <unzip dest="${jack-coverage-build-test-classes.dir}">
+      <filelist dir="${jack-coverage-libs.dir}">
+        <file name="jack-tests.jar" />
+        <file name="gson.jar" />
+      </filelist>
+    </unzip>
+
+    <!-- TODO can we strip out Jack tests to only keep infrastrcture ? -->
+    <jar basedir="${jack-coverage-build-test-classes.dir}"
+         destfile="${jack-coverage-dist.dir}/${jack-coverage-tests.execname}" />
+  </target>
+
+  <target name="tests-check-config">
+    <fail message="tests.config is undefined" unless="tests.config" />
+  </target>
+
+
+  <filelist id="jack.junit.tests.classpath" dir="${jack-coverage-dist.dir}">
+    <file name="${jack-coverage-tests.execname}" />
+  </filelist>
+
+  <condition property="jack.tests.assertions" value="-da" else="-ea">
+    <istrue value="${tests.disable-assertions}" />
+  </condition>
+
+  <condition property="jack.tests.runtime.tolerant" value="true" else="false">
+    <istrue value="${tests.runtime.tolerant}" />
+  </condition>
+
+  <condition property="jack.tests.console-output" value="--console-output" else="">
+    <istrue value="${tests.console-output}" />
+  </condition>
+
+  <condition property="jack.runtime.version" value="-Druntime.version=${runtime.version}" else="">
+    <isset property="runtime.version" />
+  </condition>
+
+  <target name="test-jack-coverage"
+          description="run coverage tests"
+          depends="jack-coverage-lib,jack-coverage-tests,tests-check-config">
+
+
+    <mkdir dir="${jack.coverage.tests.output}/html" />
+    <java fork="true"
+          resultproperty="test-jack.failure"
+          classname="com.android.jack.test.junit.JackJunitLauncherXml">
+      <jvmarg value="-Dfile.encoding=utf-8" />
+      <jvmarg value="-Dtests.config=${tests.config}" />
+      <jvmarg value="-Dtests.runtime.tolerant=${jack.tests.runtime.tolerant}" />
+      <!-- Assertions do not work with plugin markers -->
+      <jvmarg value="-da" />
+      <jvmarg line="${jack.runtime.version}" />
+      <classpath>
+        <filelist refid="jack.junit.tests.classpath" />
+      </classpath>
+      <arg value="${jack.coverage.tests.output}/test-jack-coverage.xml" />
+      <arg value="${jack.coverage.tests.suite.name}" />
+      <arg line="${jack.tests.console-output}" />
+    </java>
+    <junitreport todir="${jack.coverage.tests.output}">
+      <fileset dir="${jack.coverage.tests.output}">
+        <include name="test-jack-coverage.xml" />
+      </fileset>
+      <report format="frames" todir="${jack.coverage.tests.output}/html" />
+    </junitreport>
+    <fail message="TESTS FAILED">
+      <condition>
+        <isfailure code="${test-jack.failure}" />
+      </condition>
+    </fail>
+  </target>
+
+  <target name="test-jack-coverage-dump" depends="jack-coverage-tests,tests-check-config">
+    <mkdir dir="${jack.coverage.tests.dump.dir}" />
+
+    <java fork="true"
+          failonerror="true"
+          output="${jack.coverage.tests.dump.dir}/AllCoverageTests.js"
+          classname="com.android.jack.test.junit.JackJUnitLauncher">
+      <jvmarg value="-Dtests.dump=true" />
+      <jvmarg value="-Dtests.config=${tests.config}" />
+      <jvmarg line="${jack.runtime.version}" />
+      <classpath>
+        <filelist refid="jack.junit.tests.classpath" />
+      </classpath>
+      <arg value="${jack.coverage.tests.suite.name}" />
+    </java>
+
+  </target>
+
+  <target name="dist"
+          description="distribution of the code coverage plugin"
+          depends="jack-coverage-lib">
+    <!-- Placeholder for future release process -->
   </target>
 
 </project>

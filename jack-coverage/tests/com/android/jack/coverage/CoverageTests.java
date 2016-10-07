@@ -225,14 +225,14 @@ public class CoverageTests {
     // 1 - Create a lib.
     JackBasedToolchain toolchain = createJackToolchain();
     File libDir = AbstractTestTools.createTempDir();
-    File libSrcFiles = new File(AbstractTestTools.getTestRootDir(testPackageName), "lib");
+    File libSrcFiles = new File(getTestRootDir(testPackageName), "lib");
     toolchain.srcToLib(libDir, false, libSrcFiles);
 
     // 2 - Compile the lib with coverage.
     toolchain = createJackToolchain();
     toolchain.addStaticLibs(libDir);
     File coverageMetadataFile = enableCodeCoverage(toolchain, null, null);
-    File srcFiles = new File(AbstractTestTools.getTestRootDir(testPackageName), "src");
+    File srcFiles = new File(getTestRootDir(testPackageName), "src");
     File outDexFolder = AbstractTestTools.createTempDir();
     toolchain.srcToExe(outDexFolder, false, srcFiles);
 
@@ -248,7 +248,7 @@ public class CoverageTests {
   @Test
   public void testClassId_005() throws Exception {
     String testPackageName = getTestPackageName("test005");
-    File testRootDir = AbstractTestTools.getTestRootDir(testPackageName);
+    File testRootDir = getTestRootDir(testPackageName);
     final String className = getClassNameForJson(testPackageName + ".jack.LibClass");
 
     long classIdOne;
@@ -295,10 +295,10 @@ public class CoverageTests {
   @Test
   public void testClassId_006() throws Exception {
     String testPackageNameV1 = getTestPackageName("test006_v1");
-    File testRootDirV1 = AbstractTestTools.getTestRootDir(testPackageNameV1);
+    File testRootDirV1 = getTestRootDir(testPackageNameV1);
 
     String testPackageNameV2 = getTestPackageName("test006_v2");
-    File testRootDirV2 = AbstractTestTools.getTestRootDir(testPackageNameV2);
+    File testRootDirV2 = getTestRootDir(testPackageNameV2);
 
     final String className = getClassNameForJson("jack.SrcClass");
     long classIdV1;
@@ -484,7 +484,7 @@ public class CoverageTests {
       @CheckForNull String excludeFilter)
       throws CannotCreateFileException, CannotChangePermissionException, WrongPermissionException,
           IOException, Exception {
-    File sourceDir = AbstractTestTools.getTestRootDir(testPackageName);
+    File sourceDir = getTestRootDir(testPackageName);
     File coverageMetadataFile = compileDexWithCoverage(new File[]{sourceDir},
         includeFilter, excludeFilter, new File[0]);
 
@@ -535,5 +535,16 @@ public class CoverageTests {
   @Nonnull
   private String getTestPackageName(@Nonnull String testName) {
     return COVERAGE_TEST_PACKAGE + "." + testName;
+  }
+
+  /**
+   * Workaround AbstractTestTools.getTestRootDir hardcoded for Jack tests only.
+   */
+  @Nonnull
+  private static final File getTestRootDir(@Nonnull String testPackageName) {
+    File jackRootDir = TestsProperties.getJackRootDir();
+    File jackCoverageDir = new File(jackRootDir, "jack-coverage");
+    File jackCoverageTestsDir = new File(jackCoverageDir, "tests");
+    return new File(jackCoverageTestsDir, testPackageName.replace('.', File.separatorChar));
   }
 }

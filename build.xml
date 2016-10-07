@@ -865,7 +865,7 @@
   </target>
 
   <target name="jack-tests-copy-libs" depends="jack-api-lib,junit4,dx-ref-lib,ddm-lib,ecj,
-    antlr-rt-lib,guava-lib,dex-lib,jsr305-lib,dexcomparator-lib, gson-lib">
+    antlr-rt-lib,guava-lib,dex-lib,jsr305-lib,dexcomparator-lib">
     <copy todir="${jack-tests.libs.dir}" flatten="true">
       <filelist dir="/" >
         <file name="${jack-api.dist.dir}/${jack-api.lib.name}"/>
@@ -878,7 +878,6 @@
         <file name="${dexlib.dist.dir}/${dexlib.libname}"/>
         <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
         <file name="${dexcomparator.dist.dir}/${dexcomparator.libname}"/>
-        <file name="${gson.dist.dir}/${gson.libname}"/>
       </filelist>
     </copy>
   </target>
@@ -922,8 +921,6 @@
       <exclude name="com/android/jack/annotation/processor/sample2/src/**"/>
       <exclude name="com/android/jack/annotation/test019/jack/**"/>
       <exclude name="com/android/jack/classpath/test002/lib1override/**"/>
-      <exclude name="com/android/jack/coverage/test006_v1/jack/**"/>
-      <exclude name="com/android/jack/coverage/test006_v2/jack/**"/>
       <exclude name="com/android/jack/encoding/tests/**"/>
       <exclude name="com/android/jack/enums/test003/link/Other.java"/>
       <exclude name="com/android/jack/enums/test003/link/Values.java"/>
@@ -974,7 +971,6 @@
           <file name="${jack-api.dist.dir}/${jack-api.lib.name}"/>
           <file name="${schedtests.dist.dir}/${schedtests.libname}"/>
           <file name="${jack-tests.prebuilts.dir}/${ecj-tests.libname}"/>
-          <file name="${gson.dist.dir}/${gson.libname}"/>
         </filelist>
       </classpath>
     </javac>
@@ -990,7 +986,6 @@
       <arg line="${jackunittests.static.libs.list}" />
       <arg line="${jack.static.libs.list}" />
       <arg value="${ddm-lib.dist.dir}/${ddm-lib.libname}" />
-      <arg value="${gson.dist.dir}/${gson.libname}"/>
       <arg value="${jack-tests.prebuilts.dir}/${ecj-tests.libname}" />
       <arg value="${jack-tests.dist.dir}/${jack-tests.execname}" />
     </java>

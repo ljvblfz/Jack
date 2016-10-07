@@ -16,11 +16,12 @@
 
 package com.android.jack.coverage;
 
+import com.android.jack.test.junit.JackTestRunner;
+
 import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
-@RunWith(Suite.class)
-@SuiteClasses(value = {CoveragePatternTest.class, CoverageFilterSetTest.class,
-    CoveragePatternCodecTest.class, CoverageFilterSetCodecTest.class, CoverageFilterTest.class})
-public class AllTests {}
+@RunWith(JackTestRunner.class)
+@SuiteClasses(value = {CoverageTests.class})
+public class AllCoverageTests {
+}
