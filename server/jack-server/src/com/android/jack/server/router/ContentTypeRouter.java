@@ -66,7 +66,8 @@ public class ContentTypeRouter implements Container {
     ContentType contentType = getContentType(request);
     Container container;
     if (contentType == null) {
-      logger.log(Level.FINE, "Route request for no content type");
+      logger.log(Level.INFO, "Using primary route for " + getDescription()
+        + " without content type");
       container = primaryContainer;
     } else {
       String type = contentType.getType();
@@ -75,11 +76,17 @@ public class ContentTypeRouter implements Container {
 
       container = registry.get(type);
       if (container == null) {
-        logger.log(Level.FINE, "No route for '" + type + "'");
+        logger.log(Level.INFO, "Using primary route for " + getDescription()
+          + " with content type '" + type + "'");
         container = primaryContainer;
       }
     }
     container.handle(request, response);
+  }
+
+  @Nonnull
+  protected String getDescription() {
+    return "request";
   }
 
   @CheckForNull

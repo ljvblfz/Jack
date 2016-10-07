@@ -66,6 +66,7 @@ public class MethodRouter implements Container {
     if (container != null) {
       container.handle(request, response);
     } else {
+      logger.log(Level.INFO, "Using primary route for method '" + method + "'");
       primary.handle(request, response);
     }
   }
