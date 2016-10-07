@@ -16,6 +16,8 @@
 
 package com.android.jack.coverage;
 
+import static org.junit.Assert.assertEquals;
+
 import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -24,7 +26,10 @@ import com.google.gson.JsonParser;
 
 import com.android.jack.test.TestsProperties;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.JackApiV03Toolchain;
+import com.android.jack.test.toolchain.JackApiV04Toolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.JackCliToolchain;
 import com.android.jack.util.NamingTools;
 import com.android.sched.util.file.CannotChangePermissionException;
 import com.android.sched.util.file.CannotCreateFileException;
@@ -38,7 +43,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.annotation.CheckForNull;
@@ -224,8 +231,7 @@ public class CoverageTests {
     // 2 - Compile the lib with coverage.
     toolchain = createJackToolchain();
     toolchain.addStaticLibs(libDir);
-    File coverageMetadataFile = createTempCoverageMetadataFile();
-    enableCodeCoverage(toolchain, coverageMetadataFile, null, null);
+    File coverageMetadataFile = enableCodeCoverage(toolchain, null, null);
     File srcFiles = new File(AbstractTestTools.getTestRootDir(testPackageName), "src");
     File outDexFolder = AbstractTestTools.createTempDir();
     toolchain.srcToExe(outDexFolder, false, srcFiles);
@@ -240,44 +246,97 @@ public class CoverageTests {
   }
 
   @Test
-  public void testClassId() throws Exception {
+  public void testClassId_005() throws Exception {
     String testPackageName = getTestPackageName("test005");
     File testRootDir = AbstractTestTools.getTestRootDir(testPackageName);
+    final String className = getClassNameForJson(testPackageName + ".jack.LibClass");
+
+    long classIdOne;
+    long classIdTwo;
+    long classIdThree;
+    JackBasedToolchain toolchain;
 
     // Compile with coverage only
-    JackBasedToolchain toolchain = createJackToolchain();
-    File coverageFileOne = createTempCoverageMetadataFile();
-    enableCodeCoverage(toolchain, coverageFileOne, null, null);
-    File outDexFolderOne = AbstractTestTools.createTempDir();
-    toolchain.srcToExe(outDexFolderOne, false, testRootDir);
+    {
+      toolchain = createJackToolchain();
+      File coverageFileOne = enableCodeCoverage(toolchain, null, null);
+      File outDexFolderOne = AbstractTestTools.createTempDir();
+      toolchain.srcToExe(outDexFolderOne, false, testRootDir);
+      classIdOne = getClassIdOf(coverageFileOne, className);
+    }
 
     // Compile with coverage only again into a different coverage file.
-    toolchain = createJackToolchain();
-    File coverageFileTwo = createTempCoverageMetadataFile();
-    enableCodeCoverage(toolchain, coverageFileTwo, null, null);
-    File outDexFolderTwo = AbstractTestTools.createTempDir();
-    toolchain.srcToExe(outDexFolderOne, false, testRootDir);
+    {
+      toolchain = createJackToolchain();
+      File coverageFileTwo = enableCodeCoverage(toolchain, null, null);
+      File outDexFolderTwo = AbstractTestTools.createTempDir();
+      toolchain.srcToExe(outDexFolderTwo, false, testRootDir);
+      classIdTwo = getClassIdOf(coverageFileTwo, className);
+    }
 
     // Compile with coverage *and* proguard to shrink LibClass so it loses its unusedMethod.
-    toolchain = createJackToolchain();
-    File coverageFileThree = createTempCoverageMetadataFile();
-    enableCodeCoverage(toolchain, coverageFileThree, null, null);
-    File proguardFile = new File(testRootDir, "proguard.flags");
-    toolchain.addProguardFlags(proguardFile);
-    File outDexFolderThree = AbstractTestTools.createTempDir();
-    toolchain.srcToExe(outDexFolderThree, false, testRootDir);
-
-    // Extract class ID of LibClass for each coverage file.
-    final String className = getClassNameForJson(testPackageName + ".jack.LibClass");
-    long classIdOne = getClassIdOf(coverageFileOne, className);
-    long classIdTwo = getClassIdOf(coverageFileTwo, className);
-    long classIdThree = getClassIdOf(coverageFileThree, className);
+    {
+      toolchain = createJackToolchain();
+      File coverageFileThree = enableCodeCoverage(toolchain, null, null);
+      File proguardFile = new File(testRootDir, "proguard.flags");
+      toolchain.addProguardFlags(proguardFile);
+      File outDexFolderThree = AbstractTestTools.createTempDir();
+      toolchain.srcToExe(outDexFolderThree, false, testRootDir);
+      classIdThree = getClassIdOf(coverageFileThree, className);
+    }
 
     // We should generate the same class ID for the same class.
     Assert.assertEquals("Expected same class IDs", classIdOne, classIdTwo);
 
     // We should generate different class IDs when they are different (after shrinking here).
     assertNotEquals("Expected different class IDs", classIdOne, classIdThree);
+  }
+
+  @Test
+  public void testClassId_006() throws Exception {
+    String testPackageNameV1 = getTestPackageName("test006_v1");
+    File testRootDirV1 = AbstractTestTools.getTestRootDir(testPackageNameV1);
+
+    String testPackageNameV2 = getTestPackageName("test006_v2");
+    File testRootDirV2 = AbstractTestTools.getTestRootDir(testPackageNameV2);
+
+    final String className = getClassNameForJson("jack.SrcClass");
+    long classIdV1;
+    long classIdV2;
+    long classIdV2_2;
+    JackBasedToolchain toolchain;
+
+    // Compile with coverage the version v1
+    {
+      toolchain = createJackToolchain();
+      File coverageFileOne = enableCodeCoverage(toolchain, null, null);
+      File outDexFolderOne = AbstractTestTools.createTempDir();
+      toolchain.srcToExe(outDexFolderOne, false, testRootDirV1);
+      classIdV1 = getClassIdOf(coverageFileOne, className);
+    }
+
+    // Compile with coverage the version v2
+    {
+      toolchain = createJackToolchain();
+      File coverageFileTwo = enableCodeCoverage(toolchain, null, null);
+      File outDexFolderTwo = AbstractTestTools.createTempDir();
+      toolchain.srcToExe(outDexFolderTwo, false, testRootDirV2);
+      classIdV2 = getClassIdOf(coverageFileTwo, className);
+    }
+
+    // Compile with coverage the version v2 again
+    {
+      toolchain = createJackToolchain();
+      File coverageFileThree = enableCodeCoverage(toolchain, null, null);
+      File outDexFolderThree = AbstractTestTools.createTempDir();
+      toolchain.srcToExe(outDexFolderThree, false, testRootDirV2);
+      classIdV2_2 = getClassIdOf(coverageFileThree, className);
+    }
+
+    // We should generate different class IDs when they are different (after shrinking here).
+    assertNotEquals("Expected different class IDs", classIdV1, classIdV2);
+
+    assertEquals("Expected different class IDs", classIdV2, classIdV2_2);
   }
 
   private static void assertNotEquals(@Nonnull String msg, long expected, long actual) {
@@ -339,11 +398,20 @@ public class CoverageTests {
     return toolchain;
   }
 
-  private static void enableCodeCoverage(
+  /**
+   * Enable code coverage for the given toolchain.
+   *
+   * @param toolchain the toolchain to configure with code coverage
+   * @param includeFilter the 'include' class filter
+   * @param excludeFilter the 'exclude' class filter
+   * @return the coverage metadata file generated by the compilation
+   * @throws Exception if the compilation fails
+   */
+  private static File enableCodeCoverage(
       @Nonnull JackBasedToolchain toolchain,
-      @Nonnull File coverageMetadataFile,
       @Nonnull String includeFilter,
-      @Nonnull String excludeFilter) {
+      @Nonnull String excludeFilter) throws Exception {
+    File coverageMetadataFile = createTempCoverageMetadataFile();
     toolchain.addProperty("jack.coverage", "true");
     toolchain.addProperty(
         "jack.coverage.metadata.file", coverageMetadataFile.getAbsolutePath());
@@ -356,6 +424,28 @@ public class CoverageTests {
       toolchain.addProperty("jack.coverage.jacoco.exclude", excludeFilter);
     }
     toolchain.addToClasspath(getJacocoAgentLib());
+    File pluginFile = getCodeCoveragePluginFile();
+    List<File> pluginPath = Collections.singletonList(pluginFile);
+    List<String> pluginNames = Collections.singletonList("com.android.jack.coverage.CodeCoverage");
+    if (toolchain instanceof JackCliToolchain) {
+      JackCliToolchain cliToolchain = (JackCliToolchain) toolchain;
+      cliToolchain.setPluginPath(pluginPath);
+      cliToolchain.setPluginNames(pluginNames);
+    } else {
+      // TODO: need to rework API toolchain hierarchy in test framework to avoid these if/else.
+      if (toolchain instanceof JackApiV03Toolchain) {
+        JackApiV03Toolchain jackApiV03 = (JackApiV03Toolchain) toolchain;
+        jackApiV03.setPluginPath(pluginPath);
+        jackApiV03.setPluginNames(pluginNames);
+      } else if (toolchain instanceof JackApiV04Toolchain) {
+        JackApiV04Toolchain jackApiV04 = (JackApiV04Toolchain) toolchain;
+        jackApiV04.setPluginPath(pluginPath);
+        jackApiV04.setPluginNames(pluginNames);
+      } else {
+        throw new AssertionError("Unsupported toolchain: " + toolchain.getClass().getName());
+      }
+    }
+    return coverageMetadataFile;
   }
 
   @Nonnull
@@ -376,9 +466,8 @@ public class CoverageTests {
       @CheckForNull String excludeFilter,
       @Nonnull File[] staticLibs) throws Exception {
     File outDexFolder = AbstractTestTools.createTempDir();
-    File coverageMetadataFile = createTempCoverageMetadataFile();
     JackBasedToolchain toolchain = createJackToolchain();
-    enableCodeCoverage(toolchain, coverageMetadataFile, includeFilter, excludeFilter);
+    File coverageMetadataFile = enableCodeCoverage(toolchain, includeFilter, excludeFilter);
 
     // Setup classpath.
     toolchain.addStaticLibs(staticLibs);
@@ -435,6 +524,12 @@ public class CoverageTests {
   private static File getJacocoAgentLib() {
     return new File(
         TestsProperties.getJackRootDir(), "jacoco/org.jacoco.agent.rt-0.7.5.201505241946-all.jar");
+  }
+
+  @Nonnull
+  private static File getCodeCoveragePluginFile() {
+    return new File(
+        TestsProperties.getJackRootDir(), "jack-coverage/dist/jack-coverage-plugin.jar");
   }
 
   @Nonnull
