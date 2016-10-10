@@ -43,5 +43,9 @@ public enum ServerMode {
    * Server has no currently running task and is using as few resources as possible.
    * New tasks may require some loading and warming up.
    */
-  SLEEP;
+  SLEEP,
+  /**
+   * Server is in the process of automatic shutdown.
+   */
+  SHUTDOWN;
 }

@@ -54,7 +54,7 @@ class ConfigFile extends Properties {
   @Nonnull
   private static Logger logger = Logger.getLogger(ConfigFile.class.getName());
 
-  static final int CURRENT_CONFIG_VERSION = 3;
+  static final int CURRENT_CONFIG_VERSION = 4;
 
   /**
    * Disabled value for delays returned by public methods of this class.
@@ -87,6 +87,8 @@ class ConfigFile extends Properties {
   private static final String IDLE_PROPERTY = "jack.server.idle";
   @Nonnull
   private static final String DEEP_IDLE_PROPERTY = "jack.server.deep-idle";
+  @Nonnull
+  private static final String SHUTDOWN_PROPERTY = "jack.server.shutdown";
   @Nonnull
   private static final String CONFIG_VERSION_PROPERTY = "jack.server.config.version";
   @Nonnull
@@ -217,6 +219,10 @@ class ConfigFile extends Properties {
   @Nonnegative
   public int getDeepIdleDelay() {
     return getDelay(ConfigFile.DEEP_IDLE_PROPERTY, 15 * 60);
+  }
+
+  public int getShutdownDelay() {
+    return getDelay(ConfigFile.SHUTDOWN_PROPERTY, CONFIG_TIME_DISABLED_VALUE);
   }
 
   public long getMaxJarSize() {

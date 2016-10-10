@@ -568,6 +568,12 @@ public class JackHttpServer implements HasVersion {
         freeLoadedPrograms();
       }
     });
+    addServerModeWatcher(ServerMode.SHUTDOWN, new ServerModeWatcher() {
+      @Override
+      public void changedMode(@Nonnull ServerMode oldMode, @Nonnull ServerMode newMode) {
+        shutdown();
+      }
+    });
 
     loadConfig();
   }
@@ -722,6 +728,7 @@ public class JackHttpServer implements HasVersion {
     addServerMode(config.getIdleDelay(), ServerMode.IDLE);
     addServerMode(config.getDeepIdleDelay(), ServerMode.DEEP_IDLE);
     addServerMode(config.getTimeout(), ServerMode.SLEEP);
+    addServerMode(config.getShutdownDelay(), ServerMode.SHUTDOWN);
 
     maxServices = config.getMaxServices();
     List<Pair<Integer, Long>> maxServicesByMem = config.getMaxServiceByMem();
