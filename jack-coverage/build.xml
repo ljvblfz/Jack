@@ -124,7 +124,8 @@
 
     <!-- TODO can we strip out Jack tests to only keep infrastrcture ? -->
     <jar basedir="${jack-coverage-build-test-classes.dir}"
-         destfile="${jack-coverage-dist.dir}/${jack-coverage-tests.execname}" />
+         destfile="${jack-coverage-dist.dir}/${jack-coverage-tests.execname}"
+         manifest="etc/manifest.txt" />
   </target>
 
   <target name="tests-check-config">
