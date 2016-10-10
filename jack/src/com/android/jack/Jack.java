@@ -120,7 +120,7 @@ import com.android.jack.library.LibraryWritingException;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.meta.LibraryMetaWriter;
 import com.android.jack.meta.Meta;
-import com.android.jack.optimizations.ConstantRefinerAndVariableRemover;
+import com.android.jack.optimizations.ConstantRefiner;
 import com.android.jack.optimizations.DefUsesChainsSimplifier;
 import com.android.jack.optimizations.ExpressionSimplifier;
 import com.android.jack.optimizations.IfWithConstantSimplifier;
@@ -1644,7 +1644,7 @@ public abstract class Jack {
           if (hasSanityChecks) {
             methodPlan4.append(UseDefsChecker.class);
           }
-          methodPlan4.append(ConstantRefinerAndVariableRemover.class);
+          methodPlan4.append(ConstantRefiner.class);
           if (features.contains(Optimizations.UseDefSimplifier.class)) {
             methodPlan4.append(UseDefsChainsSimplifier.class);
           }

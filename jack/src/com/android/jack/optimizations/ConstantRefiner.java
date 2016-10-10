@@ -65,9 +65,9 @@ import com.android.sched.util.log.stats.StatisticId;
 
 import javax.annotation.Nonnull;
 /**
- * Remove and refine constant variables.
+ * Refines constant variables.
  */
-@Description("Remove and refine constant variables.")
+@Description("Refines constant variables.")
 @Constraint(need = {UseDefsMarker.class, ControlFlowGraph.class},
     no = {ImplicitCast.class, JCastOperation.WithIntersectionType.class})
 @Transform(add = {JByteLiteral.class,
@@ -77,7 +77,7 @@ import javax.annotation.Nonnull;
     JFloatLiteral.class,
     JDoubleLiteral.class})
 @Filter(TypeWithoutPrebuiltFilter.class)
-public class ConstantRefinerAndVariableRemover implements RunnableSchedulable<JMethod> {
+public class ConstantRefiner implements RunnableSchedulable<JMethod> {
 
   @Nonnull
   public static final StatisticId<Counter> REFINED_CONSTANT = new StatisticId<Counter>(
