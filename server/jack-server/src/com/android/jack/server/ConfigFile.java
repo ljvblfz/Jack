@@ -46,6 +46,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 class ConfigFile extends Properties {
@@ -55,7 +56,16 @@ class ConfigFile extends Properties {
 
   static final int CURRENT_CONFIG_VERSION = 3;
 
-  static final int TIME_DISABLED_VALUE = -1;
+  /**
+   * Disabled value for delays returned by public methods of this class.
+   */
+  @Nonnegative
+  static final int TIME_DISABLED_VALUE = Integer.MAX_VALUE;
+
+  /**
+   * Disabled value for delays specified in the config file.
+   */
+  private static final int CONFIG_TIME_DISABLED_VALUE = -1;
 
   @Nonnull
   private static final Charset CONFIG_CHARSET = StandardCharsets.UTF_8;
@@ -194,14 +204,17 @@ class ConfigFile extends Properties {
         .intValue();
   }
 
+  @Nonnegative
   public int getTimeout() {
     return getDelay(ConfigFile.TIME_OUT_PROPERTY, 2 * 60 * 60);
   }
 
+  @Nonnegative
   public int getIdleDelay() {
     return getDelay(ConfigFile.IDLE_PROPERTY, 3 * 60);
   }
 
+  @Nonnegative
   public int getDeepIdleDelay() {
     return getDelay(ConfigFile.DEEP_IDLE_PROPERTY, 15 * 60);
   }
@@ -240,12 +253,14 @@ class ConfigFile extends Properties {
     return list;
   }
 
-  private int getDelay(String property, int defaultValue) {
+  @Nonnegative
+  private int getDelay(@Nonnull String property, int defaultValue) {
     int delay = getProperty(property, Integer.valueOf(defaultValue), new IntCodec())
         .intValue();
-    if (delay < 0 && delay != TIME_DISABLED_VALUE) {
-      logger.log(Level.WARNING,
-          "Invalid config value for " + property + ": " + delay);
+    if (delay == CONFIG_TIME_DISABLED_VALUE) {
+      delay = TIME_DISABLED_VALUE;
+    } else if (delay < 0) {
+      logger.log(Level.WARNING, "Invalid config value for " + property + ": " + delay);
       delay = TIME_DISABLED_VALUE;
     }
     return delay;
