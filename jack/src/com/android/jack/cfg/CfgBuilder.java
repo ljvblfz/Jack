@@ -100,7 +100,7 @@ import javax.annotation.Nonnull;
     add = JNode.class,
     remove = JNode.class,
     unprotect = @With(remove = {ControlFlowGraph.class, BasicBlockMarker.class}))
-@Transform(add = {ControlFlowGraph.class, JReturnStatement.class, BasicBlockMarker.class})
+@Transform(add = {ControlFlowGraph.class, BasicBlockMarker.class})
 @Use(SourceInfoFactory.class)
 @Filter(TypeWithoutPrebuiltFilter.class)
 public class CfgBuilder implements RunnableSchedulable<JMethod> {

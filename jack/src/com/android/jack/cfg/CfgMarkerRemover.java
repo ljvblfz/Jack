@@ -17,6 +17,7 @@
 package com.android.jack.cfg;
 
 import com.android.jack.Options;
+import com.android.jack.analysis.dfa.reachingdefs.ReachingDefsMarker;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JVisitor;
@@ -37,7 +38,7 @@ import javax.annotation.Nonnull;
 @Description("Removes markers related to the ControlFlowGraph.")
 @Name("CfgMarkerRemover")
 @Constraint(need = {ControlFlowGraph.class, BasicBlockMarker.class})
-@Transform(remove = {ControlFlowGraph.class, BasicBlockMarker.class})
+@Transform(remove = {ControlFlowGraph.class, BasicBlockMarker.class, ReachingDefsMarker.class})
 @Filter(TypeWithoutPrebuiltFilter.class)
 public class CfgMarkerRemover implements RunnableSchedulable<JMethod> {
 
