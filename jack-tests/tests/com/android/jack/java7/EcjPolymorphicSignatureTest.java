@@ -16,7 +16,6 @@
 
 package com.android.jack.java7;
 
-import com.android.jack.test.eclipse.jdt.core.tests.compiler.regression.MethodHandleTest;
 import com.android.jack.test.eclipse.jdt.core.tests.compiler.regression.PolymorphicSignatureTest;
 import com.android.jack.test.runner.AbstractRuntimeRunner;
 import com.android.jack.test.runner.RuntimeRunner;
@@ -39,7 +38,6 @@ import org.junit.runner.manipulation.NoTestsRemainException;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 

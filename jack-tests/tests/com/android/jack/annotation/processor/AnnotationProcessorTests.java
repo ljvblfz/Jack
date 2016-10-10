@@ -23,7 +23,6 @@ import com.android.jack.library.FileType;
 import com.android.jack.library.FileTypeDoesNotExistException;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.test.TestsProperties;
-import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
@@ -35,7 +34,6 @@ import com.android.sched.vfs.ZipUtils;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
@@ -49,7 +47,6 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 public class AnnotationProcessorTests {

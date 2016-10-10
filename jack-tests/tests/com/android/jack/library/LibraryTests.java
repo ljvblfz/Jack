@@ -16,11 +16,9 @@
 
 package com.android.jack.library;
 
-import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.AndroidToolchain;
 import com.android.jack.test.toolchain.IToolchain;
-import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.sched.util.RunnableHooks;

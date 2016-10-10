@@ -29,7 +29,6 @@ import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.DummyToolchain;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
-import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.TwoStepsToolchain;
 
 import org.junit.Test;
