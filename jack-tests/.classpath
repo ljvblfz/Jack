@@ -6,7 +6,6 @@
 	<classpathentry kind="lib" path="libs/junit4.jar"/>
 	<classpathentry kind="lib" path="libs/antlr-runtime-lib.jar"/>
 	<classpathentry kind="lib" path="libs/dx-ref.jar"/>
-	<classpathentry kind="lib" path="libs/gson.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/dexcomparator"/>
 	<classpathentry kind="lib" path="libs/ecj.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Scheduler"/>

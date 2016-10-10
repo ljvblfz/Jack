@@ -891,7 +891,6 @@
         <file name="${ddm-lib.dist.dir}/${ddm-lib.libname}" />
         <file name="${jack-api.dist.dir}/${jack-api.lib.name}"/>
         <file name="${schedtests.dist.dir}/${schedtests.libname}"/>
-        <file name="${gson.dist.dir}/${gson.libname}"/>
       </filelist>
       <filelist refid="jackunittests.static.libs.fileset" />
       <filelist refid="jack.static.libs.fileset" />
