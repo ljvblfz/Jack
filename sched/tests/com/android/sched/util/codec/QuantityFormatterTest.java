@@ -20,14 +20,20 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import java.text.DecimalFormat;
+import java.util.Locale;
+
 public class QuantityFormatterTest {
   @Test
   public void test() {
-    QuantityFormatter formatter = new QuantityFormatter().setSI();
+    QuantityFormatter formatter = new QuantityFormatter(Locale.US).setSI();
 
     Assert.assertEquals("3", formatter.formatValue(Long.valueOf(3)));
+    Assert.assertEquals("-3", formatter.formatValue(Long.valueOf(-3)));
     Assert.assertEquals("1 k", formatter.formatValue(Long.valueOf(1000)));
+    Assert.assertEquals("-1 k", formatter.formatValue(Long.valueOf(-1000)));
     Assert.assertEquals("1.003 k", formatter.formatValue(Long.valueOf(1000 + 3)));
+    Assert.assertEquals("-1.003 k", formatter.formatValue(Long.valueOf(-(1000 + 3))));
     Assert.assertEquals("1 G", formatter.formatValue(Long.valueOf(1000L * 1000 * 1000)));
     Assert.assertEquals("1 G", formatter.formatValue(Long.valueOf(1000L * 1000 * 1000 + 3)));
     Assert.assertEquals("1 T", formatter.formatValue(Long.valueOf(1000L * 1000 * 1000 * 1000)));
@@ -37,11 +43,14 @@ public class QuantityFormatterTest {
     Assert.assertEquals("1 P",
         formatter.formatValue(Long.valueOf(1000L * 1000 * 1000 * 1000 * 1000 + 3)));
 
-    formatter = new QuantityFormatter().setIEC();
+    formatter = new QuantityFormatter(Locale.US).setIEC();
 
     Assert.assertEquals("3", formatter.formatValue(Long.valueOf(3)));
+    Assert.assertEquals("-3", formatter.formatValue(Long.valueOf(-3)));
     Assert.assertEquals("1000", formatter.formatValue(Long.valueOf(1000)));
+    Assert.assertEquals("-1000", formatter.formatValue(Long.valueOf(-1000)));
     Assert.assertEquals("1 Ki", formatter.formatValue(Long.valueOf(1024)));
+    Assert.assertEquals("-1 Ki", formatter.formatValue(Long.valueOf(-1024)));
     Assert.assertEquals("1003", formatter.formatValue(Long.valueOf(1000 + 3)));
     Assert.assertEquals("1.0029 Ki", formatter.formatValue(Long.valueOf(1024 + 3)));
     Assert.assertEquals("1 Gi", formatter.formatValue(Long.valueOf(1024L * 1024 * 1024)));
@@ -54,15 +63,18 @@ public class QuantityFormatterTest {
     Assert.assertEquals("1 Pi",
         formatter.formatValue(Long.valueOf(1024L * 1024 * 1024 * 1024 * 1024 + 3)));
 
-    formatter = new QuantityFormatter().setUnit("B");
+    formatter = new QuantityFormatter(Locale.US).setUnit("B");
 
     Assert.assertEquals("3 B", formatter.formatValue(Long.valueOf(3)));
 
-    formatter = new QuantityFormatter().setSI().setPrecise();
+    formatter = new QuantityFormatter(Locale.US).setSI().setPrecise();
 
     Assert.assertEquals("3", formatter.formatValue(Long.valueOf(3)));
+    Assert.assertEquals("-3", formatter.formatValue(Long.valueOf(-3)));
     Assert.assertEquals("1 k", formatter.formatValue(Long.valueOf(1000)));
+    Assert.assertEquals("-1 k", formatter.formatValue(Long.valueOf(-1000)));
     Assert.assertEquals("1.003 k", formatter.formatValue(Long.valueOf(1000 + 3)));
+    Assert.assertEquals("-1.003 k", formatter.formatValue(Long.valueOf(-(1000 + 3))));
     Assert.assertEquals("1 G", formatter.formatValue(Long.valueOf(1000L * 1000 * 1000)));
     Assert.assertEquals("1.000000003 G",
         formatter.formatValue(Long.valueOf(1000L * 1000 * 1000 + 3)));
@@ -73,5 +85,15 @@ public class QuantityFormatterTest {
         formatter.formatValue(Long.valueOf(1000L * 1000 * 1000 * 1000 * 1000)));
     Assert.assertEquals("1.000000000000003 P",
         formatter.formatValue(Long.valueOf(1000L * 1000 * 1000 * 1000 * 1000 + 3)));
+
+    formatter = new QuantityFormatter(Locale.FRANCE).setSI();
+
+    Assert.assertEquals("1,003 k", formatter.formatValue(Long.valueOf(1000 + 3)));
+
+    formatter = new QuantityFormatter(Locale.US).setSI().setPrecise();
+    formatter.getNumberFormatter().setMinimumIntegerDigits(3);
+    ((DecimalFormat) formatter.getNumberFormatter()).setGroupingSize(3);
+
+    Assert.assertEquals("003", formatter.formatValue(Long.valueOf(3)));
   }
 }
