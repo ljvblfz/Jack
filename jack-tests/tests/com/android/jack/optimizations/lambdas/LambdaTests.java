@@ -17,7 +17,9 @@
 package com.android.jack.optimizations.lambdas;
 
 import com.android.jack.Options;
+import com.android.jack.test.dex.DexFileTypesValidator;
 import com.android.jack.test.dex.DexOutputBasedTest;
+import com.android.jack.test.dex.DexTypeAccessValidator;
 import com.android.jack.test.junit.Runtime;
 import com.android.jack.transformations.lambda.LambdaGroupingScope;
 
@@ -322,11 +324,21 @@ public class LambdaTests extends DexOutputBasedTest {
   public void test002() throws Exception {
     compileAndValidate(PKG_002,
         config(LambdaGroupingScope.NONE, /* interfaces: */false, /* stateless: */false),
-        new LambdaClassesValidator(TEST002_NONE));
+        new LambdaClassesValidator(TEST002_NONE).
+            andAlso(new DexFileTypesValidator()
+                .insert(lambda(PKG_002, 0), new DexTypeAccessValidator(false))
+                .insert(lambda(PKG_002, 1), new DexTypeAccessValidator(false))
+                .insert(lambda(PKG_002, 2), new DexTypeAccessValidator(false))
+                .insert(lambda(PKG_002, 3), new DexTypeAccessValidator(false))
+                .insert(lambda(PKG_002, 4), new DexTypeAccessValidator(false))
+                .insert(lambda(PKG_002, 5), new DexTypeAccessValidator(false))
+                .insert(lambda(PKG_002, 6), new DexTypeAccessValidator(false))));
 
     compileAndValidate(PKG_002,
         config(LambdaGroupingScope.PACKAGE, /* interfaces: */true, /* stateless: */false),
-        new LambdaClassesValidator(TEST002_PACKAGE_INTERFACE));
+        new LambdaClassesValidator(TEST002_PACKAGE_INTERFACE).
+            andAlso(new DexFileTypesValidator()
+                .insert(lambda(PKG_002, 0), new DexTypeAccessValidator(false))));
   }
 
   // ===============================================================================================

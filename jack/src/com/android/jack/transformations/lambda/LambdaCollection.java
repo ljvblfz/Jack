@@ -222,7 +222,7 @@ public final class LambdaCollection {
     // Create a class
     JDefinedClass groupClass = new JDefinedClass(SourceInfo.UNKNOWN,
         NamingTools.getNonSourceConflictingName(LAMBDA_GROUP_CLASS_NAME_PREFIX + id),
-        JModifier.PUBLIC | JModifier.FINAL | JModifier.SYNTHETIC,
+        JModifier.FINAL | JModifier.SYNTHETIC,
         pkg, NopClassOrInterfaceLoader.INSTANCE);
     groupClass.setSuperClass(javaLangObject);
 
