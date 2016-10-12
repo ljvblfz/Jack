@@ -20,12 +20,13 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class DurationFormatterTest {
   @Test
   public void test() {
-    DurationFormatter formatter = new DurationFormatter();
+    DurationFormatter formatter = new DurationFormatter(Locale.US);
 
     Assert.assertEquals("3 ns", formatter.formatValue(Long.valueOf(3)));
     Assert.assertEquals("1 µs", formatter.formatValue(Long.valueOf(1000)));
@@ -55,7 +56,7 @@ public class DurationFormatterTest {
     Assert.assertEquals("-1 d",
         formatter.formatValue(Long.valueOf(-1000L * 1000 * 1000 * 60 * 60 * 24 - 3)));
 
-    formatter = new DurationFormatter().setPrecise();
+    formatter = new DurationFormatter(Locale.US).setPrecise();
 
     Assert.assertEquals("3 ns", formatter.formatValue(Long.valueOf(3)));
     Assert.assertEquals("1 µs", formatter.formatValue(Long.valueOf(1000)));
@@ -71,7 +72,7 @@ public class DurationFormatterTest {
     Assert.assertEquals("1.0000000000000346 d",
         formatter.formatValue(Long.valueOf(1000L * 1000 * 1000 * 60 * 60 * 24 + 3)));
 
-    formatter = new DurationFormatter().setInputUnit(TimeUnit.SECONDS);
+    formatter = new DurationFormatter(Locale.US).setInputUnit(TimeUnit.SECONDS);
 
     Assert.assertEquals("3 s", formatter.formatValue(Long.valueOf(3)));
     Assert.assertEquals("1 min", formatter.formatValue(Long.valueOf(60)));

@@ -18,6 +18,7 @@ package com.android.sched.util.codec;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nonnull;
@@ -46,9 +47,15 @@ public class DurationFormatter implements Formatter<Long> {
   private TimeUnit ref = TimeUnit.NANOSECONDS;
 
   @Nonnull
-  private NumberFormat formatter = NumberFormat.getIntegerInstance();
+  private NumberFormat formatter;
 
   public DurationFormatter() {
+    formatter = NumberFormat.getIntegerInstance();
+    formatter.setMaximumFractionDigits(4);
+  }
+
+  public DurationFormatter(@Nonnull Locale locale) {
+    formatter = NumberFormat.getIntegerInstance(locale);
     formatter.setMaximumFractionDigits(4);
   }
 
