@@ -954,6 +954,7 @@
       <exclude name="com/android/jack/frontend/test007/**"/>
       <exclude name="com/android/jack/jill/test001/**"/>
       <exclude name="com/android/jack/jill/test002/**"/>
+      <exclude name="com/android/jack/jill/test003/**"/>
       <exclude name="com/android/jack/optimizations/lambdas/test001/**"/>
       <exclude name="com/android/jack/optimizations/lambdas/test002/**"/>
       <exclude name="com/android/jack/optimizations/lambdas/test003/**"/>

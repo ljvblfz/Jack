@@ -17,6 +17,7 @@
 package com.android.jack.jill;
 
 import com.android.jack.test.TestsProperties;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runner.RuntimeRunner;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -43,6 +44,13 @@ public class JillTests {
   @Runtime
   public void test002() throws Exception {
     runJillTest("002");
+  }
+
+  @Test
+  @Runtime
+  @KnownIssue
+  public void test003() throws Exception {
+    runJillTest("003");
   }
 
   private static void runJillTest(@Nonnull String testNumber) throws Exception {
