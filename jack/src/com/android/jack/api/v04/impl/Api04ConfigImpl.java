@@ -17,8 +17,8 @@
 package com.android.jack.api.v04.impl;
 
 import com.android.jack.api.v03.impl.Api03ConfigImpl;
-import com.android.jack.api.v04c.Api04CandidateConfig;
-import com.android.jack.api.v04c.HasCharset;
+import com.android.jack.api.v04.Api04Config;
+import com.android.jack.api.v04.HasCharset;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -31,7 +31,7 @@ import javax.annotation.Nonnull;
 /**
  * A configuration implementation for API level 04 of the Jack compiler.
  */
-public class Api04ConfigImpl extends Api03ConfigImpl implements Api04CandidateConfig {
+public class Api04ConfigImpl extends Api03ConfigImpl implements Api04Config {
   public Api04ConfigImpl() {
     super();
   }

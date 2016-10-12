@@ -31,9 +31,9 @@ import com.android.jack.api.v02.Api02Config;
 import com.android.jack.api.v02.impl.Api02Feature;
 import com.android.jack.api.v03.Api03Config;
 import com.android.jack.api.v03.impl.Api03Feature;
+import com.android.jack.api.v04.Api04Config;
 import com.android.jack.api.v04.impl.Api04ConfigImpl;
 import com.android.jack.api.v04.impl.Api04Feature;
-import com.android.jack.api.v04c.Api04CandidateConfig;
 import com.android.jack.management.CleanCodeRequest;
 import com.android.jack.management.CleanDiskRequest;
 import com.android.jack.management.CleanMemoryRequest;
@@ -63,13 +63,13 @@ public class JackProviderImpl implements JackProvider, ResourceController {
     impl.put(Api01Config.class, Api04ConfigImpl.class);
     impl.put(Api02Config.class, Api04ConfigImpl.class);
     impl.put(Api03Config.class, Api04ConfigImpl.class);
-    impl.put(Api04CandidateConfig.class, Api04ConfigImpl.class);
+    impl.put(Api04Config.class, Api04ConfigImpl.class);
     impl.put(Cli01Config.class, Cli01ConfigImpl.class);
 
     features.put(Api01Config.class, Api01Feature.class);
     features.put(Api02Config.class, Api02Feature.class);
     features.put(Api03Config.class, Api03Feature.class);
-    features.put(Api04CandidateConfig.class, Api04Feature.class);
+    features.put(Api04Config.class, Api04Feature.class);
     features.put(Cli01Config.class, Api04Feature.class);
   }
 
