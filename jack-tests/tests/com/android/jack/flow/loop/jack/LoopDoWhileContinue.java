@@ -49,7 +49,6 @@ public class LoopDoWhileContinue {
   public int loopWithUnusedLabel() {
     int a = 0;
     int i = 0;
-    label:
     do {
       i = i + 1;
       do {
