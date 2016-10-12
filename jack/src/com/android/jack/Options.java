@@ -325,7 +325,6 @@ public class Options {
   public static final VFSPropertyId LIBRARY_OUTPUT_ZIP = VFSPropertyId
       .create("jack.library.output.zip", "Output zip archive for library",
           new ZipFSCodec(Existence.MAY_EXIST, Compression.UNCOMPRESSED).setInfoString("output-lib"))
-      .withoutAutoAction()
       .requiredIf(GENERATE_JACK_LIBRARY.getValue().isTrue()
           .and(LIBRARY_OUTPUT_CONTAINER_TYPE.is(Container.ZIP))
           .or(GENERATE_LIBRARY_FROM_INCREMENTAL_FOLDER.getValue().isTrue()));

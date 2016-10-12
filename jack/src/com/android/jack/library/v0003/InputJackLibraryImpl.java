@@ -110,9 +110,10 @@ public class InputJackLibraryImpl extends InputJackLibrary {
     super(libraryProperties, jackOutputLibrary.getVfs());
     linkedOutputJackLib = jackOutputLibrary;
     originalVFS = jackOutputLibrary.getVfs();
+
+    check(); // check that this lib is valid before incrementing the output lib counter
     jackOutputLibrary.incrementNumLinkedLibraries();
 
-    check();
     fillFileTypes();
   }
 
