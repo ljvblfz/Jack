@@ -19,6 +19,7 @@ package com.android.jack.library;
 import com.android.sched.util.codec.ListCodec;
 import com.android.sched.util.config.id.PropertyId;
 
+import java.io.File;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -33,7 +34,9 @@ public class LibraryPathPropertyId extends PropertyId<List<InputLibrary>> {
     super(
         name,
         description,
-        new ListCodec<InputLibrary>(new InputLibraryCodec().setInfoString(infoString)).setMin(0));
+        new ListCodec<InputLibrary>(new InputLibraryCodec().setInfoString(infoString))
+            .setMin(0)
+            .setSeparator(File.pathSeparator));
     withAutoCheck();
   }
 
@@ -77,13 +80,6 @@ public class LibraryPathPropertyId extends PropertyId<List<InputLibrary>> {
   @Nonnull
   public ListCodec<InputLibrary> getCodec() {
     return (ListCodec<InputLibrary>) super.getCodec();
-  }
-
-  @Nonnull
-  public LibraryPathPropertyId on(@Nonnull String separator) {
-    getCodec().setSeparator(separator);
-
-    return this;
   }
 }
 

@@ -366,7 +366,6 @@ public class Options {
   public static final LibraryPathPropertyId CLASSPATH =
       new LibraryPathPropertyId("jack.classpath", "Classpath", "classpath-lib")
           .withoutAutoAction()
-          .on(File.pathSeparator)
           .addDefaultValue(Collections.<InputLibrary>emptyList());
 
   @Nonnull
@@ -1171,7 +1170,8 @@ public class Options {
     configBuilder.popDefaultLocation();
 
     if (importedLibraries != null) {
-      configBuilder.setString(IMPORTED_LIBRARIES, Joiner.on(',').join(importedLibraries));
+      configBuilder.setString(
+          IMPORTED_LIBRARIES, Joiner.on(File.pathSeparator).join(importedLibraries));
     }
 
     if (classpath != null) {
