@@ -2058,40 +2058,63 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         // be use to known the type of variable to read and nextFrame must be use to known the type
         // of variable to write.
         Variable tmpVar = getTempVarFromTopOfStackMinus1(frame);
+        boolean topMinus1IsVirtual = isVirtualStackVariable(frame, TOP_OF_STACK - 1);
+        boolean topIsVirtual = isVirtualStackVariable(frame, TOP_OF_STACK);
 
-        // tmpVar = frame.stack[frame.stack.size() + TOP_OF_STACK - 1]
-        writeDebugBegin(currentClass, currentLine);
-        writer.writeCatchBlockIds(currentCatchList);
-        writer.writeKeyword(Token.EXPRESSION_STATEMENT);
-        writer.writeOpen();
-        writeDebugBegin(currentClass, currentLine);
-        writer.writeKeyword(Token.ASG_OPERATION);
-        writer.writeOpen();
-        writeLocalRef(tmpVar);
-        writeStackAccess(frame, TOP_OF_STACK - 1);
-        writeDebugEnd(currentClass, currentLine);
-        writer.writeClose();
-        writeDebugEnd(currentClass, currentLine);
-        writer.writeClose();
+        if (topMinus1IsVirtual) {
+          // Virtual swap, stack variables will be transform as below:
+          // var_stk_top = value_stk_top; var_stk_top-1 is virtual
+          // =>
+          // var_stk_top is virtual, var_stk_top-1 = value_stk_top
+          cmpOperands.put(getStackVariable(nextFrame, TOP_OF_STACK),
+              cmpOperands.remove(getStackVariable(frame, TOP_OF_STACK - 1)));
+        } else {
+          // tmpVar = frame.stack[frame.stack.size() + TOP_OF_STACK - 1]
+          writeDebugBegin(currentClass, currentLine);
+          writer.writeCatchBlockIds(currentCatchList);
+          writer.writeKeyword(Token.EXPRESSION_STATEMENT);
+          writer.writeOpen();
+          writeDebugBegin(currentClass, currentLine);
+          writer.writeKeyword(Token.ASG_OPERATION);
+          writer.writeOpen();
+          writeLocalRef(tmpVar);
+          writeStackAccess(frame, TOP_OF_STACK - 1);
+          writeDebugEnd(currentClass, currentLine);
+          writer.writeClose();
+          writeDebugEnd(currentClass, currentLine);
+          writer.writeClose();
+        }
 
-        // nexFrame.stack[nexFrame.stack.size() + TOP_OF_STACK - 1] =
-        // frame.stack[frame.stack.size() + TOP_OF_STACK]
-        writeAssign(frame, TOP_OF_STACK, nextFrame, TOP_OF_STACK - 1);
+        if (topIsVirtual) {
+          // Virtual swap, stack variables will be transform as below:
+          // var_stk_top is virtual; var_stk_top-1 = value_stk_top-1
+          // =>
+          // var_stk_top = value_stk_top-1, var_stk_top-1 is virtual
+          cmpOperands.put(getStackVariable(nextFrame, TOP_OF_STACK - 1),
+              cmpOperands.remove(getStackVariable(frame, TOP_OF_STACK)));
+        } else {
+          // nexFrame.stack[nexFrame.stack.size() + TOP_OF_STACK - 1] =
+          // frame.stack[frame.stack.size() + TOP_OF_STACK]
+          writeAssign(frame, TOP_OF_STACK, nextFrame, TOP_OF_STACK - 1);
+        }
 
-        // nextFrame.stack[nextFrame.stack.size() + TOP_OF_STACK] = tmpVar
-        writeDebugBegin(currentClass, currentLine);
-        writer.writeCatchBlockIds(currentCatchList);
-        writer.writeKeyword(Token.EXPRESSION_STATEMENT);
-        writer.writeOpen();
-        writeDebugBegin(currentClass, currentLine);
-        writer.writeKeyword(Token.ASG_OPERATION);
-        writer.writeOpen();
-        writeStackAccess(nextFrame, TOP_OF_STACK);
-        writeLocalRef(tmpVar);
-        writeDebugEnd(currentClass, currentLine);
-        writer.writeClose();
-        writeDebugEnd(currentClass, currentLine);
-        writer.writeClose();
+        // No need to assign the variable (nextFrame, top_of_stack) because it is virtual variable
+        if (!topMinus1IsVirtual) {
+          // nextFrame.stack[nextFrame.stack.size() + TOP_OF_STACK] = tmpVar
+          writeDebugBegin(currentClass, currentLine);
+          writer.writeCatchBlockIds(currentCatchList);
+          writer.writeKeyword(Token.EXPRESSION_STATEMENT);
+          writer.writeOpen();
+          writeDebugBegin(currentClass, currentLine);
+          writer.writeKeyword(Token.ASG_OPERATION);
+          writer.writeOpen();
+          writeStackAccess(nextFrame, TOP_OF_STACK);
+          writeLocalRef(tmpVar);
+          writeDebugEnd(currentClass, currentLine);
+          writer.writeClose();
+          writeDebugEnd(currentClass, currentLine);
+          writer.writeClose();
+        }
         break;
       }
       case DUP: {
@@ -2193,6 +2216,11 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         throw new JillException("Not yet supported " + Printer.OPCODES[insn.getOpcode()]);
       }
     }
+  }
+
+  private boolean isVirtualStackVariable(@Nonnull Frame<BasicValue> frame, int stackIdx) {
+    Variable stackVar = getStackVariable(frame, stackIdx);
+    return cmpOperands.containsKey(stackVar);
   }
 
   private void writeInsn(@Nonnull Frame<BasicValue> nextFrame, @Nonnull LdcInsnNode ldcInsn)
