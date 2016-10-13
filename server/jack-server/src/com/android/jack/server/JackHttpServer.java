@@ -1429,6 +1429,9 @@ public class JackHttpServer implements HasVersion {
   }
 
   private void addServerMode(@Nonnegative int delay, @Nonnull ServerMode newMode) {
+    if (delay == ConfigFile.TIME_DISABLED_VALUE) {
+      return;
+    }
     delayedModes.add(new TimedServerMode(delay * 1000L, newMode));
   }
 
