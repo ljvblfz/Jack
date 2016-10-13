@@ -39,7 +39,7 @@ import javax.annotation.Nonnull;
 public class CodeCoverageFeature implements Feature {
 
   @Nonnull
-  public static final BooleanPropertyId CODE_COVERVAGE = BooleanPropertyId
+  public static final BooleanPropertyId CODE_COVERAGE = BooleanPropertyId
       .create("jack.coverage", "Enable code coverage")
       .addDefaultValue(Boolean.FALSE)
       .addCategory(DumpInLibrary.class)
@@ -50,7 +50,7 @@ public class CodeCoverageFeature implements Feature {
       .create("jack.coverage.metadata.file", "File where the coverage metadata will be emitted",
           new WriterFileCodec(Existence.MAY_EXIST).allowStandardOutputOrError()
               .withDefaultCharset(StandardCharsets.UTF_8))
-      .requiredIf(CODE_COVERVAGE.getValue().isTrue());
+      .requiredIf(CODE_COVERAGE.getValue().isTrue());
 
   @Nonnull
   public static final PropertyId<JacocoPackage> COVERAGE_JACOCO_PACKAGE_NAME =
@@ -58,7 +58,7 @@ public class CodeCoverageFeature implements Feature {
               "jack.coverage.jacoco.package",
               "The name of the JaCoCo package containing the classes that manage instrumentation.",
               new JacocoPackage.Codec())
-          .requiredIf(CODE_COVERVAGE.getValue().isTrue())
+          .requiredIf(CODE_COVERAGE.getValue().isTrue())
           .addDefaultValue(new JacocoPackage(""))
           .addCategory(PrebuiltCompatibility.class);
 
@@ -70,7 +70,7 @@ public class CodeCoverageFeature implements Feature {
               "Class names included in the code coverage instrumentation",
               new CoverageFilterSetCodec())
           .addDefaultValue(new CoverageFilterSet())
-          .requiredIf(CODE_COVERVAGE.getValue().isTrue())
+          .requiredIf(CODE_COVERAGE.getValue().isTrue())
           .addCategory(DumpInLibrary.class)
           .addCategory(PrebuiltCompatibility.class);
 
@@ -82,7 +82,7 @@ public class CodeCoverageFeature implements Feature {
               "Class names excluded from the code coverage instrumentation",
               new CoverageFilterSetCodec())
           .addDefaultValue(new CoverageFilterSet())
-          .requiredIf(CODE_COVERVAGE.getValue().isTrue())
+          .requiredIf(CODE_COVERAGE.getValue().isTrue())
           .addCategory(DumpInLibrary.class)
           .addCategory(PrebuiltCompatibility.class);
 }

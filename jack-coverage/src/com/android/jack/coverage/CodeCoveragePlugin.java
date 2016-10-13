@@ -87,7 +87,7 @@ public class CodeCoveragePlugin extends SchedAnnotationProcessorBasedPlugin {  /
   public FeatureSet getFeatures(@Nonnull Config config, @Nonnull Scheduler scheduler) {
     FeatureSet set = scheduler.createFeatureSet();
 
-    if (config.get(CodeCoverageFeature.CODE_COVERVAGE).booleanValue()) {
+    if (config.get(CodeCoverageFeature.CODE_COVERAGE).booleanValue()) {
       set.add(CodeCoverageFeature.class);
     }
 
@@ -99,7 +99,7 @@ public class CodeCoveragePlugin extends SchedAnnotationProcessorBasedPlugin {  /
   public ProductionSet getProductions(@Nonnull Config config, @Nonnull Scheduler scheduler) {
     ProductionSet set = scheduler.createProductionSet();
 
-    if (config.get(CodeCoverageFeature.CODE_COVERVAGE).booleanValue()) {
+    if (config.get(CodeCoverageFeature.CODE_COVERAGE).booleanValue()) {
       set.add(CodeCoverageMetadataFile.class);
     }
 
