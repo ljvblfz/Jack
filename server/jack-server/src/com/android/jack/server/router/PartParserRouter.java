@@ -96,10 +96,20 @@ public class PartParserRouter<T> implements Container {
       logger.log(Level.SEVERE, "Failed to read part '" + partName + "' of the request", e);
       response.setContentLength(0);
       response.setStatus(Status.BAD_REQUEST);
+      try {
+        response.close();
+      } catch (IOException c) {
+        logger.log(Level.SEVERE, "Exception during close: ", c);
+      }
     } catch (ParsingException e) {
       logger.log(Level.WARNING, "Failed to parse part '" + partName + "' of the request", e);
       response.setContentLength(0);
       response.setStatus(Status.BAD_REQUEST);
+      try {
+        response.close();
+      } catch (IOException c) {
+        logger.log(Level.SEVERE, "Exception during close: ", c);
+      }
     } catch (TypeNotSupportedException e) {
       logger.log(Level.FINE, "Part '" + partName + "' has an unsupported type '" + e.getType()
       + "'");
