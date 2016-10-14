@@ -41,6 +41,7 @@ public class LocalMarkerManager extends AbstractMarkerManager {
 
   @SuppressWarnings("unchecked")
   @Override
+  @CheckForNull
   public <T extends Marker> T addMarker(@Nonnull T marker) {
     assert isValidMarker(marker) : "Marker '" + Items.getName(marker.getClass())
         + "' is not supported for class '" + this.getClass().getName() + "'";
