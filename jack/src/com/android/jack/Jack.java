@@ -105,6 +105,10 @@ import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.Resource;
+import com.android.jack.ir.ast.cfg.CfgBasicBlockTracker;
+import com.android.jack.ir.ast.cfg.ControlFlowGraphSizeTracker;
+import com.android.jack.ir.ast.cfg.JControlFlowGraph;
+import com.android.jack.ir.ast.cfg.MethodBodyCfgBuilder;
 import com.android.jack.ir.formatter.InternalFormatter;
 import com.android.jack.ir.formatter.TypePackageAndMethodFormatter;
 import com.android.jack.ir.formatter.UserFriendlyFormatter;
@@ -151,9 +155,11 @@ import com.android.jack.reporting.ReportableIOException;
 import com.android.jack.reporting.Reporter;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.resource.LibraryResourceWriter;
+import com.android.jack.scheduling.adapter.JBasicBlockForwardDepthFirstAdapter;
 import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdapter;
 import com.android.jack.scheduling.adapter.JFieldAdapter;
 import com.android.jack.scheduling.adapter.JMethodAdapter;
+import com.android.jack.scheduling.adapter.JMethodControlFlowGraphAdapter;
 import com.android.jack.scheduling.adapter.JPackageAdapter;
 import com.android.jack.scheduling.feature.CompiledTypeStats;
 import com.android.jack.scheduling.feature.DropMethodBody;
@@ -1706,15 +1712,41 @@ public abstract class Jack {
             methodPlan5.append(CfgMarkerRemover.class);
             methodPlan5.append(CfgBuilder.class);
           }
-          methodPlan5.append(CodeItemBuilder.class);
-          methodPlan5.append(CfgMarkerRemover.class);
-          methodPlan5.append(EncodedMethodBuilder.class);
-          methodPlan5.append(ContainerAnnotationAdder.MethodContainerAnnotationAdder.class);
-          methodPlan5.append(MethodAnnotationBuilder.class);
-          if (features.contains(DropMethodBody.class)) {
-            methodPlan5.append(MethodBodyRemover.class);
-          }
         }
+      }
+    }
+
+    {
+      // Build cfg-IR representation of body methods
+      SubPlanBuilder<JMethod> methodPlan = planBuilder
+          .appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
+          .appendSubPlan(JMethodAdapter.class);
+      methodPlan.append(MethodBodyCfgBuilder.class);
+      methodPlan.append(CfgMarkerRemover.class);
+    }
+
+    // Cfg-IR base transformations
+    {
+      SubPlanBuilder<JControlFlowGraph> cfgPlan = planBuilder
+          .appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
+          .appendSubPlan(JMethodControlFlowGraphAdapter.class);
+
+      cfgPlan.append(ControlFlowGraphSizeTracker.class);
+      cfgPlan
+          .appendSubPlan(JBasicBlockForwardDepthFirstAdapter.class)
+          .append(CfgBasicBlockTracker.class);
+    }
+
+    {
+      SubPlanBuilder<JMethod> methodPlan = planBuilder
+          .appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
+          .appendSubPlan(JMethodAdapter.class);
+      methodPlan.append(CodeItemBuilder.class);
+      methodPlan.append(EncodedMethodBuilder.class);
+      methodPlan.append(ContainerAnnotationAdder.MethodContainerAnnotationAdder.class);
+      methodPlan.append(MethodAnnotationBuilder.class);
+      if (features.contains(DropMethodBody.class)) {
+        methodPlan.append(MethodBodyRemover.class);
       }
     }
     {

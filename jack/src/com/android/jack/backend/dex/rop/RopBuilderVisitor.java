@@ -16,10 +16,8 @@
 
 package com.android.jack.backend.dex.rop;
 
-import com.android.jack.cfg.BasicBlock;
-import com.android.jack.cfg.CatchBasicBlock;
-import com.android.jack.cfg.PeiBasicBlock;
-import com.android.jack.cfg.SwitchBasicBlock;
+import com.google.common.collect.Lists;
+
 import com.android.jack.dx.rop.code.FillArrayDataInsn;
 import com.android.jack.dx.rop.code.Insn;
 import com.android.jack.dx.rop.code.PlainCstInsn;
@@ -61,12 +59,11 @@ import com.android.jack.ir.ast.JAlloc;
 import com.android.jack.ir.ast.JArrayLength;
 import com.android.jack.ir.ast.JArrayRef;
 import com.android.jack.ir.ast.JArrayType;
+import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JBinaryOperation;
 import com.android.jack.ir.ast.JBinaryOperator;
 import com.android.jack.ir.ast.JBooleanLiteral;
 import com.android.jack.ir.ast.JByteLiteral;
-import com.android.jack.ir.ast.JCaseStatement;
-import com.android.jack.ir.ast.JCatchBlock;
 import com.android.jack.ir.ast.JCharLiteral;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JClassLiteral;
@@ -74,18 +71,14 @@ import com.android.jack.ir.ast.JDoubleLiteral;
 import com.android.jack.ir.ast.JDynamicCastOperation;
 import com.android.jack.ir.ast.JExceptionRuntimeValue;
 import com.android.jack.ir.ast.JExpression;
-import com.android.jack.ir.ast.JExpressionStatement;
 import com.android.jack.ir.ast.JFieldRef;
 import com.android.jack.ir.ast.JFloatLiteral;
-import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JInstanceOf;
 import com.android.jack.ir.ast.JIntLiteral;
 import com.android.jack.ir.ast.JIntegralConstant32;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JLiteral;
-import com.android.jack.ir.ast.JLocalRef;
-import com.android.jack.ir.ast.JLock;
 import com.android.jack.ir.ast.JLongLiteral;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodCall.DispatchKind;
@@ -98,26 +91,37 @@ import com.android.jack.ir.ast.JPrimitiveType;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JReferenceType;
 import com.android.jack.ir.ast.JReinterpretCastOperation;
-import com.android.jack.ir.ast.JReturnStatement;
 import com.android.jack.ir.ast.JShortLiteral;
-import com.android.jack.ir.ast.JStatement;
-import com.android.jack.ir.ast.JSwitchStatement;
-import com.android.jack.ir.ast.JThrowStatement;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JUnaryOperation;
-import com.android.jack.ir.ast.JUnlock;
 import com.android.jack.ir.ast.JValueLiteral;
 import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
+import com.android.jack.ir.ast.cfg.JBasicBlock;
+import com.android.jack.ir.ast.cfg.JBasicBlockElement;
+import com.android.jack.ir.ast.cfg.JCaseBlockElement;
+import com.android.jack.ir.ast.cfg.JCatchBasicBlock;
+import com.android.jack.ir.ast.cfg.JConditionalBasicBlock;
+import com.android.jack.ir.ast.cfg.JConditionalBlockElement;
+import com.android.jack.ir.ast.cfg.JGotoBlockElement;
+import com.android.jack.ir.ast.cfg.JLockBlockElement;
+import com.android.jack.ir.ast.cfg.JMethodCallBlockElement;
+import com.android.jack.ir.ast.cfg.JPolymorphicMethodCallBlockElement;
+import com.android.jack.ir.ast.cfg.JReturnBlockElement;
+import com.android.jack.ir.ast.cfg.JStoreBlockElement;
+import com.android.jack.ir.ast.cfg.JSwitchBasicBlock;
+import com.android.jack.ir.ast.cfg.JSwitchBlockElement;
+import com.android.jack.ir.ast.cfg.JThrowBlockElement;
+import com.android.jack.ir.ast.cfg.JThrowingBasicBlock;
+import com.android.jack.ir.ast.cfg.JUnlockBlockElement;
+import com.android.jack.ir.ast.cfg.JVariableAsgBlockElement;
 import com.android.jack.ir.types.JIntegralType32;
-import com.android.jack.transformations.booleanoperators.FallThroughMarker;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
@@ -133,7 +137,7 @@ class RopBuilderVisitor extends JVisitor {
   private List<Insn> extraInstructions;
 
   @Nonnull
-  private final BasicBlock currentBasicBlock;
+  private final JBasicBlock currentBasicBlock;
 
   /**
    * A guard for {@code instructions}. Does not protect {@code extraInstructions}.
@@ -141,23 +145,21 @@ class RopBuilderVisitor extends JVisitor {
   private boolean noMoreInstruction = true;
 
   private class AssignBuilderVisitor extends JVisitor {
-
-    @Nonnull
-    private final JStatement declaration;
     @Nonnull
     private final RegisterSpec destReg;
     @Nonnull
-    SourcePosition sourcePosition;
+    private final SourcePosition sourcePosition;
 
-    public AssignBuilderVisitor(@Nonnull JStatement declaration, @Nonnull JVariableRef destRef) {
-      this.declaration = declaration;
+    public AssignBuilderVisitor(
+        @Nonnull SourcePosition sourcePosition,
+        @Nonnull JVariableRef destRef) {
       this.destReg = ropReg.getOrCreateRegisterSpec(destRef);
-      this.sourcePosition = RopHelper.getSourcePosition(declaration);
+      this.sourcePosition = sourcePosition;
     }
 
     @Override
     public boolean visit(@Nonnull JNode node) {
-      throw new AssertionError(declaration.toSource() + " not yet supported.");
+      throw new AssertionError(node.toSource() + " not yet supported.");
     }
 
     @Override
@@ -272,7 +274,7 @@ class RopBuilderVisitor extends JVisitor {
       List<JExpression> initializers = newArray.getInitializers();
       if (!initializers.isEmpty() && initializers.size() <= 5 && newArray.getDims().size() == 1
           && elementType == JPrimitiveTypeEnum.INT.getType()) {
-            return true;
+        return true;
       }
       return false;
     }
@@ -390,7 +392,7 @@ class RopBuilderVisitor extends JVisitor {
     }
   }
 
-  RopBuilderVisitor(@Nonnull RopRegisterManager ropReg, @Nonnull BasicBlock currentBasicBlock) {
+  RopBuilderVisitor(@Nonnull RopRegisterManager ropReg, @Nonnull JBasicBlock currentBasicBlock) {
     this.ropReg = ropReg;
     this.currentBasicBlock = currentBasicBlock;
   }
@@ -405,52 +407,127 @@ class RopBuilderVisitor extends JVisitor {
     return extraInstructions;
   }
 
-  public void accept(@Nonnull List<JStatement> list) {
-    instructions = new LinkedList<Insn>();
-    extraInstructions = new LinkedList<Insn>();
+  public void processBasicBlockElements() {
+    instructions = new LinkedList<>();
+    extraInstructions = new LinkedList<>();
     noMoreInstruction = false;
 
-    super.accept(list);
+    ArrayList<JBasicBlockElement> elements =
+        Lists.newArrayList(this.currentBasicBlock.elements(true));
+    super.accept(elements);
   }
 
-  @Override
-  public boolean visit(@Nonnull JExpressionStatement exprStmt) {
-    JExpression expr = exprStmt.getExpr();
-
-    if (expr instanceof JPolymorphicMethodCall) {
-      buildInvokePolymorphic(null, (JPolymorphicMethodCall) expr);
-    } else if (expr instanceof JMethodCall) {
-      buildCall(null, (JMethodCall) expr);
-    } else if (expr instanceof JLocalRef) {
-      // "lv;" This is a nop, do nothing
-    } else if (expr instanceof JBinaryOperation) {
-      JBinaryOperation binaryOperation = (JBinaryOperation) expr;
-
-      // ensured by ThreeAddressCodeForm
-      assert binaryOperation.getOp() == JBinaryOperator.ASG;
-      JExpression lhs = binaryOperation.getLhs();
-      assert   (lhs instanceof JVariableRef)
-            || (lhs instanceof JFieldRef)
-            || (lhs instanceof JArrayRef);
-
-      buildAssign(exprStmt, lhs, binaryOperation.getRhs());
-    } else {
-      throw new AssertionError(exprStmt.toSource() + " not yet supported.");
-    }
-
+  public boolean visit(@Nonnull JGotoBlockElement element) {
     return false;
   }
 
   @Override
-  public boolean visit(@Nonnull JIfStatement ifStmt) {
-    JExpression condExpr = ifStmt.getIfExpr();
-    SourcePosition ifStmtSrcPos = RopHelper.getSourcePosition(ifStmt);
-    Rop ifOp;
-    RegisterSpecList sources;
-    JBinaryOperator op = null;
+  public boolean visit(@Nonnull JCaseBlockElement element) {
+    return false;
+  }
 
-    if (condExpr instanceof JBinaryOperation) {
-      JBinaryOperation binCondExpr = (JBinaryOperation) condExpr;
+  @Override
+  public boolean visit(@Nonnull JThrowBlockElement element) {
+    addInstruction(new ThrowingInsn(
+        Rops.THROW, RopHelper.getSourcePosition(element.getSourceInfo()),
+        RegisterSpecList.make(getRegisterSpec(element.getExpression())), getCatchTypes()));
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JStoreBlockElement element) {
+    JAsgOperation expression = element.getAssignment();
+    JExpression lhs = expression.getLhs();
+    JExpression rhs = expression.getRhs();
+
+    assert lhs instanceof JFieldRef || lhs instanceof JArrayRef;
+    assert !(rhs instanceof JExceptionRuntimeValue);
+
+    if (lhs instanceof JFieldRef) {
+      buildWriteField((JFieldRef) lhs, rhs, RopHelper.getSourcePosition(element.getSourceInfo()));
+    } else {
+      buildArrayWrite((JArrayRef) lhs, rhs, RopHelper.getSourcePosition(element.getSourceInfo()));
+    }
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JReturnBlockElement element) {
+    JExpression expression = element.getExpression();
+    RegisterSpecList sources = expression != null ?
+        RegisterSpecList.make(getRegisterSpec(expression)) :
+        RegisterSpecList.EMPTY;
+
+    JType type = expression != null ?
+        expression.getType() : JPrimitiveTypeEnum.VOID.getType();
+
+    addInstruction(new PlainInsn(
+        Rops.opReturn(RopHelper.convertTypeToDx(type)),
+        RopHelper.getSourcePosition(element.getSourceInfo()), null, sources));
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JVariableAsgBlockElement element) {
+    JAsgOperation asg = element.getAssignment();
+    JVariableRef local = (JVariableRef) asg.getLhs();
+    JExpression value = asg.getRhs();
+
+    if (value instanceof JExceptionRuntimeValue) {
+      RegisterSpec exceptionReg =
+          ropReg.getOrCreateRegisterSpec(local);
+      addInstruction(new PlainInsn(
+          Rops.opMoveException(exceptionReg.getTypeBearer()),
+          RopHelper.getSourcePosition(local),
+          exceptionReg,
+          RegisterSpecList.EMPTY));
+
+    } else {
+      new AssignBuilderVisitor(
+          RopHelper.getSourcePosition(element.getSourceInfo()),
+          local).accept(value);
+    }
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JMethodCallBlockElement element) {
+    buildCall(null, element.getCall());
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JPolymorphicMethodCallBlockElement element) {
+    buildInvokePolymorphic(null, element.getCall());
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JLockBlockElement element) {
+    addInstruction(new ThrowingInsn(
+        Rops.MONITOR_ENTER, RopHelper.getSourcePosition(element.getSourceInfo()),
+        RegisterSpecList.make(getRegisterSpec(element.getExpression())), getCatchTypes()));
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JUnlockBlockElement element) {
+    addInstruction(new ThrowingInsn(
+        Rops.MONITOR_EXIT, RopHelper.getSourcePosition(element.getSourceInfo()),
+        RegisterSpecList.make(getRegisterSpec(element.getExpression())), getCatchTypes()));
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JConditionalBlockElement element) {
+    SourcePosition ifStmtSrcPos = RopHelper.getSourcePosition(element.getSourceInfo());
+    RegisterSpecList sources;
+    JBinaryOperator op;
+
+    JExpression expr = element.getCondition();
+
+    if (expr instanceof JBinaryOperation) {
+      JBinaryOperation binCondExpr = (JBinaryOperation) expr;
       JExpression right = binCondExpr.getRhs();
       RegisterSpec rightReg = getRegisterSpec(right);
 
@@ -470,14 +547,10 @@ class RopBuilderVisitor extends JVisitor {
           case FLOAT:
           case DOUBLE: {
             RegisterSpec dest = ropReg.createRegisterSpec(JPrimitiveTypeEnum.BOOLEAN.getType());
-            Rop cmpOp = null;
             Type dxType = RopHelper.convertTypeToDx(type);
 
-            if (type == JPrimitiveTypeEnum.LONG.getType()) {
-              cmpOp = Rops.opCmpl(dxType);
-            } else {
-              cmpOp = getCmpOperatorForFloatDouble(op, dxType);
-            }
+            Rop cmpOp = (type == JPrimitiveTypeEnum.LONG.getType())
+                ? Rops.opCmpl(dxType) : getCmpOperatorForFloatDouble(op, dxType);
 
             Insn ifInst = new PlainInsn(cmpOp, ifStmtSrcPos, dest, sources);
             addInstruction(ifInst);
@@ -495,41 +568,67 @@ class RopBuilderVisitor extends JVisitor {
             throw new AssertionError("Void type not supported.");
         }
       }
-    } else if (condExpr instanceof JPrefixNotOperation) {
-      RegisterSpec sourceReg = getRegisterSpec(((JPrefixNotOperation) condExpr).getArg());
+    } else if (expr instanceof JPrefixNotOperation) {
+      RegisterSpec sourceReg = getRegisterSpec(((JPrefixNotOperation) expr).getArg());
       sources = RegisterSpecList.make(sourceReg);
       op = JBinaryOperator.EQ;
     } else {
-      RegisterSpec sourceReg = getRegisterSpec(condExpr);
+      RegisterSpec sourceReg = getRegisterSpec(expr);
       sources = RegisterSpecList.make(sourceReg);
       op = JBinaryOperator.NEQ;
     }
 
-    assert op != null;
-    FallThroughMarker ftm = ifStmt.getMarker(FallThroughMarker.class);
-    if (ftm != null) {
-      switch (ftm.getFallThrough()) {
-        case ELSE: {
-          ifOp = getOperatorForIf(op, sources);
-          break;
-        }
-        case THEN: {
-          ifOp = getReverseOperatorForIf(op, sources);
-          break;
-        }
-        default: {
-          throw new AssertionError();
-        }
-      }
-    } else {
-      ifOp = getReverseOperatorForIf(op, sources);
+    Rop ifOp = getReverseOperatorForIf(op, sources);
+    assert this.currentBasicBlock instanceof JConditionalBasicBlock;
+    if (((JConditionalBasicBlock) this.currentBasicBlock).isInverted()) {
+      ifOp = getOperatorForIf(op, sources);
     }
-    assert ifOp != null;
 
     Insn ifInst = new PlainInsn(ifOp, ifStmtSrcPos, null, sources);
     addInstruction(ifInst);
-
     return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JSwitchBlockElement element) {
+    assert currentBasicBlock instanceof JSwitchBasicBlock;
+
+    SourcePosition switchStmtSrcPos = RopHelper.getSourcePosition(element.getSourceInfo());
+    IntList cases = new IntList();
+    for (JBasicBlock caseBb : ((JSwitchBasicBlock) currentBasicBlock).getCases()) {
+      assert caseBb.hasElements();
+      JBasicBlockElement firstElement = caseBb.firstElement();
+      assert firstElement instanceof JCaseBlockElement;
+
+      JLiteral caseValue = ((JCaseBlockElement) firstElement).getLiteral();
+      if (caseValue instanceof JIntLiteral) {
+        cases.add(((JIntLiteral) caseValue).getValue());
+      } else if (caseValue instanceof JCharLiteral) {
+        cases.add(((JCharLiteral) caseValue).getValue());
+      } else if (caseValue instanceof JShortLiteral) {
+        cases.add(((JShortLiteral) caseValue).getValue());
+      } else if (caseValue instanceof JByteLiteral) {
+        cases.add(((JByteLiteral) caseValue).getValue());
+      } else {
+        throw new AssertionError("Unsupported value");
+      }
+    }
+
+    RegisterSpecList sources = RegisterSpecList.make(getRegisterSpec(element.getExpression()));
+
+    Insn switchInst = new SwitchInsn(Rops.SWITCH, switchStmtSrcPos, null, sources, cases);
+    addInstruction(switchInst);
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JBasicBlockElement element) {
+    throw new AssertionError();
+  }
+
+  @Override
+  public boolean visit(@Nonnull JNode node) {
+    throw new AssertionError("Not supported: " + node.toSource());
   }
 
   /**
@@ -547,11 +646,11 @@ class RopBuilderVisitor extends JVisitor {
       case LTE:
       case LT:
         return Rops.opCmpg(type);
-       case GT:
-       case GTE:
-       case EQ:
-       case NEQ:
-         return Rops.opCmpl(type);
+      case GT:
+      case GTE:
+      case EQ:
+      case NEQ:
+        return Rops.opCmpl(type);
       default:
         throw new AssertionError("Operator " + op.toString() + " not yet supported into IfStmt.");
     }
@@ -569,16 +668,16 @@ class RopBuilderVisitor extends JVisitor {
     switch (op) {
       case LT:
         return Rops.opIfLt(sources);
-       case GT:
-         return Rops.opIfGt(sources);
-       case LTE:
-         return Rops.opIfLe(sources);
-       case GTE:
-         return Rops.opIfGe(sources);
-       case EQ:
-         return Rops.opIfEq(sources);
-       case NEQ:
-         return Rops.opIfNe(sources);
+      case GT:
+        return Rops.opIfGt(sources);
+      case LTE:
+        return Rops.opIfLe(sources);
+      case GTE:
+        return Rops.opIfGe(sources);
+      case EQ:
+        return Rops.opIfEq(sources);
+      case NEQ:
+        return Rops.opIfNe(sources);
       default:
         throw new AssertionError("Operator " + op.toString()
             + " not yet supported into IfStmt.");
@@ -597,105 +696,20 @@ class RopBuilderVisitor extends JVisitor {
     switch (op) {
       case LT:
         return Rops.opIfGe(sources);
-       case GT:
-         return Rops.opIfLe(sources);
-       case LTE:
-         return Rops.opIfGt(sources);
-       case GTE:
-         return Rops.opIfLt(sources);
-       case EQ:
-         return Rops.opIfNe(sources);
-       case NEQ:
-         return Rops.opIfEq(sources);
+      case GT:
+        return Rops.opIfLe(sources);
+      case LTE:
+        return Rops.opIfGt(sources);
+      case GTE:
+        return Rops.opIfLt(sources);
+      case EQ:
+        return Rops.opIfNe(sources);
+      case NEQ:
+        return Rops.opIfEq(sources);
       default:
         throw new AssertionError("Operator " + op.toString()
             + " not yet supported into IfStmt.");
     }
-  }
-
-  @Override
-  public boolean visit(@Nonnull JReturnStatement retStmt) {
-    JExpression returnedExpr = retStmt.getExpr();
-    RegisterSpecList sources;
-
-    if (returnedExpr != null) {
-      sources = RegisterSpecList.make(getRegisterSpec(returnedExpr));
-    } else {
-      sources = RegisterSpecList.EMPTY;
-    }
-
-    Insn retInst = new PlainInsn(Rops.opReturn(RopHelper.convertTypeToDx(
-        returnedExpr == null ? JPrimitiveTypeEnum.VOID.getType() : returnedExpr.getType())),
-        RopHelper.getSourcePosition(retStmt), null, sources);
-    addInstruction(retInst);
-
-    return false;
-  }
-
-  @Override
-  public boolean visit(@Nonnull JSwitchStatement jswitch) {
-    assert currentBasicBlock instanceof SwitchBasicBlock;
-
-    SourcePosition switchStmtSrcPos = RopHelper.getSourcePosition(jswitch);
-    IntList cases = new IntList();
-    for (BasicBlock caseBb : ((SwitchBasicBlock) currentBasicBlock).getCasesBlock()) {
-          JStatement firstStatement = caseBb.getStatements().get(0);
-          assert firstStatement instanceof JCaseStatement;
-          JLiteral caseValue = ((JCaseStatement) firstStatement).getExpr();
-          if (caseValue instanceof JIntLiteral) {
-            cases.add(((JIntLiteral) caseValue).getValue());
-          } else if (caseValue instanceof JCharLiteral) {
-            cases.add(((JCharLiteral) caseValue).getValue());
-          } else if (caseValue instanceof JShortLiteral) {
-            cases.add(((JShortLiteral) caseValue).getValue());
-          } else if (caseValue instanceof JByteLiteral) {
-            cases.add(((JByteLiteral) caseValue).getValue());
-          } else {
-            throw new AssertionError("Unsupported value");
-          }
-    }
-
-    RegisterSpecList sources = RegisterSpecList.make(getRegisterSpec(jswitch.getExpr()));
-
-    Insn switchInst = new SwitchInsn(Rops.SWITCH, switchStmtSrcPos, null, sources, cases);
-    addInstruction(switchInst);
-    return false;
-  }
-
-  @Override
-  public boolean visit(@Nonnull JThrowStatement throwStmt) {
-    Insn throwInsn = new ThrowingInsn(Rops.THROW, RopHelper.getSourcePosition(throwStmt),
-        RegisterSpecList.make(getRegisterSpec(throwStmt.getExpr())),
-        getCatchTypes());
-
-    addInstruction(throwInsn);
-
-    return false;
-  }
-
-  @Override
-  public boolean visit(@Nonnull JLock lockStmt) {
-    SourcePosition srcPosition = RopHelper.getSourcePosition(lockStmt);
-    RegisterSpec lockReg = getRegisterSpec(lockStmt.getLockExpr());
-
-    Insn lockInsn = new ThrowingInsn(Rops.MONITOR_ENTER, srcPosition,
-        RegisterSpecList.make(lockReg), getCatchTypes());
-
-    addInstruction(lockInsn);
-
-    return false;
-  }
-
-  @Override
-  public boolean visit(@Nonnull JUnlock unlockStmt) {
-    RegisterSpec unlockReg = getRegisterSpec(unlockStmt.getLockExpr());
-
-    Insn unlockInsn = new ThrowingInsn(Rops.MONITOR_EXIT, RopHelper.getSourcePosition(unlockStmt),
-        RegisterSpecList.make(unlockReg), getCatchTypes());
-
-    addInstruction(unlockInsn);
-
-    return false;
   }
 
   private void buildAlloc(@Nonnull RegisterSpec destReg, @Nonnull JAlloc alloc,
@@ -707,36 +721,10 @@ class RopBuilderVisitor extends JVisitor {
     addMoveResultPseudoAsExtraInstruction(destReg, sourcePosition);
   }
 
-  private void buildAssign(
-      @Nonnull JStatement declaration,
-      @Nonnull JExpression dest,
-      @Nonnull JExpression value)
-          throws AssertionError {
-    if (value instanceof JExceptionRuntimeValue) {
-      assert dest instanceof JVariableRef;
-      assert declaration.getParent() instanceof JCatchBlock
-          && ((JCatchBlock) declaration.getParent()).getStatements().get(0) == declaration;
-      RegisterSpec exceptionReg = ropReg.getOrCreateRegisterSpec((JVariableRef) dest);
-      addInstruction(new PlainInsn(
-          Rops.opMoveException(exceptionReg.getTypeBearer()), RopHelper.getSourcePosition(dest),
-          exceptionReg, RegisterSpecList.EMPTY));
-    } else if (dest instanceof JFieldRef) {
-      buildWriteField((JFieldRef) dest, value, RopHelper.getSourcePosition(declaration));
-    } else if (dest instanceof JArrayRef) {
-      buildArrayWrite((JArrayRef) dest, value, RopHelper.getSourcePosition(declaration));
-    } else {
-      assert dest instanceof JVariableRef;
-      JVariableRef destRef = (JVariableRef) dest;
-
-      JVisitor rhsHandler = new AssignBuilderVisitor(declaration, destRef);
-      rhsHandler.accept(value);
-    }
-  }
-
   private void buildArrayWrite(JArrayRef arrayRef, JExpression value,
       SourcePosition sourcePosition) {
     assert arrayRef.getInstance() instanceof JVariableRef
-    || arrayRef.getInstance() instanceof JNullLiteral;
+        || arrayRef.getInstance() instanceof JNullLiteral;
     RegisterSpec valueReg = getRegisterSpec(value);
     RegisterSpec instanceReg = getRegisterSpec(arrayRef.getInstance());
     RegisterSpec indexReg = getRegisterSpec(arrayRef.getIndexExpr());
@@ -938,7 +926,7 @@ class RopBuilderVisitor extends JVisitor {
     JType type = literal.getType();
     if (type instanceof JPrimitiveType) {
       cst = buildPrimitiveConstant(literal);
-    } else  if (literal instanceof JAbstractStringLiteral){
+    } else if (literal instanceof JAbstractStringLiteral) {
       cst = RopHelper.createString((JAbstractStringLiteral) literal);
     } else if (literal instanceof JNullLiteral) {
       cst = CstKnownNull.THE_ONE;
@@ -959,7 +947,7 @@ class RopBuilderVisitor extends JVisitor {
           constOp, sourcePosition, destReg, RegisterSpecList.EMPTY,
           getConstant(literal));
       addInstruction(constInst);
-    } else  if (literal instanceof JAbstractStringLiteral){
+    } else if (literal instanceof JAbstractStringLiteral) {
       constInst = new ThrowingCstInsn(constOp, sourcePosition,
           RegisterSpecList.EMPTY, getCatchTypes(), getConstant(literal));
       addInstruction(constInst);
@@ -983,7 +971,7 @@ class RopBuilderVisitor extends JVisitor {
 
     Rop opcode = null;
 
-    switch(unary.getOp()) {
+    switch (unary.getOp()) {
       case NEG: {
         assert unary.getType() == JPrimitiveTypeEnum.BYTE.getType()
             || unary.getType() == JPrimitiveTypeEnum.CHAR.getType()
@@ -1057,6 +1045,7 @@ class RopBuilderVisitor extends JVisitor {
             && lhs instanceof JIntegralConstant32 && ((JIntegralType32) JPrimitiveTypeEnum.SHORT
                 .getType()).isValidValue(((JIntegralConstant32) lhs).getIntValue())) {
           sources = RegisterSpecList.make(ropReg.getOrCreateRegisterSpec((JVariableRef) rhs));
+          assert lhs instanceof JValueLiteral;
           cst = getConstant((JValueLiteral) lhs);
         } else {
           sources = RegisterSpecList.make(getRegisterSpec(lhs),
@@ -1227,7 +1216,7 @@ class RopBuilderVisitor extends JVisitor {
       sources = new RegisterSpecList(1 + methodCall.getArgs().size());
     }
 
-    switch(methodKind) {
+    switch (methodKind) {
       case STATIC:
         callOp = Rops.opInvokeStatic(prototype);
         break;
@@ -1289,6 +1278,7 @@ class RopBuilderVisitor extends JVisitor {
 
     return regSpec;
   }
+
   private void addMoveResultAsExtraInstruction(@Nonnull TypeBearer type,
       @Nonnull RegisterSpec destReg, @Nonnull SourcePosition sourcePosition) {
     Rop moveResultOp = Rops.opMoveResult(type);
@@ -1322,13 +1312,13 @@ class RopBuilderVisitor extends JVisitor {
    * block.
    */
   private TypeList getCatchTypes() {
-    assert currentBasicBlock instanceof PeiBasicBlock;
-    PeiBasicBlock peiBlock = (PeiBasicBlock) currentBasicBlock;
+    assert currentBasicBlock instanceof JThrowingBasicBlock;
+    JThrowingBasicBlock block = (JThrowingBasicBlock) currentBasicBlock;
 
     List<JType> catchTypes = new ArrayList<JType>();
 
-    for (CatchBasicBlock bb : peiBlock.getExceptionBlocks()) {
-      for (JClass catchType : bb.getCatchTypes()) {
+    for (JBasicBlock bb : block.getHandlers()) {
+      for (JClass catchType : ((JCatchBasicBlock) bb).getCatchTypes()) {
         catchTypes.add(catchType);
       }
     }
@@ -1341,7 +1331,7 @@ class RopBuilderVisitor extends JVisitor {
   }
 
   @Override
-  public void endVisit(@Nonnull JStatement x) {
+  public void endVisit(@Nonnull JBasicBlock x) {
     ropReg.resetFreeTmpRegister();
   }
 }

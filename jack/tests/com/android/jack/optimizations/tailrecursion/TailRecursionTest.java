@@ -18,11 +18,11 @@ package com.android.jack.optimizations.tailrecursion;
 
 import com.android.jack.Options;
 import com.android.jack.TestTools;
-import com.android.jack.ir.ast.JGoto;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JReturnStatement;
-import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.ir.ast.cfg.JBasicBlockElement;
+import com.android.jack.ir.ast.cfg.JGotoBlockElement;
+import com.android.jack.ir.ast.cfg.JReturnBlockElement;
 import com.android.jack.util.filter.SignatureMethodFilter;
 
 import junit.framework.Assert;
@@ -55,31 +55,31 @@ public class TailRecursionTest {
     JMethod m =
         getJMethodAfterTailRecursionOptimization(TestTools.getJackTestFromBinaryName(classBinaryName), "L"
             + classBinaryName + ";", methodSignature);
-    StatementsCounter counter1 = new StatementsCounter(JReturnStatement.class);
+    Counter counter1 = new Counter(JReturnBlockElement.class);
     counter1.accept(m);
     Assert.assertEquals(1, counter1.getCounter());
-    StatementsCounter counter2 = new StatementsCounter(JGoto.class);
+    Counter counter2 = new Counter(JGotoBlockElement.class);
     counter2.accept(m);
     Assert.assertEquals(1, counter2.getCounter());
   }
 
-  private static class StatementsCounter extends JVisitor {
+  private static class Counter extends JVisitor {
 
     private int counter = 0;
 
     @Nonnull
-    private final Class<? extends JStatement> clazz;
+    private final Class<? extends JBasicBlockElement> clazz;
 
-    public StatementsCounter(Class<? extends JStatement> clazz) {
+    public Counter(@Nonnull Class<? extends JBasicBlockElement> clazz) {
       this.clazz = clazz;
     }
 
     @Override
-    public boolean visit(@Nonnull JStatement stmt) {
-      if (clazz.isInstance(stmt)) {
+    public boolean visit(@Nonnull JBasicBlockElement element) {
+      if (clazz.isInstance(element)) {
         counter++;
       }
-      return super.visit(stmt);
+      return super.visit(element);
     }
 
     public int getCounter() {

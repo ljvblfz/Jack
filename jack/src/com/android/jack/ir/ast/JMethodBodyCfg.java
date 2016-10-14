@@ -13,9 +13,10 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+
 package com.android.jack.ir.ast;
 
-
+import com.android.jack.ir.ast.cfg.JControlFlowGraph;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
@@ -26,34 +27,36 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 /**
- * Represents a the body of a method. Can be Java or JSNI.
+ * Represents a the body of a method as a CFG. Can be Java or JSNI.
  */
-@Description("Represents a the body of a Java method as regular IR")
-public class JMethodBody extends JConcreteMethodBody {
-
+@Description("Represents a the body of a Java method as CFG")
+public class JMethodBodyCfg extends JConcreteMethodBody {
   @Nonnull
-  private JBlock block;
+  private JControlFlowGraph cfg;
 
-  public JMethodBody(@Nonnull SourceInfo info, @Nonnull JBlock block) {
-    super(info);
-    this.block = block;
+  public JMethodBodyCfg(@Nonnull SourceInfo info, @Nonnull List<JLocal> locals) {
+    super(info, locals);
+    cfg = new JControlFlowGraph(this.getSourceInfo());
+    cfg.updateParents(this);
   }
 
   @Nonnull
-  public JBlock getBlock() {
-    return block;
+  public JMethod getMethod() {
+    JNode parent = getParent();
+    assert parent instanceof JMethod;
+    return (JMethod) parent;
   }
 
   @Nonnull
-  public List<JStatement> getStatements() {
-    return block.getStatements();
+  public JControlFlowGraph getCfg() {
+    return cfg;
   }
 
   @Override
   public void traverse(@Nonnull JVisitor visitor) {
     if (visitor.visit(this)) {
       acceptLocals(visitor);
-      visitor.accept(block);
+      visitor.accept(cfg);
     }
     visitor.endVisit(this);
   }
@@ -62,22 +65,20 @@ public class JMethodBody extends JConcreteMethodBody {
   public void traverse(@Nonnull ScheduleInstance<? super Component> schedule) throws Exception {
     schedule.process(this);
     traverseLocals(schedule);
-    block.traverse(schedule);
+    cfg.traverse(schedule);
   }
 
   @Override
-  protected void replaceImpl(@Nonnull JNode existingNode, @Nonnull JNode newNode)
-      throws UnsupportedOperationException {
-    if (block == existingNode) {
-      block = (JBlock) newNode;
+  protected void replaceImpl(@Nonnull JNode existingNode, @Nonnull JNode newNode) {
+    if (cfg == existingNode) {
+      cfg = (JControlFlowGraph) newNode;
     } else {
       super.replaceImpl(existingNode, newNode);
     }
   }
 
   @Override
-  public void visit(
-      @Nonnull JVisitor visitor, @Nonnull TransformRequest transformRequest) throws Exception {
-    visitor.visit(this, transformRequest);
+  public void visit(@Nonnull JVisitor visitor, @Nonnull TransformRequest request) throws Exception {
+    visitor.visit(this, request);
   }
 }

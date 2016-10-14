@@ -16,9 +16,9 @@
 
 package com.android.jack;
 
-import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.ir.ast.cfg.JConditionalBlockElement;
 import com.android.jack.optimizations.Optimizations;
 import com.android.sched.util.config.ThreadConfig;
 
@@ -84,7 +84,7 @@ public class UnaryTest {
     private int countIf = 0;
 
     @Override
-    public boolean visit(@Nonnull JIfStatement x) {
+    public boolean visit(@Nonnull JConditionalBlockElement x) {
       countIf++;
       return super.visit(x);
     }
