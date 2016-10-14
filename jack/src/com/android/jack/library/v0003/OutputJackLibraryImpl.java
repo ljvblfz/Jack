@@ -37,6 +37,7 @@ import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.log.LoggerFactory;
+import com.android.sched.vfs.BadVFSFormatException;
 import com.android.sched.vfs.DeflateFS;
 import com.android.sched.vfs.GenericInputOutputVFS;
 import com.android.sched.vfs.GenericInputVFS;
@@ -50,7 +51,6 @@ import com.android.sched.vfs.OutputVFile;
 import com.android.sched.vfs.PrefixedFS;
 import com.android.sched.vfs.VFS;
 import com.android.sched.vfs.VPath;
-import com.android.sched.vfs.WrongVFSFormatException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -150,7 +150,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
           outputVFS = new MessageDigestFS(outputVFS,
               ThreadConfig.get(JackLibraryFactory.MESSAGE_DIGEST_ALGO));
         }
-      } catch (WrongVFSFormatException e) {
+      } catch (BadVFSFormatException e) {
         // if library is well formed and digest exists this exception can not be triggered
         throw new AssertionError(e);
       } catch (NotDirectoryException e) {

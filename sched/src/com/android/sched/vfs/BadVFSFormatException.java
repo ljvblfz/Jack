@@ -22,15 +22,15 @@ import com.android.sched.util.location.Location;
 import javax.annotation.Nonnull;
 
 /**
- * Exception when a {@link VFS} has a wrong format.
+ * Exception when a {@link VFS} has a bad format, i.e. it does not match the expected format.
  */
-public class WrongVFSFormatException extends SchedIOException {
+public class BadVFSFormatException extends SchedIOException {
   private static final long serialVersionUID = 1L;
 
   @Nonnull
   private final VFS vfs;
 
-  public WrongVFSFormatException(@Nonnull VFS vfs, @Nonnull Location location,
+  public BadVFSFormatException(@Nonnull VFS vfs, @Nonnull Location location,
       @Nonnull Throwable cause) {
     super(location, cause);
     this.vfs = vfs;
@@ -39,7 +39,7 @@ public class WrongVFSFormatException extends SchedIOException {
   @Override
   @Nonnull
   protected String createMessage(@Nonnull String description) {
-    return "'" + vfs.getDescription() + "' VFS format in " + description
-    + " is wrong: " + getCause().getMessage();
+    return "'" + vfs.getDescription() + "' VFS in " + description
+    + " has a bad format: " + getCause().getMessage();
   }
 }
