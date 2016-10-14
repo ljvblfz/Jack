@@ -69,24 +69,26 @@ public class LambdaTests extends DexOutputBasedTest {
 
     Class(@Nonnull String name, @Nonnull String... interfaces) {
       builder.append(name).append("\n");
-      impl(interfaces, "  - implements:\n");
+      printImpl(interfaces, "  - implements:\n", false);
     }
 
     @Nonnull
     Class methods(@Nonnull String... signatures) {
-      return impl(signatures, "  - methods:\n");
+      return printImpl(signatures, "  - methods:\n", true);
     }
 
     @Nonnull
     Class fields(@Nonnull String... fields) {
-      return impl(fields, "  - fields:\n");
+      return printImpl(fields, "  - fields:\n", true);
     }
 
     @Nonnull
-    private Class impl(@Nonnull String[] names, @Nonnull String str) {
+    private Class printImpl(@Nonnull String[] names, @Nonnull String str, boolean ordered) {
       if (names.length > 0) {
         builder.append(str);
-        Arrays.sort(names);
+        if (ordered) {
+          Arrays.sort(names);
+        }
         for (String n : names) {
           builder.append("    ").append(n).append("\n");
         }
@@ -634,5 +636,44 @@ public class LambdaTests extends DexOutputBasedTest {
     compileAndValidate(PKG_006,
         config(LambdaGroupingScope.PACKAGE, /* interfaces: */false, /* stateless: */false),
         new LambdaClassesValidator(TEST006_PACKAGE));
+  }
+
+  // ===============================================================================================
+
+  @Nonnull
+  private static final String PKG_007 = "com.android.jack.optimizations.lambdas.test007";
+
+  @Nonnull
+  private static final String TEST007_DEFAULT = "" +
+      new Class(lambda(PKG_007, 0), types(PKG_007, "Ic", "Ia", "Ib"))
+          .methods("<init>()V", "$m$0()Ljava/lang/String;", "m()Ljava/lang/String;") +
+      new Class(lambda(PKG_007, 1), types(PKG_007, "Ic", "Iaa"))
+          .methods("<init>()V", "$m$0()Ljava/lang/String;", "m()Ljava/lang/String;") +
+      new Class(lambda(PKG_007, 2), types(PKG_007, "Ic", "Ib"))
+          .methods("<init>()V", "$m$0()Ljava/lang/String;", "m()Ljava/lang/String;") +
+      new Class(lambda(PKG_007, 3), types(PKG_007, "Ic", "Ib", "Ia"))
+          .methods("<init>()V", "$m$0()Ljava/lang/String;", "m()Ljava/lang/String;") +
+      "";
+
+  @Nonnull
+  private static final String TEST007_MERGE_INTERFACES = "" +
+      new Class(lambda(PKG_007, 0), types(PKG_007, "Ia", "Iaa", "Ib", "Ic"))
+          .fields("$id:B")
+          .methods("<init>(B)V", "m()Ljava/lang/String;",
+              "$m$0()Ljava/lang/String;", "$m$1()Ljava/lang/String;",
+              "$m$2()Ljava/lang/String;", "$m$3()Ljava/lang/String;") +
+      "";
+
+
+  @Test
+  @Runtime
+  public void test007() throws Exception {
+    compileAndValidate(PKG_007,
+        config(LambdaGroupingScope.TYPE, /* interfaces: */false, /* stateless: */false),
+        new LambdaClassesValidator(TEST007_DEFAULT));
+
+    compileAndValidate(PKG_007,
+        config(LambdaGroupingScope.TYPE, /* interfaces: */true, /* stateless: */false),
+        new LambdaClassesValidator(TEST007_MERGE_INTERFACES));
   }
 }

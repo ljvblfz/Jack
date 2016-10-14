@@ -960,6 +960,7 @@
       <exclude name="com/android/jack/optimizations/lambdas/test004/**"/>
       <exclude name="com/android/jack/optimizations/lambdas/test005/**"/>
       <exclude name="com/android/jack/optimizations/lambdas/test006/**"/>
+      <exclude name="com/android/jack/optimizations/lambdas/test007/**"/>
       <exclude name="com/android/jack/sourcepath/test002/jack/Sourcepath002.java"/>
       <exclude name="com/android/jack/shrob/test062/jack/**"/>
       <classpath>

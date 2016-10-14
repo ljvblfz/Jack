@@ -83,28 +83,31 @@ class LambdaClassesValidator extends DexValidator<DexFile> {
 
     // Interfaces
     List<String> items = new ArrayList<>(type.getInterfaceNames());
-    print(sb, "implements", items);
+    print(sb, "implements", items, false);
 
     // Fields
     items.clear();
     for (DexField field : type.getFields()) {
       items.add(field.getId());
     }
-    print(sb, "fields", items);
+    print(sb, "fields", items, true);
 
     // Methods
     items.clear();
     for (DexMethod method : type.getMethods()) {
       items.add(method.getId());
     }
-    print(sb, "methods", items);
+    print(sb, "methods", items, true);
   }
 
   private static void print(
-      @Nonnull StringBuilder sb, @Nonnull String header, @Nonnull List<String> items) {
+      @Nonnull StringBuilder sb, @Nonnull String header,
+      @Nonnull List<String> items, boolean ordered) {
     if (items.size() > 0) {
       sb.append("  - ").append(header).append(":\n");
-      Collections.sort(items);
+      if (ordered) {
+        Collections.sort(items);
+      }
       for (String item : items) {
         sb.append("    ").append(item).append('\n');
       }

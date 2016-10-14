@@ -102,6 +102,8 @@ public final class LambdaGroupClassFinalizer
 
   private final boolean simplifyStateless =
       ThreadConfig.get(Options.LAMBDA_SIMPLIFY_STATELESS).booleanValue();
+  private final boolean mergeInterfaces =
+      ThreadConfig.get(Options.LAMBDA_MERGE_INTERFACES).booleanValue();
   @Nonnull
   private final JPhantomLookup phantomLookup =
       Jack.getSession().getPhantomLookup();
@@ -272,9 +274,7 @@ public final class LambdaGroupClassFinalizer
       JDefinedClass groupClass = this.group.getGroupClass();
 
       // Add implements clause
-      List<JInterface> interfaces =
-          LambdaInterfaceSignature.normalizeInterfaces(this.group.getLambdas());
-      for (JInterface inter : interfaces) {
+      for (JInterface inter : getInterfaces()) {
         groupClass.addImplements(inter);
       }
 
@@ -310,6 +310,20 @@ public final class LambdaGroupClassFinalizer
       }
 
       request.commit();
+    }
+
+    @Nonnull
+    private List<JInterface> getInterfaces() {
+      List<JLambda> lambdas = this.group.getLambdas();
+      if (mergeInterfaces) {
+        return LambdaInterfaceSignature.normalizeInterfaces(lambdas);
+      }
+
+      // If there is no interface merging, we use non-normalized interface signature
+      // which means that all the lambdas in the group should have the same
+      // set and order of the interfaces, so we just take them from the first one.
+      assert lambdas.size() > 0;
+      return LambdaInterfaceSignature.extractOrderedInterfaces(lambdas.get(0));
     }
 
     /**

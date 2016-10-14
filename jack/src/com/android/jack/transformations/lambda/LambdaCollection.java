@@ -158,8 +158,8 @@ public final class LambdaCollection {
   private Key createKey(@Nonnull String lambdaId, @Nonnull JLambda lambda,
       @Nonnull JDefinedClassOrInterface currentType) {
 
-    String interfaceSignatureId =
-        mergeInterfaces ? "" : LambdaInterfaceSignature.forLambda(lambda).getUniqueId();
+    String interfaceSignatureId = mergeInterfaces ? "" :
+        LambdaInterfaceSignature.forLambda(lambda, /* normalize = */ false).getUniqueId();
 
     String scopeId;
     switch (groupingScope) {
