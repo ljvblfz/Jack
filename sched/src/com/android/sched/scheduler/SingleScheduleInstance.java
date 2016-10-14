@@ -51,7 +51,7 @@ public class SingleScheduleInstance<T extends Component> extends ScheduleInstanc
   /**
    * Runs all the {@link Schedulable}s of the {@link Plan} in the defined order.
    *
-   * @param t the root <i>data</i> instance
+   * @param component the root <i>data</i> instance
    * @throws ProcessException if an Exception is thrown by a {@code Schedulable}
    */
   @Override
