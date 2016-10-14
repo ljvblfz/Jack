@@ -34,8 +34,6 @@ public interface AdapterSchedulable<SRC extends Component, DST extends Component
 
   /**
    * Returns an iterator over all instances of type DST contained inside the instance {@code data}.
-   *
-   * @throws Exception if any Exception is thrown during the visit
    */
   @Nonnull
   public Iterator<DST> adapt(@Nonnull SRC data);
