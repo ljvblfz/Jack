@@ -67,7 +67,7 @@ public abstract class JStatement extends JNode {
 
   /**
    * Remove catch blocks for the statement.
-   * @param catchBlock Catch blocks to remove.
+   * @param catchBlocksToRemove Catch blocks to remove.
    */
   public void removeCatchBlocks(@Nonnull List<JCatchBlock> catchBlocksToRemove) {
     catchBlocks.removeAll(catchBlocksToRemove);
