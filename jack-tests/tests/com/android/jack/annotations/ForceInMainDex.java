@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 /**
  * Indicate that the type must always be in the main dex.
  */
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.CLASS)
 @Target(ElementType.TYPE)
 public @interface ForceInMainDex {
 
