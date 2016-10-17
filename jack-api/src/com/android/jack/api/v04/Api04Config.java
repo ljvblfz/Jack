@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.jack.api.v04c;
+package com.android.jack.api.v04;
 
 import com.android.jack.api.v01.ConfigurationException;
 import com.android.jack.api.v03.Api03Config;
@@ -26,7 +26,7 @@ import javax.annotation.Nonnull;
 /**
  * A configuration for API level 04 of the Jack compiler compatible with API level 03
  */
-public interface Api04CandidateConfig extends Api03Config {
+public interface Api04Config extends Api03Config {
   /**
    * Set the default {@link Charset} used when no charset is specified by file with
    * {@link HasCharset}.
