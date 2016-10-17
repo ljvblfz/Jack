@@ -22,7 +22,7 @@ import com.android.jack.api.v02.impl.Api02ConfigImpl;
 import com.android.jack.api.v03.Api03Config;
 
 import java.io.File;
-import java.util.Collection;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -35,12 +35,12 @@ public class Api03ConfigImpl extends Api02ConfigImpl implements Api03Config {
   }
 
   @Override
-  public void setPluginPath(@Nonnull Collection<File> pluginPath) {
+  public void setPluginPath(@Nonnull List<File> pluginPath) {
     options.setPluginPath(Joiner.on(File.pathSeparator).join(pluginPath));
   }
 
   @Override
-  public void setPluginNames(@Nonnull Collection<String> pluginNames) {
+  public void setPluginNames(@Nonnull List<String> pluginNames) {
     options.setPluginNames(Joiner.on(',').join(pluginNames));
   }
 }
