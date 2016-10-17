@@ -669,11 +669,13 @@ public class LambdaTests extends DexOutputBasedTest {
   @Runtime
   public void test007() throws Exception {
     compileAndValidate(PKG_007,
-        config(LambdaGroupingScope.TYPE, /* interfaces: */false, /* stateless: */false),
+        config(LambdaGroupingScope.TYPE, /* interfaces: */false, /* stateless: */false)
+            .excludeJillToolchain(),
         new LambdaClassesValidator(TEST007_DEFAULT));
 
     compileAndValidate(PKG_007,
-        config(LambdaGroupingScope.TYPE, /* interfaces: */true, /* stateless: */false),
+        config(LambdaGroupingScope.TYPE, /* interfaces: */true, /* stateless: */false)
+            .excludeJillToolchain(),
         new LambdaClassesValidator(TEST007_MERGE_INTERFACES));
   }
 }
