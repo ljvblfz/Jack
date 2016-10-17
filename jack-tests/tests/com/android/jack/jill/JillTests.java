@@ -48,7 +48,6 @@ public class JillTests {
 
   @Test
   @Runtime
-  @KnownIssue
   public void test003() throws Exception {
     runJillTest("003");
   }

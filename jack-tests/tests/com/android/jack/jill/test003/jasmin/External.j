@@ -21,13 +21,50 @@
     return
 .end method
 
-.method public static greaterThan(DD)Z
+.method public static greaterThan1(DD)Z
         .limit locals 4
-        .limit stack 5
+        .limit stack 3
     dload_0
     dload_2
     dcmpl
     aconst_null
+    swap
+    ifle if_label
+    pop
+    iconst_1
+    ireturn
+if_label:
+    pop
+    iconst_0
+    ireturn
+.end method
+
+.method public static greaterThan2(DD)Z
+        .limit locals 4
+        .limit stack 5
+    aconst_null
+    dload_0
+    dload_2
+    dcmpl
+    swap
+    pop
+    ifle if_label
+    iconst_1
+    ireturn
+if_label:
+    iconst_0
+    ireturn
+.end method
+
+.method public static greaterThan3(DD)Z
+        .limit locals 4
+        .limit stack 3
+    dload_0
+    dload_2
+    dcmpl
+    iconst_1
+    iconst_2
+    iadd
     swap
     ifle if_label
     pop
