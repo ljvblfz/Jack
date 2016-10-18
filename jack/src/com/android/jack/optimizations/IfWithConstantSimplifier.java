@@ -159,7 +159,7 @@ public class IfWithConstantSimplifier implements RunnableSchedulable<JMethod> {
               List<JStatement> thenStatements = thenBb.getStatements();
 
               JLabeledStatement endLabel = new JLabeledStatement(
-                  si, new JLabel(si, "ifSimplierEnd_" + count), new JBlock(si));
+                  si, new JLabel(si, "ifSimplifierStepOverElse_" + count), new JBlock(si));
 
               if (!thenStatements.isEmpty()) {
                 JStatement lastStatement = getLastStatement(thenStatements);
@@ -253,10 +253,10 @@ public class IfWithConstantSimplifier implements RunnableSchedulable<JMethod> {
     ControlFlowGraph cfg = method.getMarker(ControlFlowGraph.class);
     assert cfg != null;
 
+    Visitor visitor = new Visitor(method);
     for (BasicBlock bb : cfg.getNodes()) {
       if (bb instanceof ConditionalBasicBlock) {
         for (JStatement stmt : bb.getStatements()) {
-          Visitor visitor = new Visitor(method);
           visitor.accept(stmt);
         }
       }
