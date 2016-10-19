@@ -40,6 +40,7 @@ import com.android.jack.invoke.InvokeTests;
 import com.android.jack.newarray.NewarrayTests;
 import com.android.jack.opcodes.OpcodesTests;
 import com.android.jack.optimizations.exprsimplifier.ExprsimplifierTests;
+import com.android.jack.optimizations.ifwithconstantsimplifier.IfWithConstantSimplifierTests;
 import com.android.jack.optimizations.notsimplifier.NotsimplifierTests;
 import com.android.jack.optimizations.tailrecursion.TailRecursionTests;
 import com.android.jack.optimizations.usedef.UseDefTests;
@@ -88,6 +89,7 @@ public class RegressionTests {
       new FieldTests(),
       new FlowTests(),
       new IfstatementTests(),
+      new IfWithConstantSimplifierTests(),
       new InitTests(),
       new InnerTests(),
       new InvokeTests(),

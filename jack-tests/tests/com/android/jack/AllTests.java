@@ -50,6 +50,7 @@ import com.android.jack.nopackage.NoPackageTests;
 import com.android.jack.opcodes.OpcodesTests;
 import com.android.jack.optimizations.defuse.DefUseTests;
 import com.android.jack.optimizations.exprsimplifier.ExprsimplifierTests;
+import com.android.jack.optimizations.ifwithconstantsimplifier.IfWithConstantSimplifierTests;
 import com.android.jack.optimizations.lambdas.LambdaTests;
 import com.android.jack.optimizations.modifiers.ModifiersTighteningTests;
 import com.android.jack.optimizations.notsimplifier.NotsimplifierTests;
@@ -136,6 +137,7 @@ import org.junit.runners.Suite.SuiteClasses;
     MultiDexAllTests.class,
     NewarrayTests.class,
     ExprsimplifierTests.class,
+    IfWithConstantSimplifierTests.class,
     NotsimplifierTests.class,
     NoPackageTests.class,
     OrderTests.class,
