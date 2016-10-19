@@ -56,7 +56,7 @@ if [[ ! -f "$CLIENT_SETTING" || $SETTING_VERSION -lt 4 ]]; then
   echo "Writing client settings in" $CLIENT_SETTING
   cat >"$CLIENT_SETTING.$$" <<-EOT
 	# Server settings
-	SERVER_HOST=${SERVER_HOST:=127.0.0.1}
+	SERVER_HOST=${SERVER_HOST:=localhost}
 	SERVER_PORT_SERVICE=${SERVER_PORT_SERVICE:=8076}
 	SERVER_PORT_ADMIN=${SERVER_PORT_ADMIN:=8077}
 
