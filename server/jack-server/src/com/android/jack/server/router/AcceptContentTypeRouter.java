@@ -44,6 +44,12 @@ public class AcceptContentTypeRouter extends ContentTypeRouter {
   }
 
   @Override
+  @Nonnull
+  protected String getDescription() {
+    return "Accept";
+  }
+
+  @Override
   @CheckForNull
   protected ContentType getContentType(@Nonnull Request request) {
     String accept = request.getValue("accept");

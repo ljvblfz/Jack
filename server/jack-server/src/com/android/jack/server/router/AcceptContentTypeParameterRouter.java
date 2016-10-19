@@ -48,4 +48,11 @@ public class AcceptContentTypeParameterRouter extends ContentTypeParameterRouter
     String accept = request.getValue("accept");
     return accept != null ? new ContentTypeParser(accept) : null;
   }
+
+  @Override
+  @Nonnull
+  protected String getDescription() {
+    return "Accept";
+  }
+
 }

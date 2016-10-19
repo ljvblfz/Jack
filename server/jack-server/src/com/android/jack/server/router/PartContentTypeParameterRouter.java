@@ -50,6 +50,12 @@ public class PartContentTypeParameterRouter extends ContentTypeParameterRouter {
   }
 
   @Override
+  @Nonnull
+  protected String getDescription() {
+    return "part '" + partName + "'";
+  }
+
+  @Override
   @CheckForNull
   protected ContentType getContentType(@Nonnull Request request) {
     Part part = request.getPart(partName);
