@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.android.jack.jill.test003.jack;
+package com.android.jack.jill.test004.jack;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
 
-public class Test003 {
+public class Test004 {
 
   @Test
   public void test001() {
@@ -60,5 +60,45 @@ public class Test003 {
     Assert.assertEquals(2.0 > Double.NaN, External.greaterThan4(2.0, Double.NaN));
     Assert.assertEquals(Double.NaN > Double.NaN, External.greaterThan4(Double.NaN, Double.NaN));
     Assert.assertEquals(Double.NaN > 2.0, External.greaterThan4(Double.NaN, 2.0));
+  }
+
+  @Test
+  public void test005() {
+    Assert.assertEquals(1.0 > 2.0, External.greaterThan5(1.0, 2.0));
+    Assert.assertEquals(2.0 > 1.0, External.greaterThan5(2.0, 1.0));
+    Assert.assertEquals(2.0 > 2.0, External.greaterThan5(2.0, 2.0));
+    Assert.assertEquals(2.0 > Double.NaN, External.greaterThan5(2.0, Double.NaN));
+    Assert.assertEquals(Double.NaN > Double.NaN, External.greaterThan5(Double.NaN, Double.NaN));
+    Assert.assertEquals(Double.NaN > 2.0, External.greaterThan5(Double.NaN, 2.0));
+  }
+
+  @Test
+  public void test006() {
+    Assert.assertEquals(1.0 > 2.0, External.greaterThan6(1.0, 2.0));
+    Assert.assertEquals(2.0 > 1.0, External.greaterThan6(2.0, 1.0));
+    Assert.assertEquals(2.0 > 2.0, External.greaterThan6(2.0, 2.0));
+    Assert.assertEquals(2.0 > Double.NaN, External.greaterThan6(2.0, Double.NaN));
+    Assert.assertEquals(Double.NaN > Double.NaN, External.greaterThan6(Double.NaN, Double.NaN));
+    Assert.assertEquals(Double.NaN > 2.0, External.greaterThan6(Double.NaN, 2.0));
+  }
+
+  @Test
+  public void test007() {
+    Assert.assertEquals(1.0 > 2.0, External.greaterThan7(1.0, 2.0));
+    Assert.assertEquals(2.0 > 1.0, External.greaterThan7(2.0, 1.0));
+    Assert.assertEquals(2.0 > 2.0, External.greaterThan7(2.0, 2.0));
+    Assert.assertEquals(2.0 > Double.NaN, External.greaterThan7(2.0, Double.NaN));
+    Assert.assertEquals(Double.NaN > Double.NaN, External.greaterThan7(Double.NaN, Double.NaN));
+    Assert.assertEquals(Double.NaN > 2.0, External.greaterThan7(Double.NaN, 2.0));
+  }
+
+  @Test
+  public void test008() {
+    Assert.assertEquals(1.0 > 2.0, External.greaterThan8(1.0, 2.0));
+    Assert.assertEquals(2.0 > 1.0, External.greaterThan8(2.0, 1.0));
+    Assert.assertEquals(2.0 > 2.0, External.greaterThan8(2.0, 2.0));
+    Assert.assertEquals(2.0 > Double.NaN, External.greaterThan8(2.0, Double.NaN));
+    Assert.assertEquals(Double.NaN > Double.NaN, External.greaterThan8(Double.NaN, Double.NaN));
+    Assert.assertEquals(Double.NaN > 2.0, External.greaterThan8(Double.NaN, 2.0));
   }
 }

@@ -12,7 +12,7 @@
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
 
-.class public com/android/jack/jill/test003/jack/External
+.class public com/android/jack/jill/test004/jack/External
 .super java/lang/Object
 
 .method public <init>()V
@@ -23,29 +23,27 @@
 
 .method public static greaterThan1(DD)Z
         .limit locals 4
-        .limit stack 3
+        .limit stack 4
     dload_0
     dload_2
     dcmpl
-    aconst_null
-    swap
-    ifle if_label
+    dup
     pop
+    ifle if_label
     iconst_1
     ireturn
 if_label:
-    pop
     iconst_0
     ireturn
 .end method
 
 .method public static greaterThan2(DD)Z
         .limit locals 4
-        .limit stack 5
-    aconst_null
+        .limit stack 4
     dload_0
     dload_2
     dcmpl
+    dup
     swap
     pop
     ifle if_label
@@ -58,14 +56,11 @@ if_label:
 
 .method public static greaterThan3(DD)Z
         .limit locals 4
-        .limit stack 3
+        .limit stack 4
     dload_0
     dload_2
     dcmpl
-    iconst_1
-    iconst_2
-    iadd
-    swap
+    dup
     ifle if_label
     pop
     iconst_1
@@ -78,22 +73,91 @@ if_label:
 
 .method public static greaterThan4(DD)Z
         .limit locals 4
-        .limit stack 3
+        .limit stack 4
     dload_0
     dload_2
     dcmpl
-    iconst_1
-    iconst_2
-    iadd
-    swap
-    swap
-    swap
+    dup
+    dup
+    pop2
     ifle if_label
+    iconst_1
+    ireturn
+if_label:
+    iconst_0
+    ireturn
+.end method
+
+.method public static greaterThan5(DD)Z
+        .limit locals 4
+        .limit stack 4
+    dload_0
+    dload_2
+    dcmpl
+    aconst_null
+    dup2
+    pop2
+    pop
+    ifle if_label
+    iconst_1
+    ireturn
+if_label:
+    iconst_0
+    ireturn
+.end method
+
+.method public static greaterThan6(DD)Z
+        .limit locals 4
+        .limit stack 5
+    aconst_null
+    dload_0
+    dload_2
+    dcmpl
+    dup2
+    ifle if_label
+    pop2
     pop
     iconst_1
     ireturn
 if_label:
+    pop2
     pop
+    iconst_0
+    ireturn
+.end method
+
+.method public static greaterThan7(DD)Z
+        .limit locals 4
+        .limit stack 5
+    dload_0
+    dload_2
+    dcmpl
+    aconst_null
+    dup
+    pop2
+    ifle if_label
+    iconst_1
+    ireturn
+if_label:
+    iconst_0
+    ireturn
+.end method
+
+.method public static greaterThan8(DD)Z
+        .limit locals 4
+        .limit stack 5
+    dload_0
+    dload_2
+    dcmpl
+    aconst_null
+    dup2
+    pop
+    ifle if_label
+    pop2
+    iconst_1
+    ireturn
+if_label:
+    pop2
     iconst_0
     ireturn
 .end method
