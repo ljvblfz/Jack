@@ -40,6 +40,7 @@ import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
+import com.android.sched.vfs.BadVFSFormatException;
 import com.android.sched.vfs.DeflateFS;
 import com.android.sched.vfs.GenericInputVFS;
 import com.android.sched.vfs.InputVDir;
@@ -49,7 +50,6 @@ import com.android.sched.vfs.MessageDigestFS;
 import com.android.sched.vfs.PrefixedFS;
 import com.android.sched.vfs.VFS;
 import com.android.sched.vfs.VPath;
-import com.android.sched.vfs.WrongVFSFormatException;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -184,7 +184,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
         try {
           inputVFS = new MessageDigestFS(inputVFS,
                   ThreadConfig.get(JackLibraryFactory.MESSAGE_DIGEST_ALGO));
-        } catch (WrongVFSFormatException e) {
+        } catch (BadVFSFormatException e) {
           // If library is well formed this exception can not be triggered
           throw new AssertionError(e);
         }

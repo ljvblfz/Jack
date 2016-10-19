@@ -19,10 +19,10 @@ package com.android.sched.util.codec;
 import com.android.sched.util.config.ConfigurationError;
 import com.android.sched.util.config.MessageDigestFactory;
 import com.android.sched.util.file.FileOrDirectory.Existence;
+import com.android.sched.vfs.BadVFSFormatException;
 import com.android.sched.vfs.CaseInsensitiveFS;
 import com.android.sched.vfs.DirectFS;
 import com.android.sched.vfs.VFS;
-import com.android.sched.vfs.WrongVFSFormatException;
 
 import java.security.Provider.Service;
 import java.util.List;
@@ -68,7 +68,7 @@ public class CaseInsensitiveDirectFSCodec implements VFSCodec {
       return new CaseInsensitiveFS(codec.checkString(context, string),
           /* nbGroup = */ 1, /* szGroup = */ 2, new MessageDigestFactory(service),
           /* debug = */ false);
-    } catch (WrongVFSFormatException e) {
+    } catch (BadVFSFormatException e) {
       throw new ParsingException(e);
     }
   }
