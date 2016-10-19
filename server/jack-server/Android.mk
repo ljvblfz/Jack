@@ -70,6 +70,23 @@ LOCAL_ADDITIONAL_DEPENDENCIES := $(jack_script)
 include $(BUILD_PREBUILT)
 
 
+#
+# Build jack-diagnose script
+#
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := jack-diagnose
+LOCAL_SRC_FILES := etc/jack-diagnose
+LOCAL_MODULE_CLASS := EXECUTABLES
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_SUFFIX := $(HOST_EXECUTABLE_SUFFIX)
+LOCAL_BUILT_MODULE_STEM := jack-diagnose$(HOST_EXECUTABLE_SUFFIX)
+LOCAL_IS_HOST_MODULE := true
+
+include $(BUILD_PREBUILT)
+
+
 include $(CLEAR_VARS)
 
 LOCAL_MODULE := jack-server

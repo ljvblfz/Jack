@@ -29,7 +29,7 @@ endif
 
 .PHONY: setup-jack-server
 setup-jack-server : PRIVATE_JACK_ADMIN := $(LOCAL_PATH)/jack-server/etc/jack-admin
-setup-jack-server: $(JACK) $(LOCAL_PATH)/jack-server/etc/jack-admin $(HOST_OUT_JAVA_LIBRARIES)/jack-launcher.jar $(HOST_OUT_JAVA_LIBRARIES)/jack-server.jar $(HOST_OUT_JAVA_LIBRARIES)/jack.jar
+setup-jack-server: $(JACK) $(HOST_OUT_EXECUTABLES)/jack-admin $(HOST_OUT_EXECUTABLES)/jack-ea $(HOST_OUT_EXECUTABLES)/jack-diagnose $(HOST_OUT_JAVA_LIBRARIES)/jack-launcher.jar $(HOST_OUT_JAVA_LIBRARIES)/jack-server.jar $(HOST_OUT_JAVA_LIBRARIES)/jack.jar
 ifndef jack_server_disabled
 	@echo Ensure Jack server is installed and started
 ifneq ($(dist_goal),)
