@@ -20,7 +20,6 @@ import com.android.jack.Options;
 import com.android.jack.analysis.DefinitionMarker;
 import com.android.jack.analysis.UseDefsMarker;
 import com.android.jack.cfg.BasicBlock;
-import com.android.jack.cfg.BasicBlockMarker;
 import com.android.jack.cfg.ConditionalBasicBlock;
 import com.android.jack.cfg.ControlFlowGraph;
 import com.android.jack.ir.ast.JBlock;
@@ -30,7 +29,6 @@ import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JLabel;
 import com.android.jack.ir.ast.JLabeledStatement;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JVariableRef;
@@ -43,7 +41,6 @@ import com.android.jack.transformations.request.AppendStatement;
 import com.android.jack.transformations.request.PrependAfter;
 import com.android.jack.transformations.request.PrependStatement;
 import com.android.jack.transformations.request.Remove;
-import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.jack.util.graph.GraphUtils;
@@ -111,7 +108,7 @@ public class IfWithConstantSimplifier implements RunnableSchedulable<JMethod> {
 
           for (DefinitionMarker dm : udm.getDefs()) {
             if (dm.hasValue() && dm.getValue() instanceof JBooleanLiteral
-                && dm.isUsedOnlyOnce() && !hasCodeBetweenDefAndUsage(dm, ifStmt)) {
+                && dm.isUsedOnlyOnce()) {
                 if (((JBooleanLiteral) dm.getValue()).getValue() == true) {
                   // Branch to then block
 
@@ -122,7 +119,7 @@ public class IfWithConstantSimplifier implements RunnableSchedulable<JMethod> {
                   }
 
                   assert thenLabel != null;
-                  tr.append(new Replace(dm.getDefinition().getParent(), new JGoto(si, thenLabel)));
+                  removeDefAndBranchToLabel(dm, si, thenLabel, tr);
                 } else {
                   // Branch to else block
                   if (elseStmt != null) {
@@ -140,7 +137,7 @@ public class IfWithConstantSimplifier implements RunnableSchedulable<JMethod> {
                     }
                   }
 
-                  tr.append(new Replace(dm.getDefinition().getParent(), new JGoto(si, elseLabel)));
+                  removeDefAndBranchToLabel(dm, si, elseLabel, tr);
                 }
             } else {
               allDefsAreBooleanCstAndUseByIfStmt = false;
@@ -202,46 +199,13 @@ public class IfWithConstantSimplifier implements RunnableSchedulable<JMethod> {
       return lastStatement;
     }
 
-    private boolean hasCodeBetweenDefAndUsage(
-        @Nonnull DefinitionMarker dm, @Nonnull JIfStatement ifStmt) {
-      BasicBlockMarker ifStmtBbMarker = ifStmt.getMarker(BasicBlockMarker.class);
-      assert ifStmtBbMarker != null;
-      BasicBlock ifStmtBasicBlock = ifStmtBbMarker.getBasicBlock();
-
-
-      JNode defStmt = dm.getDefinition().getParent();
-      BasicBlockMarker bbm = defStmt.getMarker(BasicBlockMarker.class);
-      assert bbm != null;
-
-      BasicBlock defBasicBlock = bbm.getBasicBlock();
-      List<JStatement> statementsOfDefBlock = defBasicBlock.getStatements();
-      int lastStmtIndex = statementsOfDefBlock.size() - 1;
-
-      if (defBasicBlock == ifStmtBasicBlock) {
-        // Definition and instruction 'if' using the definition belongs to the same block.
-        assert statementsOfDefBlock.get(lastStmtIndex) == ifStmt;
-        if (statementsOfDefBlock.get(lastStmtIndex - 1) == defStmt) {
-          // There is no code between definition and usage into 'if' instruction if the definition
-          // is the previous instruction of 'if'.
-          return false;
-        }
-      } else {
-
-        // The definition must be the last statement of the definition block, otherwise there is
-        // automatically code between the definition and the usage since they does not belong to
-        // the same block.
-        if (statementsOfDefBlock.get(lastStmtIndex) == defStmt) {
-          // The instruction 'if' using the definition must be the first instruction of successors
-          // of the definition block otherwise it means that there is code between us.
-          for (BasicBlock succ : defBasicBlock.getSuccessors()) {
-            if (succ.getStatements().get(0) == ifStmt) {
-              return false;
-            }
-          }
-        }
-      }
-
-      return true;
+    // Removes def's statement and insert goto at the end of its block.
+    private void removeDefAndBranchToLabel(@Nonnull DefinitionMarker dm, @Nonnull SourceInfo si,
+        @Nonnull JLabeledStatement label, @Nonnull TransformationRequest tr) {
+      JStatement defStatement = dm.getDefinition().getParent(JStatement.class);
+      JBlock defBlock = defStatement.getParent(JBlock.class);
+      tr.append(new Remove(defStatement));
+      tr.append(new AppendStatement(defBlock, new JGoto(si, label)));
     }
   }
 
