@@ -125,6 +125,9 @@ public class BlockStatistics implements RunnableSchedulable<JMethod> {
     if (bcm == null) {
       BlockCountMarker newbcm = new BlockCountMarker();
       bcm = session.addMarker(newbcm);
+      if (bcm == null) {
+        bcm = newbcm;
+      }
     }
 
     BlockStatisticsVisitor statistics = new BlockStatisticsVisitor(bcm);
