@@ -16,6 +16,7 @@
 
 package com.android.jack.shrob.obfuscation;
 
+import com.android.jack.shrob.obfuscation.key.Key;
 import com.android.sched.marker.Marker;
 
 import java.util.Collection;
@@ -23,12 +24,12 @@ import java.util.Collection;
 import javax.annotation.Nonnull;
 
 /**
- * {@code Marker} that represents the existing new names or signatures in a type.
+ * {@code Marker} that represents the existing new keys in a type.
  */
-public abstract class NewNameMarker implements Marker {
+public abstract class NewKeyMarker implements Marker {
 
   @Nonnull
-  public abstract Collection<String> getNewNames();
+  public abstract Collection<? extends Key> getNewKeys();
 
   @Override
   public Marker cloneIfNeeded() {

@@ -16,6 +16,13 @@
 
 package com.android.jack.shrob.obfuscation.nameprovider;
 
+import com.android.jack.ir.formatter.BinarySignatureFormatter;
+import com.android.jack.ir.formatter.TypeAndMethodFormatter;
+import com.android.jack.shrob.obfuscation.key.FieldKey;
+import com.android.jack.shrob.obfuscation.key.Key;
+import com.android.jack.shrob.obfuscation.key.MethodKey;
+import com.android.jack.shrob.obfuscation.key.PackageKey;
+import com.android.jack.shrob.obfuscation.key.TypeKey;
 import com.android.sched.util.codec.ImplementationName;
 
 import javax.annotation.Nonnull;
@@ -26,6 +33,10 @@ import javax.annotation.Nonnull;
  */
 @ImplementationName(iface = NameProvider.class, name = "rot13")
 public class Rot13NameProvider implements NameProvider {
+
+  @Nonnull
+  private static final TypeAndMethodFormatter signatureFormatter =
+      BinarySignatureFormatter.getFormatter();
 
   private static final char BEGIN_LOWERCASE_CHAR = 'a';
 
@@ -59,12 +70,32 @@ public class Rot13NameProvider implements NameProvider {
         || (c >= BEGIN_UPPERCASE_CHAR && c <= END_UPPERCASE_CHAR);
   }
 
+  @Nonnull
+  private static String getKeyAsString(@Nonnull Key key) {
+    if (key instanceof FieldKey) {
+      FieldKey fieldKey = (FieldKey) key;
+      return fieldKey.getName() + ':' + signatureFormatter.getName(fieldKey.getType());
+    } else if (key instanceof MethodKey) {
+      MethodKey methodKey = (MethodKey) key;
+      return signatureFormatter.getNameWithoutReturnType(methodKey.getName(),
+          methodKey.getParameterTypes());
+    } else if (key instanceof TypeKey) {
+      return ((TypeKey) key).getName();
+    } else if (key instanceof PackageKey) {
+      return ((PackageKey) key).getName();
+    } else {
+      throw new AssertionError();
+    }
+  }
+
+
   @Override
   @Nonnull
-  public String getNewName(@Nonnull String oldName) {
+  public String getNewName(@Nonnull Key oldKey) {
+    String keyString = getKeyAsString(oldKey);
     StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < oldName.length() ; i++)  {
-      char c = oldName.charAt(i);
+    for (int i = 0; i < keyString.length() ; i++)  {
+      char c = keyString.charAt(i);
       if (isTransformable(c)) {
         sb.append(nextChar(c));
       } else if (c == '(' || c == ')') {
@@ -77,7 +108,7 @@ public class Rot13NameProvider implements NameProvider {
   }
 
   @Override
-  public boolean hasAlternativeName(@Nonnull String oldName) {
+  public boolean hasAlternativeName(@Nonnull Key oldKey) {
     return false;
   }
 }

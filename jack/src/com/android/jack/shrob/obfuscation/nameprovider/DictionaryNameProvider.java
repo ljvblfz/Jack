@@ -17,6 +17,7 @@
 package com.android.jack.shrob.obfuscation.nameprovider;
 
 import com.android.jack.JackIOException;
+import com.android.jack.shrob.obfuscation.key.Key;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -50,7 +51,7 @@ public class DictionaryNameProvider implements NameProvider {
 
   @Override
   @Nonnull
-  public String getNewName(@Nonnull String oldName) {
+  public String getNewName(@Nonnull Key key) {
     if (br != null) {
       String nameFromDict = getNameFromDictionary();
       if (!nameFromDict.isEmpty()) {
@@ -58,7 +59,7 @@ public class DictionaryNameProvider implements NameProvider {
       }
     }
 
-    return defaultNameProvider.getNewName(oldName);
+    return defaultNameProvider.getNewName(key);
   }
 
   @Nonnull
@@ -108,7 +109,7 @@ public class DictionaryNameProvider implements NameProvider {
   }
 
   @Override
-  public boolean hasAlternativeName(@Nonnull String oldName) {
-    return br != null && defaultNameProvider.hasAlternativeName(oldName);
+  public boolean hasAlternativeName(@Nonnull Key oldKey) {
+    return br != null && defaultNameProvider.hasAlternativeName(oldKey);
   }
 }

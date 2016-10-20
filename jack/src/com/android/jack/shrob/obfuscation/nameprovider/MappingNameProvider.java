@@ -16,6 +16,8 @@
 
 package com.android.jack.shrob.obfuscation.nameprovider;
 
+import com.android.jack.shrob.obfuscation.key.Key;
+
 import java.util.Map;
 
 import javax.annotation.Nonnull;
@@ -29,26 +31,26 @@ public class MappingNameProvider implements NameProvider {
   private final NameProvider defaultNameProvider;
 
   @Nonnull
-  private final Map<String, String> names;
+  private final Map<? extends Key, String> names;
 
   public MappingNameProvider(
-      @Nonnull NameProvider defaultNameProvider, @Nonnull Map<String, String> names) {
+      @Nonnull NameProvider defaultNameProvider, @Nonnull Map<? extends Key, String> names) {
     this.defaultNameProvider = defaultNameProvider;
     this.names = names;
   }
 
   @Override
   @Nonnull
-  public String getNewName(@Nonnull String oldName) {
-    String newName = names.get(oldName);
+  public String getNewName(@Nonnull Key key) {
+    String newName = names.get(key);
     if (newName != null) {
       return newName;
     }
-    return defaultNameProvider.getNewName(oldName);
+    return defaultNameProvider.getNewName(key);
   }
 
   @Override
-  public boolean hasAlternativeName(@Nonnull String oldName) {
-    return !names.containsKey(oldName) && defaultNameProvider.hasAlternativeName(oldName);
+  public boolean hasAlternativeName(@Nonnull Key key) {
+    return !names.containsKey(key) && defaultNameProvider.hasAlternativeName(key);
   }
 }

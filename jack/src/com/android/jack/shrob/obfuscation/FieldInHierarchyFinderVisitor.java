@@ -18,6 +18,8 @@ package com.android.jack.shrob.obfuscation;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
+import com.android.jack.ir.ast.JFieldId;
+import com.android.jack.shrob.obfuscation.key.FieldKey;
 
 import javax.annotation.Nonnull;
 
@@ -27,19 +29,20 @@ import javax.annotation.Nonnull;
 public class FieldInHierarchyFinderVisitor extends OneTimeHierarchyVisitor {
 
   @Nonnull
-  private final String fieldName;
+  private final FieldKey fieldKey;
 
   private boolean hasFoundField = false;
 
-  private FieldInHierarchyFinderVisitor(@Nonnull String fieldName) {
-    this.fieldName = fieldName;
+  private FieldInHierarchyFinderVisitor(@Nonnull FieldKey fieldKey) {
+    this.fieldKey = fieldKey;
   }
 
   public void startVisit(@Nonnull JDefinedClassOrInterface type) {
     // Search static and private fields
     for (JField field : type.getFields()) {
-      if (field.isPrivate() && !Renamer.mustBeRenamed(field.getId())) {
-        if (field.getName().equals(fieldName)) {
+      JFieldId id = field.getId();
+      if (field.isPrivate() && !Renamer.mustBeRenamed(id)) {
+        if (new FieldKey(id).equals(fieldKey)) {
           hasFoundField = true;
           return;
         }
@@ -52,16 +55,17 @@ public class FieldInHierarchyFinderVisitor extends OneTimeHierarchyVisitor {
   @Override
   public boolean doAction(@Nonnull JDefinedClassOrInterface type) {
     // Search in already renamed fields
-    NewFieldNameMarker marker = type.getMarker(NewFieldNameMarker.class);
-    if (marker != null && marker.getNewNames().contains(fieldName)) {
+    NewFieldKeyMarker marker = type.getMarker(NewFieldKeyMarker.class);
+    if (marker != null && marker.getNewKeys().contains(fieldKey)) {
       hasFoundField = true;
       return false;
     }
 
     // Search field in impacted types excluding static and private methods
     for (JField field : type.getFields()) {
-      if (!field.isPrivate() && !Renamer.mustBeRenamed(field.getId())) {
-        if (field.getName().equals(fieldName)) {
+      JFieldId id = field.getId();
+      if (!field.isPrivate() && !Renamer.mustBeRenamed(id)) {
+        if (new FieldKey(id).equals(fieldKey)) {
           hasFoundField = true;
           return false;
         }
@@ -70,8 +74,8 @@ public class FieldInHierarchyFinderVisitor extends OneTimeHierarchyVisitor {
     return true;
   }
 
-  public static boolean containsFieldKey(@Nonnull String name, @Nonnull JField field) {
-    FieldInHierarchyFinderVisitor visitor = new FieldInHierarchyFinderVisitor(name);
+  public static boolean containsFieldKey(@Nonnull FieldKey key, @Nonnull JField field) {
+    FieldInHierarchyFinderVisitor visitor = new FieldInHierarchyFinderVisitor(key);
     visitor.startVisit(field.getEnclosingType());
     return visitor.hasFoundField;
   }

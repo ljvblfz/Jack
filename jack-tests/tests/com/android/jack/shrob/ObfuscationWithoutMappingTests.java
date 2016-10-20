@@ -260,7 +260,6 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
 
   @Test
   @Runtime
-  @KnownIssue
   public void test63_001() throws Exception {
     RuntimeTestInfo runtimeTestInfo = new RuntimeTestInfo(
         new File(shrobTestsDir, "test063"),

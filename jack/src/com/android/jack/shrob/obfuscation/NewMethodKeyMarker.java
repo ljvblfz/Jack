@@ -17,40 +17,47 @@
 package com.android.jack.shrob.obfuscation;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
+import com.android.jack.ir.ast.JMethodIdWide;
+import com.android.jack.shrob.obfuscation.key.MethodKey;
 import com.android.sched.item.Description;
 import com.android.sched.marker.ValidOn;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
 
 /**
- * {@code Marker} that represents the new names of fields in a type.
+ * {@code Marker} that represents the existing method's signature in a type.
  */
-@Description("Represents the new names of fields in a type.")
+@Description("Represents the existing method's signature in a type.")
 @ValidOn(JDefinedClassOrInterface.class)
-public class NewFieldNameMarker extends NewNameMarker {
+public class NewMethodKeyMarker extends NewKeyMarker {
+
   @Nonnull
-  private final Set<String> newFieldNames;
+  public Map<JMethodIdWide, MethodKey> newMethodKeys;
 
-  public NewFieldNameMarker() {
-    newFieldNames = new HashSet<String>();
+  public NewMethodKeyMarker() {
+    newMethodKeys = new HashMap<JMethodIdWide, MethodKey>();
   }
 
-  public NewFieldNameMarker(@Nonnull Set<String> existingKeys) {
-    this.newFieldNames = existingKeys;
+  public NewMethodKeyMarker(@Nonnull Map<JMethodIdWide, MethodKey> newMethodKeys) {
+    this.newMethodKeys = newMethodKeys;
   }
 
-  public void add(@Nonnull String name) {
-    newFieldNames.add(name);
+  public void add(@Nonnull JMethodIdWide methodId, @Nonnull MethodKey newKey) {
+    newMethodKeys.put(methodId, newKey);
+  }
+
+  @Nonnull
+  public MethodKey getNewKey(@Nonnull JMethodIdWide id) {
+    return newMethodKeys.get(id);
   }
 
   @Override
   @Nonnull
-  public Collection<String> getNewNames() {
-    return newFieldNames;
+  public Collection<MethodKey> getNewKeys() {
+    return newMethodKeys.values();
   }
-
 }
