@@ -18,17 +18,6 @@ package com.android.jack.server;
 
 import com.google.common.io.BaseEncoding;
 
-import com.android.sched.util.file.CannotChangePermissionException;
-import com.android.sched.util.file.CannotCreateFileException;
-import com.android.sched.util.file.Directory;
-import com.android.sched.util.file.FileAlreadyExistsException;
-import com.android.sched.util.file.FileOrDirectory.ChangePermission;
-import com.android.sched.util.file.FileOrDirectory.Existence;
-import com.android.sched.util.file.FileOrDirectory.Permission;
-import com.android.sched.util.file.NoSuchFileException;
-import com.android.sched.util.file.NotDirectoryException;
-import com.android.sched.util.file.WrongPermissionException;
-
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -80,22 +69,21 @@ public class PEMWriter implements Closeable {
   @Nonnull
   private final File tmpFile;
 
-  public PEMWriter(@Nonnull File file) throws IOException, CannotCreateFileException,
-      CannotChangePermissionException {
+  public PEMWriter(@Nonnull File file) throws IOException {
     targetFile = file;
-    Directory parentDirectory;
-    try {
-      parentDirectory = new Directory(file.getParentFile().getPath(),
-          null,
-          Existence.MUST_EXIST,
-          Permission.READ | Permission.WRITE,
-          ChangePermission.NOCHANGE);
-    } catch (NotDirectoryException | WrongPermissionException | NoSuchFileException
-        | FileAlreadyExistsException e) {
-      throw new AssertionError(e.getMessage(), e);
+    tmpFile = File.createTempFile("jackserver-", file.getName(), file.getParentFile());
+    if (!tmpFile.exists()) {
+      if (!tmpFile.createNewFile()) {
+        throw new IOException("Failed to create temp file '" + tmpFile.getPath() + "'");
+      }
+      if  (!(tmpFile.setExecutable(false, false)
+          && tmpFile.setWritable(false, false)
+          && tmpFile.setReadable(false, false)
+          && tmpFile.setWritable(true, true)
+          && tmpFile.setReadable(true, true))) {
+        throw new IOException("Failed to set permission of '" + tmpFile.getPath() + "'");
+      }
     }
-    tmpFile = com.android.sched.util.file.Files.createTempFile("jackserver-",
-          file.getName(), parentDirectory);
 
     out = new OutputStreamWriter(new FileOutputStream(tmpFile), CHARSET);
   }
