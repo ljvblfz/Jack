@@ -4366,17 +4366,18 @@ public class JackIrBuilder {
       case TypeIds.T_char:
       case TypeIds.T_float:
       case TypeIds.T_double:
-      case Constant.T_boolean:
-      case Constant.T_long:
-      case Constant.T_JavaLangString:
-      case Constant.T_null:
+      case TypeIds.T_boolean:
+      case TypeIds.T_long:
+      case TypeIds.T_JavaLangString:
+      case TypeIds.T_null:
         return true;
       default:
         return false;
     }
   }
 
-  private JLiteral getConstant(SourceInfo info, Constant constant, int typeId) {
+  @Nonnull
+  private JLiteral getConstant(@Nonnull SourceInfo info, @Nonnull Constant constant, int typeId) {
     switch (typeId) {
       case TypeIds.T_int:
         return new JIntLiteral(info, constant.intValue());
@@ -4390,13 +4391,13 @@ public class JackIrBuilder {
         return new JFloatLiteral(info, constant.floatValue());
       case TypeIds.T_double:
         return new JDoubleLiteral(info, constant.doubleValue());
-      case Constant.T_boolean:
+      case TypeIds.T_boolean:
         return new JBooleanLiteral(info, constant.booleanValue());
-      case Constant.T_long:
+      case TypeIds.T_long:
         return new JLongLiteral(info, constant.longValue());
-      case Constant.T_JavaLangString:
+      case TypeIds.T_JavaLangString:
         return getStringLiteral(info, constant.stringValue());
-      case Constant.T_null:
+      case TypeIds.T_null:
         return new JNullLiteral(info);
       default:
         throw new AssertionError("Unknown Constant type: value type " + constant.typeID()
