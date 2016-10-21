@@ -97,13 +97,7 @@ public class PEMWriter implements Closeable {
     }
     tmpFile = com.android.sched.util.file.Files.createTempFile("jackserver-",
           file.getName(), parentDirectory);
-    if  (!(tmpFile.setExecutable(false, false)
-        && tmpFile.setWritable(false, false)
-        && tmpFile.setReadable(false, false)
-        && tmpFile.setWritable(true, true)
-        && tmpFile.setReadable(true, true))) {
-      throw new IOException("Failed to set permission of '" + tmpFile.getPath() + "'");
-    }
+    FileAccess.get(tmpFile.toPath()).removeAccessRightButOwner();
 
     out = new OutputStreamWriter(new FileOutputStream(tmpFile), CHARSET);
   }

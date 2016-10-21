@@ -110,8 +110,7 @@ import java.net.URLClassLoader;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.file.Files;
 import java.nio.file.attribute.FileOwnerAttributeView;
-import java.nio.file.attribute.PosixFilePermission;
-import java.nio.file.attribute.PosixFilePermissions;
+import java.nio.file.attribute.UserPrincipal;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -487,7 +486,7 @@ public class JackHttpServer implements HasVersion {
   private ServerLogConfiguration logConfiguration;
 
   @Nonnull
-  private final String currentUser;
+  private final UserPrincipal currentUser;
 
   @CheckForNull
   private String[] filteredCiphersArray = null;
@@ -700,8 +699,7 @@ public class JackHttpServer implements HasVersion {
       ServerException, CannotCreateFileException, CannotChangePermissionException {
     shutdownConnections();
     try {
-      checkAccess(serverDir, EnumSet.of(PosixFilePermission.OWNER_READ,
-          PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE));
+      checkAccessRight(serverDir);
 
       loadConfig();
     } catch (CannotCreateFileException | IOException | NotFileException
@@ -719,8 +717,7 @@ public class JackHttpServer implements HasVersion {
         + getVersion().getVerboseVersion());
 
     ConfigFile config = new ConfigFile(serverDir);
-    checkAccess(config.getStorageFile(), EnumSet.of(PosixFilePermission.OWNER_READ,
-        PosixFilePermission.OWNER_WRITE));
+    checkAccessRight(config.getStorageFile());
 
     portService = config.getServicePort();
     portAdmin = config.getAdminPort();
@@ -860,20 +857,13 @@ public class JackHttpServer implements HasVersion {
     }
   }
 
-  private void checkAccess(@Nonnull File file, @Nonnull Set<PosixFilePermission> check)
-      throws IOException {
-    FileOwnerAttributeView ownerAttribute =
-        Files.getFileAttributeView(file.toPath(), FileOwnerAttributeView.class);
-    if (!currentUser.equals(ownerAttribute.getOwner().getName())) {
-      throw new IOException("'" + file.getPath() + "' is not owned by '" + currentUser
-          + "' but by '" + ownerAttribute.getOwner().getName() + "'");
-    }
-    Set<PosixFilePermission> permissions = Files.getPosixFilePermissions(file.toPath());
-    if (!check.equals(permissions)) {
-      throw new IOException("'" + file.getPath() + "' must have permission "
-          + PosixFilePermissions.toString(check) + " but have "
-          + PosixFilePermissions.toString(permissions));
-    }
+  /**
+   * Check that given file or directory access rights are restricted to {@link #currentUser}.
+   */
+  private void checkAccessRight(@Nonnull File file) throws IOException {
+    FileAccess fileAccess = FileAccess.get(file.toPath());
+    fileAccess.checkAccessibleOnlyByOwner();
+    fileAccess.checkOwner(currentUser);
   }
 
   private void refreshPEMFiles(@Nonnull KeyStore keystoreServer, @Nonnull KeyStore keystoreClient)
@@ -1235,16 +1225,12 @@ public class JackHttpServer implements HasVersion {
   }
 
   @Nonnull
-  private static String getCurrentUser(@Nonnull File serverDir)
+  private static UserPrincipal getCurrentUser(@Nonnull File serverDir)
       throws IOException, CannotCreateFileException, CannotChangePermissionException {
-    Set<PosixFilePermission> check = EnumSet.of(PosixFilePermission.OWNER_READ,
-        PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE);
-    Set<PosixFilePermission> permissions = Files.getPosixFilePermissions(serverDir.toPath());
-    if (!check.equals(permissions)) {
-      throw new IOException("'" + serverDir.getPath() + "' must have permission "
-          + PosixFilePermissions.toString(check) + " but have "
-          + PosixFilePermissions.toString(permissions));
-    }
+
+    FileAccess serverDirAccess = FileAccess.get(serverDir.toPath());
+    serverDirAccess.checkAccessibleOnlyByOwner();
+    UserPrincipal expectedOwner = serverDirAccess.getOwner();
 
     File tmp;
     try {
@@ -1255,14 +1241,12 @@ public class JackHttpServer implements HasVersion {
               Permission.READ | Permission.WRITE | Permission.EXECUTE,
               ChangePermission.NOCHANGE));
       try {
-        String tmpUser = Files.getFileAttributeView(tmp.toPath(),
-            FileOwnerAttributeView.class).getOwner().getName();
+        UserPrincipal tmpUser = Files.getFileAttributeView(tmp.toPath(),
+            FileOwnerAttributeView.class).getOwner();
 
-        FileOwnerAttributeView ownerAttribute =
-            Files.getFileAttributeView(serverDir.toPath(), FileOwnerAttributeView.class);
-        if (!tmpUser.equals(ownerAttribute.getOwner().getName())) {
+        if (!tmpUser.equals(expectedOwner)) {
           throw new IOException("'" + serverDir.getPath() + "' is not owned by '" + tmpUser
-              + "' but by '" + ownerAttribute.getOwner().getName() + "'");
+              + "' but by '" + expectedOwner.getName() + "'");
         }
 
         return tmpUser;
@@ -1411,10 +1395,8 @@ public class JackHttpServer implements HasVersion {
     try {
       File keystoreServerFile = new File(serverDir, KEYSTORE_SERVER);
       File keystoreClientFile = new File(serverDir, KEYSTORE_CLIENT);
-      checkAccess(keystoreServerFile, EnumSet.of(PosixFilePermission.OWNER_READ,
-          PosixFilePermission.OWNER_WRITE));
-      checkAccess(keystoreClientFile, EnumSet.of(PosixFilePermission.OWNER_READ,
-          PosixFilePermission.OWNER_WRITE));
+      checkAccessRight(keystoreServerFile);
+      checkAccessRight(keystoreClientFile);
 
       keystoreServerIn = new FileInputStream(keystoreServerFile);
       KeyStore keystoreServer = KeyStore.getInstance("jks");

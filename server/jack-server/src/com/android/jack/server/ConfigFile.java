@@ -128,13 +128,7 @@ class ConfigFile extends Properties {
       if (!(storageFile.createNewFile())) {
         throw new IOException("Failed to create '" + storageFile.getPath() + "'");
       }
-      if (!(storageFile.setExecutable(false, false)
-         && storageFile.setWritable(false, false)
-         && storageFile.setReadable(false, false)
-         && storageFile.setWritable(true, true)
-         && storageFile.setReadable(true, true))) {
-        throw new IOException("Failed to set permissions of '" + storageFile.getPath() + "'");
-      }
+      FileAccess.get(storageFile.toPath()).removeAccessRightButOwner();
     }
     loadIfPossible(storageFile);
   }
@@ -191,13 +185,7 @@ class ConfigFile extends Properties {
       throw new AssertionError(e.getMessage(), e);
     }
     try {
-      if (!(tmpOut.setExecutable(false, false)
-          && tmpOut.setWritable(false, false)
-          && tmpOut.setReadable(false, false)
-          && tmpOut.setWritable(true, true)
-          && tmpOut.setReadable(true, true))) {
-        throw new IOException("Failed to set permissions of '" + tmpOut.getPath() + "'");
-      }
+      FileAccess.get(tmpOut.toPath()).removeAccessRightButOwner();
       try (Writer writer = new OutputStreamWriter(new FileOutputStream(tmpOut), CONFIG_CHARSET)) {
         store(writer, "");
       }
