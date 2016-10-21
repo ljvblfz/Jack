@@ -17,6 +17,7 @@
 package com.android.jack.util.graph;
 
 import com.android.jack.Jack;
+import com.android.sched.marker.LocalMarkerManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +29,7 @@ import javax.annotation.Nonnull;
  *
  * @param <N> The type of node contained by the graph.
  */
-public class Graph<N extends GraphNode<N>> {
+public abstract class Graph<N extends GraphNode<N>> extends LocalMarkerManager implements IGraph<N>{
 
   @Nonnull
   private final List<N> nodes;
@@ -49,6 +50,7 @@ public class Graph<N extends GraphNode<N>> {
   }
 
   @Nonnull
+  @Override
   public List<N> getNodes() {
     return nodes;
   }
@@ -57,6 +59,7 @@ public class Graph<N extends GraphNode<N>> {
    * @return the entry
    */
   @Nonnull
+  @Override
   public N getEntryNode() {
     return entry;
   }
@@ -65,6 +68,7 @@ public class Graph<N extends GraphNode<N>> {
    * @return the exit
    */
   @Nonnull
+  @Override
   public N getExitNode() {
     return exit;
   }

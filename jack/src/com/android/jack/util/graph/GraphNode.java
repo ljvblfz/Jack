@@ -30,7 +30,8 @@ import javax.annotation.Nonnull;
  *
  * @param <N> The type of graph node.
  */
-public abstract class GraphNode<N extends GraphNode<N>> extends LocalMarkerManager {
+public abstract class GraphNode<N extends GraphNode<N>> extends LocalMarkerManager
+    implements IGraphNode<N> {
 
   // TODO(mikaelpeltier) Think about new implementation of sparse list due to index usage and
   // append usage to fill successors.
@@ -88,5 +89,17 @@ public abstract class GraphNode<N extends GraphNode<N>> extends LocalMarkerManag
 
   public boolean removePredecessor(@Nonnull N predecessor) {
     return (predecessors.remove(predecessor));
+  }
+
+  @Override
+  @Nonnull
+  public Iterable<N> getSuccessorsIterable() {
+    return getSuccessors();
+  }
+
+  @Override
+  @Nonnull
+  public Iterable<N> getPredecessorsIterable() {
+    return getPredecessors();
   }
 }

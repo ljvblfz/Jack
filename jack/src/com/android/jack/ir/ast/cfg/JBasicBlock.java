@@ -21,17 +21,19 @@ import com.google.common.collect.Lists;
 import com.android.jack.Jack;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.util.graph.IGraphNode;
 import com.android.sched.item.Description;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /** Represents an abstract CFG basic block implementation */
 @Description("CFG Basic Block")
-public abstract class JBasicBlock extends JNode {
+public abstract class JBasicBlock extends JNode implements IGraphNode<JBasicBlock> {
   @Nonnull
   private final ArrayList<JBasicBlock> predecessors = new ArrayList<>();
 
@@ -113,6 +115,18 @@ public abstract class JBasicBlock extends JNode {
   /** Snapshot of predecessors' list */
   public final List<JBasicBlock> getPredecessorsSnapshot() {
     return Lists.newArrayList(predecessors);
+  }
+
+  @Override
+  @Nonnull
+  public Iterable<JBasicBlock> getSuccessorsIterable() {
+    return getSuccessors();
+  }
+
+  @Override
+  @Nonnull
+  public Iterable<JBasicBlock> getPredecessorsIterable() {
+    return getPredecessors();
   }
 
   /**
