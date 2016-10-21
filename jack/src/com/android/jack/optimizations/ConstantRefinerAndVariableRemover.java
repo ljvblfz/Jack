@@ -115,11 +115,15 @@ public class ConstantRefinerAndVariableRemover implements RunnableSchedulable<JM
       JExpression castedExpr = cast.getExpr();
       if (castedExpr instanceof JNumberLiteral && cast.getType() instanceof JPrimitiveType) {
         TransformationRequest tr = new TransformationRequest(method);
-        SourceInfo si = cast.getSourceInfo();
-        Number numberValue = ((JNumberLiteral) castedExpr).getNumber();
-        tr.append(new Replace(cast, refineCst(si, numberValue,
-            ((JPrimitiveType) cast.getType()).getPrimitiveTypeEnum())));
-        tracer.getStatistic(REFINED_CONSTANT).incValue();
+        if (cast.getType().isSameType(castedExpr.getType())) {
+          tr.append(new Replace(cast, castedExpr));
+        } else {
+          SourceInfo si = cast.getSourceInfo();
+          Number numberValue = ((JNumberLiteral) castedExpr).getNumber();
+          tr.append(new Replace(cast, refineCst(si, numberValue,
+              ((JPrimitiveType) cast.getType()).getPrimitiveTypeEnum())));
+          tracer.getStatistic(REFINED_CONSTANT).incValue();
+        }
         tr.commit();
       }
 
