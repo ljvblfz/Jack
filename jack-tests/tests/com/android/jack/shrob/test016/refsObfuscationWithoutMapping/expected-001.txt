@@ -21,3 +21,7 @@ com.android.jack.shrob.test016.jack.Annot4 -> com.android.jack.shrob.test016.jac
     java.lang.String value() -> value
 com.android.jack.shrob.test016.jack.A -> com.android.jack.shrob.test016.jack.N:
     void <init>() -> <init>
+com.android.jack.shrob.test016.jack.KeepClass2 -> com.android.jack.shrob.test016.jack.KeepClass2:
+    void <init>() -> <init>
+com.android.jack.shrob.test016.jack.KeepClass3 -> com.android.jack.shrob.test016.jack.KeepClass3:
+    void <init>() -> <init>
