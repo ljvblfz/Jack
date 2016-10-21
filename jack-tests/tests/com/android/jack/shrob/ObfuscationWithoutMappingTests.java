@@ -253,4 +253,14 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
     .compileAndRunTest();
   }
 
+  @Test
+  @Runtime
+  @KnownIssue
+  public void test63() throws Exception {
+    RuntimeTestInfo runtimeTestInfo = new RuntimeTestInfo(
+        new File(shrobTestsDir, "test063"),
+        "com.android.jack.shrob.test063.dx.Tests");
+    runtimeTestInfo.addProguardFlagsFileName("proguard.flags001");
+    new RuntimeTestHelper(runtimeTestInfo).compileAndRunTest(/* checkStructure = */ false);
+  }
 }
