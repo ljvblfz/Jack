@@ -48,7 +48,6 @@ public class LoopDoWhileBreak {
   public int loopWithUnusedLabel() {
     int a = 0;
     int i = 0;
-    label:
     do {
       a = a + 1;
       do {

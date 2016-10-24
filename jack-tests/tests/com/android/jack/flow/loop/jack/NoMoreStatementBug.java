@@ -18,15 +18,16 @@ package com.android.jack.flow.loop.jack;
 
 public class NoMoreStatementBug {
 
+  @SuppressWarnings("unused")
   public int loop() {
     int a = 0;
     label: {
-    for (int i = 0; i < 10; i = i + 1) {
+      for (int i = 0; i < 10; i = i + 1) {
         if (i == 5)
           continue;
-      a = a + i;
-    }
-    return a;
+        a = a + i;
+      }
+      return a;
     }
   }
 }

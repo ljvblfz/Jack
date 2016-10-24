@@ -50,7 +50,6 @@ public class LoopWhileBreak {
   public int loopWithUnusedLabel() {
     int a = 0;
     int i = 0;
-    label:
     while ( i < 10 ) {
       a = a + 1;
       boolean bool = true;

@@ -50,7 +50,6 @@ public class LoopWhileContinue {
   public int loopWithUnusedLabel() {
     int a = 0;
     int i = 0;
-    label:
     while ( i < 9 ) {
       i = i + 1;
       boolean bool = true;

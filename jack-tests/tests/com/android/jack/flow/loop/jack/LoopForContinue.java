@@ -43,7 +43,6 @@ public class LoopForContinue {
 
   public int loopWithUnusedLabel() {
     int a = 0;
-    label:
     for (int i = 0; i < 10; i = i + 1) {
       for (int j = 0; j<1; j = j + 1) {
         if (i == 5)
