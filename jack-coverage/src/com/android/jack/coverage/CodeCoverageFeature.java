@@ -36,7 +36,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Support code coverage")
 @HasKeyId
-public class CodeCoverage implements Feature {
+public class CodeCoverageFeature implements Feature {
 
   @Nonnull
   public static final BooleanPropertyId CODE_COVERVAGE = BooleanPropertyId

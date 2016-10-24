@@ -37,25 +37,39 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 /**
- * CodeCoevarge Jack plugin
+ * Code coverage plugin for Jack.
  */
-public class CodeCoveragePlugin extends SchedAnnotationProcessorBasedPlugin {
+public class CodeCoveragePlugin extends SchedAnnotationProcessorBasedPlugin {  /**
+   * The name of the plugin. It must NOT be changed to remain compatible with tools using it.
+   */
+  public static final String PLUGIN_NAME = "com.android.jack.coverage.CodeCoverage";
+
+  /**
+   * The friendly name of the plugin.
+   */
+  private static final String PLUGIN_FRIENDLY_NAME = "CodeCoverage";
+
+  /**
+   * A brief description of the plugin.
+   */
+  private static final String PLUGIN_DESCRIPTION = "Code coverage support 'a la' JaCoCo";
+
   @Override
   @Nonnull
   public String getCanonicalName() {
-    return CodeCoverage.class.getCanonicalName();
+    return PLUGIN_NAME;
   }
 
   @Override
   @Nonnull
   public String getFriendlyName() {
-    return "CodeCoverage";
+    return PLUGIN_FRIENDLY_NAME;
   }
 
   @Override
   @Nonnull
   public String getDescription() {
-    return "CodeCoverage support 'a la' JaCoCo";
+    return PLUGIN_DESCRIPTION;
   }
 
   @Override
@@ -64,7 +78,7 @@ public class CodeCoveragePlugin extends SchedAnnotationProcessorBasedPlugin {
     try {
       return new Version("jack-coverage-plugin", CodeCoveragePlugin.class.getClassLoader());
     } catch (IOException e) {
-      throw new AssertionError("Failed to find the version of the coverage plug-in", e);
+      throw new AssertionError("Failed to find the version of the coverage plugin", e);
     }
   }
 
@@ -73,8 +87,8 @@ public class CodeCoveragePlugin extends SchedAnnotationProcessorBasedPlugin {
   public FeatureSet getFeatures(@Nonnull Config config, @Nonnull Scheduler scheduler) {
     FeatureSet set = scheduler.createFeatureSet();
 
-    if (config.get(CodeCoverage.CODE_COVERVAGE).booleanValue()) {
-      set.add(CodeCoverage.class);
+    if (config.get(CodeCoverageFeature.CODE_COVERVAGE).booleanValue()) {
+      set.add(CodeCoverageFeature.class);
     }
 
     return set;
@@ -85,7 +99,7 @@ public class CodeCoveragePlugin extends SchedAnnotationProcessorBasedPlugin {
   public ProductionSet getProductions(@Nonnull Config config, @Nonnull Scheduler scheduler) {
     ProductionSet set = scheduler.createProductionSet();
 
-    if (config.get(CodeCoverage.CODE_COVERVAGE).booleanValue()) {
+    if (config.get(CodeCoverageFeature.CODE_COVERVAGE).booleanValue()) {
       set.add(CodeCoverageMetadataFile.class);
     }
 

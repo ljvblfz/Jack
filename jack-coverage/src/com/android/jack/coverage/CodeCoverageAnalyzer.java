@@ -48,7 +48,7 @@ import javax.annotation.Nonnull;
  * the method.
  */
 @Description("Code coverage analyzer")
-@Support(CodeCoverage.class)
+@Support(CodeCoverageFeature.class)
 @Constraint(need = {CodeCoverageMarker.Initialized.class, ControlFlowGraph.class})
 @Transform(
     add = {CodeCoverageMarker.Analyzed.class, ProbeMarker.class}, modify = CodeCoverageMarker.class)

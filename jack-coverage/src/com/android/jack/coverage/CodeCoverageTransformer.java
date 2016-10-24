@@ -100,7 +100,7 @@ import javax.annotation.Nonnull;
  * Instruments classes for code coverage.
  */
 @Description("Instruments classes for code coverage")
-@Support(CodeCoverage.class)
+@Support(CodeCoverageFeature.class)
 @Constraint(need = {CodeCoverageMarker.Analyzed.class, ProbeMarker.class, ControlFlowGraph.class,
     ThreeAddressCodeForm.class, NoImplicitBlock.class})
 @Transform(add = {CodeCoverageMarker.Complete.class, JField.class, JFieldRef.class, JMethod.class,
@@ -183,7 +183,8 @@ public class CodeCoverageTransformer  extends SourceDigestAdder
   @Nonnull
   private static JPackage lookupJacocoRuntimePackage(@Nonnull JLookup lookup)
       throws JacocoPackageNotFoundException {
-    JacocoPackage jacocoPackage = ThreadConfig.get(CodeCoverage.COVERAGE_JACOCO_PACKAGE_NAME);
+    JacocoPackage jacocoPackage =
+        ThreadConfig.get(CodeCoverageFeature.COVERAGE_JACOCO_PACKAGE_NAME);
     String jacocoPackageName = jacocoPackage.getPackageName();
     if (!jacocoPackageName.isEmpty()) {
       // The package name has been provided through property: lookup that package.
