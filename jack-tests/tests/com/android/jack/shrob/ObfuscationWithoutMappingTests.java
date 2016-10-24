@@ -16,9 +16,11 @@
 
 package com.android.jack.shrob;
 
+import com.android.jack.JackAbortException;
 import com.android.jack.Options;
 import com.android.jack.shrob.obfuscation.MappingApplier;
 import com.android.jack.shrob.obfuscation.NameProviderFactory;
+import com.android.jack.shrob.shrink.MappingContextException;
 import com.android.jack.test.comparator.ComparatorMapping;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
@@ -34,8 +36,11 @@ import com.android.jack.test.toolchain.JackApiV01;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
+import junit.framework.Assert;
+
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.Collections;
 
@@ -256,11 +261,35 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
   @Test
   @Runtime
   @KnownIssue
-  public void test63() throws Exception {
+  public void test63_001() throws Exception {
     RuntimeTestInfo runtimeTestInfo = new RuntimeTestInfo(
         new File(shrobTestsDir, "test063"),
         "com.android.jack.shrob.test063.dx.Tests");
     runtimeTestInfo.addProguardFlagsFileName("proguard.flags001");
     new RuntimeTestHelper(runtimeTestInfo).compileAndRunTest(/* checkStructure = */ false);
+  }
+
+  @Test
+  @Runtime
+  @KnownIssue
+  public void test63_002() throws Exception {
+    String testPackageName = "com.android.jack.shrob.test063";
+    File testFolder = AbstractTestTools.getTestRootDir(testPackageName);
+    File proguardFlagsFile = new File(testFolder, "proguard.flags002");
+    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+
+    try {
+      IToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+      toolchain.setErrorStream(errOut);
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+          .addProguardFlags(proguardFlagsFile).srcToExe(AbstractTestTools.createTempDir(),
+              /* zipFile = */false, AbstractTestTools.getTestRootDir(testPackageName + ".jack"));
+      Assert.fail();
+    } catch (JackAbortException jae) {
+      Assert.assertTrue(jae.getCause() instanceof MappingContextException);
+      String errString = errOut.toString();
+      Assert.assertTrue(errString.contains("could not be renamed to 'a' since the name was already "
+          + "used"));
+    }
   }
 }
