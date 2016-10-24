@@ -15,33 +15,40 @@
    limitations under the License.
 -->
 
-<project name="jack-coverage" default="jack-coverage-lib">
+<project name="jack-coverage" default="all">
 
-  <property name="jack-coverage-libs.dir" value="libs" />
-  <property name="jack-coverage-tools.dir" value="tools" />
-  <property name="jack-coverage-rsc.dir" value="rsc" />
-  <property name="jack-coverage-build.dir" value="build" />
+  <dirname property="jack-project.dir" file="${ant.file.jack-coverage}" />
+  <property name="jack-coverage-libs.dir" value="${jack-project.dir}/libs" />
+  <property name="jack-coverage-tools.dir" value="${jack-project.dir}/tools" />
+  <property name="jack-coverage-rsc.dir" value="${jack-project.dir}/rsc" />
+  <property name="jack-coverage-build.dir" value="${jack-project.dir}/build" />
   <property name="jack-coverage-build-classes.dir" value="${jack-coverage-build.dir}/classes" />
   <property name="jack-coverage-build-test-classes.dir"
             value="${jack-coverage-build.dir}/testClasses" />
-  <property name="jack-coverage-dist.dir" value="dist" />
+  <property name="jack-coverage-dist.dir" value="${jack-project.dir}/dist" />
   <property name="jack-coverage.execname" value="jack-coverage-plugin.jar" />
   <property name="jack-coverage-tests.execname" value="jack-coverage-tests.jar" />
-  <property name="jack.tests.output" value="testResults" />
-  <property name="jack.coverage.tests.output" value="${jack.tests.output}/test-jack-coverage" />
-  <property name="jack.coverage.tests.dump.dir" value="${jack-coverage-dist.dir}/dump" />
-  <property name="jack.coverage.tests.suite.name"
+  <property name="jack-coverage-tests.output.dir" value="${jack-project.dir}/testResults" />
+  <property name="jack-coverage-tests.dump.dir" value="${jack-coverage-dist.dir}/dump" />
+  <property name="jack-coverage-tests.suite.name"
             value="com.android.jack.coverage.AllCoverageTests" />
 
-  <target name="clean" description="deletes files produced by target 'jack-coverage-lib'">
-    <delete dir="build" />
-    <delete dir="dist" />
+  <target name="all"
+          description="Build plugin and tests"
+          depends="jack-coverage-plugin,jack-coverage-tests" />
+
+  <target name="clean" description="deletes files produced by all targets">
+    <delete dir="${jack-coverage-build.dir}" />
+    <delete dir="${jack-coverage-dist.dir}" />
+    <delete dir="${jack-coverage-libs.dir}" />
+    <delete dir="${jack-coverage-tools.dir}" />
+    <delete dir="${jack-coverage-tests.output.dir}" />
   </target>
 
-  <target name="update-libs"
+  <target name="copy-jack-libs-and-tools"
           description="update the project libraries (must be used at least once to install them)">
-    <mkdir dir="libs" />
-    <mkdir dir="tools" />
+    <mkdir dir="${jack-coverage-libs.dir}" />
+    <mkdir dir="${jack-coverage-tools.dir}" />
 
     <!-- Copy required libraries -->
     <copy file="../jack/dist/jack-lib.jar" todir="${jack-coverage-libs.dir}" />
@@ -56,9 +63,9 @@
 
   </target>
 
-  <target name="jack-coverage-lib"
+  <target name="jack-coverage-plugin"
           description="build Jack code coverage support"
-          depends="update-libs">
+          depends="copy-jack-libs-and-tools">
 
     <mkdir dir="${jack-coverage-build-classes.dir}" />
     <javac srcdir="src"
@@ -91,7 +98,9 @@
 
   </target>
 
-  <target name="jack-coverage-tests" description="build coverage tests" depends="jack-coverage-lib">
+  <target name="jack-coverage-tests"
+          description="build coverage tests"
+          depends="jack-coverage-plugin">
 
     <mkdir dir="${jack-coverage-build-test-classes.dir}" />
     <javac srcdir="tests"
@@ -155,10 +164,10 @@
 
   <target name="test-jack-coverage"
           description="run coverage tests"
-          depends="jack-coverage-lib,jack-coverage-tests,tests-check-config">
+          depends="jack-coverage-plugin,jack-coverage-tests,tests-check-config">
 
 
-    <mkdir dir="${jack.coverage.tests.output}/html" />
+    <mkdir dir="${jack-coverage-tests.output.dir}/html" />
     <java fork="true"
           resultproperty="test-jack.failure"
           classname="com.android.jack.test.junit.JackJunitLauncherXml">
@@ -171,15 +180,15 @@
       <classpath>
         <filelist refid="jack.junit.tests.classpath" />
       </classpath>
-      <arg value="${jack.coverage.tests.output}/test-jack-coverage.xml" />
-      <arg value="${jack.coverage.tests.suite.name}" />
+      <arg value="${jack-coverage-tests.output.dir}/test-jack-coverage.xml" />
+      <arg value="${jack-coverage-tests.suite.name}" />
       <arg line="${jack.tests.console-output}" />
     </java>
-    <junitreport todir="${jack.coverage.tests.output}">
-      <fileset dir="${jack.coverage.tests.output}">
+    <junitreport todir="${jack-coverage-tests.output.dir}">
+      <fileset dir="${jack-coverage-tests.output.dir}">
         <include name="test-jack-coverage.xml" />
       </fileset>
-      <report format="frames" todir="${jack.coverage.tests.output}/html" />
+      <report format="frames" todir="${jack-coverage-tests.output.dir}/html" />
     </junitreport>
     <fail message="TESTS FAILED">
       <condition>
@@ -189,11 +198,11 @@
   </target>
 
   <target name="test-jack-coverage-dump" depends="jack-coverage-tests,tests-check-config">
-    <mkdir dir="${jack.coverage.tests.dump.dir}" />
+    <mkdir dir="${jack-coverage-tests.dump.dir}" />
 
     <java fork="true"
           failonerror="true"
-          output="${jack.coverage.tests.dump.dir}/AllCoverageTests.js"
+          output="${jack-coverage-tests.dump.dir}/AllCoverageTests.js"
           classname="com.android.jack.test.junit.JackJUnitLauncher">
       <jvmarg value="-Dtests.dump=true" />
       <jvmarg value="-Dtests.config=${tests.config}" />
@@ -201,14 +210,12 @@
       <classpath>
         <filelist refid="jack.junit.tests.classpath" />
       </classpath>
-      <arg value="${jack.coverage.tests.suite.name}" />
+      <arg value="${jack-coverage-tests.suite.name}" />
     </java>
 
   </target>
 
-  <target name="dist"
-          description="distribution of the code coverage plugin"
-          depends="jack-coverage-lib">
+  <target name="dist" description="distribution of the code coverage plugin" depends="all">
     <!-- Placeholder for future release process -->
   </target>
 
