@@ -2192,14 +2192,26 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         break;
       }
       case POP: {
-        if (!cmpOperands.isEmpty()) {
+        if (isVirtualStackVariable(frame, TOP_OF_STACK)) {
           // Result of comparison must be pop
           cmpOperands.remove(getStackVariable(frame, TOP_OF_STACK));
         }
         break;
       }
       case NOP:
+        break;
       case POP2:{
+        if (isVirtualStackVariable(frame, TOP_OF_STACK)) {
+          // Result of comparison must be pop
+          cmpOperands.remove(getStackVariable(frame, TOP_OF_STACK));
+        }
+
+        if (getStackVariable(frame, TOP_OF_STACK).getType().getSize() == 1) {
+          if (isVirtualStackVariable(frame, TOP_OF_STACK - 1)) {
+            // Result of comparison must be pop
+            cmpOperands.remove(getStackVariable(frame, TOP_OF_STACK - 1));
+          }
+        }
         break;
       }
       case ATHROW: {
@@ -2697,7 +2709,16 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
 
   private void writeDup(@Nonnull Frame<BasicValue> frame, @Nonnull Frame<BasicValue> nextFrame)
       throws IOException {
-    writeAssign(frame, TOP_OF_STACK, nextFrame, TOP_OF_STACK);
+    if (isVirtualStackVariable(frame, TOP_OF_STACK)) {
+      // Virtual dup, stack variables will be transform as below:
+      // var_stk_top is virtual
+      // =>
+      // var_stk_top is virtual, var_stk_top-1 is virtual
+      cmpOperands.put(getStackVariable(nextFrame, TOP_OF_STACK),
+          cmpOperands.get(getStackVariable(frame, TOP_OF_STACK)));
+    } else {
+      writeAssign(frame, TOP_OF_STACK, nextFrame, TOP_OF_STACK);
+    }
   }
 
   private void writeDupX1(@Nonnull Frame<BasicValue> frame, @Nonnull Frame<BasicValue> nextFrame)
@@ -2717,8 +2738,26 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
 
   private void writeDup2(@Nonnull Frame<BasicValue> frame, @Nonnull Frame<BasicValue> nextFrame)
       throws IOException {
-    writeAssign(frame, TOP_OF_STACK, nextFrame, TOP_OF_STACK);
-    writeAssign(frame, TOP_OF_STACK - 1, nextFrame, TOP_OF_STACK - 1);
+    if (isVirtualStackVariable(frame, TOP_OF_STACK)) {
+      // Virtual dup, stack variables will be transform as below:
+      // var_stk_top is virtual, xxx
+      // =>
+      // new_var_stk_top is virtual, new_xxx, var_stk_top is virtual, xxx
+      cmpOperands.put(getStackVariable(nextFrame, TOP_OF_STACK),
+          cmpOperands.get(getStackVariable(frame, TOP_OF_STACK)));
+    } else {
+      writeAssign(frame, TOP_OF_STACK, nextFrame, TOP_OF_STACK);
+    }
+    if (isVirtualStackVariable(frame, TOP_OF_STACK - 1)) {
+      // Virtual dup, stack variables will be transform as below:
+      // xxx, var_stk_top-1 is virtual
+      // =>
+      // xxx, new_var_stk_top-1 is virtual, xxx, var_stk_top-1 is virtual
+      cmpOperands.put(getStackVariable(nextFrame, TOP_OF_STACK - 1),
+          cmpOperands.get(getStackVariable(frame, TOP_OF_STACK - 1)));
+    } else {
+      writeAssign(frame, TOP_OF_STACK - 1, nextFrame, TOP_OF_STACK - 1);
+    }
   }
 
   private void writeDup2X1(@Nonnull Frame<BasicValue> frame, @Nonnull Frame<BasicValue> nextFrame)
