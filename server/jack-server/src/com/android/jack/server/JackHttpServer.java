@@ -65,6 +65,7 @@ import com.android.jack.server.type.CommandOutRaw;
 import com.android.jack.server.type.ExactCodeVersionFinder;
 import com.android.jack.server.type.TextPlain;
 import com.android.sched.util.FinalizerRunner;
+import com.android.sched.util.SubReleaseKind;
 import com.android.sched.util.Version;
 import com.android.sched.util.codec.IntCodec;
 import com.android.sched.util.codec.PairCodec.Pair;
@@ -678,7 +679,7 @@ public class JackHttpServer implements HasVersion {
       try {
         URL[] path = new URL[]{jackJar.toURI().toURL()};
         JackProvider jackProvider = loadJack(path, Assertion.DISABLED);
-        Version version = new Version("jack", jackProvider.getClass().getClassLoader());
+        Version version = getJackVersion(jackProvider);
         Program<JackProvider> jackProgram = new Program<JackProvider>(version, jackJar, path);
         jackProgram.setLoadedProgram(Assertion.DISABLED, jackProvider);
         installedJack.put(new VersionKey(version), jackProgram);
@@ -972,20 +973,50 @@ public class JackHttpServer implements HasVersion {
   // We have no privilege restriction for now and there is no call back here from a Jack thread so
   // we should be fine keeping the code simple
   @SuppressFBWarnings("DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED")
+  @Nonnull
   public JackProvider loadJack(@Nonnull URL[] path, @Nonnull Assertion status)
       throws UnsupportedProgramException {
     URLClassLoader jackLoader;
     jackLoader = new URLClassLoaderWithProbe(path, this.getClass().getClassLoader());
     jackLoader.setDefaultAssertionStatus(status.isEnabled());
+    return getJackProvider(jackLoader, path);
+  }
+
+  @Nonnull
+  public static JackProvider getJackProvider(@Nonnull ClassLoader jackLoader, @Nonnull URL[] path)
+      throws UnsupportedProgramException {
     ServiceLoader<JackProvider> serviceLoader = ServiceLoader.load(JackProvider.class, jackLoader);
     JackProvider provider;
     try {
       provider = serviceLoader.iterator().next();
     } catch (NoSuchElementException | ServiceConfigurationError e) {
-      logger.log(Level.SEVERE, "Failed to load jack from " + Arrays.toString(path), e);
+      logger.log(Level.INFO, "Failed to load jack from " + Arrays.toString(path), e);
       throw new UnsupportedProgramException("Jack");
     }
     return provider;
+  }
+
+  @Nonnull
+  public static Version getJackVersion(@Nonnull JackProvider jackProvider)
+      throws UnsupportedProgramException {
+    SubReleaseKind subReleaseKind;
+    try {
+      subReleaseKind = SubReleaseKind.valueOf(jackProvider.getCompilerSubReleaseKind().name());
+    } catch (UnsupportedOperationException e) {
+      logger.log(Level.INFO, "Failed to load jack version: '"
+          + jackProvider.getCompilerSubReleaseKind().name()
+          + "' is not a supported sub-release kind", e);
+      throw new UnsupportedProgramException("Jack");
+    }
+    return new Version(
+        jackProvider.getCompilerReleaseName(),
+        jackProvider.getCompilerVersion(),
+        jackProvider.getCompilerReleaseCode(),
+        jackProvider.getCompilerSubReleaseCode(),
+        subReleaseKind,
+        "N/A",
+        jackProvider.getCompilerBuildId(),
+        jackProvider.getCompilerSourceCodeBase());
   }
 
   private void startTimer() {

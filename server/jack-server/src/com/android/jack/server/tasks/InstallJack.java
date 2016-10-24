@@ -20,6 +20,7 @@ import com.android.jack.api.JackProvider;
 import com.android.jack.server.JackHttpServer;
 import com.android.jack.server.JackHttpServer.Program;
 import com.android.jack.server.NoSuchVersionException;
+import com.android.jack.server.UnsupportedProgramException;
 import com.android.jack.server.type.ExactCodeVersionFinder;
 import com.android.sched.util.SubReleaseKind;
 import com.android.sched.util.Version;
@@ -89,16 +90,22 @@ public class InstallJack extends SynchronousAdministrativeTask {
       out.close();
       out = null;
 
-      URLClassLoader tmpLoader;
+      Version version;
       try {
-        tmpLoader = new URLClassLoader(new URL[] {tmpJack.toURI().toURL()},
+        final URL[] path = new URL[] {tmpJack.toURI().toURL()};
+        URLClassLoader tmpLoader = new URLClassLoader(path,
             this.getClass().getClassLoader());
+        JackProvider tmpProvider = JackHttpServer.getJackProvider(tmpLoader, path);
+        version = JackHttpServer.getJackVersion(tmpProvider);
       } catch (MalformedURLException e) {
         logger.log(Level.SEVERE, e.getMessage(), e);
         throw new AssertionError();
+      } catch (UnsupportedProgramException e) {
+        logger.log(Level.WARNING, "Uploaded jar does not contain a supported Jack");
+        response.setStatus(Status.BAD_REQUEST);
+        return;
       }
 
-      Version version = new Version("jack", tmpLoader);
       try {
         if (version.getSubReleaseKind() != SubReleaseKind.ENGINEERING) {
           jackServer.selectJack(
