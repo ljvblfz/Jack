@@ -17,12 +17,14 @@
 package com.android.jack.ir.ast.cfg;
 
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /** Represents exit CFG basic block */
@@ -33,25 +35,31 @@ public final class JExitBasicBlock extends JBasicBlock {
 
   @Override
   @Nonnull
-  public Iterable<JBasicBlock> successors() {
+  public List<JBasicBlock> getSuccessors() {
     return Collections.emptyList();
   }
 
   @Override
   @Nonnull
-  public List<JBasicBlockElement> elements(boolean forward) {
+  public List<JBasicBlockElement> getElements(boolean forward) {
     return Collections.emptyList();
+  }
+
+  @Nonnegative
+  @Override
+  public int getElementCount() {
+    return 0;
   }
 
   @Override
   @Nonnull
-  public JBasicBlockElement lastElement() {
+  public JBasicBlockElement getLastElement() {
     throw new AssertionError();
   }
 
   @Override
   @Nonnull
-  public JBasicBlockElement firstElement() {
+  public JBasicBlockElement getFirstElement() {
     throw new AssertionError();
   }
 
@@ -62,6 +70,10 @@ public final class JExitBasicBlock extends JBasicBlock {
 
   @Override
   public void appendElement(@Nonnull JBasicBlockElement element) {
+    throw new AssertionError();
+  }
+
+  @Override public void insertElement(int at, @Nonnull JBasicBlockElement element) {
     throw new AssertionError();
   }
 
@@ -89,5 +101,23 @@ public final class JExitBasicBlock extends JBasicBlock {
   @Override
   public void visit(@Nonnull JVisitor visitor, @Nonnull TransformRequest request) throws Exception {
     visitor.visit(this, request);
+  }
+
+  @Nonnull
+  @Override
+  public JSimpleBasicBlock split(int at) {
+    assert at == 0;
+
+    JSimpleBasicBlock block = new JSimpleBasicBlock(getCfg(), this);
+    block.appendElement(new JGotoBlockElement(SourceInfo.UNKNOWN));
+
+    // Re-point all the predecessors to a newly created simple block
+    for (JBasicBlock pre : this.getPredecessorsSnapshot()) {
+      if (pre != block) {
+        pre.replaceAllSuccessors(this, block);
+      }
+    }
+
+    return block;
   }
 }

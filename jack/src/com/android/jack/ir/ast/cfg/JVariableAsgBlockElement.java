@@ -17,6 +17,7 @@
 package com.android.jack.ir.ast.cfg;
 
 import com.android.jack.ir.ast.JAsgOperation;
+import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
@@ -30,8 +31,10 @@ public class JVariableAsgBlockElement extends JBasicBlockElement {
   @Nonnull
   private JAsgOperation asg;
 
-  JVariableAsgBlockElement(@Nonnull SourceInfo info, @Nonnull JAsgOperation asg) {
+  public JVariableAsgBlockElement(@Nonnull SourceInfo info, @Nonnull JAsgOperation asg) {
     super(info);
+    assert !asg.getLhs().canThrow();
+    assert asg.getLhs() instanceof JVariableRef;
     this.asg = asg;
     this.asg.updateParents(this);
   }

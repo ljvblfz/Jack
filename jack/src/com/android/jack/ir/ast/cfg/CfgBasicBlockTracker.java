@@ -82,61 +82,61 @@ public class CfgBasicBlockTracker implements RunnableSchedulable<JBasicBlock> {
       throw new AssertionError(block.getClass().getSimpleName());
     }
 
-    @Override public boolean visit(@Nonnull JBlockUnderConstruction block) {
+    @Override public boolean visit(@Nonnull JPlaceholderBasicBlock block) {
       throw new AssertionError();
     }
 
     @Override public boolean visit(@Nonnull JEntryBasicBlock block) {
       // Don't count in total
-      tracer.getStatistic(ENTRY_COUNT).add(block.elements(true).size());
+      tracer.getStatistic(ENTRY_COUNT).add(block.getElementCount());
       return false;
     }
 
     @Override public boolean visit(@Nonnull JExitBasicBlock block) {
       // Don't count in total
-      tracer.getStatistic(EXIT_COUNT).add(block.elements(true).size());
+      tracer.getStatistic(EXIT_COUNT).add(block.getElementCount());
       return false;
     }
 
     @Override public boolean visit(@Nonnull JCatchBasicBlock block) {
-      tracer.getStatistic(TOTAL_COUNT).add(block.elements(true).size());
-      tracer.getStatistic(CATCH_COUNT).add(block.elements(true).size());
+      tracer.getStatistic(TOTAL_COUNT).add(block.getElementCount());
+      tracer.getStatistic(CATCH_COUNT).add(block.getElementCount());
       return false;
     }
 
     @Override public boolean visit(@Nonnull JSimpleBasicBlock block) {
-      tracer.getStatistic(TOTAL_COUNT).add(block.elements(true).size());
-      tracer.getStatistic(SIMPLE_COUNT).add(block.elements(true).size());
+      tracer.getStatistic(TOTAL_COUNT).add(block.getElementCount());
+      tracer.getStatistic(SIMPLE_COUNT).add(block.getElementCount());
       return false;
     }
 
     @Override public boolean visit(@Nonnull JConditionalBasicBlock block) {
-      tracer.getStatistic(TOTAL_COUNT).add(block.elements(true).size());
-      tracer.getStatistic(CONDITIONAL_COUNT).add(block.elements(true).size());
+      tracer.getStatistic(TOTAL_COUNT).add(block.getElementCount());
+      tracer.getStatistic(CONDITIONAL_COUNT).add(block.getElementCount());
       return false;
     }
 
     @Override public boolean visit(@Nonnull JReturnBasicBlock block) {
-      tracer.getStatistic(TOTAL_COUNT).add(block.elements(true).size());
-      tracer.getStatistic(RETURN_COUNT).add(block.elements(true).size());
+      tracer.getStatistic(TOTAL_COUNT).add(block.getElementCount());
+      tracer.getStatistic(RETURN_COUNT).add(block.getElementCount());
       return false;
     }
 
     @Override public boolean visit(@Nonnull JSwitchBasicBlock block) {
-      tracer.getStatistic(TOTAL_COUNT).add(block.elements(true).size());
-      tracer.getStatistic(SWITCH_COUNT).add(block.elements(true).size());
+      tracer.getStatistic(TOTAL_COUNT).add(block.getElementCount());
+      tracer.getStatistic(SWITCH_COUNT).add(block.getElementCount());
       return false;
     }
 
     @Override public boolean visit(@Nonnull JThrowingExpressionBasicBlock block) {
-      tracer.getStatistic(TOTAL_COUNT).add(block.elements(true).size());
-      tracer.getStatistic(THROWING_EXPR_COUNT).add(block.elements(true).size());
+      tracer.getStatistic(TOTAL_COUNT).add(block.getElementCount());
+      tracer.getStatistic(THROWING_EXPR_COUNT).add(block.getElementCount());
       return false;
     }
 
     @Override public boolean visit(@Nonnull JThrowBasicBlock block) {
-      tracer.getStatistic(TOTAL_COUNT).add(block.elements(true).size());
-      tracer.getStatistic(THROW_COUNT).add(block.elements(true).size());
+      tracer.getStatistic(TOTAL_COUNT).add(block.getElementCount());
+      tracer.getStatistic(THROW_COUNT).add(block.getElementCount());
       return false;
     }
   };

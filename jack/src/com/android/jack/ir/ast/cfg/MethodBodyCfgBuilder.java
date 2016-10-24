@@ -16,8 +16,6 @@
 
 package com.android.jack.ir.ast.cfg;
 
-import com.google.common.collect.Lists;
-
 import com.android.jack.Options;
 import com.android.jack.cfg.BasicBlock;
 import com.android.jack.cfg.CatchBasicBlock;
@@ -67,7 +65,6 @@ import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
 
-import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -147,8 +144,8 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
       }
 
       // Create an under-construction pseudo-block
-      JBlockUnderConstruction ucBlock = new JBlockUnderConstruction(cfg);
-      processed.put(block, ucBlock);
+      JPlaceholderBasicBlock placeholderBlock = new JPlaceholderBasicBlock(cfg);
+      processed.put(block, placeholderBlock);
 
       // Process each kind of CFG marker blocks
       if (block instanceof PeiBasicBlock) {
@@ -172,12 +169,12 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
       } else if (block instanceof SwitchBasicBlock) {
         SwitchBasicBlock switchBasicBlock = (SwitchBasicBlock) block;
 
-        JSwitchBasicBlock throwingBlock =
+        JSwitchBasicBlock switchBlock =
             new JSwitchBasicBlock(cfg, buildBlock(switchBasicBlock.getDefaultBlock()));
         for (BasicBlock caseBlock : switchBasicBlock.getCasesBlock()) {
-          throwingBlock.addCase(buildBlock(caseBlock));
+          switchBlock.addCase(buildBlock(caseBlock));
         }
-        newBlock = throwingBlock;
+        newBlock = switchBlock;
 
       } else if (block instanceof ConditionalBasicBlock) {
         List<BasicBlock> successors = block.getSuccessors();
@@ -214,11 +211,7 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
       }
 
       // Replace temp block with real one and fix-up references
-      assert newBlock.isValid();
-      ArrayList<JBasicBlock> original = Lists.newArrayList(ucBlock.predecessors());
-      for (JBasicBlock predecessor : original) {
-        predecessor.replaceAllSuccessors(ucBlock, newBlock);
-      }
+      placeholderBlock.replaceWith(newBlock);
 
       processed.put(block, newBlock);
       return newBlock;
@@ -228,7 +221,10 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
     private static class BasicBlockEntryBuilder extends JVisitor {
       /** Basic block being built */
       private final JBasicBlock block;
-      /** Basic block being built */
+      /**
+       * Indicates the block is sealed, i.e. already saw potentially
+       * throwing expression, for assertion purpose only.
+       */
       private boolean sealed = false;
 
       private BasicBlockEntryBuilder(JBasicBlock block) {
@@ -266,6 +262,8 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
             addElement(new JStoreBlockElement(x.getSourceInfo(), asg));
           } else if (lhs instanceof JVariableRef) {
             addElement(new JVariableAsgBlockElement(x.getSourceInfo(), asg));
+          } else {
+            throw new AssertionError();
           }
 
         } else if (expr instanceof JMethodCall) {

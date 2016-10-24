@@ -16,6 +16,8 @@
 
 package com.android.jack.scheduling.adapter;
 
+import com.google.common.collect.Lists;
+
 import com.android.jack.ir.ast.cfg.JBasicBlock;
 import com.android.jack.ir.ast.cfg.JControlFlowGraph;
 import com.android.sched.item.Description;
@@ -39,6 +41,6 @@ public class JBasicBlockForwardDepthFirstAdapter
   @Override
   @Nonnull
   public Iterator<JBasicBlock> adapt(@Nonnull JControlFlowGraph cfg) {
-    return cfg.getBlocksDepthFirst(true).iterator();
+    return Lists.newArrayList(cfg.getBlocksDepthFirst(true)).iterator();
   }
 }

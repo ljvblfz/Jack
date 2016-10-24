@@ -30,7 +30,7 @@ public class JThrowBlockElement extends JBasicBlockElement {
   @Nonnull
   private JExpression expr;
 
-  JThrowBlockElement(@Nonnull SourceInfo info, @Nonnull JExpression expr) {
+  public JThrowBlockElement(@Nonnull SourceInfo info, @Nonnull JExpression expr) {
     super(info);
     assert !expr.canThrow();
     this.expr = expr;

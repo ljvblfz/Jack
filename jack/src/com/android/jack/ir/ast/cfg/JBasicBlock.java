@@ -16,13 +16,17 @@
 
 package com.android.jack.ir.ast.cfg;
 
+import com.google.common.collect.Lists;
+
 import com.android.jack.Jack;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Description;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /** Represents an abstract CFG basic block implementation */
@@ -31,7 +35,7 @@ public abstract class JBasicBlock extends JNode {
   @Nonnull
   private final ArrayList<JBasicBlock> predecessors = new ArrayList<>();
 
-  public JBasicBlock() {
+  JBasicBlock() {
     super(SourceInfo.UNKNOWN);
   }
 
@@ -42,42 +46,98 @@ public abstract class JBasicBlock extends JNode {
     return (JControlFlowGraph) parent;
   }
 
-  /** Validate the block */
-  public boolean isValid() {
-    return true;
-  }
-
-  /** Iterator over successors */
+  /** Immutable successors snapshot */
   @Nonnull
-  public abstract Iterable<JBasicBlock> successors();
+  public abstract List<JBasicBlock> getSuccessors();
 
-  /** Iterator over elements, can be forward or backward */
+  /** Immutable list of all block elements, can be forward or backward */
   @Nonnull
-  public abstract List<JBasicBlockElement> elements(boolean forward);
+  public abstract List<JBasicBlockElement> getElements(boolean forward);
 
-  /** Access to the first element, asserts if there is no elements */
-  @Nonnull
-  public abstract JBasicBlockElement firstElement();
+  /** Elements count */
+  @Nonnegative
+  public abstract int getElementCount();
 
-  /** Access to the last element, asserts if there is no elements */
+  /** Returns the first element, element must exist */
   @Nonnull
-  public abstract JBasicBlockElement lastElement();
+  public abstract JBasicBlockElement getFirstElement();
+
+  /** Returns the last element, element must exist */
+  @Nonnull
+  public abstract JBasicBlockElement getLastElement();
 
   /** Is the element list empty? */
   public abstract boolean hasElements();
 
-  /** Append a new basic block element the end of the basic block */
+  /** Appends a new basic block element at the end of the basic block */
   public abstract void appendElement(@Nonnull JBasicBlockElement element);
+
+  /**
+   * Inserts a new basic block element into the list of this basic block's elements.
+   * <p>
+   * Index may be positive or negative:
+   * <li> <b>at == 0</b>: `element` is inserted in the beginning </li>
+   * <li> <b>at == elementCount()</b>: equal to appendElement(element) </li>
+   * <li> <b>at == 1</b>: `element` is inserted after the first element
+   * (there must be at least one element already) </li>
+   * <li> <b>at == -1</b>: `element` is inserted before the last element
+   * (there must be at least one element already) </li>
+   */
+  public abstract void insertElement(int at, @Nonnull JBasicBlockElement element);
 
   /** Replace all the successors equal to 'what' with 'with' */
   public abstract void replaceAllSuccessors(@Nonnull JBasicBlock what, @Nonnull JBasicBlock with);
 
-  /** Iterator over predecessors */
-  public final Iterable<JBasicBlock> predecessors() {
+  /**
+   * Method dereferences *all* successors of the block by replacing all its successors
+   * with the basic block provided.
+   * Can be used for detaching the block from all the successors.
+   */
+  public void replaceAllSuccessors(@Nonnull JBasicBlock newBlock) {
+    for (JBasicBlock successor : new HashSet<>(getSuccessors())) {
+      replaceAllSuccessors(successor, newBlock);
+    }
+  }
+
+  /** Immutable predecessors' list */
+  public final List<JBasicBlock> getPredecessors() {
     return Jack.getUnmodifiableCollections().getUnmodifiableList(predecessors);
   }
 
-  /** Resets successor/predecessor references for replacing 'current' with 'candidate' */
+  /** Snapshot of predecessors' list */
+  public final List<JBasicBlock> getPredecessorsSnapshot() {
+    return Lists.newArrayList(predecessors);
+  }
+
+  /**
+   * Splits the block at the location 'at' into two blocks, with the first
+   * block being JSimpleBasicBlock with block elements [0..at> of the original
+   * basic block and the second block being the original block without block
+   * elements moved to the first block.
+   *
+   * Note that `at` may be negative, with semantics same as in `insertElement(...)`.
+   *
+   * Value of `at` must not be pointing after the last element of
+   * the block, since the last element must stay in the original block.
+   *
+   * <pre>
+   *   Original:
+   *      block {e0, e1, ... eAt, ... eN}
+   *
+   *   Split at '0':
+   *      simple-block {goto-element} ---> block {e0, e1, ... eAt, ... eN}
+   *
+   *   Split at I:
+   *      simple-block {e0, e1, ... e(I-1), goto-element} ---> block {eI, ... eN}
+   * </pre>
+   */
+  @Nonnull
+  public abstract JSimpleBasicBlock split(int at);
+
+  /**
+   * Resets successor/predecessor references for replacing 'current' with 'candidate',
+   * returns a new successor.
+   */
   @Nonnull
   JBasicBlock resetSuccessor(@Nonnull JBasicBlock current, @Nonnull JBasicBlock candidate) {
     if (candidate != current) {
@@ -89,6 +149,7 @@ public abstract class JBasicBlock extends JNode {
 
   /** Remove predecessor */
   private void removePredecessor(@Nonnull JBasicBlock predecessor) {
+    assert predecessors.contains(predecessor);
     int sizeM1 = predecessors.size() - 1;
     for (int idx = 0; idx < sizeM1; idx++) {
       if (predecessors.get(idx) == predecessor) {

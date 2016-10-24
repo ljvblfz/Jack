@@ -21,7 +21,6 @@ import com.android.jack.ir.HasSourceInfo;
 import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.cfg.JBasicBlock;
 import com.android.jack.ir.ast.cfg.JBasicBlockElement;
-import com.android.jack.ir.ast.cfg.JBlockUnderConstruction;
 import com.android.jack.ir.ast.cfg.JCaseBlockElement;
 import com.android.jack.ir.ast.cfg.JCatchBasicBlock;
 import com.android.jack.ir.ast.cfg.JConditionalBasicBlock;
@@ -32,6 +31,7 @@ import com.android.jack.ir.ast.cfg.JExitBasicBlock;
 import com.android.jack.ir.ast.cfg.JGotoBlockElement;
 import com.android.jack.ir.ast.cfg.JLockBlockElement;
 import com.android.jack.ir.ast.cfg.JMethodCallBlockElement;
+import com.android.jack.ir.ast.cfg.JPlaceholderBasicBlock;
 import com.android.jack.ir.ast.cfg.JPolymorphicMethodCallBlockElement;
 import com.android.jack.ir.ast.cfg.JRegularBasicBlock;
 import com.android.jack.ir.ast.cfg.JReturnBasicBlock;
@@ -211,7 +211,7 @@ public class JVisitor {
     endVisit((JBasicBlock) regularBasicBlock);
   }
 
-  public void endVisit(@Nonnull JBlockUnderConstruction blockUnderConstruction) {
+  public void endVisit(@Nonnull JPlaceholderBasicBlock blockUnderConstruction) {
     endVisit((JBasicBlock) blockUnderConstruction);
   }
 
@@ -729,7 +729,7 @@ public class JVisitor {
     return visit((JBasicBlock) regularBasicBlock);
   }
 
-  public boolean visit(@Nonnull JBlockUnderConstruction blockUnderConstruction) {
+  public boolean visit(@Nonnull JPlaceholderBasicBlock blockUnderConstruction) {
     return visit((JBasicBlock) blockUnderConstruction);
   }
 
@@ -1267,7 +1267,7 @@ public class JVisitor {
     visit((JBasicBlock) regularBasicBlock, transformRequest);
   }
 
-  public void visit(@Nonnull JBlockUnderConstruction blockUnderConstruction,
+  public void visit(@Nonnull JPlaceholderBasicBlock blockUnderConstruction,
       @Nonnull TransformRequest transformRequest) throws Exception {
     visit((JBasicBlock) blockUnderConstruction, transformRequest);
   }
@@ -1634,15 +1634,11 @@ public class JVisitor {
 
   /**
    * Visit of a {@link JNode} with a {@link TransformRequest} to apply on.
-   *
-   * @param jnode
-   *     visited {@link JNode}
-   * @param transformRequest
-   *     {@link TransformRequest} to apply on.
-   */
+   * @param jnode visited {@link JNode}
+   * @param transformRequest {@link TransformRequest} to apply on.
+   **/
   public void visit(@Nonnull JNode jnode, @Nonnull TransformRequest transformRequest)
-      throws Exception {
-  }
+      throws Exception { }
 
   public void visit(@Nonnull JNullLiteral nullLiteral, @Nonnull TransformRequest transformRequest)
       throws Exception {

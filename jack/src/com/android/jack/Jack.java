@@ -132,6 +132,9 @@ import com.android.jack.optimizations.NotSimplifier;
 import com.android.jack.optimizations.Optimizations;
 import com.android.jack.optimizations.UnusedDefinitionRemover;
 import com.android.jack.optimizations.UseDefsChainsSimplifier;
+import com.android.jack.optimizations.cfg.RemoveEmptyBasicBlocks;
+import com.android.jack.optimizations.cfg.RemoveRedundantConditionalBlocks;
+import com.android.jack.optimizations.cfg.RemoveUnreachableBasicBlocks;
 import com.android.jack.optimizations.common.DirectlyDerivedClassesProvider;
 import com.android.jack.optimizations.modifiers.ClassFinalizer;
 import com.android.jack.optimizations.modifiers.FieldFinalizer;
@@ -307,7 +310,6 @@ import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeBuilder
 import com.android.jack.transformations.typedef.TypeDefRemover;
 import com.android.jack.transformations.typedef.TypeDefRemover.RemoveTypeDef;
 import com.android.jack.transformations.uselessif.UselessIfChecker;
-import com.android.jack.transformations.uselessif.UselessIfRemover;
 import com.android.jack.util.collect.UnmodifiableCollections;
 import com.android.sched.item.Component;
 import com.android.sched.reflections.ReflectionFactory;
@@ -364,7 +366,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
@@ -1680,7 +1681,6 @@ public abstract class Jack {
           if (features.contains(Optimizations.ExpressionSimplifier.class)) {
             methodPlan4.append(ExpressionSimplifier.class);
           }
-          methodPlan4.append(UselessIfRemover.class);
           methodPlan4.append(CfgMarkerRemover.class);
           methodPlan4.append(CfgBuilder.class);
         }
@@ -1697,17 +1697,12 @@ public abstract class Jack {
         {
           SubPlanBuilder<JMethod> methodPlan5 =
               typePlan6.appendSubPlan(JMethodAdapter.class);
-          if (enableFieldValuePropagation ||
-              enableArgumentValuePropagation ||
-              enableWriteOnlyFieldRemoval) {
+          if (enableFieldValuePropagation || enableArgumentValuePropagation) {
             if (enableFieldValuePropagation) {
               methodPlan5.append(FvpPropagateFieldValues.class);
             }
             if (enableArgumentValuePropagation) {
               methodPlan5.append(AvpPropagateArgumentValues.class);
-            }
-            if (enableWriteOnlyFieldRemoval) {
-              methodPlan5.append(WofrRemoveFieldWrites.class);
             }
             methodPlan5.append(CfgMarkerRemover.class);
             methodPlan5.append(CfgBuilder.class);
@@ -1730,6 +1725,14 @@ public abstract class Jack {
       SubPlanBuilder<JControlFlowGraph> cfgPlan = planBuilder
           .appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
           .appendSubPlan(JMethodControlFlowGraphAdapter.class);
+
+      if (enableWriteOnlyFieldRemoval) {
+        cfgPlan.append(WofrRemoveFieldWrites.class);
+      }
+
+      cfgPlan.append(RemoveRedundantConditionalBlocks.class);
+      cfgPlan.append(RemoveEmptyBasicBlocks.class);
+      cfgPlan.append(RemoveUnreachableBasicBlocks.class);
 
       cfgPlan.append(ControlFlowGraphSizeTracker.class);
       cfgPlan

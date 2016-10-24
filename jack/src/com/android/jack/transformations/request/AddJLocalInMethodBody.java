@@ -16,6 +16,7 @@
 
 package com.android.jack.transformations.request;
 
+import com.android.jack.ir.ast.JConcreteMethodBody;
 import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.sched.transform.TransformStep;
@@ -31,9 +32,9 @@ public class AddJLocalInMethodBody implements TransformationStep, TransformStep 
   @Nonnull
   private final JLocal local;
   @Nonnull
-  private final JMethodBody methodBody;
+  private final JConcreteMethodBody methodBody;
 
-  public AddJLocalInMethodBody(@Nonnull JLocal local, @Nonnull JMethodBody methodBody) {
+  public AddJLocalInMethodBody(@Nonnull JLocal local, @Nonnull JConcreteMethodBody methodBody) {
     this.local = local;
     this.methodBody = methodBody;
   }

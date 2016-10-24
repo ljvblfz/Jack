@@ -23,6 +23,7 @@ import com.android.sched.transform.TransformRequest;
 
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /** Represents entry CFG basic block, has only one successor and no predecessors */
@@ -38,25 +39,31 @@ public final class JEntryBasicBlock extends JBasicBlock {
 
   @Override
   @Nonnull
-  public Iterable<JBasicBlock> successors() {
+  public List<JBasicBlock> getSuccessors() {
     return Collections.singletonList(next);
   }
 
   @Override
   @Nonnull
-  public List<JBasicBlockElement> elements(boolean forward) {
+  public List<JBasicBlockElement> getElements(boolean forward) {
     return Collections.emptyList();
+  }
+
+  @Nonnegative
+  @Override
+  public int getElementCount() {
+    return 0;
   }
 
   @Override
   @Nonnull
-  public JBasicBlockElement lastElement() {
+  public JBasicBlockElement getLastElement() {
     throw new AssertionError();
   }
 
   @Override
   @Nonnull
-  public JBasicBlockElement firstElement() {
+  public JBasicBlockElement getFirstElement() {
     throw new AssertionError();
   }
 
@@ -76,9 +83,20 @@ public final class JEntryBasicBlock extends JBasicBlock {
   }
 
   @Override
+  public void insertElement(int at, @Nonnull JBasicBlockElement element) {
+    throw new AssertionError();
+  }
+
+  @Override
   public void replaceAllSuccessors(@Nonnull JBasicBlock what, @Nonnull JBasicBlock with) {
     assert next == what;
     this.next = resetSuccessor(what, with);
+  }
+
+  @Nonnull
+  @Override
+  public JSimpleBasicBlock split(int at) {
+    throw new AssertionError();
   }
 
   @Override

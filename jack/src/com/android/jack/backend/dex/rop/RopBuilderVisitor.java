@@ -413,7 +413,7 @@ class RopBuilderVisitor extends JVisitor {
     noMoreInstruction = false;
 
     ArrayList<JBasicBlockElement> elements =
-        Lists.newArrayList(this.currentBasicBlock.elements(true));
+        Lists.newArrayList(this.currentBasicBlock.getElements(true));
     super.accept(elements);
   }
 
@@ -597,7 +597,7 @@ class RopBuilderVisitor extends JVisitor {
     IntList cases = new IntList();
     for (JBasicBlock caseBb : ((JSwitchBasicBlock) currentBasicBlock).getCases()) {
       assert caseBb.hasElements();
-      JBasicBlockElement firstElement = caseBb.firstElement();
+      JBasicBlockElement firstElement = caseBb.getFirstElement();
       assert firstElement instanceof JCaseBlockElement;
 
       JLiteral caseValue = ((JCaseBlockElement) firstElement).getLiteral();
@@ -1317,7 +1317,7 @@ class RopBuilderVisitor extends JVisitor {
 
     List<JType> catchTypes = new ArrayList<JType>();
 
-    for (JBasicBlock bb : block.getHandlers()) {
+    for (JBasicBlock bb : block.getCatchBlocks()) {
       for (JClass catchType : ((JCatchBasicBlock) bb).getCatchTypes()) {
         catchTypes.add(catchType);
       }

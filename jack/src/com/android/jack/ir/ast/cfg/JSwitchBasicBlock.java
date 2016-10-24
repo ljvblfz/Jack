@@ -50,10 +50,10 @@ public final class JSwitchBasicBlock extends JRegularBasicBlock {
     successors.addAll(cases);
   }
 
-  /** Add a new exception handler successor */
-  public void addCase(@Nonnull JBasicBlock handler) {
-    cases.add(handler);
-    handler.addPredecessor(this);
+  /** Add a new case block */
+  public void addCase(@Nonnull JBasicBlock block) {
+    cases.add(block);
+    block.addPredecessor(this);
   }
 
   @Nonnull

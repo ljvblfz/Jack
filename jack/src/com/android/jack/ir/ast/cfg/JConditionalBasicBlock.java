@@ -48,27 +48,43 @@ public final class JConditionalBasicBlock extends JRegularBasicBlock {
     return true;
   }
 
+  /** Primary successor is getIfTrue() unless the block marked as inverted */
   @Override
   @Nonnull
   public JBasicBlock getPrimarySuccessor() {
     return inverted ? getIfFalse() : getIfTrue();
   }
 
+  /** The other, not-primary successor */
   @Nonnull
   public JBasicBlock getAlternativeSuccessor() {
     return inverted ? getIfTrue() : getIfFalse();
   }
 
+  /** Returns the branch taken if the condition is `true` */
   @Nonnull
   public final JBasicBlock getIfTrue() {
     return super.getPrimarySuccessor();
   }
 
+  /** Returns the branch taken if the condition is `false` */
   @Nonnull
   public final JBasicBlock getIfFalse() {
     return ifFalse;
   }
 
+  @Nonnull
+  @Override
+  public JConditionalBlockElement getLastElement() {
+    JBasicBlockElement lastElement = super.getLastElement();
+    assert lastElement instanceof JConditionalBlockElement;
+    return (JConditionalBlockElement) lastElement;
+  }
+
+  /**
+   * Is `true` if getIfFalse() successor should be considered a primary successor,
+   * is used in codegen to indicate if ifTrue or ifFalse branch is default.
+   */
   public boolean isInverted() {
     return inverted;
   }
