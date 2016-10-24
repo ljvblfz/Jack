@@ -15,5 +15,5 @@
 .interface public abstract com/android/jack/jill/test004/jack/GreaterThan
 .super java/lang/Object
 
-.method abstract greaterThan(DD)Z
+.method public abstract greaterThan(DD)Z
 .end method
