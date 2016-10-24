@@ -24,81 +24,50 @@ public class Test004 {
 
   @Test
   public void test001() {
-    Assert.assertEquals(1.0 > 2.0, External.greaterThan1(1.0, 2.0));
-    Assert.assertEquals(2.0 > 1.0, External.greaterThan1(2.0, 1.0));
-    Assert.assertEquals(2.0 > 2.0, External.greaterThan1(2.0, 2.0));
-    Assert.assertEquals(2.0 > Double.NaN, External.greaterThan1(2.0, Double.NaN));
-    Assert.assertEquals(Double.NaN > Double.NaN, External.greaterThan1(Double.NaN, Double.NaN));
-    Assert.assertEquals(Double.NaN > 2.0, External.greaterThan1(Double.NaN, 2.0));
+    test(new External1());
   }
 
   @Test
   public void test002() {
-    Assert.assertEquals(1.0 > 2.0, External.greaterThan2(1.0, 2.0));
-    Assert.assertEquals(2.0 > 1.0, External.greaterThan2(2.0, 1.0));
-    Assert.assertEquals(2.0 > 2.0, External.greaterThan2(2.0, 2.0));
-    Assert.assertEquals(2.0 > Double.NaN, External.greaterThan2(2.0, Double.NaN));
-    Assert.assertEquals(Double.NaN > Double.NaN, External.greaterThan2(Double.NaN, Double.NaN));
-    Assert.assertEquals(Double.NaN > 2.0, External.greaterThan2(Double.NaN, 2.0));
+    test(new External2());
   }
 
   @Test
   public void test003() {
-    Assert.assertEquals(1.0 > 2.0, External.greaterThan3(1.0, 2.0));
-    Assert.assertEquals(2.0 > 1.0, External.greaterThan3(2.0, 1.0));
-    Assert.assertEquals(2.0 > 2.0, External.greaterThan3(2.0, 2.0));
-    Assert.assertEquals(2.0 > Double.NaN, External.greaterThan3(2.0, Double.NaN));
-    Assert.assertEquals(Double.NaN > Double.NaN, External.greaterThan3(Double.NaN, Double.NaN));
-    Assert.assertEquals(Double.NaN > 2.0, External.greaterThan3(Double.NaN, 2.0));
+    test(new External3());
   }
 
   @Test
   public void test004() {
-    Assert.assertEquals(1.0 > 2.0, External.greaterThan4(1.0, 2.0));
-    Assert.assertEquals(2.0 > 1.0, External.greaterThan4(2.0, 1.0));
-    Assert.assertEquals(2.0 > 2.0, External.greaterThan4(2.0, 2.0));
-    Assert.assertEquals(2.0 > Double.NaN, External.greaterThan4(2.0, Double.NaN));
-    Assert.assertEquals(Double.NaN > Double.NaN, External.greaterThan4(Double.NaN, Double.NaN));
-    Assert.assertEquals(Double.NaN > 2.0, External.greaterThan4(Double.NaN, 2.0));
+    test(new External4());
   }
 
   @Test
   public void test005() {
-    Assert.assertEquals(1.0 > 2.0, External.greaterThan5(1.0, 2.0));
-    Assert.assertEquals(2.0 > 1.0, External.greaterThan5(2.0, 1.0));
-    Assert.assertEquals(2.0 > 2.0, External.greaterThan5(2.0, 2.0));
-    Assert.assertEquals(2.0 > Double.NaN, External.greaterThan5(2.0, Double.NaN));
-    Assert.assertEquals(Double.NaN > Double.NaN, External.greaterThan5(Double.NaN, Double.NaN));
-    Assert.assertEquals(Double.NaN > 2.0, External.greaterThan5(Double.NaN, 2.0));
+    test(new External5());
   }
 
   @Test
   public void test006() {
-    Assert.assertEquals(1.0 > 2.0, External.greaterThan6(1.0, 2.0));
-    Assert.assertEquals(2.0 > 1.0, External.greaterThan6(2.0, 1.0));
-    Assert.assertEquals(2.0 > 2.0, External.greaterThan6(2.0, 2.0));
-    Assert.assertEquals(2.0 > Double.NaN, External.greaterThan6(2.0, Double.NaN));
-    Assert.assertEquals(Double.NaN > Double.NaN, External.greaterThan6(Double.NaN, Double.NaN));
-    Assert.assertEquals(Double.NaN > 2.0, External.greaterThan6(Double.NaN, 2.0));
+    test(new External6());
   }
 
   @Test
   public void test007() {
-    Assert.assertEquals(1.0 > 2.0, External.greaterThan7(1.0, 2.0));
-    Assert.assertEquals(2.0 > 1.0, External.greaterThan7(2.0, 1.0));
-    Assert.assertEquals(2.0 > 2.0, External.greaterThan7(2.0, 2.0));
-    Assert.assertEquals(2.0 > Double.NaN, External.greaterThan7(2.0, Double.NaN));
-    Assert.assertEquals(Double.NaN > Double.NaN, External.greaterThan7(Double.NaN, Double.NaN));
-    Assert.assertEquals(Double.NaN > 2.0, External.greaterThan7(Double.NaN, 2.0));
+    test(new External7());
   }
 
   @Test
   public void test008() {
-    Assert.assertEquals(1.0 > 2.0, External.greaterThan8(1.0, 2.0));
-    Assert.assertEquals(2.0 > 1.0, External.greaterThan8(2.0, 1.0));
-    Assert.assertEquals(2.0 > 2.0, External.greaterThan8(2.0, 2.0));
-    Assert.assertEquals(2.0 > Double.NaN, External.greaterThan8(2.0, Double.NaN));
-    Assert.assertEquals(Double.NaN > Double.NaN, External.greaterThan8(Double.NaN, Double.NaN));
-    Assert.assertEquals(Double.NaN > 2.0, External.greaterThan8(Double.NaN, 2.0));
+    test(new External8());
+  }
+
+  private void test(GreaterThan gt) {
+    Assert.assertEquals(1.0 > 2.0, gt.greaterThan(1.0, 2.0));
+    Assert.assertEquals(2.0 > 1.0, gt.greaterThan(2.0, 1.0));
+    Assert.assertEquals(2.0 > 2.0, gt.greaterThan(2.0, 2.0));
+    Assert.assertEquals(2.0 > Double.NaN, gt.greaterThan(2.0, Double.NaN));
+    Assert.assertEquals(Double.NaN > Double.NaN, gt.greaterThan(Double.NaN, Double.NaN));
+    Assert.assertEquals(Double.NaN > 2.0, gt.greaterThan(Double.NaN, 2.0));
   }
 }
