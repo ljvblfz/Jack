@@ -84,6 +84,7 @@ public final class JControlFlowGraph extends JNode {
 
   @Override
   public void traverse(@Nonnull final JVisitor visitor) {
+    // NOTE: forward depth-first basic blocks traversal
     if (visitor.visit(this)) {
       for (JBasicBlock block : getBlocksDepthFirst(true)) {
         visitor.accept(block);
@@ -96,6 +97,7 @@ public final class JControlFlowGraph extends JNode {
   public void traverse(
       @Nonnull final ScheduleInstance<? super Component> schedule) throws Exception {
     schedule.process(this);
+    // NOTE: forward depth-first basic blocks traversal
     for (JBasicBlock block : getBlocksDepthFirst(true)) {
       block.traverse(schedule);
     }

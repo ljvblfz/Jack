@@ -30,7 +30,7 @@ public class JMethodCallBlockElement extends JBasicBlockElement {
   @Nonnull
   private JMethodCall call;
 
-  JMethodCallBlockElement(@Nonnull SourceInfo info, @Nonnull JMethodCall call) {
+  public JMethodCallBlockElement(@Nonnull SourceInfo info, @Nonnull JMethodCall call) {
     super(info);
     this.call = call;
     this.call.updateParents(this);

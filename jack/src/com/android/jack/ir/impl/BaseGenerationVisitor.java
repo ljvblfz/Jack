@@ -77,6 +77,7 @@ import com.android.jack.ir.ast.JLock;
 import com.android.jack.ir.ast.JLongLiteral;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
+import com.android.jack.ir.ast.JMethodBodyCfg;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JMethodIdRef;
@@ -112,6 +113,31 @@ import com.android.jack.ir.ast.JTryStatement;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JUnlock;
 import com.android.jack.ir.ast.JWhileStatement;
+import com.android.jack.ir.ast.cfg.JBasicBlock;
+import com.android.jack.ir.ast.cfg.JBasicBlockElement;
+import com.android.jack.ir.ast.cfg.JCaseBlockElement;
+import com.android.jack.ir.ast.cfg.JCatchBasicBlock;
+import com.android.jack.ir.ast.cfg.JConditionalBasicBlock;
+import com.android.jack.ir.ast.cfg.JConditionalBlockElement;
+import com.android.jack.ir.ast.cfg.JControlFlowGraph;
+import com.android.jack.ir.ast.cfg.JEntryBasicBlock;
+import com.android.jack.ir.ast.cfg.JExitBasicBlock;
+import com.android.jack.ir.ast.cfg.JGotoBlockElement;
+import com.android.jack.ir.ast.cfg.JLockBlockElement;
+import com.android.jack.ir.ast.cfg.JMethodCallBlockElement;
+import com.android.jack.ir.ast.cfg.JPlaceholderBasicBlock;
+import com.android.jack.ir.ast.cfg.JPolymorphicMethodCallBlockElement;
+import com.android.jack.ir.ast.cfg.JRegularBasicBlock;
+import com.android.jack.ir.ast.cfg.JReturnBlockElement;
+import com.android.jack.ir.ast.cfg.JSimpleBasicBlock;
+import com.android.jack.ir.ast.cfg.JStoreBlockElement;
+import com.android.jack.ir.ast.cfg.JSwitchBasicBlock;
+import com.android.jack.ir.ast.cfg.JSwitchBlockElement;
+import com.android.jack.ir.ast.cfg.JThrowBasicBlock;
+import com.android.jack.ir.ast.cfg.JThrowBlockElement;
+import com.android.jack.ir.ast.cfg.JThrowingExpressionBasicBlock;
+import com.android.jack.ir.ast.cfg.JUnlockBlockElement;
+import com.android.jack.ir.ast.cfg.JVariableAsgBlockElement;
 import com.android.jack.ir.formatter.SourceFormatter;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.util.TextOutput;
@@ -121,8 +147,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
-
+import java.util.Map;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -180,6 +208,9 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
   protected boolean needSemi = true;
 
   protected boolean suppressType = false;
+
+  @CheckForNull
+  protected Map<JBasicBlock, String> cfgBlocks = null;
 
   public BaseGenerationVisitor(TextOutput textOutput) {
     super(textOutput);
@@ -885,6 +916,238 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
   @Override
   public boolean visit(@Nonnull JMethodBody x) {
     accept(x.getBlock());
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JMethodBodyCfg x) {
+    accept(x.getCfg());
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JControlFlowGraph x) {
+    openBlock();
+    needSemi = false;
+    assert this.cfgBlocks == null;
+
+    Map<JBasicBlock, String> cfgBlocks = new LinkedHashMap<>();
+    this.cfgBlocks = cfgBlocks;
+    for (JBasicBlock block : x.getBlocksDepthFirst(true)) {
+      int size = cfgBlocks.size();
+      String id = String.format("bb#%1$03d", Integer.valueOf(size));
+      cfgBlocks.put(block, id);
+    }
+    for (Map.Entry<JBasicBlock, String> entry : cfgBlocks.entrySet()) {
+      print(entry.getValue());
+      print(": ");
+      accept(entry.getKey());
+    }
+    closeBlock();
+
+    this.cfgBlocks = null;
+    return false;
+  }
+
+  private void printBlockIds(@Nonnull Iterable<JBasicBlock> blocks) {
+    print("{");
+    String sep = " ";
+    for (JBasicBlock block : blocks) {
+      print(sep);
+      if (cfgBlocks != null && cfgBlocks.containsKey(block)) {
+        print(cfgBlocks.get(block));
+      } else {
+        print("???");
+      }
+      sep = ", ";
+    }
+    print(" }");
+  }
+
+  private void printBlockCommon(@Nonnull JRegularBasicBlock block) {
+    if (block.hasPrimarySuccessor()) {
+      print("; primary: ");
+      if (cfgBlocks != null && cfgBlocks.containsKey(block)) {
+        print(cfgBlocks.get(block.getPrimarySuccessor()));
+      } else {
+        print("???");
+      }
+    }
+    printBlockCommon((JBasicBlock) block);
+  }
+
+  private void printBlockCommon(@Nonnull JBasicBlock block) {
+    print("; suc: ");
+    printBlockIds(block.getSuccessors());
+    print("; pre: ");
+    printBlockIds(block.getPredecessors());
+    newline();
+
+    List<JBasicBlockElement> elements = block.getElements(true);
+    for (int i = 0; i < elements.size(); i++) {
+      print(String.format("  e%1$03d: ", Integer.valueOf(i)));
+      accept(elements.get(i));
+      newline();
+    }
+  }
+
+  @Override
+  public boolean visit(@Nonnull JBasicBlock x) {
+    throw new AssertionError(x.getClass());
+  }
+
+  @Override
+  public boolean visit(@Nonnull JPlaceholderBasicBlock x) {
+    print("placeholder");
+    printBlockCommon(x);
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JEntryBasicBlock x) {
+    print("entry");
+    printBlockCommon(x);
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JExitBasicBlock x) {
+    print("exit");
+    printBlockCommon(x);
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JRegularBasicBlock x) {
+    print("return");
+    printBlockCommon(x);
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JThrowBasicBlock x) {
+    print("throw");
+    printBlockCommon(x);
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JThrowingExpressionBasicBlock x) {
+    print("throwing expr");
+    printBlockCommon(x);
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JSwitchBasicBlock x) {
+    print("switch");
+    printBlockCommon(x);
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JCatchBasicBlock x) {
+    print("catch");
+    printBlockCommon(x);
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JSimpleBasicBlock x) {
+    print("simple");
+    printBlockCommon(x);
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JConditionalBasicBlock x) {
+    print("conditional");
+    printBlockCommon(x);
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JBasicBlockElement x) {
+    throw new AssertionError(x.getClass());
+  }
+
+  private void printElementCommon(@Nonnull String name, @CheckForNull JExpression expr) {
+    print(name);
+    if (expr != null) {
+      print("; expr: ");
+      accept(expr);
+    }
+  }
+
+  @Override
+  public boolean visit(@Nonnull JMethodCallBlockElement x) {
+    printElementCommon("method call", x.getCall());
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JStoreBlockElement x) {
+    printElementCommon("store", x.getAssignment());
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JVariableAsgBlockElement x) {
+    printElementCommon("var", x.getAssignment());
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JLockBlockElement x) {
+    printElementCommon("lock", x.getExpression());
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JUnlockBlockElement x) {
+    printElementCommon("unlock", x.getExpression());
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JSwitchBlockElement x) {
+    printElementCommon("switch", x.getExpression());
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JReturnBlockElement x) {
+    printElementCommon("return", x.getExpression());
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JConditionalBlockElement x) {
+    printElementCommon("condition", x.getCondition());
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JThrowBlockElement x) {
+    printElementCommon("throw", x.getExpression());
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JPolymorphicMethodCallBlockElement x) {
+    printElementCommon("poly-call", x.getCall());
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JGotoBlockElement x) {
+    printElementCommon("goto", null);
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JCaseBlockElement x) {
+    printElementCommon("case", x.getLiteral());
     return false;
   }
 

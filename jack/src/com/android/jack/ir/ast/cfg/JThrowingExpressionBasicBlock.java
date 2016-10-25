@@ -24,7 +24,7 @@ import com.android.sched.util.findbugs.SuppressFBWarnings;
 
 import javax.annotation.Nonnull;
 
-/** Represents blocks ended by expression that can potentially trigger exceptions. */
+/** Represents blocks which potentially may trigger exceptions. */
 public final class JThrowingExpressionBasicBlock extends JThrowingBasicBlock {
   @SuppressFBWarnings("NP_METHOD_PARAMETER_TIGHTENS_ANNOTATION")
   public JThrowingExpressionBasicBlock(@Nonnull JControlFlowGraph cfg,
@@ -55,5 +55,13 @@ public final class JThrowingExpressionBasicBlock extends JThrowingBasicBlock {
   @Override
   public boolean hasPrimarySuccessor() {
     return true;
+  }
+
+  /**
+   * Removes the basic block by redirecting all the predecessors to point to the
+   * primary successor of this block.
+   */
+  public void delete() {
+    deleteByRedirectingToPrimarySuccessor();
   }
 }

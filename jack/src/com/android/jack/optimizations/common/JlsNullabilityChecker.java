@@ -86,7 +86,7 @@ public final class JlsNullabilityChecker {
    * </pre>
    */
   @Nonnull
-  public JStatement createNullCheck(
+  private JStatement createNullCheck(
       @Nonnull JExpression expr, @Nonnull TransformationRequest request) {
     SourceInfo srcInfo = expr.getSourceInfo();
     return new JIfStatement(

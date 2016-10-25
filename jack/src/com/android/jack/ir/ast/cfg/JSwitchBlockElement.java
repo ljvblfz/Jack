@@ -17,6 +17,7 @@
 package com.android.jack.ir.ast.cfg;
 
 import com.android.jack.ir.ast.JExpression;
+import com.android.jack.ir.ast.JPrimitiveType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
@@ -33,6 +34,8 @@ public class JSwitchBlockElement extends JBasicBlockElement {
   JSwitchBlockElement(@Nonnull SourceInfo info, @Nonnull JExpression expr) {
     super(info);
     assert !expr.canThrow();
+    assert !JPrimitiveType.JPrimitiveTypeEnum.VOID.getType().isSameType(expr.getType());
+    assert expr.getType() instanceof JPrimitiveType;
     this.expr = expr;
     this.expr.updateParents(this);
   }

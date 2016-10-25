@@ -32,10 +32,10 @@ import javax.annotation.Nonnull;
 public class JLocal extends JVariable implements HasEnclosingMethod {
 
   @CheckForNull
-  private JMethodBody enclosingMethodBody;
+  private JConcreteMethodBody enclosingMethodBody;
 
   public JLocal(SourceInfo info, String name, JType type, int modifier,
-      @CheckForNull JMethodBody enclosingMethodBody) {
+      @CheckForNull JConcreteMethodBody enclosingMethodBody) {
     super(info, name, type, modifier);
     assert JModifier.isLocalModifier(modifier);
     this.enclosingMethodBody = enclosingMethodBody;

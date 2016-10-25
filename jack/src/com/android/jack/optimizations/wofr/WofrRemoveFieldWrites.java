@@ -17,27 +17,24 @@
 package com.android.jack.optimizations.wofr;
 
 import com.android.jack.Jack;
-import com.android.jack.cfg.BasicBlock;
-import com.android.jack.cfg.ControlFlowGraph;
-import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JExpression;
-import com.android.jack.ir.ast.JExpressionStatement;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JFieldRef;
-import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JPrimitiveType;
-import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JThisRef;
+import com.android.jack.ir.ast.cfg.BasicBlockLiveProcessor;
+import com.android.jack.ir.ast.cfg.JControlFlowGraph;
+import com.android.jack.ir.ast.cfg.JSimpleBasicBlock;
+import com.android.jack.ir.ast.cfg.JStoreBlockElement;
+import com.android.jack.ir.ast.cfg.JThrowingExpressionBasicBlock;
+import com.android.jack.ir.ast.cfg.mutations.CfgFragment;
+import com.android.jack.ir.ast.cfg.mutations.ExceptionCatchBlocks;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.optimizations.Optimizations;
-import com.android.jack.optimizations.common.JlsNullabilityChecker;
+import com.android.jack.optimizations.cfg.CfgJlsNullabilityChecker;
 import com.android.jack.transformations.LocalVarCreator;
-import com.android.jack.transformations.request.AppendBefore;
-import com.android.jack.transformations.request.PrependAfter;
-import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
@@ -49,21 +46,16 @@ import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /** Write-only field removal, second phase: remove field assignments */
 @Description("Write-only field removal, field writes removal")
-@Constraint(need = { ControlFlowGraph.class,
-                     JFieldRef.class,
-                     FieldReadWriteCountsMarker.class })
-@Transform(modify = FieldReadWriteCountsMarker.class,
-    add = JExpressionStatement.class)
+@Constraint(need = { FieldReadWriteCountsMarker.class, JFieldRef.class })
+@Transform(modify = { FieldReadWriteCountsMarker.class, JControlFlowGraph.class })
 @Name("WriteOnlyFieldRemoval: RemoveFieldWrites")
-@Use({ JlsNullabilityChecker.class,
-       LocalVarCreator.class })
+@Use({ CfgJlsNullabilityChecker.class, LocalVarCreator.class })
 public class WofrRemoveFieldWrites extends WofrSchedulable
-    implements RunnableSchedulable<JMethod> {
+    implements RunnableSchedulable<JControlFlowGraph> {
 
   private final boolean preserveObjectLifetime =
       ThreadConfig.get(Optimizations.WriteOnlyFieldRemoval.PRESERVE_OBJECT_LIFETIME).booleanValue();
@@ -84,17 +76,14 @@ public class WofrRemoveFieldWrites extends WofrSchedulable
   private enum Action {
     /** Field is either not eligible for optimization or write cannot be removed */
     None,
-    /** Field write can be replaced with just expression */
-    Expression,
-    /** Field write can be replaced with receiver and expression */
-    ReceiverAndExpression,
-    /** Field write can be replaced with receiver, expression and null-check */
-    ReceiverExpressionAndNullCheck
+    /** Field write can be removed */
+    Remove,
+    /** Field write can be removed, but a null-check need to be added */
+    RemoveAndAddNullCheck
   }
 
   /** Classify field assignment */
   private Action classify(@Nonnull JMethod method, @Nonnull JFieldRef ref) {
-
     JField field = ref.getFieldId().getField();
     if (field == null ||
         !field.getAnnotations(disablingAnnotationType).isEmpty() ||
@@ -107,7 +96,7 @@ public class WofrRemoveFieldWrites extends WofrSchedulable
     }
 
     if (FieldReadWriteCountsMarker.hasReads(field)) {
-      return Action.None; // The field is read
+      return Action.None; // The field has reads
     }
 
     JDefinedClassOrInterface fieldOwningType = field.getEnclosingType();
@@ -135,120 +124,88 @@ public class WofrRemoveFieldWrites extends WofrSchedulable
     if (field.isStatic() || ref.getInstance() instanceof JThisRef) {
       // The field is static OR the field is an instance field accessed
       // via this reference: no side-effects while calculating receiver
-      return Action.Expression;
+      return Action.Remove;
     }
 
     assert !field.isStatic();
-
-    return preserveNullChecks
-        ? Action.ReceiverExpressionAndNullCheck
-        : Action.ReceiverAndExpression;
+    return preserveNullChecks ? Action.RemoveAndAddNullCheck : Action.Remove;
   }
 
   @Override
-  public void run(@Nonnull final JMethod method) {
-    if (method.isAbstract() || method.isNative()) {
-      return;
-    }
+  public void run(@Nonnull final JControlFlowGraph cfg) {
+    final TransformationRequest request = new TransformationRequest(cfg);
+    final CfgJlsNullabilityChecker nullChecker =
+        new CfgJlsNullabilityChecker(cfg,
+            new LocalVarCreator(cfg.getMethod(), "wofr"), phantomLookup);
 
-    final TransformationRequest request = new TransformationRequest(method);
-    final LocalVarCreator varCreator = new LocalVarCreator(method, "wofr");
-    final JlsNullabilityChecker nullChecker = new JlsNullabilityChecker(varCreator, phantomLookup);
+    // Create a processor to walk the cfg and remove the writes, note that
+    // even though we insert the new basic blocks, we don't need to update
+    // the processor to know about these newly created blocks, since they
+    // don't have any field writes we might want to process.
 
-    class Processor {
-      private void handleExprStmt(@Nonnull JExpressionStatement stmt) {
-        JExpression expr = stmt.getExpr();
-        if (expr instanceof JAsgOperation) {
-          JAsgOperation asg = (JAsgOperation) expr;
-          JExpression lhs = asg.getLhs();
-          if (lhs instanceof JFieldRef) {
-            JFieldRef ref = (JFieldRef) lhs;
-
-            switch (classify(method, ref)) {
-              case None:
-                // Cannot remove field assignment
-                return;
-
-              case ReceiverExpressionAndNullCheck:
-                // Replace received with temp local
-                JLocal local = handleFieldReceiver(asg, true);
-                assert local != null;
-                // Replace assignment expression with rhs
-                handleAssignmentRhs(asg);
-                // Append null-check
-                JStatement nullCheck =
-                    nullChecker.createNullCheck(
-                        local.makeRef(local.getSourceInfo()), request);
-                request.append(new PrependAfter(stmt, nullCheck));
-                break;
-
-              case ReceiverAndExpression:
-                // Prepend statement with expression statement representing <receiver>
-                handleFieldReceiver(asg, false);
-                // Replace assignment expression with rhs
-                handleAssignmentRhs(asg);
-                break;
-
-              case Expression:
-                // Replace assignment expression with rhs
-                handleAssignmentRhs(asg);
-                break;
-            }
-
-            JField field = ref.getFieldId().getField();
-            assert field != null;
-            FieldReadWriteCountsMarker.unmarkWrite(field);
-            tracer.getStatistic(FIELD_WRITES_REMOVED).incValue();
-          }
+    new BasicBlockLiveProcessor(/* stepIntoElements = */ true) {
+      @Override
+      public boolean visit(@Nonnull JStoreBlockElement element) {
+        JFieldRef ref = element.getLhsAsFieldRef();
+        if (ref == null) {
+          return false;
         }
-      }
+        JExpression value = element.getValueExpression();
+        assert !value.canThrow();
 
-      private void handleAssignmentRhs(@Nonnull JAsgOperation asg) {
-        JExpression rhs = asg.getRhs();
-        if (rhs instanceof JMethodCall) {
-          request.append(new Replace(asg, rhs));
-        } else {
-          JExpression lhs = asg.getLhs();
-          JLocal local =
-              varCreator.createTempLocal(
-                  lhs.getType(), lhs.getSourceInfo(), request);
-          request.append(new Replace(lhs, local.makeRef(local.getSourceInfo())));
-        }
-      }
-
-      @CheckForNull
-      private JLocal handleFieldReceiver(@Nonnull JAsgOperation asg, boolean forceLocal) {
-        JExpression receiver = ((JFieldRef) asg.getLhs()).getInstance();
-        assert receiver != null;
-
-        JLocal local = null;
-
-        if (!(receiver instanceof JMethodCall) || forceLocal) {
-          // Need a temp local
-          local = varCreator.createTempLocal(
-              receiver.getType(), receiver.getSourceInfo(), request);
-          receiver = new JAsgOperation(
-              receiver.getSourceInfo(), local.makeRef(receiver.getSourceInfo()), receiver);
+        Action action = classify(cfg.getMethod(), ref);
+        if (action == Action.None) {
+          // Cannot remove field assignment
+          return false;
         }
 
-        JExpressionStatement stmt =
-            new JExpressionStatement(asg.getSourceInfo(), receiver);
-        request.append(new AppendBefore(asg.getParent(), stmt));
-        return local;
-      }
-    }
+        // Field store operation must be the LAST element of
+        // the throwing expression basic block.
+        JThrowingExpressionBasicBlock block = element.getBasicBlock();
+        assert block.getLastElement() == element;
 
-    Processor processor = new Processor();
-    ControlFlowGraph cfg = method.getMarker(ControlFlowGraph.class);
-    assert cfg != null;
+        // We first split the basic block into two parts:
+        //
+        //        block { e0, e1, ...,  eLast (== element) }
+        //                      |  |  |
+        //                      V  V  V
+        //    simple { e0, e1, ..., goto }  -->  block { eLast }
+        //
+        JSimpleBasicBlock simple = block.split(-1);
 
-    for (BasicBlock bb : cfg.getNodes()) {
-      for (JStatement stmt : bb.getStatements()) {
-        if (stmt instanceof JExpressionStatement) {
-          processor.handleExprStmt((JExpressionStatement) stmt);
+        if (action == Action.RemoveAndAddNullCheck) {
+          // The null-check is needed, we insert it in between the two blocks
+          JExpression instance = ref.getInstance();
+          assert instance != null;
+          assert !instance.canThrow();
+
+          CfgFragment nullCheckFragment =
+              nullChecker.createNullCheck(
+                  ExceptionCatchBlocks.fromThrowingBlock(block), instance, request);
+
+          nullCheckFragment.insert(simple, block);
         }
+
+        // Delete the block, since we remove the write
+        assert block.getElementCount() == 1;
+        assert block.getLastElement() == element;
+        block.delete();
+
+        // Unmark the write
+        JField field = ref.getFieldId().getField();
+        assert field != null;
+        FieldReadWriteCountsMarker.unmarkWrite(field);
+        tracer.getStatistic(FIELD_WRITES_REMOVED).incValue();
+
+        return false;
       }
-    }
+
+      @Nonnull
+      @Override
+      public JControlFlowGraph getCfg() {
+        return cfg;
+      }
+    }.process();
 
     request.commit();
   }

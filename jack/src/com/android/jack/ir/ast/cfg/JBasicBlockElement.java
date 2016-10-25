@@ -20,20 +20,22 @@ import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
-import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 
 import javax.annotation.Nonnull;
 
-/**
- * Represents an abstract CFG basic block element. Carries such information
- * as an expression and the original statement source location.
- */
-@Description("CFG Basic Block Element")
+/** Represents an abstract CFG basic block element. */
 public abstract class JBasicBlockElement extends JNode {
   JBasicBlockElement(@Nonnull SourceInfo info) {
     super(info);
+  }
+
+  @Nonnull
+  public JBasicBlock getBasicBlock() {
+    JNode parent = getParent();
+    assert parent instanceof JBasicBlock;
+    return (JBasicBlock) parent;
   }
 
   /** Is this a terminal basic block element */

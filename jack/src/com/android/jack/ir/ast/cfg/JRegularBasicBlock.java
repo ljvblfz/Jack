@@ -18,13 +18,16 @@ package com.android.jack.ir.ast.cfg;
 
 import com.google.common.collect.ImmutableList;
 
+import com.android.jack.Jack;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.scheduler.ScheduleInstance;
 
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -49,17 +52,17 @@ public abstract class JRegularBasicBlock extends JBasicBlock {
 
   @Override
   @Nonnull
-  public List<JBasicBlockElement> elements(final boolean forward) {
+  public List<JBasicBlockElement> getElements(final boolean forward) {
     ImmutableList<JBasicBlockElement> list = ImmutableList.copyOf(elements);
     return forward ? list : list.reverse();
   }
 
   @Override
   @Nonnull
-  public final ArrayList<JBasicBlock> successors() {
+  public final List<JBasicBlock> getSuccessors() {
     ArrayList<JBasicBlock> result = new ArrayList<>();
     collectSuccessors(result);
-    return result;
+    return Jack.getUnmodifiableCollections().getUnmodifiableList(result);
   }
 
   void collectSuccessors(@Nonnull ArrayList<JBasicBlock> successors) {
@@ -73,9 +76,8 @@ public abstract class JRegularBasicBlock extends JBasicBlock {
   public abstract boolean hasPrimarySuccessor();
 
   /**
-   * Returns block's primary successor.
-   *
-   * Throws an exception if hasPrimarySuccessor() returns false.
+   * Returns block's primary successor. Used in codegen.
+   * Valid only if the primary successor exists, see hasPrimarySuccessor().
    */
   @Nonnull
   public JBasicBlock getPrimarySuccessor() {
@@ -93,14 +95,14 @@ public abstract class JRegularBasicBlock extends JBasicBlock {
 
   @Override
   @Nonnull
-  public JBasicBlockElement lastElement() {
+  public JBasicBlockElement getLastElement() {
     assert elements.size() > 0;
     return elements.get(elements.size() - 1);
   }
 
   @Override
   @Nonnull
-  public JBasicBlockElement firstElement() {
+  public JBasicBlockElement getFirstElement() {
     assert elements.size() > 0;
     return elements.get(0);
   }
@@ -110,9 +112,32 @@ public abstract class JRegularBasicBlock extends JBasicBlock {
     return !elements.isEmpty();
   }
 
+  @Nonnegative
+  @Override
+  public int getElementCount() {
+    return elements.size();
+  }
+
   @Override
   public void appendElement(@Nonnull JBasicBlockElement element) {
     elements.add(element);
+    element.updateParents(this);
+  }
+
+  @Override
+  public void insertElement(int at, @Nonnull JBasicBlockElement element) {
+    int size = elements.size();
+    if (at < 0) {
+      at = size + at;
+    }
+    assert at >= 0 && at <= size;
+
+    if (at == size) {
+      appendElement(element);
+    } else {
+      elements.add(at, getLastElement());
+      element.updateParents(this);
+    }
   }
 
   final void acceptElements(@Nonnull JVisitor visitor) {
@@ -129,5 +154,62 @@ public abstract class JRegularBasicBlock extends JBasicBlock {
   @Override
   public void checkValidity() {
     super.checkValidity();
+  }
+
+  @Nonnull
+  @Override
+  public JSimpleBasicBlock split(int at) {
+    List<JBasicBlockElement> elements = this.elements;
+
+    int size = elements.size();
+    if (at < 0) {
+      at = size + at;
+    }
+    assert at >= 0 && at < size;
+
+    JSimpleBasicBlock block = new JSimpleBasicBlock(getCfg(), this);
+
+    // Move elements to a new block and append goto element at the end
+    for (int i = 0; i < at; i++) {
+      block.appendElement(elements.get(i));
+    }
+    block.appendElement(new JGotoBlockElement(SourceInfo.UNKNOWN));
+
+    // Remove elements from this block
+    if (at > 0) {
+      int dest = 0;
+      for (int src = at; src < size; src++) {
+        elements.set(dest++, elements.get(src));
+      }
+      while (dest < size) {
+        elements.remove(--size);
+      }
+    }
+
+    // Re-point all the predecessors to a newly created simple block
+    for (JBasicBlock pre : this.getPredecessorsSnapshot()) {
+      if (pre != block) {
+        pre.replaceAllSuccessors(this, block);
+      }
+    }
+
+    return block;
+  }
+
+  /**
+   * Removes the basic block by redirecting all the predecessors to point to the
+   * primary successor of this block.
+   */
+  final void deleteByRedirectingToPrimarySuccessor() {
+    assert hasPrimarySuccessor();
+    JBasicBlock primary = getPrimarySuccessor();
+
+    // Redirect all the successors to point the primary successor of this block
+    for (JBasicBlock pre : this.getPredecessorsSnapshot()) {
+      pre.replaceAllSuccessors(this, primary);
+    }
+
+    // Dereference the block from all successors
+    replaceAllSuccessors(new JPlaceholderBasicBlock(getCfg()));
   }
 }

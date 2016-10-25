@@ -23,50 +23,53 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
-/**
- * Represents blocks ended by statement that can potentially trigger exceptions.
- */
+/** Represents blocks which potentially may trigger exceptions. */
 public abstract class JThrowingBasicBlock extends JRegularBasicBlock {
+  /** Successor for unhandled exception */
   @Nonnull
-  private JBasicBlock unhandled;
+  private JBasicBlock unhandledBlock;
   @Nonnull
-  private List<JBasicBlock> handlers = new ArrayList<>();
+  private List<JBasicBlock> catchBlocks = new ArrayList<>();
 
-  JThrowingBasicBlock(@CheckForNull JBasicBlock primary, @Nonnull JBasicBlock unhandled) {
+  JThrowingBasicBlock(@CheckForNull JBasicBlock primary, @Nonnull JBasicBlock unhandledBlock) {
     super(primary);
-    this.unhandled = unhandled;
-    this.unhandled.addPredecessor(this);
+    this.unhandledBlock = unhandledBlock;
+    this.unhandledBlock.addPredecessor(this);
   }
 
   @Override
   void collectSuccessors(@Nonnull ArrayList<JBasicBlock> successors) {
     super.collectSuccessors(successors);
-    successors.add(unhandled);
-    successors.addAll(handlers);
+    successors.add(unhandledBlock);
+    successors.addAll(catchBlocks);
   }
 
   /** Add a new exception handler successor */
   public void addHandler(@Nonnull JBasicBlock handler) {
-    handlers.add(handler);
+    catchBlocks.add(handler);
     handler.addPredecessor(this);
   }
 
   @Nonnull
-  public List<JBasicBlock> getHandlers() {
-    return Jack.getUnmodifiableCollections().getUnmodifiableList(handlers);
+  public List<JBasicBlock> getCatchBlocks() {
+    return Jack.getUnmodifiableCollections().getUnmodifiableList(catchBlocks);
+  }
+
+  @Nonnull
+  public JBasicBlock getUnhandledBlock() {
+    return unhandledBlock;
   }
 
   @Override
   public void replaceAllSuccessors(@Nonnull JBasicBlock what, @Nonnull JBasicBlock with) {
     super.replaceAllSuccessors(what, with);
 
-    if (this.unhandled == what) {
-      this.unhandled = resetSuccessor(what, with);
+    if (this.unhandledBlock == what) {
+      this.unhandledBlock = resetSuccessor(what, with);
     }
-    for (int i = 0; i < handlers.size(); i++) {
-      if (handlers.get(i) == what) {
-        assert with instanceof JCatchBasicBlock;
-        handlers.set(i, resetSuccessor(what, with));
+    for (int i = 0; i < catchBlocks.size(); i++) {
+      if (catchBlocks.get(i) == what) {
+        catchBlocks.set(i, resetSuccessor(what, with));
       }
     }
   }

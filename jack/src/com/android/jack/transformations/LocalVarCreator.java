@@ -17,9 +17,9 @@
 package com.android.jack.transformations;
 
 import com.android.jack.ir.ast.JAbstractMethodBody;
+import com.android.jack.ir.ast.JConcreteMethodBody;
 import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.sourceinfo.SourceInfo;
@@ -38,7 +38,7 @@ import javax.annotation.Nonnull;
 public class LocalVarCreator {
 
   @Nonnull
-  private final JMethodBody currentMethodBody;
+  private final JConcreteMethodBody currentMethodBody;
   @Nonnull
   private final String tmpLocalVarPrefix;
   @Nonnegative
@@ -52,8 +52,8 @@ public class LocalVarCreator {
   public LocalVarCreator(@Nonnull JMethod method, @Nonnull String prefix) {
     JAbstractMethodBody body = method.getBody();
     assert body != null;
-    assert body instanceof JMethodBody;
-    currentMethodBody = (JMethodBody) body;
+    assert body instanceof JConcreteMethodBody;
+    currentMethodBody = (JConcreteMethodBody) body;
     tmpLocalVarPrefix = prefix;
   }
 

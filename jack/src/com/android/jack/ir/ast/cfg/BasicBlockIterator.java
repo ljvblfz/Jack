@@ -23,7 +23,7 @@ import javax.annotation.Nonnull;
 
 /** Simplifies iterations through basic blocks */
 public abstract class BasicBlockIterator {
-  /** Processes basic block, returns false if the iterations should be stopped */
+  /** Processes basic block, returns `false` if the iterations should be stopped */
   public abstract boolean process(@Nonnull JBasicBlock block);
 
   /** Get control flow graph to work on */
@@ -43,14 +43,16 @@ public abstract class BasicBlockIterator {
       JBasicBlock block = stack.pop();
       assert stacked.contains(block);
 
-      for (JBasicBlock next : (forward ? block.successors() : block.predecessors())) {
+      for (JBasicBlock next : (forward ? block.getSuccessors() : block.getPredecessors())) {
         if (!stacked.contains(next)) {
           stack.push(next);
           stacked.add(next);
         }
       }
 
-      process(block);
+      if (!process(block)) {
+        break;
+      }
     }
   }
 }

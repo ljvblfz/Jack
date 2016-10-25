@@ -23,40 +23,48 @@ import com.android.sched.transform.TransformRequest;
 
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
  * Represents a special basic block to be used as a temporary block
  * representation during CFG construction.
  *
- * NOTE: the block can have any number of predecessors, but no successors.
+ * NOTE: the block can have any number of predecessors, but no successors
+ * or elements.
  */
-public final class JBlockUnderConstruction extends JBasicBlock {
-  public JBlockUnderConstruction(@Nonnull JControlFlowGraph cfg) {
+public final class JPlaceholderBasicBlock extends JBasicBlock {
+  public JPlaceholderBasicBlock(@Nonnull JControlFlowGraph cfg) {
     updateParents(cfg);
   }
 
   @Override
   @Nonnull
-  public Iterable<JBasicBlock> successors() {
+  public List<JBasicBlock> getSuccessors() {
     return Collections.emptyList();
   }
 
   @Override
   @Nonnull
-  public List<JBasicBlockElement> elements(boolean forward) {
+  public List<JBasicBlockElement> getElements(boolean forward) {
+    throw new AssertionError();
+  }
+
+  @Nonnegative
+  @Override
+  public int getElementCount() {
+    return 0;
+  }
+
+  @Override
+  @Nonnull
+  public JBasicBlockElement getLastElement() {
     throw new AssertionError();
   }
 
   @Override
   @Nonnull
-  public JBasicBlockElement lastElement() {
-    throw new AssertionError();
-  }
-
-  @Override
-  @Nonnull
-  public JBasicBlockElement firstElement() {
+  public JBasicBlockElement getFirstElement() {
     throw new AssertionError();
   }
 
@@ -71,7 +79,18 @@ public final class JBlockUnderConstruction extends JBasicBlock {
   }
 
   @Override
+  public void insertElement(int at, @Nonnull JBasicBlockElement element) {
+    throw new AssertionError();
+  }
+
+  @Override
   public void replaceAllSuccessors(@Nonnull JBasicBlock what, @Nonnull JBasicBlock with) {
+    throw new AssertionError();
+  }
+
+  @Nonnull
+  @Override
+  public JSimpleBasicBlock split(int at) {
     throw new AssertionError();
   }
 
@@ -90,5 +109,16 @@ public final class JBlockUnderConstruction extends JBasicBlock {
 
   @Override
   public void visit(@Nonnull JVisitor visitor, @Nonnull TransformRequest request) throws Exception {
+  }
+
+  /**
+   * Removes the basic block by redirecting all the predecessors to point to the
+   * the specified `block`.
+   */
+  public void replaceWith(@Nonnull JBasicBlock block) {
+    // Redirect all the successors to point the primary successor of this block
+    for (JBasicBlock pre : this.getPredecessorsSnapshot()) {
+      pre.replaceAllSuccessors(this, block);
+    }
   }
 }

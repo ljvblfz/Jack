@@ -276,8 +276,8 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
             IntList successors = new IntList();
             int primarySuccessor = -1;
 
-            if (!bb.getHandlers().isEmpty()) {
-              addCatchBlockSuccessors(bb.getHandlers(), successors);
+            if (!bb.getCatchBlocks().isEmpty()) {
+              addCatchBlockSuccessors(bb.getCatchBlocks(), successors);
             }
             successors.setImmutable();
 
@@ -297,7 +297,7 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
             int extraBlockLabel = ropBb.getAvailableLabel();
 
             IntList successors = new IntList();
-            addCatchBlockSuccessors(bb.getHandlers(), successors);
+            addCatchBlockSuccessors(bb.getCatchBlocks(), successors);
 
             successors.add(extraBlockLabel);
             successors.setImmutable();
@@ -376,7 +376,7 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
 
           private SourcePosition getLastElementPosition(@Nonnull JBasicBlock bb) {
             return RopHelper.getSourcePosition(bb.hasElements() ?
-                bb.lastElement().getSourceInfo() : SourceInfo.UNKNOWN);
+                bb.getLastElement().getSourceInfo() : SourceInfo.UNKNOWN);
           }
 
           private void addCatchBlockSuccessors(

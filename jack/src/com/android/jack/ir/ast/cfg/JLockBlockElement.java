@@ -17,6 +17,7 @@
 package com.android.jack.ir.ast.cfg;
 
 import com.android.jack.ir.ast.JExpression;
+import com.android.jack.ir.ast.JReferenceType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
@@ -33,6 +34,7 @@ public class JLockBlockElement extends JBasicBlockElement {
   JLockBlockElement(@Nonnull SourceInfo info, @Nonnull JExpression expr) {
     super(info);
     assert !expr.canThrow();
+    assert expr.getType() instanceof JReferenceType;
     this.expr = expr;
     this.expr.updateParents(this);
   }

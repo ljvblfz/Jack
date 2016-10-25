@@ -16,13 +16,17 @@
 
 package com.android.jack.ir.ast.cfg;
 
+import com.android.jack.ir.ast.JArrayRef;
 import com.android.jack.ir.ast.JAsgOperation;
+import com.android.jack.ir.ast.JExpression;
+import com.android.jack.ir.ast.JFieldRef;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /** Represents field or array element store basic block element */
@@ -30,9 +34,10 @@ public class JStoreBlockElement extends JBasicBlockElement {
   @Nonnull
   private JAsgOperation asg;
 
-  JStoreBlockElement(@Nonnull SourceInfo info, @Nonnull JAsgOperation asg) {
+  public JStoreBlockElement(@Nonnull SourceInfo info, @Nonnull JAsgOperation asg) {
     super(info);
     assert asg.getLhs().canThrow();
+    assert asg.getLhs() instanceof JFieldRef || asg.getLhs() instanceof JArrayRef;
     this.asg = asg;
     this.asg.updateParents(this);
   }
@@ -40,6 +45,31 @@ public class JStoreBlockElement extends JBasicBlockElement {
   @Nonnull
   public JAsgOperation getAssignment() {
     return asg;
+  }
+
+  @CheckForNull
+  public JFieldRef getLhsAsFieldRef() {
+    JExpression lhs = asg.getLhs();
+    return (lhs instanceof JFieldRef) ? (JFieldRef) lhs : null;
+  }
+
+  @CheckForNull
+  public JArrayRef getLhsAsArrayRef() {
+    JExpression lhs = asg.getLhs();
+    return (lhs instanceof JArrayRef) ? (JArrayRef) lhs : null;
+  }
+
+  @Nonnull
+  public JExpression getValueExpression() {
+    return asg.getRhs();
+  }
+
+  @Override
+  @Nonnull
+  public JThrowingExpressionBasicBlock getBasicBlock() {
+    JBasicBlock block = super.getBasicBlock();
+    assert block instanceof JThrowingExpressionBasicBlock;
+    return (JThrowingExpressionBasicBlock) block;
   }
 
   @Override

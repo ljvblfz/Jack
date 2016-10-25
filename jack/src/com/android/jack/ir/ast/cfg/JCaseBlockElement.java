@@ -28,6 +28,7 @@ import javax.annotation.Nonnull;
 
 /** Represents case branch value basic block element */
 public class JCaseBlockElement extends JBasicBlockElement {
+  /** The value is null in case the block represents the default case of the switch */
   @CheckForNull
   private JLiteral literal;
 

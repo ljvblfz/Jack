@@ -55,4 +55,12 @@ public final class JSimpleBasicBlock extends JRegularBasicBlock {
   public void visit(@Nonnull JVisitor visitor, @Nonnull TransformRequest request) throws Exception {
     visitor.visit(this, request);
   }
+
+  /**
+   * Removes the basic block by redirecting all the predecessors to point to the
+   * primary successor of this block.
+   */
+  public void delete() {
+    deleteByRedirectingToPrimarySuccessor();
+  }
 }

@@ -17,6 +17,7 @@
 package com.android.jack.ir.ast.cfg;
 
 import com.android.jack.ir.ast.JExpression;
+import com.android.jack.ir.ast.JPrimitiveType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
@@ -30,9 +31,10 @@ public class JConditionalBlockElement extends JBasicBlockElement {
   @Nonnull
   private JExpression cond;
 
-  JConditionalBlockElement(@Nonnull SourceInfo info, @Nonnull JExpression cond) {
+  public JConditionalBlockElement(@Nonnull SourceInfo info, @Nonnull JExpression cond) {
     super(info);
     assert !cond.canThrow();
+    assert JPrimitiveType.JPrimitiveTypeEnum.BOOLEAN.getType().isSameType(cond.getType());
     this.cond = cond;
     this.cond.updateParents(this);
   }
@@ -40,6 +42,14 @@ public class JConditionalBlockElement extends JBasicBlockElement {
   @Nonnull
   public JExpression getCondition() {
     return cond;
+  }
+
+  @Override
+  @Nonnull
+  public JConditionalBasicBlock getBasicBlock() {
+    JBasicBlock block = super.getBasicBlock();
+    assert block instanceof JConditionalBasicBlock;
+    return (JConditionalBasicBlock) block;
   }
 
   @Override
