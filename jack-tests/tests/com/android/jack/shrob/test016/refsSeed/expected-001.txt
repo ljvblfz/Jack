@@ -15,3 +15,7 @@ com.android.jack.shrob.test016.jack.KeepClass: java.lang.String value6()
 com.android.jack.shrob.test016.jack.KeepClass: java.lang.String value7()
 com.android.jack.shrob.test016.jack.KeepClass: java.lang.String value8()
 com.android.jack.shrob.test016.jack.KeepClass: java.lang.String value9()
+com.android.jack.shrob.test016.jack.KeepClass2
+com.android.jack.shrob.test016.jack.KeepClass2: KeepClass2()
+com.android.jack.shrob.test016.jack.KeepClass3
+com.android.jack.shrob.test016.jack.KeepClass3: KeepClass3()

@@ -275,8 +275,15 @@ public class GrammarActions {
 
   @Nonnull
   static ClassSpecification classSpec(/* @Nonnull */
-      String name, boolean hasNameNegator, @Nonnull ClassTypeSpecification classType, /* @Nonnull */
+      List<NameSpecification> classNames,
+      @Nonnull ClassTypeSpecification classType, /* @Nonnull */
       AnnotationSpecification annotation, @Nonnull ModifierSpecification modifier) {
+    ClassSpecification classSpec = new ClassSpecification(classNames, classType, annotation);
+    classSpec.setModifier(modifier);
+    return classSpec;
+  }
+
+  static NameSpecification className(/* @Nonnull */ String name, boolean hasNameNegator) {
     NameSpecification nameSpec;
     if (name.equals("*")) {
       nameSpec = name("**", FilterSeparator.CLASS);
@@ -284,9 +291,7 @@ public class GrammarActions {
       nameSpec = name(name, FilterSeparator.CLASS);
     }
     nameSpec.setNegator(hasNameNegator);
-    ClassSpecification classSpec = new ClassSpecification(nameSpec, classType, annotation);
-    classSpec.setModifier(modifier);
-    return classSpec;
+    return nameSpec;
   }
 
   static void method(@Nonnull ClassSpecification classSpec,

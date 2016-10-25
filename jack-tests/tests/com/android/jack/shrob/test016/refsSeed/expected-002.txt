@@ -1,1 +1,3 @@
 com.android.jack.shrob.test016.jack.KeepClass
+com.android.jack.shrob.test016.jack.KeepClass2
+com.android.jack.shrob.test016.jack.KeepClass3

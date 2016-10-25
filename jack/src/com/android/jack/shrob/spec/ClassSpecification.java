@@ -44,7 +44,7 @@ public class ClassSpecification implements Specification<JDefinedClassOrInterfac
   private final ClassTypeSpecification classType;
 
   @Nonnull
-  private final NameSpecification name;
+  private final List<NameSpecification> nameSpecs;
 
   @CheckForNull
   private InheritanceSpecification inheritance;
@@ -56,13 +56,14 @@ public class ClassSpecification implements Specification<JDefinedClassOrInterfac
   private final List<MethodSpecification> methodSpecs = new ArrayList<MethodSpecification>();
 
   public ClassSpecification(
-      @Nonnull NameSpecification name,
+      @Nonnull List<NameSpecification> names,
       @Nonnull ClassTypeSpecification classType,
       @CheckForNull AnnotationSpecification annotation) {
-    this.name = name;
     this.classType = classType;
     this.annotationType = annotation;
     this.keepModifier = new KeepModifier();
+    assert !names.isEmpty();
+    this.nameSpecs = names;
   }
 
   @Nonnull
@@ -102,7 +103,15 @@ public class ClassSpecification implements Specification<JDefinedClassOrInterfac
       return false;
     }
 
-    if (!name.matches(GrammarActions.getSourceFormatter().getName(type))) {
+    boolean matchedName = false;
+    for (NameSpecification name : nameSpecs) {
+      if (name.matches(GrammarActions.getSourceFormatter().getName(type))) {
+        matchedName = true;
+        break;
+      }
+    }
+
+    if (!matchedName) {
       return false;
     }
 
@@ -120,6 +129,10 @@ public class ClassSpecification implements Specification<JDefinedClassOrInterfac
   @CheckForNull
   public ModifierSpecification getModifier() {
     return modifier;
+  }
+
+  public void add(@Nonnull NameSpecification nameSpecification) {
+    nameSpecs.add(nameSpecification);
   }
 
   public void add(@Nonnull MethodSpecification methodSpecification) {
@@ -150,9 +163,11 @@ public class ClassSpecification implements Specification<JDefinedClassOrInterfac
     }
 
     sb.append(classType);
-    sb.append(' ');
 
-    sb.append(name);
+    for (NameSpecification name : nameSpecs) {
+      sb.append(' ');
+      sb.append(name);
+    }
 
     if (inheritance != null) {
       sb.append(' ');

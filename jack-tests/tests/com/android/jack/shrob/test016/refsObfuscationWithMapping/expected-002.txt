@@ -11,6 +11,10 @@ com.android.jack.shrob.test016.jack.KeepClass -> com.android.jack.shrob.test016.
     java.lang.String value7() -> renamedValue7
     java.lang.String value8() -> renamedValue8
     java.lang.String value9() -> renamedValue9
+com.android.jack.shrob.test016.jack.KeepClass2 -> com.android.jack.shrob.test016.jack.KeepClass2:
+    void <init>() -> <init>
+com.android.jack.shrob.test016.jack.KeepClass3 -> com.android.jack.shrob.test016.jack.KeepClass3:
+    void <init>() -> <init>
 com.android.jack.shrob.test016.jack.Annot4 -> com.android.jack.shrob.test016.jack.RenamedAnnot4:
     java.lang.String value() -> renamedValue
 com.android.jack.shrob.test016.jack.Annot5 -> com.android.jack.shrob.test016.jack.RenamedAnnot5:
