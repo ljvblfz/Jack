@@ -179,32 +179,6 @@ public final class TableOfContents {
     throw new IllegalArgumentException("No such map item: " + type);
   }
 
-  public void writeHeader(DexBuffer.Section out, int api) throws IOException {
-    out.write(DexFormat.apiToMagic(api).getBytes("UTF-8"));
-    out.writeInt(checksum);
-    out.write(signature);
-    out.writeInt(fileSize);
-    out.writeInt(SizeOf.HEADER_ITEM);
-    out.writeInt(DexFormat.ENDIAN_TAG);
-    out.writeInt(linkSize);
-    out.writeInt(linkOff);
-    out.writeInt(mapList.off);
-    out.writeInt(stringIds.size);
-    out.writeInt(stringIds.off);
-    out.writeInt(typeIds.size);
-    out.writeInt(typeIds.off);
-    out.writeInt(protoIds.size);
-    out.writeInt(protoIds.off);
-    out.writeInt(fieldIds.size);
-    out.writeInt(fieldIds.off);
-    out.writeInt(methodIds.size);
-    out.writeInt(methodIds.off);
-    out.writeInt(classDefs.size);
-    out.writeInt(classDefs.off);
-    out.writeInt(dataSize);
-    out.writeInt(dataOff);
-  }
-
   public void writeMap(DexBuffer.Section out) {
     int count = 0;
     for (Section section : sections) {
