@@ -17,7 +17,6 @@
 package com.android.jack.library;
 
 import com.android.jack.LibraryException;
-import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.codec.CodecContext;
 import com.android.sched.util.codec.MessageDigestCodec;
 import com.android.sched.util.codec.ParsingException;
@@ -97,10 +96,8 @@ public class InputJackLibraryCodec implements StringCodec<InputJackLibrary> {
           vfs = directFS;
         }
       } else {
-        RunnableHooks hooks = context.getRunnableHooks();
         @SuppressWarnings("resource")
-        ReadZipFS rzFS = new ReadZipFS(new InputZipFile(workingDirectory, string, hooks,
-            Existence.MUST_EXIST, ChangePermission.NOCHANGE));
+        ReadZipFS rzFS = new ReadZipFS(new InputZipFile(workingDirectory, string));
         rzFS.setInfoString(infoString);
         vfs = rzFS;
       }

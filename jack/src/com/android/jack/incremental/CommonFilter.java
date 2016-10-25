@@ -55,10 +55,7 @@ import com.android.sched.util.file.AbstractStreamFile;
 import com.android.sched.util.file.CannotChangePermissionException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.Directory;
-import com.android.sched.util.file.FileAlreadyExistsException;
 import com.android.sched.util.file.FileOrDirectory;
-import com.android.sched.util.file.FileOrDirectory.ChangePermission;
-import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.Files;
 import com.android.sched.util.file.InputZipFile;
@@ -346,10 +343,8 @@ public abstract class CommonFilter {
       try {
         File jackJar = new File(location.toURI().getPath());
         for (String prefix: JACK_DEFAULT_LIB_PATH) {
-          VFS jackVfs = new PrefixedFS(new ReadZipFS(new InputZipFile(jackJar.getPath(),
-              session.getHooks(),
-              Existence.MUST_EXIST,
-              ChangePermission.NOCHANGE)), new VPath(prefix, ZipUtils.ZIP_SEPARATOR));
+          VFS jackVfs = new PrefixedFS(new ReadZipFS(new InputZipFile(jackJar.getPath())),
+              new VPath(prefix, ZipUtils.ZIP_SEPARATOR));
           libraries.add(JackLibraryFactory.getInputLibrary(jackVfs));
         }
         return libraries;
@@ -359,11 +354,7 @@ public abstract class CommonFilter {
         throw new JackAbortException(reportable);
       } catch (URISyntaxException e) {
         throw new AssertionError();
-      } catch (FileAlreadyExistsException e) {
-        throw new AssertionError();
       } catch (CannotCreateFileException e) {
-        throw new AssertionError();
-      } catch (CannotChangePermissionException e) {
         throw new AssertionError();
       } catch (WrongPermissionException e) {
         EmbeddedLibraryLoadingException reportable = new EmbeddedLibraryLoadingException(e);
