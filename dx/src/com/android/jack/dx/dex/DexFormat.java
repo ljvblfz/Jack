@@ -16,6 +16,8 @@
 
 package com.android.jack.dx.dex;
 
+import javax.annotation.Nonnull;
+
 /**
  * Constants that show up in and are otherwise related to {@code .dex}
  * files, and helper methods for same.
@@ -24,13 +26,24 @@ public final class DexFormat {
   private DexFormat() {}
 
   /**
-   * API level to target in order to produce the most modern file
-   * format
+   * API level to target in order to produce file format for O
    */
-  public static final int API_CURRENT = 24;
+  public static final int API_ANDROID_O = 26;
 
-  /** API level to target in order to suppress extended opcode usage */
+  /**
+   * API level to target in order to produce file format for N
+   */
+  public static final int API_ANDROID_N = 24;
+
+  /**
+   * API level to target in order to suppress extended opcode usage
+   */
   public static final int API_NO_EXTENDED_OPCODES = 13;
+
+  /**
+   * API level to target in order to produce current supported file format
+   */
+  public static final int API_CURRENT = API_ANDROID_N;
 
   /**
    * file name of the primary {@code .dex} file inside an
@@ -45,13 +58,18 @@ public final class DexFormat {
   public static final String MAGIC_SUFFIX = "\0";
 
   /**
-   * Dex file version number for dalvik.
+   * dex file version number for API level 26
+   */
+  public static final String VERSION_FOR_API_26 = "038";
+
+  /**
+   * Dex file version number for API level 24.
    * <p>
    * Note: Dex version 36 was loadable in some versions of Dalvik but was never fully supported or
    * completed and is not considered a valid dex file format.
    * </p>
    */
-  public static final String VERSION_CURRENT = "037";
+  public static final String VERSION_FOR_API_24 = "037";
 
   /** dex file version number for API level 13 and earlier */
   public static final String VERSION_FOR_API_13 = "035";
@@ -97,8 +115,10 @@ public final class DexFormat {
 
     String version = "" + ((char) magic[4]) + ((char) magic[5]) + ((char) magic[6]);
 
-    if (version.equals(VERSION_CURRENT)) {
-      return API_CURRENT;
+    if (version.equals(VERSION_FOR_API_26)) {
+      return API_ANDROID_O;
+    } else if (version.equals(VERSION_FOR_API_24)) {
+      return API_ANDROID_N;
     } else if (version.equals(VERSION_FOR_API_13)) {
       return API_NO_EXTENDED_OPCODES;
     }
@@ -112,8 +132,10 @@ public final class DexFormat {
   public static String apiToMagic(int targetApiLevel) {
     String version;
 
-    if (targetApiLevel >= API_CURRENT) {
-      version = VERSION_CURRENT;
+    if (targetApiLevel >= API_ANDROID_O) {
+      version = VERSION_FOR_API_26;
+    } else if (targetApiLevel >= API_ANDROID_N) {
+      version = VERSION_FOR_API_24;
     } else {
       version = VERSION_FOR_API_13;
     }
@@ -121,8 +143,8 @@ public final class DexFormat {
     return MAGIC_PREFIX + version + MAGIC_SUFFIX;
   }
 
-  public static boolean isSupportedDexMagic(byte[] magic) {
+  public static boolean isSupportedDexMagic(@Nonnull byte[] magic) {
     int api = magicToApi(magic);
-    return api == API_NO_EXTENDED_OPCODES || api == API_CURRENT;
+    return api == API_NO_EXTENDED_OPCODES || api == API_ANDROID_N || api == API_ANDROID_O;
   }
 }
