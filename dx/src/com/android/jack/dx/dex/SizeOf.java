@@ -16,6 +16,8 @@
 
 package com.android.jack.dx.dex;
 
+import javax.annotation.Nonnegative;
+
 /**
  * TODO(jack team)
  */
@@ -28,32 +30,35 @@ public final class SizeOf {
 
   public static final int SIGNATURE = UBYTE * 20;
 
-  /**
-   * magic ubyte[8]
-   * checksum uint
-   * signature ubyte[20]
-   * file_size uint
-   * header_size uint
-   * endian_tag uint
-   * link_size uint
-   * link_off uint
-   * map_off uint
-   * string_ids_size uint
-   * string_ids_off uint
-   * type_ids_size uint
-   * type_ids_off uint
-   * proto_ids_size uint
-   * proto_ids_off uint
-   * field_ids_size uint
-   * field_ids_off uint
-   * method_ids_size uint
-   * method_ids_off uint
-   * class_defs_size uint
-   * class_defs_off uint
-   * data_size uint
-   * data_off uint
-   */
-  public static final int HEADER_ITEM = (8 * UBYTE) + UINT + SIGNATURE + (20 * UINT); // 0x70
+  @Nonnegative
+  public static final int getHeaderSize(@Nonnegative int apiLevel) {
+    /*
+     * magic ubyte[8]
+     * checksum uint
+     * signature ubyte[20]
+     * file_size uint
+     * header_size uint
+     * endian_tag uint
+     * link_size uint
+     * link_off uint
+     * map_off uint
+     * string_ids_size uint
+     * string_ids_off uint
+     * type_ids_size uint
+     * type_ids_off uint
+     * proto_ids_size uint
+     * proto_ids_off uint
+     * field_ids_size uint
+     * field_ids_off uint
+     * method_ids_size uint
+     * method_ids_off uint
+     * class_defs_size uint
+     * class_defs_off uint
+     * data_size uint
+     * data_off uint
+     */
+    return (8 * UBYTE) + UINT + SIGNATURE + (20 * UINT); // 0x70;
+  }
 
   /**
    * string_data_off uint

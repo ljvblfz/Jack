@@ -16,6 +16,9 @@
 
 package com.android.jack.dx.dex;
 
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+
 /**
  * Container for options used to control details of dex file generation.
  */
@@ -27,6 +30,7 @@ public class DexOptions {
   public static final boolean ALIGN_64BIT_REGS = true;
 
   /** target API level */
+  @Nonnegative
   public int targetApiLevel = DexFormat.API_NO_EXTENDED_OPCODES;
 
   /** force generation of jumbo opcodes */
@@ -35,6 +39,7 @@ public class DexOptions {
   /**
    * Gets the dex file magic number corresponding to this instance.
    */
+  @Nonnull
   public String getMagic() {
     return DexFormat.apiToMagic(targetApiLevel);
   }

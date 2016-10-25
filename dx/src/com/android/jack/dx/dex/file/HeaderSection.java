@@ -37,7 +37,7 @@ public final class HeaderSection extends UniformItemSection {
   public HeaderSection(DexFile file) {
     super(null, file, 4);
 
-    HeaderItem item = new HeaderItem();
+    HeaderItem item = new HeaderItem(file.getDexOptions().targetApiLevel);
     item.setIndex(0);
 
     this.list = Collections.singletonList(item);

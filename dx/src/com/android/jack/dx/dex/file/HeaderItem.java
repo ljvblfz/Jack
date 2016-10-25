@@ -22,15 +22,21 @@ import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.util.AnnotatedOutput;
 import com.android.jack.dx.util.Hex;
 
+import javax.annotation.Nonnegative;
+
 /**
  * File header section of a {@code .dex} file.
  */
 public final class HeaderItem extends IndexedItem {
+
+  @Nonnegative
+  private int apiLevel;
+
   /**
    * Constructs an instance.
    */
-  public HeaderItem() {
-    // This space intentionally left blank.
+  public HeaderItem(@Nonnegative int apiLevel) {
+    this.apiLevel = apiLevel;
   }
 
   /** {@inheritDoc} */
@@ -42,7 +48,7 @@ public final class HeaderItem extends IndexedItem {
   /** {@inheritDoc} */
   @Override
   public int writeSize() {
-    return SizeOf.HEADER_ITEM;
+    return SizeOf.getHeaderSize(apiLevel);
   }
 
   /** {@inheritDoc} */
@@ -67,7 +73,7 @@ public final class HeaderItem extends IndexedItem {
       out.annotate(4, "checksum");
       out.annotate(20, "signature");
       out.annotate(4, "file_size:       " + Hex.u4(file.getFileSize()));
-      out.annotate(4, "header_size:     " + Hex.u4(SizeOf.HEADER_ITEM));
+      out.annotate(4, "header_size:     " + Hex.u4(SizeOf.getHeaderSize(apiLevel)));
       out.annotate(4, "endian_tag:      " + Hex.u4(DexFormat.ENDIAN_TAG));
       out.annotate(4, "link_size:       0");
       out.annotate(4, "link_off:        0");
@@ -83,7 +89,7 @@ public final class HeaderItem extends IndexedItem {
     out.writeZeroes(24);
 
     out.writeInt(file.getFileSize());
-    out.writeInt(SizeOf.HEADER_ITEM);
+    out.writeInt(SizeOf.getHeaderSize(apiLevel));
     out.writeInt(DexFormat.ENDIAN_TAG);
 
     /*
