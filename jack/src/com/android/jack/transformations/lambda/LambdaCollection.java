@@ -16,9 +16,12 @@
 
 package com.android.jack.transformations.lambda;
 
+import com.google.common.io.BaseEncoding;
+
 import com.android.jack.Jack;
 import com.android.jack.Options;
 import com.android.jack.ir.ast.JClass;
+import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JLambda;
@@ -31,6 +34,7 @@ import com.android.jack.load.NopClassOrInterfaceLoader;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.util.NamingTools;
 import com.android.sched.schedulable.Transform;
+import com.android.sched.util.config.MessageDigestFactory;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
@@ -38,8 +42,12 @@ import com.android.sched.util.log.stats.Counter;
 import com.android.sched.util.log.stats.CounterImpl;
 import com.android.sched.util.log.stats.StatisticId;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -60,6 +68,10 @@ public final class LambdaCollection {
           "jack.lambda.group-classes-created",
           "Lambda group classes created",
           CounterImpl.class, Counter.class);
+
+  @Nonnull
+  private static final BinaryQualifiedNameFormatter FORMATTER =
+      BinaryQualifiedNameFormatter.getFormatter();
 
   /**
    * Prefix for lambda group class names
@@ -83,6 +95,9 @@ public final class LambdaCollection {
   @Nonnull
   private final LambdaGroupingScope groupingScope =
       ThreadConfig.get(Options.LAMBDA_GROUPING_SCOPE);
+  @Nonnull
+  private final MessageDigestFactory digestFactory =
+      ThreadConfig.get(Options.LAMBDA_NAME_DIGEST_ALGO);
 
   @Nonnull
   private final ConcurrentHashMap<Key, ConcurrentHashMap<String, JLambda>> lambdaClassSets =
@@ -173,13 +188,11 @@ public final class LambdaCollection {
         while (currentType.getEnclosingType() != null) {
           currentType = (JDefinedClassOrInterface) currentType.getEnclosingType();
         }
-        scopeId = BinaryQualifiedNameFormatter
-            .getFormatter().getName(currentType);
+        scopeId = FORMATTER.getName(currentType);
         break;
 
       case PACKAGE:
-        scopeId = BinaryQualifiedNameFormatter
-            .getFormatter().getName(currentType.getEnclosingPackage());
+        scopeId = FORMATTER.getName(currentType.getEnclosingPackage());
         break;
 
       default:
@@ -207,7 +220,8 @@ public final class LambdaCollection {
     TreeMap<Key, ConcurrentHashMap<String, JLambda>> sorted = new TreeMap<>(lambdaClassSets);
     for (Map.Entry<Key, ConcurrentHashMap<String, JLambda>> entry : sorted.entrySet()) {
       // Create a group class to represent lambda group
-      JDefinedClass groupClass = createGroupClass(nextId++, session, entry.getKey().pkg);
+      JDefinedClass groupClass = createGroupClass(
+          nextId++, session, entry.getKey().pkg, getLambdaTypesHash(entry.getValue().values()));
 
       LambdaGroup lambdaGroup = new LambdaGroup(
           entry.getValue(), groupClass, entry.getKey().captureSignature);
@@ -217,11 +231,33 @@ public final class LambdaCollection {
   }
 
   @Nonnull
-  private JDefinedClass createGroupClass(
-      @Nonnegative int id, @Nonnull JSession session, @Nonnull JPackage pkg) {
+  private String getLambdaTypesHash(@Nonnull Collection<JLambda> lambdas) {
+    TreeSet<String> typeNames = new TreeSet<>();
+    // Collect a set of top-level types creating lambdas
+    for (JLambda lambda : lambdas) {
+      JClassOrInterface type = lambda.getParent(JDefinedClassOrInterface.class);
+      while (type instanceof JDefinedClassOrInterface &&
+          ((JDefinedClassOrInterface) type).getEnclosingType() != null) {
+        type = ((JDefinedClassOrInterface) type).getEnclosingType();
+      }
+      typeNames.add(FORMATTER.getName(type));
+    }
+    // Compute digest of (sorted) binary names
+    MessageDigest digest = digestFactory.create();
+    for (String name : typeNames) {
+      digest.update(name.getBytes(StandardCharsets.UTF_8));
+      digest.update((byte) 0);
+    }
+    return BaseEncoding.base64Url().omitPadding().encode(digest.digest());
+  }
+
+  @Nonnull
+  private JDefinedClass createGroupClass(@Nonnegative int id,
+      @Nonnull JSession session, @Nonnull JPackage pkg, @Nonnull String typesHash) {
     // Create a class
     JDefinedClass groupClass = new JDefinedClass(SourceInfo.UNKNOWN,
-        NamingTools.getNonSourceConflictingName(LAMBDA_GROUP_CLASS_NAME_PREFIX + id),
+        NamingTools.getNonSourceConflictingName(
+            LAMBDA_GROUP_CLASS_NAME_PREFIX + id + "$" + typesHash),
         JModifier.FINAL | JModifier.SYNTHETIC,
         pkg, NopClassOrInterfaceLoader.INSTANCE);
     groupClass.setSuperClass(javaLangObject);

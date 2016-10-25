@@ -84,6 +84,7 @@ import com.android.sched.util.config.id.EnumPropertyId;
 import com.android.sched.util.config.id.ImplementationPropertyId;
 import com.android.sched.util.config.id.IntegerPropertyId;
 import com.android.sched.util.config.id.ListPropertyId;
+import com.android.sched.util.config.id.MessageDigestPropertyId;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.config.id.ReflectFactoryPropertyId;
@@ -239,6 +240,11 @@ public class Options {
       .addCategory(DumpInLibrary.class)
       .addCategory(PrebuiltCompatibility.class)
       .addCategory(Private.class);
+
+  @Nonnull
+  public static final MessageDigestPropertyId LAMBDA_NAME_DIGEST_ALGO = MessageDigestPropertyId
+      .create("jack.lambda.name.digest.algo", "Digest algorithm use for lambda class name")
+      .requiredIf(LAMBDA_TO_ANONYMOUS_CONVERTER.getValue().isTrue()).addDefaultValue("SHA");
 
   @Nonnull
   public static final BooleanPropertyId LAMBDA_MERGE_INTERFACES = BooleanPropertyId
