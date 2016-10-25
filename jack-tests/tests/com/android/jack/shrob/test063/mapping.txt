@@ -1,0 +1,7 @@
+com.android.jack.shrob.test063.jack.MyClass -> com.android.jack.shrob.test063.jack.MyClass:
+    int f2 -> a
+    void <init>() -> <init>
+    int getValue() -> getValue
+com.android.jack.shrob.test063.jack.MySuperClass -> com.android.jack.shrob.test063.jack.MySuperClass:
+    int f1 -> a
+    void <init>() -> <init>
