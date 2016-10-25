@@ -16,8 +16,7 @@
 
 package com.android.jack.shrob.obfuscation.nameprovider;
 
-import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
-import com.android.jack.shrob.obfuscation.key.FieldKey;
+import com.android.jack.shrob.obfuscation.key.TypeKey;
 import com.android.jack.test.TestsProperties;
 
 import junit.framework.Assert;
@@ -30,7 +29,7 @@ public class DictionaryNameProviderTest {
 
   @Test
   public void dictionaryNameProviderTest() throws Exception {
-    FieldKey oldKey = new FieldKey("old", JPrimitiveTypeEnum.BOOLEAN.getType());
+    TypeKey oldKey = new TypeKey("old");
     File dictionaryFile = new File(TestsProperties.getJackRootDir(),
         "jack/tests/com/android/jack/shrob/obfuscation/nameprovider/dictionary.txt");
     DictionaryNameProvider dnp =
