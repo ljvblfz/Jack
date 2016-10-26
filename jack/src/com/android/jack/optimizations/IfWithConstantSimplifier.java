@@ -46,6 +46,7 @@ import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
+import com.android.jack.util.graph.GraphUtils;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Filter;
@@ -253,8 +254,50 @@ public class IfWithConstantSimplifier implements RunnableSchedulable<JMethod> {
     ControlFlowGraph cfg = method.getMarker(ControlFlowGraph.class);
     assert cfg != null;
 
+    // Visiting the nodes in post-order guarantees that we do not insert invalid goto statements.
+    //
+    // Let's consider the following IR and its optimizations (1st for '-tac1' and 2nd for '-tac0'):
+    //
+    // [...]                [...]                               [...]
+    // if (<COND>) {        if (<COND>) {                       if (<COND>) {
+    //   -tac0 = true;        -tac0 = true;                       goto ifSimplierThen_1;
+    // } else {             } else {                            } else {
+    //   -tac0 = false;       -tac0 = false;                      goto ifSimplierElse_1;
+    // }                    }                                   }
+    // if (-tac0) {         if (-tac0) {                        {
+    //   -tac1 = true;  ->    goto ifSimplierThen_0;     ->       ifSimplierThen_1: {
+    // } else {             } else {                              }
+    //   -tac1 = false;       goto ifSimplierElse_0;              goto ifSimplierThen_0;
+    // }                    }                                   }
+    // if (-tac1) {         {                                   {
+    //   <THEN>               ifSimplierThen_0: {                 ifSimplierElse_1: {
+    // } else {               }                                   }
+    //   <ELSE>               <THEN>                              goto ifSimplierElse_0;
+    // }                      goto ifSimplifierStepOverElse_0;  }
+    // [...]                }                                   {
+    //                      {                                     ifSimplierThen_0: {}
+    //                        ifSimplierElse_0: {                 }
+    //                        }                                   <THEN>
+    //                        <ELSE>                              goto ifSimplifierStepOverElse_0;
+    //                      }                                   }
+    //                      ifSimplifierStepOverElse_0: {       {
+    //                      }                                     ifSimplierElse_0: {
+    //                      [...]                                 }
+    //                                                            <ELSE>
+    //                                                          }
+    //                                                          ifSimplifierStepOverElse_0: {
+    //                                                          }
+    //                                                          [...]
+    //
+    // (where <COND> is a variable of boolean type and <THEN> and <ELSE> represent statements)
+    //
+    // The 1st optimization removes '-tac1' by adding gotos and labels. When the 2nd optimization
+    // removes '-tac0', it will detect the gotos added by the 1st optimization and never insert
+    // new ones, thus preserving the control flow.
+    List<BasicBlock> nodes = GraphUtils.getNodesInPostOrder(cfg);
+
     Visitor visitor = new Visitor(method);
-    for (BasicBlock bb : cfg.getNodes()) {
+    for (BasicBlock bb : nodes) {
       if (bb instanceof ConditionalBasicBlock) {
         for (JStatement stmt : bb.getStatements()) {
           visitor.accept(stmt);

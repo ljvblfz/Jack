@@ -13,13 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.jack.util;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+package com.android.jack.optimizations.ifwithconstantsimplifier.test001;
 
-@RunWith(Suite.class)
-@SuiteClasses(value = {GraphUtilsTests.class, MethodNameCodecTest.class})
-public class AllTests {
+public class StringProvider {
+  private final String string1;
+  private final String string2;
+
+  public StringProvider(String string1, String string2) {
+    this.string1 = string1;
+    this.string2 = string2;
+  }
+
+  public String getString1() {
+    return string1;
+  }
+
+  public String getString2() {
+    return string2;
+  }
 }
