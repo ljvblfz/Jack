@@ -22,7 +22,6 @@ import com.android.jack.ir.ast.cfg.BasicBlockLiveProcessor;
 import com.android.jack.ir.ast.cfg.JConditionalBasicBlock;
 import com.android.jack.ir.ast.cfg.JConditionalBlockElement;
 import com.android.jack.ir.ast.cfg.JControlFlowGraph;
-import com.android.jack.ir.ast.cfg.JPlaceholderBasicBlock;
 import com.android.jack.ir.ast.cfg.JSimpleBasicBlock;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.sched.item.Description;
@@ -54,7 +53,6 @@ public class RemoveRedundantConditionalBlocks
 
   @Override
   public void run(@Nonnull final JControlFlowGraph cfg) {
-    final JPlaceholderBasicBlock placeholder = new JPlaceholderBasicBlock(cfg);
     new BasicBlockLiveProcessor(/* stepIntoElements = */ false) {
       @Override
       public boolean visit(@Nonnull JConditionalBasicBlock block) {
@@ -74,7 +72,7 @@ public class RemoveRedundantConditionalBlocks
               value ? block.getIfTrue() : block.getIfFalse());
 
           // Remove all references from the conditional block
-          block.replaceAllSuccessors(placeholder);
+          block.dereferenceAllSuccessors();
 
           tracer.getStatistic(REMOVED_CONST_BRANCHES).incValue();
         }

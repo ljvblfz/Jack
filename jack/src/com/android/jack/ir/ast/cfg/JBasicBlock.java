@@ -89,13 +89,13 @@ public abstract class JBasicBlock extends JNode {
   public abstract void replaceAllSuccessors(@Nonnull JBasicBlock what, @Nonnull JBasicBlock with);
 
   /**
-   * Method dereferences *all* successors of the block by replacing all its successors
-   * with the basic block provided.
-   * Can be used for detaching the block from all the successors.
+   * Dereferences all successors of the current block. I.e. after the completion of
+   * this method all the successor references of this block will point to the block
+   * itself. Mostly used as part of detaching the basic block from the cfg.
    */
-  public void replaceAllSuccessors(@Nonnull JBasicBlock newBlock) {
+  public void dereferenceAllSuccessors() {
     for (JBasicBlock successor : new HashSet<>(getSuccessors())) {
-      replaceAllSuccessors(successor, newBlock);
+      replaceAllSuccessors(successor, this);
     }
   }
 

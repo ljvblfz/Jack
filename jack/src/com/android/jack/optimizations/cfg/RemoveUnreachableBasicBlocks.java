@@ -19,7 +19,6 @@ package com.android.jack.optimizations.cfg;
 import com.android.jack.ir.ast.cfg.JBasicBlock;
 import com.android.jack.ir.ast.cfg.JControlFlowGraph;
 import com.android.jack.ir.ast.cfg.JEntryBasicBlock;
-import com.android.jack.ir.ast.cfg.JPlaceholderBasicBlock;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Filter;
@@ -49,13 +48,10 @@ public class RemoveUnreachableBasicBlocks
       }
     }
 
-    // One single placeholder block to be used for replaceAllSuccessors(...)
-    JPlaceholderBasicBlock placeholder = new JPlaceholderBasicBlock(cfg);
-
     while (!blocks.isEmpty()) {
       JBasicBlock block = blocks.remove();
       Set<JBasicBlock> successors = new HashSet<>(block.getSuccessors());
-      block.replaceAllSuccessors(placeholder);
+      block.dereferenceAllSuccessors();
       for (JBasicBlock successor : successors) {
         if (successor.getPredecessors().size() == 0) {
           blocks.offer(successor);

@@ -210,6 +210,6 @@ public abstract class JRegularBasicBlock extends JBasicBlock {
     }
 
     // Dereference the block from all successors
-    replaceAllSuccessors(new JPlaceholderBasicBlock(getCfg()));
+    dereferenceAllSuccessors();
   }
 }
