@@ -25,6 +25,7 @@ import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.WriterFile;
 import com.android.sched.util.location.HasLocation;
 import com.android.sched.util.location.Location;
+import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.ThreadWithTracer;
 import com.android.sched.util.stream.CustomPrintWriter;
 
@@ -46,7 +47,7 @@ import javax.annotation.Nonnull;
  */
 abstract class CommonReporter implements Reporter {
   @Nonnull
-  private static final Logger logger = Logger.getLogger(CommonReporter.class.getName());
+  private static final Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
   private final VerbosityLevel verbosityLevel = ThreadConfig.get(Options.VERBOSITY_LEVEL);

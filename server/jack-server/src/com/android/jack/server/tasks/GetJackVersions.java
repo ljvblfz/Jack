@@ -20,7 +20,6 @@ import com.android.jack.server.HasVersion;
 import com.android.jack.server.JackHttpServer;
 
 import java.util.Collection;
-import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
@@ -28,9 +27,6 @@ import javax.annotation.Nonnull;
  * Administrative task: Return versions of available Jack.
  */
 public class GetJackVersions extends GetVersions {
-
-  @Nonnull
-  private static final Logger logger = Logger.getLogger(GetJackVersions.class.getName());
 
   public GetJackVersions(@Nonnull JackHttpServer jackServer) {
     super("Jack", jackServer);

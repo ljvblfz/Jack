@@ -18,6 +18,8 @@ package com.android.jack.server.type;
 
 import com.google.common.io.BaseEncoding;
 
+import com.android.sched.util.log.LoggerFactory;
+
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
@@ -32,7 +34,7 @@ import javax.annotation.Nonnull;
 public class CommandOutBase64 implements CommandOut {
 
   @Nonnull
-  private static final Logger logger = Logger.getLogger(CommandOutBase64.class.getName());
+  private static final Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
   public static final String JACK_COMMAND_OUT_CONTENT_TYPE =

@@ -28,6 +28,7 @@ import com.android.sched.util.file.CannotWriteException;
 import com.android.sched.util.file.Files;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.location.StringLocation;
+import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.stream.LocationByteStreamSucker;
 
 import org.simpleframework.http.Part;
@@ -56,7 +57,7 @@ public class InstallServer extends SynchronousAdministrativeTask {
   private static final String VERSION_FILE_SUFFIX = "-version.properties";
 
   @Nonnull
-  private static final Logger logger = Logger.getLogger(InstallServer.class.getName());
+  private static final Logger logger = LoggerFactory.getLogger();
   public InstallServer(@Nonnull JackHttpServer jackServer) {
     super(jackServer);
   }

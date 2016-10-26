@@ -36,6 +36,7 @@ import com.android.jack.server.type.CommandOut;
 import com.android.jack.server.type.CommandOutRaw;
 import com.android.sched.util.Version;
 import com.android.sched.util.codec.ParsingException;
+import com.android.sched.util.log.LoggerFactory;
 
 import org.simpleframework.http.ContentType;
 import org.simpleframework.http.Part;
@@ -59,7 +60,7 @@ import javax.annotation.Nonnull;
 abstract class JackTask<T extends CommandOut> extends SynchronousServiceTask {
 
   @Nonnull
-  private static Logger logger = Logger.getLogger(JackTask.class.getName());
+  private static Logger logger = LoggerFactory.getLogger();
 
   public JackTask(@Nonnull JackHttpServer jackServer) {
     super(jackServer);

@@ -23,6 +23,7 @@ import com.android.jack.server.api.v01.ServerException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.WrongPermissionException;
+import com.android.sched.util.log.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Map;
@@ -38,7 +39,7 @@ import javax.annotation.Nonnull;
 public class JackServerImpl implements JackServer {
 
   @Nonnull
-  private static Logger logger = Logger.getLogger(JackServerImpl.class.getName());
+  private static Logger logger = LoggerFactory.getLogger();
 
   @CheckForNull
   private LauncherHandle launcherHandle;

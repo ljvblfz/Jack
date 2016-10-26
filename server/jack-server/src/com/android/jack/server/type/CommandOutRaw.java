@@ -17,6 +17,7 @@
 package com.android.jack.server.type;
 
 import com.android.sched.util.TextUtils;
+import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.stream.UncloseableOutputStream;
 
 import java.io.ByteArrayOutputStream;
@@ -42,7 +43,7 @@ import javax.annotation.Nonnull;
 public class CommandOutRaw implements CommandOut {
 
   @Nonnull
-  private static final Logger logger = Logger.getLogger(CommandOutRaw.class.getName());
+  private static final Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
   public static final String JACK_COMMAND_OUT_CONTENT_TYPE = "application/vnd.jack.command-out";

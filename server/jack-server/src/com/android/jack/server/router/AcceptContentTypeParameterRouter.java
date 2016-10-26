@@ -21,8 +21,6 @@ import org.simpleframework.http.Request;
 import org.simpleframework.http.core.Container;
 import org.simpleframework.http.parse.ContentTypeParser;
 
-import java.util.logging.Logger;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
@@ -30,9 +28,6 @@ import javax.annotation.Nonnull;
  * Route based on Accept content type parameter
  */
 public class AcceptContentTypeParameterRouter extends ContentTypeParameterRouter {
-
-  @Nonnull
-  private static Logger logger = Logger.getLogger(AcceptContentTypeParameterRouter.class.getName());
 
   public AcceptContentTypeParameterRouter(@Nonnull String parameter) {
     super(parameter);

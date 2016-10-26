@@ -16,6 +16,8 @@
 
 package com.android.jack.server.type;
 
+import com.android.sched.util.log.LoggerFactory;
+
 import org.simpleframework.http.ContentType;
 import org.simpleframework.http.Request;
 import org.simpleframework.http.parse.ContentTypeParser;
@@ -34,7 +36,7 @@ import javax.annotation.Nonnull;
 public class TextPlain {
 
   @Nonnull
-  private static final Logger logger = Logger.getLogger(TextPlain.class.getName());
+  private static final Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
   public static final String CONTENT_TYPE_NAME = "text/plain";

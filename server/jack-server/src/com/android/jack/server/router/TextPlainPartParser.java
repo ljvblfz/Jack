@@ -26,7 +26,6 @@ import com.android.sched.util.codec.StringCodec;
 import org.simpleframework.http.Part;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -35,9 +34,6 @@ import javax.annotation.Nonnull;
  * Parser for boolean {@link Part}
  */
 public class TextPlainPartParser<T> implements PartParser<T> {
-
-  @Nonnull
-  private static Logger logger = Logger.getLogger(TextPlainPartParser.class.getName());
 
   @CheckForNull
   private final T defaultValue;

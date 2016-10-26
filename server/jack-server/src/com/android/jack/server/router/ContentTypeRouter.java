@@ -16,6 +16,8 @@
 
 package com.android.jack.server.router;
 
+import com.android.sched.util.log.LoggerFactory;
+
 import org.simpleframework.http.ContentType;
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
@@ -36,7 +38,7 @@ import javax.annotation.Nonnull;
 public class ContentTypeRouter implements Container {
 
   @Nonnull
-  private static Logger logger = Logger.getLogger(ContentTypeRouter.class.getName());
+  private static Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
   private final Map<String, Container> registry = new HashMap<String, Container>();

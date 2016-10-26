@@ -19,6 +19,7 @@ package com.android.jack.server.tasks;
 import com.android.jack.server.JackHttpServer;
 import com.android.jack.server.ServerLogConfiguration;
 import com.android.sched.util.codec.ParsingException;
+import com.android.sched.util.log.LoggerFactory;
 
 import org.simpleframework.http.Part;
 import org.simpleframework.http.Request;
@@ -38,7 +39,7 @@ import javax.annotation.Nonnull;
 public class SetLoggerParameters extends SynchronousAdministrativeTask {
 
   @Nonnull
-  private static Logger logger = Logger.getLogger(ReloadConfig.class.getName());
+  private static Logger logger = LoggerFactory.getLogger();
 
   public SetLoggerParameters(JackHttpServer jackServer) {
     super(jackServer);

@@ -24,6 +24,7 @@ import com.android.jack.server.type.ExactCodeVersionFinder;
 import com.android.sched.util.SubReleaseKind;
 import com.android.sched.util.Version;
 import com.android.sched.util.findbugs.SuppressFBWarnings;
+import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.stream.ByteStreamSucker;
 
 import org.simpleframework.http.Part;
@@ -52,7 +53,7 @@ import javax.annotation.Nonnull;
 public class InstallJack extends SynchronousAdministrativeTask {
 
   @Nonnull
-  private static Logger logger = Logger.getLogger(InstallJack.class.getName());
+  private static Logger logger = LoggerFactory.getLogger();
 
   public InstallJack(@Nonnull JackHttpServer jackServer) {
     super(jackServer);

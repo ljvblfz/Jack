@@ -18,6 +18,7 @@ package com.android.jack.server.router;
 
 import com.android.jack.server.TypeNotSupportedException;
 import com.android.sched.util.codec.ParsingException;
+import com.android.sched.util.log.LoggerFactory;
 
 import org.simpleframework.http.Part;
 import org.simpleframework.http.Request;
@@ -47,7 +48,7 @@ public class PartParserRouter<T> implements Container {
   }
 
   @Nonnull
-  private static Logger logger = Logger.getLogger(PartParserRouter.class.getName());
+  private static Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
   private final Container errorContainer;

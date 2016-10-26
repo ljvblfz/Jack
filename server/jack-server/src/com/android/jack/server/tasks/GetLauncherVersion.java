@@ -19,6 +19,7 @@ package com.android.jack.server.tasks;
 import com.android.jack.server.HasVersion;
 import com.android.jack.server.JackHttpServer;
 import com.android.sched.util.Version;
+import com.android.sched.util.log.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -34,7 +35,7 @@ import javax.annotation.Nonnull;
 public class GetLauncherVersion extends GetVersions {
 
   @Nonnull
-  private static final Logger logger = Logger.getLogger(GetLauncherVersion.class.getName());
+  private static final Logger logger = LoggerFactory.getLogger();
 
   public GetLauncherVersion(@Nonnull JackHttpServer jackServer) {
     super("server", jackServer);

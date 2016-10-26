@@ -22,16 +22,12 @@ import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
 import org.simpleframework.http.Status;
 
-import java.util.logging.Logger;
-
 import javax.annotation.Nonnull;
 
 /**
  * Service task: Execute one Jack command.
  */
 public class JillTask extends SynchronousServiceTask {
-  @Nonnull
-  private static Logger logger = Logger.getLogger(JillTask.class.getName());
 
   public JillTask(@Nonnull JackHttpServer jackServer) {
     super(jackServer);

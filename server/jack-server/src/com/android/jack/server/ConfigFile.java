@@ -30,6 +30,7 @@ import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.OutputStreamFile;
 import com.android.sched.util.file.WrongPermissionException;
+import com.android.sched.util.log.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -55,7 +56,7 @@ import javax.annotation.Nonnull;
 class ConfigFile extends Properties {
 
   @Nonnull
-  private static Logger logger = Logger.getLogger(ConfigFile.class.getName());
+  private static Logger logger = LoggerFactory.getLogger();
 
   static final int CURRENT_CONFIG_VERSION = 4;
 

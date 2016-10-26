@@ -22,8 +22,6 @@ import org.simpleframework.http.Status;
 import org.simpleframework.http.core.Container;
 import org.simpleframework.http.parse.ContentTypeParser;
 
-import java.util.logging.Logger;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
@@ -31,9 +29,6 @@ import javax.annotation.Nonnull;
  * Route based on Accept content type
  */
 public class AcceptContentTypeRouter extends ContentTypeRouter {
-
-  @Nonnull
-  private static Logger logger = Logger.getLogger(AcceptContentTypeRouter.class.getName());
 
   public AcceptContentTypeRouter() {
     this(new ErrorContainer(Status.NOT_ACCEPTABLE));

@@ -21,6 +21,7 @@ import com.android.jack.server.JackHttpServer;
 import com.android.jack.server.TypeNotSupportedException;
 import com.android.jack.server.VersionFinder;
 import com.android.sched.util.codec.ParsingException;
+import com.android.sched.util.log.LoggerFactory;
 
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
@@ -36,7 +37,7 @@ import javax.annotation.Nonnull;
 abstract class QueryVersion extends SynchronousAdministrativeTask {
 
   @Nonnull
-  private static Logger logger = Logger.getLogger(QueryVersion.class.getName());
+  private static Logger logger = LoggerFactory.getLogger();
 
   public QueryVersion(@Nonnull JackHttpServer jackServer) {
     super(jackServer);

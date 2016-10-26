@@ -21,6 +21,7 @@ import com.android.jack.server.api.v01.ServerException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.WrongPermissionException;
+import com.android.sched.util.log.LoggerFactory;
 
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
@@ -38,7 +39,7 @@ import javax.annotation.Nonnull;
 public class ReloadConfig extends SynchronousAdministrativeTask {
 
   @Nonnull
-  private static Logger logger = Logger.getLogger(ReloadConfig.class.getName());
+  private static Logger logger = LoggerFactory.getLogger();
 
   public ReloadConfig(@Nonnull JackHttpServer jackServer) {
     super(jackServer);

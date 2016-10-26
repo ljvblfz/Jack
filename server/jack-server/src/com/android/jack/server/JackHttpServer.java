@@ -81,6 +81,7 @@ import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.findbugs.SuppressFBWarnings;
+import com.android.sched.util.log.LoggerFactory;
 
 import org.simpleframework.http.ContentType;
 import org.simpleframework.http.Method;
@@ -438,7 +439,7 @@ public class JackHttpServer implements HasVersion {
   };
 
   @Nonnull
-  private static Logger logger = Logger.getLogger(JackHttpServer.class.getName());
+  private static Logger logger = LoggerFactory.getLogger();
 
   private int portService;
 

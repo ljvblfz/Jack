@@ -20,6 +20,7 @@ import com.android.jack.server.HasVersion;
 import com.android.jack.server.JackHttpServer;
 import com.android.jack.server.type.TextPlain;
 import com.android.sched.util.Version;
+import com.android.sched.util.log.LoggerFactory;
 
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
@@ -37,7 +38,7 @@ import javax.annotation.Nonnull;
 abstract class GetVersions extends SynchronousAdministrativeTask {
 
   @Nonnull
-  private static final Logger logger = Logger.getLogger(GetVersions.class.getName());
+  private static final Logger logger = LoggerFactory.getLogger();
   @Nonnull
   private final String name;
 

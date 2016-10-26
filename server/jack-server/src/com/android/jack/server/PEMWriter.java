@@ -18,6 +18,8 @@ package com.android.jack.server;
 
 import com.google.common.io.BaseEncoding;
 
+import com.android.sched.util.log.LoggerFactory;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -44,7 +46,7 @@ import javax.annotation.Nonnull;
 public class PEMWriter implements Closeable {
 
   @Nonnull
-  private static Logger logger = Logger.getLogger(PEMWriter.class.getName());
+  private static Logger logger = LoggerFactory.getLogger();
 
   @Nonnegative
   private static final int MAX_LINE_SIZE = 65;
