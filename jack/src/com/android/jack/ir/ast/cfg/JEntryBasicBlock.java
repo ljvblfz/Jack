@@ -58,13 +58,13 @@ public final class JEntryBasicBlock extends JBasicBlock {
   @Override
   @Nonnull
   public JBasicBlockElement getLastElement() {
-    throw new AssertionError();
+    throw new UnsupportedOperationException();
   }
 
   @Override
   @Nonnull
   public JBasicBlockElement getFirstElement() {
-    throw new AssertionError();
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -79,12 +79,12 @@ public final class JEntryBasicBlock extends JBasicBlock {
 
   @Override
   public void appendElement(@Nonnull JBasicBlockElement element) {
-    throw new AssertionError();
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void insertElement(int at, @Nonnull JBasicBlockElement element) {
-    throw new AssertionError();
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -96,7 +96,7 @@ public final class JEntryBasicBlock extends JBasicBlock {
   @Nonnull
   @Override
   public JSimpleBasicBlock split(int at) {
-    throw new AssertionError();
+    throw new UnsupportedOperationException();
   }
 
   @Override

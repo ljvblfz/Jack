@@ -35,7 +35,7 @@ public abstract class BasicBlockIterator {
     Stack<JBasicBlock> stack = new Stack<>();
     Set<JBasicBlock> stacked = new HashSet<>();
 
-    JBasicBlock start = forward ? getCfg().entry() : getCfg().exit();
+    JBasicBlock start = forward ? getCfg().getEntryBlock() : getCfg().getExitBlock();
     stack.push(start);
     stacked.add(start);
 

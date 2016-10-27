@@ -31,8 +31,9 @@ public class JConditionalBlockElement extends JBasicBlockElement {
   @Nonnull
   private JExpression cond;
 
-  public JConditionalBlockElement(@Nonnull SourceInfo info, @Nonnull JExpression cond) {
-    super(info);
+  public JConditionalBlockElement(@Nonnull SourceInfo info,
+      @Nonnull ExceptionHandlingContext ehc, @Nonnull JExpression cond) {
+    super(info, ehc);
     assert !cond.canThrow();
     assert JPrimitiveType.JPrimitiveTypeEnum.BOOLEAN.getType().isSameType(cond.getType());
     this.cond = cond;

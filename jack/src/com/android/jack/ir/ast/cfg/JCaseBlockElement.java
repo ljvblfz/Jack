@@ -32,8 +32,9 @@ public class JCaseBlockElement extends JBasicBlockElement {
   @CheckForNull
   private JLiteral literal;
 
-  JCaseBlockElement(@Nonnull SourceInfo info, @CheckForNull JLiteral literal) {
-    super(info);
+  JCaseBlockElement(@Nonnull SourceInfo info,
+      @Nonnull ExceptionHandlingContext ehc, @CheckForNull JLiteral literal) {
+    super(info, ehc);
     this.literal = literal;
     if (this.literal != null) {
       this.literal.updateParents(this);

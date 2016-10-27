@@ -44,6 +44,15 @@ public final class JCatchBasicBlock extends JRegularBasicBlock {
   }
 
   @Nonnull
+  @Override
+  public JSimpleBasicBlock split(int at) {
+    // Catch blocks are referenced directly by JThrowingBasicBlock and cannot
+    // be split so that there is another block in between throwing block and
+    // catch block. Consider splitting the only successor of the catch block.
+    throw new UnsupportedOperationException();
+  }
+
+  @Nonnull
   public List<JClass> getCatchTypes() {
     return Jack.getUnmodifiableCollections().getUnmodifiableList(catchTypes);
   }

@@ -27,15 +27,17 @@ import com.android.jack.ir.ast.JNullLiteral;
 import com.android.jack.ir.ast.JPrimitiveType;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.MethodKind;
-import com.android.jack.ir.ast.cfg.JBasicBlock;
+import com.android.jack.ir.ast.cfg.ExceptionHandlingContext;
 import com.android.jack.ir.ast.cfg.JConditionalBasicBlock;
 import com.android.jack.ir.ast.cfg.JConditionalBlockElement;
 import com.android.jack.ir.ast.cfg.JControlFlowGraph;
 import com.android.jack.ir.ast.cfg.JMethodCallBlockElement;
 import com.android.jack.ir.ast.cfg.JPlaceholderBasicBlock;
+import com.android.jack.ir.ast.cfg.JThrowBasicBlock;
+import com.android.jack.ir.ast.cfg.JThrowBlockElement;
+import com.android.jack.ir.ast.cfg.JThrowingExpressionBasicBlock;
 import com.android.jack.ir.ast.cfg.JVariableAsgBlockElement;
 import com.android.jack.ir.ast.cfg.mutations.CfgFragment;
-import com.android.jack.ir.ast.cfg.mutations.ExceptionCatchBlocks;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
@@ -81,7 +83,7 @@ public final class CfgJlsNullabilityChecker {
    * </pre>
    */
   @Nonnull
-  public CfgFragment createNullCheck(@Nonnull ExceptionCatchBlocks catchBlocks,
+  public CfgFragment createNullCheck(@Nonnull ExceptionHandlingContext ehContext,
       @Nonnull JExpression expr, @Nonnull TransformationRequest request) {
     assert !expr.canThrow();
 
@@ -109,12 +111,15 @@ public final class CfgJlsNullabilityChecker {
     JLocal tmp = varCreator.createTempLocal(exceptionType, SourceInfo.UNKNOWN, request);
 
     // throw -tmp
-    JBasicBlock bbT3 =
-        catchBlocks.createThrowBlock(tmp.makeRef(SourceInfo.UNKNOWN));
+    JThrowBasicBlock bbT3 = new JThrowBasicBlock(cfg, cfg.getExitBlock());
+    JThrowBlockElement throwExpr = new JThrowBlockElement(
+        SourceInfo.UNKNOWN, ehContext, tmp.makeRef(SourceInfo.UNKNOWN));
+    bbT3.appendElement(throwExpr);
+    bbT3.resetCatchBlocks();
 
     // -tmp.<init>()
     JMethodCallBlockElement constructorCall =
-        new JMethodCallBlockElement(SourceInfo.UNKNOWN,
+        new JMethodCallBlockElement(SourceInfo.UNKNOWN, ehContext,
             new JMethodCall(SourceInfo.UNKNOWN,
                 tmp.makeRef(SourceInfo.UNKNOWN),
                 exceptionType,
@@ -124,16 +129,22 @@ public final class CfgJlsNullabilityChecker {
                     MethodKind.INSTANCE_NON_VIRTUAL),
                 JPrimitiveType.JPrimitiveTypeEnum.VOID.getType(),
                 false));
-    JBasicBlock bbT2 =
-        catchBlocks.createThrowBlock(bbT3, constructorCall);
+
+    JThrowingExpressionBasicBlock bbT2 =
+        new JThrowingExpressionBasicBlock(cfg, bbT3, cfg.getExitBlock());
+    bbT2.appendElement(constructorCall);
+    bbT2.resetCatchBlocks();
 
     // -tmp = alloc <NPE>
     JVariableAsgBlockElement alloc =
-        new JVariableAsgBlockElement(SourceInfo.UNKNOWN,
+        new JVariableAsgBlockElement(SourceInfo.UNKNOWN, ehContext,
             new JAsgOperation(SourceInfo.UNKNOWN, tmp.makeRef(SourceInfo.UNKNOWN),
                 new JAlloc(SourceInfo.UNKNOWN, exceptionType)));
-    JBasicBlock bbT1 =
-        catchBlocks.createThrowBlock(bbT2, alloc);
+
+    JThrowingExpressionBasicBlock bbT1 =
+        new JThrowingExpressionBasicBlock(cfg, bbT2, cfg.getExitBlock());
+    bbT1.appendElement(alloc);
+    bbT1.resetCatchBlocks();
 
     // Exit block
     JPlaceholderBasicBlock exit = new JPlaceholderBasicBlock(cfg);
@@ -142,7 +153,7 @@ public final class CfgJlsNullabilityChecker {
     JConditionalBasicBlock cond =
         new JConditionalBasicBlock(cfg, bbT1, exit);
     cond.appendElement(
-        new JConditionalBlockElement(SourceInfo.UNKNOWN,
+        new JConditionalBlockElement(SourceInfo.UNKNOWN, ehContext,
             new JEqOperation(SourceInfo.UNKNOWN, expr, new JNullLiteral(SourceInfo.UNKNOWN))));
 
     return new CfgFragment(cond, exit);

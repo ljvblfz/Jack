@@ -17,7 +17,6 @@
 package com.android.jack.ir.ast.cfg;
 
 import com.android.jack.ir.ast.JVisitor;
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
@@ -54,13 +53,13 @@ public final class JExitBasicBlock extends JBasicBlock {
   @Override
   @Nonnull
   public JBasicBlockElement getLastElement() {
-    throw new AssertionError();
+    throw new UnsupportedOperationException();
   }
 
   @Override
   @Nonnull
   public JBasicBlockElement getFirstElement() {
-    throw new AssertionError();
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -70,16 +69,16 @@ public final class JExitBasicBlock extends JBasicBlock {
 
   @Override
   public void appendElement(@Nonnull JBasicBlockElement element) {
-    throw new AssertionError();
+    throw new UnsupportedOperationException();
   }
 
   @Override public void insertElement(int at, @Nonnull JBasicBlockElement element) {
-    throw new AssertionError();
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void replaceAllSuccessors(@Nonnull JBasicBlock what, @Nonnull JBasicBlock with) {
-    throw new AssertionError();
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -106,18 +105,9 @@ public final class JExitBasicBlock extends JBasicBlock {
   @Nonnull
   @Override
   public JSimpleBasicBlock split(int at) {
-    assert at == 0;
-
-    JSimpleBasicBlock block = new JSimpleBasicBlock(getCfg(), this);
-    block.appendElement(new JGotoBlockElement(SourceInfo.UNKNOWN));
-
-    // Re-point all the predecessors to a newly created simple block
-    for (JBasicBlock pre : this.getPredecessorsSnapshot()) {
-      if (pre != block) {
-        pre.replaceAllSuccessors(this, block);
-      }
-    }
-
-    return block;
+    // Splitting the exit basic block is not good at all, even if possible,
+    // since exception throwing blocks must reference it as their uncaught
+    // exception block and split(...) will break this invariant
+    throw new UnsupportedOperationException();
   }
 }

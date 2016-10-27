@@ -31,8 +31,9 @@ public class JUnlockBlockElement extends JBasicBlockElement {
   @Nonnull
   private JExpression expr;
 
-  JUnlockBlockElement(@Nonnull SourceInfo info, @Nonnull JExpression expr) {
-    super(info);
+  JUnlockBlockElement(@Nonnull SourceInfo info,
+      @Nonnull ExceptionHandlingContext ehc, @Nonnull JExpression expr) {
+    super(info, ehc);
     assert !expr.canThrow();
     assert expr.getType() instanceof JReferenceType;
     this.expr = expr;

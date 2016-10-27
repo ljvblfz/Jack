@@ -18,6 +18,7 @@ package com.android.jack.ir.ast.cfg;
 
 import com.android.jack.Options;
 import com.android.jack.cfg.BasicBlock;
+import com.android.jack.cfg.BasicBlockMarker;
 import com.android.jack.cfg.CatchBasicBlock;
 import com.android.jack.cfg.ConditionalBasicBlock;
 import com.android.jack.cfg.ControlFlowGraph;
@@ -32,6 +33,7 @@ import com.android.jack.ir.ast.JAbstractMethodBody;
 import com.android.jack.ir.ast.JArrayRef;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JCaseStatement;
+import com.android.jack.ir.ast.JCatchBlock;
 import com.android.jack.ir.ast.JExceptionRuntimeValue;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JExpressionStatement;
@@ -65,8 +67,10 @@ import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
 
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Nonnull;
 
 /** Builds a ControlFlowGraph body representation for all methods. */
@@ -117,8 +121,12 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
     private final ExitBlock exit;
     @Nonnull
     private final JControlFlowGraph cfg;
+    /** Maps CFG marker blocks into a created basic blocks or a placeholder */
     @Nonnull
-    private final IdentityHashMap<BasicBlock, JBasicBlock> processed = new IdentityHashMap<>();
+    private final Map<BasicBlock, JBasicBlock> processed = new IdentityHashMap<>();
+    /** Maps all basic block elements into original statements */
+    @Nonnull
+    private final Map<JBasicBlockElement, JStatement> bbElements = new IdentityHashMap<>();
 
     Builder(@Nonnull EntryBlock entry, @Nonnull ExitBlock exit, @Nonnull JMethodBodyCfg cfgBody) {
       this.entry = entry;
@@ -129,13 +137,49 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
     void build() {
       assert entry.getSuccessors().size() == 1;
       JBasicBlock block = buildBlock(entry.getSuccessors().get(0));
-      cfg.entry().replaceAllSuccessors(cfg.exit(), block);
+      cfg.getEntryBlock().replaceAllSuccessors(cfg.getExitBlock(), block);
+      setUpCatchBlockReferences();
+    }
+
+    private void setUpCatchBlockReferences() {
+      // Use exception handling context pool to reduce allocations
+      ExceptionHandlingContext.Pool pool = new ExceptionHandlingContext.Pool();
+
+      // Assign exception handling context for all created basic block elements
+      for (Map.Entry<JBasicBlockElement, JStatement> entry : bbElements.entrySet()) {
+        List<JCatchBlock> origCatchBlocks = entry.getValue().getJCatchBlocks();
+
+        if (!origCatchBlocks.isEmpty()) {
+          // Create an ordered list of just created basic blocks to match the list of
+          // catch blocks returned by getJCatchBlocks() of the original statement.
+
+          List<JCatchBasicBlock> newCatchBlocks = new ArrayList<>();
+          for (JCatchBlock origCatchBlock : origCatchBlocks) {
+            BasicBlockMarker marker = origCatchBlock.getMarker(BasicBlockMarker.class);
+            assert marker != null;
+            JBasicBlock newCatchBlock = processed.get(marker.getBasicBlock());
+            assert newCatchBlock != null;
+            assert newCatchBlock instanceof JCatchBasicBlock;
+            newCatchBlocks.add((JCatchBasicBlock) newCatchBlock);
+          }
+
+          // Reset exception handling context of the block element
+          entry.getKey().resetEHContext(pool.getOrCreate(newCatchBlocks));
+        }
+      }
+
+      // Refresh throwing basic block's catch block lists
+      for (JBasicBlock block : processed.values()) {
+        if (block instanceof JThrowingBasicBlock) {
+          ((JThrowingBasicBlock) block).resetCatchBlocks();
+        }
+      }
     }
 
     @Nonnull
     private JBasicBlock buildBlock(@Nonnull BasicBlock block) {
       if (block == exit) {
-        return cfg.exit();
+        return cfg.getExitBlock();
       }
 
       JBasicBlock newBlock = processed.get(block);
@@ -162,7 +206,9 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
                     buildBlock(successors.get(index++)));
 
         for (; index < successors.size(); index++) {
-          throwingBlock.addHandler(buildBlock(successors.get(index)));
+          // Build the catch block, note that catch blocks will be assigned later
+          // when block elements are initialized with their exception handling context
+          buildBlock(successors.get(index));
         }
         newBlock = throwingBlock;
 
@@ -205,7 +251,7 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
       }
 
       // Move statements into newly created block
-      BasicBlockEntryBuilder builder = new BasicBlockEntryBuilder(newBlock);
+      BasicBlockEntryBuilder builder = new BasicBlockEntryBuilder(bbElements, newBlock);
       for (JStatement stmt : block.getStatements()) {
         builder.accept(stmt);
       }
@@ -219,6 +265,9 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
 
     /** Builds all the elements of the basic block */
     private static class BasicBlockEntryBuilder extends JVisitor {
+      /** Maps *all* created basic block elements into original statements */
+      @Nonnull
+      private final Map<JBasicBlockElement, JStatement> elements;
       /** Basic block being built */
       private final JBasicBlock block;
       /**
@@ -227,12 +276,15 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
        */
       private boolean sealed = false;
 
-      private BasicBlockEntryBuilder(JBasicBlock block) {
+      private BasicBlockEntryBuilder(
+          @Nonnull Map<JBasicBlockElement, JStatement> elements, @Nonnull JBasicBlock block) {
+        this.elements = elements;
         this.block = block;
       }
 
-      private void addElement(@Nonnull JBasicBlockElement element) {
+      private void addElement(@Nonnull JStatement statement, @Nonnull JBasicBlockElement element) {
         assert !sealed;
+        this.elements.put(element, statement);
         this.block.appendElement(element);
         this.sealed = element.isTerminal();
       }
@@ -240,14 +292,16 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
       @Override
       public boolean visit(@Nonnull JGoto x) {
         assert block instanceof JSimpleBasicBlock;
-        addElement(new JGotoBlockElement(x.getSourceInfo()));
+        addElement(x, new JGotoBlockElement(
+            x.getSourceInfo(), ExceptionHandlingContext.EMPTY));
         return false;
       }
 
       @Override
       public boolean visit(@Nonnull JReturnStatement x) {
         assert block instanceof JReturnBasicBlock;
-        addElement(new JReturnBlockElement(x.getSourceInfo(), x.getExpr()));
+        addElement(x, new JReturnBlockElement(
+            x.getSourceInfo(), ExceptionHandlingContext.EMPTY, x.getExpr()));
         return false;
       }
 
@@ -259,19 +313,22 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
           JAsgOperation asg = (JAsgOperation) expr;
           JExpression lhs = asg.getLhs();
           if (lhs instanceof JArrayRef || lhs instanceof JFieldRef) {
-            addElement(new JStoreBlockElement(x.getSourceInfo(), asg));
+            addElement(x, new JStoreBlockElement(
+                x.getSourceInfo(), ExceptionHandlingContext.EMPTY, asg));
           } else if (lhs instanceof JVariableRef) {
-            addElement(new JVariableAsgBlockElement(x.getSourceInfo(), asg));
+            addElement(x, new JVariableAsgBlockElement(
+                x.getSourceInfo(), ExceptionHandlingContext.EMPTY, asg));
           } else {
             throw new AssertionError();
           }
 
         } else if (expr instanceof JMethodCall) {
-          addElement(new JMethodCallBlockElement(x.getSourceInfo(), (JMethodCall) x.getExpr()));
+          addElement(x, new JMethodCallBlockElement(
+              x.getSourceInfo(), ExceptionHandlingContext.EMPTY, (JMethodCall) x.getExpr()));
 
         } else if (expr instanceof JPolymorphicMethodCall) {
-          addElement(new JPolymorphicMethodCallBlockElement(
-              x.getSourceInfo(), (JPolymorphicMethodCall) x.getExpr()));
+          addElement(x, new JPolymorphicMethodCallBlockElement(x.getSourceInfo(),
+              ExceptionHandlingContext.EMPTY, (JPolymorphicMethodCall) x.getExpr()));
 
         } else {
           throw new AssertionError();
@@ -282,7 +339,8 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
       @Override
       public boolean visit(@Nonnull JThrowStatement x) {
         assert block instanceof JThrowingBasicBlock;
-        addElement(new JThrowBlockElement(x.getSourceInfo(), x.getExpr()));
+        addElement(x, new JThrowBlockElement(
+            x.getSourceInfo(), ExceptionHandlingContext.EMPTY, x.getExpr()));
         return false;
       }
 
@@ -290,7 +348,8 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
       public boolean visit(@Nonnull JIfStatement x) {
         // If statement must end JConditionalBasicBlock
         assert block instanceof JConditionalBasicBlock;
-        addElement(new JConditionalBlockElement(x.getSourceInfo(), x.getIfExpr()));
+        addElement(x, new JConditionalBlockElement(
+            x.getSourceInfo(), ExceptionHandlingContext.EMPTY, x.getIfExpr()));
 
         FallThroughMarker marker = x.getMarker(FallThroughMarker.class);
         if (marker != null && marker.getFallThrough() == FallThroughMarker.FallThroughEnum.ELSE) {
@@ -302,28 +361,32 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
 
       @Override
       public boolean visit(@Nonnull JCaseStatement x) {
-        addElement(new JCaseBlockElement(x.getSourceInfo(), x.getExpr()));
+        addElement(x, new JCaseBlockElement(
+            x.getSourceInfo(), ExceptionHandlingContext.EMPTY, x.getExpr()));
         return false;
       }
 
       @Override
       public boolean visit(@Nonnull JUnlock x) {
         assert block instanceof JThrowingBasicBlock;
-        addElement(new JUnlockBlockElement(x.getSourceInfo(), x.getLockExpr()));
+        addElement(x, new JUnlockBlockElement(
+            x.getSourceInfo(), ExceptionHandlingContext.EMPTY, x.getLockExpr()));
         return false;
       }
 
       @Override
       public boolean visit(@Nonnull JLock x) {
         assert block instanceof JThrowingBasicBlock;
-        addElement(new JLockBlockElement(x.getSourceInfo(), x.getLockExpr()));
+        addElement(x, new JLockBlockElement(
+            x.getSourceInfo(), ExceptionHandlingContext.EMPTY, x.getLockExpr()));
         return false;
       }
 
       @Override
       public boolean visit(@Nonnull JSwitchStatement x) {
         assert block instanceof JSwitchBasicBlock;
-        addElement(new JSwitchBlockElement(x.getSourceInfo(), x.getExpr()));
+        addElement(x, new JSwitchBlockElement(
+            x.getSourceInfo(), ExceptionHandlingContext.EMPTY, x.getExpr()));
         return false;
       }
 

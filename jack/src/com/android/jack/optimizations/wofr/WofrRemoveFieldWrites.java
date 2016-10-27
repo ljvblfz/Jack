@@ -30,7 +30,6 @@ import com.android.jack.ir.ast.cfg.JSimpleBasicBlock;
 import com.android.jack.ir.ast.cfg.JStoreBlockElement;
 import com.android.jack.ir.ast.cfg.JThrowingExpressionBasicBlock;
 import com.android.jack.ir.ast.cfg.mutations.CfgFragment;
-import com.android.jack.ir.ast.cfg.mutations.ExceptionCatchBlocks;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.optimizations.Optimizations;
 import com.android.jack.optimizations.cfg.CfgJlsNullabilityChecker;
@@ -180,8 +179,7 @@ public class WofrRemoveFieldWrites extends WofrSchedulable
           assert !instance.canThrow();
 
           CfgFragment nullCheckFragment =
-              nullChecker.createNullCheck(
-                  ExceptionCatchBlocks.fromThrowingBlock(block), instance, request);
+              nullChecker.createNullCheck(element.getEHContext(), instance, request);
 
           nullCheckFragment.insert(simple, block);
         }

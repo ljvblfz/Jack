@@ -34,8 +34,9 @@ public class JStoreBlockElement extends JBasicBlockElement {
   @Nonnull
   private JAsgOperation asg;
 
-  public JStoreBlockElement(@Nonnull SourceInfo info, @Nonnull JAsgOperation asg) {
-    super(info);
+  public JStoreBlockElement(@Nonnull SourceInfo info,
+      @Nonnull ExceptionHandlingContext ehc, @Nonnull JAsgOperation asg) {
+    super(info, ehc);
     assert asg.getLhs().canThrow();
     assert asg.getLhs() instanceof JFieldRef || asg.getLhs() instanceof JArrayRef;
     this.asg = asg;

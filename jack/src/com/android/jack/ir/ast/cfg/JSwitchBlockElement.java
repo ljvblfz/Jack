@@ -31,8 +31,9 @@ public class JSwitchBlockElement extends JBasicBlockElement {
   @Nonnull
   private JExpression expr;
 
-  JSwitchBlockElement(@Nonnull SourceInfo info, @Nonnull JExpression expr) {
-    super(info);
+  JSwitchBlockElement(@Nonnull SourceInfo info,
+      @Nonnull ExceptionHandlingContext ehc, @Nonnull JExpression expr) {
+    super(info, ehc);
     assert !expr.canThrow();
     assert !JPrimitiveType.JPrimitiveTypeEnum.VOID.getType().isSameType(expr.getType());
     assert expr.getType() instanceof JPrimitiveType;

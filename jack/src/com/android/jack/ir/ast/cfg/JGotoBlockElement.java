@@ -26,8 +26,8 @@ import javax.annotation.Nonnull;
 
 /** Represents goto basic block element */
 public class JGotoBlockElement extends JBasicBlockElement {
-  JGotoBlockElement(@Nonnull SourceInfo info) {
-    super(info);
+  JGotoBlockElement(@Nonnull SourceInfo info, @Nonnull ExceptionHandlingContext ehc) {
+    super(info, ehc);
   }
 
   @Override

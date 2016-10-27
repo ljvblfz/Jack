@@ -216,8 +216,8 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
       assert body instanceof JMethodBodyCfg;
       JControlFlowGraph cfg = ((JMethodBodyCfg) body).getCfg();
 
-      final JEntryBasicBlock entryBasicBlock = cfg.entry();
-      final JExitBasicBlock exitBasicBlock = cfg.exit();
+      final JEntryBasicBlock entryBasicBlock = cfg.getEntryBlock();
+      final JExitBasicBlock exitBasicBlock = cfg.getExitBlock();
 
       final Map<JBasicBlock, Integer> basicBlocks = new LinkedHashMap<>();
       int blockId = 1; // 0 is reserved for entry block

@@ -31,8 +31,9 @@ public class JVariableAsgBlockElement extends JBasicBlockElement {
   @Nonnull
   private JAsgOperation asg;
 
-  public JVariableAsgBlockElement(@Nonnull SourceInfo info, @Nonnull JAsgOperation asg) {
-    super(info);
+  public JVariableAsgBlockElement(@Nonnull SourceInfo info,
+      @Nonnull ExceptionHandlingContext ehc, @Nonnull JAsgOperation asg) {
+    super(info, ehc);
     assert !asg.getLhs().canThrow();
     assert asg.getLhs() instanceof JVariableRef;
     this.asg = asg;

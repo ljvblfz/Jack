@@ -47,7 +47,7 @@ public final class JPlaceholderBasicBlock extends JBasicBlock {
   @Override
   @Nonnull
   public List<JBasicBlockElement> getElements(boolean forward) {
-    throw new AssertionError();
+    return Collections.emptyList();
   }
 
   @Nonnegative
@@ -59,39 +59,39 @@ public final class JPlaceholderBasicBlock extends JBasicBlock {
   @Override
   @Nonnull
   public JBasicBlockElement getLastElement() {
-    throw new AssertionError();
+    throw new UnsupportedOperationException();
   }
 
   @Override
   @Nonnull
   public JBasicBlockElement getFirstElement() {
-    throw new AssertionError();
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public boolean hasElements() {
-    throw new AssertionError();
+    return false;
   }
 
   @Override
   public void appendElement(@Nonnull JBasicBlockElement element) {
-    throw new AssertionError();
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void insertElement(int at, @Nonnull JBasicBlockElement element) {
-    throw new AssertionError();
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void replaceAllSuccessors(@Nonnull JBasicBlock what, @Nonnull JBasicBlock with) {
-    throw new AssertionError();
+    throw new UnsupportedOperationException();
   }
 
   @Nonnull
   @Override
   public JSimpleBasicBlock split(int at) {
-    throw new AssertionError();
+    throw new UnsupportedOperationException();
   }
 
   @Override

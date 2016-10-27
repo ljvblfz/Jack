@@ -29,7 +29,7 @@ public abstract class JThrowingBasicBlock extends JRegularBasicBlock {
   @Nonnull
   private JBasicBlock unhandledBlock;
   @Nonnull
-  private List<JBasicBlock> catchBlocks = new ArrayList<>();
+  private final List<JBasicBlock> catchBlocks = new ArrayList<>();
 
   JThrowingBasicBlock(@CheckForNull JBasicBlock primary, @Nonnull JBasicBlock unhandledBlock) {
     super(primary);
@@ -44,10 +44,19 @@ public abstract class JThrowingBasicBlock extends JRegularBasicBlock {
     successors.addAll(catchBlocks);
   }
 
-  /** Add a new exception handler successor */
-  public void addHandler(@Nonnull JBasicBlock handler) {
-    catchBlocks.add(handler);
-    handler.addPredecessor(this);
+  /** Resets exception catch blocks from the EH context of the last element */
+  public void resetCatchBlocks() {
+    // Remove old catch blocks
+    for (JBasicBlock block : catchBlocks) {
+      this.removeSuccessor(block);
+    }
+    catchBlocks.clear();
+
+    // Add new catch blocks
+    catchBlocks.addAll(getLastElement().getEHContext().getCatchBlocks());
+    for (JBasicBlock block : catchBlocks) {
+      block.addPredecessor(this);
+    }
   }
 
   @Nonnull

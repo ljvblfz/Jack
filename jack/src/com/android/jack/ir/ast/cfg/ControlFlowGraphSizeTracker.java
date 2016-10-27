@@ -48,7 +48,7 @@ public class ControlFlowGraphSizeTracker implements RunnableSchedulable<JControl
   @Override
   public void run(@Nonnull final JControlFlowGraph cfg) {
     JMethod method = cfg.getMethod();
-    tracer.getStatistic(STATISTICS).add(cfg.getBlocksDepthFirst(true).size(),
+    tracer.getStatistic(STATISTICS).add(cfg.getBlocksDepthFirst(/* forward = */ false).size(),
         formatter.getName(method) + " [" + formatter.getName(method.getEnclosingType()) + "]");
   }
 }

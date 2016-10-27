@@ -151,6 +151,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -933,11 +934,18 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
 
     Map<JBasicBlock, String> cfgBlocks = new LinkedHashMap<>();
     this.cfgBlocks = cfgBlocks;
-    for (JBasicBlock block : x.getBlocksDepthFirst(true)) {
-      int size = cfgBlocks.size();
-      String id = String.format("bb#%1$03d", Integer.valueOf(size));
-      cfgBlocks.put(block, id);
+
+    // Collect basic blocks backwards to include unreachable ones
+    cfgBlocks.put(x.getEntryBlock(), getStringId(0));
+    List<JBasicBlock> blocks = x.getBlocksDepthFirst(/* forward = */ false);
+    Collections.reverse(blocks);
+    for (JBasicBlock block : blocks) {
+      if (block != x.getEntryBlock() && block != x.getExitBlock()) {
+        cfgBlocks.put(block, getStringId(cfgBlocks.size()));
+      }
     }
+    cfgBlocks.put(x.getExitBlock(), getStringId(cfgBlocks.size()));
+
     for (Map.Entry<JBasicBlock, String> entry : cfgBlocks.entrySet()) {
       print(entry.getValue());
       print(": ");
@@ -947,6 +955,10 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
 
     this.cfgBlocks = null;
     return false;
+  }
+
+  private String getStringId(@Nonnegative int id) {
+    return String.format("bb#%1$03d", Integer.valueOf(id));
   }
 
   private void printBlockIds(@Nonnull Iterable<JBasicBlock> blocks) {

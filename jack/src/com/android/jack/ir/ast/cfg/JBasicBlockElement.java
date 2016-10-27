@@ -27,8 +27,12 @@ import javax.annotation.Nonnull;
 
 /** Represents an abstract CFG basic block element. */
 public abstract class JBasicBlockElement extends JNode {
-  JBasicBlockElement(@Nonnull SourceInfo info) {
+  @Nonnull
+  private ExceptionHandlingContext ehc;
+
+  JBasicBlockElement(@Nonnull SourceInfo info, @Nonnull ExceptionHandlingContext ehc) {
     super(info);
+    this.ehc = ehc;
   }
 
   @Nonnull
@@ -40,6 +44,17 @@ public abstract class JBasicBlockElement extends JNode {
 
   /** Is this a terminal basic block element */
   public abstract boolean isTerminal();
+
+  /** Get exception handling context */
+  @Nonnull
+  public ExceptionHandlingContext getEHContext() {
+    return ehc;
+  }
+
+  /** Reset exception handling context, update basic block */
+  public void resetEHContext(@Nonnull ExceptionHandlingContext ehc) {
+    this.ehc = ehc;
+  }
 
   @Override
   public abstract void traverse(@Nonnull JVisitor visitor);

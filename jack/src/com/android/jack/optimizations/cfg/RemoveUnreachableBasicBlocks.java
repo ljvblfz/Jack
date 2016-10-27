@@ -17,6 +17,7 @@
 package com.android.jack.optimizations.cfg;
 
 import com.android.jack.ir.ast.cfg.JBasicBlock;
+import com.android.jack.ir.ast.cfg.JCatchBasicBlock;
 import com.android.jack.ir.ast.cfg.JControlFlowGraph;
 import com.android.jack.ir.ast.cfg.JEntryBasicBlock;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
@@ -38,12 +39,19 @@ import javax.annotation.Nonnull;
 public class RemoveUnreachableBasicBlocks
     implements RunnableSchedulable<JControlFlowGraph> {
 
+  /** Returns `true` if the block should be removed */
+  private boolean canRemoveBlock(@Nonnull JBasicBlock block) {
+    return block.getPredecessors().size() == 0   // Block must have 0 predecessors
+        && !(block instanceof JEntryBasicBlock)  // Never remove entry block
+        && !(block instanceof JCatchBasicBlock); // Never remove catch block
+  }
+
   @Override
   public void run(@Nonnull final JControlFlowGraph cfg) {
     // Collect all basic blocks without predecessors
     Queue<JBasicBlock> blocks = new LinkedList<>();
     for (JBasicBlock block : cfg.getBlocksDepthFirst(/* forward = */ false)) {
-      if (block.getPredecessors().size() == 0 && !(block instanceof JEntryBasicBlock)) {
+      if (canRemoveBlock(block)) {
         blocks.offer(block);
       }
     }
@@ -53,7 +61,7 @@ public class RemoveUnreachableBasicBlocks
       Set<JBasicBlock> successors = new HashSet<>(block.getSuccessors());
       block.dereferenceAllSuccessors();
       for (JBasicBlock successor : successors) {
-        if (successor.getPredecessors().size() == 0) {
+        if (canRemoveBlock(successor)) {
           blocks.offer(successor);
         }
       }

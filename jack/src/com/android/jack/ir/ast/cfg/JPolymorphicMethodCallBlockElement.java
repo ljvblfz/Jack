@@ -30,9 +30,9 @@ public class JPolymorphicMethodCallBlockElement extends JBasicBlockElement {
   @Nonnull
   private JPolymorphicMethodCall call;
 
-  JPolymorphicMethodCallBlockElement(
-      @Nonnull SourceInfo info, @Nonnull JPolymorphicMethodCall call) {
-    super(info);
+  JPolymorphicMethodCallBlockElement(@Nonnull SourceInfo info,
+      @Nonnull ExceptionHandlingContext ehc, @Nonnull JPolymorphicMethodCall call) {
+    super(info, ehc);
     this.call = call;
     this.call.updateParents(this);
   }

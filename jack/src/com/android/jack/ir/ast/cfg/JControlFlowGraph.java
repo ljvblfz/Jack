@@ -45,12 +45,12 @@ public final class JControlFlowGraph extends JNode {
   }
 
   @Nonnull
-  public final JEntryBasicBlock entry() {
+  public final JEntryBasicBlock getEntryBlock() {
     return entry;
   }
 
   @Nonnull
-  public final JExitBasicBlock exit() {
+  public final JExitBasicBlock getExitBlock() {
     return exit;
   }
 
@@ -84,9 +84,9 @@ public final class JControlFlowGraph extends JNode {
 
   @Override
   public void traverse(@Nonnull final JVisitor visitor) {
-    // NOTE: forward depth-first basic blocks traversal
+    // NOTE: backward depth-first basic blocks traversal
     if (visitor.visit(this)) {
-      for (JBasicBlock block : getBlocksDepthFirst(true)) {
+      for (JBasicBlock block : getBlocksDepthFirst(/* forward = */ false)) {
         visitor.accept(block);
       }
     }
@@ -97,8 +97,8 @@ public final class JControlFlowGraph extends JNode {
   public void traverse(
       @Nonnull final ScheduleInstance<? super Component> schedule) throws Exception {
     schedule.process(this);
-    // NOTE: forward depth-first basic blocks traversal
-    for (JBasicBlock block : getBlocksDepthFirst(true)) {
+    // NOTE: backward depth-first basic blocks traversal
+    for (JBasicBlock block : getBlocksDepthFirst(/* forward = */ false)) {
       block.traverse(schedule);
     }
   }

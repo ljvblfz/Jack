@@ -147,6 +147,11 @@ public abstract class JBasicBlock extends JNode {
     return candidate;
   }
 
+  /** Removes the reference of a successor */
+  void removeSuccessor(@Nonnull JBasicBlock current) {
+    current.removePredecessor(this);
+  }
+
   /** Remove predecessor */
   private void removePredecessor(@Nonnull JBasicBlock predecessor) {
     assert predecessors.contains(predecessor);

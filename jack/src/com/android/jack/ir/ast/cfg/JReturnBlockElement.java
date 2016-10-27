@@ -31,8 +31,9 @@ public class JReturnBlockElement extends JBasicBlockElement {
   @CheckForNull
   private JExpression expr;
 
-  JReturnBlockElement(@Nonnull SourceInfo info, @CheckForNull JExpression expr) {
-    super(info);
+  JReturnBlockElement(@Nonnull SourceInfo info,
+      @Nonnull ExceptionHandlingContext ehc, @CheckForNull JExpression expr) {
+    super(info, ehc);
     this.expr = expr;
     if (this.expr != null) {
       this.expr.updateParents(this);

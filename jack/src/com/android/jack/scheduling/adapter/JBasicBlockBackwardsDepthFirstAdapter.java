@@ -31,8 +31,8 @@ import javax.annotation.Nonnull;
  * {@code JBasicBlock} of this type control flow graph in forward depth first order.
  */
 @Description("Adapts process on JControlFlowGraph to one or several "
-    + "processes on each of its basic blocks in forward depth first order")
-public class JBasicBlockForwardDepthFirstAdapter
+    + "processes on each of its basic blocks in backward depth first order")
+public class JBasicBlockBackwardsDepthFirstAdapter
     implements AdapterSchedulable<JControlFlowGraph, JBasicBlock> {
 
   /**
@@ -41,6 +41,6 @@ public class JBasicBlockForwardDepthFirstAdapter
   @Override
   @Nonnull
   public Iterator<JBasicBlock> adapt(@Nonnull JControlFlowGraph cfg) {
-    return Lists.newArrayList(cfg.getBlocksDepthFirst(true)).iterator();
+    return Lists.newArrayList(cfg.getBlocksDepthFirst(/* forward = */ false)).iterator();
   }
 }

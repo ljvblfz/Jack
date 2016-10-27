@@ -173,7 +173,8 @@ public abstract class JRegularBasicBlock extends JBasicBlock {
     for (int i = 0; i < at; i++) {
       block.appendElement(elements.get(i));
     }
-    block.appendElement(new JGotoBlockElement(SourceInfo.UNKNOWN));
+    block.appendElement(new JGotoBlockElement(SourceInfo.UNKNOWN,
+        elements.get(at).getEHContext() /* The first element of the next block */));
 
     // Remove elements from this block
     if (at > 0) {
