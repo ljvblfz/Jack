@@ -16,9 +16,10 @@
 
 package com.android.jack.util.graph;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
-import java.util.Stack;
 
 import javax.annotation.Nonnull;
 
@@ -31,35 +32,29 @@ public class GraphUtils {
   public static <T extends GraphNode<T>> List<T> getNodesInPostOrder(@Nonnull Graph<T> graph) {
     int nodesCount = graph.getNodes().size();
     List<T> resultList = new ArrayList<T>(nodesCount);
-    Stack<T> stack = new Stack<>();
-    stack.addAll(graph.getEntryNode().getSuccessors());
-    while (!stack.isEmpty()) {
-      T node = stack.pop();
 
-      List<T> successorsNotProcessed = new ArrayList<T>();
+    Deque<T> stack = new ArrayDeque<>();
+    stack.addFirst(graph.getEntryNode());
+    while (!stack.isEmpty()) {
+      final T node = stack.peekFirst();
+      assert node != null;
+      T nextSuccessor = null;
       for (T succ : node.getSuccessors()) {
-        if (succ == graph.getExitNode() || succ == node || stack.contains(succ)) {
-          // Ignore exit node and graph cycles.
-          continue;
-        }
-        if (!resultList.contains(succ) && !successorsNotProcessed.contains(succ)) {
-          // The successor has not been processed yet. So we'll have to process it before the
-          // current node.
-          successorsNotProcessed.add(succ);
+        if (succ != graph.getExitNode() && !stack.contains(succ) && !resultList.contains(succ)) {
+          nextSuccessor = succ;
+          break;
         }
       }
-      if (successorsNotProcessed.isEmpty()) {
-        // We put all its successors in the list so we can append the node now.
-        assert !resultList.contains(node);
-        resultList.add(node);
+      if (nextSuccessor != null) {
+        // We need to process this successor first.
+        stack.addFirst(nextSuccessor);
       } else {
-        // Some (or all) successors have not been processed yet. We push the current node on the
-        // stack first, then all the successors, to make sure successors are put in the result list
-        // before the current node.
-        stack.push(node);
-        for (T succ : successorsNotProcessed) {
-          stack.push(succ);
+        // We processed all successors so we can add the node to the list (except special
+        // entry/exit nodes).
+        if (node != graph.getEntryNode() && node != graph.getExitNode()) {
+          resultList.add(node);
         }
+        stack.removeFirst();
       }
     }
 

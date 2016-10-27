@@ -31,7 +31,7 @@ import java.io.File;
 import javax.annotation.Nonnull;
 
 public class IfWithConstantSimplifierTests extends RuntimeTest {
-
+  @Nonnull
   private final RuntimeTestInfo TEST001 = new IfWithConstantSimplifierTestRuntimeInfo("test001");
 
   @Test
@@ -50,7 +50,7 @@ public class IfWithConstantSimplifierTests extends RuntimeTest {
    * A subclass of {@link RuntimeTestInfo} dedicated to tests about IfWithConstantSimplifier.
    */
   private static class IfWithConstantSimplifierTestRuntimeInfo extends RuntimeTestInfo {
-
+    @Nonnull
     private static final String PARENT_TEST_PACKAGE =
         "com.android.jack.optimizations.ifwithconstantsimplifier";
 
@@ -59,10 +59,12 @@ public class IfWithConstantSimplifierTests extends RuntimeTest {
       setSrcDirName("");
     }
 
+    @Nonnull
     private static File getRootDir(@Nonnull String packageName) {
       return AbstractTestTools.getTestRootDir(PARENT_TEST_PACKAGE + "." + packageName);
     }
 
+    @Nonnull
     private static String getTestClassName(@Nonnull String packageName) {
       return PARENT_TEST_PACKAGE + "." + packageName + ".Tests";
 
