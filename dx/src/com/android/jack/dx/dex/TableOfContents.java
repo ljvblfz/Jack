@@ -19,7 +19,6 @@ package com.android.jack.dx.dex;
 import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.dx.util.DexException;
 
-import java.io.IOException;
 import java.util.Arrays;
 
 /**
