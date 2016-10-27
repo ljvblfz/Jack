@@ -75,6 +75,12 @@ public class GenericInputVFS extends AbstractVFS implements InputVFS {
 
   @Override
   @Nonnull
+  public VFS getVFS() {
+    return vfs;
+  }
+
+  @Override
+  @Nonnull
   public String toString() {
     return "inputFS >> " + vfs.toString();
   }

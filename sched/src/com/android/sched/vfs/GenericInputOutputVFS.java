@@ -86,6 +86,12 @@ public class GenericInputOutputVFS extends AbstractVFS implements InputOutputVFS
 
   @Override
   @Nonnull
+  public VFS getVFS() {
+    return vfs;
+  }
+
+  @Override
+  @Nonnull
   public String toString() {
     return "ioFS >> " + vfs.toString();
   }

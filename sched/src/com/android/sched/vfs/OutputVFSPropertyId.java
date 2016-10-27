@@ -18,6 +18,7 @@ package com.android.sched.vfs;
 
 
 import com.android.sched.util.HasDescription;
+import com.android.sched.util.codec.DirectDirOutputVFSCodec;
 import com.android.sched.util.codec.OutputVFSCodec;
 import com.android.sched.util.codec.StringCodec;
 import com.android.sched.util.config.category.Category;
@@ -30,6 +31,12 @@ import javax.annotation.Nonnull;
  * Specialized {@link PropertyId} that manages properties of type {@link OutputVFS}.
  */
 public class OutputVFSPropertyId extends PropertyId<OutputVFS> implements HasDescription {
+
+  @Nonnull
+  public static OutputVFSPropertyId create(
+      @Nonnull String name, @Nonnull String description, @Nonnull DirectDirOutputVFSCodec codec) {
+    return new OutputVFSPropertyId(name, description, codec);
+  }
 
   @Nonnull
   public static OutputVFSPropertyId create(
