@@ -16,6 +16,7 @@
 
 package com.android.jack.ir.ast.cfg;
 
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JReferenceType;
 import com.android.jack.ir.ast.JVisitor;
@@ -46,6 +47,14 @@ public class JLockBlockElement extends JBasicBlockElement {
   }
 
   @Override
+  @Nonnull
+  public JThrowingExpressionBasicBlock getBasicBlock() {
+    JBasicBlock block = super.getBasicBlock();
+    assert block instanceof JThrowingExpressionBasicBlock;
+    return (JThrowingExpressionBasicBlock) block;
+  }
+
+  @Override
   public void traverse(@Nonnull JVisitor visitor) {
     if (visitor.visit(this)) {
       visitor.accept(expr);
@@ -67,5 +76,17 @@ public class JLockBlockElement extends JBasicBlockElement {
   @Override
   public boolean isTerminal() {
     return true; // Can throw
+  }
+
+  @Override
+  public void checkValidity() {
+    super.checkValidity();
+
+    if (!(super.getBasicBlock() instanceof JThrowingExpressionBasicBlock)) {
+      throw new JNodeInternalError(this, "The parent node must be JThrowingExpressionBasicBlock");
+    }
+    if (this != getBasicBlock().getLastElement()) {
+      throw new JNodeInternalError(this, "Must be the last element of the basic block");
+    }
   }
 }

@@ -16,6 +16,9 @@
 
 package com.android.jack.ir.ast;
 
+import com.android.jack.ir.ast.cfg.JCaseBlockElement;
+import com.android.jack.ir.ast.cfg.JReturnBlockElement;
+import com.android.jack.ir.ast.cfg.JSwitchBlockElement;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
@@ -79,8 +82,11 @@ public class JEnumLiteral extends JValueLiteral {
         || parent instanceof JNameValuePair
         || parent instanceof JAnnotationMethod
         || parent instanceof JCaseStatement
+        || parent instanceof JCaseBlockElement
         || parent instanceof JSwitchStatement
+        || parent instanceof JSwitchBlockElement
         || parent instanceof JReturnStatement
+        || parent instanceof JReturnBlockElement
         || parent instanceof JFieldInitializer
         || parent instanceof JSynchronizedBlock)) {
       super.checkValidity();

@@ -19,6 +19,7 @@ package com.android.jack.ir.ast.cfg;
 import com.google.common.collect.ImmutableList;
 
 import com.android.jack.Jack;
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
@@ -124,6 +125,11 @@ public abstract class JRegularBasicBlock extends JBasicBlock {
     element.updateParents(this);
   }
 
+  /** Resets elements list */
+  final void resetElements() {
+    elements.clear();
+  }
+
   @Override
   public void insertElement(int at, @Nonnull JBasicBlockElement element) {
     int size = elements.size();
@@ -154,6 +160,10 @@ public abstract class JRegularBasicBlock extends JBasicBlock {
   @Override
   public void checkValidity() {
     super.checkValidity();
+
+    if (!hasElements()) {
+      throw new JNodeInternalError(this, "Block must not be empty");
+    }
   }
 
   @Nonnull
@@ -206,9 +216,7 @@ public abstract class JRegularBasicBlock extends JBasicBlock {
     JBasicBlock primary = getPrimarySuccessor();
 
     // Redirect all the successors to point the primary successor of this block
-    for (JBasicBlock pre : this.getPredecessorsSnapshot()) {
-      pre.replaceAllSuccessors(this, primary);
-    }
+    this.replaceWith(primary);
 
     // Dereference the block from all successors
     dereferenceAllSuccessors();

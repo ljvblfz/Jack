@@ -149,6 +149,16 @@ public abstract class JBasicBlock extends JNode {
   public abstract JSimpleBasicBlock split(int at);
 
   /**
+   * Replaces the basic block in all the predecessors with the specified `block`.
+   */
+  public void replaceWith(@Nonnull JBasicBlock block) {
+    // Redirect all the successors to point the primary successor of this block
+    for (JBasicBlock pre : this.getPredecessorsSnapshot()) {
+      pre.replaceAllSuccessors(this, block);
+    }
+  }
+
+  /**
    * Resets successor/predecessor references for replacing
    * `current` with `candidate`, returns `candidate`.
    */
@@ -185,5 +195,8 @@ public abstract class JBasicBlock extends JNode {
   }
 
   public void checkValidity() {
+    for (JBasicBlockElement element : getElements(true)) {
+      element.checkValidity();
+    }
   }
 }

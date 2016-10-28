@@ -16,6 +16,7 @@
 
 package com.android.jack.ir.ast.cfg;
 
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
@@ -69,5 +70,19 @@ public abstract class JBasicBlockElement extends JNode {
 
   @Override
   public void checkValidity() {
+    CfgExpressionValidator.validate(this);
+
+    if (this.isTerminal()) {
+      if (this != getBasicBlock().getLastElement()) {
+        throw new JNodeInternalError(this,
+            "Terminal block element must be the last element of the block");
+      }
+    } else {
+      if (this.getBasicBlock() instanceof JThrowingBasicBlock
+          && this == getBasicBlock().getLastElement()) {
+        throw new JNodeInternalError(this,
+            "Non-terminal block element must NOT be the last element of the throwing block");
+      }
+    }
   }
 }

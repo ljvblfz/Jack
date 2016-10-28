@@ -17,6 +17,8 @@ package com.android.jack.ir.ast;
 
 import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
+import com.android.jack.ir.ast.cfg.JConditionalBlockElement;
+import com.android.jack.ir.ast.cfg.JReturnBlockElement;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
@@ -74,7 +76,9 @@ public class JBooleanLiteral extends JValueLiteral {
         || parent instanceof JDoStatement
         || parent instanceof JForStatement
         || parent instanceof JIfStatement
+        || parent instanceof JConditionalBlockElement
         || parent instanceof JReturnStatement
+        || parent instanceof JReturnBlockElement
         || parent instanceof JFieldInitializer
         || parent instanceof JWhileStatement)) {
       throw new JNodeInternalError(this, "Invalid parent");

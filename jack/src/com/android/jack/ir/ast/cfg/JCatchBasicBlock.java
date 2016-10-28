@@ -17,6 +17,7 @@
 package com.android.jack.ir.ast.cfg;
 
 import com.android.jack.Jack;
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.sched.item.Component;
@@ -26,7 +27,12 @@ import com.android.sched.transform.TransformRequest;
 import java.util.List;
 import javax.annotation.Nonnull;
 
-/** Represents catch basic block. */
+/**
+ * Represents catch basic block.
+ *
+ * Catch basic block is intended to carry catch specific information and
+ * always has one catch variable assignment element.
+ */
 public final class JCatchBasicBlock extends JRegularBasicBlock {
   @Nonnull
   private final List<JClass> catchTypes;
@@ -74,5 +80,19 @@ public final class JCatchBasicBlock extends JRegularBasicBlock {
   @Override
   public void visit(@Nonnull JVisitor visitor, @Nonnull TransformRequest request) throws Exception {
     visitor.visit(this, request);
+  }
+
+  @Override
+  public void checkValidity() {
+    super.checkValidity();
+
+    if (getElementCount() != 1) {
+      throw new JNodeInternalError(this, "Block must always have one single element");
+    }
+    if (!(getLastElement() instanceof JVariableAsgBlockElement) ||
+        !((JVariableAsgBlockElement) getLastElement()).isCatchVariableAssignment()) {
+      throw new JNodeInternalError(this,
+          "The only element of the block must be catch variable assignment element");
+    }
   }
 }

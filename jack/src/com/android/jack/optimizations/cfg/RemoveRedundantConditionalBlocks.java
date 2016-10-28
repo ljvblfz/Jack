@@ -56,7 +56,8 @@ public class RemoveRedundantConditionalBlocks
     new BasicBlockLiveProcessor(/* stepIntoElements = */ false) {
       @Override
       public boolean visit(@Nonnull JConditionalBasicBlock block) {
-        JConditionalBlockElement element = block.getLastElement();
+        JConditionalBlockElement element =
+            (JConditionalBlockElement) block.getLastElement();
         JExpression condition = element.getCondition();
 
         if (condition instanceof JBooleanLiteral) {

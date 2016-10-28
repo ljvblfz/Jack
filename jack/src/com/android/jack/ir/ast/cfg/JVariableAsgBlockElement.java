@@ -16,7 +16,13 @@
 
 package com.android.jack.ir.ast.cfg;
 
+import com.android.jack.ir.JNodeInternalError;
+import com.android.jack.ir.ast.JArrayRef;
 import com.android.jack.ir.ast.JAsgOperation;
+import com.android.jack.ir.ast.JExceptionRuntimeValue;
+import com.android.jack.ir.ast.JFieldRef;
+import com.android.jack.ir.ast.JMethodCall;
+import com.android.jack.ir.ast.JPolymorphicMethodCall;
 import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
@@ -45,6 +51,30 @@ public class JVariableAsgBlockElement extends JBasicBlockElement {
     return asg;
   }
 
+  public boolean isCatchVariableAssignment() {
+    return asg.getRhs() instanceof JExceptionRuntimeValue;
+  }
+
+  public boolean isFieldLoad() {
+    return asg.getRhs() instanceof JFieldRef;
+  }
+
+  public boolean isArrayElementLoad() {
+    return asg.getRhs() instanceof JArrayRef;
+  }
+
+  public boolean isLoad() {
+    return isFieldLoad() || isArrayElementLoad();
+  }
+
+  public boolean isMethodCall() {
+    return asg.getRhs() instanceof JMethodCall;
+  }
+
+  public boolean isPolymorphicMethodCall() {
+    return asg.getRhs() instanceof JPolymorphicMethodCall;
+  }
+
   @Override
   public void traverse(@Nonnull JVisitor visitor) {
     if (visitor.visit(this)) {
@@ -66,6 +96,31 @@ public class JVariableAsgBlockElement extends JBasicBlockElement {
 
   @Override
   public boolean isTerminal() {
-    return asg.canThrow();
+    return asg.getRhs().canThrow() || isCatchVariableAssignment();
+  }
+
+  @Override
+  public void checkValidity() {
+    super.checkValidity();
+
+    if (isCatchVariableAssignment()) {
+      if (!(getBasicBlock() instanceof JCatchBasicBlock)) {
+        throw new JNodeInternalError(this, "Parent block must be JCatchBasicBlock");
+      }
+
+    } else if (asg.getRhs().canThrow()) {
+      if (!(getBasicBlock() instanceof JThrowingExpressionBasicBlock)) {
+        throw new JNodeInternalError(this, "Parent block must be JThrowingExpressionBasicBlock");
+      }
+      if (getBasicBlock().getLastElement() != this) {
+        throw new JNodeInternalError(this, "Element must be the last element of the block");
+      }
+
+    } else {
+      if (getBasicBlock().getLastElement() == this) {
+        throw new JNodeInternalError(this,
+            "The element must not be the last element of the parent block");
+      }
+    }
   }
 }

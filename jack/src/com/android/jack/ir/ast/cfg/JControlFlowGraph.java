@@ -152,5 +152,8 @@ public final class JControlFlowGraph extends JNode {
 
   @Override
   public void checkValidity() {
+    for (JBasicBlock block : this.getAllBlocksUnordered()) {
+      block.checkValidity();
+    }
   }
 }

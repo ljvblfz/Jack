@@ -82,11 +82,6 @@ public final class JExitBasicBlock extends JBasicBlock {
   }
 
   @Override
-  public void checkValidity() {
-    super.checkValidity();
-  }
-
-  @Override
   public void traverse(@Nonnull JVisitor visitor) {
     visitor.visit(this);
     visitor.endVisit(this);
@@ -108,6 +103,11 @@ public final class JExitBasicBlock extends JBasicBlock {
     // Splitting the exit basic block is not good at all, even if possible,
     // since exception throwing blocks must reference it as their uncaught
     // exception block and split(...) will break this invariant
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void replaceWith(@Nonnull JBasicBlock block) {
     throw new UnsupportedOperationException();
   }
 }

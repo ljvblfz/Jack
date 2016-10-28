@@ -81,7 +81,7 @@ public class JLocal extends JVariable implements HasEnclosingMethod {
 
   @Override
   public void checkValidity() {
-    if (!(parent instanceof JMethodBody || parent instanceof JCatchBlock)) {
+    if (!(parent instanceof JConcreteMethodBody || parent instanceof JCatchBlock)) {
       throw new JNodeInternalError(this, "Invalid parent");
     }
   }

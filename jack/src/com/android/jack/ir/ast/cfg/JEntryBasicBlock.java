@@ -100,11 +100,6 @@ public final class JEntryBasicBlock extends JBasicBlock {
   }
 
   @Override
-  public void checkValidity() {
-    super.checkValidity();
-  }
-
-  @Override
   public void traverse(@Nonnull JVisitor visitor) {
     visitor.visit(this);
     visitor.endVisit(this);
@@ -118,5 +113,10 @@ public final class JEntryBasicBlock extends JBasicBlock {
   @Override
   public void visit(@Nonnull JVisitor visitor, @Nonnull TransformRequest request) throws Exception {
     visitor.visit(this, request);
+  }
+
+  @Override
+  public void replaceWith(@Nonnull JBasicBlock block) {
+    throw new UnsupportedOperationException();
   }
 }

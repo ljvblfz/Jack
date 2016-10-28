@@ -16,6 +16,8 @@
 package com.android.jack.ir.ast;
 
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
+import com.android.jack.ir.ast.cfg.JCaseBlockElement;
+import com.android.jack.ir.ast.cfg.JSwitchBlockElement;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
@@ -80,7 +82,10 @@ public class JShortLiteral extends JNumberValueLiteral
 
   @Override
   public void checkValidity() {
-    if (!(parent instanceof JSwitchStatement || parent instanceof JCaseStatement)) {
+    if (!(parent instanceof JSwitchStatement
+        || parent instanceof JSwitchBlockElement
+        || parent instanceof JCaseStatement
+        || parent instanceof JCaseBlockElement)) {
       super.checkValidity();
     }
   }

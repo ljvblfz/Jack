@@ -17,6 +17,7 @@
 package com.android.jack.ir.ast;
 
 import com.android.jack.ir.JNodeInternalError;
+import com.android.jack.ir.ast.cfg.JReturnBlockElement;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 
 /**
@@ -34,6 +35,7 @@ public abstract class JNumberValueLiteral extends JValueLiteral {
         || parent instanceof JNameValuePair
         || parent instanceof JAnnotationMethod
         || parent instanceof JReturnStatement
+        || parent instanceof JReturnBlockElement
         || parent instanceof JFieldInitializer)) {
       throw new JNodeInternalError(this, "Invalid parent");
     }

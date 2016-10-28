@@ -17,48 +17,38 @@
 package com.android.jack.ir.ast.cfg;
 
 import com.android.jack.ir.JNodeInternalError;
-import com.android.jack.ir.ast.JExpression;
-import com.android.jack.ir.ast.JPrimitiveType;
 import com.android.jack.ir.ast.JVisitor;
-import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 
 import javax.annotation.Nonnull;
 
-/** Represents switch basic block element */
-public class JSwitchBlockElement extends JBasicBlockElement {
-  @Nonnull
-  private JExpression expr;
-
-  JSwitchBlockElement(@Nonnull SourceInfo info,
-      @Nonnull ExceptionHandlingContext ehc, @Nonnull JExpression expr) {
-    super(info, ehc);
-    assert !expr.canThrow();
-    assert !JPrimitiveType.JPrimitiveTypeEnum.VOID.getType().isSameType(expr.getType());
-    assert expr.getType() instanceof JPrimitiveType;
-    this.expr = expr;
-    this.expr.updateParents(this);
+/** Represents case basic block. */
+public final class JCaseBasicBlock extends JRegularBasicBlock {
+  public JCaseBasicBlock(@Nonnull JControlFlowGraph cfg, @Nonnull JBasicBlock primary) {
+    super(primary);
+    updateParents(cfg);
   }
 
-  @Nonnull
-  public JExpression getExpression() {
-    return expr;
+  @Override
+  public boolean hasPrimarySuccessor() {
+    return true;
   }
 
   @Nonnull
   @Override
-  public JSwitchBasicBlock getBasicBlock() {
-    JBasicBlock block = super.getBasicBlock();
-    assert block instanceof JSwitchBasicBlock;
-    return (JSwitchBasicBlock) block;
+  public JSimpleBasicBlock split(int at) {
+    // Case blocks are referenced directly by JSwitchBasicBlock and cannot
+    // be split so that there is another block in between switch block and
+    // case block. Consider splitting the only successor of the case block.
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void traverse(@Nonnull JVisitor visitor) {
     if (visitor.visit(this)) {
-      visitor.accept(expr);
+      acceptElements(visitor);
     }
     visitor.endVisit(this);
   }
@@ -66,7 +56,7 @@ public class JSwitchBlockElement extends JBasicBlockElement {
   @Override
   public void traverse(@Nonnull ScheduleInstance<? super Component> schedule) throws Exception {
     schedule.process(this);
-    expr.traverse(schedule);
+    traverseElements(schedule);
   }
 
   @Override
@@ -75,19 +65,14 @@ public class JSwitchBlockElement extends JBasicBlockElement {
   }
 
   @Override
-  public boolean isTerminal() {
-    return true;
-  }
-
-  @Override
   public void checkValidity() {
     super.checkValidity();
 
-    if (!(super.getBasicBlock() instanceof JSwitchBasicBlock)) {
-      throw new JNodeInternalError(this, "The parent node must be JSwitchBasicBlock");
+    if (getElementCount() != 1) {
+      throw new JNodeInternalError(this, "Block must always have one single element");
     }
-    if (this != getBasicBlock().getLastElement()) {
-      throw new JNodeInternalError(this, "Must be the last element of the basic block");
+    if (!(getLastElement() instanceof JCaseBlockElement)) {
+      throw new JNodeInternalError(this, "The only element of the block must be case element");
     }
   }
 }

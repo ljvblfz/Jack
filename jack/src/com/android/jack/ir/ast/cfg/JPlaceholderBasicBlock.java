@@ -16,6 +16,7 @@
 
 package com.android.jack.ir.ast.cfg;
 
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.sched.item.Component;
 import com.android.sched.scheduler.ScheduleInstance;
@@ -96,7 +97,8 @@ public final class JPlaceholderBasicBlock extends JBasicBlock {
 
   @Override
   public void checkValidity() {
-    throw new AssertionError();
+    throw new JNodeInternalError(this,
+        "Placeholder basic block is transient and should not exist during validation");
   }
 
   @Override
@@ -109,16 +111,5 @@ public final class JPlaceholderBasicBlock extends JBasicBlock {
 
   @Override
   public void visit(@Nonnull JVisitor visitor, @Nonnull TransformRequest request) throws Exception {
-  }
-
-  /**
-   * Removes the basic block by redirecting all the predecessors to point to the
-   * the specified `block`.
-   */
-  public void replaceWith(@Nonnull JBasicBlock block) {
-    // Redirect all the successors to point the primary successor of this block
-    for (JBasicBlock pre : this.getPredecessorsSnapshot()) {
-      pre.replaceAllSuccessors(this, block);
-    }
   }
 }

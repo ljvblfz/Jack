@@ -54,6 +54,7 @@ import com.android.jack.ir.ast.JThrowStatement;
 import com.android.jack.ir.ast.JUnlock;
 import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.booleanoperators.FallThroughMarker;
 import com.android.jack.transformations.request.Replace;
@@ -258,6 +259,36 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
         builder.accept(stmt);
       }
 
+      // Make sure Simple block element always has a trailing goto element
+      if (newBlock instanceof JSimpleBasicBlock) {
+        assert newBlock.hasElements();
+        if (!(newBlock.getLastElement() instanceof JGotoBlockElement)) {
+          newBlock.appendElement(new JGotoBlockElement(SourceInfo.UNKNOWN,
+              newBlock.getLastElement().getEHContext()));
+        }
+      }
+
+      // We have to special-case creation of JCaseBasicBlock with does not exist in CFG marker.
+      // If the first element of the created basic block is JCaseBlockElement, we will
+      // split the block we just created into two blocks and make a new JCaseBasicBlock
+      // of the first one.
+      assert newBlock.hasElements();
+      if (newBlock.getFirstElement() instanceof JCaseBlockElement) {
+        JSimpleBasicBlock firstBlock = newBlock.split(1);
+        assert firstBlock.getElementCount() == 2;
+        assert firstBlock.getPredecessors().isEmpty();
+
+        JCaseBasicBlock caseBlock = new JCaseBasicBlock(cfg, newBlock);
+        caseBlock.appendElement(firstBlock.getFirstElement());
+        newBlock = caseBlock;
+
+        // Dereference newBlock
+        firstBlock.dereferenceAllSuccessors();
+
+        // Note that the just created basic block is going to
+        // represent the original CFG marker block.
+      }
+
       // Replace temp block with real one and fix-up references
       placeholderBlock.replaceWith(newBlock);
 
@@ -288,7 +319,10 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
         assert !sealed;
         this.elements.put(element, statement);
         this.block.appendElement(element);
-        this.sealed = element.isTerminal();
+        // NOTE: don't consider case elements as terminal, the block will be split
+        //       later into a case basic block and rest representing the current block
+        this.sealed = element.isTerminal() &&
+            !(element instanceof JCaseBlockElement);
       }
 
       @Override

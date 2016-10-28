@@ -16,6 +16,7 @@
 
 package com.android.jack.ir.ast.cfg;
 
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JArrayRef;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JExpression;
@@ -95,5 +96,17 @@ public class JStoreBlockElement extends JBasicBlockElement {
   @Override
   public boolean isTerminal() {
     return true;
+  }
+
+  @Override
+  public void checkValidity() {
+    super.checkValidity();
+
+    if (!(super.getBasicBlock() instanceof JThrowingExpressionBasicBlock)) {
+      throw new JNodeInternalError(this, "The parent node must be JThrowingExpressionBasicBlock");
+    }
+    if (this != getBasicBlock().getLastElement()) {
+      throw new JNodeInternalError(this, "Must be the last element of the basic block");
+    }
   }
 }

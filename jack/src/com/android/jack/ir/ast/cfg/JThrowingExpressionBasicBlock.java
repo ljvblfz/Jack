@@ -16,6 +16,7 @@
 
 package com.android.jack.ir.ast.cfg;
 
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.sched.item.Component;
 import com.android.sched.scheduler.ScheduleInstance;
@@ -63,5 +64,24 @@ public final class JThrowingExpressionBasicBlock extends JThrowingBasicBlock {
    */
   public void delete() {
     deleteByRedirectingToPrimarySuccessor();
+  }
+
+  @Override
+  public void checkValidity() {
+    super.checkValidity();
+
+    JBasicBlockElement lastElement = getLastElement();
+    boolean lastElementCanThrow = lastElement instanceof JMethodCallBlockElement
+        || lastElement instanceof JPolymorphicMethodCallBlockElement
+        || lastElement instanceof JLockBlockElement
+        || lastElement instanceof JUnlockBlockElement
+        || lastElement instanceof JStoreBlockElement
+        || (lastElement instanceof JVariableAsgBlockElement &&
+        ((JVariableAsgBlockElement) lastElement).getAssignment().getRhs().canThrow());
+
+    if (!lastElementCanThrow) {
+      throw new JNodeInternalError(this,
+          "The last element of the block must be an element that may throw");
+    }
   }
 }

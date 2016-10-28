@@ -16,6 +16,7 @@
 
 package com.android.jack.ir.ast.cfg;
 
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.sched.item.Component;
 import com.android.sched.scheduler.ScheduleInstance;
@@ -54,5 +55,15 @@ public final class JReturnBasicBlock extends JRegularBasicBlock {
   @Override
   public void visit(@Nonnull JVisitor visitor, @Nonnull TransformRequest request) throws Exception {
     visitor.visit(this, request);
+  }
+
+  @Override
+  public void checkValidity() {
+    super.checkValidity();
+
+    if (!(getLastElement() instanceof JReturnBlockElement)) {
+      throw new JNodeInternalError(this,
+          "The last element of the block must be return element");
+    }
   }
 }

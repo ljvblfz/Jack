@@ -65,6 +65,10 @@ public class CfgBasicBlockTracker implements RunnableSchedulable<JBasicBlock> {
       "jack.cfg.bb.switch", "Switch basic block statistics",
       ExtendedSampleImpl.class, ExtendedSample.class);
   @Nonnull
+  private static final StatisticId<ExtendedSample> CASE_COUNT = new StatisticId<>(
+      "jack.cfg.bb.catch", "Case basic block statistics",
+      ExtendedSampleImpl.class, ExtendedSample.class);
+  @Nonnull
   private static final StatisticId<ExtendedSample> CATCH_COUNT = new StatisticId<>(
       "jack.cfg.bb.catch", "Catch basic block statistics",
       ExtendedSampleImpl.class, ExtendedSample.class);
@@ -95,6 +99,12 @@ public class CfgBasicBlockTracker implements RunnableSchedulable<JBasicBlock> {
     @Override public boolean visit(@Nonnull JExitBasicBlock block) {
       // Don't count in total
       tracer.getStatistic(EXIT_COUNT).add(block.getElementCount());
+      return false;
+    }
+
+    @Override public boolean visit(@Nonnull JCaseBasicBlock block) {
+      tracer.getStatistic(TOTAL_COUNT).add(block.getElementCount());
+      tracer.getStatistic(CASE_COUNT).add(block.getElementCount());
       return false;
     }
 

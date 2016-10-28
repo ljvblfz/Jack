@@ -16,6 +16,7 @@
 
 package com.android.jack.ir.ast.cfg;
 
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
@@ -36,6 +37,14 @@ public class JGotoBlockElement extends JBasicBlockElement {
     visitor.endVisit(this);
   }
 
+  @Nonnull
+  @Override
+  public JSimpleBasicBlock getBasicBlock() {
+    JBasicBlock block = super.getBasicBlock();
+    assert block instanceof JSimpleBasicBlock;
+    return (JSimpleBasicBlock) block;
+  }
+
   @Override
   public void traverse(@Nonnull ScheduleInstance<? super Component> schedule) throws Exception {
     schedule.process(this);
@@ -49,5 +58,17 @@ public class JGotoBlockElement extends JBasicBlockElement {
   @Override
   public boolean isTerminal() {
     return true;
+  }
+
+  @Override
+  public void checkValidity() {
+    super.checkValidity();
+
+    if (!(super.getBasicBlock() instanceof JSimpleBasicBlock)) {
+      throw new JNodeInternalError(this, "The parent node must be JSimpleBasicBlock");
+    }
+    if (this != getBasicBlock().getLastElement()) {
+      throw new JNodeInternalError(this, "Must be the last element of the basic block");
+    }
   }
 }

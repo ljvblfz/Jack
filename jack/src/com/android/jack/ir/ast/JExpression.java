@@ -16,6 +16,7 @@
 package com.android.jack.ir.ast;
 
 import com.android.jack.ir.JNodeInternalError;
+import com.android.jack.ir.ast.cfg.JBasicBlockElement;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Description;
 
@@ -46,7 +47,9 @@ public abstract class JExpression extends JNode implements HasType {
 
   @Override
   public void checkValidity() {
-    if (!(parent instanceof JExpression || parent instanceof JStatement)) {
+    if (!(parent instanceof JExpression
+        || parent instanceof JStatement
+        || parent instanceof JBasicBlockElement)) {
       throw new JNodeInternalError(this, "Invalid parent");
     }
   }

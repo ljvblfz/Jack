@@ -21,6 +21,7 @@ import com.android.jack.ir.HasSourceInfo;
 import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.cfg.JBasicBlock;
 import com.android.jack.ir.ast.cfg.JBasicBlockElement;
+import com.android.jack.ir.ast.cfg.JCaseBasicBlock;
 import com.android.jack.ir.ast.cfg.JCaseBlockElement;
 import com.android.jack.ir.ast.cfg.JCatchBasicBlock;
 import com.android.jack.ir.ast.cfg.JConditionalBasicBlock;
@@ -189,6 +190,10 @@ public class JVisitor {
 
   public void endVisit(@Nonnull JBasicBlock basicBlock) {
     endVisit((JNode) basicBlock);
+  }
+
+  public void endVisit(@Nonnull JCaseBasicBlock caseBasicBlock) {
+    endVisit((JRegularBasicBlock) caseBasicBlock);
   }
 
   public void endVisit(@Nonnull JCatchBasicBlock catchBasicBlock) {
@@ -711,6 +716,10 @@ public class JVisitor {
 
   public boolean visit(@Nonnull JCatchBasicBlock catchBasicBlock) {
     return visit((JRegularBasicBlock) catchBasicBlock);
+  }
+
+  public boolean visit(@Nonnull JCaseBasicBlock caseBasicBlock) {
+    return visit((JRegularBasicBlock) caseBasicBlock);
   }
 
   public boolean visit(@Nonnull JConditionalBasicBlock conditionalBasicBlock) {
@@ -1245,6 +1254,11 @@ public class JVisitor {
   public void visit(@Nonnull JCatchBasicBlock catchBasicBlock,
       @Nonnull TransformRequest transformRequest) throws Exception {
     visit((JRegularBasicBlock) catchBasicBlock, transformRequest);
+  }
+
+  public void visit(@Nonnull JCaseBasicBlock caseBasicBlock,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JRegularBasicBlock) caseBasicBlock, transformRequest);
   }
 
   public void visit(@Nonnull JConditionalBasicBlock conditionalBasicBlock,

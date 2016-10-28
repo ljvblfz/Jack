@@ -1718,6 +1718,10 @@ public abstract class Jack {
           .appendSubPlan(JMethodAdapter.class);
       methodPlan.append(MethodBodyCfgBuilder.class);
       methodPlan.append(CfgMarkerRemover.class);
+
+      if (hasSanityChecks) {
+        planBuilder.append(AstChecker.class);
+      }
     }
 
     // Cfg-IR base transformations

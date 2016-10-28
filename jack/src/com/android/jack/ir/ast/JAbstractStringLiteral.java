@@ -17,6 +17,9 @@ package com.android.jack.ir.ast;
 
 import com.android.jack.Jack;
 import com.android.jack.ir.JNodeInternalError;
+import com.android.jack.ir.ast.cfg.JCaseBlockElement;
+import com.android.jack.ir.ast.cfg.JReturnBlockElement;
+import com.android.jack.ir.ast.cfg.JSwitchBlockElement;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
 import com.android.sched.item.Description;
@@ -53,8 +56,11 @@ public abstract class JAbstractStringLiteral extends JValueLiteral {
         || parent instanceof JNameValuePair
         || parent instanceof JAssertStatement
         || parent instanceof JCaseStatement
+        || parent instanceof JCaseBlockElement
         || parent instanceof JReturnStatement
+        || parent instanceof JReturnBlockElement
         || parent instanceof JSwitchStatement
+        || parent instanceof JSwitchBlockElement
         || parent instanceof JAnnotationMethod
         || parent instanceof JFieldInitializer
         || parent instanceof JSynchronizedBlock)) {

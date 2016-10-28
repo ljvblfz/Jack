@@ -17,6 +17,7 @@
 package com.android.jack.ir.ast.cfg;
 
 import com.android.jack.Jack;
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.sched.item.Component;
 import com.android.sched.scheduler.ScheduleInstance;
@@ -93,5 +94,15 @@ public final class JSwitchBasicBlock extends JRegularBasicBlock {
   @Override
   public void visit(@Nonnull JVisitor visitor, @Nonnull TransformRequest request) throws Exception {
     visitor.visit(this, request);
+  }
+
+  @Override
+  public void checkValidity() {
+    super.checkValidity();
+
+    if (!(getLastElement() instanceof JSwitchBlockElement)) {
+      throw new JNodeInternalError(this,
+          "The last element of the block must be switch element");
+    }
   }
 }

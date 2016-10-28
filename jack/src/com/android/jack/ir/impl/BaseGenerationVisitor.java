@@ -115,6 +115,7 @@ import com.android.jack.ir.ast.JUnlock;
 import com.android.jack.ir.ast.JWhileStatement;
 import com.android.jack.ir.ast.cfg.JBasicBlock;
 import com.android.jack.ir.ast.cfg.JBasicBlockElement;
+import com.android.jack.ir.ast.cfg.JCaseBasicBlock;
 import com.android.jack.ir.ast.cfg.JCaseBlockElement;
 import com.android.jack.ir.ast.cfg.JCatchBasicBlock;
 import com.android.jack.ir.ast.cfg.JConditionalBasicBlock;
@@ -1060,6 +1061,13 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
   @Override
   public boolean visit(@Nonnull JCatchBasicBlock x) {
     print("catch");
+    printBlockCommon(x);
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JCaseBasicBlock x) {
+    print("case");
     printBlockCommon(x);
     return false;
   }

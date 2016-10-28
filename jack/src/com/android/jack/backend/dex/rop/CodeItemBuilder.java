@@ -61,6 +61,7 @@ import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JThis;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.cfg.JBasicBlock;
+import com.android.jack.ir.ast.cfg.JCaseBasicBlock;
 import com.android.jack.ir.ast.cfg.JCatchBasicBlock;
 import com.android.jack.ir.ast.cfg.JConditionalBasicBlock;
 import com.android.jack.ir.ast.cfg.JControlFlowGraph;
@@ -246,7 +247,9 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
         JVisitor visitor = new JVisitor() {
           @Override
           public boolean visit(@Nonnull JRegularBasicBlock bb) {
-            assert bb instanceof JSimpleBasicBlock || bb instanceof JCatchBasicBlock;
+            assert bb instanceof JSimpleBasicBlock
+                || bb instanceof JCatchBasicBlock
+                || bb instanceof JCaseBasicBlock;
             assert bb.hasPrimarySuccessor();
 
             JBasicBlock primarySuccessor = bb.getPrimarySuccessor();

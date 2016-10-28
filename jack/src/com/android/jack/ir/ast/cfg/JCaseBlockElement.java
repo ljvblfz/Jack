@@ -16,6 +16,7 @@
 
 package com.android.jack.ir.ast.cfg;
 
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JLiteral;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
@@ -47,6 +48,14 @@ public class JCaseBlockElement extends JBasicBlockElement {
   }
 
   @Override
+  @Nonnull
+  public JCaseBasicBlock getBasicBlock() {
+    JBasicBlock block = super.getBasicBlock();
+    assert block instanceof JCaseBasicBlock;
+    return (JCaseBasicBlock) block;
+  }
+
+  @Override
   public void traverse(@Nonnull JVisitor visitor) {
     if (visitor.visit(this)) {
       if (literal != null) {
@@ -71,6 +80,19 @@ public class JCaseBlockElement extends JBasicBlockElement {
 
   @Override
   public boolean isTerminal() {
-    return false;
+    // Must terminate JCaseBasicBlock
+    return true;
+  }
+
+  @Override
+  public void checkValidity() {
+    super.checkValidity();
+
+    if (!(super.getBasicBlock() instanceof JCaseBasicBlock)) {
+      throw new JNodeInternalError(this, "The parent node must be JCaseBasicBlock");
+    }
+    if (this != getBasicBlock().getLastElement()) {
+      throw new JNodeInternalError(this, "Must be the last element of the basic block");
+    }
   }
 }

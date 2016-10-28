@@ -16,6 +16,7 @@
 package com.android.jack.ir.ast;
 
 import com.android.jack.ir.JNodeInternalError;
+import com.android.jack.ir.ast.cfg.JReturnBlockElement;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
@@ -90,6 +91,7 @@ public class JClassLiteral extends JLiteral {
         || parent instanceof JAnnotationMethod
         || parent instanceof JFieldInitializer
         || parent instanceof JReturnStatement
+        || parent instanceof JReturnBlockElement
         || parent instanceof JSynchronizedBlock)) {
       throw new JNodeInternalError(this, "Invalid parent");
     }
