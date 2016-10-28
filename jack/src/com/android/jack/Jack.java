@@ -158,7 +158,7 @@ import com.android.jack.reporting.ReportableIOException;
 import com.android.jack.reporting.Reporter;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.resource.LibraryResourceWriter;
-import com.android.jack.scheduling.adapter.JBasicBlockBackwardsDepthFirstAdapter;
+import com.android.jack.scheduling.adapter.JAllBasicBlockAdapter;
 import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdapter;
 import com.android.jack.scheduling.adapter.JFieldAdapter;
 import com.android.jack.scheduling.adapter.JMethodAdapter;
@@ -1736,7 +1736,7 @@ public abstract class Jack {
 
       cfgPlan.append(ControlFlowGraphSizeTracker.class);
       cfgPlan
-          .appendSubPlan(JBasicBlockBackwardsDepthFirstAdapter.class)
+          .appendSubPlan(JAllBasicBlockAdapter.class)
           .append(CfgBasicBlockTracker.class);
     }
 

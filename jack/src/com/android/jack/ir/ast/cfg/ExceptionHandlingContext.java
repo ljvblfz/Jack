@@ -63,41 +63,23 @@ public final class ExceptionHandlingContext {
 
   @Override
   public boolean equals(Object obj) {
-    if (!(obj instanceof ExceptionHandlingContext)) {
-      return false;
-    }
-
-    List<JCatchBasicBlock> thisBlocks = this.catchBlocks;
-    List<JCatchBasicBlock> otherBlocks = ((ExceptionHandlingContext) obj).catchBlocks;
-    int size = otherBlocks.size();
-    if (size == thisBlocks.size()) {
-      for (int i = 0; i < size; i++) {
-        if (otherBlocks.get(i) != thisBlocks.get(i)) {
-          return false;
-        }
-      }
-    }
-    return true;
+    return obj instanceof ExceptionHandlingContext &&
+        this.catchBlocks.equals(((ExceptionHandlingContext) obj).catchBlocks);
   }
 
   /** Creates a pool of unique exception handler contexts */
   static class Pool {
     @Nonnull
-    private final Map<ExceptionHandlingContext, ExceptionHandlingContext> pool = new HashMap<>();
+    private final Map<List<JCatchBasicBlock>, ExceptionHandlingContext> pool = new HashMap<>();
 
     @Nonnull
     ExceptionHandlingContext getOrCreate(@Nonnull List<JCatchBasicBlock> catchBlocks) {
-      if (catchBlocks.isEmpty()) {
-        return EMPTY;
+      ExceptionHandlingContext ehc = pool.get(catchBlocks);
+      if (ehc == null) {
+        ehc = ExceptionHandlingContext.create(catchBlocks);
+        pool.put(catchBlocks, ehc);
       }
-
-      ExceptionHandlingContext context = ExceptionHandlingContext.create(catchBlocks);
-      ExceptionHandlingContext existing = pool.get(context);
-      if (existing == null) {
-        existing = context;
-        pool.put(context, context);
-      }
-      return existing;
+      return ehc;
     }
   }
 }

@@ -16,6 +16,8 @@
 
 package com.android.jack.ir.ast.cfg;
 
+import com.google.common.collect.Lists;
+
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBodyCfg;
 import com.android.jack.ir.ast.JNode;
@@ -27,7 +29,11 @@ import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.Set;
 import javax.annotation.Nonnull;
 
 /** Represents method control flow graph */
@@ -82,23 +88,59 @@ public final class JControlFlowGraph extends JNode {
     return blocks;
   }
 
+  /**
+   * Returns all basic blocks reachable from entry or exit block via
+   * successor/predecessor edges. Note that some of the blocks may not be
+   * returned by getBlocksDepthFirst(true) or getBlocksDepthFirst(false).
+   *
+   * The blocks are returned in stable order, i.e. two calls to this method
+   * will return the same sequence of the blocks.
+   **/
+  @Nonnull
+  public List<JBasicBlock> getAllBlocksUnordered() {
+    Set<JBasicBlock> blocks = new LinkedHashSet<>();
+    Queue<JBasicBlock> queue = new LinkedList<>(); // Contains duplicates
+
+    queue.offer(this.getEntryBlock());
+    queue.offer(this.getExitBlock());
+
+    while (!queue.isEmpty()) {
+      JBasicBlock block = queue.remove();
+      if (!blocks.contains(block)) {
+        blocks.add(block);
+        for (JBasicBlock successor : block.getSuccessors()) {
+          if (!blocks.contains(successor)) {
+            queue.offer(successor);
+          }
+        }
+        for (JBasicBlock predecessor : block.getPredecessors()) {
+          if (!blocks.contains(predecessor)) {
+            queue.offer(predecessor);
+          }
+        }
+      }
+    }
+
+    return Lists.newArrayList(blocks);
+  }
+
+  /** Traverses the the blocks in the order provided by `getAllBlocksUnordered()` */
   @Override
   public void traverse(@Nonnull final JVisitor visitor) {
-    // NOTE: backward depth-first basic blocks traversal
     if (visitor.visit(this)) {
-      for (JBasicBlock block : getBlocksDepthFirst(/* forward = */ false)) {
+      for (JBasicBlock block : getAllBlocksUnordered()) {
         visitor.accept(block);
       }
     }
     visitor.endVisit(this);
   }
 
+  /** Traverses the the blocks in the order provided by `getAllBlocksUnordered()` */
   @Override
   public void traverse(
       @Nonnull final ScheduleInstance<? super Component> schedule) throws Exception {
     schedule.process(this);
-    // NOTE: backward depth-first basic blocks traversal
-    for (JBasicBlock block : getBlocksDepthFirst(/* forward = */ false)) {
+    for (JBasicBlock block : getAllBlocksUnordered()) {
       block.traverse(schedule);
     }
   }

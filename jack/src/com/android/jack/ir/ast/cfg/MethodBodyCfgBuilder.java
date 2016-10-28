@@ -153,7 +153,7 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
           // Create an ordered list of just created basic blocks to match the list of
           // catch blocks returned by getJCatchBlocks() of the original statement.
 
-          List<JCatchBasicBlock> newCatchBlocks = new ArrayList<>();
+          List<JCatchBasicBlock> newCatchBlocks = new ArrayList<>(origCatchBlocks.size());
           for (JCatchBlock origCatchBlock : origCatchBlocks) {
             BasicBlockMarker marker = origCatchBlock.getMarker(BasicBlockMarker.class);
             assert marker != null;
@@ -198,12 +198,14 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
         int index = 0;
 
         JThrowingBasicBlock throwingBlock =
-            block instanceof ThrowBasicBlock ?
-                new JThrowBasicBlock(cfg,
-                    buildBlock(successors.get(index++))) :
-                new JThrowingExpressionBasicBlock(cfg,
-                    buildBlock(successors.get(index++)),
+            (block instanceof ThrowBasicBlock)
+                ? new JThrowBasicBlock(cfg)
+                : new JThrowingExpressionBasicBlock(cfg,
                     buildBlock(successors.get(index++)));
+
+        // Build uncaught exception block (which should be CFGs exit block)
+        JBasicBlock uncaughtExceptionBlock = buildBlock(successors.get(index++));
+        assert uncaughtExceptionBlock == cfg.getExitBlock();
 
         for (; index < successors.size(); index++) {
           // Build the catch block, note that catch blocks will be assigned later

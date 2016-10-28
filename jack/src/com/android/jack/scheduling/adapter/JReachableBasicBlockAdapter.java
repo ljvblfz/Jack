@@ -16,8 +16,6 @@
 
 package com.android.jack.scheduling.adapter;
 
-import com.google.common.collect.Lists;
-
 import com.android.jack.ir.ast.cfg.JBasicBlock;
 import com.android.jack.ir.ast.cfg.JControlFlowGraph;
 import com.android.sched.item.Description;
@@ -27,20 +25,18 @@ import java.util.Iterator;
 import javax.annotation.Nonnull;
 
 /**
- * Adapts a process on {@code JControlFlowGraph} onto one or several processes on each
- * {@code JBasicBlock} of this type control flow graph in forward depth first order.
+ * Adapts a process on {@code JControlFlowGraph} onto one or several processes
+ * on each reachable {@code JBasicBlock} of this type control flow graph.
  */
-@Description("Adapts process on JControlFlowGraph to one or several "
-    + "processes on each of its basic blocks in backward depth first order")
-public class JBasicBlockBackwardsDepthFirstAdapter
+@Description("Adapts process on JControlFlowGraph to one "
+    + "or several processes on each of its reachable basic blocks")
+public class JReachableBasicBlockAdapter
     implements AdapterSchedulable<JControlFlowGraph, JBasicBlock> {
 
-  /**
-   * Returns every {@code JBasicBlock} of the given {@code JControlFlowGraph}.
-   */
+  /** Returns every reachable {@code JBasicBlock} of the given {@code JControlFlowGraph}. */
   @Override
   @Nonnull
   public Iterator<JBasicBlock> adapt(@Nonnull JControlFlowGraph cfg) {
-    return Lists.newArrayList(cfg.getBlocksDepthFirst(/* forward = */ false)).iterator();
+    return cfg.getBlocksDepthFirst(/* forward = */ true).iterator();
   }
 }

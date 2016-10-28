@@ -27,9 +27,9 @@ import javax.annotation.Nonnull;
 /** Represents blocks which potentially may trigger exceptions. */
 public final class JThrowingExpressionBasicBlock extends JThrowingBasicBlock {
   @SuppressFBWarnings("NP_METHOD_PARAMETER_TIGHTENS_ANNOTATION")
-  public JThrowingExpressionBasicBlock(@Nonnull JControlFlowGraph cfg,
-      @Nonnull JBasicBlock primary, @Nonnull JBasicBlock unhandled) {
-    super(primary, unhandled);
+  public JThrowingExpressionBasicBlock(
+      @Nonnull JControlFlowGraph cfg, @Nonnull JBasicBlock primary) {
+    super(primary, cfg.getExitBlock());
     updateParents(cfg);
   }
 

@@ -27,8 +27,8 @@ import javax.annotation.Nonnull;
 /** Represents blocks ended by throw. */
 public final class JThrowBasicBlock extends JThrowingBasicBlock {
   @SuppressFBWarnings("NP_METHOD_PARAMETER_TIGHTENS_ANNOTATION")
-  public JThrowBasicBlock(@Nonnull JControlFlowGraph cfg, @Nonnull JBasicBlock unhandled) {
-    super(null, unhandled);
+  public JThrowBasicBlock(@Nonnull JControlFlowGraph cfg) {
+    super(null, cfg.getExitBlock());
     updateParents(cfg);
   }
 

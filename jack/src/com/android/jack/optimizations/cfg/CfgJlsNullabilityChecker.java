@@ -111,7 +111,7 @@ public final class CfgJlsNullabilityChecker {
     JLocal tmp = varCreator.createTempLocal(exceptionType, SourceInfo.UNKNOWN, request);
 
     // throw -tmp
-    JThrowBasicBlock bbT3 = new JThrowBasicBlock(cfg, cfg.getExitBlock());
+    JThrowBasicBlock bbT3 = new JThrowBasicBlock(cfg);
     JThrowBlockElement throwExpr = new JThrowBlockElement(
         SourceInfo.UNKNOWN, ehContext, tmp.makeRef(SourceInfo.UNKNOWN));
     bbT3.appendElement(throwExpr);
@@ -131,7 +131,7 @@ public final class CfgJlsNullabilityChecker {
                 false));
 
     JThrowingExpressionBasicBlock bbT2 =
-        new JThrowingExpressionBasicBlock(cfg, bbT3, cfg.getExitBlock());
+        new JThrowingExpressionBasicBlock(cfg, bbT3);
     bbT2.appendElement(constructorCall);
     bbT2.resetCatchBlocks();
 
@@ -142,7 +142,7 @@ public final class CfgJlsNullabilityChecker {
                 new JAlloc(SourceInfo.UNKNOWN, exceptionType)));
 
     JThrowingExpressionBasicBlock bbT1 =
-        new JThrowingExpressionBasicBlock(cfg, bbT2, cfg.getExitBlock());
+        new JThrowingExpressionBasicBlock(cfg, bbT2);
     bbT1.appendElement(alloc);
     bbT1.resetCatchBlocks();
 

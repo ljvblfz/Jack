@@ -37,6 +37,12 @@ public abstract class JBasicBlock extends JNode {
 
   JBasicBlock() {
     super(SourceInfo.UNKNOWN);
+    // NOTE: we cannot pass cfg to set up the parent at this phase,
+    // because call updateParents() will try to visit the basic block
+    // being constructed and it is not constructed yet.
+    //
+    // The CFG parameter must be a part of LEAF basic block constructor
+    // signature and must be set at the end of basic block construction
   }
 
   @Nonnull
@@ -110,13 +116,17 @@ public abstract class JBasicBlock extends JNode {
   }
 
   /**
-   * Splits the block at the location 'at' into two blocks, with the first
-   * block being JSimpleBasicBlock with block elements [0..at> of the original
-   * basic block and the second block being the original block without block
-   * elements moved to the first block.
-   *
+   * Splits the block at the location `at` into two blocks:
+   * <ul>
+   * <li> a new {@link JSimpleBasicBlock} with the elements [0..at) of the original
+   * basic block and goto block element at the end</li>
+   * <li> the original block with remaining elements </li>
+   * </ul>
+   * After splitting, all the predecessors of the original block re-pint to
+   * the first block, which becomes the only predecessor of the original block.
+   * <p/>
    * Note that `at` may be negative, with semantics same as in `insertElement(...)`.
-   *
+   * <p/>
    * Value of `at` must not be pointing after the last element of
    * the block, since the last element must stay in the original block.
    *
@@ -125,18 +135,22 @@ public abstract class JBasicBlock extends JNode {
    *      block {e0, e1, ... eAt, ... eN}
    *
    *   Split at '0':
-   *      simple-block {goto-element} ---> block {e0, e1, ... eAt, ... eN}
+   *      simple-block {goto-element} --->
+   *          block {e0, e1, ... eAt, ... eN}
    *
    *   Split at I:
-   *      simple-block {e0, e1, ... e(I-1), goto-element} ---> block {eI, ... eN}
+   *      simple-block {e0, e1, ... e(I-1), goto-element} --->
+   *          block {eI, ... eN}
    * </pre>
+   *
+   * Note also that some of the block kinds don't support splitting.
    */
   @Nonnull
   public abstract JSimpleBasicBlock split(int at);
 
   /**
-   * Resets successor/predecessor references for replacing 'current' with 'candidate',
-   * returns a new successor.
+   * Resets successor/predecessor references for replacing
+   * `current` with `candidate`, returns `candidate`.
    */
   @Nonnull
   JBasicBlock resetSuccessor(@Nonnull JBasicBlock current, @Nonnull JBasicBlock candidate) {

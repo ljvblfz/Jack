@@ -67,9 +67,9 @@ public class RemoveRedundantConditionalBlocks
 
           // Depending on constant value, re-point the pre-block to either
           // if-true or if-false successor of the original conditional block
-          boolean value = ((JBooleanLiteral) condition).getValue();
+          boolean isTrueValue = ((JBooleanLiteral) condition).getValue();
           preBlock.replaceAllSuccessors(block,
-              value ? block.getIfTrue() : block.getIfFalse());
+              isTrueValue ? block.getIfTrue() : block.getIfFalse());
 
           // Remove all references from the conditional block
           block.dereferenceAllSuccessors();
