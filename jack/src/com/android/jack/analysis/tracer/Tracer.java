@@ -192,13 +192,12 @@ public class Tracer extends JVisitor {
         }
 
         if (t instanceof JDefinedEnum) {
-          // The values() method is needed for the switches on enum support
+          // The 'values()' method must be traced if present (for the switches on enum support)
           try {
             JMethod values = definedClass.getMethod("values", definedClass.getArray());
             trace(values);
           } catch (JMethodLookupException e) {
-            // A valid enum must have a values() method
-            throw new AssertionError(e);
+            // Ignored since we want to support missing 'values()' method.
           }
         }
       }
