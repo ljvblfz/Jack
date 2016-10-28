@@ -270,7 +270,6 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
 
   @Test
   @Runtime
-  @KnownIssue
   public void test63_002() throws Exception {
     String testPackageName = "com.android.jack.shrob.test063";
     File testFolder = AbstractTestTools.getTestRootDir(testPackageName);

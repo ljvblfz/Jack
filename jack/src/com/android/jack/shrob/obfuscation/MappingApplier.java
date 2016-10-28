@@ -295,6 +295,7 @@ public class MappingApplier {
           NewFieldKeyMarker marker = currentType.getMarker(NewFieldKeyMarker.class);
           if (marker == null) {
             marker = new NewFieldKeyMarker();
+            currentType.addMarker(marker);
           }
           assert marker != null;
           marker.add(new FieldKey(newName, field.getType()));
