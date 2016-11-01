@@ -21,13 +21,11 @@ import com.android.jack.ir.ast.JVisitor;
 import com.android.sched.item.Component;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
-import com.android.sched.util.findbugs.SuppressFBWarnings;
 
 import javax.annotation.Nonnull;
 
 /** Represents blocks ended by throw. */
 public final class JThrowBasicBlock extends JThrowingBasicBlock {
-  @SuppressFBWarnings("NP_METHOD_PARAMETER_TIGHTENS_ANNOTATION")
   public JThrowBasicBlock(@Nonnull JControlFlowGraph cfg) {
     super(null, cfg.getExitBlock());
     updateParents(cfg);

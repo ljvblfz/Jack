@@ -26,8 +26,8 @@ import com.android.sched.transform.TransformRequest;
 import javax.annotation.Nonnull;
 
 /** Represents goto basic block element */
-public class JGotoBlockElement extends JBasicBlockElement {
-  JGotoBlockElement(@Nonnull SourceInfo info, @Nonnull ExceptionHandlingContext ehc) {
+public final class JGotoBlockElement extends JBasicBlockElement {
+  public JGotoBlockElement(@Nonnull SourceInfo info, @Nonnull ExceptionHandlingContext ehc) {
     super(info, ehc);
   }
 

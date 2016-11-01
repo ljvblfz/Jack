@@ -18,6 +18,7 @@ package com.android.jack.ir.ast.cfg;
 
 import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JLiteral;
+import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
@@ -28,7 +29,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /** Represents case branch value basic block element */
-public class JCaseBlockElement extends JBasicBlockElement {
+public final class JCaseBlockElement extends JBasicBlockElement {
   /** The value is null in case the block represents the default case of the switch */
   @CheckForNull
   private JLiteral literal;
@@ -93,6 +94,16 @@ public class JCaseBlockElement extends JBasicBlockElement {
     }
     if (this != getBasicBlock().getLastElement()) {
       throw new JNodeInternalError(this, "Must be the last element of the basic block");
+    }
+  }
+
+  @Override
+  protected void replaceImpl(
+      @Nonnull JNode existingNode, @Nonnull JNode newNode) throws UnsupportedOperationException {
+    if (literal == existingNode) {
+      literal = (JLiteral) newNode;
+    } else {
+      super.replaceImpl(existingNode, newNode);
     }
   }
 }

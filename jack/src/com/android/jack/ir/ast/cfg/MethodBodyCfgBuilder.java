@@ -54,6 +54,7 @@ import com.android.jack.ir.ast.JThrowStatement;
 import com.android.jack.ir.ast.JUnlock;
 import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.ir.ast.cfg.mutations.BasicBlockBuilder;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.booleanoperators.FallThroughMarker;
@@ -241,7 +242,11 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
       } else if (block instanceof ReturnBasicBlock) {
         List<BasicBlock> successors = block.getSuccessors();
         assert successors.size() == 1;
-        newBlock = new JReturnBasicBlock(cfg, buildBlock(successors.get(0)));
+        newBlock = new JReturnBasicBlock(cfg);
+
+        // Must always point ot the exit block
+        JBasicBlock exitBlock = buildBlock(successors.get(0));
+        assert exitBlock == cfg.getExitBlock();
 
       } else if (block instanceof NormalBasicBlock) {
         List<BasicBlock> successors = block.getSuccessors();
@@ -278,19 +283,17 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
         assert firstBlock.getElementCount() == 2;
         assert firstBlock.getPredecessors().isEmpty();
 
-        JCaseBasicBlock caseBlock = new JCaseBasicBlock(cfg, newBlock);
-        caseBlock.appendElement(firstBlock.getFirstElement());
-        newBlock = caseBlock;
-
-        // Dereference newBlock
-        firstBlock.dereferenceAllSuccessors();
-
-        // Note that the just created basic block is going to
+        // Note that the created basic block is going to
         // represent the original CFG marker block.
+        newBlock = new BasicBlockBuilder(cfg)
+            .append(firstBlock).removeLast()
+            .createCaseBlock(firstBlock.getPrimarySuccessor());
+
+        firstBlock.detach(newBlock);
       }
 
       // Replace temp block with real one and fix-up references
-      placeholderBlock.replaceWith(newBlock);
+      placeholderBlock.detach(newBlock);
 
       processed.put(block, newBlock);
       return newBlock;

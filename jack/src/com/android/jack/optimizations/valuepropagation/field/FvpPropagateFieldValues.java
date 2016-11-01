@@ -24,17 +24,24 @@ import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JFieldRef;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JValueLiteral;
-import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.ir.ast.cfg.BasicBlockLiveProcessor;
+import com.android.jack.ir.ast.cfg.JBasicBlockElement;
+import com.android.jack.ir.ast.cfg.JControlFlowGraph;
+import com.android.jack.ir.ast.cfg.JGotoBlockElement;
+import com.android.jack.ir.ast.cfg.JSimpleBasicBlock;
+import com.android.jack.ir.ast.cfg.JThrowingExpressionBasicBlock;
+import com.android.jack.ir.ast.cfg.JVariableAsgBlockElement;
+import com.android.jack.ir.ast.cfg.mutations.BasicBlockBuilder;
+import com.android.jack.ir.ast.cfg.mutations.CfgFragment;
+import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.optimizations.Optimizations;
-import com.android.jack.optimizations.common.ExpressionReplaceHelper;
-import com.android.jack.optimizations.common.JlsNullabilityChecker;
+import com.android.jack.optimizations.cfg.CfgJlsNullabilityChecker;
 import com.android.jack.optimizations.common.OptimizerUtils;
 import com.android.jack.transformations.LocalVarCreator;
-import com.android.jack.transformations.request.AppendBefore;
+import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
 import com.android.jack.util.NamingTools;
@@ -48,7 +55,6 @@ import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -59,11 +65,10 @@ import javax.annotation.Nonnull;
 @Constraint(need = { FieldSingleValueMarker.class,
                      ThreeAddressCodeForm.class })
 @Transform(add = JValueLiteral.class)
-@Use({ ExpressionReplaceHelper.class,
-       JlsNullabilityChecker.class })
+@Use(CfgJlsNullabilityChecker.class)
 @Name("FieldValuePropagation: PropagateFieldValues")
 public class FvpPropagateFieldValues extends FvpSchedulable
-    implements RunnableSchedulable<JMethod> {
+    implements RunnableSchedulable<JControlFlowGraph> {
 
   @Nonnull
   public final JAnnotationType disablingAnnotationType =
@@ -78,118 +83,128 @@ public class FvpPropagateFieldValues extends FvpSchedulable
 
   private final boolean preserveNullChecks = ThreadConfig.get(
       Optimizations.FieldValuePropagation.PRESERVE_NULL_CHECKS).booleanValue();
-
   private final boolean ensureTypeInitializers = ThreadConfig.get(
       Optimizations.FieldValuePropagation.ENSURE_TYPE_INITIALIZERS).booleanValue();
 
-  private class Visitor extends JVisitor {
-    @Nonnull
-    private final JMethod method;
-    private final boolean insideConstructor;
+  @Override
+  public void run(@Nonnull final JControlFlowGraph cfg) {
+    final JMethod method = cfg.getMethod();
+    final boolean insideConstructor = OptimizerUtils.isConstructor(method);
+    final TransformationRequest request = new TransformationRequest(method);
+    final CfgJlsNullabilityChecker nullChecker = preserveNullChecks ?
+        new CfgJlsNullabilityChecker(cfg,
+            new LocalVarCreator(method, "fvp"), phantomLookup) : null;
 
-    @CheckForNull
-    private final JlsNullabilityChecker jlsNullabilityHelper;
-    @Nonnull
-    private final ExpressionReplaceHelper replaceHelper;
-    @Nonnull
-    public final TransformationRequest request;
-
-    Visitor(@Nonnull JMethod method, boolean addNullChecks) {
-      this.method = method;
-      this.insideConstructor = OptimizerUtils.isConstructor(method);
-      this.request = new TransformationRequest(method);
-
-      LocalVarCreator fvp = new LocalVarCreator(method, "fvp");
-      this.replaceHelper = new ExpressionReplaceHelper(fvp);
-      this.jlsNullabilityHelper = addNullChecks ?
-          new JlsNullabilityChecker(fvp, phantomLookup) : null;
-    }
-
-    @Override
-    public void endVisit(@Nonnull JFieldRef ref) {
-      replaceFieldWithValue(ref);
-      super.endVisit(ref);
-    }
-
-    private void replaceFieldWithValue(@Nonnull JFieldRef ref) {
-      if (OptimizerUtils.isAssigned(ref)) {
-        return;
+    new BasicBlockLiveProcessor(/* stepIntoElements: */ false) {
+      @Nonnull
+      @Override
+      public JControlFlowGraph getCfg() {
+        return cfg;
       }
 
-      JField field = ref.getFieldId().getField();
-      if (field == null ||
-          !field.getAnnotations(disablingAnnotationType).isEmpty() ||
-          !field.getEnclosingType().getAnnotations(disablingAnnotationType).isEmpty()) {
-        return;
+      @Override
+      public boolean visit(@Nonnull JThrowingExpressionBasicBlock block) {
+        JBasicBlockElement element = block.getLastElement();
+        if (element instanceof JVariableAsgBlockElement &&
+            ((JVariableAsgBlockElement) element).isFieldLoad()) {
+          handle((JVariableAsgBlockElement) element);
+        }
+        return false;
       }
 
-      // Only process fields of types to be emitted
-      JDefinedClassOrInterface type = field.getEnclosingType();
-      if (!type.isToEmit()) {
-        return;
-      }
-
-      // Only process tracked fields. Note: there may be valid reasons why a tracked field
-      // might not have a marker yet, for example not initialized static fields if there
-      // is no any assignment to this field and type static initializer is also missing.
-      FieldSingleValueMarker marker = FieldSingleValueMarker.getOrCreate(field);
-      if (marker == null || marker.isMultipleOrNonLiteralValue()) {
-        return;
-      }
-
-      // Do not substitute field reads inside correspondent type
-      // initializers where this field is being initialized
-      if (insideConstructor &&
-          type == method.getEnclosingType() &&
-          method.isStatic() == field.isStatic()) {
-        if (method.isStatic() || ref.getInstance() instanceof JThisRef) {
-          // Field either is static or is instance and implicitly
-          // or explicitly referenced via 'this' reference
+      private void handle(JVariableAsgBlockElement element) {
+        JFieldRef ref = (JFieldRef) element.getValue();
+        if (OptimizerUtils.isAssigned(ref)) {
           return;
         }
-      }
 
-      // In case this is a static field and the field is accessed not from the same
-      // type, we don't propagate value if 'ensure-type-initializers' is true.
-      if (field.isStatic() && ensureTypeInitializers &&
-          field.getEnclosingType() != method.getEnclosingType()) {
-        return;
-      }
+        JField field = ref.getFieldId().getField();
+        if (field == null ||
+            !field.getAnnotations(disablingAnnotationType).isEmpty() ||
+            !field.getEnclosingType().getAnnotations(disablingAnnotationType).isEmpty()) {
+          return;
+        }
 
-      JValueLiteral value = marker.getConsolidatedValue();
-      if (value == null) {
-        value = createDefaultValue(field); // Assume default value.
-      } else {
-        value = OptimizerUtils.cloneExpression(value);
-        value.setSourceInfo(ref.getSourceInfo());
-      }
+        // Only process fields of types to be emitted
+        JDefinedClassOrInterface type = field.getEnclosingType();
+        if (!type.isToEmit()) {
+          return;
+        }
 
-      replaceHelper.replace(ref, value, request);
-      tracer.getStatistic(FIELD_VALUES_PROPAGATED).incValue();
+        // Only process tracked fields. Note: there may be valid reasons why a tracked field
+        // might not have a marker yet, for example not initialized static fields if there
+        // is no any assignment to this field and type static initializer is also missing.
+        FieldSingleValueMarker marker = FieldSingleValueMarker.getOrCreate(field);
+        if (marker == null || marker.isMultipleOrNonLiteralValue()) {
+          return;
+        }
 
-      if (jlsNullabilityHelper != null) {
-        if (!field.isStatic()) {
-          JExpression instance = ref.getInstance();
-          assert instance != null;
-          JStatement nullCheck = jlsNullabilityHelper
-              .createNullCheckIfNeeded(instance, request);
-          if (nullCheck != null) {
-            JStatement stmt = instance.getParent(JStatement.class);
-            request.append(new AppendBefore(stmt, nullCheck));
+        // Do not substitute field reads inside correspondent type
+        // initializers where this field is being initialized
+        if (insideConstructor &&
+            type == method.getEnclosingType() &&
+            method.isStatic() == field.isStatic()) {
+          if (method.isStatic() || ref.getInstance() instanceof JThisRef) {
+            // Field either is static or is instance and implicitly
+            // or explicitly referenced via 'this' reference
+            return;
           }
         }
+
+        // In case this is a static field and the field is accessed not from the same
+        // type, we don't propagate value if 'ensure-type-initializers' is true.
+        if (field.isStatic() && ensureTypeInitializers &&
+            field.getEnclosingType() != method.getEnclosingType()) {
+          return;
+        }
+
+        JValueLiteral value = marker.getConsolidatedValue();
+        if (value == null) {
+          value = createDefaultValue(field); // Assume default value.
+        } else {
+          value = OptimizerUtils.cloneExpression(value);
+          value.setSourceInfo(ref.getSourceInfo());
+        }
+
+        // #1: Split the block to move all but the last element
+        //     into a separate simple block.
+        JThrowingExpressionBasicBlock secondBlock =
+            (JThrowingExpressionBasicBlock) element.getBasicBlock();
+        JSimpleBasicBlock firstBlock = secondBlock.split(-1);
+
+        // #2: Insert null-checks if needed.
+        if (nullChecker != null && !field.isStatic()) {
+          // The null-check is needed, we insert it in between the two blocks
+          JExpression instance = ref.getInstance();
+          assert instance != null;
+          assert !instance.canThrow();
+
+          CfgFragment nullCheckFragment =
+              nullChecker.createNullCheck(element.getEHContext(), instance, request);
+
+          nullCheckFragment.insert(firstBlock, secondBlock);
+        }
+
+        // #3: Schedule value replace request
+        request.append(new Replace(ref, value));
+        tracer.getStatistic(FIELD_VALUES_PROPAGATED).incValue();
+
+        // #4: Turn the second block into a simple block in case it does not throw
+        if (!value.canThrow()) {
+          JSimpleBasicBlock newSecondBlock =
+              new BasicBlockBuilder(cfg)
+                  .append(secondBlock)
+                  .append(new JGotoBlockElement(
+                      SourceInfo.UNKNOWN, secondBlock.getLastElement().getEHContext()))
+                  .createSimpleBlock(secondBlock.getPrimarySuccessor());
+          secondBlock.detach(newSecondBlock);
+        }
+
+        // #5: Merge the first block into its primary successor
+        firstBlock.mergeIntoSuccessor();
       }
-    }
-  }
+    }.process();
 
-  @Override
-  public void run(@Nonnull JMethod method) {
-    if (method.isNative() || method.isAbstract()) {
-      return;
-    }
-
-    Visitor visitor = new Visitor(method, preserveNullChecks);
-    visitor.accept(method);
-    visitor.request.commit();
+    request.commit();
   }
 }

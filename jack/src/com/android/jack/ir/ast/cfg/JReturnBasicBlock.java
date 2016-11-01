@@ -21,15 +21,13 @@ import com.android.jack.ir.ast.JVisitor;
 import com.android.sched.item.Component;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
-import com.android.sched.util.findbugs.SuppressFBWarnings;
 
 import javax.annotation.Nonnull;
 
 /** Represents blocks ending with return. */
 public final class JReturnBasicBlock extends JRegularBasicBlock {
-  @SuppressFBWarnings("NP_METHOD_PARAMETER_TIGHTENS_ANNOTATION")
-  public JReturnBasicBlock(@Nonnull JControlFlowGraph cfg, @Nonnull JBasicBlock primary) {
-    super(primary);
+  public JReturnBasicBlock(@Nonnull JControlFlowGraph cfg) {
+    super(cfg.getExitBlock());
     updateParents(cfg);
   }
 

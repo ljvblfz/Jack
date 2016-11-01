@@ -16,6 +16,7 @@
 
 package com.android.jack.ir.ast.cfg;
 
+import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JPolymorphicMethodCall;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
@@ -26,7 +27,7 @@ import com.android.sched.transform.TransformRequest;
 import javax.annotation.Nonnull;
 
 /** Represents polymorphic method call basic block element */
-public class JPolymorphicMethodCallBlockElement extends JBasicBlockElement {
+public final class JPolymorphicMethodCallBlockElement extends JBasicBlockElement {
   @Nonnull
   private JPolymorphicMethodCall call;
 
@@ -64,5 +65,15 @@ public class JPolymorphicMethodCallBlockElement extends JBasicBlockElement {
   @Override
   public boolean isTerminal() {
     return true;
+  }
+
+  @Override
+  protected void replaceImpl(
+      @Nonnull JNode existingNode, @Nonnull JNode newNode) throws UnsupportedOperationException {
+    if (call == existingNode) {
+      call = (JPolymorphicMethodCall) newNode;
+    } else {
+      super.replaceImpl(existingNode, newNode);
+    }
   }
 }

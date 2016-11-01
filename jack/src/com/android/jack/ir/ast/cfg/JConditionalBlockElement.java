@@ -17,6 +17,7 @@
 package com.android.jack.ir.ast.cfg;
 
 import com.android.jack.ir.ast.JExpression;
+import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JPrimitiveType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
@@ -27,7 +28,7 @@ import com.android.sched.transform.TransformRequest;
 import javax.annotation.Nonnull;
 
 /** Represents conditional basic block element */
-public class JConditionalBlockElement extends JBasicBlockElement {
+public final class JConditionalBlockElement extends JBasicBlockElement {
   @Nonnull
   private JExpression cond;
 
@@ -75,5 +76,15 @@ public class JConditionalBlockElement extends JBasicBlockElement {
   @Override
   public boolean isTerminal() {
     return true;
+  }
+
+  @Override
+  protected void replaceImpl(
+      @Nonnull JNode existingNode, @Nonnull JNode newNode) throws UnsupportedOperationException {
+    if (cond == existingNode) {
+      cond = (JExpression) newNode;
+    } else {
+      super.replaceImpl(existingNode, newNode);
+    }
   }
 }

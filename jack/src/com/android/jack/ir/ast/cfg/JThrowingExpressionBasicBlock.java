@@ -21,13 +21,11 @@ import com.android.jack.ir.ast.JVisitor;
 import com.android.sched.item.Component;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
-import com.android.sched.util.findbugs.SuppressFBWarnings;
 
 import javax.annotation.Nonnull;
 
 /** Represents blocks which potentially may trigger exceptions. */
 public final class JThrowingExpressionBasicBlock extends JThrowingBasicBlock {
-  @SuppressFBWarnings("NP_METHOD_PARAMETER_TIGHTENS_ANNOTATION")
   public JThrowingExpressionBasicBlock(
       @Nonnull JControlFlowGraph cfg, @Nonnull JBasicBlock primary) {
     super(primary, cfg.getExitBlock());
@@ -63,7 +61,7 @@ public final class JThrowingExpressionBasicBlock extends JThrowingBasicBlock {
    * primary successor of this block.
    */
   public void delete() {
-    deleteByRedirectingToPrimarySuccessor();
+    this.detach(getPrimarySuccessor());
   }
 
   @Override

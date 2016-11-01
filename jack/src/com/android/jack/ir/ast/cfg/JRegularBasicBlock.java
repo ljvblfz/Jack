@@ -125,11 +125,6 @@ public abstract class JRegularBasicBlock extends JBasicBlock {
     element.updateParents(this);
   }
 
-  /** Resets elements list */
-  final void resetElements() {
-    elements.clear();
-  }
-
   @Override
   public void insertElement(int at, @Nonnull JBasicBlockElement element) {
     int size = elements.size();
@@ -141,9 +136,18 @@ public abstract class JRegularBasicBlock extends JBasicBlock {
     if (at == size) {
       appendElement(element);
     } else {
-      elements.add(at, getLastElement());
+      elements.add(at, element);
       element.updateParents(this);
     }
+  }
+
+  @Override
+  @Nonnegative
+  public int indexOf(@Nonnull JBasicBlockElement element) {
+    assert element.getBasicBlock() == this;
+    int index = elements.indexOf(element);
+    assert index >= 0;
+    return index;
   }
 
   final void acceptElements(@Nonnull JVisitor visitor) {
@@ -205,20 +209,5 @@ public abstract class JRegularBasicBlock extends JBasicBlock {
     }
 
     return block;
-  }
-
-  /**
-   * Removes the basic block by redirecting all the predecessors to point to the
-   * primary successor of this block.
-   */
-  final void deleteByRedirectingToPrimarySuccessor() {
-    assert hasPrimarySuccessor();
-    JBasicBlock primary = getPrimarySuccessor();
-
-    // Redirect all the successors to point the primary successor of this block
-    this.replaceWith(primary);
-
-    // Dereference the block from all successors
-    dereferenceAllSuccessors();
   }
 }

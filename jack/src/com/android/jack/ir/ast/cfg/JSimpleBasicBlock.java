@@ -21,13 +21,12 @@ import com.android.jack.ir.ast.JVisitor;
 import com.android.sched.item.Component;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
-import com.android.sched.util.findbugs.SuppressFBWarnings;
 
+import java.util.List;
 import javax.annotation.Nonnull;
 
 /** Represents a simple blocks with just one successor ending with GOTO. */
 public final class JSimpleBasicBlock extends JRegularBasicBlock {
-  @SuppressFBWarnings("NP_METHOD_PARAMETER_TIGHTENS_ANNOTATION")
   public JSimpleBasicBlock(@Nonnull JControlFlowGraph cfg, @Nonnull JBasicBlock primary) {
     super(primary);
     updateParents(cfg);
@@ -36,6 +35,22 @@ public final class JSimpleBasicBlock extends JRegularBasicBlock {
   @Override
   public boolean hasPrimarySuccessor() {
     return true;
+  }
+
+  /** Merges the block into its primary successor, returns the successor */
+  @Nonnull
+  public JBasicBlock mergeIntoSuccessor() {
+    JBasicBlock successor = getPrimarySuccessor();
+
+    // Move children
+    List<JBasicBlockElement> elements = this.getElements(true);
+    int count = elements.size() - 1; // Ignore trailing GOTO element
+    for (int i = 0; i < count; i++) {
+      successor.insertElement(i, elements.get(i));
+    }
+
+    this.detach(successor);
+    return successor;
   }
 
   @Override
@@ -62,7 +77,7 @@ public final class JSimpleBasicBlock extends JRegularBasicBlock {
    * primary successor of this block.
    */
   public void delete() {
-    deleteByRedirectingToPrimarySuccessor();
+    this.detach(getPrimarySuccessor());
   }
 
   @Override

@@ -19,17 +19,25 @@ package com.android.jack.optimizations.valuepropagation.argument;
 import com.android.jack.Jack;
 import com.android.jack.annotations.DisableArgumentValuePropagationOptimization;
 import com.android.jack.ir.ast.JAnnotationType;
-import com.android.jack.ir.ast.JAsgOperation;
+import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JParameterRef;
 import com.android.jack.ir.ast.JValueLiteral;
+import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVisitor;
-import com.android.jack.optimizations.common.ExpressionReplaceHelper;
+import com.android.jack.ir.ast.cfg.JBasicBlock;
+import com.android.jack.ir.ast.cfg.JBasicBlockElement;
+import com.android.jack.ir.ast.cfg.JControlFlowGraph;
+import com.android.jack.ir.ast.cfg.JSimpleBasicBlock;
+import com.android.jack.ir.ast.cfg.JThrowingExpressionBasicBlock;
+import com.android.jack.ir.ast.cfg.JVariableAsgBlockElement;
+import com.android.jack.ir.ast.cfg.mutations.BasicBlockBuilder;
+import com.android.jack.optimizations.cfg.CfgVarUtils;
 import com.android.jack.optimizations.common.LiteralValueListTracker;
 import com.android.jack.optimizations.common.OptimizerUtils;
 import com.android.jack.transformations.LocalVarCreator;
+import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.NamingTools;
 import com.android.sched.item.Description;
@@ -52,10 +60,10 @@ import javax.annotation.Nonnull;
                      AvpSchedulable.TaintedMethodMarker.class })
 @Transform(remove = { MethodCallArgumentsMarker.class,
                       AvpSchedulable.TaintedMethodMarker.class })
-@Use(ExpressionReplaceHelper.class)
+@Use(CfgVarUtils.class)
 @Name("ArgumentValuePropagation: PropagateArgumentValues")
 public class AvpPropagateArgumentValues extends AvpSchedulable
-    implements RunnableSchedulable<JMethod> {
+    implements RunnableSchedulable<JControlFlowGraph> {
 
   @Nonnull
   public final JAnnotationType disablingAnnotationType =
@@ -67,7 +75,9 @@ public class AvpPropagateArgumentValues extends AvpSchedulable
   private final Tracer tracer = TracerFactory.getTracer();
 
   @Override
-  public void run(@Nonnull final JMethod method) {
+  public void run(@Nonnull final JControlFlowGraph cfg) {
+    final JMethod method = cfg.getMethod();
+
     LiteralValueListTracker tracker =
         MethodCallArgumentsMarker.getTrackerAndRemoveMarker(method);
     boolean isTainted = TaintedMethodMarker.checkIfTaintedAndRemoveMarker(method);
@@ -93,17 +103,16 @@ public class AvpPropagateArgumentValues extends AvpSchedulable
 
     // Detect parameters not being assigned to
     JVisitor asgAnalyzer = new JVisitor() {
-      @Override public void endVisit(@Nonnull JParameterRef x) {
-        JNode parent = x.getParent();
-        if (parent instanceof JAsgOperation &&
-            ((JAsgOperation) parent).getLhs() == x) {
-          if (paramValues.remove(x.getParameter()) != null) {
+      @Override public void endVisit(@Nonnull JVariableAsgBlockElement x) {
+        JVariable variable = x.getVariable();
+        if (variable instanceof JParameter) {
+          if (paramValues.remove(variable) != null) {
             tracer.getStatistic(PARAMETER_IS_WRITTEN_TO).incValue();
           }
         }
       }
     };
-    asgAnalyzer.accept(method);
+    asgAnalyzer.accept(cfg);
 
     if (paramValues.size() == 0) {
       // All eligible parameters are mutated in the method
@@ -113,19 +122,45 @@ public class AvpPropagateArgumentValues extends AvpSchedulable
     // Substitute parameter with value
     class Processor extends JVisitor {
       @Nonnull
-      private TransformationRequest request =
-          new TransformationRequest(method);
+      private TransformationRequest request = new TransformationRequest(method);
       @Nonnull
-      private ExpressionReplaceHelper helper =
-          new ExpressionReplaceHelper(new LocalVarCreator(method, "avp"));
+      private CfgVarUtils helper = new CfgVarUtils(new LocalVarCreator(method, "avp"));
 
-      @Override public void endVisit(@Nonnull JParameterRef x) {
+      @Override
+      public void endVisit(@Nonnull JParameterRef x) {
+        assert !x.canThrow();
         JParameter parameter = x.getParameter();
         JValueLiteral literal = paramValues.get(parameter);
+
         if (literal != null && parameter.getAnnotations(disablingAnnotationType).isEmpty()) {
           literal = OptimizerUtils.cloneExpression(literal);
           literal.setSourceInfo(x.getSourceInfo());
-          helper.replace(x, literal, request);
+
+          if (literal.canThrow()) {
+            // If the literal can throw, we are replacing non-throwing expression
+            // with throwing one. Thus we need to split the basic block and make it
+            // throwing
+
+            // First we replace the param reference with a temp local
+            JLocalRef tmpRef = helper.replaceWithLocal(x);
+
+            // The local initialization is inserted before the element where
+            // the local is being used. We split the basic block such that
+            // The beginning of the block up to the initialization becomes a
+            // new simple basic block
+            JBasicBlockElement element = tmpRef.getParent(JBasicBlockElement.class);
+            JBasicBlock basicBlock = element.getBasicBlock();
+            JSimpleBasicBlock preBlock = basicBlock.split(basicBlock.indexOf(element));
+
+            // Create a new throwing expression basic block and new JThrowingEx
+            JThrowingExpressionBasicBlock newBlock =
+                new BasicBlockBuilder(cfg).append(preBlock).removeLast()
+                    .createThrowingExprBlock(preBlock.getPrimarySuccessor());
+            preBlock.detach(newBlock);
+          }
+
+          // Finally, replace the parameter reference with the literal
+          request.append(new Replace(x, literal));
           tracer.getStatistic(ARGUMENT_VALUES_PROPAGATED).incValue();
         }
       }

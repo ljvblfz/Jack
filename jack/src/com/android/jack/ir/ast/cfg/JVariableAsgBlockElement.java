@@ -20,9 +20,12 @@ import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JArrayRef;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JExceptionRuntimeValue;
+import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JFieldRef;
 import com.android.jack.ir.ast.JMethodCall;
+import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JPolymorphicMethodCall;
+import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
@@ -33,7 +36,7 @@ import com.android.sched.transform.TransformRequest;
 import javax.annotation.Nonnull;
 
 /** Represents a variable (local, this, parameter) assignment basic block element */
-public class JVariableAsgBlockElement extends JBasicBlockElement {
+public final class JVariableAsgBlockElement extends JBasicBlockElement {
   @Nonnull
   private JAsgOperation asg;
 
@@ -49,6 +52,18 @@ public class JVariableAsgBlockElement extends JBasicBlockElement {
   @Nonnull
   public JAsgOperation getAssignment() {
     return asg;
+  }
+
+  @Nonnull
+  public JVariable getVariable() {
+    JExpression lhs = asg.getLhs();
+    assert lhs instanceof JVariableRef;
+    return ((JVariableRef) lhs).getTarget();
+  }
+
+  @Nonnull
+  public JExpression getValue() {
+    return asg.getRhs();
   }
 
   public boolean isCatchVariableAssignment() {
@@ -121,6 +136,16 @@ public class JVariableAsgBlockElement extends JBasicBlockElement {
         throw new JNodeInternalError(this,
             "The element must not be the last element of the parent block");
       }
+    }
+  }
+
+  @Override
+  protected void replaceImpl(
+      @Nonnull JNode existingNode, @Nonnull JNode newNode) throws UnsupportedOperationException {
+    if (asg == existingNode) {
+      asg = (JAsgOperation) newNode;
+    } else {
+      super.replaceImpl(existingNode, newNode);
     }
   }
 }

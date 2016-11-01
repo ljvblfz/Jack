@@ -25,7 +25,6 @@ import com.android.jack.util.graph.IGraphNode;
 import com.android.sched.item.Description;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import javax.annotation.Nonnegative;
@@ -96,17 +95,6 @@ public abstract class JBasicBlock extends JNode implements IGraphNode<JBasicBloc
   /** Replace all the successors equal to 'what' with 'with' */
   public abstract void replaceAllSuccessors(@Nonnull JBasicBlock what, @Nonnull JBasicBlock with);
 
-  /**
-   * Dereferences all successors of the current block. I.e. after the completion of
-   * this method all the successor references of this block will point to the block
-   * itself. Mostly used as part of detaching the basic block from the cfg.
-   */
-  public void dereferenceAllSuccessors() {
-    for (JBasicBlock successor : new HashSet<>(getSuccessors())) {
-      replaceAllSuccessors(successor, this);
-    }
-  }
-
   /** Immutable predecessors' list */
   public final List<JBasicBlock> getPredecessors() {
     return Jack.getUnmodifiableCollections().getUnmodifiableList(predecessors);
@@ -162,14 +150,43 @@ public abstract class JBasicBlock extends JNode implements IGraphNode<JBasicBloc
   @Nonnull
   public abstract JSimpleBasicBlock split(int at);
 
+  /** Return the index of the block element, element must exist */
+  @Nonnegative
+  public abstract int indexOf(@Nonnull JBasicBlockElement element);
+
   /**
-   * Replaces the basic block in all the predecessors with the specified `block`.
+   * Detaches `this` from CFG by de-referencing all successors, the block
+   * must not have any predecessors.
    */
-  public void replaceWith(@Nonnull JBasicBlock block) {
-    // Redirect all the successors to point the primary successor of this block
-    for (JBasicBlock pre : this.getPredecessorsSnapshot()) {
-      pre.replaceAllSuccessors(this, block);
+  public void detach() {
+    if (!this.predecessors.isEmpty()) {
+      throw new IllegalStateException("The basic block must not have predecessors");
     }
+
+    // De-reference all successors
+    for (JBasicBlock successor : getSuccessors()) {
+      replaceAllSuccessors(successor, this);
+    }
+  }
+
+  /**
+   * Detaches `this` from CFG by replacing it with the `newBlock` in all
+   * predecessors of `this` block and also de-referencing all successors.
+   * Returns `newBlock`.
+   */
+  @Nonnull
+  public JBasicBlock detach(@Nonnull JBasicBlock newBlock) {
+    // Redirect all the predecessors to point `newBlock`
+    if (!this.predecessors.isEmpty()) {
+      for (JBasicBlock pre : this.getPredecessorsSnapshot()) {
+        pre.replaceAllSuccessors(this, newBlock);
+      }
+    }
+    // De-reference all successors
+    for (JBasicBlock successor : getSuccessors()) {
+      replaceAllSuccessors(successor, this);
+    }
+    return newBlock;
   }
 
   /**

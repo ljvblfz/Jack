@@ -83,6 +83,12 @@ public final class JEntryBasicBlock extends JBasicBlock {
   }
 
   @Override
+  @Nonnegative
+  public int indexOf(@Nonnull JBasicBlockElement element) {
+    throw new AssertionError();
+  }
+
+  @Override
   public void insertElement(int at, @Nonnull JBasicBlockElement element) {
     throw new UnsupportedOperationException();
   }
@@ -116,7 +122,18 @@ public final class JEntryBasicBlock extends JBasicBlock {
   }
 
   @Override
-  public void replaceWith(@Nonnull JBasicBlock block) {
+  @Nonnull
+  public JBasicBlock detach(@Nonnull JBasicBlock newBlock) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void detach() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  void addPredecessor(@Nonnull JBasicBlock predecessor) {
     throw new UnsupportedOperationException();
   }
 }

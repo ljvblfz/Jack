@@ -22,7 +22,6 @@ import com.android.jack.ir.ast.cfg.BasicBlockLiveProcessor;
 import com.android.jack.ir.ast.cfg.JConditionalBasicBlock;
 import com.android.jack.ir.ast.cfg.JConditionalBlockElement;
 import com.android.jack.ir.ast.cfg.JControlFlowGraph;
-import com.android.jack.ir.ast.cfg.JSimpleBasicBlock;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Filter;
@@ -64,16 +63,12 @@ public class RemoveRedundantConditionalBlocks
           // Split conditional block: pre-block --> cond-block
           // with pre-block containing all the elements except for
           // the last (conditional) one
-          JSimpleBasicBlock preBlock = block.split(-1);
+          block.split(-1);
 
-          // Depending on constant value, re-point the pre-block to either
-          // if-true or if-false successor of the original conditional block
-          boolean isTrueValue = ((JBooleanLiteral) condition).getValue();
-          preBlock.replaceAllSuccessors(block,
-              isTrueValue ? block.getIfTrue() : block.getIfFalse());
-
-          // Remove all references from the conditional block
-          block.dereferenceAllSuccessors();
+          // Detach the conditional block and replace it with either
+          // if-true or if-false successor depending on the constant value
+          block.detach(((JBooleanLiteral) condition).getValue()
+              ? block.getIfTrue() : block.getIfFalse());
 
           tracer.getStatistic(REMOVED_CONST_BRANCHES).incValue();
         }

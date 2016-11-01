@@ -18,6 +18,7 @@ package com.android.jack.ir.ast.cfg;
 
 import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JMethodCall;
+import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
@@ -27,7 +28,7 @@ import com.android.sched.transform.TransformRequest;
 import javax.annotation.Nonnull;
 
 /** Represents method call basic block element */
-public class JMethodCallBlockElement extends JBasicBlockElement {
+public final class JMethodCallBlockElement extends JBasicBlockElement {
   @Nonnull
   private JMethodCall call;
 
@@ -84,6 +85,16 @@ public class JMethodCallBlockElement extends JBasicBlockElement {
     }
     if (this != getBasicBlock().getLastElement()) {
       throw new JNodeInternalError(this, "Must be the last element of the basic block");
+    }
+  }
+
+  @Override
+  protected void replaceImpl(
+      @Nonnull JNode existingNode, @Nonnull JNode newNode) throws UnsupportedOperationException {
+    if (call == existingNode) {
+      call = (JMethodCall) newNode;
+    } else {
+      super.replaceImpl(existingNode, newNode);
     }
   }
 }

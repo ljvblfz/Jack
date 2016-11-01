@@ -106,6 +106,7 @@ import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.Resource;
 import com.android.jack.ir.ast.cfg.CfgBasicBlockTracker;
+import com.android.jack.ir.ast.cfg.CfgChecker;
 import com.android.jack.ir.ast.cfg.ControlFlowGraphSizeTracker;
 import com.android.jack.ir.ast.cfg.JControlFlowGraph;
 import com.android.jack.ir.ast.cfg.MethodBodyCfgBuilder;
@@ -1690,26 +1691,6 @@ public abstract class Jack {
       planBuilder.append(
           AvpComputeMethodArgumentsValues.class);
     }
-    {
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan6 =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-      {
-        {
-          SubPlanBuilder<JMethod> methodPlan5 =
-              typePlan6.appendSubPlan(JMethodAdapter.class);
-          if (enableFieldValuePropagation || enableArgumentValuePropagation) {
-            if (enableFieldValuePropagation) {
-              methodPlan5.append(FvpPropagateFieldValues.class);
-            }
-            if (enableArgumentValuePropagation) {
-              methodPlan5.append(AvpPropagateArgumentValues.class);
-            }
-            methodPlan5.append(CfgMarkerRemover.class);
-            methodPlan5.append(CfgBuilder.class);
-          }
-        }
-      }
-    }
 
     {
       // Build cfg-IR representation of body methods
@@ -1730,13 +1711,29 @@ public abstract class Jack {
           .appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
           .appendSubPlan(JMethodControlFlowGraphAdapter.class);
 
+      if (enableFieldValuePropagation) {
+        cfgPlan.append(FvpPropagateFieldValues.class);
+      }
+
+      if (enableArgumentValuePropagation) {
+        cfgPlan.append(AvpPropagateArgumentValues.class);
+      }
+
       if (enableWriteOnlyFieldRemoval) {
         cfgPlan.append(WofrRemoveFieldWrites.class);
+      }
+
+      if (hasSanityChecks) {
+        cfgPlan.append(CfgChecker.class);
       }
 
       cfgPlan.append(RemoveRedundantConditionalBlocks.class);
       cfgPlan.append(RemoveEmptyBasicBlocks.class);
       cfgPlan.append(RemoveUnreachableBasicBlocks.class);
+
+      if (hasSanityChecks) {
+        cfgPlan.append(CfgChecker.class);
+      }
 
       cfgPlan.append(ControlFlowGraphSizeTracker.class);
       cfgPlan

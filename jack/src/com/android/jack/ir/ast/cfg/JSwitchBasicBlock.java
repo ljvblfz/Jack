@@ -22,7 +22,6 @@ import com.android.jack.ir.ast.JVisitor;
 import com.android.sched.item.Component;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
-import com.android.sched.util.findbugs.SuppressFBWarnings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +32,6 @@ public final class JSwitchBasicBlock extends JRegularBasicBlock {
   @Nonnull
   private List<JBasicBlock> cases = new ArrayList<>();
 
-  @SuppressFBWarnings("NP_METHOD_PARAMETER_TIGHTENS_ANNOTATION")
   public JSwitchBasicBlock(@Nonnull JControlFlowGraph cfg, @Nonnull JBasicBlock defaultCase) {
     super(defaultCase);
     defaultCase.addPredecessor(this);

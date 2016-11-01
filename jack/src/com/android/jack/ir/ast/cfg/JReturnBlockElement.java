@@ -17,6 +17,7 @@
 package com.android.jack.ir.ast.cfg;
 
 import com.android.jack.ir.ast.JExpression;
+import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
@@ -27,7 +28,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /** Represents return operation basic block element */
-public class JReturnBlockElement extends JBasicBlockElement {
+public final class JReturnBlockElement extends JBasicBlockElement {
   @CheckForNull
   private JExpression expr;
 
@@ -71,5 +72,15 @@ public class JReturnBlockElement extends JBasicBlockElement {
   @Override
   public boolean isTerminal() {
     return true;
+  }
+
+  @Override
+  protected void replaceImpl(
+      @Nonnull JNode existingNode, @Nonnull JNode newNode) throws UnsupportedOperationException {
+    if (expr == existingNode) {
+      expr = (JExpression) newNode;
+    } else {
+      super.replaceImpl(existingNode, newNode);
+    }
   }
 }

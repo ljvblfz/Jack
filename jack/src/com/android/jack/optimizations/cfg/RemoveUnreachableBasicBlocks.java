@@ -59,7 +59,7 @@ public class RemoveUnreachableBasicBlocks
     while (!blocks.isEmpty()) {
       JBasicBlock block = blocks.remove();
       Set<JBasicBlock> successors = new HashSet<>(block.getSuccessors());
-      block.dereferenceAllSuccessors();
+      block.detach();
       for (JBasicBlock successor : successors) {
         if (canRemoveBlock(successor)) {
           blocks.offer(successor);

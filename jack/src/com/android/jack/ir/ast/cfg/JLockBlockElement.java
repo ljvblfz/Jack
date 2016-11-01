@@ -18,6 +18,7 @@ package com.android.jack.ir.ast.cfg;
 
 import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JExpression;
+import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JReferenceType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
@@ -28,7 +29,7 @@ import com.android.sched.transform.TransformRequest;
 import javax.annotation.Nonnull;
 
 /** Represents lock expression basic block element */
-public class JLockBlockElement extends JBasicBlockElement {
+public final class JLockBlockElement extends JBasicBlockElement {
   @Nonnull
   private JExpression expr;
 
@@ -87,6 +88,16 @@ public class JLockBlockElement extends JBasicBlockElement {
     }
     if (this != getBasicBlock().getLastElement()) {
       throw new JNodeInternalError(this, "Must be the last element of the basic block");
+    }
+  }
+
+  @Override
+  protected void replaceImpl(
+      @Nonnull JNode existingNode, @Nonnull JNode newNode) throws UnsupportedOperationException {
+    if (expr == existingNode) {
+      expr = (JExpression) newNode;
+    } else {
+      super.replaceImpl(existingNode, newNode);
     }
   }
 }

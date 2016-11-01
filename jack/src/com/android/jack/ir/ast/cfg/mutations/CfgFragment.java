@@ -58,7 +58,7 @@ public class CfgFragment {
 
     // If there is an exit block, replace it with the target
     if (this.exit != null) {
-      this.exit.replaceWith(target);
+      this.exit.detach(target);
     }
   }
 }

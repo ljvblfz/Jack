@@ -79,6 +79,11 @@ public final class JPlaceholderBasicBlock extends JBasicBlock {
     throw new UnsupportedOperationException();
   }
 
+  @Nonnegative
+  public int indexOf(@Nonnull JBasicBlockElement element) {
+    throw new UnsupportedOperationException();
+  }
+
   @Override
   public void insertElement(int at, @Nonnull JBasicBlockElement element) {
     throw new UnsupportedOperationException();

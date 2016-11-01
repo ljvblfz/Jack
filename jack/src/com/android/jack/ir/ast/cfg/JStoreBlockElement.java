@@ -21,6 +21,7 @@ import com.android.jack.ir.ast.JArrayRef;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JFieldRef;
+import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
@@ -31,7 +32,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /** Represents field or array element store basic block element */
-public class JStoreBlockElement extends JBasicBlockElement {
+public final class JStoreBlockElement extends JBasicBlockElement {
   @Nonnull
   private JAsgOperation asg;
 
@@ -107,6 +108,16 @@ public class JStoreBlockElement extends JBasicBlockElement {
     }
     if (this != getBasicBlock().getLastElement()) {
       throw new JNodeInternalError(this, "Must be the last element of the basic block");
+    }
+  }
+
+  @Override
+  protected void replaceImpl(
+      @Nonnull JNode existingNode, @Nonnull JNode newNode) throws UnsupportedOperationException {
+    if (asg == existingNode) {
+      asg = (JAsgOperation) newNode;
+    } else {
+      super.replaceImpl(existingNode, newNode);
     }
   }
 }
