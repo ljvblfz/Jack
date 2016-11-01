@@ -23,6 +23,7 @@ import com.android.jack.ir.ast.JMethodBodyCfg;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.util.graph.IGraph;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
@@ -34,11 +35,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+
 import javax.annotation.Nonnull;
 
 /** Represents method control flow graph */
 @Description("Control Flow Graph")
-public final class JControlFlowGraph extends JNode {
+public final class JControlFlowGraph extends JNode implements IGraph<JBasicBlock>  {
   @Nonnull
   private final JEntryBasicBlock entry;
   @Nonnull
@@ -155,5 +157,23 @@ public final class JControlFlowGraph extends JNode {
     for (JBasicBlock block : this.getAllBlocksUnordered()) {
       block.checkValidity();
     }
+  }
+
+  @Override
+  @Nonnull
+  public List<JBasicBlock> getNodes() {
+    return getAllBlocksUnordered();
+  }
+
+  @Override
+  @Nonnull
+  public JBasicBlock getEntryNode() {
+    return getEntryBlock();
+  }
+
+  @Override
+  @Nonnull
+  public JBasicBlock getExitNode() {
+    return getExitBlock();
   }
 }
