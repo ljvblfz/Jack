@@ -39,6 +39,7 @@ import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JackCliToolchain;
 import com.android.jack.test.toolchain.JillApiToolchainBase;
 import com.android.jack.test.toolchain.JillBasedToolchain;
+import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 import com.android.sched.util.TextUtils;
 
 import junit.framework.Assert;
@@ -525,4 +526,38 @@ public class MultiDexTests {
         new File(testFolder,"ref-list-003-2.txt"), outList2);
     Assert.assertFalse(new File(out, "classes3.dex").exists());
   }
+
+
+  @KnownIssue
+  @Test
+  public void lambdaTest() throws Exception {
+    File testFolder = AbstractTestTools.getTestRootDir("com.android.jack.multidex.test004.jack");
+
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    addCommonOptionsForMultiDex(toolchain, new File(testFolder, "config-001.jpp"));
+    toolchain.addProperty(DexFileWriter.DEX_WRITING_POLICY.getName(), "minimal-multidex")
+    .addProperty(Options.USE_DEFAULT_LIBRARIES.getName(), "false")
+    .addProperty(Options.ANDROID_MIN_API_LEVEL.getName(), "20");
+
+    SourceToDexComparisonTestHelper env =
+        new SourceToDexComparisonTestHelper(testFolder);
+    env.setCandidateTestTools(toolchain);
+    env.setSourceLevel(SourceLevel.JAVA_8);
+    List<File> cp = new ArrayList<File>();
+    cp.add(annotations);
+    cp.addAll(Arrays.asList(toolchain.getDefaultBootClasspath()));
+    cp.add(frameworks);
+    env.setCandidateClasspath(cp.toArray(new File[cp.size()]));
+    env.setReferenceTestTools(new DummyToolchain());
+
+    Comparator c1 = new ComparatorMultiDexListing(new File(testFolder, "ref-list-001-1.txt"),
+        env.getCandidateDex());
+    Comparator c2 = new ComparatorMultiDexListing(new File(testFolder, "ref-list-001-2.txt"),
+        new File(env.getCandidateDexDir(), "classes2.dex"));
+    env.runTest(c1, c2);
+
+    Assert.assertFalse(new File(env.getCandidateDexDir(), "classes3.dex").exists());
+  }
+
 }
