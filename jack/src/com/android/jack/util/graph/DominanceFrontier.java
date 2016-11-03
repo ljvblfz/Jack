@@ -18,12 +18,19 @@ package com.android.jack.util.graph;
 
 import com.google.common.collect.ImmutableList;
 
+import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Transform;
+import com.android.sched.schedulable.Use;
+
 import javax.annotation.Nonnull;
 
 /**
  * Calculates the dominance-frontiers of a method's basic blocks. Algorithm from "A Simple, Fast
  * Dominance Algorithm" by Cooper, Harvey, and Kennedy; transliterated to Java.
  */
+@Transform(add = {DominanceFrontierInfoMarker.class, DominatorTreeMarker.class})
+@Constraint(need = {NodeListMarker.class})
+@Use(Dominators.class)
 public class DominanceFrontier<N extends IGraphNode<N>> {
 
   @Nonnull

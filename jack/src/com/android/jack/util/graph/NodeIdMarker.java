@@ -16,6 +16,7 @@
 
 package com.android.jack.util.graph;
 
+import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.MarkerManager;
 
@@ -30,6 +31,7 @@ import javax.annotation.Nonnull;
  * The goal is to allow sets of blocks to be represented by {@link BitSet} by assigning a number to
  * each basic block.
  */
+@Description("A numeric ID for a node in a graph.")
 public class NodeIdMarker implements Marker {
   @Nonnegative
   private final int id;
@@ -54,5 +56,24 @@ public class NodeIdMarker implements Marker {
   @Nonnull
   public Marker cloneIfNeeded() {
     return this;
+  }
+
+  /**
+   * Assign numberic IDs to a graph.
+   */
+  public static void assignIds(@Nonnull IGraph<?> graph) {
+    int index = 0;
+    for (IGraphNode<?> n : graph.getNodes()) {
+      NodeIdMarker.setId(n, index++);
+    }
+  }
+
+  /**
+   * Removes all numberic IDs from a graph.
+   */
+  public static void removeIds(@Nonnull IGraph<?> graph) {
+    for (IGraphNode<?> n : graph.getNodes()) {
+      n.removeMarker(NodeIdMarker.class);
+    }
   }
 }

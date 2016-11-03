@@ -32,6 +32,7 @@ import com.android.jack.ir.ast.cfg.JExitBasicBlock;
 import com.android.jack.ir.ast.cfg.JGotoBlockElement;
 import com.android.jack.ir.ast.cfg.JLockBlockElement;
 import com.android.jack.ir.ast.cfg.JMethodCallBlockElement;
+import com.android.jack.ir.ast.cfg.JPhiBlockElement;
 import com.android.jack.ir.ast.cfg.JPlaceholderBasicBlock;
 import com.android.jack.ir.ast.cfg.JPolymorphicMethodCallBlockElement;
 import com.android.jack.ir.ast.cfg.JRegularBasicBlock;
@@ -52,6 +53,7 @@ import com.android.sched.transform.TransformRequest;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -562,6 +564,10 @@ public class JVisitor {
     endVisit((JPhantomClassOrInterface) phantomInterface);
   }
 
+  public void endVisit(@Nonnull JPhiBlockElement phi) {
+    endVisit((JBasicBlockElement) phi);
+  }
+
   public void endVisit(@Nonnull JPostfixOperation postfixOperation) {
     endVisit((JUnaryOperation) postfixOperation);
   }
@@ -588,6 +594,10 @@ public class JVisitor {
 
   public void endVisit(@Nonnull JShortLiteral shortLiteral) {
     endVisit((JNumberValueLiteral) shortLiteral);
+  }
+
+  public void endVisit(@Nonnull JSsaVariableRef ref) {
+    endVisit((JVariableRef) ref);
   }
 
   public void endVisit(@Nonnull JStatement statement) {
@@ -1080,6 +1090,10 @@ public class JVisitor {
     return visit((JPhantomClassOrInterface) phantomInterface);
   }
 
+  public boolean visit(@Nonnull JPhiBlockElement phi) {
+    return visit((JBasicBlockElement) phi);
+  }
+
   public boolean visit(@Nonnull JPostfixOperation postfixOperation) {
     return visit((JUnaryOperation) postfixOperation);
   }
@@ -1110,6 +1124,10 @@ public class JVisitor {
 
   public boolean visit(@Nonnull JStatement statement) {
     return visit((JNode) statement);
+  }
+
+  public boolean visit(@Nonnull JSsaVariableRef ref) {
+    return visit((JVariableRef) ref);
   }
 
   public boolean visit(@Nonnull JStringLiteral stringLiteral) {
@@ -1700,6 +1718,11 @@ public class JVisitor {
     visit((JPhantomClassOrInterface) phantomInterface, transformRequest);
   }
 
+  public void visit(@Nonnull JPhiBlockElement phi,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JBasicBlockElement) phi, transformRequest);
+  }
+
   public void visit(@Nonnull JPostfixOperation postfixOperation,
       @Nonnull TransformRequest transformRequest) throws Exception {
     visit((JUnaryOperation) postfixOperation, transformRequest);
@@ -1733,6 +1756,11 @@ public class JVisitor {
   public void visit(@Nonnull JStatement statement, @Nonnull TransformRequest transformRequest)
       throws Exception {
     visit((JNode) statement, transformRequest);
+  }
+
+  public void visit(@Nonnull JSsaVariableRef ref,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JVariableRef) ref, transformRequest);
   }
 
   public void visit(@Nonnull JStringLiteral stringLiteral,

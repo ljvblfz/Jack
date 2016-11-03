@@ -76,7 +76,6 @@ import com.android.jack.ir.ast.cfg.JThrowBasicBlock;
 import com.android.jack.ir.ast.cfg.JThrowingExpressionBasicBlock;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.ir.sourceinfo.SourceInfo;
-import com.android.jack.library.DumpInLibrary;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.scheduling.marker.DexCodeMarker;
 import com.android.jack.transformations.EmptyClinit;
@@ -102,9 +101,7 @@ import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
-import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.log.Event;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
@@ -121,11 +118,11 @@ import javax.annotation.Nonnull;
  * CodeItemBuilder is a schedulable that generates {@link CodeItem} from {@link JMethod}. The
  * generated {@link CodeItem} is saved into the {@link DexCodeMarker}.
  */
-@HasKeyId
-@Description("Builds CodeItem from JMethod")
-@Name("CodeItemBuilder")
+@Description("Builds CodeItem from JMethod in SSA form")
+@Name("SsaCodeItemBuilder")
 @Constraint(
   need = {
+    JSsaVariableRef.class,
     JMethodBodyCfg.class,
     JExceptionRuntimeValue.class,
     NewInstanceRemoved.class,
@@ -135,7 +132,6 @@ import javax.annotation.Nonnull;
     InvalidDefaultBridgeInInterfaceRemoved.class
   },
   no = {
-    JSsaVariableRef.class,
     BooleanTestOutsideIf.class,
     InitInNewArray.class,
     JAsgOperation.class,
@@ -163,40 +159,19 @@ import javax.annotation.Nonnull;
 @Transform(add = DexCodeMarker.class)
 @Use(RopHelper.class)
 @Filter(TypeWithoutPrebuiltFilter.class)
-public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
-
-  @Nonnull
-  public static final BooleanPropertyId EMIT_SYNTHETIC_LOCAL_DEBUG_INFO = BooleanPropertyId
-      .create("jack.dex.debug.vars.synthetic",
-          "Emit synthetic local variable debug info into generated dex")
-      .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
-
-  @Nonnull
-  public static final BooleanPropertyId DEX_OPTIMIZE = BooleanPropertyId.create(
-      "jack.dex.optimize", "Define if Dex optimizations are activated")
-      .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
-
-  @Nonnull
-  public static final BooleanPropertyId FORCE_JUMBO = BooleanPropertyId.create(
-      "jack.dex.forcejumbo", "Force string opcodes to be emitted as jumbo in dex")
-      .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
-
-  @Nonnull
-  public static final BooleanPropertyId OPTIMIZE_BRANCHES = BooleanPropertyId.create(
-      "jack.dex.optimizebranches", "Remove redundant branches in dex")
-      .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
-
+public class SsaCodeItemBuilder implements RunnableSchedulable<JMethod> {
   @Nonnull
   private final com.android.jack.util.filter.Filter<JMethod> filter =
       ThreadConfig.get(Options.METHOD_FILTER);
   private final boolean emitSyntheticLocalDebugInfo =
-      ThreadConfig.get(EMIT_SYNTHETIC_LOCAL_DEBUG_INFO).booleanValue();
+      ThreadConfig.get(CodeItemBuilder.EMIT_SYNTHETIC_LOCAL_DEBUG_INFO).booleanValue();
   private final boolean emitLocalDebugInfo =
       ThreadConfig.get(Options.EMIT_LOCAL_DEBUG_INFO).booleanValue();
-  private final boolean runDxOptimizations = ThreadConfig.get(DEX_OPTIMIZE).booleanValue();
-  private final boolean forceJumbo = ThreadConfig.get(FORCE_JUMBO).booleanValue();
+  private final boolean runDxOptimizations =
+      ThreadConfig.get(CodeItemBuilder.DEX_OPTIMIZE).booleanValue();
+  private final boolean forceJumbo = ThreadConfig.get(CodeItemBuilder.FORCE_JUMBO).booleanValue();
   private final boolean removeRedundantConditionalBranch =
-      ThreadConfig.get(OPTIMIZE_BRANCHES).booleanValue();
+      ThreadConfig.get(CodeItemBuilder.OPTIMIZE_BRANCHES).booleanValue();
   private final int apiLevel = ThreadConfig.get(Options.ANDROID_MIN_API_LEVEL).intValue();
   private final boolean emitLineNumberTable =
       ThreadConfig.get(Options.EMIT_LINE_NUMBER_DEBUG_INFO).booleanValue();

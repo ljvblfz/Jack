@@ -18,6 +18,8 @@ package com.android.jack.util.graph;
 
 import com.google.common.collect.ImmutableList;
 
+import com.android.sched.schedulable.Constraint;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -43,6 +45,7 @@ import javax.annotation.Nonnull;
  * This implementation is m log n because it does not perform union by rank to keep the union-find
  * tree balanced.
  */
+@Constraint(need = {NodeIdMarker.class, NodeListMarker.class})
 public final class Dominators<N extends IGraphNode<N>> {
   /* postdom is true if we want post dominators */
   private final boolean postdom;

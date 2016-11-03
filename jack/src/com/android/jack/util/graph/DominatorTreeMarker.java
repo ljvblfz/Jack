@@ -18,6 +18,7 @@ package com.android.jack.util.graph;
 
 import com.google.common.collect.Lists;
 
+import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
 
@@ -27,6 +28,7 @@ import java.util.List;
 /**
  * A marker that represent a dominator tree in a graph.
  */
+@Description("Marks the dominator parent / child relation of a CFG.")
 @ValidOn(IGraphNode.class)
 public class DominatorTreeMarker implements Marker {
   @SuppressWarnings("rawtypes")

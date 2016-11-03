@@ -74,6 +74,7 @@ import com.android.jack.backend.dex.compatibility.CheckAndroidCompatibility;
 import com.android.jack.backend.dex.multidex.legacy.AnnotatedFinder;
 import com.android.jack.backend.dex.multidex.legacy.RuntimeAnnotationFinder;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
+import com.android.jack.backend.dex.rop.SsaCodeItemBuilder;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.backend.jayce.JayceInLibraryProduct;
 import com.android.jack.backend.jayce.JayceInLibraryWriterAll;
@@ -307,6 +308,12 @@ import com.android.jack.transformations.parent.AstChecker;
 import com.android.jack.transformations.parent.TypeAstChecker;
 import com.android.jack.transformations.renamepackage.PackageRenamer;
 import com.android.jack.transformations.rop.cast.RopCastLegalizer;
+import com.android.jack.transformations.ssa.CfgNodeIdAssignment;
+import com.android.jack.transformations.ssa.CfgNodeListAssignment;
+import com.android.jack.transformations.ssa.DominanceFrontierAssignment;
+import com.android.jack.transformations.ssa.JPhiElementInsertion;
+import com.android.jack.transformations.ssa.SsaBasicBlockSplitter;
+import com.android.jack.transformations.ssa.SsaRenamer;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeBuilder;
 import com.android.jack.transformations.typedef.TypeDefRemover;
 import com.android.jack.transformations.typedef.TypeDefRemover.RemoveTypeDef;
@@ -367,6 +374,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
@@ -733,7 +741,9 @@ public abstract class Jack {
           if (config.get(Optimizations.WriteOnlyFieldRemoval.ENABLE).booleanValue()) {
             request.addFeature(Optimizations.WriteOnlyFieldRemoval.class);
           }
-
+          if (config.get(Optimizations.UseJackSsaIR.ENABLE).booleanValue()) {
+            request.addFeature(Optimizations.UseJackSsaIR.class);
+          }
           if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.ALWAYS) {
             request.addFeature(EnabledAssertionFeature.class);
           } else if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.RUNTIME) {
@@ -1705,6 +1715,18 @@ public abstract class Jack {
       }
     }
 
+    if (features.contains(Optimizations.UseJackSsaIR.class)) {
+      SubPlanBuilder<JControlFlowGraph> cfgPlan = planBuilder
+          .appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
+          .appendSubPlan(JMethodControlFlowGraphAdapter.class);
+      cfgPlan.append(SsaBasicBlockSplitter.class);
+      cfgPlan.append(CfgNodeIdAssignment.class);
+      cfgPlan.append(CfgNodeListAssignment.class);
+      cfgPlan.append(DominanceFrontierAssignment.class);
+      cfgPlan.append(JPhiElementInsertion.class);
+      cfgPlan.append(SsaRenamer.class);
+    }
+
     // Cfg-IR base transformations
     {
       SubPlanBuilder<JControlFlowGraph> cfgPlan = planBuilder
@@ -1745,7 +1767,12 @@ public abstract class Jack {
       SubPlanBuilder<JMethod> methodPlan = planBuilder
           .appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
           .appendSubPlan(JMethodAdapter.class);
-      methodPlan.append(CodeItemBuilder.class);
+
+      if (features.contains(Optimizations.UseJackSsaIR.class)) {
+        methodPlan.append(SsaCodeItemBuilder.class);
+      } else {
+        methodPlan.append(CodeItemBuilder.class);
+      }
       methodPlan.append(EncodedMethodBuilder.class);
       methodPlan.append(ContainerAnnotationAdder.MethodContainerAnnotationAdder.class);
       methodPlan.append(MethodAnnotationBuilder.class);

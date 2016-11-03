@@ -19,10 +19,10 @@ package com.android.jack.cfg;
 import com.google.common.collect.Lists;
 
 import com.android.jack.Options;
-import com.android.jack.util.graph.AssignGraphNodeIds;
-import com.android.jack.util.graph.AssigntGraphNodeList;
 import com.android.jack.util.graph.IGraph;
 import com.android.jack.util.graph.IGraphNode;
+import com.android.jack.util.graph.NodeIdMarker;
+import com.android.jack.util.graph.NodeListMarker;
 import com.android.sched.marker.LocalMarkerManager;
 import com.android.sched.marker.Marker;
 import com.android.sched.util.RunnableHooks;
@@ -58,8 +58,8 @@ public abstract class BaseGraphTestCase {
     nodes.add(entry);
     nodes.add(exit);
     TestGraph graph = new TestGraph(entry, exit, nodes);
-    AssignGraphNodeIds.assignIds(graph);
-    AssigntGraphNodeList.assignNodeList(graph);
+    NodeIdMarker.assignIds(graph);
+    NodeListMarker.assignNodeList(graph);
     return graph;
   }
 

@@ -37,11 +37,13 @@ import com.android.jack.ir.ast.JNullLiteral;
 import com.android.jack.ir.ast.JParameterRef;
 import com.android.jack.ir.ast.JPolymorphicMethodCall;
 import com.android.jack.ir.ast.JReinterpretCastOperation;
+import com.android.jack.ir.ast.JSsaVariableRef;
 import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JUnaryOperation;
 import com.android.jack.ir.ast.JVisitor;
 
 import java.util.NoSuchElementException;
+
 import javax.annotation.Nonnull;
 
 /** Validates expressions inside the CFG basic block elements */
@@ -145,6 +147,11 @@ class CfgExpressionValidator extends JVisitor {
   @Override
   public boolean visit(@Nonnull JLocalRef expr) {
     return visitLocalOrParameter(expr);
+  }
+
+  @Override
+  public boolean visit(@Nonnull JSsaVariableRef ref) {
+    return visitLocalOrParameter(ref);
   }
 
   @Override
@@ -284,6 +291,7 @@ class CfgExpressionValidator extends JVisitor {
         JCaseBlockElement.class, JSwitchBlockElement.class,
         JConditionalBlockElement.class, JReturnBlockElement.class,
         JLockBlockElement.class, JUnlockBlockElement.class,
+        JPhiBlockElement.class,
         // Misc expressions
         JFieldRef.class, JArrayRef.class, JArrayLength.class, JNewArray.class,
         JDynamicCastOperation.class, JReinterpretCastOperation.class,

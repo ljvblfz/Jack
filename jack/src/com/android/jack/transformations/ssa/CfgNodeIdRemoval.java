@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package com.android.jack.util.graph;
+package com.android.jack.transformations.ssa;
 
-import javax.annotation.Nonnull;
+import com.android.jack.ir.ast.cfg.JControlFlowGraph;
+import com.android.jack.util.graph.NodeIdMarker;
+import com.android.sched.schedulable.RunnableSchedulable;
 
 /**
- * This class should probably be a schedulable that runs on CFG IR. Since we don't exactly know what
- * that looks like we are just going to leave it as a static helper for the unit tests.
+ * Assign Node ID to the control flow graph.
  */
-public class AssignGraphNodeIds {
-  public static void assignIds(@Nonnull IGraph<?> graph) {
-    int index = 0;
-    for (IGraphNode<?> n : graph.getNodes()) {
-      NodeIdMarker.setId(n, index++);
-    }
+public class CfgNodeIdRemoval implements RunnableSchedulable<JControlFlowGraph> {
+  @Override
+  public void run(JControlFlowGraph graph) {
+    NodeIdMarker.removeIds(graph);
   }
 }

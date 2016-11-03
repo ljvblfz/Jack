@@ -20,6 +20,7 @@ import com.android.jack.dx.util.BitIntSet;
 import com.android.jack.dx.util.IntSet;
 import com.android.jack.dx.util.ListIntSet;
 import com.android.jack.ir.ast.cfg.JBasicBlock;
+import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
 
@@ -29,6 +30,7 @@ import javax.annotation.Nonnull;
 /**
  *
  */
+@Description("Dominance Frontier information for a node in a CFG.")
 @ValidOn(JBasicBlock.class)
 public class DominanceFrontierInfoMarker implements Marker {
   /**
@@ -39,14 +41,14 @@ public class DominanceFrontierInfoMarker implements Marker {
    */
   private static final int DOMFRONT_SET_THRESHOLD_SIZE = 3072;
 
-  @CheckForNull
-  public IntSet dominanceFrontiers;
+  @Nonnull
+  public final IntSet dominanceFrontiers;
 
   /** {@code >= 0 after run();} the index of the immediate dominator */
   @CheckForNull
   public IGraphNode<?> idom = null;
 
-  private void makeDomFrontSet(@Nonnull int szBlocks) {
+  private DominanceFrontierInfoMarker(@Nonnull int szBlocks) {
     dominanceFrontiers =
         szBlocks <= DOMFRONT_SET_THRESHOLD_SIZE ? new BitIntSet(szBlocks) : new ListIntSet();
   }
@@ -59,8 +61,7 @@ public class DominanceFrontierInfoMarker implements Marker {
   }
 
   public static <N extends IGraphNode<N>> void setDomInfo(N node, int size) {
-    DominanceFrontierInfoMarker marker = new DominanceFrontierInfoMarker();
-    marker.makeDomFrontSet(size);
+    DominanceFrontierInfoMarker marker = new DominanceFrontierInfoMarker(size);
     node.addMarker(marker);
   }
 

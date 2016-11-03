@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 
 import com.android.jack.ir.ast.cfg.JControlFlowGraph;
+import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
 
@@ -30,6 +31,7 @@ import javax.annotation.Nonnull;
 /**
  *
  */
+@Description("Assign a number to block map to a CFG.")
 @ValidOn(JControlFlowGraph.class)
 public class NodeListMarker implements Marker {
 
@@ -55,5 +57,15 @@ public class NodeListMarker implements Marker {
   @Override
   public Marker cloneIfNeeded() {
     throw new AssertionError("It is not valid to use cloneIfNeeded, create a new marker.");
+  }
+
+  @SuppressWarnings("unchecked")
+  public static void assignNodeList(@SuppressWarnings("rawtypes") @Nonnull IGraph graph) {
+    assert graph.getMarker(NodeListMarker.class) == null;
+    graph.addMarker(new NodeListMarker(graph.getNodes()));
+  }
+
+  public static void removeNodeList(@SuppressWarnings("rawtypes") @Nonnull IGraph graph) {
+    graph.removeMarker(NodeListMarker.class);
   }
 }

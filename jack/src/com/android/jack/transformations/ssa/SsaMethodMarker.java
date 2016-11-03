@@ -14,18 +14,24 @@
  * limitations under the License.
  */
 
-package com.android.jack.util.graph;
+package com.android.jack.transformations.ssa;
+
+import com.android.jack.ir.ast.JMethod;
+import com.android.sched.item.Description;
+import com.android.sched.marker.Marker;
+import com.android.sched.marker.ValidOn;
 
 import javax.annotation.Nonnull;
 
 /**
- * This class should probably be a schedulable that runs on CFG IR. Since we don't exactly know what
- * that looks like we are just going to leave it as a static helper for the unit tests.
+ * Implies this method is SSA compatible.
  */
-public class AssigntGraphNodeList {
-  @SuppressWarnings("unchecked")
-  public static void assignNodeList(@SuppressWarnings("rawtypes") @Nonnull IGraph graph) {
-    assert graph.getMarker(NodeListMarker.class) == null;
-    graph.addMarker(new NodeListMarker(graph.getNodes()));
+@Description("SsaMethodMarker")
+@ValidOn(value = {JMethod.class})
+public class SsaMethodMarker implements Marker {
+  @Override
+  @Nonnull
+  public Marker cloneIfNeeded() {
+    return this;
   }
 }

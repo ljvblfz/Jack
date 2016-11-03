@@ -103,6 +103,7 @@ import com.android.jack.ir.ast.JReinterpretCastOperation;
 import com.android.jack.ir.ast.JReturnStatement;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JShortLiteral;
+import com.android.jack.ir.ast.JSsaVariableRef;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JSynchronizedBlock;
@@ -126,6 +127,7 @@ import com.android.jack.ir.ast.cfg.JExitBasicBlock;
 import com.android.jack.ir.ast.cfg.JGotoBlockElement;
 import com.android.jack.ir.ast.cfg.JLockBlockElement;
 import com.android.jack.ir.ast.cfg.JMethodCallBlockElement;
+import com.android.jack.ir.ast.cfg.JPhiBlockElement;
 import com.android.jack.ir.ast.cfg.JPlaceholderBasicBlock;
 import com.android.jack.ir.ast.cfg.JPolymorphicMethodCallBlockElement;
 import com.android.jack.ir.ast.cfg.JRegularBasicBlock;
@@ -151,6 +153,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -1031,6 +1034,29 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
   }
 
   @Override
+  public boolean visit(@Nonnull JPhiBlockElement x) {
+    JSsaVariableRef lhs = x.getLhs();
+    if (lhs == null) {
+      printName(x.getTarget());
+      print(" = phi (");
+    } else {
+      visit(lhs);
+      print(" = phi (");
+
+    }
+    for (JSsaVariableRef rhs : x.getRhs()) {
+      if (rhs == null) {
+        print("?");
+      } else {
+        visit(rhs);
+      }
+      space();
+    }
+    print(")");
+    return false;
+  }
+
+  @Override
   public boolean visit(@Nonnull JRegularBasicBlock x) {
     print("return");
     printBlockCommon(x);
@@ -1381,6 +1407,15 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
   @Override
   public boolean visit(@Nonnull JAbstractStringLiteral x) {
     printStringLiteral(x.getValue());
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JSsaVariableRef x) {
+    print(x.getTarget().getName());
+    print("{");
+    print("" + x.getVersion());
+    print("}");
     return false;
   }
 
