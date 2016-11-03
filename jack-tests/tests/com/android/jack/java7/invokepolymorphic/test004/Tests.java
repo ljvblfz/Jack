@@ -18,7 +18,6 @@ package com.android.jack.java7.invokepolymorphic.test004;
 
 import junit.framework.Assert;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.lang.invoke.MethodHandle;
@@ -302,7 +301,6 @@ public class Tests {
   }
 
   @Test
-  @Ignore("Not yet supported by Art")
   public void testStaticInvokeExactWrongMethodException() {
     try {
       MethodHandle mh = getStaticMethodHandle("getStaticDescription", String.class);
