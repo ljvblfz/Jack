@@ -177,7 +177,7 @@ public class ServerLogConfiguration implements Cloneable {
 
   @Nonnull
   private LogLevel parseLevel(@Nonnull String stringLevel) throws ParsingException {
-    return new EnumCodec<>(LogLevel.class, LogLevel.values()).checkString(
+    return new EnumCodec<>(LogLevel.class).checkString(
         new CodecContext(), stringLevel);
   }
 
