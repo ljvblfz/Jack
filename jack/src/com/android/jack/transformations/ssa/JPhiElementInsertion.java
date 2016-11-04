@@ -51,9 +51,10 @@ public class JPhiElementInsertion implements RunnableSchedulable<JControlFlowGra
 
   @Override
   public void run(JControlFlowGraph cfg) {
+    SsaBasicBlockSplitterMarker marker = cfg.removeMarker(SsaBasicBlockSplitterMarker.class);
+    assert marker != null;
     placePhiFunctions(cfg);
     // Invalidates the block split marker.
-    cfg.removeMarker(SsaBasicBlockSplitterMarker.class);
   }
 
   /**
@@ -64,7 +65,7 @@ public class JPhiElementInsertion implements RunnableSchedulable<JControlFlowGra
    */
   private void placePhiFunctions(JControlFlowGraph cfg) {
     JMethod method = cfg.getMethod();
-    final int numLocals = SsaUtil.getTotalNumberOfLocals(method);
+    final int numLocals = SsaUtil.getTotalNumberOfLocals(method, cfg);
     int regCount;
     int blockCount;
 
@@ -94,7 +95,7 @@ public class JPhiElementInsertion implements RunnableSchedulable<JControlFlowGra
         if (dv != null) {
           JVariable rs = dv.getTarget();
           // We don't need to check for JThis because JThis will never be defined.
-          int index = SsaUtil.getLocalIndex(method, rs);
+          int index = SsaUtil.getLocalIndex(method, cfg, rs);
           defsites[index].set(NodeIdMarker.getId(b));
         }
       }
@@ -124,8 +125,7 @@ public class JPhiElementInsertion implements RunnableSchedulable<JControlFlowGra
           if (!phisites[reg].get(dfBlockIndex) && dfBlock != cfg.getExitBlock()) {
             phisites[reg].set(dfBlockIndex);
 
-            // bad source info?
-            JVariable target = SsaUtil.getVariableByIndex(method, reg);
+            JVariable target = SsaUtil.getVariableByIndex(method, cfg, reg);
 
             JPhiBlockElement phi = new JPhiBlockElement(target,
                 dfBlock.getPredecessors().size(), method.getSourceInfo());

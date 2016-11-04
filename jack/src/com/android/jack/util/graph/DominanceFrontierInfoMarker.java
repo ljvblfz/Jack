@@ -28,7 +28,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- *
+ * A marker to store information computed by {@Link DominanceFrontier}.
  */
 @Description("Dominance Frontier information for a node in a CFG.")
 @ValidOn(JBasicBlock.class)

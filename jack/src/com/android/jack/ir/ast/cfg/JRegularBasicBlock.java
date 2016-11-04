@@ -142,6 +142,12 @@ public abstract class JRegularBasicBlock extends JBasicBlock {
     }
   }
 
+  public void removeElement(@Nonnull JBasicBlockElement element) {
+    int index = elements.indexOf(element);
+    assert index != -1;
+    elements.remove(index);
+  }
+
   @Override
   @Nonnegative
   public int indexOf(@Nonnull JBasicBlockElement element) {

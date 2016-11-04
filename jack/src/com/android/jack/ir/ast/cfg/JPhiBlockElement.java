@@ -60,9 +60,9 @@ public class JPhiBlockElement extends JBasicBlockElement {
     for (int i = 0; i < numPred; i++) {
       // We are going to insert a place holder first. The SSA renamer will replace the var ref
       // with a proper version.
-      rhs.add(new JSsaVariableRef(info, var, 0));
+      rhs.add(new JSsaVariableRef(info, var, 0, this, true));
     }
-    lhs = new JSsaVariableRef(info, var, 0);
+    lhs = new JSsaVariableRef(info, var, 0, this, false);
     this.var = var;
   }
 

@@ -81,8 +81,8 @@ public class SsaBasicBlockSplitter implements RunnableSchedulable<JControlFlowGr
      * Any block with that has both multiple successors and multiple predecessors needs a new
      * predecessor node.
      */
-    int countPredecessors = SsaUtil.getNumPredecessor(block);
-    int countSuccessors = SsaUtil.getNumSuccessor(block);
+    int countPredecessors = block.getPredecessorCount();
+    int countSuccessors = block.getSuccessors().size();
     boolean needsUniquePredecessor = countPredecessors > 1 && countSuccessors > 1;
     assert !needsUniquePredecessor
         || !(block instanceof JCaseBasicBlock || block instanceof JCatchBasicBlock);
@@ -98,9 +98,11 @@ public class SsaBasicBlockSplitter implements RunnableSchedulable<JControlFlowGr
       /*
        * Any block that starts with a move-exception and has more than one predecessor...
        */
-      if (!(block instanceof JExitBasicBlock) && SsaUtil.getNumPredecessor(block) > 1
+      if (!(block instanceof JExitBasicBlock) && block.getPredecessorCount() > 1
           && block instanceof JCatchBasicBlock) {
-
+        for (JBasicBlock predecssor : block.getPredecessors()) {
+          predecssor.split(0);
+        }
       }
     }
   }
@@ -117,7 +119,11 @@ public class SsaBasicBlockSplitter implements RunnableSchedulable<JControlFlowGr
       // Successors list is modified in loop below.
       for (JBasicBlock succ : block.getSuccessors()) {
         if (needsNewSuccessor(block, succ)) {
-          succ.split(0);
+          if (succ instanceof JCatchBasicBlock || succ instanceof JCaseBasicBlock) {
+            block.split(-1);
+          } else {
+            succ.split(0);
+          }
         }
       }
     }
@@ -136,7 +142,7 @@ public class SsaBasicBlockSplitter implements RunnableSchedulable<JControlFlowGr
     if (block instanceof JEntryBasicBlock) {
       return false;
     }
-    if (SsaUtil.isBasicBlockEmpty(block)) {
+    if (block.getElementCount() == 0) {
       return false;
     }
     if (succ instanceof JExitBasicBlock) {
@@ -145,6 +151,6 @@ public class SsaBasicBlockSplitter implements RunnableSchedulable<JControlFlowGr
     JBasicBlockElement lastInsn = block.getLastElement();
     int uvCount = SsaUtil.getUsedVariables(lastInsn).size();
     int dvCount = SsaUtil.getDefinedVariable(lastInsn) == null ? 0 : 1;
-    return (uvCount + dvCount > 0) && SsaUtil.getNumPredecessor(succ) > 1;
+    return (uvCount + dvCount > 0) && succ.getPredecessorCount() > 1;
   }
 }

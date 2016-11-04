@@ -107,7 +107,7 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
       this.cfg = cfg;
       this.method = cfg.getMethod();
       bbMap = NodeListMarker.getNodeList(cfg);
-      ropRegCount = SsaUtil.getTotalNumberOfLocals(method);
+      ropRegCount = SsaUtil.getTotalNumberOfLocals(method, cfg);
 
       /*
        * Reserve the first N registers in the SSA register space for
@@ -130,8 +130,8 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
       // top entry for the version stack is version 0
       JSsaVariableRef[] initialRegMapping = new JSsaVariableRef[ropRegCount];
       for (int i = 0; i < ropRegCount; i++) {
-        JVariable target = SsaUtil.getVariableByIndex(method, i);
-        initialRegMapping[i] = new JSsaVariableRef(method.getSourceInfo(), target, 0);
+        JVariable target = SsaUtil.getVariableByIndex(method, cfg, i);
+        initialRegMapping[i] = new JSsaVariableRef(method.getSourceInfo(), target, 0, null, true);
       }
       // Initial state for entry block
       int entryId = NodeIdMarker.getId(cfg.getEntryBlock());
@@ -307,12 +307,14 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
         if (target instanceof JThis) {
           return; // I don't think we ever run into this.
         }
-        index = SsaUtil.getLocalIndex(method, target);
+        index = SsaUtil.getLocalIndex(method, cfg, target);
         nextSsaReg[index]++;
-        JSsaVariableRef lhs = new JSsaVariableRef(phi.getSourceInfo(), target, nextSsaReg[index]);
+        JSsaVariableRef lhs =
+            new JSsaVariableRef(phi.getSourceInfo(), target, nextSsaReg[index], phi, true);
         TransformationRequest tr = new TransformationRequest(phi);
         tr.append(new Replace(phi.getLhs(), lhs));
         addMapping(index, lhs);
+        tr.commit();
       }
 
       /**
@@ -329,10 +331,11 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
         }
 
         JVariable ropReg = dv.getTarget();
-        int index = SsaUtil.getLocalIndex(method, ropReg);
+        int index = SsaUtil.getLocalIndex(method, cfg, ropReg);
 
         nextSsaReg[index]++;
-        JSsaVariableRef ref = new JSsaVariableRef(dv.getSourceInfo(), ropReg, nextSsaReg[index]);
+        JSsaVariableRef ref =
+            new JSsaVariableRef(dv.getSourceInfo(), ropReg, nextSsaReg[index], insn, true);
         TransformationRequest tr = new TransformationRequest(method);
         tr.append(new Replace(dv, ref));
         tr.commit();
@@ -350,7 +353,7 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
           if (varRef instanceof JThisRef) {
             continue;
           }
-          int index = SsaUtil.getLocalIndex(method, varRef.getTarget());
+          int index = SsaUtil.getLocalIndex(method, cfg, varRef.getTarget());
           if (index == -1) {
             System.out.println("this is not good for business");
           }
@@ -374,7 +377,7 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
               if (target instanceof JThis) {
                 continue;
               }
-              ropReg = SsaUtil.getLocalIndex(method, target);
+              ropReg = SsaUtil.getLocalIndex(method, cfg, target);
               /*
                * Never add a version 0 register as a phi operand. Version 0 registers represent the
                * initial register state, and thus are never significant. Furthermore, the register
@@ -384,15 +387,11 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
 
               JSsaVariableRef stackTop = currentMapping[ropReg];
               if (!isVersionZeroRegister(stackTop)) {
-                // TODO(acleung) fix this
-                // insn.addPhiOperand(stackTop, block);
-                for (JBasicBlock succ : block.getSuccessors()) {
-                  int idx = succ.getPredecessors().indexOf(block);
-                  JSsaVariableRef rhs = stackTop.makeRef(phi.getSourceInfo());
-                  TransformationRequest tr = new TransformationRequest(phi);
-                  tr.append(new Replace(phi.getRhs(idx), rhs));
-                  tr.commit();
-                }
+                TransformationRequest tr = new TransformationRequest(phi);
+                int idx = successor.getPredecessors().indexOf(block);
+                JSsaVariableRef rhs = stackTop.makeRef(phi.getSourceInfo());
+                tr.append(new Replace(phi.getRhs(idx), rhs));
+                tr.commit();
               }
             }
           }

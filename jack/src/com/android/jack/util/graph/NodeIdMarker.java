@@ -16,9 +16,11 @@
 
 package com.android.jack.util.graph;
 
+import com.android.jack.ir.ast.cfg.JBasicBlock;
 import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.MarkerManager;
+import com.android.sched.marker.ValidOn;
 
 import java.util.BitSet;
 
@@ -32,6 +34,7 @@ import javax.annotation.Nonnull;
  * each basic block.
  */
 @Description("A numeric ID for a node in a graph.")
+@ValidOn(JBasicBlock.class)
 public class NodeIdMarker implements Marker {
   @Nonnegative
   private final int id;

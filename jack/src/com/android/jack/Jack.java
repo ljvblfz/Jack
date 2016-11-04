@@ -317,6 +317,7 @@ import com.android.jack.transformations.ssa.CfgNodeIdAssignment;
 import com.android.jack.transformations.ssa.CfgNodeListAssignment;
 import com.android.jack.transformations.ssa.DominanceFrontierAssignment;
 import com.android.jack.transformations.ssa.JPhiElementInsertion;
+import com.android.jack.transformations.ssa.OptimizeJPhiElements;
 import com.android.jack.transformations.ssa.SsaBasicBlockSplitter;
 import com.android.jack.transformations.ssa.SsaRenamer;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeBuilder;
@@ -746,8 +747,8 @@ public abstract class Jack {
           if (config.get(Optimizations.WriteOnlyFieldRemoval.ENABLE).booleanValue()) {
             request.addFeature(Optimizations.WriteOnlyFieldRemoval.class);
           }
-          if (config.get(Optimizations.UseJackSsaIR.ENABLE).booleanValue()) {
-            request.addFeature(Optimizations.UseJackSsaIR.class);
+          if (config.get(Options.UseJackSsaIR.ENABLE).booleanValue()) {
+            request.addFeature(Options.UseJackSsaIR.class);
           }
           if (config.get(Optimizations.SimpleBasicBlockMerging.ENABLE).booleanValue()) {
             request.addFeature(Optimizations.SimpleBasicBlockMerging.class);
@@ -1724,18 +1725,6 @@ public abstract class Jack {
       }
     }
 
-    if (features.contains(Optimizations.UseJackSsaIR.class)) {
-      SubPlanBuilder<JControlFlowGraph> cfgPlan = planBuilder
-          .appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
-          .appendSubPlan(JMethodControlFlowGraphAdapter.class);
-      cfgPlan.append(SsaBasicBlockSplitter.class);
-      cfgPlan.append(CfgNodeIdAssignment.class);
-      cfgPlan.append(CfgNodeListAssignment.class);
-      cfgPlan.append(DominanceFrontierAssignment.class);
-      cfgPlan.append(JPhiElementInsertion.class);
-      cfgPlan.append(SsaRenamer.class);
-    }
-
     // Cfg-IR base transformations
     {
       SubPlanBuilder<JControlFlowGraph> cfgPlan = planBuilder
@@ -1785,12 +1774,26 @@ public abstract class Jack {
       cfgPlan.append(RemoveUnreachableBasicBlocks.class);
     }
 
+    // SSA Construction.
+    if (features.contains(Options.UseJackSsaIR.class)) {
+      SubPlanBuilder<JControlFlowGraph> cfgPlan = planBuilder
+          .appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
+          .appendSubPlan(JMethodControlFlowGraphAdapter.class);
+      cfgPlan.append(SsaBasicBlockSplitter.class);
+      cfgPlan.append(CfgNodeIdAssignment.class);
+      cfgPlan.append(CfgNodeListAssignment.class);
+      cfgPlan.append(DominanceFrontierAssignment.class);
+      cfgPlan.append(JPhiElementInsertion.class);
+      cfgPlan.append(SsaRenamer.class);
+      cfgPlan.append(OptimizeJPhiElements.class);
+    }
+
     {
       SubPlanBuilder<JMethod> methodPlan = planBuilder
           .appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
           .appendSubPlan(JMethodAdapter.class);
 
-      if (features.contains(Optimizations.UseJackSsaIR.class)) {
+      if (features.contains(Options.UseJackSsaIR.class)) {
         methodPlan.append(SsaCodeItemBuilder.class);
       } else {
         methodPlan.append(CodeItemBuilder.class);

@@ -16,11 +16,16 @@
 
 package com.android.jack.ir.ast;
 
+import com.android.jack.ir.ast.cfg.JBasicBlockElement;
+import com.android.jack.ir.ast.cfg.JPhiBlockElement;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -37,8 +42,14 @@ import javax.annotation.Nonnull;
 @Description("Represents a reference to an SSA variable.")
 public class JSsaVariableRef extends JVariableRef {
 
+  private final boolean isDef;
+
   @Nonnegative
   private final int version;
+
+  private final JBasicBlockElement def;
+
+  private final List<JSsaVariableRef> uses = new ArrayList<>();
 
   /**
    * Constructs a JSsaVariableRef.
@@ -47,9 +58,11 @@ public class JSsaVariableRef extends JVariableRef {
    * @Param version The version number of the variable if it is renamed.
    */
   public JSsaVariableRef(@Nonnull SourceInfo info, @Nonnull JVariable target,
-      @Nonnegative int version) {
+      @Nonnegative int version, JBasicBlockElement def, boolean isDef) {
     super(info, target);
     this.version = version;
+    this.def = def;
+    this.isDef = isDef;
   }
 
   /**
@@ -60,10 +73,50 @@ public class JSsaVariableRef extends JVariableRef {
     return version;
   }
 
+  /**
+   * @return true if this is variable has any uses.
+   */
+  public boolean hasUses() {
+    return !uses.isEmpty();
+  }
+
+  public boolean isPhiUse() {
+    if (isDef) {
+      return false;
+    }
+    JNode parent = getParent();
+    if (parent instanceof JPhiBlockElement) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  public boolean hasUsesOutsideOfPhis() {
+    if (!hasUses()) {
+      return false;
+    }
+
+    if (!isPhiUse()) {
+      return true;
+    }
+
+    for (JSsaVariableRef use : uses) {
+      if (use.hasUsesOutsideOfPhis()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   @Override
   public void traverse(@Nonnull JVisitor visitor) {
     visitor.visit(this);
     visitor.endVisit(this);
+  }
+
+  public List<JSsaVariableRef> getUses() {
+    return uses;
   }
 
   /**
@@ -71,7 +124,10 @@ public class JSsaVariableRef extends JVariableRef {
    */
   @Nonnull
   public JSsaVariableRef makeRef(@Nonnull SourceInfo info) {
-    return new JSsaVariableRef(info, target, version);
+    JSsaVariableRef ref = new JSsaVariableRef(info, target, version, def, false);
+    uses.add(ref);
+    ref.uses.add(this);
+    return ref;
   }
 
   @Override

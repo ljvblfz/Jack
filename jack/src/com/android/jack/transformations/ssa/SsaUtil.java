@@ -20,20 +20,22 @@ import com.google.common.collect.Lists;
 
 import com.android.jack.analysis.UsedVariableMarker;
 import com.android.jack.ir.ast.JAsgOperation;
-import com.android.jack.ir.ast.JCatchBlock;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JLabeledStatement;
 import com.android.jack.ir.ast.JLocal;
+import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBodyCfg;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JParameter;
+import com.android.jack.ir.ast.JSsaVariableRef;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.cfg.JBasicBlock;
 import com.android.jack.ir.ast.cfg.JBasicBlockElement;
+import com.android.jack.ir.ast.cfg.JControlFlowGraph;
 import com.android.jack.ir.ast.cfg.JVariableAsgBlockElement;
 
 import java.util.ArrayList;
@@ -87,7 +89,7 @@ public class SsaUtil {
     }
   }
 
-  public static int getLocalIndex(JMethod method, JVariable var) {
+  public static int getLocalIndex(JMethod method, @Nonnull JControlFlowGraph cfg, JVariable var) {
     JMethodBodyCfg body = (JMethodBodyCfg) method.getBody();
     int numParam = method.getParams().size();
     if (var instanceof JParameter) {
@@ -101,14 +103,14 @@ public class SsaUtil {
     int numLocal = body.getLocals().size();
     if (var instanceof JLocal) {
       // We either have a defined local or catch param.
-      List<JLocal> catchParams = getCatchVariables(method);
+      List<JLocal> catchParams = getCatchVariables(cfg);
       int index = catchParams.indexOf(var);
       if (index != -1) {
         return numLocal + numParam + index;
       } else {
         int localIdx = body.getLocals().indexOf(var);
         if (localIdx == -1) {
-          throw new RuntimeException();
+          throw new RuntimeException("variable not found ");
         }
         return numParam + localIdx;
       }
@@ -117,7 +119,8 @@ public class SsaUtil {
     return -1;
   }
 
-  public static JVariable getVariableByIndex(JMethod method, int index) {
+  public static JVariable getVariableByIndex(JMethod method, @Nonnull JControlFlowGraph cfg,
+      int index) {
     JMethodBodyCfg body = (JMethodBodyCfg) method.getBody();
     assert body != null;
     int numLocal = body.getLocals().size();
@@ -131,43 +134,39 @@ public class SsaUtil {
       return body.getLocals().get(index - numParam);
     }
 
-    List<JLocal> catchParams = getCatchVariables(method);
+    List<JLocal> catchParams = getCatchVariables(cfg);
     return catchParams.get(index - numParam - numLocal);
   }
 
-  public static int getTotalNumberOfLocals(@Nonnull JMethod m) {
+  public static int getTotalNumberOfLocals(@Nonnull JMethod m, @Nonnull JControlFlowGraph cfg) {
     JMethodBodyCfg body = (JMethodBodyCfg) m.getBody();
     assert body != null;
     int numParam = m.getParams().size();
     assert body.getLocals() != null;
     int numLocal = body.getLocals().size();
-    int numCatch = getCatchVariables(m).size();
+    int numCatch = getCatchVariables(cfg).size();
     return numLocal + numParam + numCatch;
   }
 
-  public static List<JLocal> getCatchVariables(final JMethod m) {
+  public static List<JLocal> getCatchVariables(@Nonnull JControlFlowGraph cfg) {
     final List<JLocal> catchLocals = new ArrayList<>();
-    (new JVisitor() {
-      @Override
-      public boolean visit(JLocal local) {
-        if (local.getParent() instanceof JCatchBlock) {
-          catchLocals.add(local);
+    for (JBasicBlock b : cfg.getAllBlocksUnordered()) {
+      for (JBasicBlockElement element : b.getElements(true)) {
+        if (element instanceof JVariableAsgBlockElement) {
+          JVariableAsgBlockElement asg = (JVariableAsgBlockElement) element;
+          if (asg.isCatchVariableAssignment()) {
+            JExpression lhs = asg.getAssignment().getLhs();
+            if (lhs instanceof JLocalRef){
+              catchLocals.add(((JLocalRef) lhs).getLocal());
+            } else if (lhs instanceof JSsaVariableRef){
+              catchLocals.add((JLocal) ((JSsaVariableRef) lhs).getTarget());
+            } else {
+              throw new RuntimeException("unknown catch variable.");
+            }
+          }
         }
-        return false;
       }
-    }).accept(m);
+    }
     return catchLocals;
-  }
-
-  public static int getNumPredecessor(JBasicBlock bb) {
-    return bb.getPredecessors().size();
-  }
-
-  public static int getNumSuccessor(JBasicBlock bb) {
-    return bb.getSuccessors().size();
-  }
-
-  public static boolean isBasicBlockEmpty(JBasicBlock bb) {
-    return bb.getElementCount() == 0;
   }
 }

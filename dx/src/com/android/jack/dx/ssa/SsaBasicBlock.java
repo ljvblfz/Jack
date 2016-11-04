@@ -135,6 +135,14 @@ public final class SsaBasicBlock {
     domChildren = new ArrayList<SsaBasicBlock>();
   }
 
+  public SsaBasicBlock(final int basicBlockIndex, final SsaMethod parent) {
+    this.parent = parent;
+    this.index = basicBlockIndex;
+    this.predecessors = new BitSet();
+    this.successors = new BitSet();
+    domChildren = new ArrayList<SsaBasicBlock>();
+  }
+
   /**
    * Creates a new SSA basic block from a ROP form basic block.
    *
@@ -861,6 +869,39 @@ for (int i = successors.nextSetBit(0); i >= 0; i = successors.nextSetBit(i + 1))
    */
   public void setReachable(int reach) {
     reachable = reach;
+  }
+
+  /**
+   * Sets the instructions in the block all at once.
+   *
+   * @param insns new list of instructions.
+   */
+  public void setInsns(List<SsaInsn> insns) {
+    this.insns = insns;
+  }
+
+  /**
+   * Sets the label for branching.
+   *
+   * @param ropLabel Rop branching label.
+   */
+  public void setRopLabel(int ropLabel) {
+    this.ropLabel = ropLabel;
+  }
+
+  public void setSuccessors(final IntList successorList, final int primarySuccessor) {
+    this.successorList = successorList;
+    this.primarySuccessor = primarySuccessor;
+    this.primarySuccessor = primarySuccessor;
+    this.successorList = successorList;
+    successors = new BitSet();
+    for (int i = 0; i < successorList.size(); i++) {
+      successors.set(successorList.get(i));
+    }
+  }
+
+  public void addPredeccessors(int index) {
+    predecessors.set(index);
   }
 
   /**

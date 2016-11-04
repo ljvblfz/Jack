@@ -36,7 +36,7 @@ public final class NormalSsaInsn extends SsaInsn implements Cloneable {
    * @param insn Rop insn to wrap
    * @param block block that contains this insn
    */
-  NormalSsaInsn(final Insn insn, final SsaBasicBlock block) {
+  public NormalSsaInsn(final Insn insn, final SsaBasicBlock block) {
     super(insn.getResult(), block);
     this.insn = insn;
   }

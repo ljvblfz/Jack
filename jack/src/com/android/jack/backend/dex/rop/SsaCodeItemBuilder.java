@@ -15,6 +15,8 @@
  */
 package com.android.jack.backend.dex.rop;
 
+import com.google.common.collect.Lists;
+
 import com.android.jack.JackEventType;
 import com.android.jack.Options;
 import com.android.jack.dx.dex.DexOptions;
@@ -24,7 +26,6 @@ import com.android.jack.dx.dex.code.RopTranslator;
 import com.android.jack.dx.dex.file.CodeItem;
 import com.android.jack.dx.rop.code.DexTranslationAdvice;
 import com.android.jack.dx.rop.code.Insn;
-import com.android.jack.dx.rop.code.InsnList;
 import com.android.jack.dx.rop.code.LocalVariableExtractor;
 import com.android.jack.dx.rop.code.LocalVariableInfo;
 import com.android.jack.dx.rop.code.PlainCstInsn;
@@ -39,7 +40,12 @@ import com.android.jack.dx.rop.cst.CstInteger;
 import com.android.jack.dx.rop.type.StdTypeList;
 import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.rop.type.TypeList;
+import com.android.jack.dx.ssa.NormalSsaInsn;
 import com.android.jack.dx.ssa.Optimizer;
+import com.android.jack.dx.ssa.Optimizer.OptionalStep;
+import com.android.jack.dx.ssa.SsaBasicBlock;
+import com.android.jack.dx.ssa.SsaInsn;
+import com.android.jack.dx.ssa.SsaMethod;
 import com.android.jack.dx.util.IntList;
 import com.android.jack.ir.SideEffectOperation;
 import com.android.jack.ir.ast.JAbstractMethodBody;
@@ -106,6 +112,8 @@ import com.android.sched.util.log.Event;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
 
+import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -186,10 +194,14 @@ public class SsaCodeItemBuilder implements RunnableSchedulable<JMethod> {
         || !filter.accept(this.getClass(), method)) {
       return;
     }
+    buildSsaCodeItem(method, false);
+  }
 
+  @SuppressWarnings("boxing")
+  public void buildSsaCodeItem(@Nonnull JMethod method, boolean minimizeRegister) {
     try (Event event = tracer.open(JackEventType.DX_BACKEND)) {
-      RopRegisterManager ropReg =
-          new RopRegisterManager(emitLocalDebugInfo, emitSyntheticLocalDebugInfo);
+      SsaRopRegisterManager ropReg =
+          new SsaRopRegisterManager(emitLocalDebugInfo, emitSyntheticLocalDebugInfo);
 
       JAbstractMethodBody body = method.getBody();
       assert body instanceof JMethodBodyCfg;
@@ -199,27 +211,51 @@ public class SsaCodeItemBuilder implements RunnableSchedulable<JMethod> {
       final JExitBasicBlock exitBasicBlock = cfg.getExitBlock();
 
       final Map<JBasicBlock, Integer> basicBlocks = new LinkedHashMap<>();
-      int blockId = 1; // 0 is reserved for entry block
-      for (JBasicBlock block : cfg.getReachableBlocksDepthFirst()) {
-        if (block != entryBasicBlock && block != exitBasicBlock) {
+      int blockId = 0; // 0 is reserved for entry block
+      // TODO(acleung): We don't need to generate blocks that is not reachable. We are only doing
+      // this for now because the Phi nodes will not have a valid prececessor otherwise. DX normally
+      // remove any unreachable nodes so this will not be a performance issue.
+      for (JBasicBlock block : cfg.getAllBlocksUnordered()) {
+        if (block == exitBasicBlock) {
+          basicBlocks.put(block, Integer.MAX_VALUE);
+        } else {
           basicBlocks.put(block, Integer.valueOf(blockId++));
         }
       }
 
-      final RopBasicBlockManager ropBb = new RopBasicBlockManager(blockId + 1);
+      int maxLabel = blockId + 2;
+      SsaMethod ssaMethod =
+          new SsaMethod(getParameterWordCount(method), method.isStatic(), maxLabel, 0);
+      final SsaRopBasicBlockManager ropBb = new SsaRopBasicBlockManager(ssaMethod, maxLabel);
+
       JBasicBlock firstBlockOfCode = entryBasicBlock.getOnlySuccessor();
-      addSetupBlocks(method, ropReg, ropBb, basicBlocks.get(firstBlockOfCode).intValue());
+
+      // Rop-SSA needs an extra entry block compare the ROP.
+      int firstJackBlockIndex = basicBlocks.get(firstBlockOfCode).intValue();
+      SsaBasicBlock initBb = ropBb.createBasicBlock();
+      initBb.setSuccessors(
+          IntList.makeImmutable(ropBb.getSpecialLabel(SsaRopBasicBlockManager.PARAM_ASSIGNMENT)),
+          ropBb.getSpecialLabel(SsaRopBasicBlockManager.PARAM_ASSIGNMENT));
+      initBb.setInsns(Lists.<SsaInsn>newArrayList());
+      initBb.setRopLabel(blockId + 2);
+
+      addSetupBlocks(method, ropReg, ropBb, firstJackBlockIndex);
 
       if (method.getType() != JPrimitiveTypeEnum.VOID.getType()) {
         ropReg.createReturnReg(method.getType());
       }
 
       for (JBasicBlock bb : basicBlocks.keySet()) {
+        if (bb instanceof JExitBasicBlock || bb instanceof JEntryBasicBlock) {
+          continue;
+        }
         assert bb != entryBasicBlock && bb != exitBasicBlock;
-        final RopBuilderVisitor ropBuilder = new RopBuilderVisitor(ropReg, bb);
+        final SsaBasicBlock ssaBb = ropBb.createBasicBlock();
+        final SsaRopBuilderVisitor ropBuilder =
+            new SsaRopBuilderVisitor(ropReg, bb, ssaBb, basicBlocks);
 
         ropBuilder.processBasicBlockElements();
-        final List<Insn> instructions = ropBuilder.getInstructions();
+        final List<SsaInsn> instructions = ropBuilder.getInstructions();
         assert instructions != null;
 
         JVisitor visitor = new JVisitor() {
@@ -232,27 +268,28 @@ public class SsaCodeItemBuilder implements RunnableSchedulable<JMethod> {
 
             JBasicBlock primarySuccessor = bb.getPrimarySuccessor();
             IntList successors = IntList.makeImmutable(getBlockId(primarySuccessor));
-            InsnList il = createInsnList(instructions, 1);
+            List<SsaInsn> il = createInsnList(instructions, 1);
             Insn gotoInstruction = new PlainInsn(
                 Rops.GOTO, getLastElementPosition(bb), null, RegisterSpecList.EMPTY);
-            il.set(instructions.size(), gotoInstruction);
-            il.setImmutable();
-            ropBb.createBasicBlock(getBlockId(bb), il, successors, getBlockId(primarySuccessor));
+            il.add(new NormalSsaInsn(gotoInstruction, ssaBb));
+            ssaBb.setRopLabel(getBlockId(bb));
+            ssaBb.setInsns(il);
+            ssaBb.setSuccessors(successors, getBlockId(primarySuccessor));
             return false;
           }
 
           @Override
           public boolean visit(@Nonnull JReturnBasicBlock bb) {
-            InsnList il = createInsnList(instructions, 0);
-            il.setImmutable();
-            ropBb.createBasicBlock(getBlockId(bb), il, IntList.EMPTY, -1);
+            List<SsaInsn> il = createInsnList(instructions, 0);
+            ssaBb.setRopLabel(getBlockId(bb));
+            ssaBb.setInsns(il);
+            ssaBb.setSuccessors(IntList.EMPTY, -1);
             return false;
           }
 
           @Override
           public boolean visit(@Nonnull JThrowBasicBlock bb) {
-            InsnList il = createInsnList(instructions, 0);
-            il.setImmutable();
+            List<SsaInsn> il = createInsnList(instructions, 0);
 
             IntList successors = new IntList();
             int primarySuccessor = -1;
@@ -261,19 +298,19 @@ public class SsaCodeItemBuilder implements RunnableSchedulable<JMethod> {
               addCatchBlockSuccessors(bb.getCatchBlocks(), successors);
             }
             successors.setImmutable();
-
-            ropBb.createBasicBlock(getBlockId(bb), il, successors, primarySuccessor);
+            ssaBb.setRopLabel(getBlockId(bb));
+            ssaBb.setInsns(il);
+            ssaBb.setSuccessors(successors, primarySuccessor);
             return false;
           }
 
           @Override
           public boolean visit(@Nonnull JThrowingExpressionBasicBlock bb) {
-            Insn lastInstruction = instructions.get(instructions.size() - 1);
+            SsaInsn lastInstruction = instructions.get(instructions.size() - 1);
             List<Insn> extraInstructions = ropBuilder.getExtraInstructions();
             assert extraInstructions != null;
 
-            InsnList il = createInsnList(instructions, 0);
-            il.setImmutable();
+            List<SsaInsn> il = createInsnList(instructions, 0);
 
             int extraBlockLabel = ropBb.getAvailableLabel();
 
@@ -283,45 +320,48 @@ public class SsaCodeItemBuilder implements RunnableSchedulable<JMethod> {
             successors.add(extraBlockLabel);
             successors.setImmutable();
 
-            ropBb.createBasicBlock(getBlockId(bb), il, successors, extraBlockLabel);
+            ssaBb.setRopLabel(getBlockId(bb));
+            ssaBb.setInsns(il);
+            ssaBb.setSuccessors(successors, extraBlockLabel);
 
-            int indexInstruction = 0;
             boolean needsGoto;
             SourcePosition sourcePosition;
+
+            SsaBasicBlock extraSsaBb = ropBb.createBasicBlock();
+
             if (extraInstructions.isEmpty()) {
               needsGoto = true;
-              sourcePosition = lastInstruction.getPosition();
-              il = new InsnList(1);
+              sourcePosition = lastInstruction.getOriginalRopInsn().getPosition();
+              il = new ArrayList<SsaInsn>(1);
             } else {
               Insn extraInsn = extraInstructions.get(0);
               needsGoto =
                   extraInstructions.get(extraInstructions.size() - 1)
                       .getOpcode().getBranchingness() == Rop.BRANCH_NONE;
-              il = new InsnList(extraInstructions.size() + (needsGoto ? 1 : 0));
+              il = new ArrayList<SsaInsn>(extraInstructions.size() + (needsGoto ? 1 : 0));
               for (Insn inst : extraInstructions) {
-                il.set(indexInstruction++, inst);
+                il.add(new NormalSsaInsn(inst, extraSsaBb));
               }
               sourcePosition = extraInsn.getPosition();
             }
 
             if (needsGoto) {
-              il.set(indexInstruction,
-                  new PlainInsn(Rops.GOTO, sourcePosition, null, RegisterSpecList.EMPTY));
+              il.add(new NormalSsaInsn(
+                  new PlainInsn(Rops.GOTO, sourcePosition, null, RegisterSpecList.EMPTY),
+                  extraSsaBb));
             }
-
-            il.setImmutable();
 
             JBasicBlock primary = bb.getPrimarySuccessor();
             successors = IntList.makeImmutable(getBlockId(primary));
-
-            ropBb.createBasicBlock(extraBlockLabel, il, successors, getBlockId(primary));
+            extraSsaBb.setRopLabel(extraBlockLabel);
+            extraSsaBb.setInsns(il);
+            extraSsaBb.setSuccessors(successors, getBlockId(primary));
             return false;
           }
 
           @Override
           public boolean visit(@Nonnull JConditionalBasicBlock bb) {
-            InsnList il = createInsnList(instructions, 0);
-            il.setImmutable();
+            List<SsaInsn> il = createInsnList(instructions, 0);
 
             JBasicBlock primary = bb.getPrimarySuccessor();
             JBasicBlock secondary = bb.getAlternativeSuccessor();
@@ -329,7 +369,9 @@ public class SsaCodeItemBuilder implements RunnableSchedulable<JMethod> {
             int primarySuccessor = getBlockId(primary);
             IntList successors = IntList.makeImmutable(primarySuccessor, getBlockId(secondary));
 
-            ropBb.createBasicBlock(getBlockId(bb), il, successors, primarySuccessor);
+            ssaBb.setRopLabel(getBlockId(bb));
+            ssaBb.setInsns(il);
+            ssaBb.setSuccessors(successors, primarySuccessor);
             return false;
           }
 
@@ -343,10 +385,11 @@ public class SsaCodeItemBuilder implements RunnableSchedulable<JMethod> {
             successors.add(getBlockId(bb.getDefaultCase()));
 
             successors.setImmutable();
-            InsnList il = createInsnList(instructions, 0);
-            il.setImmutable();
-            ropBb.createBasicBlock(
-                getBlockId(bb), il, successors, successors.get(successors.size() - 1));
+            List<SsaInsn> il = createInsnList(instructions, 0);
+
+            ssaBb.setRopLabel(getBlockId(bb));
+            ssaBb.setInsns(il);
+            ssaBb.setSuccessors(successors, successors.get(successors.size() - 1));
             return false;
           }
 
@@ -373,12 +416,6 @@ public class SsaCodeItemBuilder implements RunnableSchedulable<JMethod> {
           }
 
           private int getBlockId(@Nonnull JBasicBlock block) {
-            if (block == entryBasicBlock) {
-              return 0;
-            }
-            if (block == exitBasicBlock) {
-              return Integer.MAX_VALUE;
-            }
             return basicBlocks.get(block).intValue();
           }
         };
@@ -386,21 +423,32 @@ public class SsaCodeItemBuilder implements RunnableSchedulable<JMethod> {
         visitor.accept(bb);
       }
 
-      RopMethod ropMethod =
-          new RopMethod(ropBb.getBasicBlockList(),
-              ropBb.getSpecialLabel(RopBasicBlockManager.PARAM_ASSIGNMENT));
+      ssaMethod.setBlocks(ropBb.computeSsaBasicBlockList());
+      ssaMethod.setRegisterCount(ropReg.getRegisterCount());
+      ssaMethod.makeExitBlock();
 
+      RopMethod ropMethod = null;
       if (runDxOptimizations) {
-        try (Event optEvent = tracer.open(JackEventType.DX_OPTIMIZATION)) {
-          ropMethod =
-              Optimizer.optimize(
-                  ropMethod,
-                  getParameterWordCount(method),
-                  method.isStatic(),
-                  true /* inPreserveLocals */,
-                  removeRedundantConditionalBranch,
-                  DexTranslationAdvice.THE_ONE);
+        if (!minimizeRegister) {
+            ropMethod = Optimizer.optimize(ssaMethod, getParameterWordCount(method),
+                method.isStatic(), true /* inPreserveLocals */, removeRedundantConditionalBranch,
+                DexTranslationAdvice.THE_ONE);
+          if (ropMethod.getBlocks().getRegCount() > DexTranslationAdvice.THE_ONE
+              .getMaxOptimalRegisterCount()) {
+              // Try to see if we can squeeze it under the register count bar
+            buildSsaCodeItem(method, true);
+          }
+        } else {
+          EnumSet<OptionalStep> steps = EnumSet.allOf(OptionalStep.class);
+          steps.remove(OptionalStep.CONST_COLLECTOR);
+          ropMethod = Optimizer.optimizeMinimizeRegisters(ssaMethod, getParameterWordCount(method),
+              method.isStatic(), true /* inPreserveLocals */, removeRedundantConditionalBranch,
+              DexTranslationAdvice.THE_ONE);
         }
+      } else {
+        ropMethod = Optimizer.optimize(ssaMethod, getParameterWordCount(method),
+            method.isStatic(), true /* inPreserveLocals */, removeRedundantConditionalBranch,
+            DexTranslationAdvice.THE_ONE, EnumSet.noneOf(OptionalStep.class));
       }
 
       DalvCode dalvCode;
@@ -424,11 +472,11 @@ public class SsaCodeItemBuilder implements RunnableSchedulable<JMethod> {
   }
 
   @Nonnull
-  private InsnList createInsnList(@Nonnull List<Insn> instructions, @Nonnegative int extraSize) {
-    InsnList il = new InsnList(instructions.size() + extraSize);
-    int indexInstruction = 0;
-    for (Insn instruction : instructions) {
-      il.set(indexInstruction++, instruction);
+  private List<SsaInsn> createInsnList(@Nonnull List<SsaInsn> instructions,
+      @Nonnegative int extraSize) {
+    List<SsaInsn> il = Lists.newArrayListWithCapacity(instructions.size() + extraSize);
+    for (SsaInsn instruction : instructions) {
+      il.add(instruction);
     }
     return il;
   }
@@ -439,28 +487,29 @@ public class SsaCodeItemBuilder implements RunnableSchedulable<JMethod> {
    * and a possible second block which deals with synchronization.
    */
   // TODO(mikaelpeltier) keep local variable information if required
-  private void addSetupBlocks(@Nonnull JMethod method, @Nonnull RopRegisterManager ropReg,
-      @Nonnull RopBasicBlockManager ropBb, @Nonnegative int entryNodeId) {
+  private void addSetupBlocks(@Nonnull JMethod method, @Nonnull SsaRopRegisterManager ropReg,
+      @Nonnull SsaRopBasicBlockManager ropBb, @Nonnegative int entryNodeId) {
+    SsaBasicBlock ssaBb = ropBb.createBasicBlock();
     SourcePosition pos = SourcePosition.NO_INFO;
 
     List<JParameter> parameters = method.getParams();
     int indexParam = 0;
     int sz = parameters.size();
-    InsnList insns;
+    List<SsaInsn> insns;
 
     if (method.isStatic()) {
       // +1 is to reserve space for Goto instruction
-      insns = new InsnList(sz + 1);
+      insns = new ArrayList<SsaInsn>(sz + 1);
     } else {
       // +2 is to reserve space for Goto instruction, and parameter 'this'
-      insns = new InsnList(sz + 2);
+      insns = new ArrayList<SsaInsn>(sz + 2);
       JThis jThis = method.getThis();
       assert jThis != null;
       RegisterSpec thisReg = ropReg.createThisReg(jThis);
       Insn insn =
           new PlainCstInsn(Rops.opMoveParam(thisReg.getType()), pos, thisReg,
               RegisterSpecList.EMPTY, CstInteger.make(thisReg.getReg()));
-      insns.set(indexParam++, insn);
+      insns.add(new NormalSsaInsn(insn, ssaBb));
     }
 
     for (Iterator<JParameter> paramIt = parameters.iterator(); paramIt.hasNext(); indexParam++) {
@@ -469,14 +518,15 @@ public class SsaCodeItemBuilder implements RunnableSchedulable<JMethod> {
       Insn insn =
           new PlainCstInsn(Rops.opMoveParam(paramReg.getType()), pos, paramReg,
               RegisterSpecList.EMPTY, CstInteger.make(paramReg.getReg()));
-      insns.set(indexParam, insn);
+      insns.add(new NormalSsaInsn(insn, ssaBb));
     }
 
-    insns.set(indexParam, new PlainInsn(Rops.GOTO, pos, null, RegisterSpecList.EMPTY));
-    insns.setImmutable();
+    insns
+        .add(new NormalSsaInsn(new PlainInsn(Rops.GOTO, pos, null, RegisterSpecList.EMPTY), ssaBb));
 
-    ropBb.createBasicBlock(ropBb.getSpecialLabel(RopBasicBlockManager.PARAM_ASSIGNMENT), insns,
-        IntList.makeImmutable(entryNodeId), entryNodeId);
+    ssaBb.setRopLabel(ropBb.getSpecialLabel(SsaRopBasicBlockManager.PARAM_ASSIGNMENT));
+    ssaBb.setInsns(insns);
+    ssaBb.setSuccessors(IntList.makeImmutable(entryNodeId), entryNodeId);
   }
 
   @Nonnull

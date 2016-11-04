@@ -48,6 +48,7 @@ import com.android.jack.ir.ast.JPolymorphicMethodCall;
 import com.android.jack.ir.ast.JPostfixOperation;
 import com.android.jack.ir.ast.JPrefixOperation;
 import com.android.jack.ir.ast.JShortLiteral;
+import com.android.jack.ir.ast.JSsaVariableRef;
 import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JVisitor;
 
@@ -179,6 +180,12 @@ class JavaPrecedenceVisitor extends JVisitor {
 
   @Override
   public boolean visit(@Nonnull JLocalRef x) {
+    answer = 0;
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JSsaVariableRef x) {
     answer = 0;
     return false;
   }

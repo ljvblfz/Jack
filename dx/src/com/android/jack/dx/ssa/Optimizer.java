@@ -18,6 +18,7 @@ package com.android.jack.dx.ssa;
 
 import com.android.jack.dx.rop.code.RopMethod;
 import com.android.jack.dx.rop.code.TranslationAdvice;
+import com.android.jack.dx.ssa.Optimizer.OptionalStep;
 import com.android.jack.dx.ssa.back.LivenessAnalyzer;
 import com.android.jack.dx.ssa.back.SsaToRop;
 
@@ -123,6 +124,85 @@ public class Optimizer {
               rmeth, paramWidth, isStatic, removeRedundantConditionalBranch, steps);
     }
     return resultMeth;
+  }
+
+  /**
+   * Runs optimization algorthims over this SSA method, and returns a new
+   * instance of RopMethod with the changes.
+   *
+   * @param ssaMethod method to process
+   * @param paramWidth the total width, in register-units, of this method's
+   * parameters
+   * @param isStatic true if this method has no 'this' pointer argument.
+   * @param inPreserveLocals true if local variable info should be preserved,
+   * at the cost of some registers and insns
+   * @param removeRedundantConditionalBranch true if we should optimize unneccesary conditional
+   * branches.
+   * @param inAdvice {@code non-null;} translation advice
+   * @return optimized method
+   */
+  public static RopMethod optimize(
+      SsaMethod ssaMethod,
+      int paramWidth,
+      boolean isStatic,
+      boolean inPreserveLocals,
+      boolean removeRedundantConditionalBranch,
+      TranslationAdvice inAdvice) {
+    EnumSet<OptionalStep> steps = EnumSet.allOf(OptionalStep.class);
+    return optimize(ssaMethod, paramWidth, isStatic, inPreserveLocals,
+        removeRedundantConditionalBranch, inAdvice, steps);
+  }
+  /**
+   * Dex bytecode does not have instruction forms that take register numbers larger than 15 for all
+   * instructions. If we've produced a method that uses more than 16 registers, try again by
+   * removing the CONST_COLLECTOR step to see if we can get under the bar. The end result will be
+   * much more efficient.
+   *
+   * @param ssaMethod method to process
+   * @param paramWidth the total width, in register-units, of this method's parameters
+   * @param isStatic true if this method has no 'this' pointer argument.
+   * @param removeRedundantConditionalBranch true if we should optimize unneccesary conditional
+   *     branches.
+   * @return optimized method
+   */
+  public static RopMethod optimizeMinimizeRegisters(SsaMethod ssaMethod,
+      int paramWidth,
+      boolean isStatic,
+      boolean inPreserveLocals,
+      boolean removeRedundantConditionalBranch,
+      TranslationAdvice inAdvice) {
+    EnumSet<OptionalStep> steps = EnumSet.allOf(OptionalStep.class);
+    steps.remove(OptionalStep.CONST_COLLECTOR);
+    return optimize(ssaMethod, paramWidth, isStatic, inPreserveLocals,
+        removeRedundantConditionalBranch, inAdvice, steps);
+  }
+  /**
+   * Runs optimization algorthims over this SSA method, and returns a new
+   * instance of RopMethod with the changes.
+   *
+   * @param ssaMethod method to process
+   * @param paramWidth the total width, in register-units, of this method's
+   * parameters
+   * @param isStatic true if this method has no 'this' pointer argument.
+   * @param inPreserveLocals true if local variable info should be preserved,
+   * at the cost of some registers and insns
+   * @param removeRedundantConditionalBranch true if we should optimize unneccesary conditional
+   * branches.
+   * @param inAdvice {@code non-null;} translation advice
+   * @param steps set of optional optimization steps to run
+   * @return optimized method
+   */
+  public static RopMethod optimize(SsaMethod ssaMethod,
+      int paramWidth,
+      boolean isStatic,
+      boolean inPreserveLocals,
+      boolean removeRedundantConditionalBranch,
+      TranslationAdvice inAdvice,
+      EnumSet<OptionalStep> steps) {
+    preserveLocals = inPreserveLocals;
+    advice = inAdvice;
+    runSsaFormSteps(ssaMethod, steps);
+    return SsaToRop.convertToRopMethod(ssaMethod, removeRedundantConditionalBranch);
   }
 
   /**

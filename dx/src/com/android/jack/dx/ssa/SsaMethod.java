@@ -124,6 +124,16 @@ public final class SsaMethod {
     this.spareRegisterBase = registerCount;
   }
 
+  public SsaMethod(int paramWidth, boolean isStatic, int maxLabel, int registerCount) {
+    this.paramWidth = paramWidth;
+    this.isStatic = isStatic;
+    this.backMode = false;
+    this.maxLabel = maxLabel;
+    this.registerCount = registerCount;
+    this.spareRegisterBase = registerCount;
+    this.exitBlockIndex = -1; // This gets made later.
+  }
+
   /**
    * Builds a BitSet of block indices from a basic block list and a list
    * of labels taken from Rop form.
@@ -187,7 +197,7 @@ public final class SsaMethod {
    * is called after edge-splitting and phi insertion, since the edges
    * going into the exit block should not be considered in those steps.
    */
-  /*package*/void makeExitBlock() {
+  public void makeExitBlock() {
     if (exitBlockIndex >= 0) {
       throw new RuntimeException("must be called at most once");
     }
@@ -863,6 +873,24 @@ public final class SsaMethod {
         }
       }
     }
+  }
+
+  /**
+   * Sets the blocks.
+   *
+   * @param blocks list of all the SSA blocks.
+   */
+  public void setBlocks(ArrayList<SsaBasicBlock> blocks) {
+    this.blocks = blocks;
+  }
+
+  /**
+   * Sets number of SSA register.
+   *
+   * @param count total number of SSA register.
+   */
+  public void setRegisterCount(int count) {
+    this.registerCount = count;
   }
 
   /**

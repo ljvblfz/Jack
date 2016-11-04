@@ -54,6 +54,8 @@ import com.android.jack.transformations.renamepackage.PackageRenamer;
 import com.android.jack.util.ClassNameCodec;
 import com.android.jack.util.args4j.JackEnumOptionHandler;
 import com.android.jack.util.filter.Filter;
+import com.android.sched.item.Description;
+import com.android.sched.item.Feature;
 import com.android.sched.reflections.ReflectionFactory;
 import com.android.sched.util.HasDescription;
 import com.android.sched.util.RunnableHooks;
@@ -378,6 +380,21 @@ public class Options {
         "jack.annotation-processor", "Enable annotation processors")
         .addDefaultValue(true).addCategory(DumpInLibrary.class);
 
+  /**
+   * Enables Jack SSA IR.
+   */
+  @HasKeyId
+  @Description("Uses Jack SSA IR.")
+  public static class UseJackSsaIR implements Feature {
+    @Nonnull
+    public static final BooleanPropertyId ENABLE = BooleanPropertyId
+        .create("jack.optimization.use-jack-ssa-ir",
+            "Apply method argument value propagation optimization")
+        .addDefaultValue(Boolean.FALSE)
+        .addCategory(DumpInLibrary.class)
+        .addCategory(PrebuiltCompatibility.class)
+        .addCategory(Private.class);
+  }
   @Option(name = "--version", usage = "display version")
   private boolean version;
 

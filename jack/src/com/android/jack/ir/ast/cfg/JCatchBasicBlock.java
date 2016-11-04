@@ -25,6 +25,7 @@ import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 
 import java.util.List;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -86,9 +87,12 @@ public final class JCatchBasicBlock extends JRegularBasicBlock {
   public void checkValidity() {
     super.checkValidity();
 
+    // TODO(acleung): I am removing this check for phi nodes for now.
+    /*
     if (getElementCount() != 1) {
       throw new JNodeInternalError(this, "Block must always have one single element");
     }
+    */
     if (!(getLastElement() instanceof JVariableAsgBlockElement) ||
         !((JVariableAsgBlockElement) getLastElement()).isCatchVariableAssignment()) {
       throw new JNodeInternalError(this,

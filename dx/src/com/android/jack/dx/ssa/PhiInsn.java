@@ -28,6 +28,7 @@ import com.android.jack.dx.util.Hex;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A Phi instruction (magical post-control-flow-merge) instruction
@@ -128,12 +129,35 @@ public final class PhiInsn extends SsaInsn {
    * @param predBlock predecessor block to be associated with this operand
    */
   public void addPhiOperand(RegisterSpec registerSpec, SsaBasicBlock predBlock) {
-    operands.add(new Operand(registerSpec, predBlock.getIndex(), predBlock.getRopLabel()));
+    addPhiOperand(registerSpec, predBlock.getIndex(), predBlock.getRopLabel());
+  }
 
+  /**
+   * Adds an operand to this phi instruction.
+   *
+   * @param registerSpec register spec, including type and reg of operand
+   * @param predIndex predecessor index.
+   * @param predLabel predecessor ROP label.
+   */
+  public void addPhiOperand(RegisterSpec registerSpec, int predIndex, int predLabel) {
+    operands.add(new Operand(registerSpec, predIndex, predLabel));
     // Un-cache sources, in case someone has already called getSources().
     sources = null;
   }
 
+  /**
+   * Switches the operand ID from ROP block label to SSA block index. 
+   *
+   * @param labelToIndex A map that proves ROP block label to SSA block index.
+   */
+  public void resolveOperandBlockIndex(Map<Integer, Integer> labelToIndex) {
+    for (Operand o : operands) {
+      @SuppressWarnings("boxing")
+      Integer index = labelToIndex.get(o.ropLabel);
+      o.blockIndex = index.intValue(); 
+    }
+  }
+  
   /**
    * Removes all operand uses of a register from this phi instruction.
    *
@@ -377,7 +401,7 @@ for (Operand o : operands) {
    */
   private static class Operand {
     public RegisterSpec regSpec;
-    public final int blockIndex;
+    public int blockIndex;
     public final int ropLabel; // only used for debugging
 
     public Operand(RegisterSpec regSpec, int blockIndex, int ropLabel) {

@@ -18,8 +18,8 @@ package com.android.jack.dx.ssa;
 
 import com.android.jack.dx.util.IntSet;
 
-import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.List;
 
 /**
  * Calculates the dominance-frontiers of a methot's basic blocks.
@@ -33,7 +33,7 @@ public class DomFront {
   /** {@code non-null;} method being processed */
   private final SsaMethod meth;
 
-  private final ArrayList<SsaBasicBlock> nodes;
+  private final List<SsaBasicBlock> nodes;
 
   private final DomInfo[] domInfos;
 

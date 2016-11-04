@@ -374,20 +374,4 @@ public class Optimizations {
       .addDefaultValue(Boolean.FALSE)
       .addCategory(DumpInLibrary.class)
       .addCategory(PrebuiltCompatibility.class);
-
-  /**
-   * Enables Jack SSA IR.
-   */
-  @HasKeyId
-  @Description("Uses Jack SSA IR.")
-  public static class UseJackSsaIR implements Feature {
-    @Nonnull
-    public static final BooleanPropertyId ENABLE = BooleanPropertyId
-        .create("jack.optimization.use-jack-ssa-ir",
-            "Apply method argument value propagation optimization")
-        .addDefaultValue(Boolean.FALSE)
-        .addCategory(DumpInLibrary.class)
-        .addCategory(PrebuiltCompatibility.class)
-        .addCategory(Private.class);
-  }
 }
