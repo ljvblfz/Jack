@@ -158,12 +158,7 @@ public class JackCliToolchain extends JackBasedToolchain {
     }
 
     if (outputJack != null) {
-      if (zipOutputJackFiles) {
-        commandLine.add("--output-jack");
-      } else {
-        commandLine.add("--output-jack-dir");
-      }
-      commandLine.add(outputJack.getAbsolutePath());
+      addOutputJack(commandLine, outputJack, zipOutputJackFiles);
     }
 
     commandLine.addAll(extraJackArgs);
@@ -250,12 +245,7 @@ public class JackCliToolchain extends JackBasedToolchain {
     }
 
     if (outputJack != null) {
-      if (zipOutputJackFiles) {
-        commandLine.add("--output-jack");
-      } else {
-        commandLine.add("--output-jack-dir");
-      }
-      commandLine.add(outputJack.getAbsolutePath());
+      addOutputJack(commandLine, outputJack, zipOutputJackFiles);
     }
 
     addProperties(properties, commandLine);
@@ -284,6 +274,25 @@ public class JackCliToolchain extends JackBasedToolchain {
 
     libToImportStaticLibs(commandLine, in);
 
+  }
+
+  protected void addOutputJack(@Nonnull List<String> commandLine, @Nonnull File out, boolean zip) {
+    if (zip) {
+      commandLine.add("--output-jack");
+      commandLine.add(out.getAbsolutePath());
+    } else {
+      if (incrementalFolder != null) {
+        throw new UnsupportedOperationException();
+      }
+
+      Map<String, String> propertyMap = new HashMap<String, String>(5);
+      propertyMap.put(Options.LIBRARY_OUTPUT_DIR.getName(), out.getAbsolutePath());
+      propertyMap.put(Options.LIBRARY_OUTPUT_CONTAINER_TYPE.getName(), "dir");
+      propertyMap.put(Options.GENERATE_JACK_LIBRARY.getName(), "true");
+      propertyMap.put(Options.GENERATE_JAYCE_IN_LIBRARY.getName(), "true");
+      propertyMap.put(Options.GENERATE_DEPENDENCIES_IN_LIBRARY.getName(), "true");
+      addProperties(propertyMap, commandLine);
+    }
   }
 
   protected void buildJackCall(@Nonnull List<String> commandLine) {
