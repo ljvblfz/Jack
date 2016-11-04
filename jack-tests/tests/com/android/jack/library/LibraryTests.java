@@ -88,9 +88,7 @@ public class LibraryTests {
     .srcToLib(out, /* zipFile = */ true,
         AbstractTestTools.getTestRootDir("com.android.jack.library.test001.jack"));
 
-    RunnableHooks hooks = new RunnableHooks();
-    VFS vfs = new ReadZipFS(
-        new InputZipFile(out.getPath(), hooks, Existence.MUST_EXIST, ChangePermission.NOCHANGE));
+    VFS vfs = new ReadZipFS(new InputZipFile(out.getPath()));
     try {
       InputJackLibrary inputJackLibrary = JackLibraryFactory.getInputLibrary(vfs);
       Assert.assertTrue(inputJackLibrary.containsFileType(FileType.RSC));
