@@ -1,0 +1,90 @@
+/*
+ * Copyright (C) 2016 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+apply plugin: 'java'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+apply from: "$rootDir/gradle-script/checkstyle.gradle"
+apply from: "$rootDir/gradle-script/findbugs.gradle"
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+        }
+        resources {
+          srcDirs = ['rsc']
+          exclude "jill-version.properties"
+        }
+    }
+}
+
+configurations {
+  jarjar
+}
+
+dependencies {
+  compile project(':args4j')
+  compile libs.asm_all
+  compile project(':jill-api')
+  compileOnly libs.jsr305
+  compile libs.guava
+  compile project(':sched')
+
+  jarjar project(':jarjar').configurations.archives.artifacts.files
+
+}
+
+apply from: "$rootDir/gradle-script/versionfile.gradle"
+
+jar {
+  classifier "lib"
+  dependsOn createJackVersionFile
+  from ("${project.buildDir}") {
+     include "jill-version.properties"
+  }
+}
+
+shadowJar {
+  classifier "no-jarjar"
+  manifest {
+    from 'etc/manifest.txt'
+  }
+  dependsOn createJackVersionFile
+  from ("${project.buildDir}") {
+    include "jill-version.properties"
+  }
+}
+
+task jarjar(type:Exec, dependsOn: [':jarjar:jar', shadowJar]) {
+  inputs.files 'jarjar-rules.txt', 'shadowJar.archivePath'
+  outputs.file "${buildDir}/libs/jill.jar"
+  commandLine 'java', '-jar', configurations.jarjar.singleFile, 'process', "jarjar-rules.txt", shadowJar.archivePath, file("${buildDir}/libs/jill.jar")
+}
+
+task dist (type: Copy, dependsOn: jarjar) {
+  from file("${buildDir}/libs/jill.jar")
+  into file("${rootDir}/gradle-dist/")
+}
+
+assemble.dependsOn jarjar
+
+javadoc {
+  failOnError false
+}

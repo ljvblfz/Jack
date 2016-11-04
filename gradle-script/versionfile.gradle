@@ -1,0 +1,56 @@
+/*
+ * Copyright (C) 2016 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+task deleteVersionFile(type: Delete) {
+  delete "${project.buildDir}/${jar.baseName}-version.properties"
+}
+
+task copyVersionPropertiesFile(type: Copy, dependsOn: deleteVersionFile) {
+  String pathToVersionFile
+  if (!System.getProperty("version.file", "").equals("")) {
+    pathToVersionFile = System.getProperty("version.file")
+  } else {
+    pathToVersionFile = "${rootDir}/version.properties"
+  }
+
+  // TODO: currently needs to be an absolute path
+  // add checks, message, and/or add pwd to path
+  from (pathToVersionFile) {
+    rename file(pathToVersionFile).name, "${jar.baseName}-version.properties"
+  }
+  into file("${project.buildDir}/")
+
+}
+
+task createJackVersionFile (dependsOn: copyVersionPropertiesFile) {
+  outputs.file "${project.buildDir}/${jar.baseName}-version.properties"
+  doLast {
+    if (System.getProperty("version.file", "").equals("")) {
+      ant.propertyfile(
+          file: "${project.buildDir}/${jar.baseName}-version.properties") {
+          entry( key: "releaser", value: "${rootProject.emitterId}")
+          entry( key: "version.buildid", value: "${rootProject.uuid}")
+      }
+    }
+  }
+}
+copyVersionPropertiesFile.dependsOn deleteVersionFile
+gradle.taskGraph.whenReady { graph ->
+    if (!graph.hasTask(dist)) {
+      createJackVersionFile.enabled = false
+      deleteVersionFile.enabled = false
+    }
+}

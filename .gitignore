@@ -11,7 +11,9 @@ jack/src/com/android/jack/shrob/proguard/ProguardParser.java
 # Generated output / temp files
 **/bin/
 **/build/
+**/gradle-build/
 **/dist/
+**/gradle-dist/
 **/libs/
 */tools/
 jack-tests/intermediates/
