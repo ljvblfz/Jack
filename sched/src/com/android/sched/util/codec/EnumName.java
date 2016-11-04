@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package com.android.jack.transformations.lambda;
+package com.android.sched.util.codec;
 
-import com.android.sched.util.codec.EnumName;
-import com.android.sched.util.codec.VariableName;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-/** Defines how to group lambdas into lambda classes */
-@VariableName("scope")
-public enum LambdaGroupingScope {
-  @EnumName(name = "none", description = "one lambda class for each lambda")
-  NONE,
-  @EnumName(name = "type",
-          description = "one lambda class for all lambdas inside a top-level type")
-  TYPE,
-  @EnumName(name = "package", description = "one lambda class for all lambdas inside a package")
-  PACKAGE;
+/**
+ * This annotation holds name and description for enum fields used by {@link EnumCodec}
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.FIELD)
+public @interface EnumName {
+  String name() default "";
+  String description() default "";
 }

@@ -55,13 +55,13 @@ import com.android.jack.util.ClassNameCodec;
 import com.android.jack.util.args4j.JackEnumOptionHandler;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.reflections.ReflectionFactory;
-import com.android.sched.util.HasDescription;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.SubReleaseKind;
 import com.android.sched.util.codec.CaseInsensitiveDirectFSCodec;
 import com.android.sched.util.codec.CodecContext;
 import com.android.sched.util.codec.DirectDirOutputVFSCodec;
 import com.android.sched.util.codec.DirectoryCodec;
+import com.android.sched.util.codec.EnumName;
 import com.android.sched.util.codec.InputFileOrDirectoryCodec;
 import com.android.sched.util.codec.ListCodec;
 import com.android.sched.util.codec.PairCodec;
@@ -177,23 +177,13 @@ public class Options {
    * Assertion policies
    */
   @VariableName("policy")
-  public enum AssertionPolicy implements HasDescription {
-    ALWAYS("always check assert statements"),
-    NEVER("remove assert statements"),
-    RUNTIME("check according to runtime configuration");
-
-    @Nonnull
-    private final String description;
-
-    private AssertionPolicy(@Nonnull String description) {
-      this.description = description;
-    }
-
-    @Override
-    @Nonnull
-    public String getDescription() {
-      return description;
-    }
+  public enum AssertionPolicy {
+    @EnumName(name = "always", description = "always check assert statements")
+    ALWAYS,
+    @EnumName(name = "never", description = "remove assert statements")
+    NEVER,
+    @EnumName(name = "runtime", description = "check according to runtime configuration")
+    RUNTIME;
   }
 
   @Nonnull
@@ -201,8 +191,7 @@ public class Options {
       EnumPropertyId.create(
               "jack.assert.policy",
               "Assert statement policy",
-              AssertionPolicy.class,
-              AssertionPolicy.values())
+              AssertionPolicy.class)
           .addDefaultValue(AssertionPolicy.RUNTIME)
           .ignoreCase()
           .addCategory(DumpInLibrary.class)
@@ -233,7 +222,7 @@ public class Options {
   public static final EnumPropertyId<LambdaGroupingScope> LAMBDA_GROUPING_SCOPE = EnumPropertyId
       .create(
           "jack.lambda.grouping-scope", "Defines the scope for lambda grouping",
-          LambdaGroupingScope.class, LambdaGroupingScope.values())
+          LambdaGroupingScope.class)
       .ignoreCase()
       .addDefaultValue(LambdaGroupingScope.NONE)
       .requiredIf(LAMBDA_TO_ANONYMOUS_CONVERTER.getValue().isTrue())
@@ -282,7 +271,7 @@ public class Options {
   @Nonnull
   public static final EnumPropertyId<SwitchEnumOptStrategy> OPTIMIZED_ENUM_SWITCH =
       EnumPropertyId.create("jack.optimization.enum.switch", "Optimize enum switch",
-          SwitchEnumOptStrategy.class, SwitchEnumOptStrategy.values())
+          SwitchEnumOptStrategy.class)
       .addDefaultValue(SwitchEnumOptStrategy.NEVER).ignoreCase().addCategory(DumpInLibrary.class);
 
   @Nonnull
@@ -318,14 +307,14 @@ public class Options {
           .addCategory(Private.class);
 
   @Nonnull
-  public static final EnumPropertyId<Container> DEX_OUTPUT_CONTAINER_TYPE = EnumPropertyId
-      .create("jack.dex.output.container", "Output container type", Container.class,
-          Container.values()).ignoreCase().requiredIf(GENERATE_DEX_FILE.getValue().isTrue());
+  public static final EnumPropertyId<Container> DEX_OUTPUT_CONTAINER_TYPE =
+      EnumPropertyId.create("jack.dex.output.container", "Output container type", Container.class)
+          .ignoreCase().requiredIf(GENERATE_DEX_FILE.getValue().isTrue());
 
   @Nonnull
   public static final EnumPropertyId<Container> LIBRARY_OUTPUT_CONTAINER_TYPE = EnumPropertyId
-      .create("jack.library.output.container", "Library output container type", Container.class,
-          Container.values()).ignoreCase().requiredIf(GENERATE_JACK_LIBRARY.getValue().isTrue());
+      .create("jack.library.output.container", "Library output container type", Container.class)
+      .ignoreCase().requiredIf(GENERATE_JACK_LIBRARY.getValue().isTrue());
 
   @Nonnull
   public static final VFSPropertyId LIBRARY_OUTPUT_ZIP = VFSPropertyId
@@ -452,21 +441,24 @@ public class Options {
     // compile time information collected, e.g., if it is detected that an enum is only
     // used in one/few switch statements, it is useless to optimize it. Potentially enable
     // this strategy will cost more compilation time, but save more dex code
+    @EnumName(name = "feedback")
     FEEDBACK(),
     // different from feedback-based optimization, always strategy doesn't collect compile-
     // time information to guide switch enum optimization. It will always enable switch enum
     // optimization no matter the enum is rarely/frequently used. Ideally this strategy will
     // compile code quicker than feedback-based strategy does, but the generated dex may be
     // larger than feedback strategy
+    @EnumName(name = "always")
     ALWAYS(),
     // this actually is not real strategy, but we still need it because switch enum
     // optimization is disabled when incremental compilation is triggered
+    @EnumName(name = "never")
     NEVER();
   }
 
   @Nonnull
   public static final EnumPropertyId<VerbosityLevel> VERBOSITY_LEVEL = EnumPropertyId.create(
-      "jack.verbose.level", "Verbosity level", VerbosityLevel.class, VerbosityLevel.values())
+      "jack.verbose.level", "Verbosity level", VerbosityLevel.class)
       .addDefaultValue(VerbosityLevel.WARNING);
 
   @Option(name = "--verbose", usage = "set verbosity (default: warning)",

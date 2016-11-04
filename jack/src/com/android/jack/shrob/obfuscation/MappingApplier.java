@@ -105,7 +105,7 @@ public class MappingApplier {
               "jack.obfuscation.mapping.collision-policy",
               "Abort obfuscation when a mapping collision is detected",
               new EnumCodec<MappingCollisionPolicy>(
-                  MappingCollisionPolicy.class, MappingCollisionPolicy.values()).ignoreCase())
+                  MappingCollisionPolicy.class).ignoreCase())
           .addDefaultValue(MappingCollisionPolicy.FAIL);
 
   @Nonnull

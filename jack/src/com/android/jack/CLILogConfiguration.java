@@ -18,6 +18,7 @@ package com.android.jack;
 
 import com.android.sched.util.codec.CodecContext;
 import com.android.sched.util.codec.EnumCodec;
+import com.android.sched.util.codec.EnumName;
 import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.codec.VariableName;
 import com.android.sched.util.log.LogFormatter;
@@ -50,18 +51,21 @@ public class CLILogConfiguration {
 
   @VariableName("level")
   private static enum LogLevel implements LoggerConfiguration {
+    @EnumName(name = "error")
     ERROR {
       @Override
       public List<PackageLevel> getLevels() {
         return Arrays.asList(new PackageLevel("", Level.SEVERE));
       }
     },
+    @EnumName(name = "warning")
     WARNING {
       @Override
       public List<PackageLevel> getLevels() {
         return Arrays.asList(new PackageLevel("", Level.WARNING));
       }
     },
+    @EnumName(name = "debug")
     DEBUG {
       @Override
       public List<PackageLevel> getLevels() {
@@ -71,6 +75,7 @@ public class CLILogConfiguration {
             new PackageLevel("com.android.sched", Level.WARNING));
       }
     },
+    @EnumName(name = "trace")
     TRACE {
       @Override
       public List<PackageLevel> getLevels() {
@@ -92,7 +97,7 @@ public class CLILogConfiguration {
     String stringLevel = System.getProperty("com.android.jack.log");
     if (stringLevel != null) {
       try {
-        level = new EnumCodec<LogLevel>(LogLevel.class, LogLevel.values()).checkString(
+        level = new EnumCodec<LogLevel>(LogLevel.class).checkString(
             new CodecContext(), stringLevel);
       } catch (ParsingException e) {
         throw new LogConfigurationException(e.getMessage());

@@ -17,6 +17,7 @@
 package com.android.jack.reporting;
 
 import com.android.jack.Options.VerbosityLevel;
+import com.android.sched.util.codec.EnumName;
 import com.android.sched.util.codec.VariableName;
 
 import javax.annotation.Nonnull;
@@ -33,7 +34,12 @@ public interface Reportable {
    */
   @VariableName("level")
   public static enum ProblemLevel {
-    ERROR(VerbosityLevel.ERROR), WARNING(VerbosityLevel.WARNING), INFO(VerbosityLevel.INFO);
+    @EnumName(name = "error")
+    ERROR(VerbosityLevel.ERROR),
+    @EnumName(name = "warning")
+    WARNING(VerbosityLevel.WARNING),
+    @EnumName(name = "info")
+    INFO(VerbosityLevel.INFO);
 
     @Nonnull
     private final VerbosityLevel verbosityLevelThreshold;
