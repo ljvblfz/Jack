@@ -934,6 +934,7 @@
       <exclude name="com/android/jack/frontend/test016/jack/WithDuplicated.java"/>
       <exclude name="com/android/jack/frontend/test017/jack/InvalidQualification.java"/>
       <exclude name="com/android/jack/nopackage/jack/**"/>
+      <exclude name="com/android/jack/multidex/test004/jack/**"/>
       <exclude name="com/android/jack/java8/lambda/**"/>
       <exclude name="com/android/jack/java8/defaultmethod/**"/>
       <exclude name="com/android/jack/java8/staticmethod/**"/>
