@@ -34,6 +34,7 @@ import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackApiV01;
 import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.JackCliToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
 import junit.framework.Assert;
@@ -42,7 +43,9 @@ import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -277,7 +280,10 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
 
     try {
-      IToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+      List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
+      excludeList.add(JackCliToolchain.class);
+      IToolchain toolchain =
+          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeList);
       toolchain.setErrorStream(errOut);
       toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
           .addProguardFlags(proguardFlagsFile).srcToExe(AbstractTestTools.createTempDir(),
@@ -310,7 +316,10 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
 
     try {
-      IToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+      List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
+      excludeList.add(JackCliToolchain.class);
+      IToolchain toolchain =
+          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeList);
       toolchain.setErrorStream(errOut);
       toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
           .addProguardFlags(proguardFlagsFile).srcToExe(AbstractTestTools.createTempDir(),
