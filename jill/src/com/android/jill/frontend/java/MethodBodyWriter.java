@@ -1594,6 +1594,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
 
         if (isCallToPolymorphicMethod) {
           writer.writeId(returnType.getDescriptor()); // Call site return type
+          writer.writeIds(argsTypeIds); // Call site parameter types
         } else {
           writer.writeDispatchKindEnum(dispatchKind);
         }

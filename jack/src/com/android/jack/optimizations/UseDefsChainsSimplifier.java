@@ -21,13 +21,9 @@ import com.android.jack.analysis.DefinitionMarker;
 import com.android.jack.analysis.UseDefsMarker;
 import com.android.jack.cfg.BasicBlock;
 import com.android.jack.cfg.ControlFlowGraph;
-import com.android.jack.ir.ast.JAsgOperation;
-import com.android.jack.ir.ast.JExpression;
-import com.android.jack.ir.ast.JExpressionStatement;
 import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JLock;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JPolymorphicMethodCall;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JUnlock;
@@ -110,16 +106,6 @@ public class UseDefsChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
 
     @Override
     public boolean visit(@Nonnull JStatement s1) {
-      if (s1 instanceof JExpressionStatement) {
-        JExpression expr = ((JExpressionStatement) s1).getExpr();
-        if (expr instanceof JPolymorphicMethodCall || ((expr instanceof JAsgOperation
-            && (((JAsgOperation) expr).getRhs()) instanceof JPolymorphicMethodCall))) {
-          // Do not optimize argument of polymorphic method call otherwise type of the call site
-          // will be lost.
-          return false;
-        }
-      }
-
       List<JVariableRef> varsUsedBys1 = OptimizationTools.getUsedVariables(s1);
 
       // Copy variable used by s1 to update the list during the visit

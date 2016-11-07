@@ -236,6 +236,7 @@ import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.NestedTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.PolymorphicMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
@@ -2088,8 +2089,13 @@ public class JackIrBuilder {
         JAbstractMethodCall call;
 
         if (x.binding.isPolymorphic()) {
-          call = new JPolymorphicMethodCall(info, receiver, receiverType,
-              method.getMethodId(), getTypeMap().get(x.binding.returnType));
+          TypeBinding[] parameterTypes = ((PolymorphicMethodBinding) x.binding).parameters;
+          List<JType> parameterJTypes = new ArrayList<>(parameterTypes.length);
+          for (TypeBinding type : parameterTypes) {
+            parameterJTypes.add(getTypeMap().get(type));
+          }
+          call = new JPolymorphicMethodCall(info, receiver, receiverType, method.getMethodId(),
+              getTypeMap().get(x.binding.returnType), parameterJTypes);
         } else {
           // On a super ref, make a super call. Oddly enough,
           // QualifiedSuperReference not derived from SuperReference!
