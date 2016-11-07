@@ -1,0 +1,27 @@
+method: Lcom/android/jack/optimizations/blockmerger/test001/jack/A;->testB(IIIII)I
+registers: 8, in/out: 6/0
+instructions: 24
+    | add-int/lit8 v0, v3, 0
+    | if-nez v3, #03
+    | mul-int/lit8 v1, v4, 2
+    | sub-int/2addr v1, v4
+    | mul-int/lit8 v1, v1, 10
+    | add-int/2addr v0, v1
+#00-> mul-int/lit8 v1, v5, 2
+    | sub-int/2addr v1, v5
+    | mul-int/lit8 v1, v1, 100
+    | add-int/2addr v0, v1
+#01-> mul-int/lit8 v1, v6, 2
+    | sub-int/2addr v1, v6
+    | mul-int/lit16 v1, v1, 1000
+    | add-int/2addr v0, v1
+#02-> mul-int/lit8 v1, v7, 2
+    | sub-int/2addr v1, v7
+    | mul-int/lit16 v1, v1, 10000
+    | add-int/2addr v0, v1
+    | return v0
+#03-> const/4 v1, 1
+    | if-eq v3, v1, #00
+    | const/4 v1, 2
+    | if-ne v3, v1, #02
+    | goto #01

@@ -29,22 +29,31 @@ import com.android.jack.cfg.PeiBasicBlock;
 import com.android.jack.cfg.ReturnBasicBlock;
 import com.android.jack.cfg.SwitchBasicBlock;
 import com.android.jack.cfg.ThrowBasicBlock;
+import com.android.jack.ir.SideEffectOperation;
 import com.android.jack.ir.ast.JAbstractMethodBody;
 import com.android.jack.ir.ast.JArrayRef;
 import com.android.jack.ir.ast.JAsgOperation;
+import com.android.jack.ir.ast.JAssertStatement;
 import com.android.jack.ir.ast.JCaseStatement;
+import com.android.jack.ir.ast.JCastOperation;
 import com.android.jack.ir.ast.JCatchBlock;
+import com.android.jack.ir.ast.JConcatOperation;
+import com.android.jack.ir.ast.JConditionalExpression;
+import com.android.jack.ir.ast.JConditionalOperation;
 import com.android.jack.ir.ast.JExceptionRuntimeValue;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JExpressionStatement;
+import com.android.jack.ir.ast.JFieldInitializer;
 import com.android.jack.ir.ast.JFieldRef;
 import com.android.jack.ir.ast.JGoto;
 import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JLock;
+import com.android.jack.ir.ast.JLoop;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JMethodBodyCfg;
 import com.android.jack.ir.ast.JMethodCall;
+import com.android.jack.ir.ast.JMultiExpression;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JPolymorphicMethodCall;
 import com.android.jack.ir.ast.JReturnStatement;
@@ -57,7 +66,21 @@ import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.cfg.mutations.BasicBlockBuilder;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
+import com.android.jack.transformations.EmptyClinit;
+import com.android.jack.transformations.InvalidDefaultBridgeInInterfaceRemoved;
+import com.android.jack.transformations.ast.BooleanTestOutsideIf;
+import com.android.jack.transformations.ast.ImplicitBoxingAndUnboxing;
+import com.android.jack.transformations.ast.ImplicitCast;
+import com.android.jack.transformations.ast.InitInNewArray;
+import com.android.jack.transformations.ast.JPrimitiveClassLiteral;
+import com.android.jack.transformations.ast.MultiDimensionNewArray;
+import com.android.jack.transformations.ast.NewInstanceRemoved;
+import com.android.jack.transformations.ast.RefAsStatement;
+import com.android.jack.transformations.ast.UnassignedValues;
+import com.android.jack.transformations.ast.inner.InnerAccessor;
+import com.android.jack.transformations.ast.switches.UselessSwitches;
 import com.android.jack.transformations.booleanoperators.FallThroughMarker;
+import com.android.jack.transformations.cast.SourceCast;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.rop.cast.RopLegalCast;
@@ -77,10 +100,39 @@ import javax.annotation.Nonnull;
 
 /** Builds a ControlFlowGraph body representation for all methods. */
 @Description("Builds a ControlFlowGraph body representation for all methods.")
-@Constraint(need = { ControlFlowGraph.class,
-                     JExceptionRuntimeValue.class,
-                     ThreeAddressCodeForm.class,
-                     RopLegalCast.class })
+@Constraint(
+    need = {
+        ControlFlowGraph.class,
+        JExceptionRuntimeValue.class,
+        NewInstanceRemoved.class,
+        ThreeAddressCodeForm.class,
+        RopLegalCast.class,
+        InnerAccessor.class,
+        InvalidDefaultBridgeInInterfaceRemoved.class },
+    no = {
+        BooleanTestOutsideIf.class,
+        InitInNewArray.class,
+        JAsgOperation.class,
+        JPrimitiveClassLiteral.class,
+        JMultiExpression.class,
+        JConditionalExpression.class,
+        JFieldInitializer.class,
+        JConcatOperation.class,
+        JLoop.class,
+        SideEffectOperation.class,
+        UnassignedValues.class,
+        RefAsStatement.class,
+        MultiDimensionNewArray.class,
+        JSwitchStatement.SwitchWithEnum.class,
+        ImplicitBoxingAndUnboxing.class,
+        ImplicitCast.class,
+        JAssertStatement.class,
+        JConditionalOperation.class,
+        EmptyClinit.class,
+        UselessSwitches.class,
+        SourceCast.class,
+        JCastOperation.WithIntersectionType.class
+    })
 @Transform(add = { JMethodBodyCfg.class })
 @Filter(TypeWithoutPrebuiltFilter.class)
 public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {

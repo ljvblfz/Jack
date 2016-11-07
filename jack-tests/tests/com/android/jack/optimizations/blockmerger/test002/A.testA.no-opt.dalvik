@@ -1,0 +1,13 @@
+method: Lcom/android/jack/optimizations/blockmerger/test002/jack/A;->testA(I)I
+registers: 2, in/out: 2/0
+instructions: 10
+    | if-lez v1, #01
+    | add-int/lit8 v1, v1, -1
+#00-> if-lez v1, #02
+    | return v1
+#01-> if-gez v1, #00
+    | add-int/lit8 v1, v1, 1
+    | goto #00
+#02-> if-gez v1, #03
+    | return v1
+#03-> return v1

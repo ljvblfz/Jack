@@ -95,13 +95,7 @@ public class FvpPropagateFieldValues extends FvpSchedulable
         new CfgJlsNullabilityChecker(cfg,
             new LocalVarCreator(method, "fvp"), phantomLookup) : null;
 
-    new BasicBlockLiveProcessor(/* stepIntoElements: */ false) {
-      @Nonnull
-      @Override
-      public JControlFlowGraph getCfg() {
-        return cfg;
-      }
-
+    new BasicBlockLiveProcessor(cfg, /* stepIntoElements: */ false) {
       @Override
       public boolean visit(@Nonnull JThrowingExpressionBasicBlock block) {
         JBasicBlockElement element = block.getLastElement();

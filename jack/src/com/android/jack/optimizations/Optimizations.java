@@ -18,11 +18,13 @@ package com.android.jack.optimizations;
 
 import com.android.jack.library.DumpInLibrary;
 import com.android.jack.library.PrebuiltCompatibility;
+import com.android.jack.optimizations.cfg.VariablesScope;
 import com.android.sched.item.Description;
 import com.android.sched.item.Feature;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.category.Private;
 import com.android.sched.util.config.id.BooleanPropertyId;
+import com.android.sched.util.config.id.EnumPropertyId;
 import com.android.sched.util.config.id.PropertyId;
 
 import javax.annotation.Nonnull;
@@ -285,6 +287,72 @@ public class Optimizations {
         .create("jack.optimization.write-only-field-removal.remove-unused-fields",
             "Remove fields without reads or writes")
         .addDefaultValue(Boolean.TRUE)
+        .requiredIf(ENABLE.getValue().isTrue())
+        .addCategory(DumpInLibrary.class)
+        .addCategory(PrebuiltCompatibility.class)
+        .addCategory(Private.class);
+  }
+
+  /**
+   * A {@link Feature} that represents simple block merging optimization.
+   */
+  @HasKeyId
+  @Description("Apply simple block merging optimization")
+  public static class SimpleBasicBlockMerging implements Feature {
+    @Nonnull
+    public static final BooleanPropertyId ENABLE = BooleanPropertyId
+        .create("jack.optimization.simple-block-merging",
+            "Apply simple block merging optimization")
+        .addDefaultValue(Boolean.FALSE)
+        .addCategory(DumpInLibrary.class)
+        .addCategory(PrebuiltCompatibility.class)
+        .addCategory(Private.class);
+
+    @Nonnull
+    public static final BooleanPropertyId PRESERVE_SOURCE_INFO = BooleanPropertyId
+        .create("jack.optimization.simple-block-merging.preserve-source-info",
+            "Preserves source info while merging blocks")
+        .addDefaultValue(Boolean.TRUE)
+        .requiredIf(ENABLE.getValue().isTrue())
+        .addCategory(DumpInLibrary.class)
+        .addCategory(PrebuiltCompatibility.class)
+        .addCategory(Private.class);
+
+    @Nonnull
+    public static final EnumPropertyId<VariablesScope> MERGE_VARIABLES = EnumPropertyId
+        .create("jack.optimization.simple-block-merging.merge-vars",
+            "Merge variables before merging blocks",
+            VariablesScope.class, VariablesScope.values())
+        .ignoreCase()
+        .addDefaultValue(VariablesScope.SYNTHETIC)
+        .requiredIf(ENABLE.getValue().isTrue())
+        .addCategory(DumpInLibrary.class)
+        .addCategory(PrebuiltCompatibility.class)
+        .addCategory(Private.class);
+  }
+
+  /**
+   * A {@link Feature} that represents unused variables removal optimization.
+   */
+  @HasKeyId
+  @Description("Apply unused variables removal optimization")
+  public static class UnusedVariableRemoval implements Feature {
+    @Nonnull
+    public static final BooleanPropertyId ENABLE = BooleanPropertyId
+        .create("jack.optimization.unused-variables-removal",
+            "Apply unused variables removal optimization")
+        .addDefaultValue(Boolean.TRUE)
+        .addCategory(DumpInLibrary.class)
+        .addCategory(PrebuiltCompatibility.class)
+        .addCategory(Private.class);
+
+    @Nonnull
+    public static final EnumPropertyId<VariablesScope> MERGE_VARIABLES = EnumPropertyId
+        .create("jack.optimization.unused- variables-removal.merge-vars",
+            "Merge variables before unused variables removal",
+            VariablesScope.class, VariablesScope.values())
+        .ignoreCase()
+        .addDefaultValue(VariablesScope.ALL)
         .requiredIf(ENABLE.getValue().isTrue())
         .addCategory(DumpInLibrary.class)
         .addCategory(PrebuiltCompatibility.class)

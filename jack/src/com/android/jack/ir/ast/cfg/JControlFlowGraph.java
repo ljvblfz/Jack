@@ -35,12 +35,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
-
 import javax.annotation.Nonnull;
 
 /** Represents method control flow graph */
 @Description("Control Flow Graph")
-public final class JControlFlowGraph extends JNode implements IGraph<JBasicBlock>  {
+public final class JControlFlowGraph extends JNode implements IGraph<JBasicBlock> {
   @Nonnull
   private final JEntryBasicBlock entry;
   @Nonnull
@@ -77,14 +76,10 @@ public final class JControlFlowGraph extends JNode implements IGraph<JBasicBlock
   @Nonnull
   public List<JBasicBlock> getBlocksDepthFirst(boolean forward) {
     final List<JBasicBlock> blocks = new ArrayList<>();
-    new BasicBlockIterator() {
+    new BasicBlockIterator(this) {
       @Override public boolean process(@Nonnull JBasicBlock block) {
         blocks.add(block);
         return true;
-      }
-
-      @Nonnull @Override public JControlFlowGraph getCfg() {
-        return JControlFlowGraph.this;
       }
     }.iterateDepthFirst(forward);
     return blocks;

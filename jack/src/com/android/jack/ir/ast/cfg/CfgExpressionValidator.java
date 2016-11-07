@@ -23,6 +23,7 @@ import com.android.jack.ir.ast.JArrayLength;
 import com.android.jack.ir.ast.JArrayRef;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JBinaryOperation;
+import com.android.jack.ir.ast.JConditionalOperation;
 import com.android.jack.ir.ast.JDynamicCastOperation;
 import com.android.jack.ir.ast.JExceptionRuntimeValue;
 import com.android.jack.ir.ast.JExpression;
@@ -96,7 +97,8 @@ class CfgExpressionValidator extends JVisitor {
   @Override
   public boolean visit(@Nonnull JExpression expr) {
     throw new JNodeInternalError(expr,
-        "Unexpected expression in CFG block element: " + this.blockElement.toSource());
+        "Unexpected expression in CFG: " + expr.toSource() +
+            " (" + expr.getClass().getSimpleName() + ")");
   }
 
   @Override
@@ -121,6 +123,10 @@ class CfgExpressionValidator extends JVisitor {
 
   @Override
   public boolean visit(@Nonnull JBinaryOperation expr) {
+    if (expr instanceof JConditionalOperation) {
+      throw new JNodeInternalError(expr,
+          "JConditionalOperation is not allowed on this level");
+    }
     if (!(expr instanceof JAsgOperation)) {
       // Some of binary operations can throw
       return expr.canThrow() ? visitThrowingRValue(expr) : visitNonThrowingOperation(expr);
@@ -181,6 +187,9 @@ class CfgExpressionValidator extends JVisitor {
 
   @Override
   public boolean visit(@Nonnull JDynamicCastOperation expr) {
+    if (expr.getTypes().size() > 1) {
+      throw new JNodeInternalError(expr, "Intersection types are invalid on this level");
+    }
     return expr.canThrow() ? visitThrowingRValue(expr) : visitNonThrowingOperation(expr);
   }
 

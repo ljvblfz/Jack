@@ -18,6 +18,7 @@ package com.android.jack.test.dex;
 
 import org.jf.dexlib.Code.FiveRegisterInstruction;
 import org.jf.dexlib.Code.Format.Format;
+import org.jf.dexlib.Code.Format.PackedSwitchDataPseudoInstruction;
 import org.jf.dexlib.Code.Instruction;
 import org.jf.dexlib.Code.InstructionWithReference;
 import org.jf.dexlib.Code.LiteralInstruction;
@@ -116,10 +117,13 @@ public final class DexCodeItemPrinter {
 
   private void dump(
       @Nonnull Instruction instr, int address,
-      @Nonnull TreeMap<Integer, String> references) {
-    write(instr.opcode.name);
-
+      @Nonnull TreeMap<Integer, String> references,
+      @Nonnull Map<Integer, Integer> crossAddressTable) {
     Format format = instr.getFormat();
+    if (format != Format.PackedSwitchData) {
+      write(instr.opcode.name);
+    }
+
     switch (format) {
       case Format10x:
         break;
@@ -131,6 +135,7 @@ public final class DexCodeItemPrinter {
         break;
 
       case Format21t:
+      case Format22t:
       case Format31t:
         write(" ").registers(instr).write(", ").address(instr, address, references);
         break;
@@ -157,6 +162,19 @@ public final class DexCodeItemPrinter {
         write(" ").registers(instr).write(", ").reference(instr);
         break;
 
+      case PackedSwitchData:
+        PackedSwitchDataPseudoInstruction packed = (PackedSwitchDataPseudoInstruction) instr;
+        write("packed-switch: [").write(packed.getFirstKey())
+            .write("..").write(packed.getTargetCount() + packed.getFirstKey() - 1).write("] -> ");
+        String sep = "[";
+        int[] targets = packed.getTargets();
+        for (int i = 0; i < targets.length; i++) {
+          write(sep).write(references.get(targets[i] + crossAddressTable.get(address)));
+          sep = ", ";
+        }
+        write("]");
+        break;
+
       default:
         write(" // Details are not implemented yet for this format: " + format);
         break;
@@ -168,20 +186,35 @@ public final class DexCodeItemPrinter {
   private void dump(@Nonnull Instruction[] instructions) {
     String indent = "    | ";
 
-    TreeMap<Integer, String> references = getReferencedAddresses(instructions);
+    TreeMap<Integer, Integer> crossAddressTable = getCrossAddressTable(instructions);
+    TreeMap<Integer, String> references = getReferencedAddresses(instructions, crossAddressTable);
 
     int address = 0;
     for (Instruction instr : instructions) {
       // Indentation with optional label
       String label = references.get(address);
       write(label == null ? indent : (label + "-> "));
-      dump(instr, address, references);
+      dump(instr, address, references, crossAddressTable);
       address += instr.getSize(address);
     }
   }
 
   @Nonnull
-  private TreeMap<Integer, String> getReferencedAddresses(@Nonnull Instruction[] instructions) {
+  private TreeMap<Integer, Integer> getCrossAddressTable(@Nonnull Instruction[] instructions) {
+    int address = 0;
+    TreeMap<Integer, Integer> references = new TreeMap<>();
+    for (Instruction instr : instructions) {
+      if (instr instanceof OffsetInstruction) {
+        references.put(address + ((OffsetInstruction) instr).getTargetAddressOffset(), address);
+      }
+      address += instr.getSize(address);
+    }
+    return references;
+  }
+
+  @Nonnull
+  private TreeMap<Integer, String> getReferencedAddresses(
+      @Nonnull Instruction[] instructions, @Nonnull Map<Integer, Integer> crossAddressTable) {
     int address = 0;
     TreeMap<Integer, String> references = new TreeMap<Integer, String>();
     for (Instruction instr : instructions) {
@@ -189,7 +222,7 @@ public final class DexCodeItemPrinter {
         references.put(address + ((OffsetInstruction) instr).getTargetAddressOffset(), null);
       } else if (instr instanceof MultiOffsetInstruction) {
         for (int target : ((MultiOffsetInstruction) instr).getTargets()) {
-          references.put(target, null);
+          references.put(target + crossAddressTable.get(address), null);
         }
       }
       address += instr.getSize(address);

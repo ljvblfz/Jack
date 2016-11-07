@@ -941,10 +941,10 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
 
     // Collect basic blocks backwards to include unreachable ones
     cfgBlocks.put(x.getEntryBlock(), getStringId(0));
-    List<JBasicBlock> blocks = x.getAllBlocksUnordered();
-    Collections.reverse(blocks);
+    List<JBasicBlock> blocks = x.getBlocksDepthFirst(true);
+    blocks.addAll(x.getBlocksDepthFirst(false));
     for (JBasicBlock block : blocks) {
-      if (block != x.getEntryBlock() && block != x.getExitBlock()) {
+      if (block != x.getExitBlock() && !cfgBlocks.containsKey(block)) {
         cfgBlocks.put(block, getStringId(cfgBlocks.size()));
       }
     }
@@ -965,7 +965,8 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
     return String.format("bb#%1$03d", Integer.valueOf(id));
   }
 
-  private void printBlockIds(@Nonnull Iterable<JBasicBlock> blocks) {
+  private void printBlockIds(
+      @Nonnull Iterable<JBasicBlock> blocks, @CheckForNull JBasicBlock primary) {
     print("{");
     String sep = " ";
     for (JBasicBlock block : blocks) {
@@ -975,28 +976,24 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
       } else {
         print("???");
       }
+      if (block == primary) {
+        print("**");
+      }
       sep = ", ";
     }
     print(" }");
   }
 
   private void printBlockCommon(@Nonnull JRegularBasicBlock block) {
-    if (block.hasPrimarySuccessor()) {
-      print("; primary: ");
-      if (cfgBlocks != null && cfgBlocks.containsKey(block)) {
-        print(cfgBlocks.get(block.getPrimarySuccessor()));
-      } else {
-        print("???");
-      }
-    }
-    printBlockCommon((JBasicBlock) block);
+    printBlockCommon(block,
+        block.hasPrimarySuccessor() ? block.getPrimarySuccessor() : null);
   }
 
-  private void printBlockCommon(@Nonnull JBasicBlock block) {
+  private void printBlockCommon(@Nonnull JBasicBlock block, @CheckForNull JBasicBlock primary) {
     print("; suc: ");
-    printBlockIds(block.getSuccessors());
+    printBlockIds(block.getSuccessors(), primary);
     print("; pre: ");
-    printBlockIds(block.getPredecessors());
+    printBlockIds(block.getPredecessors(), null);
     newline();
 
     List<JBasicBlockElement> elements = block.getElements(true);
@@ -1015,21 +1012,21 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
   @Override
   public boolean visit(@Nonnull JPlaceholderBasicBlock x) {
     print("placeholder");
-    printBlockCommon(x);
+    printBlockCommon(x, null);
     return false;
   }
 
   @Override
   public boolean visit(@Nonnull JEntryBasicBlock x) {
     print("entry");
-    printBlockCommon(x);
+    printBlockCommon(x, null);
     return false;
   }
 
   @Override
   public boolean visit(@Nonnull JExitBasicBlock x) {
     print("exit");
-    printBlockCommon(x);
+    printBlockCommon(x, null);
     return false;
   }
 

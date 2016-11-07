@@ -37,7 +37,7 @@ public class RemoveEmptyBasicBlocks
 
   @Override
   public void run(@Nonnull final JControlFlowGraph cfg) {
-    new BasicBlockLiveProcessor(/* stepIntoElements = */ false) {
+    new BasicBlockLiveProcessor(cfg, /* stepIntoElements = */ false) {
       @Override
       public boolean visit(@Nonnull JSimpleBasicBlock block) {
         if (block.getElementCount() == 1 &&
@@ -46,12 +46,6 @@ public class RemoveEmptyBasicBlocks
           block.delete();
         }
         return false;
-      }
-
-      @Nonnull
-      @Override
-      public JControlFlowGraph getCfg() {
-        return cfg;
       }
     }.process();
   }

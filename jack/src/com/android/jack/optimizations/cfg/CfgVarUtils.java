@@ -34,15 +34,12 @@ import com.android.sched.schedulable.Use;
 import javax.annotation.Nonnull;
 
 /** Implements series of variable related utilities. */
-@Transform(add = { JAsgOperation.NonReusedAsg.class, JLocalRef.class },
-    modify = JControlFlowGraph.class)
-@Use(LocalVarCreator.class)
 public final class CfgVarUtils {
-  @Nonnull
-  private final LocalVarCreator varCreator;
-
-  public CfgVarUtils(@Nonnull LocalVarCreator varCreator) {
-    this.varCreator = varCreator;
+  /** Defines sets of transformations for method replaceWithLocal(...) */
+  @Transform(add = { JAsgOperation.NonReusedAsg.class, JLocalRef.class },
+      modify = JControlFlowGraph.class)
+  @Use(LocalVarCreator.class)
+  public static class ReplaceWithLocal {
   }
 
   /**
@@ -51,7 +48,8 @@ public final class CfgVarUtils {
    * Reuses EH context from the current block element.
    */
   @Nonnull
-  public JLocalRef replaceWithLocal(@Nonnull JExpression expr) {
+  public JLocalRef replaceWithLocal(
+      @Nonnull LocalVarCreator varCreator, @Nonnull JExpression expr) {
     assert !expr.canThrow(); // Non-throwing expression only
     SourceInfo srcInfo = expr.getSourceInfo();
 

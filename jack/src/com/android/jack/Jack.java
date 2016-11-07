@@ -134,8 +134,10 @@ import com.android.jack.optimizations.NotSimplifier;
 import com.android.jack.optimizations.Optimizations;
 import com.android.jack.optimizations.UnusedDefinitionRemover;
 import com.android.jack.optimizations.UseDefsChainsSimplifier;
+import com.android.jack.optimizations.blockmerger.CfgSimpleBasicBlockMerger;
 import com.android.jack.optimizations.cfg.RemoveEmptyBasicBlocks;
 import com.android.jack.optimizations.cfg.RemoveRedundantConditionalBlocks;
+import com.android.jack.optimizations.cfg.RemoveRedundantGotoReturnEdges;
 import com.android.jack.optimizations.cfg.RemoveUnreachableBasicBlocks;
 import com.android.jack.optimizations.common.DirectlyDerivedClassesProvider;
 import com.android.jack.optimizations.modifiers.ClassFinalizer;
@@ -744,6 +746,10 @@ public abstract class Jack {
           if (config.get(Optimizations.UseJackSsaIR.ENABLE).booleanValue()) {
             request.addFeature(Optimizations.UseJackSsaIR.class);
           }
+          if (config.get(Optimizations.SimpleBasicBlockMerging.ENABLE).booleanValue()) {
+            request.addFeature(Optimizations.SimpleBasicBlockMerging.class);
+          }
+
           if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.ALWAYS) {
             request.addFeature(EnabledAssertionFeature.class);
           } else if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.RUNTIME) {
@@ -1736,21 +1742,26 @@ public abstract class Jack {
       if (enableFieldValuePropagation) {
         cfgPlan.append(FvpPropagateFieldValues.class);
       }
-
       if (enableArgumentValuePropagation) {
         cfgPlan.append(AvpPropagateArgumentValues.class);
       }
-
       if (enableWriteOnlyFieldRemoval) {
         cfgPlan.append(WofrRemoveFieldWrites.class);
       }
+      if (hasSanityChecks) {
+        cfgPlan.append(CfgChecker.class);
+      }
 
+      if (features.contains(Optimizations.SimpleBasicBlockMerging.class)) {
+        cfgPlan.append(CfgSimpleBasicBlockMerger.class);
+      }
       if (hasSanityChecks) {
         cfgPlan.append(CfgChecker.class);
       }
 
       cfgPlan.append(RemoveRedundantConditionalBlocks.class);
       cfgPlan.append(RemoveEmptyBasicBlocks.class);
+      cfgPlan.append(RemoveRedundantGotoReturnEdges.class);
       cfgPlan.append(RemoveUnreachableBasicBlocks.class);
 
       if (hasSanityChecks) {

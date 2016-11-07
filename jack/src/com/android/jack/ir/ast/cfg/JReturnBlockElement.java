@@ -32,7 +32,7 @@ public final class JReturnBlockElement extends JBasicBlockElement {
   @CheckForNull
   private JExpression expr;
 
-  JReturnBlockElement(@Nonnull SourceInfo info,
+  public JReturnBlockElement(@Nonnull SourceInfo info,
       @Nonnull ExceptionHandlingContext ehc, @CheckForNull JExpression expr) {
     super(info, ehc);
     this.expr = expr;

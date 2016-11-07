@@ -38,19 +38,13 @@ public abstract class BasicBlockLiveProcessor extends JVisitor {
   private final Set<JBasicBlock> everQueued = new HashSet<>();
   private final boolean stepIntoElements;
 
-  public BasicBlockLiveProcessor(boolean stepIntoElements) {
+  public BasicBlockLiveProcessor(@Nonnull JControlFlowGraph cfg, boolean stepIntoElements) {
     this.stepIntoElements = stepIntoElements;
-    new BasicBlockIterator() {
+    new BasicBlockIterator(cfg) {
       @Override
       public boolean process(@Nonnull JBasicBlock block) {
         enqueue(block);
         return true;
-      }
-
-      @Nonnull
-      @Override
-      public JControlFlowGraph getCfg() {
-        return BasicBlockLiveProcessor.this.getCfg();
       }
     }.iterateDepthFirst(true);
   }
@@ -72,10 +66,6 @@ public abstract class BasicBlockLiveProcessor extends JVisitor {
   public boolean visit(@Nonnull JBasicBlockElement element) {
     return false;
   }
-
-  /** Get control flow graph to work on */
-  @Nonnull
-  public abstract JControlFlowGraph getCfg();
 
   /** Process the blocks */
   public final void process() {

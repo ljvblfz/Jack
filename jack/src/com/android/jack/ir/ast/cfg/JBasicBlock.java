@@ -95,6 +95,12 @@ public abstract class JBasicBlock extends JNode implements IGraphNode<JBasicBloc
   /** Replace all the successors equal to 'what' with 'with' */
   public abstract void replaceAllSuccessors(@Nonnull JBasicBlock what, @Nonnull JBasicBlock with);
 
+  /** The number of predecessors */
+  @Nonnegative
+  public final int getPredecessorCount() {
+    return predecessors.size();
+  }
+
   /** Immutable predecessors' list */
   public final List<JBasicBlock> getPredecessors() {
     return Jack.getUnmodifiableCollections().getUnmodifiableList(predecessors);

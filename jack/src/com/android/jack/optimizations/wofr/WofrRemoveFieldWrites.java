@@ -142,7 +142,7 @@ public class WofrRemoveFieldWrites extends WofrSchedulable
     // the processor to know about these newly created blocks, since they
     // don't have any field writes we might want to process.
 
-    new BasicBlockLiveProcessor(/* stepIntoElements = */ true) {
+    new BasicBlockLiveProcessor(cfg, /* stepIntoElements = */ true) {
       @Override
       public boolean visit(@Nonnull JStoreBlockElement element) {
         JFieldRef ref = element.getLhsAsFieldRef();
@@ -196,12 +196,6 @@ public class WofrRemoveFieldWrites extends WofrSchedulable
         tracer.getStatistic(FIELD_WRITES_REMOVED).incValue();
 
         return false;
-      }
-
-      @Nonnull
-      @Override
-      public JControlFlowGraph getCfg() {
-        return cfg;
       }
     }.process();
 

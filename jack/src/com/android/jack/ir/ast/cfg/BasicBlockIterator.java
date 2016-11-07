@@ -23,19 +23,22 @@ import javax.annotation.Nonnull;
 
 /** Simplifies iterations through basic blocks */
 public abstract class BasicBlockIterator {
+  @Nonnull
+  private final JControlFlowGraph cfg;
+
+  protected BasicBlockIterator(@Nonnull JControlFlowGraph cfg) {
+    this.cfg = cfg;
+  }
+
   /** Processes basic block, returns `false` if the iterations should be stopped */
   public abstract boolean process(@Nonnull JBasicBlock block);
-
-  /** Get control flow graph to work on */
-  @Nonnull
-  public abstract JControlFlowGraph getCfg();
 
   /** Iterates basic blocks depth first */
   public final void iterateDepthFirst(boolean forward) {
     Stack<JBasicBlock> stack = new Stack<>();
     Set<JBasicBlock> stacked = new HashSet<>();
 
-    JBasicBlock start = forward ? getCfg().getEntryBlock() : getCfg().getExitBlock();
+    JBasicBlock start = forward ? cfg.getEntryBlock() : cfg.getExitBlock();
     stack.push(start);
     stacked.add(start);
 

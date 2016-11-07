@@ -48,6 +48,7 @@ import com.android.jack.multidex.MultiDexAllTests;
 import com.android.jack.newarray.NewarrayTests;
 import com.android.jack.nopackage.NoPackageTests;
 import com.android.jack.opcodes.OpcodesTests;
+import com.android.jack.optimizations.blockmerger.BlockMergerTests;
 import com.android.jack.optimizations.defuse.DefUseTests;
 import com.android.jack.optimizations.exprsimplifier.ExprsimplifierTests;
 import com.android.jack.optimizations.lambdas.LambdaTests;
@@ -91,6 +92,7 @@ import org.junit.runners.Suite.SuiteClasses;
     ArrayTests.class,
     AssertionTests.class,
     AssignTests.class,
+    BlockMergerTests.class,
     BoostLockedRegionPriorityTests.class,
     BoxTests.class,
     BridgeTests.class,

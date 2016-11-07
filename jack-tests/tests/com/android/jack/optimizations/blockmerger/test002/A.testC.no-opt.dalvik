@@ -1,0 +1,11 @@
+method: Lcom/android/jack/optimizations/blockmerger/test002/jack/A;->testC(I)I
+registers: 3, in/out: 2/0
+instructions: 8
+    | if-lez v2, #00
+    | const-string/jumbo v0, string_id_item: a > 0
+    | return v2
+#00-> if-gez v2, #01
+    | const-string/jumbo v0, string_id_item: a < 0
+    | return v2
+#01-> const-string/jumbo v0, string_id_item: a == 0
+    | return v2

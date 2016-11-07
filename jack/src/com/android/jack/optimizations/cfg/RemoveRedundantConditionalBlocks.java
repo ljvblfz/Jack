@@ -22,6 +22,9 @@ import com.android.jack.ir.ast.cfg.BasicBlockLiveProcessor;
 import com.android.jack.ir.ast.cfg.JConditionalBasicBlock;
 import com.android.jack.ir.ast.cfg.JConditionalBlockElement;
 import com.android.jack.ir.ast.cfg.JControlFlowGraph;
+import com.android.jack.ir.ast.cfg.JGotoBlockElement;
+import com.android.jack.ir.ast.cfg.JSimpleBasicBlock;
+import com.android.jack.ir.ast.cfg.mutations.BasicBlockBuilder;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Filter;
@@ -43,8 +46,13 @@ public class RemoveRedundantConditionalBlocks
     implements RunnableSchedulable<JControlFlowGraph> {
 
   @Nonnull
-  public static final StatisticId<Counter> REMOVED_CONST_BRANCHES = new StatisticId<Counter>(
+  public static final StatisticId<Counter> REMOVED_CONST_BRANCHES = new StatisticId<>(
       "jack.cfg.const-branches-removed", "Removed branches with constant condition",
+      CounterImpl.class, Counter.class);
+
+  @Nonnull
+  public static final StatisticId<Counter> REMOVED_REDUNDANT_CONDITIONS = new StatisticId<>(
+      "jack.cfg.redundant-conditions-removed", "Removed redundant conditional blocks",
       CounterImpl.class, Counter.class);
 
   @Nonnull
@@ -52,14 +60,30 @@ public class RemoveRedundantConditionalBlocks
 
   @Override
   public void run(@Nonnull final JControlFlowGraph cfg) {
-    new BasicBlockLiveProcessor(/* stepIntoElements = */ false) {
+    new BasicBlockLiveProcessor(cfg, /* stepIntoElements = */ false) {
       @Override
       public boolean visit(@Nonnull JConditionalBasicBlock block) {
         JConditionalBlockElement element =
             (JConditionalBlockElement) block.getLastElement();
         JExpression condition = element.getCondition();
 
-        if (condition instanceof JBooleanLiteral) {
+        if (block.getIfFalse() == block.getIfTrue()) {
+          // Conditional block is redundant, replace it with a simple basic block
+
+          // Note that goto block element created reuses source
+          // info of the original conditional block element
+          JSimpleBasicBlock simple = new BasicBlockBuilder(cfg)
+              .append(block).removeLast()
+              .append(new JGotoBlockElement(
+                  element.getSourceInfo(), element.getEHContext()))
+              .createSimpleBlock(block.getIfTrue());
+
+          // Replace conditional block with newly created simple block
+          block.detach(simple);
+
+          tracer.getStatistic(REMOVED_REDUNDANT_CONDITIONS).incValue();
+
+        } else if (condition instanceof JBooleanLiteral) {
           // Split conditional block: pre-block --> cond-block
           // with pre-block containing all the elements except for
           // the last (conditional) one
@@ -73,12 +97,6 @@ public class RemoveRedundantConditionalBlocks
           tracer.getStatistic(REMOVED_CONST_BRANCHES).incValue();
         }
         return false;
-      }
-
-      @Nonnull
-      @Override
-      public JControlFlowGraph getCfg() {
-        return cfg;
       }
     }.process();
   }

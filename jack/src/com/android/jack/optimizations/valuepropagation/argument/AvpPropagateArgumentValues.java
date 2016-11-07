@@ -60,7 +60,7 @@ import javax.annotation.Nonnull;
                      AvpSchedulable.TaintedMethodMarker.class })
 @Transform(remove = { MethodCallArgumentsMarker.class,
                       AvpSchedulable.TaintedMethodMarker.class })
-@Use(CfgVarUtils.class)
+@Use(CfgVarUtils.ReplaceWithLocal.class)
 @Name("ArgumentValuePropagation: PropagateArgumentValues")
 public class AvpPropagateArgumentValues extends AvpSchedulable
     implements RunnableSchedulable<JControlFlowGraph> {
@@ -122,9 +122,11 @@ public class AvpPropagateArgumentValues extends AvpSchedulable
     // Substitute parameter with value
     class Processor extends JVisitor {
       @Nonnull
-      private TransformationRequest request = new TransformationRequest(method);
+      private final TransformationRequest request = new TransformationRequest(method);
       @Nonnull
-      private CfgVarUtils helper = new CfgVarUtils(new LocalVarCreator(method, "avp"));
+      private final CfgVarUtils helper = new CfgVarUtils();
+      @Nonnull
+      private final LocalVarCreator varCreator = new LocalVarCreator(method, "avp");
 
       @Override
       public void endVisit(@Nonnull JParameterRef x) {
@@ -142,7 +144,7 @@ public class AvpPropagateArgumentValues extends AvpSchedulable
             // throwing
 
             // First we replace the param reference with a temp local
-            JLocalRef tmpRef = helper.replaceWithLocal(x);
+            JLocalRef tmpRef = helper.replaceWithLocal(varCreator, x);
 
             // The local initialization is inserted before the element where
             // the local is being used. We split the basic block such that

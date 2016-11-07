@@ -41,6 +41,10 @@ public final class JSimpleBasicBlock extends JRegularBasicBlock {
   @Nonnull
   public JBasicBlock mergeIntoSuccessor() {
     JBasicBlock successor = getPrimarySuccessor();
+    if (successor.getPredecessorCount() != 1) {
+      // Make sure we never merge into the block with multiple predecessors
+      throw new AssertionError();
+    }
 
     // Move children
     List<JBasicBlockElement> elements = this.getElements(true);
