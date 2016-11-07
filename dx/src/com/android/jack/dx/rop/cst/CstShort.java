@@ -16,8 +16,11 @@
 
 package com.android.jack.dx.rop.cst;
 
+import com.android.jack.dx.dex.file.ValueEncoder.ValueType;
 import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.util.Hex;
+
+import javax.annotation.Nonnull;
 
 /**
  * Constants of type {@code short}.
@@ -96,5 +99,11 @@ public final class CstShort extends CstLiteral32 {
    */
   public short getValue() {
     return (short) getIntBits();
+  }
+
+  @Override
+  @Nonnull
+  public ValueType getEncodedValueType() {
+    return ValueType.VALUE_SHORT;
   }
 }

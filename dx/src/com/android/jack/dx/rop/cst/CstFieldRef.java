@@ -16,7 +16,10 @@
 
 package com.android.jack.dx.rop.cst;
 
+import com.android.jack.dx.dex.file.ValueEncoder.ValueType;
 import com.android.jack.dx.rop.type.Type;
+
+import javax.annotation.Nonnull;
 
 /**
  * Constants of type {@code CONSTANT_Fieldref_info}.
@@ -75,5 +78,11 @@ public final class CstFieldRef extends CstMemberRef {
     CstString thisDescriptor = getNat().getDescriptor();
     CstString otherDescriptor = otherField.getNat().getDescriptor();
     return thisDescriptor.compareTo(otherDescriptor);
+  }
+
+  @Override
+  @Nonnull
+  public ValueType getEncodedValueType() {
+    return ValueType.VALUE_FIELD;
   }
 }

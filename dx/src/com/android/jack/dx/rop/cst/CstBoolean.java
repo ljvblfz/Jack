@@ -16,7 +16,10 @@
 
 package com.android.jack.dx.rop.cst;
 
+import com.android.jack.dx.dex.file.ValueEncoder.ValueType;
 import com.android.jack.dx.rop.type.Type;
+
+import javax.annotation.Nonnull;
 
 /**
  * Constants of type {@code boolean}.
@@ -96,5 +99,11 @@ public final class CstBoolean extends CstLiteral32 {
    */
   public boolean getValue() {
     return (getIntBits() == 0) ? false : true;
+  }
+
+  @Override
+  @Nonnull
+  public ValueType getEncodedValueType() {
+    return ValueType.VALUE_BOOLEAN;
   }
 }

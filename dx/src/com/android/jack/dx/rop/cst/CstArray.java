@@ -16,7 +16,10 @@
 
 package com.android.jack.dx.rop.cst;
 
+import com.android.jack.dx.dex.file.ValueEncoder.ValueType;
 import com.android.jack.dx.util.FixedSizeList;
+
+import javax.annotation.Nonnull;
 
 /**
  * Constant type to represent a fixed array of other constants.
@@ -93,6 +96,12 @@ public final class CstArray extends Constant {
    */
   public List getList() {
     return list;
+  }
+
+  @Override
+  @Nonnull
+  public ValueType getEncodedValueType() {
+    return ValueType.VALUE_ARRAY;
   }
 
   /**

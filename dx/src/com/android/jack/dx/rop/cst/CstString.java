@@ -16,9 +16,12 @@
 
 package com.android.jack.dx.rop.cst;
 
+import com.android.jack.dx.dex.file.ValueEncoder.ValueType;
 import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.util.ByteArray;
 import com.android.jack.dx.util.Hex;
+
+import javax.annotation.Nonnull;
 
 /**
  * Constants of type {@code CONSTANT_Utf8_info} or {@code CONSTANT_String_info}.
@@ -381,5 +384,11 @@ public final class CstString extends TypedConstant {
   @Override
   public Type getType() {
     return Type.STRING;
+  }
+
+  @Override
+  @Nonnull
+  public ValueType getEncodedValueType() {
+    return ValueType.VALUE_STRING;
   }
 }

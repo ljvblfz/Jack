@@ -16,7 +16,10 @@
 
 package com.android.jack.dx.rop.cst;
 
+import com.android.jack.dx.dex.file.ValueEncoder.ValueType;
 import com.android.jack.dx.rop.type.Type;
+
+import javax.annotation.Nonnull;
 
 /**
  * Constant type to represent a reference to a particular constant
@@ -65,5 +68,11 @@ public final class CstEnumRef extends CstMemberRef {
     }
 
     return fieldRef;
+  }
+
+  @Override
+  @Nonnull
+  public ValueType getEncodedValueType() {
+    return ValueType.VALUE_ENUM;
   }
 }

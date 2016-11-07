@@ -339,7 +339,7 @@ public abstract class InsnFormat {
   /**
    * Helper method to return the constant string for a {@link CstInsn} in human form.
    *
-   * @param insn {@code non-null;} a constant-bearing instruction
+   * @param ci {@code non-null;} a constant-bearing instruction
    * @return {@code non-null;} the human string form of the contained constant
    */
   @Nonnull
@@ -363,7 +363,7 @@ public abstract class InsnFormat {
   /**
    * Helper method to return an instruction comment for a constant.
    *
-   * @param insn {@code non-null;} a constant-bearing instruction
+   * @param ci {@code non-null;} a constant-bearing instruction
    * @return {@code non-null;} comment string representing the constant
    */
   @Nonnull

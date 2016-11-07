@@ -16,6 +16,10 @@
 
 package com.android.jack.dx.rop.cst;
 
+import com.android.jack.dx.dex.file.ValueEncoder.ValueType;
+
+import javax.annotation.Nonnull;
+
 /**
  * Constants of type {@code CONSTANT_InterfaceMethodref_info}.
  */
@@ -55,5 +59,11 @@ public final class CstInterfaceMethodRef extends CstBaseMethodRef {
     }
 
     return methodRef;
+  }
+
+  @Override
+  @Nonnull
+  public ValueType getEncodedValueType() {
+    throw new UnsupportedOperationException();
   }
 }

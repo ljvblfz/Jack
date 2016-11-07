@@ -18,10 +18,10 @@ package com.android.jack.tools.merger;
 
 import com.android.jack.dx.dex.file.AnnotationItem;
 import com.android.jack.dx.dex.file.ClassDefItem;
+import com.android.jack.dx.dex.file.ValueEncoder.ValueType;
 import com.android.jack.dx.io.Annotation;
 import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.dx.io.DexBuffer.Section;
-import com.android.jack.dx.io.EncodedValueCodec;
 import com.android.jack.dx.io.EncodedValueReader;
 import com.android.jack.dx.io.FieldId;
 import com.android.jack.dx.rop.annotation.AnnotationVisibility;
@@ -32,19 +32,12 @@ import com.android.jack.dx.rop.cst.Constant;
 import com.android.jack.dx.rop.cst.CstAnnotation;
 import com.android.jack.dx.rop.cst.CstArray;
 import com.android.jack.dx.rop.cst.CstBoolean;
-import com.android.jack.dx.rop.cst.CstByte;
-import com.android.jack.dx.rop.cst.CstChar;
-import com.android.jack.dx.rop.cst.CstDouble;
 import com.android.jack.dx.rop.cst.CstEnumRef;
 import com.android.jack.dx.rop.cst.CstFieldRef;
-import com.android.jack.dx.rop.cst.CstFloat;
 import com.android.jack.dx.rop.cst.CstIndexMap;
-import com.android.jack.dx.rop.cst.CstInteger;
 import com.android.jack.dx.rop.cst.CstKnownNull;
-import com.android.jack.dx.rop.cst.CstLong;
 import com.android.jack.dx.rop.cst.CstMethodRef;
 import com.android.jack.dx.rop.cst.CstNat;
-import com.android.jack.dx.rop.cst.CstShort;
 import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.util.ByteInput;
@@ -243,10 +236,10 @@ public class AnnotationMerger extends MergerTools {
     @Override
     protected void visitField(int type, int index) {
       assert cstIndexMap != null;
-      if (type == ENCODED_FIELD) {
+      if (type == ValueType.VALUE_FIELD.getValue()) {
         constantValue = cstIndexMap.getCstFieldRef(index);
       } else {
-        assert type == ENCODED_ENUM;
+        assert type == ValueType.VALUE_ENUM.getValue();
         FieldId fieldId = dex.fieldIds().get(index);
         CstNat fieldNat = new CstNat(cstIndexMap.getCstString(fieldId.getNameIndex()),
             new CstString(dex.typeNames().get(fieldId.getTypeIndex())));
@@ -269,39 +262,7 @@ public class AnnotationMerger extends MergerTools {
 
     @Override
     protected void visitPrimitive(int argAndType, int type, int arg, int size) {
-      switch (type) {
-        case ENCODED_BYTE: {
-          constantValue = CstByte.make((byte) EncodedValueCodec.readSignedInt(in, arg));
-          break;
-        }
-        case ENCODED_CHAR: {
-          constantValue = CstChar.make((char) EncodedValueCodec.readUnsignedInt(in, arg, false));
-          break;
-        }
-        case ENCODED_SHORT: {
-          constantValue = CstShort.make((short) EncodedValueCodec.readSignedInt(in, arg));
-          break;
-        }
-        case ENCODED_INT: {
-          constantValue = CstInteger.make(EncodedValueCodec.readSignedInt(in, arg));
-          break;
-        }
-        case ENCODED_LONG: {
-          constantValue = CstLong.make(EncodedValueCodec.readSignedLong(in, arg));
-          break;
-        }
-        case ENCODED_FLOAT: {
-          constantValue = CstFloat.make(EncodedValueCodec.readUnsignedInt(in, arg, true));
-          break;
-        }
-        case ENCODED_DOUBLE: {
-          constantValue = CstDouble.make(EncodedValueCodec.readUnsignedLong(in, arg, true));
-          break;
-        }
-        default: {
-          throw new AssertionError();
-        }
-      }
+      constantValue = MergerTools.createConstant(in, type, arg);
     }
   }
 }

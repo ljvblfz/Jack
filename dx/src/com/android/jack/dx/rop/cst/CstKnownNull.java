@@ -16,7 +16,10 @@
 
 package com.android.jack.dx.rop.cst;
 
+import com.android.jack.dx.dex.file.ValueEncoder.ValueType;
 import com.android.jack.dx.rop.type.Type;
+
+import javax.annotation.Nonnull;
 
 /**
  * Constant type to represent a known-{@code null} value.
@@ -108,5 +111,11 @@ public final class CstKnownNull extends CstLiteralBits {
   @Override
   public long getLongBits() {
     return 0;
+  }
+
+  @Override
+  @Nonnull
+  public ValueType getEncodedValueType() {
+    return ValueType.VALUE_NULL;
   }
 }

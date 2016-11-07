@@ -16,6 +16,7 @@
 
 package com.android.jack.dx.io;
 
+import com.android.jack.dx.dex.file.ValueEncoder.ValueType;
 import com.android.jack.dx.util.ByteInput;
 import com.android.jack.dx.util.Leb128Utils;
 
@@ -24,22 +25,6 @@ import com.android.jack.dx.util.Leb128Utils;
  * TODO(dx team): convert this to a pull-style reader
  */
 public class EncodedValueReader {
-  public static final int ENCODED_BYTE = 0x00;
-  public static final int ENCODED_SHORT = 0x02;
-  public static final int ENCODED_CHAR = 0x03;
-  public static final int ENCODED_INT = 0x04;
-  public static final int ENCODED_LONG = 0x06;
-  public static final int ENCODED_FLOAT = 0x10;
-  public static final int ENCODED_DOUBLE = 0x11;
-  public static final int ENCODED_STRING = 0x17;
-  public static final int ENCODED_TYPE = 0x18;
-  public static final int ENCODED_FIELD = 0x19;
-  public static final int ENCODED_ENUM = 0x1b;
-  public static final int ENCODED_METHOD = 0x1a;
-  public static final int ENCODED_ARRAY = 0x1c;
-  public static final int ENCODED_ANNOTATION = 0x1d;
-  public static final int ENCODED_NULL = 0x1e;
-  public static final int ENCODED_BOOLEAN = 0x1f;
 
   protected final ByteInput in;
 
@@ -77,43 +62,45 @@ public class EncodedValueReader {
     int arg = (argAndType & 0xe0) >> 5;
     int size = arg + 1;
 
-    switch (type) {
-      case ENCODED_BYTE:
-      case ENCODED_SHORT:
-      case ENCODED_CHAR:
-      case ENCODED_INT:
-      case ENCODED_LONG:
-      case ENCODED_FLOAT:
-      case ENCODED_DOUBLE:
+    switch (ValueType.getValueType(type)) {
+      case VALUE_BYTE:
+      case VALUE_SHORT:
+      case VALUE_CHAR:
+      case VALUE_INT:
+      case VALUE_LONG:
+      case VALUE_FLOAT:
+      case VALUE_DOUBLE:
         visitPrimitive(argAndType, type, arg, size);
         break;
-      case ENCODED_STRING:
+      case VALUE_STRING:
         visitString(type, readIndex(in, size));
         break;
-      case ENCODED_TYPE:
+      case VALUE_TYPE:
         visitType(type, readIndex(in, size));
         break;
-      case ENCODED_FIELD:
-      case ENCODED_ENUM:
+      case VALUE_FIELD:
+      case VALUE_ENUM:
         visitField(type, readIndex(in, size));
         break;
-      case ENCODED_METHOD:
+      case VALUE_METHOD:
         visitMethod(type, readIndex(in, size));
         break;
-      case ENCODED_ARRAY:
+      case VALUE_ARRAY:
         visitArrayValue(argAndType);
         readArray();
         break;
-      case ENCODED_ANNOTATION:
+      case VALUE_ANNOTATION:
         visitAnnotationValue(argAndType);
         readAnnotation();
         break;
-      case ENCODED_NULL:
+      case VALUE_NULL:
         visitEncodedNull(argAndType);
         break;
-      case ENCODED_BOOLEAN:
+      case VALUE_BOOLEAN:
         visitEncodedBoolean(argAndType);
         break;
+      default:
+        throw new AssertionError();
     }
   }
 

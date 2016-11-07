@@ -16,7 +16,10 @@
 
 package com.android.jack.dx.rop.cst;
 
+import com.android.jack.dx.dex.file.ValueEncoder.ValueType;
 import com.android.jack.dx.util.ToHuman;
+
+import javax.annotation.Nonnull;
 
 /**
  * Base class for constants of all sorts.
@@ -65,4 +68,10 @@ public abstract class Constant implements ToHuman, Comparable<Constant> {
    * for a comparison
    */
   protected abstract int compareTo0(Constant other);
+
+  /**
+   * Return the value type of this constant.
+   */
+  @Nonnull
+  public abstract ValueType getEncodedValueType();
 }

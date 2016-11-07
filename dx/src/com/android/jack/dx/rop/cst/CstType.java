@@ -16,9 +16,12 @@
 
 package com.android.jack.dx.rop.cst;
 
+import com.android.jack.dx.dex.file.ValueEncoder.ValueType;
 import com.android.jack.dx.rop.type.Type;
 
 import java.util.HashMap;
+
+import javax.annotation.Nonnull;
 
 /**
  * Constants that represent an arbitrary type (reference or primitive).
@@ -255,5 +258,11 @@ public final class CstType extends TypedConstant {
       // +2 to skip the '[' and the 'L' prefix
       return descriptor.substring(lastLeftSquare + 2, lastSlash).replace('/', '.');
     }
+  }
+
+  @Override
+  @Nonnull
+  public ValueType getEncodedValueType() {
+    return ValueType.VALUE_TYPE;
   }
 }

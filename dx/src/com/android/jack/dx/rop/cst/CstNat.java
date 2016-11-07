@@ -16,7 +16,10 @@
 
 package com.android.jack.dx.rop.cst;
 
+import com.android.jack.dx.dex.file.ValueEncoder.ValueType;
 import com.android.jack.dx.rop.type.Type;
+
+import javax.annotation.Nonnull;
 
 /**
  * Constants of type {@code CONSTANT_NameAndType_info}.
@@ -165,5 +168,11 @@ public final class CstNat extends Constant {
    */
   public final boolean isClassInit() {
     return name.getString().equals("<clinit>");
+  }
+
+  @Override
+  @Nonnull
+  public ValueType getEncodedValueType() {
+    throw new UnsupportedOperationException();
   }
 }

@@ -16,6 +16,7 @@
 
 package com.android.jack.dx.rop.cst;
 
+import com.android.jack.dx.dex.file.ValueEncoder.ValueType;
 import com.android.jack.dx.rop.type.Prototype;
 import com.android.jack.dx.rop.type.Type;
 
@@ -104,5 +105,11 @@ public final class CstPrototypeRef extends TypedConstant {
   @Nonnull
   public String toHuman() {
     return prototype.toString();
+  }
+
+  @Override
+  @Nonnull
+  public ValueType getEncodedValueType() {
+    throw new UnsupportedOperationException();
   }
 }
