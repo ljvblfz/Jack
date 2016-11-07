@@ -516,7 +516,7 @@ public class JackHttpServer implements HasVersion {
 
   JackHttpServer(@Nonnull LauncherHandle launcherHandle)
       throws IOException, ServerLogConfigurationException, NotFileException,
-      WrongPermissionException, CannotCreateFileException {
+      WrongPermissionException, CannotCreateFileException, CannotChangePermissionException {
     this.launcherHandle = launcherHandle;
     serverDir = launcherHandle.getServerDir();
 
@@ -697,7 +697,7 @@ public class JackHttpServer implements HasVersion {
   }
 
   public void reloadConfig() throws IOException, WrongPermissionException, NotFileException,
-      ServerException, CannotCreateFileException {
+      ServerException, CannotCreateFileException, CannotChangePermissionException {
     shutdownConnections();
     try {
       checkAccess(serverDir, EnumSet.of(PosixFilePermission.OWNER_READ,
@@ -705,7 +705,7 @@ public class JackHttpServer implements HasVersion {
 
       loadConfig();
     } catch (CannotCreateFileException | IOException | NotFileException
-        | WrongPermissionException e) {
+        | WrongPermissionException | CannotChangePermissionException e) {
       shutdown();
       throw e;
     }
@@ -713,7 +713,7 @@ public class JackHttpServer implements HasVersion {
   }
 
   private void loadConfig() throws IOException, WrongPermissionException, NotFileException,
-      CannotCreateFileException {
+      CannotCreateFileException, CannotChangePermissionException {
 
     logger.log(Level.INFO, "Loading config of jack server version: "
         + getVersion().getVerboseVersion());
@@ -878,7 +878,7 @@ public class JackHttpServer implements HasVersion {
 
   private void refreshPEMFiles(@Nonnull KeyStore keystoreServer, @Nonnull KeyStore keystoreClient)
       throws IOException, UnrecoverableKeyException, KeyStoreException,
-      NoSuchAlgorithmException {
+      NoSuchAlgorithmException, CannotCreateFileException, CannotChangePermissionException {
     {
       File clientPEM = new File(getServerDir(), PEM_CLIENT);
 
@@ -1235,7 +1235,8 @@ public class JackHttpServer implements HasVersion {
   }
 
   @Nonnull
-  private static String getCurrentUser(@Nonnull File serverDir) throws IOException {
+  private static String getCurrentUser(@Nonnull File serverDir)
+      throws IOException, CannotCreateFileException, CannotChangePermissionException {
     Set<PosixFilePermission> check = EnumSet.of(PosixFilePermission.OWNER_READ,
         PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE);
     Set<PosixFilePermission> permissions = Files.getPosixFilePermissions(serverDir.toPath());
@@ -1245,23 +1246,38 @@ public class JackHttpServer implements HasVersion {
           + PosixFilePermissions.toString(permissions));
     }
 
-    File tmp = File.createTempFile("jackserver-", ".tmp", serverDir);
+    File tmp;
     try {
-      String tmpUser = Files.getFileAttributeView(tmp.toPath(),
-          FileOwnerAttributeView.class).getOwner().getName();
+      tmp = com.android.sched.util.file.Files.createTempFile("jackserver-", ".tmp",
+          new Directory(serverDir.getPath(),
+              null,
+              Existence.MUST_EXIST,
+              Permission.READ | Permission.WRITE | Permission.EXECUTE,
+              ChangePermission.NOCHANGE));
+      try {
+        String tmpUser = Files.getFileAttributeView(tmp.toPath(),
+            FileOwnerAttributeView.class).getOwner().getName();
 
-      FileOwnerAttributeView ownerAttribute =
-          Files.getFileAttributeView(serverDir.toPath(), FileOwnerAttributeView.class);
-      if (!tmpUser.equals(ownerAttribute.getOwner().getName())) {
-        throw new IOException("'" + serverDir.getPath() + "' is not owned by '" + tmpUser
-            + "' but by '" + ownerAttribute.getOwner().getName() + "'");
-      }
+        FileOwnerAttributeView ownerAttribute =
+            Files.getFileAttributeView(serverDir.toPath(), FileOwnerAttributeView.class);
+        if (!tmpUser.equals(ownerAttribute.getOwner().getName())) {
+          throw new IOException("'" + serverDir.getPath() + "' is not owned by '" + tmpUser
+              + "' but by '" + ownerAttribute.getOwner().getName() + "'");
+        }
 
-      return tmpUser;
-    } finally {
-      if (!tmp.delete()) {
-        logger.log(Level.WARNING, "Failed to delete temp file '" + tmp.getPath() + "'");
+        return tmpUser;
+      } finally {
+        if (!tmp.delete()) {
+          logger.log(Level.WARNING, "Failed to delete temp file '" + tmp.getPath() + "'");
+        }
       }
+    } catch (NotDirectoryException | NoSuchFileException
+        | FileAlreadyExistsException e) {
+      // This is about serverDir
+      throw new AssertionError(e.getMessage(), e);
+    } catch (WrongPermissionException e) {
+      // Permissions already checked
+      throw new AssertionError(e.getMessage(), e);
     }
 
   }
@@ -1421,7 +1437,8 @@ public class JackHttpServer implements HasVersion {
       sslContext = SSLContext.getInstance("SSLv3");
       sslContext.init(keyManagerFactory.getKeyManagers(), tm.getTrustManagers(), null);
     } catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException
-        | UnrecoverableKeyException | KeyManagementException e) {
+        | UnrecoverableKeyException | KeyManagementException | CannotCreateFileException
+        | CannotChangePermissionException e) {
       throw new ServerException("Failed to setup ssl context", e);
     } finally {
       if (keystoreClientIn != null) {
