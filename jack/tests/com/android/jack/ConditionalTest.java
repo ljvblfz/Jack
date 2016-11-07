@@ -56,7 +56,8 @@ public class ConditionalTest {
 
   @AfterClass
   public static void tearDownClass() {
-      hooks.runHooks();
+    hooks.runHooks();
+    ThreadConfig.unsetConfig();
   }
 
   @Test
