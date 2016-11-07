@@ -16,6 +16,7 @@
 
 package com.android.jack.dx.dex.file;
 
+import com.android.jack.dx.dex.DexFormat;
 import com.android.jack.dx.rop.annotation.Annotation;
 import com.android.jack.dx.rop.annotation.NameValuePair;
 import com.android.jack.dx.rop.cst.Constant;
@@ -28,6 +29,7 @@ import com.android.jack.dx.rop.cst.CstFieldRef;
 import com.android.jack.dx.rop.cst.CstFloat;
 import com.android.jack.dx.rop.cst.CstLiteralBits;
 import com.android.jack.dx.rop.cst.CstMethodRef;
+import com.android.jack.dx.rop.cst.CstPrototypeRef;
 import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.util.AnnotatedOutput;
@@ -55,6 +57,7 @@ public final class ValueEncoder {
     VALUE_LONG(0x06),
     VALUE_FLOAT(0x10),
     VALUE_DOUBLE(0x11),
+    VALUE_METHOD_TYPE(0x15),
     VALUE_STRING(0x17),
     VALUE_TYPE(0x18),
     VALUE_FIELD(0x19),
@@ -102,6 +105,9 @@ public final class ValueEncoder {
           break;
         case 0x11:
           valueType = VALUE_DOUBLE;
+          break;
+        case 0x15:
+          valueType = VALUE_METHOD_TYPE;
           break;
         case 0x17:
           valueType = VALUE_STRING;
@@ -240,6 +246,12 @@ public final class ValueEncoder {
       case VALUE_BOOLEAN: {
         int value = ((CstBoolean) cst).getIntBits();
         out.writeByte(type | (value << 5));
+        break;
+      }
+      case VALUE_METHOD_TYPE: {
+        assert file.getDexOptions().targetApiLevel >= DexFormat.API_ANDROID_O;
+        int index = file.getProtoIds().indexOf(((CstPrototypeRef) cst).getPrototype());
+        writeUnsignedIntegralValue(type, index);
         break;
       }
       default: {

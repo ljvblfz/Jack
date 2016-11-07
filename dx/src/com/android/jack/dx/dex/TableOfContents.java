@@ -68,7 +68,6 @@ public final class TableOfContents {
       annotationsDirectories};
 
   public int apiLevel;
-  public int checksum;
   public byte[] signature;
   public int fileSize;
   public int linkSize;
@@ -94,7 +93,7 @@ public final class TableOfContents {
     }
 
     apiLevel = DexFormat.magicToApi(magic);
-    checksum = headerIn.readInt();
+    headerIn.readInt(); // read checksum
     signature = headerIn.readByteArray(20);
     fileSize = headerIn.readInt();
     int headerSize = headerIn.readInt();

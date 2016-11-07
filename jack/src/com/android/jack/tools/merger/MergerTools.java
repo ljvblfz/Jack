@@ -52,12 +52,8 @@ public class MergerTools {
     @CheckForNull
     private Constant[] constantValues;
 
-    @Nonnull
-    private final DexBuffer dex;
-
     public ConstantValueArrayBuilder(@Nonnull DexBuffer dex, @Nonnull ByteInput in) {
-      super(in);
-      this.dex = dex;
+      super(dex, in);
     }
 
     @Nonnegative
@@ -86,7 +82,7 @@ public class MergerTools {
 
     @Override
     protected void visitString(int index) {
-      addConstant(new CstString(dex.strings().get(index)));
+      addConstant(new CstString(dexBuffer.strings().get(index)));
     }
 
     @Override
@@ -127,6 +123,11 @@ public class MergerTools {
 
     @Override
     protected void visitType(int index) {
+      throw new AssertionError("Unsupported encoded value.");
+    }
+
+    @Override
+    protected void visitMethodType(int index) {
       throw new AssertionError("Unsupported encoded value.");
     }
 

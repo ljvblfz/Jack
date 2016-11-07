@@ -627,14 +627,14 @@ public final class DexBuffer {
 
     public EncodedValue readEncodedValue() {
       int start = position;
-      new EncodedValueReader(this).readValue();
+      new EncodedValueReader(DexBuffer.this, this).readValue();
       int end = position;
       return new EncodedValue(Arrays.copyOfRange(data, start, end));
     }
 
     public EncodedValue readEncodedArray() {
       int start = position;
-      new EncodedValueReader(this).readArray();
+      new EncodedValueReader(DexBuffer.this, this).readArray();
       int end = position;
       return new EncodedValue(Arrays.copyOfRange(data, start, end));
     }

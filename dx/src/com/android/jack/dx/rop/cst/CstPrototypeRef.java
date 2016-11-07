@@ -110,6 +110,6 @@ public final class CstPrototypeRef extends TypedConstant {
   @Override
   @Nonnull
   public ValueType getEncodedValueType() {
-    throw new UnsupportedOperationException();
+    return ValueType.VALUE_METHOD_TYPE;
   }
 }

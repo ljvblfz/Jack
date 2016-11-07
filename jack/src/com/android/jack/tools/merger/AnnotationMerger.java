@@ -147,12 +147,8 @@ public class AnnotationMerger extends MergerTools {
     @CheckForNull
     private Constant constantValue;
 
-    @Nonnull
-    private final DexBuffer dex;
-
     public AnnotationValueReader(@Nonnull DexBuffer dex, @Nonnull ByteInput in) {
-      super(in);
-      this.dex = dex;
+      super(dex, in);
     }
 
     @Nonnull
@@ -211,6 +207,11 @@ public class AnnotationMerger extends MergerTools {
     }
 
     @Override
+    protected void visitMethodType(int index) {
+      throw new AssertionError("Unsupported encoded value.");
+    }
+
+    @Override
     protected void visitAnnotationValue(int argAndType) {
       // Nothing to do.
     }
@@ -240,9 +241,9 @@ public class AnnotationMerger extends MergerTools {
         constantValue = cstIndexMap.getCstFieldRef(index);
       } else {
         assert type == ValueType.VALUE_ENUM.getValue();
-        FieldId fieldId = dex.fieldIds().get(index);
+        FieldId fieldId = dexBuffer.fieldIds().get(index);
         CstNat fieldNat = new CstNat(cstIndexMap.getCstString(fieldId.getNameIndex()),
-            new CstString(dex.typeNames().get(fieldId.getTypeIndex())));
+            new CstString(dexBuffer.typeNames().get(fieldId.getTypeIndex())));
         constantValue = new CstEnumRef(fieldNat);
       }
     }

@@ -16,9 +16,12 @@
 
 package com.android.jack.dx.io;
 
+import com.android.jack.dx.dex.DexFormat;
 import com.android.jack.dx.dex.file.ValueEncoder.ValueType;
 import com.android.jack.dx.util.ByteInput;
 import com.android.jack.dx.util.Leb128Utils;
+
+import javax.annotation.Nonnull;
 
 /**
  * SAX-style reader for encoded values.
@@ -26,14 +29,15 @@ import com.android.jack.dx.util.Leb128Utils;
  */
 public class EncodedValueReader {
 
+  @Nonnull
   protected final ByteInput in;
 
-  public EncodedValueReader(ByteInput in) {
-    this.in = in;
-  }
+  @Nonnull
+  protected DexBuffer dexBuffer;
 
-  public EncodedValueReader(EncodedValue in) {
-    this(in.asByteInput());
+  public EncodedValueReader(@Nonnull DexBuffer dexBuffer, @Nonnull ByteInput in) {
+    this.in = in;
+    this.dexBuffer = dexBuffer;
   }
 
   public void readArray() {
@@ -99,6 +103,10 @@ public class EncodedValueReader {
       case VALUE_BOOLEAN:
         visitEncodedBoolean(argAndType);
         break;
+      case VALUE_METHOD_TYPE:
+        assert dexBuffer.getTableOfContents().apiLevel >= DexFormat.API_ANDROID_O;
+        visitMethodType(readIndex(in, size));
+        break;
       default:
         throw new AssertionError();
     }
@@ -132,7 +140,9 @@ public class EncodedValueReader {
 
   protected void visitEncodedNull(int argAndType) {}
 
-  private int readIndex(ByteInput in, int byteCount) {
+  protected void visitMethodType(int index) {}
+
+  private int readIndex(@Nonnull ByteInput in, int byteCount) {
     int result = 0;
     int shift = 0;
     for (int i = 0; i < byteCount; i++) {
