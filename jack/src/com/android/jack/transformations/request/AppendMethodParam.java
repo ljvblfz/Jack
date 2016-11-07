@@ -23,8 +23,10 @@ import com.android.sched.transform.TransformStep;
 import javax.annotation.Nonnull;
 
 /**
- * A {@code TransformationStep} allowing to add a {@code JParameter}
- * as the last parameter of a {@code JMethod}
+ * A {@link TransformationStep} allowing to add a {@link JParameter}
+ * as the last parameter of a {@link JMethod}.
+ *
+ * @see PrependMethodParam
  */
 public class AppendMethodParam implements TransformationStep, TransformStep {
 
@@ -34,6 +36,13 @@ public class AppendMethodParam implements TransformationStep, TransformStep {
   @Nonnull
   private final JParameter parameter;
 
+  /**
+   * Constructor specifying the {@code parameter} to add as the last parameter of
+   * the given {@code method}.
+   *
+   * @param method the method to update
+   * @param parameter the parameter to add to the method
+   */
   public AppendMethodParam(@Nonnull JMethod method, @Nonnull JParameter parameter) {
     this.method = method;
     this.parameter = parameter;

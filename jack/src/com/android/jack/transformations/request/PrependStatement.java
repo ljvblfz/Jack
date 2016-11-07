@@ -23,8 +23,10 @@ import com.android.sched.transform.TransformStep;
 import javax.annotation.Nonnull;
 
 /**
- * A {@code TransformationStep} allowing to insert a {@code JStatement} as the first statement of a
- * {@code JStatementList}.
+ * A {@link TransformationStep} allowing to insert a {@link JStatement} as the first statement of a
+ * {@link JStatementList}.
+ *
+ * @see AppendStatement
  */
 public class PrependStatement implements TransformationStep, TransformStep {
   @Nonnull
@@ -33,13 +35,21 @@ public class PrependStatement implements TransformationStep, TransformStep {
   @Nonnull
   private final JStatement statement;
 
-  public PrependStatement(@Nonnull JStatementList block, @Nonnull JStatement statement) {
-    assert block != null;
+  /**
+   * Constructor specifying the {@code statement} to add at the beginning of the given
+   * {@code statements} list.
+   *
+   * @param statements the list of statements to update
+   * @param statement the new statement to add at the beginning of the list of statements
+   */
+  public PrependStatement(@Nonnull JStatementList statements, @Nonnull JStatement statement) {
+    assert statements != null;
     assert statement != null;
 
-    this.stmtList = block;
+    this.stmtList = statements;
     this.statement = statement;
   }
+
 
   @Override
   public void apply() throws UnsupportedOperationException {

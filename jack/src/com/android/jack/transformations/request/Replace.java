@@ -22,8 +22,8 @@ import com.android.sched.transform.TransformStep;
 import javax.annotation.Nonnull;
 
 /**
- * A {@code TransformationStep} allowing to replace one existing {@code JNode} with a new
- * {@code JNode}.
+ * A {@link TransformationStep} allowing to replace one existing {@link JNode} with a new
+ * {@link JNode}.
  */
 public class Replace implements TransformationStep, TransformStep {
 
@@ -32,6 +32,12 @@ public class Replace implements TransformationStep, TransformStep {
   @Nonnull
   private final JNode newNode;
 
+  /**
+   * Constructor specifying the existing node to replace with the new node.
+   *
+   * @param existingNode the node to replace
+   * @param newNode the new node that replaces the existing node
+   */
   public Replace(@Nonnull JNode existingNode, @Nonnull JNode newNode) {
     assert existingNode != null;
     assert newNode != null;

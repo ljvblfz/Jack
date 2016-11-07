@@ -23,8 +23,8 @@ import com.android.sched.transform.TransformStep;
 import javax.annotation.Nonnull;
 
 /**
- * A {@code TransformationStep} allowing to add a {@code JExpression}
- * as the last argument of a {@code JMethodCall}
+ * A {@link TransformationStep} allowing to add a {@link JExpression}
+ * as the last argument of a {@link JMethodCall}.
  */
 public class AppendArgument implements TransformationStep, TransformStep {
 
@@ -34,6 +34,13 @@ public class AppendArgument implements TransformationStep, TransformStep {
   @Nonnull
   private final JExpression argument;
 
+  /**
+   * Constructor specifying the expression to be added as the last argument of
+   * the method call.
+   *
+   * @param methodCall the method call to update
+   * @param argument the argument to add to the method call
+   */
   public AppendArgument(@Nonnull JMethodCall methodCall, @Nonnull JExpression argument) {
     this.methodCall = methodCall;
     this.argument = argument;

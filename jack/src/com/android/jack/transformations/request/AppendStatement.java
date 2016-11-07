@@ -16,6 +16,7 @@
 
 package com.android.jack.transformations.request;
 
+import com.android.jack.ir.ast.JBlock;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JStatementList;
 import com.android.sched.transform.TransformStep;
@@ -23,8 +24,10 @@ import com.android.sched.transform.TransformStep;
 import javax.annotation.Nonnull;
 
 /**
- * A {@code TransformationStep} allowing to add a {@code JStatement} as the last statement of a
- * {@code JBlock}.
+ * A {@link TransformationStep} allowing to add a {@link JStatement} as the last statement of a
+ * {@link JBlock}.
+ *
+ * @see PrependStatement
  */
 public class AppendStatement implements TransformationStep, TransformStep {
   @Nonnull
@@ -33,6 +36,13 @@ public class AppendStatement implements TransformationStep, TransformStep {
   @Nonnull
   private final JStatement statement;
 
+  /**
+   * Constructor specifying the {@code statement} to add  at the end of the given
+   * {@code statements} list.
+   *
+   * @param statements the list of statements to update
+   * @param statement the new statement to add at the end of the list of statements
+   */
   public AppendStatement(@Nonnull JStatementList statements, @Nonnull JStatement statement) {
     assert statements != null;
     assert statement != null;

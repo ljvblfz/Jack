@@ -23,8 +23,8 @@ import com.android.sched.transform.TransformStep;
 import javax.annotation.Nonnull;
 
 /**
- * A {@code TransformationStep} allowing to add a {@code JMethod}
- * as the last method of a {@code JDeclaredType}
+ * A {@link TransformationStep} allowing to add a {@link JMethod}
+ * as the last method of a {@link JDefinedClassOrInterface}.
  */
 public class AppendMethod implements TransformationStep, TransformStep {
 
@@ -34,6 +34,12 @@ public class AppendMethod implements TransformationStep, TransformStep {
   @Nonnull
   private final JMethod method;
 
+  /**
+   * Constructor specifying the {@code method} to add to the given {@code type}.
+   *
+   * @param type the class or interface to update
+   * @param method the method to add to the class or interface
+   */
   public AppendMethod(@Nonnull JDefinedClassOrInterface type, @Nonnull JMethod method) {
     this.type = type;
     this.method = method;

@@ -23,8 +23,8 @@ import com.android.sched.transform.TransformStep;
 import javax.annotation.Nonnull;
 
 /**
- * A {@code TransformationStep} allowing to change the superclass of a
- * a {@code JDefinedClass} to be a {@code JClass}.
+ * A {@link TransformationStep} allowing to change the superclass of a
+ * a {@link JDefinedClass} to be a {@link JClass}.
  */
 public class ChangeSuperClass implements TransformationStep, TransformStep {
 
@@ -34,6 +34,12 @@ public class ChangeSuperClass implements TransformationStep, TransformStep {
   @Nonnull
   private final JClass superClass;
 
+  /**
+   * Constructor specifying the new super class of a defined class.
+   *
+   * @param definedClass the defined class to be updated
+   * @param superClass the new super class of the defined class
+   */
   public ChangeSuperClass(@Nonnull JDefinedClass definedClass, @Nonnull JClass superClass) {
     this.definedClass = definedClass;
     this.superClass = superClass;

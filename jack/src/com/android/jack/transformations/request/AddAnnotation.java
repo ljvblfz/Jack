@@ -24,7 +24,7 @@ import com.android.sched.transform.TransformStep;
 import javax.annotation.Nonnull;
 
 /**
- * A {@code TransformationStep} allowing to add a {@link JAnnotation}
+ * A {@link TransformationStep} allowing to add a {@link JAnnotation}
  * as an annotation of a {@link Annotable}.
  */
 public class AddAnnotation implements TransformationStep, TransformStep {
@@ -33,6 +33,13 @@ public class AddAnnotation implements TransformationStep, TransformStep {
   @Nonnull
   private final Annotable annotable;
 
+  /**
+   * Constructor specifying the {@link JAnnotation} to add on the {@link Annotable}
+   * object.
+   *
+   * @param annotation the annotation to add
+   * @param annotable the object to annotate
+   */
   public AddAnnotation(@Nonnull JAnnotation annotation, @Nonnull Annotable annotable) {
     this.annotation = annotation;
     this.annotable = annotable;

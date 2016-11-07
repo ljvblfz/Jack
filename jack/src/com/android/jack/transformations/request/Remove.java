@@ -22,13 +22,18 @@ import com.android.sched.transform.TransformStep;
 import javax.annotation.Nonnull;
 
 /**
- * A {@code TransformationStep} allowing to remove one {@code JNode}.
+ * A {@link TransformationStep} allowing to remove one {@link JNode}.
  */
 public class Remove implements TransformationStep, TransformStep {
 
   @Nonnull
   private final JNode node;
 
+  /**
+   * Constructor specifying the node to remove from its parent.
+   *
+   * @param node the node to remove
+   */
   public Remove(@Nonnull JNode node) {
     assert node != null;
     this.node = node;

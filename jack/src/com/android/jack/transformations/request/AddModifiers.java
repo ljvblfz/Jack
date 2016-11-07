@@ -22,8 +22,9 @@ import com.android.sched.transform.TransformStep;
 import javax.annotation.Nonnull;
 
 /**
- * A {@code TransformationStep} allowing to add modifiers
- * to a {@link HasModifier}.
+ * A {@link TransformationStep} allowing to add modifiers to a {@link HasModifier}.
+ *
+ * @see RemoveModifiers
  */
 public class AddModifiers implements TransformationStep, TransformStep {
   @Nonnull
@@ -31,6 +32,12 @@ public class AddModifiers implements TransformationStep, TransformStep {
 
   private final int toAdd;
 
+  /**
+   * Constructor specifying the modifiers to add to the {@link HasModifier} instance.
+   *
+   * @param hasModifier the object whose modifiers will be updated
+   * @param toAdd the modifiers to add to the object
+   */
   public AddModifiers(@Nonnull HasModifier hasModifier, int toAdd) {
     this.hasModifier = hasModifier;
     this.toAdd = toAdd;
