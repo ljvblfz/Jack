@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 @SuppressFBWarnings("NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR")
@@ -67,9 +68,8 @@ public class GraphUtilsTests {
   public void test001() {
     //   ENTRY
     //     |
-    //     A <-+
-    //     |\  |
-    //     | \-+
+    //     A
+    //     |
     //    EXIT
     Graph<TestNode> graph = buildGraph(
         Edge.makeEdge(ENTRY_NAME, "A"),
@@ -82,7 +82,12 @@ public class GraphUtilsTests {
 
   @Test
   public void test001Bis() {
-    // Same than test001 with A being its own predecessor.
+    //   ENTRY
+    //     |
+    //     A <-+
+    //     |\  |
+    //     | \-+
+    //    EXIT
     Graph<TestNode> graph = buildGraph(
         Edge.makeEdge(ENTRY_NAME, "A"),
         Edge.makeEdge("A", "A"),
@@ -130,7 +135,7 @@ public class GraphUtilsTests {
         );
     List<TestNode> orderNodes = GraphUtils.getNodesInPostOrder(graph);
     Assert.assertEquals(graph.getNodes().size(), orderNodes.size());
-    Assert.assertEquals("CBA", getNodesAsString(orderNodes));
+    Assert.assertEquals("BCA", getNodesAsString(orderNodes));
   }
 
   @Test
@@ -153,7 +158,7 @@ public class GraphUtilsTests {
         );
     List<TestNode> orderNodes = GraphUtils.getNodesInPostOrder(graph);
     Assert.assertEquals(graph.getNodes().size(), orderNodes.size());
-    Assert.assertEquals("BCA", getNodesAsString(orderNodes));
+    Assert.assertEquals("CBA", getNodesAsString(orderNodes));
   }
 
   @Test
@@ -177,7 +182,7 @@ public class GraphUtilsTests {
         );
     List<TestNode> orderNodes = GraphUtils.getNodesInPostOrder(graph);
     Assert.assertEquals(graph.getNodes().size(), orderNodes.size());
-    Assert.assertEquals("DCBA", getNodesAsString(orderNodes));
+    Assert.assertEquals("DBCA", getNodesAsString(orderNodes));
   }
 
   @Test
@@ -203,7 +208,7 @@ public class GraphUtilsTests {
         );
     List<TestNode> orderNodes = GraphUtils.getNodesInPostOrder(graph);
     Assert.assertEquals(graph.getNodes().size(), orderNodes.size());
-    Assert.assertEquals("DBCA", getNodesAsString(orderNodes));
+    Assert.assertEquals("DCBA", getNodesAsString(orderNodes));
   }
 
   @Test
@@ -241,7 +246,7 @@ public class GraphUtilsTests {
         );
     List<TestNode> orderNodes = GraphUtils.getNodesInPostOrder(graph);
     Assert.assertEquals(graph.getNodes().size(), orderNodes.size());
-    Assert.assertEquals("HGECFDBA", getNodesAsString(orderNodes));
+    Assert.assertEquals("HGEFDBCA", getNodesAsString(orderNodes));
   }
 
   @Test
@@ -268,10 +273,37 @@ public class GraphUtilsTests {
         );
     List<TestNode> orderNodes = GraphUtils.getNodesInPostOrder(graph);
     Assert.assertEquals(graph.getNodes().size(), orderNodes.size());
-    Assert.assertEquals("CDBA", getNodesAsString(orderNodes));
+    Assert.assertEquals("DBCA", getNodesAsString(orderNodes));
   }
 
-  private static String getNodesAsString(List<TestNode> nodes) {
+  @Test
+  public void test007() {
+    // A CFG where one successor (C) branches to another one (B) that may have been processed
+    // already.
+    //
+    //   ENTRY
+    //     |
+    //     A
+    //    / \
+    //   /   \
+    //  B <-- C
+    //   \   /
+    //   EXIT
+    Graph<TestNode> graph = buildGraph(
+        Edge.makeEdge(ENTRY_NAME, "A"),
+        Edge.makeEdge("A", "B"),
+        Edge.makeEdge("A", "C"),
+        Edge.makeEdge("B", EXIT_NAME),
+        Edge.makeEdge("C", "B"),
+        Edge.makeEdge("C", EXIT_NAME)
+        );
+    List<TestNode> orderNodes = GraphUtils.getNodesInPostOrder(graph);
+    Assert.assertEquals(graph.getNodes().size(), orderNodes.size());
+    Assert.assertEquals("BCA", getNodesAsString(orderNodes));
+  }
+
+  @Nonnull
+  private static String getNodesAsString(@Nonnull List<TestNode> nodes) {
     StringBuilder sb = new StringBuilder();
     for (TestNode n : nodes) {
       sb.append(n.toString());
@@ -279,7 +311,8 @@ public class GraphUtilsTests {
     return sb.toString();
   }
 
-  private static Graph<TestNode> buildGraph(Edge... edges) {
+  @Nonnull
+  private static Graph<TestNode> buildGraph(@Nonnull Edge... edges) {
     // Build nodes
     Map<String, TestNode> idToNode = new HashMap<String, GraphUtilsTests.TestNode>();
     for (Edge e : edges) {
@@ -296,7 +329,7 @@ public class GraphUtilsTests {
       assert fromNode != null;
       assert toNode != null;
 
-      fromNode.addSuccessor(fromNode.getSuccessors().size(), toNode);
+      fromNode.addSuccessor(toNode);
     }
 
     // Remove entry and exit from the map since they're special nodes.
@@ -310,14 +343,19 @@ public class GraphUtilsTests {
   }
 
   private static class TestNode extends GraphNode<TestNode> {
+    @Nonnull
     private final String name;
 
-    public TestNode(String name) {
+    @Nonnegative
+    private int nextSuccessorIndex = 0;
+
+    public TestNode(@Nonnull String name) {
       super(0);
       this.name = name;
     }
 
     @Override
+    @Nonnull
     public String toString() {
       return name;
     }
@@ -328,22 +366,25 @@ public class GraphUtilsTests {
       return successors;
     }
 
-    @Override
-    public void addSuccessor(int index, TestNode successor) {
-      super.addSuccessor(index, successor);
+    public void addSuccessor(@Nonnull TestNode successor) {
+      super.addSuccessor(nextSuccessorIndex++, successor);
     }
   }
 
   private static class Edge {
+    @Nonnull
     String from;
+
+    @Nonnull
     String to;
 
-    private Edge(String from, String to) {
+    private Edge(@Nonnull String from, @Nonnull String to) {
       this.from = from;
       this.to = to;
     }
 
-    public static Edge makeEdge(String from, String to) {
+    @Nonnull
+    public static Edge makeEdge(@Nonnull String from, @Nonnull String to) {
       return new Edge(from, to);
     }
   }
