@@ -24,9 +24,11 @@ import com.android.jack.util.graph.GraphUtils;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.config.ConfigurationException;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.findbugs.SuppressFBWarnings;
 
 import junit.framework.Assert;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -37,15 +39,25 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
+@SuppressFBWarnings("NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR")
 public class GraphUtilsTests {
+
+  @Nonnull
+  private static RunnableHooks hooks;
 
   @BeforeClass
   public static void setUpClass() throws ConfigurationException, IllegalOptionsException {
     Options options = new Options();
-    RunnableHooks hooks = new RunnableHooks();
+    hooks = new RunnableHooks();
     options.checkValidity(hooks);
     options.getConfigBuilder(hooks).getCodecContext().setDebug();
     ThreadConfig.setConfig(options.getConfig());
+  }
+
+  @AfterClass
+  public static void tearDownClass() {
+    hooks.runHooks();
+    ThreadConfig.unsetConfig();
   }
 
   private static final String ENTRY_NAME = "ENTRY";
