@@ -24,6 +24,7 @@ import com.android.jack.cfg.BasicBlock;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVariableRef;
+import com.android.sched.schedulable.Constraint;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,9 +33,10 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 /**
- * Helpers related to optimizations.
+ * Helpers related to optimizations about def/uses and use/defs chains.
  */
-public class OptimizationTools {
+@Constraint(need = {ReachingDefsMarker.class, UseDefsMarker.class, UsedVariableMarker.class})
+public class DefsAndUsesChainOptimizationTools {
 
   @Nonnull
   public static List<DefinitionMarker> getReachingDefs(@Nonnull BasicBlock bb) {
