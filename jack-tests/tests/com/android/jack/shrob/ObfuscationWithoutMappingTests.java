@@ -291,4 +291,37 @@ public class ObfuscationWithoutMappingTests extends AbstractTest {
           + "used"));
     }
   }
+
+  @Test
+  @Runtime
+  public void test64_001() throws Exception {
+    RuntimeTestInfo runtimeTestInfo = new RuntimeTestInfo(
+        new File(shrobTestsDir, "test064"),
+        "com.android.jack.shrob.test064.dx.Tests");
+    runtimeTestInfo.addProguardFlagsFileName("proguard.flags001");
+    new RuntimeTestHelper(runtimeTestInfo).compileAndRunTest(/* checkStructure = */ false);
+  }
+
+  @Test
+  @Runtime
+  public void test64_002() throws Exception {
+    String testPackageName = "com.android.jack.shrob.test064";
+    File testFolder = AbstractTestTools.getTestRootDir(testPackageName);
+    File proguardFlagsFile = new File(testFolder, "proguard.flags002");
+    ByteArrayOutputStream errOut = new ByteArrayOutputStream();
+
+    try {
+      IToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+      toolchain.setErrorStream(errOut);
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+          .addProguardFlags(proguardFlagsFile).srcToExe(AbstractTestTools.createTempDir(),
+              /* zipFile = */false, AbstractTestTools.getTestRootDir(testPackageName + ".jack"));
+      Assert.fail();
+    } catch (JackAbortException jae) {
+      Assert.assertTrue(jae.getCause() instanceof MappingContextException);
+      String errString = errOut.toString();
+      Assert.assertTrue(errString.contains("could not be renamed to 'a' since the name was already "
+          + "used"));
+    }
+  }
 }
