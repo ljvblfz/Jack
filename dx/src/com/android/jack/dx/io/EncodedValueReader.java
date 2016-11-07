@@ -70,20 +70,20 @@ public class EncodedValueReader {
       case VALUE_LONG:
       case VALUE_FLOAT:
       case VALUE_DOUBLE:
-        visitPrimitive(argAndType, type, arg, size);
+        visitPrimitive(type, arg, size);
         break;
       case VALUE_STRING:
-        visitString(type, readIndex(in, size));
+        visitString(readIndex(in, size));
         break;
       case VALUE_TYPE:
-        visitType(type, readIndex(in, size));
+        visitType(readIndex(in, size));
         break;
       case VALUE_FIELD:
       case VALUE_ENUM:
         visitField(type, readIndex(in, size));
         break;
       case VALUE_METHOD:
-        visitMethod(type, readIndex(in, size));
+        visitMethod(readIndex(in, size));
         break;
       case VALUE_ARRAY:
         visitArrayValue(argAndType);
@@ -110,19 +110,19 @@ public class EncodedValueReader {
 
   protected void visitAnnotationName(int nameIndex) {}
 
-  protected void visitPrimitive(int argAndType, int type, int arg, int size) {
+  protected void visitPrimitive(int type, int arg, int size) {
     for (int i = 0; i < size; i++) {
       in.readByte();
     }
   }
 
-  protected void visitString(int type, int index) {}
+  protected void visitString(int index) {}
 
-  protected void visitType(int type, int index) {}
+  protected void visitType(int index) {}
 
   protected void visitField(int type, int index) {}
 
-  protected void visitMethod(int type, int index) {}
+  protected void visitMethod(int index) {}
 
   protected void visitArrayValue(int argAndType) {}
 

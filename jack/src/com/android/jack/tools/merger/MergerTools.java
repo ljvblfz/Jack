@@ -85,7 +85,7 @@ public class MergerTools {
     }
 
     @Override
-    protected void visitString(int type, int index) {
+    protected void visitString(int index) {
       addConstant(new CstString(dex.strings().get(index)));
     }
 
@@ -121,17 +121,17 @@ public class MergerTools {
 
 
     @Override
-    protected void visitMethod(int type, int index) {
+    protected void visitMethod(int index) {
       throw new AssertionError("Unsupported encoded value.");
     }
 
     @Override
-    protected void visitType(int type, int index) {
+    protected void visitType(int index) {
       throw new AssertionError("Unsupported encoded value.");
     }
 
     @Override
-    protected void visitPrimitive(int argAndType, int type, int arg, int size) {
+    protected void visitPrimitive(int type, int arg, int size) {
       addConstant(createConstant(in, type, arg));
     }
 

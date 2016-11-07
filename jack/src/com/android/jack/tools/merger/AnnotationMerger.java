@@ -168,7 +168,7 @@ public class AnnotationMerger extends MergerTools {
     }
 
     @Override
-    protected void visitString(int type, int index) {
+    protected void visitString(int index) {
       assert cstIndexMap != null;
       constantValue = cstIndexMap.getCstString(index);
     }
@@ -249,19 +249,19 @@ public class AnnotationMerger extends MergerTools {
 
 
     @Override
-    protected void visitMethod(int type, int index) {
+    protected void visitMethod(int index) {
       assert cstIndexMap != null;
       constantValue = cstIndexMap.getCstMethodRef(index);
     }
 
     @Override
-    protected void visitType(int type, int index) {
+    protected void visitType(int index) {
       assert cstIndexMap != null;
       constantValue = cstIndexMap.getCstType(index);
     }
 
     @Override
-    protected void visitPrimitive(int argAndType, int type, int arg, int size) {
+    protected void visitPrimitive(int type, int arg, int size) {
       constantValue = MergerTools.createConstant(in, type, arg);
     }
   }
