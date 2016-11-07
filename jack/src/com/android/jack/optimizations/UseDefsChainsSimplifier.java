@@ -110,7 +110,8 @@ public class UseDefsChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
 
       // Copy variable used by s1 to update the list during the visit
       for (JVariableRef varRefOfa : varsUsedBys1.toArray(new JVariableRef[varsUsedBys1.size()])) {
-        List<DefinitionMarker> defsOfa = DefsAndUsesChainOptimizationTools.getUsedDefinitions(varRefOfa);
+        List<DefinitionMarker> defsOfa =
+            DefsAndUsesChainOptimizationTools.getUsedDefinitions(varRefOfa);
 
         // Condition(0)
         if (defsOfa.size() == 1) {
@@ -128,8 +129,8 @@ public class UseDefsChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
             JVariableRef newVarRefb = getNewVarRef(varRefb, varRefOfa.getSourceInfo());
 
             UseDefsMarker udmOfNewVarRefb = new UseDefsMarker();
-            udmOfNewVarRefb.addUsedDefinitions(DefsAndUsesChainOptimizationTools.getUsedDefinitions(varRefb),
-                newVarRefb);
+            udmOfNewVarRefb.addUsedDefinitions(
+                DefsAndUsesChainOptimizationTools.getUsedDefinitions(varRefb), newVarRefb);
             newVarRefb.addMarker(udmOfNewVarRefb);
 
             varsUsedBys1.add(newVarRefb);
@@ -167,7 +168,8 @@ public class UseDefsChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
         }
       } else {
         // Condition (3)
-        List<DefinitionMarker> defsOfbUseFroms0 = DefsAndUsesChainOptimizationTools.getUsedDefinitions(varRefb);
+        List<DefinitionMarker> defsOfbUseFroms0 =
+            DefsAndUsesChainOptimizationTools.getUsedDefinitions(varRefb);
         if (defsOfbUseFroms0.size() == 1 && bbHasOnlyDefinitions(bbOfs1, b, defsOfbUseFroms0)
             && !hasLocalDef(b, bbOfs1, null, s1)) {
           return true;
