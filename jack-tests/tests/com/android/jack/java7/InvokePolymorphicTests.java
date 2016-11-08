@@ -52,6 +52,10 @@ public class InvokePolymorphicTests {
       AbstractTestTools.getTestRootDir("com.android.jack.java7.invokepolymorphic.test005"),
       "com.android.jack.java7.invokepolymorphic.test005.Tests").setSrcDirName("");
 
+  private RuntimeTestInfo INVOKE_POLYMORPHIC_006 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java7.invokepolymorphic.test006"),
+      "com.android.jack.java7.invokepolymorphic.test006.Tests").setSrcDirName("");
+
   @Test
   @Runtime
   @KnownIssue
@@ -85,6 +89,13 @@ public class InvokePolymorphicTests {
   @KnownIssue
   public void testInvokePolymorphic005() throws Exception {
     run(INVOKE_POLYMORPHIC_005);
+  }
+
+  @Test
+  @Runtime
+  @KnownIssue
+  public void testInvokePolymorphic006() throws Exception {
+    run(INVOKE_POLYMORPHIC_006);
   }
 
   private void run(@Nonnull RuntimeTestInfo rti) throws Exception {
