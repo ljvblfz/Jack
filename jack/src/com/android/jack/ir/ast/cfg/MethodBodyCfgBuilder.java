@@ -96,6 +96,7 @@ import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import javax.annotation.Nonnull;
 
 /** Builds a ControlFlowGraph body representation for all methods. */
@@ -178,6 +179,9 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
     /** Maps CFG marker blocks into a created basic blocks or a placeholder */
     @Nonnull
     private final Map<BasicBlock, JBasicBlock> processed = new IdentityHashMap<>();
+    /** Processing queue */
+    @Nonnull
+    private final Stack<BasicBlock> queue = new Stack<>();
     /** Maps all basic block elements into original statements */
     @Nonnull
     private final Map<JBasicBlockElement, JStatement> bbElements = new IdentityHashMap<>();
@@ -190,9 +194,38 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
 
     void build() {
       assert entry.getSuccessors().size() == 1;
-      JBasicBlock block = buildBlock(entry.getSuccessors().get(0));
+      BasicBlock firstBlock = entry.getSuccessors().get(0);
+
+      getBlockOrEnqueue(firstBlock);
+      while (!queue.isEmpty()) {
+        buildBlock(queue.pop());
+      }
+
+      JBasicBlock block = getBlockOrEnqueue(firstBlock);
+      assert !(block instanceof JPlaceholderBasicBlock);
       cfg.getEntryBlock().replaceAllSuccessors(cfg.getExitBlock(), block);
       setUpCatchBlockReferences();
+    }
+
+    /**
+     * Gets the block created to represent the cfg marker block, or enqueue it to
+     * process and return a placeholder.
+     */
+    private JBasicBlock getBlockOrEnqueue(@Nonnull BasicBlock block) {
+      if (block == exit) {
+        return cfg.getExitBlock();
+      }
+
+      JBasicBlock newBlock = processed.get(block);
+      if (newBlock != null) {
+        return newBlock;
+      }
+
+      // Create a placeholder pseudo-block
+      JPlaceholderBasicBlock placeholder = new JPlaceholderBasicBlock(cfg);
+      processed.put(block, placeholder);
+      queue.push(block);
+      return placeholder;
     }
 
     private void setUpCatchBlockReferences() {
@@ -230,20 +263,14 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
       }
     }
 
-    @Nonnull
-    private JBasicBlock buildBlock(@Nonnull BasicBlock block) {
-      if (block == exit) {
-        return cfg.getExitBlock();
-      }
+    private void buildBlock(@Nonnull BasicBlock block) {
+      assert block != exit;
+      assert block != entry;
 
-      JBasicBlock newBlock = processed.get(block);
-      if (newBlock != null) {
-        return newBlock;
-      }
+      JBasicBlock placeholder = processed.get(block);
+      assert placeholder instanceof JPlaceholderBasicBlock;
 
-      // Create an under-construction pseudo-block
-      JPlaceholderBasicBlock placeholderBlock = new JPlaceholderBasicBlock(cfg);
-      processed.put(block, placeholderBlock);
+      JBasicBlock newBlock;
 
       // Process each kind of CFG marker blocks
       if (block instanceof PeiBasicBlock) {
@@ -255,16 +282,16 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
             (block instanceof ThrowBasicBlock)
                 ? new JThrowBasicBlock(cfg)
                 : new JThrowingExpressionBasicBlock(cfg,
-                    buildBlock(successors.get(index++)));
+                    getBlockOrEnqueue(successors.get(index++)));
 
         // Build uncaught exception block (which should be CFGs exit block)
-        JBasicBlock uncaughtExceptionBlock = buildBlock(successors.get(index++));
+        JBasicBlock uncaughtExceptionBlock = getBlockOrEnqueue(successors.get(index++));
         assert uncaughtExceptionBlock == cfg.getExitBlock();
 
         for (; index < successors.size(); index++) {
           // Build the catch block, note that catch blocks will be assigned later
           // when block elements are initialized with their exception handling context
-          buildBlock(successors.get(index));
+          getBlockOrEnqueue(successors.get(index));
         }
         newBlock = throwingBlock;
 
@@ -272,9 +299,9 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
         SwitchBasicBlock switchBasicBlock = (SwitchBasicBlock) block;
 
         JSwitchBasicBlock switchBlock =
-            new JSwitchBasicBlock(cfg, buildBlock(switchBasicBlock.getDefaultBlock()));
+            new JSwitchBasicBlock(cfg, getBlockOrEnqueue(switchBasicBlock.getDefaultBlock()));
         for (BasicBlock caseBlock : switchBasicBlock.getCasesBlock()) {
-          switchBlock.addCase(buildBlock(caseBlock));
+          switchBlock.addCase(getBlockOrEnqueue(caseBlock));
         }
         newBlock = switchBlock;
 
@@ -282,14 +309,14 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
         List<BasicBlock> successors = block.getSuccessors();
         assert successors.size() == 2;
         newBlock = new JConditionalBasicBlock(cfg,
-            buildBlock(successors.get(0)), buildBlock(successors.get(1)));
+            getBlockOrEnqueue(successors.get(0)), getBlockOrEnqueue(successors.get(1)));
 
       } else if (block instanceof CatchBasicBlock) {
         List<BasicBlock> successors = block.getSuccessors();
         assert successors.size() == 1;
         CatchBasicBlock catchBlock = (CatchBasicBlock) block;
         newBlock = new JCatchBasicBlock(cfg,
-            buildBlock(successors.get(0)), catchBlock.getCatchTypes());
+            getBlockOrEnqueue(successors.get(0)), catchBlock.getCatchTypes());
 
       } else if (block instanceof ReturnBasicBlock) {
         List<BasicBlock> successors = block.getSuccessors();
@@ -297,16 +324,15 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
         newBlock = new JReturnBasicBlock(cfg);
 
         // Must always point ot the exit block
-        JBasicBlock exitBlock = buildBlock(successors.get(0));
+        JBasicBlock exitBlock = getBlockOrEnqueue(successors.get(0));
         assert exitBlock == cfg.getExitBlock();
 
       } else if (block instanceof NormalBasicBlock) {
         List<BasicBlock> successors = block.getSuccessors();
         assert successors.size() == 1;
-        newBlock = new JSimpleBasicBlock(cfg, buildBlock(successors.get(0)));
-      }
+        newBlock = new JSimpleBasicBlock(cfg, getBlockOrEnqueue(successors.get(0)));
 
-      if (newBlock == null) {
+      } else {
         throw new AssertionError();
       }
 
@@ -345,10 +371,8 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
       }
 
       // Replace temp block with real one and fix-up references
-      placeholderBlock.detach(newBlock);
-
+      placeholder.detach(newBlock);
       processed.put(block, newBlock);
-      return newBlock;
     }
 
     /** Builds all the elements of the basic block */
