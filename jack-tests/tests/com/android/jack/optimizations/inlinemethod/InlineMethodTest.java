@@ -23,6 +23,7 @@ import com.android.jack.test.dex.DexMethod;
 import com.android.jack.test.dex.DexOutputBasedTest;
 import com.android.jack.test.dex.DexTypeMethodsValidator;
 import com.android.jack.test.dex.DexValidator;
+import com.android.jack.test.junit.Runtime;
 
 import junit.framework.Assert;
 
@@ -65,6 +66,7 @@ public class InlineMethodTest extends DexOutputBasedTest {
   }
 
   @Test
+  @Runtime
   public void test001() throws Exception {
     String testPackage = "com.android.jack.optimizations.inlinemethod.test001";
     String annotationPackage = "com.android.jack.annotations";
@@ -84,6 +86,7 @@ public class InlineMethodTest extends DexOutputBasedTest {
   }
 
   @Test
+  @Runtime
   public void test002() throws Exception {
     String testPackage = "com.android.jack.optimizations.inlinemethod.test002";
     String annotationPackage = "com.android.jack.annotations";
@@ -106,6 +109,7 @@ public class InlineMethodTest extends DexOutputBasedTest {
   }
 
   @Test
+  @Runtime
   public void test003() throws Exception {
     String testPackage = "com.android.jack.optimizations.inlinemethod.test003";
     String annotationPackage = "com.android.jack.annotations";
@@ -126,6 +130,7 @@ public class InlineMethodTest extends DexOutputBasedTest {
   }
 
   @Test
+  @Runtime
   public void test004() throws Exception {
     String testPackage = "com.android.jack.optimizations.inlinemethod.test004";
     String[] annotationPackage =
