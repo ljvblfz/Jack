@@ -125,8 +125,8 @@ public class NPolymorphicCall extends NExpression {
         exportSession.getTypeListFromSignatureList(methodArgsType), methodKind, jReturnType);
 
     List<JType> callSiteParameterTypes = new ArrayList<>(callSiteParameterStrTypes.size());
-    for (String superInterface : callSiteParameterStrTypes) {
-      callSiteParameterTypes.add(exportSession.getLookup().getInterface(superInterface));
+    for (String callsiteParameterType : callSiteParameterStrTypes) {
+      callSiteParameterTypes.add(exportSession.getLookup().getType(callsiteParameterType));
     }
 
     JPolymorphicMethodCall pmc = new JPolymorphicMethodCall(sourceInfo,
