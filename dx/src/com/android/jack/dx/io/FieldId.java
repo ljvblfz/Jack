@@ -57,12 +57,6 @@ public final class FieldId implements Comparable<FieldId> {
     return Unsigned.compare(typeIndex, other.typeIndex); // should always be 0
   }
 
-  public void writeTo(DexBuffer.Section out) {
-    out.writeUnsignedShort(declaringClassIndex);
-    out.writeUnsignedShort(typeIndex);
-    out.writeInt(nameIndex);
-  }
-
   @Override
   public String toString() {
     if (buffer == null) {

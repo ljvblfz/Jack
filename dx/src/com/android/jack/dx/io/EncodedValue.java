@@ -37,10 +37,6 @@ public final class EncodedValue implements Comparable<EncodedValue> {
     return data;
   }
 
-  public void writeTo(DexBuffer.Section out) {
-    out.write(data);
-  }
-
   @Override
   public int compareTo(EncodedValue other) {
     int size = Math.min(data.length, other.data.length);
