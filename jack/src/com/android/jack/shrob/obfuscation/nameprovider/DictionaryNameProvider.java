@@ -66,7 +66,7 @@ public class DictionaryNameProvider implements NameProvider {
   private String getNameFromDictionary() {
     assert br != null;
 
-    StringBuffer name = new StringBuffer();
+    StringBuilder name = new StringBuilder();
     int readCharAsInt;
 
     try {

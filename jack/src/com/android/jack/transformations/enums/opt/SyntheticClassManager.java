@@ -360,7 +360,7 @@ public class SyntheticClassManager {
       }
     });
 
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     for (JDefinedEnum sortedEnumType : sortedEnumsType) {
       EnumFieldMarker enumFieldMarker =
           sortedEnumType.getMarker(EnumFieldMarker.class);

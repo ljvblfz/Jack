@@ -133,7 +133,7 @@ public abstract class Dependency {
     for (Map.Entry<String, Set<String>> entry : one2many.entrySet()) {
       ps.print(entry.getKey());
       ps.println();
-      StringBuffer sb = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       sb.append(mapValueJoiner.join(entry.getValue().iterator()));
       ps.print(sb.toString());
       ps.println();

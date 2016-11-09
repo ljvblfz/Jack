@@ -4123,7 +4123,7 @@ public class JackIrBuilder {
   }
 
   static String slashify(char[][] name) {
-    StringBuffer result = new StringBuffer();
+    StringBuilder result = new StringBuilder();
     for (int i = 0; i < name.length; ++i) {
       if (i > 0) {
         result.append('/');
