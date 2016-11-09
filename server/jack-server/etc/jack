@@ -31,34 +31,20 @@ JACK_CONNECTION_TIMEOUT=300
 JACK_EXTRA_CURL_OPTIONS=${JACK_EXTRA_CURL_OPTIONS:=}
 JACK_ASSERTION_ENABLED="${JACK_ASSERTION_ENABLED:=false}"
 
+
+abort () { exit 255; }
+
+
 #
 # Load client settings
 #
 if [ -f "$CLIENT_SETTING" ]; then
   source "$CLIENT_SETTING"
+else
+  echo "Cannot find settings at '$CLIENT_SETTING'" >&2
+  abort
 fi
 
-#
-# Create or update client settings if needed
-#
-if [[ ! -f "$CLIENT_SETTING" || $SETTING_VERSION -lt 4 ]]; then
-  echo "Writing client settings in" $CLIENT_SETTING
-  cat >"$CLIENT_SETTING.$$" <<-EOT
-	# Server settings
-	SERVER_HOST=${SERVER_HOST:=localhost}
-	SERVER_PORT_SERVICE=${SERVER_PORT_SERVICE:=8076}
-	SERVER_PORT_ADMIN=${SERVER_PORT_ADMIN:=8077}
-
-	# Internal, do not touch
-	SETTING_VERSION=4
-EOT
-  ln -f "$CLIENT_SETTING.$$" "$CLIENT_SETTING"
-  rm "$CLIENT_SETTING.$$"
-  source "$CLIENT_SETTING"
-fi
-
-
-abort () { exit 255; }
 
 JACK_SERVER=${JACK_SERVER:=true}
 JACK_MAIN_COMMAND=${JACK_MAIN_COMMAND:="java -Djava.io.tmpdir=$TMPDIR -Dfile.encoding=UTF-8 -XX:+TieredCompilation"}
