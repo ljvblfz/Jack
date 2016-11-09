@@ -84,6 +84,18 @@ public class CoverageToolchainBuilder<T extends JackBasedToolchain> {
   }
 
   /**
+   * Sets coverage scope.
+   *
+   * @param scope the scope of coverage instrumentation (passed through property).
+   * @return this instance
+   */
+  @Nonnull
+  public CoverageToolchainBuilder<T> setScope(@Nonnull String scope) {
+    toolchain.addProperty("jack.coverage.jacoco.scope", scope);
+    return this;
+  }
+
+  /**
    * Applies code coverage configuration to the toolchain. It returns the coverage metadata file
    * that will be produced by the compilation.
    *

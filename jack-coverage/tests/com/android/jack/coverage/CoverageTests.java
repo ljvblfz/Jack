@@ -248,6 +248,67 @@ public class CoverageTests extends CoverageTest {
   }
 
   @Test
+  public void testScope_SourceOnly() throws Exception {
+    String testPackageName = getTestPackageName("test004");
+    JsonArray classes = runTestScope("source", testPackageName);
+
+    Assert.assertEquals(1, classes.size());
+    JsonObject srcClass = getJsonClass(classes,
+        getClassNameForJson(testPackageName + ".src.SrcClass"));
+    Assert.assertNotNull(srcClass);
+    Assert.assertNotNull(srcClass.get("probes").getAsJsonArray());
+  }
+
+  @Test
+  public void testScope_ImportsOnly() throws Exception {
+    String testPackageName = getTestPackageName("test004");
+    JsonArray classes = runTestScope("imports", testPackageName);
+
+    Assert.assertEquals(1, classes.size());
+    JsonObject libClass = getJsonClass(classes,
+        getClassNameForJson(testPackageName + ".lib.LibClass"));
+    Assert.assertNotNull(libClass);
+    Assert.assertNotNull(libClass.get("probes").getAsJsonArray());
+  }
+
+  @Test
+  public void testScope_All() throws Exception {
+    String testPackageName = getTestPackageName("test004");
+    JsonArray classes = runTestScope("all", testPackageName);
+
+    Assert.assertEquals(2, classes.size());
+    JsonObject srcClass = getJsonClass(classes,
+        getClassNameForJson(testPackageName + ".src.SrcClass"));
+    Assert.assertNotNull(srcClass);
+    Assert.assertNotNull(srcClass.get("probes").getAsJsonArray());
+    JsonObject libClass = getJsonClass(classes,
+        getClassNameForJson(testPackageName + ".lib.LibClass"));
+    Assert.assertNotNull(libClass);
+    Assert.assertNotNull(libClass.get("probes").getAsJsonArray());
+  }
+
+  private JsonArray runTestScope(@Nonnull String scope, @Nonnull String testPackageName)
+      throws Exception {
+    // Create a lib.
+    JackBasedToolchain toolchain = createJackToolchain();
+    File libDir = AbstractTestTools.createTempDir();
+    File libSrcFiles = new File(getTestRootDir(testPackageName), "lib");
+    toolchain.srcToLib(libDir, false, libSrcFiles);
+
+    // Compile sources and the lib with coverage.
+    toolchain = createJackToolchain();
+    toolchain.addStaticLibs(libDir);
+    File coverageMetadataFile = CoverageToolchainBuilder.create(toolchain)
+        .setScope(scope)
+        .build();
+    File srcFiles = new File(getTestRootDir(testPackageName), "src");
+    File outDexFolder = AbstractTestTools.createTempDir();
+    toolchain.srcToExe(outDexFolder, false, srcFiles);
+
+    return loadJsonCoverageClasses(coverageMetadataFile);
+  }
+
+  @Test
   public void testImportLibrary_NoPredexing() throws Exception {
     runTestImportLibrary(false);
   }
