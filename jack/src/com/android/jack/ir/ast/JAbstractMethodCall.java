@@ -181,6 +181,8 @@ public abstract class JAbstractMethodCall extends JExpression {
     return methodId.getName();
   }
 
+  public abstract boolean isCallToPolymorphicMethod();
+
   static boolean isCallToPolymorphicMethod(@Nonnull JClassOrInterface receiverType,
       @Nonnull JMethodIdWide methodId, @Nonnull JType returnType) {
     UserFriendlyFormatter formatter = UserFriendlyFormatter.getFormatter();

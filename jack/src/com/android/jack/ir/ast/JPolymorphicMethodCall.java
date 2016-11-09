@@ -103,4 +103,9 @@ public class JPolymorphicMethodCall extends JAbstractMethodCall {
           "Number of method call arguments does not match the number of call site parameters");
     }
   }
+
+  @Override
+  public boolean isCallToPolymorphicMethod() {
+    return true;
+  }
 }

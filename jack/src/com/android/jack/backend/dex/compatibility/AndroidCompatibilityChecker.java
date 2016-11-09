@@ -25,10 +25,13 @@ import com.android.jack.config.id.Carnac;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JMethodCall;
+import com.android.jack.ir.ast.JPolymorphicMethodCall;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.reporting.Reportable;
+import com.android.jack.reporting.Reporter;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.InvalidDefaultBridgeInInterfaceRemoved;
@@ -79,6 +82,27 @@ public class AndroidCompatibilityChecker implements RunnableSchedulable<JMethod>
   @Nonnull
   private final JSession session = Jack.getSession();
 
+  private class UsedInvokePolymorphicVisitor extends JVisitor {
+    @Nonnull
+    Reporter reporter = session.getReporter();
+
+    @Override
+    public boolean visit(@Nonnull JPolymorphicMethodCall polymorphicMethodCall) {
+      reporter.report(Severity.NON_FATAL, new InvokePolymorphicReportable(polymorphicMethodCall));
+      session.abortEventually();
+      return true;
+    }
+
+    @Override
+    public boolean visit(@Nonnull JMethodCall methodCall) {
+      if (methodCall.isCallToPolymorphicMethod()) {
+        reporter.report(Severity.NON_FATAL, new InvokePolymorphicReportable(methodCall));
+        session.abortEventually();
+      }
+      return true;
+    }
+  }
+
   private class SerializableLambdaVisitor extends JVisitor {
 
     @Override
@@ -119,6 +143,18 @@ public class AndroidCompatibilityChecker implements RunnableSchedulable<JMethod>
     if (!m.isNative() && !m.isAbstract() && filter.accept(this.getClass(), m)) {
       SerializableLambdaVisitor visitor = new SerializableLambdaVisitor();
       visitor.accept(m);
+    }
+
+    switch (androidMinApiLevel.getProvisionalLevel()) {
+      case O_BETA1:
+      case O_BETA2: {
+        // invoke to method with polymorphic signature is supported
+        break;
+      }
+      default: {
+        UsedInvokePolymorphicVisitor visitor = new UsedInvokePolymorphicVisitor();
+        visitor.accept(m);
+      }
     }
   }
 }
