@@ -26,7 +26,6 @@ JACK_VERSION=${JACK_VERSION:=4.0.ENGINEERING}
 JACK_HOME="${JACK_HOME:=$HOME/.jack-server}"
 JACK_CLIENT_SETTING="${JACK_CLIENT_SETTING:=$HOME/.jack-settings}"
 TMPDIR=${TMPDIR:=/tmp}
-CLIENT_TMP_DIR=$TMPDIR/jack-$USER
 JACK_CONNECTION_TIMEOUT=300
 JACK_EXTRA_CURL_OPTIONS=${JACK_EXTRA_CURL_OPTIONS:=}
 JACK_ASSERTION_ENABLED="${JACK_ASSERTION_ENABLED:=false}"
@@ -76,15 +75,16 @@ fi
 # Prepare compilation
 #
 JACK_PWD="$PWD"
-JACK_DIR="$CLIENT_TMP_DIR/jack-task-$$/"
-JACK_EXIT="$JACK_DIR/exit"
+JACK_EXIT="$TMPDIR/jack-task-$USER-$$-exit"
 
 # Cleanup
-trap 'rm -f "$JACK_EXIT" 2>/dev/null; rmdir "$JACK_DIR";' EXIT
+trap 'rm -f "$JACK_EXIT" 2>/dev/null;' EXIT
 
-mkdir "$CLIENT_TMP_DIR" 2>/dev/null || (exit 0)
 set -o errexit
-mkdir "$JACK_DIR"
+
+# Check that we can create temp file for exit status
+rm -rf "$JACK_EXIT"
+echo "" > "$JACK_EXIT"
 
 #
 # Launch the compilation
@@ -117,7 +117,7 @@ if [ "$BASE64_CHECK" = jack-server ]; then
   HTTP_CODE=$(curl -f $JACK_EXTRA_CURL_OPTIONS \
        --cert "${JACK_HOME}/client.pem" \
        --cacert "${JACK_HOME}/server.pem" \
-       --output >(tee >(sed -n -e 's/^E|\(.*\)$/\1/p' | base64 --decode >&4 ) | tee >(sed -n -e 's/^X|\(.*\)$/\1/p' >$JACK_EXIT) | sed -n -e 's/^O|\(.*\)$/\1/p' | base64 --decode >&3) \
+       --output >(tee >(sed -n -e 's/^E|\(.*\)$/\1/p' | base64 --decode >&4 ) | tee >(sed -n -e 's/^X|\(.*\)$/\1/p' >>$JACK_EXIT) | sed -n -e 's/^O|\(.*\)$/\1/p' | base64 --decode >&3) \
        --no-buffer --write-out '%{http_code}' --silent --connect-timeout $JACK_CONNECTION_TIMEOUT \
        -X POST \
        -H "Accept: application/vnd.jack.command-out-base64;version=1;charset=$CURRENT_CHARSET" \
@@ -132,7 +132,7 @@ else
   HTTP_CODE=$(curl -f $JACK_EXTRA_CURL_OPTIONS \
        --cert "${JACK_HOME}/client.pem" \
        --cacert "${JACK_HOME}/server.pem" \
-       --output >(tee >(sed -n -e 's/^E|\(.*\)$/\1/p' >&4 ) | tee >(sed -n -e 's/^X|\(.*\)$/\1/p' >$JACK_EXIT) | sed -n -e 's/^O|\(.*\)$/\1/p' >&3) \
+       --output >(tee >(sed -n -e 's/^E|\(.*\)$/\1/p' >&4 ) | tee >(sed -n -e 's/^X|\(.*\)$/\1/p' >>$JACK_EXIT) | sed -n -e 's/^O|\(.*\)$/\1/p' >&3) \
        --no-buffer --write-out '%{http_code}' --silent --connect-timeout $JACK_CONNECTION_TIMEOUT \
        -X POST \
        -H "Accept: application/vnd.jack.command-out;version=1;charset=$CURRENT_CHARSET" \
@@ -147,9 +147,12 @@ fi
 CURL_CODE=$?
 exec 3>&-
 exec 4>&-
-JACK_CODE=$(cat "$JACK_EXIT")
+
+set -o errexit
+
 if [ $CURL_CODE -eq 0 ]; then
   # No problem, let's go
+  JACK_CODE=$(cat "$JACK_EXIT")
   exit $JACK_CODE
 elif [ $CURL_CODE -eq 7 ]; then
   # Failed to connect
