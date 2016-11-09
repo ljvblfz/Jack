@@ -22,7 +22,7 @@ set -o nounset
 # Settings
 #
 JACK_HOME="${JACK_HOME:=$HOME/.jack-server}"
-CLIENT_SETTING="${CLIENT_SETTING:=$HOME/.jack-settings}"
+JACK_CLIENT_SETTING="${JACK_CLIENT_SETTING:=$HOME/.jack-settings}"
 TMPDIR=${TMPDIR:=/tmp}
 
 LAUNCHER_JAR="$JACK_HOME/launcher.jar"
@@ -41,8 +41,8 @@ JACK_CONNECTION_TIMEOUT=300
 #
 # Load client settings
 #
-if [ -f "$CLIENT_SETTING" ]; then
-  source "$CLIENT_SETTING"
+if [ -f "$JACK_CLIENT_SETTING" ]; then
+  source "$JACK_CLIENT_SETTING"
 fi
 
 
@@ -138,12 +138,12 @@ checkport() {
   fi
 
   if ! echo $PS_OUT | grep -q $LAUNCHER_NAME  ; then
-    echo "Port $1 is used by another process (pid=$(echo $PS_OUT | awk '{print $1}')), please ensure to free the port or change port configuration in '$CLIENT_SETTING' and '$JACK_HOME/config.properties'"
+    echo "Port $1 is used by another process (pid=$(echo $PS_OUT | awk '{print $1}')), please ensure to free the port or change port configuration in '$JACK_CLIENT_SETTING' and '$JACK_HOME/config.properties'"
     return 255
   fi
 
   if [ "$(echo $PS_OUT | awk '{print $2}')" -ne "$(id -u)" ] ; then
-    echo "Port $1 is used b a Jack server from another user uid=$(echo $PS_OUT | awk '{print $2}'), please change port configuration in '$CLIENT_SETTING' and '$JACK_HOME/config.properties'"
+    echo "Port $1 is used b a Jack server from another user uid=$(echo $PS_OUT | awk '{print $2}'), please change port configuration in '$JACK_CLIENT_SETTING' and '$JACK_HOME/config.properties'"
     return 255
   fi
 }

@@ -24,7 +24,7 @@ umask 077
 #
 JACK_VERSION=${JACK_VERSION:=4.0.ENGINEERING}
 JACK_HOME="${JACK_HOME:=$HOME/.jack-server}"
-CLIENT_SETTING="${CLIENT_SETTING:=$HOME/.jack-settings}"
+JACK_CLIENT_SETTING="${JACK_CLIENT_SETTING:=$HOME/.jack-settings}"
 TMPDIR=${TMPDIR:=/tmp}
 CLIENT_TMP_DIR=$TMPDIR/jack-$USER
 JACK_CONNECTION_TIMEOUT=300
@@ -38,10 +38,10 @@ abort () { exit 255; }
 #
 # Load client settings
 #
-if [ -f "$CLIENT_SETTING" ]; then
-  source "$CLIENT_SETTING"
+if [ -f "$JACK_CLIENT_SETTING" ]; then
+  source "$JACK_CLIENT_SETTING"
 else
-  echo "Cannot find settings at '$CLIENT_SETTING'" >&2
+  echo "Cannot find settings at '$JACK_CLIENT_SETTING'" >&2
   abort
 fi
 
