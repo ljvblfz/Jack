@@ -53,16 +53,6 @@ public final class Annotation implements Comparable<Annotation> {
     return values;
   }
 
-  public void writeTo(DexBuffer.Section out) {
-    out.writeByte(visibility);
-    out.writeUleb128(typeIndex);
-    out.writeUleb128(names.length);
-    for (int i = 0; i < names.length; i++) {
-      out.writeUleb128(names[i]);
-      values[i].writeTo(out);
-    }
-  }
-
   @Override
   public int compareTo(Annotation other) {
     if (typeIndex != other.typeIndex) {

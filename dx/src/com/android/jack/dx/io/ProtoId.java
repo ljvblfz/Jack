@@ -54,12 +54,6 @@ public final class ProtoId implements Comparable<ProtoId> {
     return parametersOffset;
   }
 
-  public void writeTo(DexBuffer.Section out) {
-    out.writeInt(shortyIndex);
-    out.writeInt(returnTypeIndex);
-    out.writeInt(parametersOffset);
-  }
-
   @Override
   public String toString() {
     if (buffer == null) {

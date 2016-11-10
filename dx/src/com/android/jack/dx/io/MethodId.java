@@ -57,12 +57,6 @@ public final class MethodId implements Comparable<MethodId> {
     return Unsigned.compare(protoIndex, other.protoIndex);
   }
 
-  public void writeTo(DexBuffer.Section out) {
-    out.writeUnsignedShort(declaringClassIndex);
-    out.writeUnsignedShort(protoIndex);
-    out.writeInt(nameIndex);
-  }
-
   @Override
   public String toString() {
     if (buffer == null) {
