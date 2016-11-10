@@ -17,7 +17,6 @@
 package com.android.jack.optimizations.blockmerger;
 
 import com.android.jack.ir.ast.JAsgOperation;
-import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JNode;
@@ -267,11 +266,11 @@ public class CfgSimpleBasicBlockMerger
           @Nonnull final Map<JLocal, JLocal> substitutions = new HashMap<>();
 
           return new Comparator() {
-            @Override protected void performCommonChecks(@Nonnull JExpression expr) {
-              super.performCommonChecks(expr);
+            @Override protected void performCommonChecks(@Nonnull JNode node) {
+              super.performCommonChecks(node);
               if (preserveSourceInfo) {
                 // Make sure the two nodes have same source info
-                ensure(expr.getSourceInfo().equals(otherOrMe(expr).getSourceInfo()));
+                ensure(node.getSourceInfo().equals(otherOrMe(node).getSourceInfo()));
               }
             }
 

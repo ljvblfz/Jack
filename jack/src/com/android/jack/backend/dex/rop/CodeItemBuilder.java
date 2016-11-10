@@ -113,7 +113,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -125,40 +124,40 @@ import javax.annotation.Nonnull;
 @Description("Builds CodeItem from JMethod")
 @Name("CodeItemBuilder")
 @Constraint(
-  need = {
-    JMethodBodyCfg.class,
-    JExceptionRuntimeValue.class,
-    NewInstanceRemoved.class,
-    ThreeAddressCodeForm.class,
-    RopLegalCast.class,
-    InnerAccessor.class,
-    InvalidDefaultBridgeInInterfaceRemoved.class
-  },
-  no = {
-    JSsaVariableRef.class,
-    BooleanTestOutsideIf.class,
-    InitInNewArray.class,
-    JAsgOperation.class,
-    JPrimitiveClassLiteral.class,
-    JMultiExpression.class,
-    JConditionalExpression.class,
-    JFieldInitializer.class,
-    JConcatOperation.class,
-    JLoop.class,
-    SideEffectOperation.class,
-    UnassignedValues.class,
-    RefAsStatement.class,
-    MultiDimensionNewArray.class,
-    JSwitchStatement.SwitchWithEnum.class,
-    ImplicitBoxingAndUnboxing.class,
-    ImplicitCast.class,
-    JAssertStatement.class,
-    JConditionalOperation.class,
-    EmptyClinit.class,
-    UselessSwitches.class,
-    SourceCast.class,
-    JCastOperation.WithIntersectionType.class
-  }
+    need = {
+        JMethodBodyCfg.class,
+        JExceptionRuntimeValue.class,
+        NewInstanceRemoved.class,
+        ThreeAddressCodeForm.class,
+        RopLegalCast.class,
+        InnerAccessor.class,
+        InvalidDefaultBridgeInInterfaceRemoved.class
+    },
+    no = {
+        JSsaVariableRef.class,
+        BooleanTestOutsideIf.class,
+        InitInNewArray.class,
+        JAsgOperation.class,
+        JPrimitiveClassLiteral.class,
+        JMultiExpression.class,
+        JConditionalExpression.class,
+        JFieldInitializer.class,
+        JConcatOperation.class,
+        JLoop.class,
+        SideEffectOperation.class,
+        UnassignedValues.class,
+        RefAsStatement.class,
+        MultiDimensionNewArray.class,
+        JSwitchStatement.SwitchWithEnum.class,
+        ImplicitBoxingAndUnboxing.class,
+        ImplicitCast.class,
+        JAssertStatement.class,
+        JConditionalOperation.class,
+        EmptyClinit.class,
+        UselessSwitches.class,
+        SourceCast.class,
+        JCastOperation.WithIntersectionType.class
+    }
 )
 @Transform(add = DexCodeMarker.class)
 @Use(RopHelper.class)

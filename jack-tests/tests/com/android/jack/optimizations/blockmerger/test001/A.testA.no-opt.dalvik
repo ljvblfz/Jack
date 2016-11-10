@@ -6,7 +6,11 @@ instructions: 28
     | mul-int/lit16 v1, v7, 10000
     | add-int/2addr v0, v1
 #00-> return v0
-#01-> mul-int/lit16 v1, v6, 1000
+#01-> mul-int/lit8 v1, v4, 10
+    | add-int/2addr v0, v1
+    | mul-int/lit8 v1, v5, 100
+    | add-int/2addr v0, v1
+    | mul-int/lit16 v1, v6, 1000
     | add-int/2addr v0, v1
     | mul-int/lit16 v1, v7, 10000
     | add-int/2addr v0, v1
@@ -18,14 +22,10 @@ instructions: 28
     | mul-int/lit16 v1, v7, 10000
     | add-int/2addr v0, v1
     | goto #00
-#03-> mul-int/lit8 v1, v4, 10
-    | add-int/2addr v0, v1
-    | mul-int/lit8 v1, v5, 100
-    | add-int/2addr v0, v1
-    | mul-int/lit16 v1, v6, 1000
+#03-> mul-int/lit16 v1, v6, 1000
     | add-int/2addr v0, v1
     | mul-int/lit16 v1, v7, 10000
     | add-int/2addr v0, v1
     | goto #00
     | nop
-#04-> packed-switch: [0..2] -> [#03, #02, #01]
+#04-> packed-switch: [0..2] -> [#01, #02, #03]

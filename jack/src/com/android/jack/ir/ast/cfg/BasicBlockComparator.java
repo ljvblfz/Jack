@@ -19,7 +19,6 @@ package com.android.jack.ir.ast.cfg;
 import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JAlloc;
-import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JArrayLength;
 import com.android.jack.ir.ast.JArrayRef;
 import com.android.jack.ir.ast.JBinaryOperation;
@@ -89,21 +88,25 @@ public class BasicBlockComparator {
       }
     }
 
-
-    /** Compare two expressions w/o children */
-    public boolean areShallowlyEqual(@Nonnull JNode a, @Nonnull JNode b) {
-      differenceFound = false;
+    /** Compare two nodes w/o children */
+    protected boolean areShallowlyEqual(@Nonnull JNode a, @Nonnull JNode b) {
+      assert !differenceFound;
       other = b;
       accept(a);
       return !differenceFound;
     }
 
     /** Performs basic checks valid for all kinds of the nodes */
+    protected void performCommonChecks(@Nonnull JNode node) {
+    }
+
+    /** Performs basic checks valid for all kinds of the expressions */
     protected void performCommonChecks(@Nonnull JExpression expr) {
+      performCommonChecks((JNode) expr);
       ensure(equal(expr.getType(), otherOrMe(expr).getType()));
     }
 
-    protected boolean equal(@Nonnull List<JType> a, @Nonnull List<JType> b) {
+    protected <T extends JType> boolean equal(@Nonnull List<T> a, @Nonnull List<T> b) {
       if (a.size() != b.size()) {
         return false;
       }
@@ -123,13 +126,41 @@ public class BasicBlockComparator {
       return a == b;
     }
 
-    @Override
-    public boolean visit(@Nonnull JExpression expr) {
+    @Override public boolean visit(@Nonnull JBasicBlock block) {
       return false;
     }
 
-    @Override
-    public void endVisit(@Nonnull JExpression expr) {
+    @Override public boolean visit(@Nonnull JBasicBlockElement element) {
+      return false;
+    }
+
+    @Override public void endVisit(@Nonnull JBasicBlock block) {
+      performCommonChecks(block);
+      otherOrMe(block);
+    }
+
+    @Override public void endVisit(@Nonnull JBasicBlockElement element) {
+      performCommonChecks(element);
+      otherOrMe(element);
+    }
+
+    @Override public void endVisit(@Nonnull JConditionalBasicBlock block) {
+      super.endVisit(block);
+      JConditionalBasicBlock other = otherOrMe(block);
+      ensure(other.isInverted() == block.isInverted());
+    }
+
+    @Override public void endVisit(@Nonnull JCatchBasicBlock block) {
+      super.endVisit(block);
+      JCatchBasicBlock other = otherOrMe(block);
+      ensure(equal(other.getCatchTypes(), block.getCatchTypes()));
+    }
+
+    @Override public boolean visit(@Nonnull JExpression expr) {
+      return false;
+    }
+
+    @Override public void endVisit(@Nonnull JExpression expr) {
       throw new JNodeInternalError(expr,
           "Unexpected expression in CFG: " + expr.toSource() +
               " (" + expr.getClass().getSimpleName() + ")");
@@ -314,9 +345,9 @@ public class BasicBlockComparator {
   }
 
   /** Compares `a` to `b`, returns `true` if they are considered to be equal */
-  public boolean compare(@Nonnull JNode a, @Nonnull JNode b) {
-    List<JExpression> aNodes = getAllExpressionsInPostOrder(a);
-    List<JExpression> bNodes = getAllExpressionsInPostOrder(b);
+  public boolean compare(@Nonnull JBasicBlock a, @Nonnull JBasicBlock b) {
+    List<JNode> aNodes = getAllNodesInPostOrder(a);
+    List<JNode> bNodes = getAllNodesInPostOrder(b);
 
     int size = aNodes.size();
     if (size != bNodes.size()) {
@@ -339,14 +370,14 @@ public class BasicBlockComparator {
   }
 
   @Nonnull
-  private List<JExpression> getAllExpressionsInPostOrder(@Nonnull JNode node) {
-    final List<JExpression> result = new ArrayList<>();
+  private List<JNode> getAllNodesInPostOrder(@Nonnull JBasicBlock block) {
+    final List<JNode> result = new ArrayList<>();
     new JVisitor() {
       @Override
-      public void endVisit(@Nonnull JExpression e) {
+      public void endVisit(@Nonnull JNode e) {
         result.add(e);
       }
-    }.accept(node);
+    }.accept(block);
     return result;
   }
 }

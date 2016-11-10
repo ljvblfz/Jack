@@ -1331,7 +1331,7 @@ class RopBuilderVisitor extends JVisitor {
   }
 
   @Override
-  public void endVisit(@Nonnull JBasicBlock x) {
+  public void endVisit(@Nonnull JBasicBlockElement x) {
     ropReg.resetFreeTmpRegister();
   }
 }

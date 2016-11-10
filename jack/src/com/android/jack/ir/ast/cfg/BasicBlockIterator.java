@@ -17,6 +17,7 @@
 package com.android.jack.ir.ast.cfg;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 import javax.annotation.Nonnull;
@@ -46,7 +47,12 @@ public abstract class BasicBlockIterator {
       JBasicBlock block = stack.pop();
       assert stacked.contains(block);
 
-      for (JBasicBlock next : (forward ? block.getSuccessors() : block.getPredecessors())) {
+      // Since we use stack to hold the list of the blocks to be processed, we
+      // need to reverse successors lists to visit them not in reversed order
+      List<JBasicBlock> blocks =
+          forward ? block.getSuccessors() : block.getPredecessors();
+      for (int i = blocks.size() - 1; i >= 0; i--) {
+        JBasicBlock next = blocks.get(i);
         if (!stacked.contains(next)) {
           stack.push(next);
           stacked.add(next);
