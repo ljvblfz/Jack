@@ -82,10 +82,11 @@ public class BasicBlockComparator {
     }
 
     /** Check if the value if true, marks the difference otherwise */
-    protected void ensure(boolean expectedToBeTrue) {
+    protected boolean ensure(boolean expectedToBeTrue) {
       if (!expectedToBeTrue) {
         differenceFound = true;
       }
+      return expectedToBeTrue;
     }
 
     /** Compare two nodes w/o children */
@@ -98,6 +99,26 @@ public class BasicBlockComparator {
 
     /** Performs basic checks valid for all kinds of the nodes */
     protected void performCommonChecks(@Nonnull JNode node) {
+    }
+
+    /** Performs basic checks valid for all kinds of the block elements */
+    protected void performCommonChecks(@Nonnull JBasicBlockElement element) {
+      performCommonChecks((JNode) element);
+
+      List<JCatchBasicBlock> thisContext = element.getEHContext().getCatchBlocks();
+      List<JCatchBasicBlock> otherContext = otherOrMe(element).getEHContext().getCatchBlocks();
+
+      int size = thisContext.size();
+      if (ensure(size == otherContext.size())) {
+        for (int i = 0; i < size; i++) {
+          ensure(thisContext.get(i) == otherContext.get(i));
+        }
+      }
+    }
+
+    /** Performs basic checks valid for all kinds of the basic blocks */
+    protected void performCommonChecks(@Nonnull JBasicBlock block) {
+      performCommonChecks((JNode) block);
     }
 
     /** Performs basic checks valid for all kinds of the expressions */
