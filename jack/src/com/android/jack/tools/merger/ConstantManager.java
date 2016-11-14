@@ -20,10 +20,13 @@ import com.android.jack.dx.dex.DexFormat;
 import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.dx.io.FieldId;
+import com.android.jack.dx.io.MethodHandleId;
 import com.android.jack.dx.io.MethodId;
 import com.android.jack.dx.io.ProtoId;
 import com.android.jack.dx.rop.cst.CstFieldRef;
 import com.android.jack.dx.rop.cst.CstIndexMap;
+import com.android.jack.dx.rop.cst.CstMethodHandleRef;
+import com.android.jack.dx.rop.cst.CstMethodHandleRef.MethodHandleKind;
 import com.android.jack.dx.rop.cst.CstMethodRef;
 import com.android.jack.dx.rop.cst.CstNat;
 import com.android.jack.dx.rop.cst.CstPrototypeRef;
@@ -65,6 +68,9 @@ public class ConstantManager extends MergerTools {
   private final Map<String, CstString> protoStr2CstString = new HashMap<String, CstString>();
 
   @Nonnull
+  private final HashSet<CstMethodHandleRef> cstMethodHandleRefs = new HashSet<CstMethodHandleRef>();
+
+  @Nonnull
   public Collection<CstString> getCstStrings() {
     return Jack.getUnmodifiableCollections().getUnmodifiableCollection(string2CstStrings.values());
   }
@@ -98,6 +104,7 @@ public class ConstantManager extends MergerTools {
     List<CstFieldRef> cstFieldRefsNewlyAdded = new ArrayList<CstFieldRef>();
     List<CstMethodRef> cstMethodRefsNewlyAdded = new ArrayList<CstMethodRef>();
     List<CstType> cstTypesNewlyAdded = new ArrayList<CstType>();
+    List<CstMethodHandleRef> cstMethodHandleRefsNewlyAdded = new ArrayList<CstMethodHandleRef>();
 
     int idx = 0;
     for (String string : dexBuffer.strings()) {
@@ -183,27 +190,65 @@ public class ConstantManager extends MergerTools {
       cstIndexMap.addMethodMapping(idx++, cstMethodRef);
     }
 
+    idx = 0;
+    for (MethodHandleId methodHandleId : dexBuffer.methodHandleIds()) {
+      MethodHandleKind kind = methodHandleId.getKind();
+      CstMethodHandleRef cstMethodHandleRef;
+
+      switch (kind) {
+        case PUT_INSTANCE:
+        case PUT_STATIC:
+        case GET_INSTANCE:
+        case GET_STATIC: {
+          cstMethodHandleRef = new CstMethodHandleRef(kind,
+              cstIndexMap.getCstFieldRef(methodHandleId.getMemberIndex()));
+          break;
+        }
+        case INVOKE_CONSTRUCTOR:
+        case INVOKE_INSTANCE:
+        case INVOKE_STATIC: {
+          cstMethodHandleRef = new CstMethodHandleRef(kind,
+              cstIndexMap.getCstMethodRef(methodHandleId.getMemberIndex()));
+          break;
+        }
+        default:
+          throw new AssertionError();
+      }
+
+      if (cstMethodHandleRefs.add(cstMethodHandleRef)) {
+        cstMethodHandleRefsNewlyAdded.add(cstMethodHandleRef);
+      }
+
+      cstIndexMap.addMethodHandleMapping(idx++, cstMethodHandleRef);
+    }
+
+    if ((cstMethodHandleRefs.size()) > DexFormat.MAX_MEMBER_IDX + 1) {
+      removeItems(cstStringsNewlyAdded, cstFieldRefsNewlyAdded, cstMethodRefsNewlyAdded,
+          cstTypesNewlyAdded, cstPrototypeRefsNewlyAdded, cstMethodHandleRefsNewlyAdded);
+      throw new MethodHandleIdOverflowException();
+    }
+
     if ((cstFieldRefs.size()) > DexFormat.MAX_MEMBER_IDX + 1) {
       removeItems(cstStringsNewlyAdded, cstFieldRefsNewlyAdded, cstMethodRefsNewlyAdded,
-          cstTypesNewlyAdded, cstPrototypeRefsNewlyAdded);
+          cstTypesNewlyAdded, cstPrototypeRefsNewlyAdded, cstMethodHandleRefsNewlyAdded);
       throw new FieldIdOverflowException();
     }
 
     if ((cstMethodRefs.size()) > DexFormat.MAX_MEMBER_IDX + 1) {
       removeItems(cstStringsNewlyAdded, cstFieldRefsNewlyAdded, cstMethodRefsNewlyAdded,
-          cstTypesNewlyAdded, cstPrototypeRefsNewlyAdded);
+          cstTypesNewlyAdded, cstPrototypeRefsNewlyAdded, cstMethodHandleRefsNewlyAdded);
       throw new MethodIdOverflowException();
     }
 
     if ((cstTypes.size()) > DexFormat.MAX_TYPE_IDX + 1) {
       removeItems(cstStringsNewlyAdded, cstFieldRefsNewlyAdded, cstMethodRefsNewlyAdded,
-          cstTypesNewlyAdded, cstPrototypeRefsNewlyAdded);
+          cstTypesNewlyAdded, cstPrototypeRefsNewlyAdded, cstMethodHandleRefsNewlyAdded);
       throw new TypeIdOverflowException();
     }
 
     if ((cstPrototypeRefs.size()) > DexFormat.MAX_PROTOTYPE_IDX + 1) {
       removeItems(cstStringsNewlyAdded, cstFieldRefsNewlyAdded, cstMethodRefsNewlyAdded,
-          cstTypesNewlyAdded, cstPrototypeRefsNewlyAdded);
+          cstTypesNewlyAdded, cstPrototypeRefsNewlyAdded, cstMethodHandleRefsNewlyAdded);
       throw new PrototypedOverflowException();
     }
 
@@ -213,12 +258,14 @@ public class ConstantManager extends MergerTools {
   private void removeItems(@Nonnull List<String> cstStringsToRemove,
       @Nonnull List<CstFieldRef> cstFieldRefsToRemove,
       @Nonnull List<CstMethodRef> cstMethodRefsToRemove, @Nonnull List<CstType> cstTypesToRemove,
-      @Nonnull List<CstPrototypeRef> cstPrototypeRefsToRemove) {
+      @Nonnull List<CstPrototypeRef> cstPrototypeRefsToRemove,
+      @Nonnull List<CstMethodHandleRef> cstMethodHandleRefsToRemove) {
     string2CstStrings.keySet().removeAll(cstStringsToRemove);
     cstFieldRefs.removeAll(cstFieldRefsToRemove);
     cstMethodRefs.removeAll(cstMethodRefsToRemove);
     cstTypes.removeAll(cstTypesToRemove);
     cstPrototypeRefs.removeAll(cstPrototypeRefsToRemove);
+    cstMethodHandleRefs.removeAll(cstMethodHandleRefsToRemove);
   }
 
   public boolean validate(@Nonnull DexFile dexFile) {

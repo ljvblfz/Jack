@@ -21,6 +21,7 @@ import com.android.jack.dx.dex.SizeOf;
 import com.android.jack.dx.dex.TableOfContents;
 import com.android.jack.dx.io.Code.CatchHandler;
 import com.android.jack.dx.io.Code.Try;
+import com.android.jack.dx.rop.cst.CstMethodHandleRef.MethodHandleKind;
 import com.android.jack.dx.util.ByteInput;
 import com.android.jack.dx.util.ByteOutput;
 import com.android.jack.dx.util.DexException;
@@ -77,10 +78,12 @@ public final class DexBuffer {
     }
   };
 
+  @Nonnull
   private final List<FieldId> fieldIds;
-
+  @Nonnull
   private final List<MethodId> methodIds;
-
+  @Nonnull
+  private final List<MethodHandleId> methodHandleIds;
   @Nonnull
   private final Section internalSection;
 
@@ -95,6 +98,7 @@ public final class DexBuffer {
     this.typeNames = Collections.emptyList();
     this.fieldIds = Collections.emptyList();
     this.methodIds = Collections.emptyList();
+    this.methodHandleIds = Collections.emptyList();
   }
 
   /**
@@ -111,6 +115,7 @@ public final class DexBuffer {
     this.typeNames = readTypeNames(this.strings, this.typeIds);
     this.fieldIds = readFieldIds();
     this.methodIds = readMethodIds();
+    this.methodHandleIds = readMethodHandleIds();
   }
 
   /**
@@ -124,6 +129,7 @@ public final class DexBuffer {
     this.typeNames = readTypeNames(this.strings, this.typeIds);
     this.fieldIds = readFieldIds();
     this.methodIds = readMethodIds();
+    this.methodHandleIds = readMethodHandleIds();
   }
 
   /**
@@ -151,8 +157,10 @@ public final class DexBuffer {
     this.typeNames = readTypeNames(this.strings, this.typeIds);
     this.fieldIds = readFieldIds();
     this.methodIds = readMethodIds();
+    this.methodHandleIds = readMethodHandleIds();
   }
 
+  @Nonnull
   private List<String> readStrings() {
     Section strings = openInternal(tableOfContents.stringIds.off);
     String[] result = new String[tableOfContents.stringIds.size];
@@ -162,6 +170,26 @@ public final class DexBuffer {
     return Arrays.asList(result);
   }
 
+  @Nonnull
+  private List<MethodHandleId> readMethodHandleIds() {
+    if (tableOfContents.apiLevel < DexFormat.API_ANDROID_O) {
+      Collections.emptyList();
+    }
+
+    Section methodHandleIds = openInternal(tableOfContents.methodHandleIds.off);
+    MethodHandleId[] result = new MethodHandleId[tableOfContents.methodHandleIds.size];
+    for (int i = 0; i < tableOfContents.methodHandleIds.size; ++i) {
+      short kindValue = methodHandleIds.readShort();
+      methodHandleIds.readShort(); // reserved
+      short memberIdx = methodHandleIds.readShort();
+      methodHandleIds.readShort(); // reserved
+      result[i] = new MethodHandleId(this, MethodHandleKind.getKind(kindValue), memberIdx);
+    }
+
+    return Arrays.asList(result);
+  }
+
+  @Nonnull
   private List<Integer> readTypeIds() {
     Section typeIds = openInternal(tableOfContents.typeIds.off);
     Integer[] result = new Integer[tableOfContents.typeIds.size];
@@ -171,6 +199,7 @@ public final class DexBuffer {
     return Arrays.asList(result);
   }
 
+  @Nonnull
   private List<String> readTypeNames(List<String> strings, List<Integer> typeIds) {
     String[] result = new String[tableOfContents.typeIds.size];
     for (int i = 0; i < tableOfContents.typeIds.size; ++i) {
@@ -179,6 +208,7 @@ public final class DexBuffer {
     return Arrays.asList(result);
   }
 
+  @Nonnull
   private List<FieldId> readFieldIds() {
     Section fieldIds = openInternal(tableOfContents.fieldIds.off);
     FieldId[] result = new FieldId[tableOfContents.fieldIds.size];
@@ -188,6 +218,7 @@ public final class DexBuffer {
     return Arrays.asList(result);
   }
 
+  @Nonnull
   private List<MethodId> readMethodIds() {
     Section methodIds = openInternal(tableOfContents.methodIds.off);
     MethodId[] result = new MethodId[tableOfContents.methodIds.size];
@@ -268,28 +299,39 @@ public final class DexBuffer {
     return data;
   }
 
+  @Nonnull
   public List<String> strings() {
     return strings;
   }
 
+  @Nonnull
   public List<Integer> typeIds() {
     return typeIds;
   }
 
+  @Nonnull
   public List<String> typeNames() {
     return typeNames;
   }
 
+  @Nonnull
   public List<ProtoId> protoIds() {
     return protoIds;
   }
 
+  @Nonnull
   public List<FieldId> fieldIds() {
     return fieldIds;
   }
 
+  @Nonnull
   public List<MethodId> methodIds() {
     return methodIds;
+  }
+
+  @Nonnull
+  public List<MethodHandleId> methodHandleIds() {
+    return methodHandleIds;
   }
 
   public Iterable<ClassDef> classDefs() {

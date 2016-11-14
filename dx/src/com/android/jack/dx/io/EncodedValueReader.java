@@ -107,6 +107,10 @@ public class EncodedValueReader {
         assert dexBuffer.getTableOfContents().apiLevel >= DexFormat.API_ANDROID_O;
         visitMethodType(readIndex(in, size));
         break;
+      case VALUE_METHOD_HANDLE:
+        assert dexBuffer.getTableOfContents().apiLevel >= DexFormat.API_ANDROID_O;
+        visitMethodHandle(readIndex(in, size));
+        break;
       default:
         throw new AssertionError();
     }
@@ -141,6 +145,8 @@ public class EncodedValueReader {
   protected void visitEncodedNull(int argAndType) {}
 
   protected void visitMethodType(int index) {}
+
+  protected void visitMethodHandle(int index) {}
 
   private int readIndex(@Nonnull ByteInput in, int byteCount) {
     int result = 0;

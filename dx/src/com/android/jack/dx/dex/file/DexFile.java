@@ -16,12 +16,14 @@
 
 package com.android.jack.dx.dex.file;
 
+import com.android.jack.dx.dex.DexFormat;
 import com.android.jack.dx.dex.DexOptions;
 import com.android.jack.dx.dex.file.MixedItemSection.SortType;
 import com.android.jack.dx.rop.cst.Constant;
 import com.android.jack.dx.rop.cst.CstBaseMethodRef;
 import com.android.jack.dx.rop.cst.CstEnumRef;
 import com.android.jack.dx.rop.cst.CstFieldRef;
+import com.android.jack.dx.rop.cst.CstMethodHandleRef;
 import com.android.jack.dx.rop.cst.CstMethodRef;
 import com.android.jack.dx.rop.cst.CstPrototypeRef;
 import com.android.jack.dx.rop.cst.CstString;
@@ -96,6 +98,9 @@ public final class DexFile {
   /** {@code non-null;} file header */
   private final HeaderSection header;
 
+  /** {@code non-null;} method handle site section */
+  private final MethodHandleIdsSection methodHandleIds;
+
   /**
    * {@code non-null;} array of sections in the order they will appear in the
    * final output file
@@ -126,25 +131,43 @@ public final class DexFile {
     fieldIds = new FieldIdsSection(this);
     methodIds = new MethodIdsSection(this);
     classDefs = new ClassDefsSection(this);
+    methodHandleIds = new MethodHandleIdsSection(this);
     map = new MixedItemSection("map", this, 4, SortType.NONE);
 
     /*
      * This is the list of sections in the order they appear in
      * the final output.
      */
-    sections = new Section[] {header,
-        stringIds,
-        typeIds,
-        protoIds,
-        fieldIds,
-        methodIds,
-        classDefs,
-        wordData,
-        typeLists,
-        stringData,
-        byteData,
-        classData,
-        map};
+    if (dexOptions.targetApiLevel >= DexFormat.API_ANDROID_O) {
+      sections = new Section[] {header,
+                                stringIds,
+                                typeIds,
+                                protoIds,
+                                fieldIds,
+                                methodIds,
+                                classDefs,
+                                methodHandleIds,
+                                wordData,
+                                typeLists,
+                                stringData,
+                                byteData,
+                                classData,
+                                map};
+    } else {
+      sections = new Section[] {header,
+                                stringIds,
+                                typeIds,
+                                protoIds,
+                                fieldIds,
+                                methodIds,
+                                classDefs,
+                                wordData,
+                                typeLists,
+                                stringData,
+                                byteData,
+                                classData,
+                                map};
+    }
 
     fileSize = -1;
     dumpWidth = 79;
@@ -361,6 +384,20 @@ public final class DexFile {
   }
 
   /**
+   * Gets the method handle identifiers section.
+   *
+   * <p>This is package-scope in order to allow
+   * the various {@link Item} instances to add items to the
+   * instance.</p>
+   *
+   * @return {@code non-null;} the method handle identifiers section
+   */
+  @Nonnull
+  /* package */MethodHandleIdsSection getMethodHandleIds() {
+    return methodHandleIds;
+  }
+
+  /**
    * Gets the field identifiers section.
    *
    * <p>This is package-scope in order to allow
@@ -445,6 +482,8 @@ public final class DexFile {
       fieldIds.intern(((CstEnumRef) cst).getFieldRef());
     } else if (cst instanceof CstPrototypeRef) {
       protoIds.intern(((CstPrototypeRef) cst).getPrototype());
+    } else if (cst instanceof CstMethodHandleRef) {
+      methodHandleIds.intern((CstMethodHandleRef) cst);
     } else if (cst == null) {
       throw new NullPointerException("cst == null");
     }
@@ -472,6 +511,8 @@ public final class DexFile {
       return fieldIds.get(cst);
     } else if (cst instanceof CstPrototypeRef) {
       return protoIds.get(cst);
+    } else if (cst instanceof CstMethodHandleRef) {
+      return methodHandleIds.get(cst);
     } else {
       return null;
     }
@@ -526,6 +567,7 @@ public final class DexFile {
     classData.prepare();
     wordData.prepare();
     byteData.prepare();
+    methodHandleIds.prepare();
     methodIds.prepare();
     fieldIds.prepare();
     protoIds.prepare();
@@ -590,6 +632,7 @@ public final class DexFile {
     classData.throwIfNotPrepared();
     wordData.throwIfNotPrepared();
     byteData.throwIfNotPrepared();
+    methodHandleIds.throwIfNotPrepared();
     methodIds.throwIfNotPrepared();
     fieldIds.throwIfNotPrepared();
     protoIds.throwIfNotPrepared();

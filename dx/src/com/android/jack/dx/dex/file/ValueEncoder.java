@@ -28,6 +28,7 @@ import com.android.jack.dx.rop.cst.CstEnumRef;
 import com.android.jack.dx.rop.cst.CstFieldRef;
 import com.android.jack.dx.rop.cst.CstFloat;
 import com.android.jack.dx.rop.cst.CstLiteralBits;
+import com.android.jack.dx.rop.cst.CstMethodHandleRef;
 import com.android.jack.dx.rop.cst.CstMethodRef;
 import com.android.jack.dx.rop.cst.CstPrototypeRef;
 import com.android.jack.dx.rop.cst.CstString;
@@ -58,6 +59,7 @@ public final class ValueEncoder {
     VALUE_FLOAT(0x10),
     VALUE_DOUBLE(0x11),
     VALUE_METHOD_TYPE(0x15),
+    VALUE_METHOD_HANDLE(0x16),
     VALUE_STRING(0x17),
     VALUE_TYPE(0x18),
     VALUE_FIELD(0x19),
@@ -108,6 +110,9 @@ public final class ValueEncoder {
           break;
         case 0x15:
           valueType = VALUE_METHOD_TYPE;
+          break;
+        case 0x16:
+          valueType = VALUE_METHOD_HANDLE;
           break;
         case 0x17:
           valueType = VALUE_STRING;
@@ -251,6 +256,12 @@ public final class ValueEncoder {
       case VALUE_METHOD_TYPE: {
         assert file.getDexOptions().targetApiLevel >= DexFormat.API_ANDROID_O;
         int index = file.getProtoIds().indexOf(((CstPrototypeRef) cst).getPrototype());
+        writeUnsignedIntegralValue(type, index);
+        break;
+      }
+      case VALUE_METHOD_HANDLE: {
+        assert file.getDexOptions().targetApiLevel >= DexFormat.API_ANDROID_O;
+        int index = file.getMethodHandleIds().indexOf((CstMethodHandleRef) cst);
         writeUnsignedIntegralValue(type, index);
         break;
       }
