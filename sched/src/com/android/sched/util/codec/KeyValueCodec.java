@@ -50,9 +50,6 @@ public class KeyValueCodec<T> implements StringCodec<T> {
   protected void setElements(@Nonnull Entry<T>[] entries) {
     this.entries = Arrays.copyOf(entries, entries.length);
 
-    if (ignoreCase) {
-      ignoreCase();
-    }
     if (sorted) {
       sorted();
     }
@@ -61,10 +58,6 @@ public class KeyValueCodec<T> implements StringCodec<T> {
   @Nonnull
   public KeyValueCodec<T> ignoreCase() {
     this.ignoreCase = true;
-
-    for (int idx = 0; idx < this.entries.length; idx++) {
-      this.entries[idx].key = this.entries[idx].key.toLowerCase();
-    }
 
     return this;
   }
@@ -135,12 +128,16 @@ public class KeyValueCodec<T> implements StringCodec<T> {
   public T checkString(@Nonnull CodecContext context, @Nonnull String string)
       throws ParsingException {
     if (ignoreCase) {
-      string = string.toLowerCase();
-    }
-
-    for (Entry<T> entry : entries) {
-      if (entry.key.equals(string)) {
-        return entry.value;
+      for (Entry<T> entry : entries) {
+        if (entry.key.equalsIgnoreCase(string)) {
+          return entry.value;
+        }
+      }
+    } else {
+      for (Entry<T> entry : entries) {
+        if (entry.key.equals(string)) {
+          return entry.value;
+        }
       }
     }
 
