@@ -41,21 +41,13 @@ public class EnumCodec<T extends Enum<T>> implements StringCodec<T> {
     for (Field field : fields) {
       if (field.isEnumConstant()) {
         EnumName meta = field.getAnnotation(EnumName.class);
-        String name = null;
-        String description = null;
         if (meta != null) {
-          name = meta.name();
-          description = meta.description();
+          entries.add(new Entry<>(
+              meta.name(),
+              Enum.valueOf(type, field.getName()),
+              meta.description(),
+              meta.hide()));
         }
-
-        if (name == null || name.isEmpty()) {
-          name = field.getName().replace('_', '-');
-        }
-        if (description != null && description.isEmpty()) {
-          description = null;
-        }
-
-        entries.add(new Entry<>(name, Enum.valueOf(type, field.getName()), description));
       }
     }
 

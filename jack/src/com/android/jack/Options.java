@@ -414,7 +414,15 @@ public class Options {
    */
   @VariableName("level")
   public enum VerbosityLevel {
-    ERROR("error"), WARNING("warning"), INFO("info"), @Deprecated DEBUG("debug"),
+    @EnumName(name = "error")
+    ERROR("error"),
+    @EnumName(name = "warning")
+    WARNING("warning"),
+    @EnumName(name = "info")
+    INFO("info"),
+    @EnumName(name = "debug", hide = true)
+    @Deprecated DEBUG("debug"),
+    @EnumName(name = "trace", hide = true)
     @Deprecated TRACE("trace");
 
     @Nonnull
