@@ -97,7 +97,7 @@ public class CLILogConfiguration {
     String stringLevel = System.getProperty("com.android.jack.log");
     if (stringLevel != null) {
       try {
-        level = new EnumCodec<LogLevel>(LogLevel.class).checkString(
+        level = new EnumCodec<LogLevel>(LogLevel.class).ignoreCase().checkString(
             new CodecContext(), stringLevel);
       } catch (ParsingException e) {
         throw new LogConfigurationException(e.getMessage());
