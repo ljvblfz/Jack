@@ -21,6 +21,7 @@ import com.android.jack.dx.dex.DexOptions;
 import com.android.jack.dx.dex.file.MixedItemSection.SortType;
 import com.android.jack.dx.rop.cst.Constant;
 import com.android.jack.dx.rop.cst.CstBaseMethodRef;
+import com.android.jack.dx.rop.cst.CstCallSiteRef;
 import com.android.jack.dx.rop.cst.CstEnumRef;
 import com.android.jack.dx.rop.cst.CstFieldRef;
 import com.android.jack.dx.rop.cst.CstMethodHandleRef;
@@ -99,7 +100,12 @@ public final class DexFile {
   private final HeaderSection header;
 
   /** {@code non-null;} method handle site section */
+  @Nonnull
   private final MethodHandleIdsSection methodHandleIds;
+
+  /** {@code non-null;} call site section */
+  @Nonnull
+  private final CallSiteIdsSection callSiteIds;
 
   /**
    * {@code non-null;} array of sections in the order they will appear in the
@@ -129,6 +135,7 @@ public final class DexFile {
     typeIds = new TypeIdsSection(this);
     protoIds = new ProtoIdsSection(this);
     fieldIds = new FieldIdsSection(this);
+    callSiteIds = new CallSiteIdsSection(this);
     methodIds = new MethodIdsSection(this);
     classDefs = new ClassDefsSection(this);
     methodHandleIds = new MethodHandleIdsSection(this);
@@ -145,6 +152,7 @@ public final class DexFile {
                                 protoIds,
                                 fieldIds,
                                 methodIds,
+                                callSiteIds,
                                 classDefs,
                                 methodHandleIds,
                                 wordData,
@@ -170,7 +178,7 @@ public final class DexFile {
     }
 
     fileSize = -1;
-    dumpWidth = 79;
+    dumpWidth = 120;
   }
 
   /**
@@ -398,6 +406,20 @@ public final class DexFile {
   }
 
   /**
+   * Gets the call site identifiers section.
+   *
+   * <p>This is package-scope in order to allow
+   * the various {@link Item} instances to add items to the
+   * instance.</p>
+   *
+   * @return {@code non-null;} the call site identifiers section
+   */
+  @Nonnull
+  /*package*/CallSiteIdsSection getCallSiteIds() {
+    return callSiteIds;
+  }
+
+  /**
    * Gets the field identifiers section.
    *
    * <p>This is package-scope in order to allow
@@ -489,6 +511,14 @@ public final class DexFile {
     }
   }
 
+  public void appendIfAppropriate(Constant cst) {
+    if (cst instanceof CstCallSiteRef) {
+      callSiteIds.add((CstCallSiteRef) cst);
+    } else if (cst == null) {
+      throw new NullPointerException("cst == null");
+    }
+  }
+
   /**
    * Gets the {@link IndexedItem} corresponding to the given constant,
    * if it is a constant that has such a correspondence, or return
@@ -513,6 +543,8 @@ public final class DexFile {
       return protoIds.get(cst);
     } else if (cst instanceof CstMethodHandleRef) {
       return methodHandleIds.get(cst);
+    } else if (cst instanceof CstCallSiteRef) {
+      return callSiteIds.get(cst);
     } else {
       return null;
     }
@@ -566,6 +598,7 @@ public final class DexFile {
     classDefs.prepare();
     classData.prepare();
     wordData.prepare();
+    callSiteIds.prepare();
     byteData.prepare();
     methodHandleIds.prepare();
     methodIds.prepare();
@@ -631,6 +664,7 @@ public final class DexFile {
     classDefs.throwIfNotPrepared();
     classData.throwIfNotPrepared();
     wordData.throwIfNotPrepared();
+    callSiteIds.throwIfNotPrepared();
     byteData.throwIfNotPrepared();
     methodHandleIds.throwIfNotPrepared();
     methodIds.throwIfNotPrepared();

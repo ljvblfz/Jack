@@ -222,6 +222,12 @@ public class ConstantManager extends MergerTools {
       cstIndexMap.addMethodHandleMapping(idx++, cstMethodHandleRef);
     }
 
+    idx = 0;
+    for (Integer callSiteRefIdx : dexBuffer.callSiteIds()) {
+      cstIndexMap.addCallSiteMapping(idx++,
+          dexBuffer.readCstCallSiteRef(cstIndexMap, callSiteRefIdx.intValue()));
+    }
+
     if ((cstMethodHandleRefs.size()) > DexFormat.MAX_MEMBER_IDX + 1) {
       removeItems(cstStringsNewlyAdded, cstFieldRefsNewlyAdded, cstMethodRefsNewlyAdded,
           cstTypesNewlyAdded, cstPrototypeRefsNewlyAdded, cstMethodHandleRefsNewlyAdded);

@@ -23,11 +23,14 @@ import com.android.jack.dx.rop.type.StdTypeList;
 import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.util.AnnotatedOutput;
 import com.android.jack.dx.util.Hex;
+import com.android.jack.dx.util.ToHuman;
+
+import javax.annotation.Nonnull;
 
 /**
  * Representation of a method prototype reference inside a Dalvik file.
  */
-public final class ProtoIdItem extends IndexedItem {
+public final class ProtoIdItem extends IndexedItem implements ToHuman {
   /** {@code non-null;} the wrapped prototype */
   private final Prototype prototype;
 
@@ -128,22 +131,7 @@ public final class ProtoIdItem extends IndexedItem {
     int paramsOff = OffsettedItem.getAbsoluteOffsetOr0(parameterTypes);
 
     if (out.annotates()) {
-      StringBuilder sb = new StringBuilder();
-      sb.append(prototype.getReturnType().toHuman());
-      sb.append(" proto(");
-
-      StdTypeList params = prototype.getParameterTypes();
-      int size = params.size();
-
-      for (int i = 0; i < size; i++) {
-        if (i != 0) {
-          sb.append(", ");
-        }
-        sb.append(params.getType(i).toHuman());
-      }
-
-      sb.append(")");
-      out.annotate(0, indexString() + ' ' + sb.toString());
+      out.annotate(0, indexString() + ' ' + toHuman());
       out.annotate(4, "  shorty_idx:      " + Hex.u4(shortyIdx) + " // " + shortForm.toQuoted());
       out.annotate(4,
           "  return_type_idx: " + Hex.u4(returnIdx) + " // " + prototype.getReturnType().toHuman());
@@ -153,5 +141,28 @@ public final class ProtoIdItem extends IndexedItem {
     out.writeInt(shortyIdx);
     out.writeInt(returnIdx);
     out.writeInt(paramsOff);
+  }
+
+  @Override
+  @Nonnull
+  public String toHuman() {
+    StringBuilder sb = new StringBuilder();
+
+    sb.append(prototype.getReturnType().toHuman());
+    sb.append(" (");
+
+    StdTypeList params = prototype.getParameterTypes();
+    int size = params.size();
+
+    for (int i = 0; i < size; i++) {
+      if (i != 0) {
+        sb.append(", ");
+      }
+      sb.append(params.getType(i).toHuman());
+    }
+
+    sb.append(")");
+
+    return sb.toString();
   }
 }

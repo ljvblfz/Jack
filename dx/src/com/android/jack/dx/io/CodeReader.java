@@ -29,6 +29,7 @@ public final class CodeReader {
   private Visitor fieldVisitor = null;
   private Visitor methodVisitor = null;
   private Visitor dualConstantVisitor = null;
+  private Visitor callSiteVisitor = null;
 
   /**
    * Sets {@code visitor} as the visitor for all instructions.
@@ -40,6 +41,7 @@ public final class CodeReader {
     fieldVisitor = visitor;
     methodVisitor = visitor;
     dualConstantVisitor = visitor;
+    callSiteVisitor = visitor;
   }
 
   /**
@@ -85,6 +87,13 @@ public final class CodeReader {
     dualConstantVisitor = visitor;
   }
 
+  /**
+   * Sets {@code visitor} as the visitor for all call site instructions.
+   */
+  public void setCallSiteVisitor(Visitor visitor) {
+    callSiteVisitor = visitor;
+  }
+
   public void visitAll(DecodedInstruction[] decodedInstructions) throws DexException {
     int size = decodedInstructions.length;
 
@@ -122,6 +131,10 @@ public final class CodeReader {
         case METHOD_REF:
           visitor = methodVisitor;
           break;
+        case CALLSITE_REF: {
+          visitor = callSiteVisitor;
+          break;
+        }
         case PROTOTYPE_REF:
           throw new AssertionError();
         default:

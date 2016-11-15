@@ -37,6 +37,7 @@ public final class TableOfContents {
   public final Section fieldIds = new Section(0x0004);
   public final Section methodIds = new Section(0x0005);
   public final Section classDefs = new Section(0x0006);
+  public final Section callSiteIds = new Section(0x0007);
   public final Section methodHandleIds = new Section(0x0008);
   public final Section mapList = new Section(0x1000);
   public final Section typeLists = new Section(0x1001);
@@ -56,6 +57,7 @@ public final class TableOfContents {
       fieldIds,
       methodIds,
       classDefs,
+      callSiteIds,
       methodHandleIds,
       mapList,
       typeLists,
@@ -125,6 +127,8 @@ public final class TableOfContents {
     classDefs.size = headerIn.readInt();
     classDefs.off = headerIn.readInt();
     if (apiLevel >= DexFormat.API_ANDROID_O) {
+      callSiteIds.size = headerIn.readInt();
+      callSiteIds.off = headerIn.readInt();
       methodHandleIds.size = headerIn.readInt();
       methodHandleIds.off = headerIn.readInt();
     }

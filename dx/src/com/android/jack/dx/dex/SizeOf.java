@@ -19,7 +19,7 @@ package com.android.jack.dx.dex;
 import javax.annotation.Nonnegative;
 
 /**
- * Size of items contained by a dex file.
+ * Helper that provides the size in bytes of the header and items.
  */
 public final class SizeOf {
   private SizeOf() {}
@@ -64,10 +64,12 @@ public final class SizeOf {
 
     if (apiLevel >= DexFormat.API_ANDROID_O) {
       /*
+       * call_site_ids_size uint
+       * call_site_ids_off uint
        * method_handle_ids_size uint
        * method_handle_ids_off uint
        */
-      headerSize += 2 * UINT; // 0x78
+      headerSize += 4 * UINT; // 0x80
     }
 
     return headerSize;
@@ -145,4 +147,10 @@ public final class SizeOf {
    */
   @Nonnegative
   public static final int METHOD_HANDLE_ID_ITEM = USHORT + USHORT + USHORT + USHORT;
+
+  /**
+   * encoded_array_items uint
+   */
+  @Nonnegative
+  public static final int CALL_SITE_ITEM = UINT;
 }

@@ -118,6 +118,7 @@ public final class CodeItem extends OffsettedItem implements Code {
 
     for (Constant c : code.getInsnConstants()) {
       file.internIfAppropriate(c);
+      file.appendIfAppropriate(c);
     }
   }
 

@@ -109,6 +109,7 @@ public final class HeaderItem extends IndexedItem {
     file.getClassDefs().writeHeaderPart(out);
 
     if (apiLevel >= DexFormat.API_ANDROID_O) {
+      file.getCallSiteIds().writeHeaderPart(out);
       file.getMethodHandleIds().writeHeaderPart(out);
     }
 

@@ -24,6 +24,7 @@ import com.android.jack.dx.io.Opcodes;
 import com.android.jack.dx.io.instructions.DecodedInstruction;
 import com.android.jack.dx.io.instructions.ShortArrayCodeOutput;
 import com.android.jack.dx.rop.cst.Constant;
+import com.android.jack.dx.rop.cst.CstCallSiteRef;
 import com.android.jack.dx.rop.cst.CstIndexMap;
 import com.android.jack.dx.rop.cst.CstMethodRef;
 import com.android.jack.dx.util.AnnotatedOutput;
@@ -106,6 +107,9 @@ public final class ImportedCodeItem extends OffsettedItem implements
   public void addContents(DexFile file) {
     if (debugInfoItem != null) {
       file.getByteData().add(debugInfoItem);
+    }
+    for (CstCallSiteRef cstCallSite : cstIndexMap.getCstCallSitesType()) {
+      file.appendIfAppropriate(cstCallSite);
     }
   }
 
@@ -268,6 +272,7 @@ public final class ImportedCodeItem extends OffsettedItem implements
     codeReader.setTypeVisitor(new TypeRemapper(file));
     codeReader.setMethodVisitor(new MethodRemapper(file));
     codeReader.setDualConstantVisitor(new DualConstantRemapper(file));
+    codeReader.setCallSiteVisitor(new CallSiteRemapper(file));
 
     codeReader.visitAll(decodedInstructions);
 
@@ -422,6 +427,24 @@ public final class ImportedCodeItem extends OffsettedItem implements
       remappedInstructions[remappingIndex++] = decodedInst.withIndex(
           cstIndexMap.getRemappedCstBaseMethodRefIndex(file, decodedInst.getFirstIndex()),
           cstIndexMap.getRemappedCstPrototypeRefIndex(file, decodedInst.getSecondIndex()));
+    }
+  }
+
+  /**
+   * {@link com.android.jack.dx.io.CodeReader.Visitor} remapping instructions using call site index.
+   */
+  private class CallSiteRemapper implements CodeReader.Visitor {
+
+    private final DexFile file;
+
+    public CallSiteRemapper(DexFile dex) {
+      this.file = dex;
+    }
+
+    @Override
+    public void visit(DecodedInstruction[] all, DecodedInstruction decodedInst) {
+      remappedInstructions[remappingIndex++] = decodedInst
+          .withIndex(cstIndexMap.getRemappedCstCallSiteRefIndex(file, decodedInst.getFirstIndex()));
     }
   }
 }

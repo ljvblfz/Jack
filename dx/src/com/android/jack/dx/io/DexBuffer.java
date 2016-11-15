@@ -21,6 +21,9 @@ import com.android.jack.dx.dex.SizeOf;
 import com.android.jack.dx.dex.TableOfContents;
 import com.android.jack.dx.io.Code.CatchHandler;
 import com.android.jack.dx.io.Code.Try;
+import com.android.jack.dx.rop.cst.CstArray;
+import com.android.jack.dx.rop.cst.CstCallSiteRef;
+import com.android.jack.dx.rop.cst.CstIndexMap;
 import com.android.jack.dx.rop.cst.CstMethodHandleRef.MethodHandleKind;
 import com.android.jack.dx.util.ByteInput;
 import com.android.jack.dx.util.ByteOutput;
@@ -85,6 +88,8 @@ public final class DexBuffer {
   @Nonnull
   private final List<MethodHandleId> methodHandleIds;
   @Nonnull
+  private final List<Integer> callSiteIds;
+  @Nonnull
   private final Section internalSection;
 
   /**
@@ -99,6 +104,7 @@ public final class DexBuffer {
     this.fieldIds = Collections.emptyList();
     this.methodIds = Collections.emptyList();
     this.methodHandleIds = Collections.emptyList();
+    this.callSiteIds = Collections.emptyList();
   }
 
   /**
@@ -116,6 +122,7 @@ public final class DexBuffer {
     this.fieldIds = readFieldIds();
     this.methodIds = readMethodIds();
     this.methodHandleIds = readMethodHandleIds();
+    this.callSiteIds = readCallSiteIds();
   }
 
   /**
@@ -130,6 +137,7 @@ public final class DexBuffer {
     this.fieldIds = readFieldIds();
     this.methodIds = readMethodIds();
     this.methodHandleIds = readMethodHandleIds();
+    this.callSiteIds = readCallSiteIds();
   }
 
   /**
@@ -158,6 +166,7 @@ public final class DexBuffer {
     this.fieldIds = readFieldIds();
     this.methodIds = readMethodIds();
     this.methodHandleIds = readMethodHandleIds();
+    this.callSiteIds = readCallSiteIds();
   }
 
   @Nonnull
@@ -171,9 +180,23 @@ public final class DexBuffer {
   }
 
   @Nonnull
+  private List<Integer> readCallSiteIds() {
+    if (tableOfContents.apiLevel < DexFormat.API_ANDROID_O) {
+      return Collections.emptyList();
+    }
+
+    Section callSiteIds = openInternal(tableOfContents.callSiteIds.off);
+    Integer[] result = new Integer[tableOfContents.callSiteIds.size];
+    for (int i = 0; i < tableOfContents.callSiteIds.size; ++i) {
+      result[i] = Integer.valueOf(callSiteIds.readInt());
+    }
+    return Arrays.asList(result);
+  }
+
+  @Nonnull
   private List<MethodHandleId> readMethodHandleIds() {
     if (tableOfContents.apiLevel < DexFormat.API_ANDROID_O) {
-      Collections.emptyList();
+      return Collections.emptyList();
     }
 
     Section methodHandleIds = openInternal(tableOfContents.methodHandleIds.off);
@@ -334,6 +357,11 @@ public final class DexBuffer {
     return methodHandleIds;
   }
 
+  @Nonnull
+  public List<Integer> callSiteIds() {
+    return callSiteIds;
+  }
+
   public Iterable<ClassDef> classDefs() {
     return new Iterable<ClassDef>() {
       @Override
@@ -389,6 +417,121 @@ public final class DexBuffer {
       throw new IllegalArgumentException("offset == 0");
     }
     return openInternal(offset).readCode();
+  }
+
+  @Nonnull
+  public CstCallSiteRef readCstCallSiteRef(@Nonnull CstIndexMap cstIndexMap,
+      @Nonnegative int cstCallsiteIdx) {
+    CstCallSiteRefBuilder cstCallSiteBuilder =
+        new CstCallSiteRefBuilder(cstIndexMap, cstCallsiteIdx);
+    return cstCallSiteBuilder.build();
+  }
+
+  private class CstCallSiteRefBuilder {
+
+    class CallSiteEncodedArrayReader extends EncodedValueReader {
+
+      private CstArray.List callSiteArrayList;
+
+      private int idx = 0;
+
+      public CallSiteEncodedArrayReader(@Nonnull ByteInput in) {
+        super(DexBuffer.this, in);
+      }
+
+      public CstArray getCstArray() {
+        callSiteArrayList.setImmutable();
+        return new CstArray(callSiteArrayList);
+      }
+
+      @Override
+      protected void visitArray(int size) {
+        callSiteArrayList = new CstArray.List(size);
+      }
+
+      @Override
+      protected void visitString(int index) {
+        callSiteArrayList.set(idx++, cstIndexMap.getCstString(index));
+      }
+
+      @Override
+      protected void visitMethodType(int prototypeIdx) {
+        callSiteArrayList.set(idx++, cstIndexMap.getCstPrototype(prototypeIdx));
+      }
+
+      @Override
+      protected void visitMethodHandle(int methodHandleIdx) {
+        callSiteArrayList.set(idx++, cstIndexMap.getCstMethodHandle(methodHandleIdx));
+      }
+
+      @Override
+      protected void visitPrimitive(int type, int arg, int size) {
+        throw new AssertionError("Unsupported encoded value.");
+      }
+
+      @Override
+      protected void visitEncodedNull(int argAndType) {
+        throw new AssertionError("Unsupported encoded value.");
+      }
+
+      @Override
+      protected void visitEncodedBoolean(int argAndType) {
+        throw new AssertionError("Unsupported encoded value.");
+      }
+
+      @Override
+      protected void visitAnnotation(int typeIndex, int size) {
+        throw new AssertionError("Unsupported encoded value.");
+      }
+
+      @Override
+      protected void visitAnnotationName(int nameIndex) {
+        throw new AssertionError("Unsupported encoded value.");
+      }
+
+      @Override
+      protected void visitAnnotationValue(int argAndType) {
+        throw new AssertionError("Unsupported encoded value.");
+      }
+
+      @Override
+      protected void visitArrayValue(int argAndType) {
+        throw new AssertionError("Unsupported encoded value.");
+      }
+
+      @Override
+      protected void visitField(int type, int index) {
+        throw new AssertionError("Unsupported encoded value.");
+      }
+
+      @Override
+      protected void visitMethod(int index) {
+        throw new AssertionError("Unsupported encoded value.");
+      }
+
+      @Override
+      protected void visitType(int index) {
+        throw new AssertionError("Unsupported encoded value.");
+      }
+    }
+
+    @Nonnull
+    private CallSiteEncodedArrayReader callSiteReader;
+
+    @Nonnull
+    private CstIndexMap cstIndexMap;
+
+    public CstCallSiteRefBuilder(@Nonnull CstIndexMap cstIndexMap,
+        @Nonnegative int encodedArrayOffset) {
+      callSiteReader = new CallSiteEncodedArrayReader(new Section(encodedArrayOffset));
+      this.cstIndexMap = cstIndexMap;
+    }
+
+    @Nonnull
+    public CstCallSiteRef build() {
+      callSiteReader.readArray();
+      return new CstCallSiteRef(callSiteReader.getCstArray());
+    }
   }
 
   /**

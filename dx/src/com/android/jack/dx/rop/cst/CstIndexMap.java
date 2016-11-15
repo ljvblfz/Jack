@@ -51,6 +51,9 @@ public class CstIndexMap {
   @Nonnull
   private final CstMethodHandleRef[] methodHandles;
 
+  /** Mapping between index and {@link CstCallSiteRef} value of a dex file. */
+  private final CstCallSiteRef[] callSites;
+
   public CstIndexMap(@Nonnull DexBuffer dexBuffer) {
     strings = new CstString[dexBuffer.strings().size()];
     types = new CstType[dexBuffer.typeNames().size()];
@@ -58,6 +61,7 @@ public class CstIndexMap {
     fields = new CstFieldRef[dexBuffer.fieldIds().size()];
     prototypes = new CstPrototypeRef[dexBuffer.protoIds().size()];
     methodHandles = new CstMethodHandleRef[dexBuffer.methodHandleIds().size()];
+    callSites = new CstCallSiteRef[dexBuffer.callSiteIds().size()];
   }
   /**
    * Keeps string mapping of a dex file.
@@ -139,6 +143,19 @@ public class CstIndexMap {
   }
 
   /**
+   * Keeps call site mapping of a dex file.
+   * @param index Call site index.
+   * @param callSiteRef The call site.
+   */
+  public void addCallSiteMapping(@Nonnegative int index, @Nonnull CstCallSiteRef callSiteRef) {
+    assert callSites[index] == null || callSites[index].compareTo(callSiteRef) == 0;
+
+    if (callSites[index] == null) {
+      callSites[index] = callSiteRef;
+    }
+  }
+
+  /**
    * Return the remapped index of a {@code CstString} into {@code file}.
    * @param file The file where the remapped index apply to.
    * @param index The old index to remap into {@code file}.
@@ -198,6 +215,18 @@ public class CstIndexMap {
     return indexedItem.getIndex();
   }
 
+  /**
+   * Return the remapped index of a {@code CstCallSiteRef} into {@code file}.
+   * @param file The file where the remapped index apply to.
+   * @param index The old index to remap into {@code file}.
+   * @return The new index remapped into {@code file}.
+   */
+  public int getRemappedCstCallSiteRefIndex(DexFile file, @Nonnegative int index) {
+    IndexedItem indexedItem = file.findItemOrNull(callSites[index]);
+    assert indexedItem != null;
+    return indexedItem.getIndex();
+  }
+
   @Nonnull
   public CstMethodRef getCstMethodRef(@Nonnegative int index) {
     CstMethodRef cstMethodRef = methods[index];
@@ -227,9 +256,21 @@ public class CstIndexMap {
   }
 
   @Nonnull
+  public CstPrototypeRef getCstPrototype(@Nonnegative int index) {
+    CstPrototypeRef cstPrototypeRef = prototypes[index];
+    assert cstPrototypeRef != null;
+    return cstPrototypeRef;
+  }
+
+  @Nonnull
   public CstMethodHandleRef getCstMethodHandle(@Nonnegative int index) {
     CstMethodHandleRef cstMethodHandleRef = methodHandles[index];
     assert cstMethodHandleRef != null;
     return cstMethodHandleRef;
+  }
+
+  @Nonnull
+  public CstCallSiteRef[] getCstCallSitesType() {
+    return callSites;
   }
 }
