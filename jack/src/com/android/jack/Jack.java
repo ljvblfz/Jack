@@ -139,6 +139,7 @@ import com.android.jack.optimizations.cfg.RemoveEmptyBasicBlocks;
 import com.android.jack.optimizations.cfg.RemoveRedundantConditionalBlocks;
 import com.android.jack.optimizations.cfg.RemoveRedundantGotoReturnEdges;
 import com.android.jack.optimizations.cfg.RemoveUnreachableBasicBlocks;
+import com.android.jack.optimizations.cfg.SimplifyConditionalExpressions;
 import com.android.jack.optimizations.common.DirectlyDerivedClassesProvider;
 import com.android.jack.optimizations.modifiers.ClassFinalizer;
 import com.android.jack.optimizations.modifiers.FieldFinalizer;
@@ -1763,6 +1764,7 @@ public abstract class Jack {
       cfgPlan.append(RemoveEmptyBasicBlocks.class);
       cfgPlan.append(RemoveRedundantGotoReturnEdges.class);
       cfgPlan.append(RemoveUnreachableBasicBlocks.class);
+      cfgPlan.append(SimplifyConditionalExpressions.class);
 
       if (hasSanityChecks) {
         cfgPlan.append(CfgChecker.class);
