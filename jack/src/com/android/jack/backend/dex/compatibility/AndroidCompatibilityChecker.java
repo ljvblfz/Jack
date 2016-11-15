@@ -32,6 +32,7 @@ import com.android.jack.reporting.Reportable;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.InvalidDefaultBridgeInInterfaceRemoved;
+import com.android.jack.util.AndroidApiLevel;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Filter;
@@ -41,7 +42,6 @@ import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.config.id.BooleanPropertyId;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -64,11 +64,9 @@ public class AndroidCompatibilityChecker implements RunnableSchedulable<JMethod>
               "Check compatibility with the Android platform")
           .addDefaultValue(Boolean.FALSE).addCategory(Carnac.class);
 
-  @Nonnegative
-  public static final long N_API_LEVEL = 24;
-
-  private final long androidMinApiLevel =
-      ThreadConfig.get(Options.ANDROID_MIN_API_LEVEL).longValue();
+  @Nonnull
+  private final AndroidApiLevel androidMinApiLevel =
+      ThreadConfig.get(Options.ANDROID_MIN_API_LEVEL);
 
   @Nonnull
   private final JInterface serializable =
@@ -104,7 +102,7 @@ public class AndroidCompatibilityChecker implements RunnableSchedulable<JMethod>
 
   @Override
   public void run(@Nonnull JMethod m) {
-    if (androidMinApiLevel < N_API_LEVEL) {
+    if (androidMinApiLevel.getReleasedLevel() < AndroidApiLevel.ReleasedLevel.N.getLevel()) {
       if (m.getEnclosingType() instanceof JInterface && !m.isAbstract() && !JMethod.isClinit(m)) {
         Reportable reportable;
         if (m.isStatic()) {

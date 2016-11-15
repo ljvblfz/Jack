@@ -35,6 +35,7 @@ import com.android.jack.test.toolchain.JackApiV03;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
+import com.android.jack.util.AndroidApiLevel;
 
 import org.jf.dexlib.ClassDataItem.EncodedMethod;
 import org.jf.dexlib.ClassDefItem;
@@ -205,7 +206,7 @@ public class DefaultMethodTest {
         AbstractTestTools.createTempFile("lib24", toolchain.getLibraryExtension());
     toolchain.addProperty(
         Options.ANDROID_MIN_API_LEVEL.getName(),
-        String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL))
+        String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
     .setSourceLevel(SourceLevel.JAVA_8)
     .addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(lib24,
@@ -371,7 +372,7 @@ public class DefaultMethodTest {
       toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class, excludeClazz);
       toolchain.addProperty(
           Options.ANDROID_MIN_API_LEVEL.getName(),
-          String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL))
+          String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
       .libToExe(lib23, dex24, /* zipFiles = */ false);
 
       // Run to check everything went as expected
@@ -398,7 +399,7 @@ public class DefaultMethodTest {
         AbstractTestTools.createTempFile("lib24", toolchain.getLibraryExtension());
     toolchain.addProperty(
         Options.ANDROID_MIN_API_LEVEL.getName(),
-        String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL))
+        String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
     .setSourceLevel(SourceLevel.JAVA_8)
     .addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(lib24,
@@ -408,7 +409,7 @@ public class DefaultMethodTest {
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeClazz);
     toolchain.addProperty(
         Options.ANDROID_MIN_API_LEVEL.getName(),
-        String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL))
+        String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
     .libToExe(lib24, dex24, /* zipFiles = */ false);
 
     // Run to check everything went as expected
@@ -520,7 +521,7 @@ public class DefaultMethodTest {
     new RuntimeTestHelper(DEFAULTMETHOD018)
     .addProperty(
         Options.ANDROID_MIN_API_LEVEL.getName(),
-        String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL))
+        String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
     .setSourceLevel(SourceLevel.JAVA_8)
     .addIgnoredCandidateToolchain(JackApiV01.class)
     // This test must be exclude from the Jill tool-chain because, there is a different behavior than with Jack
@@ -538,7 +539,7 @@ public class DefaultMethodTest {
     new RuntimeTestHelper(rti)
         .addProperty(
             Options.ANDROID_MIN_API_LEVEL.getName(),
-            String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL))
+            String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
         .setSourceLevel(SourceLevel.JAVA_8)
         .addIgnoredCandidateToolchain(JackApiV01.class)
         .compileAndRunTest();

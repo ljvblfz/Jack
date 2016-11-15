@@ -90,6 +90,7 @@ import com.android.jack.transformations.booleanoperators.FallThroughMarker;
 import com.android.jack.transformations.cast.SourceCast;
 import com.android.jack.transformations.rop.cast.RopLegalCast;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
+import com.android.jack.util.AndroidApiLevel;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
@@ -189,7 +190,8 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
   private final boolean forceJumbo = ThreadConfig.get(FORCE_JUMBO).booleanValue();
   private final boolean removeRedundantConditionalBranch =
       ThreadConfig.get(OPTIMIZE_BRANCHES).booleanValue();
-  private final int apiLevel = ThreadConfig.get(Options.ANDROID_MIN_API_LEVEL).intValue();
+  @Nonnull
+  private final AndroidApiLevel apiLevel = ThreadConfig.get(Options.ANDROID_MIN_API_LEVEL);
   private final boolean emitLineNumberTable =
       ThreadConfig.get(Options.EMIT_LINE_NUMBER_DEBUG_INFO).booleanValue();
 
@@ -498,7 +500,7 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
   private DalvCode createCode(@Nonnull JMethod method, @Nonnull RopMethod ropMethod) {
     DexOptions options = new DexOptions();
     options.forceJumbo = forceJumbo;
-    options.targetApiLevel = apiLevel;
+    options.targetApiLevel = apiLevel.getReleasedLevel();
     int paramSize = getParameterWordCount(method);
     int positionListKind;
     LocalVariableInfo lvInfo;

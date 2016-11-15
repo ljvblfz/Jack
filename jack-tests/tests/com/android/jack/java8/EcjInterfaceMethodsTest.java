@@ -26,6 +26,7 @@ import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackApiV01;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
+import com.android.jack.util.AndroidApiLevel;
 import com.android.sched.util.file.CannotChangePermissionException;
 import com.android.sched.util.file.CannotCreateFileException;
 
@@ -158,7 +159,7 @@ public class EcjInterfaceMethodsTest extends InterfaceMethodsTest {
       jackToolchain.setSourceLevel(SourceLevel.JAVA_8);
       jackToolchain.addProperty(
           Options.ANDROID_MIN_API_LEVEL.getName(),
-          String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL));
+          String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()));
       jackToolchain.srcToExe(dexOutDir, /* zipFile = */ false, sourceFolder);
     } catch (Exception e) {
       e.printStackTrace();
@@ -188,7 +189,7 @@ public class EcjInterfaceMethodsTest extends InterfaceMethodsTest {
       jackToolchain.setSourceLevel(SourceLevel.JAVA_8);
       jackToolchain.addProperty(
           Options.ANDROID_MIN_API_LEVEL.getName(),
-          String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL));
+          String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()));
 
     try {
       File dexOutDir = AbstractTestTools.createTempDir();

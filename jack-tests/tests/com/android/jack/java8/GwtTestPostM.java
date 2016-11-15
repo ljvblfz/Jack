@@ -25,6 +25,7 @@ import com.android.jack.test.junit.RuntimeVersion;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
+import com.android.jack.util.AndroidApiLevel;
 
 import org.junit.Test;
 
@@ -231,7 +232,7 @@ public class GwtTestPostM {
   private void run(@Nonnull RuntimeTestInfo rti) throws Exception {
     new RuntimeTestHelper(rti).setSourceLevel(SourceLevel.JAVA_8)
         .addProperty(Options.ANDROID_MIN_API_LEVEL.getName(),
-            String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL))
+            String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
         .compileAndRunTest();
   }
 

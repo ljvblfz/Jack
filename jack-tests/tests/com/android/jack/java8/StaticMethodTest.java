@@ -29,6 +29,7 @@ import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackApiV01;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
+import com.android.jack.util.AndroidApiLevel;
 
 
 
@@ -72,7 +73,7 @@ public class StaticMethodTest {
         .setSourceLevel(SourceLevel.JAVA_8)
         .addProperty(
             Options.ANDROID_MIN_API_LEVEL.getName(),
-            String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL))
+            String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
         .addIgnoredCandidateToolchain(JackApiV01.class)
         .compileAndRunTest();
   }

@@ -34,6 +34,7 @@ import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.reporting.Reportable;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
+import com.android.jack.util.AndroidApiLevel;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Feature;
@@ -169,8 +170,8 @@ public class DalvikProtectedInnerChecker implements RunnableSchedulable<JMethod>
   /**
    * Checked bug was fixed in Android API version 20.
    */
-  private final boolean needCheck =
-      ThreadConfig.get(Options.ANDROID_MIN_API_LEVEL).intValue() < 20;
+  private final boolean needCheck = ThreadConfig.get(Options.ANDROID_MIN_API_LEVEL)
+      .getReleasedLevel() < AndroidApiLevel.ReleasedLevel.K_WATCH.getLevel();
 
   @Override
   public void run(@Nonnull JMethod method) {

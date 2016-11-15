@@ -21,7 +21,6 @@ import com.android.jack.api.v01.impl.Api01Feature;
 import com.android.jack.api.v02.impl.Api02Feature;
 import com.android.jack.api.v03.impl.Api03Feature;
 import com.android.jack.backend.dex.EnsureAndroidCompatibility;
-import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JMethod;
@@ -29,6 +28,7 @@ import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.lambda.DefaultBridgeIntoInterface;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.TransformationRequest;
+import com.android.jack.util.AndroidApiLevel;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Constraint;
@@ -64,12 +64,13 @@ import javax.annotation.Nonnull;
     unlessOne = {Api01Feature.class, Api02Feature.class, Api03Feature.class})
 public class BridgeInInterfaceRemover implements RunnableSchedulable<JMethod> {
 
-  private final long androidMinApiLevel =
-      ThreadConfig.get(Options.ANDROID_MIN_API_LEVEL).longValue();
+  @Nonnull
+  private final AndroidApiLevel androidMinApiLevel =
+      ThreadConfig.get(Options.ANDROID_MIN_API_LEVEL);
 
   @Override
   public void run(@Nonnull JMethod method) {
-    if (androidMinApiLevel < AndroidCompatibilityChecker.N_API_LEVEL) {
+    if (androidMinApiLevel.getReleasedLevel() < AndroidApiLevel.ReleasedLevel.N.getLevel()) {
       if (method.getEnclosingType() instanceof JInterface && method.isBridge()) {
         TransformationRequest tr = new TransformationRequest(method.getEnclosingType());
         tr.append(new Remove(method));

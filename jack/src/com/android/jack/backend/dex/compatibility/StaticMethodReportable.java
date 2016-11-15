@@ -22,6 +22,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.formatter.TypeAndMethodFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.reporting.Reportable;
+import com.android.jack.util.AndroidApiLevel;
 
 import javax.annotation.Nonnull;
 
@@ -44,7 +45,7 @@ public class StaticMethodReportable implements Reportable, HasSourceInfo {
     return "Static method "
         + formatter.getName(method)
         + " not supported in Android API level less than "
-        + AndroidCompatibilityChecker.N_API_LEVEL;
+        + AndroidApiLevel.ReleasedLevel.N.getLevel();
   }
 
   @Override
