@@ -22,6 +22,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(JackTestRunner.class)
-@SuiteClasses(value = {CoverageTests.class})
+@SuiteClasses(value = {
+    CoverageTests.class
+})
 public class AllCoverageTests {
 }
