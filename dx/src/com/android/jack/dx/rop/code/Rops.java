@@ -2101,6 +2101,15 @@ public final class Rops {
   }
 
   /**
+   * Returns the appropriate {@code invoke-custom} rop for the given type. The result is typically a
+   * newly-allocated instance.
+   */
+  @Nonnull
+  public static Rop opInvokeCustom(@Nonnull Prototype meth) {
+    return new Rop(RegOps.INVOKE_CUSTOM, meth.getParameterFrameTypes(), StdTypeList.THROWABLE);
+  }
+
+  /**
    * Returns the appropriate {@code mark-local} rop for the given type.
    * The result is a shared instance.
    *

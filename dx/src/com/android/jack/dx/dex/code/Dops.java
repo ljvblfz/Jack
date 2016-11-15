@@ -394,6 +394,9 @@ public final class Dops {
   public static final Dop INVOKE_POLYMORPHIC = new Dop(Opcodes.INVOKE_POLYMORPHIC,
       Opcodes.INVOKE_POLYMORPHIC, Opcodes.INVOKE_POLYMORPHIC_RANGE, Form45cc.THE_ONE, false);
 
+  public static final Dop INVOKE_CUSTOM = new Dop(Opcodes.INVOKE_CUSTOM, Opcodes.INVOKE_CUSTOM,
+      Opcodes.NO_NEXT, Form35c.THE_ONE, false);
+
   public static final Dop INVOKE_VIRTUAL_RANGE = new Dop(Opcodes.INVOKE_VIRTUAL_RANGE,
       Opcodes.INVOKE_VIRTUAL, Opcodes.NO_NEXT, Form3rc.THE_ONE, false);
 
@@ -843,6 +846,7 @@ public final class Dops {
     set(INVOKE_STATIC);
     set(INVOKE_INTERFACE);
     set(INVOKE_POLYMORPHIC);
+    set(INVOKE_CUSTOM);
     set(INVOKE_VIRTUAL_RANGE);
     set(INVOKE_SUPER_RANGE);
     set(INVOKE_DIRECT_RANGE);

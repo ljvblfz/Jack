@@ -386,6 +386,9 @@ public final class OpcodeInfo {
       new Info(Opcodes.INVOKE_POLYMORPHIC, "invoke-polymorphic", InstructionCodec.FORMAT_45CC,
           IndexType.METHOD_REF, IndexType.PROTOTYPE_REF);
 
+  public static final Info INVOKE_CUSTOM = new Info(Opcodes.INVOKE_CUSTOM, "invoke-custom",
+      InstructionCodec.FORMAT_35C, IndexType.CALLSITE_REF);
+
   public static final Info INVOKE_VIRTUAL_RANGE = new Info(Opcodes.INVOKE_VIRTUAL_RANGE,
       "invoke-virtual/range", InstructionCodec.FORMAT_3RC, IndexType.METHOD_REF);
 
@@ -842,6 +845,7 @@ public final class OpcodeInfo {
     set(INVOKE_STATIC);
     set(INVOKE_INTERFACE);
     set(INVOKE_POLYMORPHIC);
+    set(INVOKE_CUSTOM);
     set(INVOKE_VIRTUAL_RANGE);
     set(INVOKE_SUPER_RANGE);
     set(INVOKE_DIRECT_RANGE);

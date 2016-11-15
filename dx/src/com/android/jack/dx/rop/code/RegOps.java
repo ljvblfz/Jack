@@ -303,6 +303,12 @@ public final class RegOps {
   public static final int INVOKE_POLYMORPHIC = 58;
 
   /**
+   * {@code Tr, T0, T1...: any types; r: Tr; x: Object; m: custom
+   * method spec; y0: T0; y1: T1 ... :: r = x.m(y0, y1, ...)} (call custom method)
+  */
+  public static final int INVOKE_CUSTOM = 59;
+
+  /**
    * This class is uninstantiable.
    */
   private RegOps() {
@@ -425,6 +431,8 @@ public final class RegOps {
         return "invoke-interface";
       case INVOKE_POLYMORPHIC:
         return "invoke-polymorphic";
+      case INVOKE_CUSTOM:
+        return "invoke-custom";
       case MOVE_RESULT:
         return "move-result";
       case MOVE_RESULT_PSEUDO:
