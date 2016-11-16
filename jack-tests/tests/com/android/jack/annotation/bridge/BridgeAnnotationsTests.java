@@ -73,7 +73,6 @@ public class BridgeAnnotationsTests extends RuntimeTest {
     new RuntimeTestHelper(TEST006).compileAndRunTest();
   }
 
-  @KnownIssue
   @Test
   @Runtime
   @Category(RuntimeRegressionTest.class)
@@ -95,7 +94,7 @@ public class BridgeAnnotationsTests extends RuntimeTest {
 //    rtTestInfos.add(TEST001);
 //    rtTestInfos.add(TEST002);
 //    rtTestInfos.add(TEST006);
-//    rtTestInfos.add(TEST007);
+    rtTestInfos.add(TEST007);
 //    rtTestInfos.add(TEST010);
   }
 }

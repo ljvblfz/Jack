@@ -16,6 +16,7 @@
 
 package com.android.jack.transformations;
 
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JBlock;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JConstructor;
@@ -42,6 +43,7 @@ import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.jack.transformations.request.AppendMethod;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
+import com.android.jack.util.CloneExpressionVisitor;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Access;
@@ -111,9 +113,18 @@ public class VisibilityBridgeAdder implements RunnableSchedulable<JDefinedClassO
     // Add bridge specific flags
     bridgeModifier |= JModifier.SYNTHETIC | JModifier.BRIDGE;
     JMethod bridge = new JMethod(sourceInfo, methodId, jClass, bridgeModifier);
+    CloneExpressionVisitor cloner = new CloneExpressionVisitor();
     for (JParameter param : method.getParams()) {
-      bridge.addParam(new JParameter(sourceInfo, param.getName(), param.getType(),
-          param.getModifier(), bridge));
+      JParameter bridgeParam = new JParameter(sourceInfo, param.getName(), param.getType(),
+          param.getModifier(), bridge);
+      for (JAnnotation annotation : param.getAnnotations()) {
+        bridgeParam.addAnnotation(cloner.cloneExpression(annotation));
+      }
+      bridge.addParam(bridgeParam);
+    }
+
+    for (JAnnotation annotation : method.getAnnotations()) {
+      bridge.addAnnotation(cloner.cloneExpression(annotation));
     }
 
     JBlock bodyBlock = new JBlock(sourceInfo);
