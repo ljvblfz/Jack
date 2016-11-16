@@ -230,7 +230,7 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
         if (bb == cfg.getEntryNode()) {
           continue;
         }
-        RopBuilderVisitor ropBuilder = new RopBuilderVisitor(ropReg, bb);
+        RopBuilderVisitor ropBuilder = new RopBuilderVisitor(ropReg, bb, apiLevel);
 
         assert !bb.getStatements().isEmpty();
 

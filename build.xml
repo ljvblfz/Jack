@@ -29,6 +29,7 @@
     jack-api,
     jack-api-src,
     jack-annotations-lib,
+    jack-test-annotations-lib,
     jackunittests,
     jack-tests,
     sched-lib,
@@ -43,6 +44,7 @@
     jack-api-clean,
     jack-api-src-clean,
     jack-annotations-lib-clean,
+    jack-test-annotations-lib-clean,
     jack-intermediate-clean,
     jackunittests-lib-clean,
     jackunittests-clean,
@@ -707,6 +709,61 @@
         basedir="${jack-api.dir}/src" />
   </target>
 
+  <!-- ***************************  -->
+  <!-- jack-test-annotations-lib    -->
+  <!-- ***************************  -->
+  <property name="jack-test-annotations.build.dir" value="${jack-tests.dir}/build/annotations" />
+  <property name="jack-test-annotations.build.outdir" value="${jack-test-annotations.build.dir}/classes" />
+  <property name="jack-test-annotations.libname" value="jack-test-annotations.jar" />
+
+  <target name="jack-test-annotations-lib-clean">
+    <delete dir="${jack-test-annotations.build.dir}" />
+    <delete file="${jack.dist.dir}/${jack-test-annotations.libname}" />
+    <delete dir="${jack-test-annotations.build.outdir}" />
+  </target>
+
+  <target name="jack-test-annotations-lib">
+    <mkdir dir="${jack-test-annotations.build.outdir}"/>
+    <dependset>
+      <sources>
+          <fileset dir="${jack-tests.dir}/src/com/android/jack/annotations" includes="**/*.java" />
+      </sources>
+      <targets>
+        <fileset file="${jack.dist.dir}/${jack-test-annotations.libname}"/>
+      </targets>
+    </dependset>
+     <javac encoding="UTF-8" srcdir="${jack-tests.dir}/src"
+          includes="com/android/jack/annotations/**/*.java"
+          destdir="${jack-test-annotations.build.outdir}"
+          source="1.6" target="1.6" debug="true"
+          includeantruntime="false"  includeDestClasses="false" nowarn="true" />
+
+     <copy file="${jack-project.dir}/version.properties"
+            tofile="${jack-test-annotations.build.outdir}/jack-test-annotations-version.properties"/>
+
+    <jar destfile="${jack-tests.dist.dir}/${jack-test-annotations.libname}">
+      <fileset dir="${jack-test-annotations.build.outdir}"/>
+    </jar>
+  </target>
+
+  <!-- ********************************** -->
+  <!-- jack-test-annotations-jack-lib     -->
+  <!-- ********************************** -->
+  <property name="jack-test-annotations-jack.libname" value="jack-test-annotations-lib.jack" />
+
+  <target name="jack-test-annotations-jack-lib" depends="jack-intermediate, jack-test-annotations-lib">
+    <!-- compile -->
+    <java jar="${jack.intermediate.dist.dir}/${jack.intermediatename}" fork="true" failonerror="true">
+      <arg value="--verbose"/>
+      <arg value="error"/>
+      <arg value="-D"/>
+      <arg value="jack.classpath.default-libraries=false"/>
+      <arg value="--import"/>
+      <arg value="${jack-tests.dist.dir}/${jack-test-annotations.libname}"/>
+      <arg value="--output-jack"/>
+      <arg value="${jack-tests.prebuilts.dir}/${jack-test-annotations-jack.libname}"/>
+    </java>
+  </target>
 
   <!-- **********************  -->
   <!-- jack-annotations-lib    -->
@@ -2324,7 +2381,7 @@
   <!-- ******************* -->
 
   <target name="prebuilts" description="build and deploy prebuilt libraries"
-    depends="core-stubs-mini,junit4-lib,junit4-jack-lib,ecj-tests-lib"/>
+    depends="core-stubs-mini,junit4-lib,junit4-jack-lib,ecj-tests-lib, jack-test-annotations-jack-lib"/>
 
 
   <!-- ******************* -->

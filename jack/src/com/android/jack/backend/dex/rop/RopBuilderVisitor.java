@@ -16,6 +16,7 @@
 
 package com.android.jack.backend.dex.rop;
 
+import com.android.jack.backend.dex.invokecustom.InvokeCustomHelper;
 import com.android.jack.cfg.BasicBlock;
 import com.android.jack.cfg.CatchBasicBlock;
 import com.android.jack.cfg.PeiBasicBlock;
@@ -35,6 +36,7 @@ import com.android.jack.dx.rop.code.ThrowingDualCstInsn;
 import com.android.jack.dx.rop.code.ThrowingInsn;
 import com.android.jack.dx.rop.cst.Constant;
 import com.android.jack.dx.rop.cst.CstBoolean;
+import com.android.jack.dx.rop.cst.CstCallSiteRef;
 import com.android.jack.dx.rop.cst.CstDouble;
 import com.android.jack.dx.rop.cst.CstFieldRef;
 import com.android.jack.dx.rop.cst.CstFloat;
@@ -58,6 +60,7 @@ import com.android.jack.ir.ast.FieldKind;
 import com.android.jack.ir.ast.JAbsentArrayDimension;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JAlloc;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JArrayLength;
 import com.android.jack.ir.ast.JArrayRef;
 import com.android.jack.ir.ast.JArrayType;
@@ -112,6 +115,8 @@ import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.types.JIntegralType32;
 import com.android.jack.transformations.booleanoperators.FallThroughMarker;
+import com.android.jack.util.AndroidApiLevel;
+import com.android.jack.util.AndroidApiLevel.ProvisionalLevel;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -122,6 +127,9 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 class RopBuilderVisitor extends JVisitor {
+
+  @Nonnull
+  private final AndroidApiLevel apiLevel;
 
   @Nonnull
   private final RopRegisterManager ropReg;
@@ -390,9 +398,11 @@ class RopBuilderVisitor extends JVisitor {
     }
   }
 
-  RopBuilderVisitor(@Nonnull RopRegisterManager ropReg, @Nonnull BasicBlock currentBasicBlock) {
+  RopBuilderVisitor(@Nonnull RopRegisterManager ropReg, @Nonnull BasicBlock currentBasicBlock,
+      @Nonnull AndroidApiLevel apiLevel) {
     this.ropReg = ropReg;
     this.currentBasicBlock = currentBasicBlock;
+    this.apiLevel = apiLevel;
   }
 
   @CheckForNull
@@ -1209,6 +1219,34 @@ class RopBuilderVisitor extends JVisitor {
   }
 
   private void buildCall(@CheckForNull RegisterSpec result, @Nonnull JMethodCall methodCall) {
+    if (InvokeCustomHelper.isInvokeCustom(methodCall)
+        && apiLevel.getProvisionalLevel() == ProvisionalLevel.O_BETA2) {
+      JAnnotation invokeCustomCallSite = InvokeCustomHelper
+          .getInvokeCustomCallsite(methodCall.getMethodId().getMethods().iterator().next());
+      assert invokeCustomCallSite != null;
+      CstCallSiteRef callSiteRef =
+          InvokeCustomHelper.readInvokeCustomCallSite(invokeCustomCallSite);
+
+      SourcePosition methodCallSrcPos = RopHelper.getSourcePosition(methodCall);
+
+      RegisterSpecList sources = new RegisterSpecList(methodCall.getArgs().size());
+      int paramIndex = 0;
+      for (JExpression exprArg : methodCall.getArgs()) {
+        sources.set(paramIndex++, getRegisterSpec(exprArg));
+      }
+
+      Insn invokeCustom = new ThrowingCstInsn(
+          Rops.opInvokeCustom(callSiteRef.getCallSitePrototype().getPrototype()), methodCallSrcPos,
+          sources, getCatchTypes(), callSiteRef);
+      addInstruction(invokeCustom);
+
+      if (result != null) {
+        addMoveResultAsExtraInstruction(callSiteRef.getType(), result, methodCallSrcPos);
+      }
+
+      return;
+    }
+
     String signatureWithoutName = RopHelper.getMethodSignatureWithoutName(methodCall);
     SourcePosition methodCallSrcPos = RopHelper.getSourcePosition(methodCall);
 
