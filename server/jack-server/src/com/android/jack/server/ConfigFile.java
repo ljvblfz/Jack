@@ -237,7 +237,7 @@ class ConfigFile extends Properties {
   }
 
   public int getShutdownDelay() {
-    return getDelay(ConfigFile.SHUTDOWN_PROPERTY, CONFIG_TIME_DISABLED_VALUE);
+    return getDelay(ConfigFile.SHUTDOWN_PROPERTY, 6 * 60 * 60);
   }
 
   public long getMaxJarSize() {
