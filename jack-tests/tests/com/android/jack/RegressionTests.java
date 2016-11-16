@@ -17,6 +17,7 @@
 package com.android.jack;
 
 import com.android.jack.annotation.AnnotationTests;
+import com.android.jack.annotation.bridge.BridgeAnnotationsTests;
 import com.android.jack.arithmetic.ArithmeticTests;
 import com.android.jack.array.ArrayTests;
 import com.android.jack.assertion.AssertionTests;
@@ -77,6 +78,7 @@ public class RegressionTests {
       new AssignTests(),
       new BoxTests(),
       new BridgeTests(),
+      new BridgeAnnotationsTests(),
       new CastTests(),
       new ComparisonTests(),
       new ConditionalTests(),
