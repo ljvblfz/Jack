@@ -31,7 +31,7 @@ import javax.annotation.Nonnull;
  */
 public class EnumCodec<T extends Enum<T>> implements StringCodec<T> {
   @Nonnull
-  KeyValueCodec<T> parser;
+  private final KeyValueCodec<T> parser;
 
   @SuppressWarnings("unchecked")
   public EnumCodec(@Nonnull Class<T> type) {
@@ -42,6 +42,7 @@ public class EnumCodec<T extends Enum<T>> implements StringCodec<T> {
       if (field.isEnumConstant()) {
         EnumName meta = field.getAnnotation(EnumName.class);
         if (meta != null) {
+
           entries.add(new Entry<>(
               meta.name(),
               Enum.valueOf(type, field.getName()),
@@ -115,5 +116,9 @@ public class EnumCodec<T extends Enum<T>> implements StringCodec<T> {
   @Nonnull
   public String getVariableName() {
     return parser.getVariableName();
+  }
+
+  public boolean hasPublicEntries() {
+    return parser.hasPublicEntries();
   }
 }

@@ -386,7 +386,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
           logger.log(Level.FINE, e.getMessage());
           return false;
         } catch (ParsingException e) {
-          logger.log(Level.FINE, "Property ''{0}'' is malformed from library {1}: {2}",
+          logger.log(Level.FINE, "Property ''{0}'' is not parsable from library {1}: {2}",
               new Object[] {property.getName(), getLocation().getDescription(), e.getMessage()});
           return false;
         }

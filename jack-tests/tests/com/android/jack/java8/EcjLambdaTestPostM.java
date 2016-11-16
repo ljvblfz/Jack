@@ -20,6 +20,7 @@ import com.android.jack.Options;
 import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.util.AndroidApiLevel;
 
 import junit.framework.Assert;
 import junit.framework.JUnit4TestAdapter;
@@ -85,7 +86,7 @@ public class EcjLambdaTestPostM extends EcjLambdaTest {
     JackBasedToolchain jackToolchain = super.createToolchain(excludeList);
     jackToolchain.addProperty(
         Options.ANDROID_MIN_API_LEVEL.getName(),
-        String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL));
+        String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()));
     return jackToolchain;
   }
 

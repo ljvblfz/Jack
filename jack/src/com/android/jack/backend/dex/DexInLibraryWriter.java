@@ -32,6 +32,7 @@ import com.android.jack.library.LibraryLocation;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
+import com.android.jack.util.AndroidApiLevel;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.CannotCloseException;
@@ -63,7 +64,8 @@ public abstract class DexInLibraryWriter extends DexWriter implements
 
   private final boolean forceJumbo = ThreadConfig.get(CodeItemBuilder.FORCE_JUMBO).booleanValue();
 
-  private final int apiLevel = ThreadConfig.get(Options.ANDROID_MIN_API_LEVEL).intValue();
+  @Nonnull
+  private final AndroidApiLevel apiLevel = ThreadConfig.get(Options.ANDROID_MIN_API_LEVEL);
 
   private final boolean usePrebuilts =
       ThreadConfig.get(Options.USE_PREBUILT_FROM_LIBRARY).booleanValue();
@@ -117,7 +119,7 @@ public abstract class DexInLibraryWriter extends DexWriter implements
     try (Event event = tracer.open(JackEventType.DX_BACKEND)) {
       DexOptions options = new DexOptions();
       options.forceJumbo = forceJumbo;
-      options.targetApiLevel = apiLevel;
+      options.targetApiLevel = apiLevel.getReleasedLevel();
       DexFile typeDex = new DexFile(options);
       typeDex.add(cdiMarker.getClassDefItem());
       try {

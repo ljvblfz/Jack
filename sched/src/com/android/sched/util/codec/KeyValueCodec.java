@@ -106,6 +106,16 @@ public class KeyValueCodec<T> implements StringCodec<T> {
     return varName;
   }
 
+  public boolean hasPublicEntries() {
+    for (Entry<T> entry : entries) {
+      if (!entry.hidden) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   @Override
   @Nonnull
   public List<ValueDescription> getValueDescriptions() {

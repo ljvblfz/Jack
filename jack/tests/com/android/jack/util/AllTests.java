@@ -20,6 +20,8 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses(value = {GraphUtilsTests.class, MethodNameCodecTest.class})
+@SuiteClasses(value = {GraphUtilsTests.class,
+                       MethodNameCodecTest.class,
+                       AndroidApiLevelCodecTest.class})
 public class AllTests {
 }

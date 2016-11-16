@@ -51,6 +51,8 @@ import com.android.jack.shrob.seed.SeedPrinter;
 import com.android.jack.shrob.spec.Flags;
 import com.android.jack.transformations.lambda.LambdaGroupingScope;
 import com.android.jack.transformations.renamepackage.PackageRenamer;
+import com.android.jack.util.AndroidApiLevel;
+import com.android.jack.util.AndroidApiLevelCodec;
 import com.android.jack.util.ClassNameCodec;
 import com.android.jack.util.args4j.JackEnumOptionHandler;
 import com.android.jack.util.filter.Filter;
@@ -82,7 +84,6 @@ import com.android.sched.util.config.category.Private;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.EnumPropertyId;
 import com.android.sched.util.config.id.ImplementationPropertyId;
-import com.android.sched.util.config.id.IntegerPropertyId;
 import com.android.sched.util.config.id.ListPropertyId;
 import com.android.sched.util.config.id.MessageDigestPropertyId;
 import com.android.sched.util.config.id.ObjectId;
@@ -671,18 +672,26 @@ public class Options {
       .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
 
   @Nonnull
-  public static final IntegerPropertyId ANDROID_MIN_API_LEVEL = IntegerPropertyId
-      .create("jack.android.min-api-level", "Minimum Android API level compatibility")
-      .withMin(1)
-      .addDefaultValue(1)
+  public static final PropertyId<AndroidApiLevel> ANDROID_MIN_API_LEVEL = PropertyId
+      .create("jack.android.min-api-level", "Minimum Android API level compatibility",
+          new AndroidApiLevelCodec())
+      .addDefaultValue(new AndroidApiLevel(AndroidApiLevel.ReleasedLevel.B))
       .addCategory(DumpInLibrary.class)
       .addCategory(Carnac.class)
       .addCategory(new PrebuiltCompatibility() {
         @Override
         public boolean isCompatible(@Nonnull Config config, @Nonnull String valueFromLibrary)
             throws ParsingException {
-          return config.parseAs(valueFromLibrary, ANDROID_MIN_API_LEVEL).longValue()  <=
-              config.get(ANDROID_MIN_API_LEVEL).longValue();
+          AndroidApiLevel levelFromLib = config.parseAs(valueFromLibrary, ANDROID_MIN_API_LEVEL);
+          AndroidApiLevel levelFromConf = config.get(ANDROID_MIN_API_LEVEL);
+
+          if (levelFromLib.isReleasedLevel() && levelFromConf.isReleasedLevel()) {
+            return levelFromLib.getReleasedLevel() <= levelFromConf.getReleasedLevel();
+          } else if (!levelFromLib.isReleasedLevel() && !levelFromConf.isReleasedLevel()) {
+            return levelFromLib.getProvisionalLevel() == levelFromConf.getProvisionalLevel();
+          } else {
+            return false;
+          }
         }
       });
 
