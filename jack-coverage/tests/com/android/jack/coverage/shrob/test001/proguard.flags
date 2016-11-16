@@ -1,0 +1,2 @@
+-keep public class com.android.jack.coverage.shrob.test001.Foo
+-dontobfuscate

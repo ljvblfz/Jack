@@ -14,18 +14,8 @@
  * limitations under the License.
  */
 
-package com.android.jack.coverage;
+package com.android.jack.coverage.shrob.test002.sub;
 
-import com.android.jack.test.junit.JackTestRunner;
+public class Bar {
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite.SuiteClasses;
-
-@RunWith(JackTestRunner.class)
-@SuiteClasses(value = {
-    CoverageJava8Tests.class,
-    CoverageShrobTests.class,
-    CoverageTests.class
-})
-public class AllCoverageTests {
 }
