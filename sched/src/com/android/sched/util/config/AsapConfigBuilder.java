@@ -141,11 +141,16 @@ public class AsapConfigBuilder {
           try {
             field.setAccessible(true);
             KeyId<?, ?> keyId = (KeyId<?, ?>) field.get(null);
-            if (defaultLocationsByKeyId.containsKey(keyId)) {
+            if (keyIdsByName.containsKey(keyId.getName())) {
               hasErrors = true;
-              logger.log(Level.SEVERE, "A Key id named ''{0}'' already exists in ''{1}''",
-                  new Object[] {
-                      keyId.getName(), defaultLocationsByKeyId.get(keyId).getDescription()});
+              Location location = locationsByKeyId.get(keyId);
+
+              if (location != null) {
+                logger.log(Level.SEVERE, "A Key id named ''{0}'' already exists in {1}",
+                    new Object[] {keyId.getName(), locationsByKeyId.get(keyId).getDescription()});
+              } else {
+                logger.log(Level.SEVERE, "A Key id named ''{0}'' already exists", keyId.getName());
+              }
             }
 
             defaultLocationsByKeyId.put(keyId, new FieldLocation(field));
