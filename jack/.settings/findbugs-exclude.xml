@@ -15,4 +15,7 @@
 <Match>
     <Class name="~com\.android\.jack\.preprocessor\.PreProcessor_Java.*"/>
 </Match>
+<Match>
+    <Package name="~com\.android\.jack\.dx.*"/>
+</Match>
 </FindBugsFilter>

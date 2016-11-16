@@ -31,7 +31,6 @@
     jack-annotations-lib,
     jackunittests,
     jack-tests,
-    dx-lib,
     sched-lib,
     schedtests-lib,
     jill,
@@ -50,7 +49,6 @@
     jack-tests-clean,
     antlr-clean,
     args4j-lib-clean,
-    dx-lib-clean,
     ecj-clean,
     ecj-tests-clean,
     simple-lib-clean,
@@ -93,7 +91,6 @@
   <property name="antlr.dir"  value="${jack-project.dir}/antlr"/>
   <property name="args4j.dir" value="${jack-project.dir}/args4j"/>
   <property name="ddm-lib.dir" value="${jack-project.dir}/ddmlib"/>
-  <property name="dx.dir" value="${jack-project.dir}/dx"/>
   <property name="ecj.dir" value="${jack-project.dir}/ecj"/>
   <property name="ecj-tests.dir" value="${jack-project.dir}/ecj-tests-lib"/>
   <property name="simple.dir" value="${jack-project.dir}/simple"/>
@@ -414,13 +411,12 @@
     <delete dir="${jack.tools.dir}"/>
   </target>
 
-  <target name="jack-copy-libs" depends="ecj,guava-lib,dx-lib,args4j-lib,antlr-rt-lib,jsr305-lib,
+  <target name="jack-copy-libs" depends="ecj,guava-lib,args4j-lib,antlr-rt-lib,jsr305-lib,
     junit4,dex-lib,dx-ref-lib,jack-api-lib">
     <copy todir="${jack.libs.dir}" flatten="true">
       <filelist dir="/" >
         <file name="${ecj.dist.dir}/${ecj.libname}"/>
         <file name="${guava.dist.dir}/${guava.libname}"/>
-        <file name="${dx.dist.dir}/${dx.libname}"/>
         <file name="${args4j.dist.dir}/${args4j.libname}"/>
         <file name="${antlr-rt.dist.dir}/${antlr-rt.libname}"/>
         <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
@@ -443,7 +439,7 @@
 
   <target name="jack-lib-compile-step1"
     depends="jack-copy-libs,jack-create-version-file,sched-build,antlr,sched-build-lib,allocation-lib,
-    dx-lib,freemarker-lib,maths-lib,sched-lib,watchmaker-lib,jill-lib,jill-api-lib,asm4-lib">
+    freemarker-lib,maths-lib,sched-lib,watchmaker-lib,jill-lib,jill-api-lib,asm4-lib">
     <!-- project layout -->
     <!-- avoid incremental compilation with annotation processor -->
     <mkdir dir="${jack.build.outdir}"/>
@@ -460,7 +456,6 @@
       <file name="${ecj.dist.dir}/${ecj.libname}" />
       <file name="${guava.dist.dir}/${guava.libname}" />
       <file name="${jsr305.dist.dir}/${jsr305.libname}" />
-      <file name="${dx.dist.dir}/${dx.libname}" />
       <file name="${args4j.dist.dir}/${args4j.libname}" />
       <file name="${antlr-rt.dist.dir}/${antlr-rt.libname}" />
       <file name="${schedlib.dist.dir}/${schedlib.libname}" />
@@ -1035,8 +1030,7 @@
     <delete dir="${jill.libs.dir}" />
   </target>
 
-  <target name="jill-copy-libs" depends="jill-api-lib,sched-lib,guava-lib,asm4-lib,args4j-lib,jsr305-lib,
-    dexcomparator-lib">
+  <target name="jill-copy-libs" depends="jill-api-lib,sched-lib,guava-lib,asm4-lib,args4j-lib,jsr305-lib">
     <copy todir="${jill.libs.dir}" flatten="true">
       <filelist id="jill.libs.filelist" dir="/" >
         <file name="${jill-api.dist.dir}/${jill-api.lib.name}"/>
@@ -1045,7 +1039,6 @@
         <file name="${args4j.dist.dir}/${args4j.libname}"/>
         <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
         <file name="${asm4.dist.dir}/${asm4.libname}"/>
-        <file name="${dexcomparator.dist.dir}/${dexcomparator.libname}"/>
       </filelist>
     </copy>
   </target>
@@ -1292,55 +1285,6 @@
     <mkdir dir="${ddm-lib.dist.dir}"/>
     <copy file="${ddm-lib.dir}/ddmlib.jar" tofile="${ddm-lib.dist.dir}/${ddm-lib.libname}"/>
   </target>
-
-
-  <!-- ******************* -->
-  <!-- dx-lib              -->
-  <!-- ******************* -->
-  <property name="dx.build.dir" value="${dx.dir}/build"/>
-  <property name="dx.libs.dir" value="${dx.dir}/libs"/>
-  <property name="dx.build.outdir" value="${dx.build.dir}/classes"/>
-  <property name="dx.dist.dir" value="${dx.dir}/dist"/>
-  <property name="dx.libname" value="dx-lib.jar"/>
-
-  <target name="dx-lib-clean">
-    <delete dir="${dx.build.dir}" />
-    <delete dir="${dx.libs.dir}" />
-    <delete dir="${dx.dist.dir}" />
-  </target>
-
-  <target name="dx-lib" depends="jsr305-lib">
-    <!-- project layout -->
-    <mkdir dir="${dx.build.outdir}"/>
-    <mkdir dir="${dx.dist.dir}"/>
-    <!-- fetch dependencies -->
-    <copy file="${jsr305.dist.dir}/${jsr305.libname}" todir="${dx.libs.dir}"/>
-    <!-- compile -->
-    <dependset>
-      <sources>
-        <fileset dir="${dx.dir}/src" />
-        <fileset file="${jsr305.dist.dir}/${jsr305.libname}" />
-      </sources>
-      <targets>
-        <fileset dir="${dx.build.outdir}"/>
-      </targets>
-    </dependset>
-    <javac encoding="UTF-8" srcdir="${dx.dir}/src"
-      destdir="${dx.build.outdir}"
-      source="1.6" target="1.6"
-      debug="true" includeantruntime="false"  includeDestClasses="false" nowarn="true">
-      <classpath>
-        <filelist dir="/">
-          <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
-        </filelist>
-      </classpath>
-    </javac>
-    <!-- package -->
-    <jar destfile="${dx.dist.dir}/${dx.libname}"
-      basedir="${dx.build.outdir}"
-      includes="**"/>
-  </target>
-
 
   <!-- ******************* -->
   <!-- ecj                 -->
@@ -2069,7 +2013,7 @@
     <delete dir="${dexcomparator.dist.dir}" />
   </target>
 
-  <target name="dexcomparator-compile" depends="dx-lib,dex-lib,jsr305-lib,guava-lib,args4j-lib">
+  <target name="dexcomparator-compile" depends="jack-lib, dex-lib,jsr305-lib,guava-lib,args4j-lib">
     <!-- project layout -->
     <mkdir dir="${dexcomparator.build.outdir}"/>
     <mkdir dir="${dexcomparator.libs.dir}"/>
@@ -2077,11 +2021,11 @@
     <!-- fetch dependencies -->
     <copy todir="${dexcomparator.libs.dir}" flatten="true">
       <filelist dir="/">
-        <file name="${dx.dist.dir}/${dx.libname}" />
         <file name="${dexlib.dist.dir}/${dexlib.libname}" />
         <file name="${jsr305.dist.dir}/${jsr305.libname}" />
         <file name="${guava.dist.dir}/${guava.libname}" />
         <file name="${args4j.dist.dir}/${args4j.libname}" />
+        <file name="${jack.dist.dir}/${jack.libname}" />
       </filelist>
     </copy>
     <!-- compile -->

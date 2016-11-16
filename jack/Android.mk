@@ -78,7 +78,6 @@ JACK_STATIC_JAVA_LIBRARIES := \
   ecj-jack \
   guava-jack \
   jsr305lib-jack \
-  dx-jack \
   schedlib \
   freemarker-jack \
   watchmaker-jack \

@@ -31,12 +31,22 @@ import java.util.logging.Logger;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
+
+/**
+ * Abstract listing comparator.
+ */
 public abstract class AbstractListingComparator {
+  /**
+   * Readable
+   */
   protected static interface Readable {
     @Nonnull
     BufferedReader openReader() throws IOException;
   }
 
+  /**
+   * FileReadable
+   */
   protected static class FileReadable implements Readable {
 
     @Nonnull
@@ -54,6 +64,9 @@ public abstract class AbstractListingComparator {
 
   }
 
+  /**
+   * StringReadable
+   */
   protected static class StringReadable implements Readable {
 
     @Nonnull
@@ -71,12 +84,14 @@ public abstract class AbstractListingComparator {
 
   }
 
+  /**
+   * ParseException
+   */
   protected static class ParseException extends IOException {
 
     private static final long serialVersionUID = 1L;
 
-    public ParseException() {
-    }
+    public ParseException() {}
 
     public ParseException(@CheckForNull String message) {
       super(message);

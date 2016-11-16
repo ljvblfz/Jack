@@ -58,6 +58,7 @@ public final class MethodHandleId implements Comparable<MethodHandleId> {
     return Unsigned.compare(memberIdx, other.memberIdx);
   }
 
+  @SuppressWarnings("unused")
   public void writeTo(@Nonnull DexBuffer.Section out) {
     throw new UnsupportedOperationException();
   }
@@ -65,10 +66,6 @@ public final class MethodHandleId implements Comparable<MethodHandleId> {
   @Override
   @Nonnull
   public final String toString() {
-    if (buffer == null) {
-      return kind.getValue() + " " + memberIdx;
-    }
-
     switch (kind) {
       case PUT_INSTANCE:
       case PUT_STATIC:
