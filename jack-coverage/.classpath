@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry excluding="com/android/jack/coverage/test001/|com/android/jack/coverage/test002/|com/android/jack/coverage/test003/foo/|com/android/jack/coverage/test004/|com/android/jack/coverage/test005/|com/android/jack/coverage/test006_v1/jack/|com/android/jack/coverage/test006_v2/jack/" kind="src" path="tests"/>
+	<classpathentry excluding="com/android/jack/coverage/test001/|com/android/jack/coverage/test002/|com/android/jack/coverage/test003/foo/|com/android/jack/coverage/test004/|com/android/jack/coverage/test005/|com/android/jack/coverage/test006_v1/jack/|com/android/jack/coverage/test006_v2/jack/|com/android/jack/coverage/java8/" kind="src" path="tests"/>
 	<classpathentry kind="src" path="rsc"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry kind="lib" path="libs/jsr305-lib.jar"/>

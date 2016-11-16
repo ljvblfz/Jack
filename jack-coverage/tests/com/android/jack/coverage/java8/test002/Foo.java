@@ -14,17 +14,11 @@
  * limitations under the License.
  */
 
-package com.android.jack.coverage;
+package com.android.jack.coverage.java8.test002;
 
-import com.android.jack.test.junit.JackTestRunner;
-
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite.SuiteClasses;
-
-@RunWith(JackTestRunner.class)
-@SuiteClasses(value = {
-    CoverageJava8Tests.class,
-    CoverageTests.class
-})
-public class AllCoverageTests {
+public class Foo implements SAM {
+  @Override
+  public int defaultMethod() {
+    return Integer.MAX_VALUE;
+  }
 }

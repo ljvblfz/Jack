@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-package com.android.jack.coverage;
+package com.android.jack.coverage.java8.test002;
 
-import com.android.jack.test.junit.JackTestRunner;
+public interface SAM {
+  public static int staticMethod() {
+    return Integer.MIN_VALUE;
+  }
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite.SuiteClasses;
-
-@RunWith(JackTestRunner.class)
-@SuiteClasses(value = {
-    CoverageJava8Tests.class,
-    CoverageTests.class
-})
-public class AllCoverageTests {
+  default public int defaultMethod() {
+    return staticMethod();
+  }
 }
