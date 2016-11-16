@@ -578,7 +578,7 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
   private VPath encode(@Nonnull VPath path) {
     char[] digest = encode(mdf.create().digest(path.getPathAsString('/').getBytes()));
 
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     int idx = 0;
     try {
       for (int groupIdx = 0; groupIdx < numGroups; groupIdx++) {
@@ -619,16 +619,16 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
   @Override
   @Nonnull
   VPath getPathFromDir(@Nonnull CaseInsensitiveVDir parent, @Nonnull CaseInsensitiveVFile file) {
-    StringBuffer path = getPathFromDirInternal(parent, (CaseInsensitiveVDir) file.getParent())
+    StringBuilder path = getPathFromDirInternal(parent, (CaseInsensitiveVDir) file.getParent())
         .append(file.getName());
     return new VPath(path.toString(), '/');
   }
 
   @Nonnull
-  private StringBuffer getPathFromDirInternal(@Nonnull CaseInsensitiveVDir baseDir,
+  private StringBuilder getPathFromDirInternal(@Nonnull CaseInsensitiveVDir baseDir,
       @Nonnull CaseInsensitiveVDir currentDir) {
     if (baseDir == currentDir) {
-      return new StringBuffer();
+      return new StringBuilder();
     }
     CaseInsensitiveVDir currentParent = (CaseInsensitiveVDir) currentDir.getParent();
     assert currentParent != null;

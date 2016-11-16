@@ -553,7 +553,7 @@ public class GrammarActions {
   @Nonnull
   private static String getPathFromBaseDir(@Nonnull String baseDir, @Nonnull String path) {
     List<File> pathList = getPathFromBaseDirAsList(baseDir, path);
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     for (Iterator<File> iter = pathList.iterator(); iter.hasNext(); ) {
       sb.append(iter.next().getPath());
       if (iter.hasNext()) {

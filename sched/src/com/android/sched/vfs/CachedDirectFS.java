@@ -539,16 +539,16 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
   @Override
   @Nonnull
   VPath getPathFromDir(@Nonnull CachedParentVDir parent, @Nonnull CachedParentVFile file) {
-    StringBuffer path = getPathFromDirInternal(parent, (CachedParentVDir) file.getParent())
+    StringBuilder path = getPathFromDirInternal(parent, (CachedParentVDir) file.getParent())
         .append(file.getName());
     return new VPath(path.toString(), '/');
   }
 
   @Nonnull
-  private static StringBuffer getPathFromDirInternal(@Nonnull CachedParentVDir baseDir,
+  private static StringBuilder getPathFromDirInternal(@Nonnull CachedParentVDir baseDir,
       @Nonnull CachedParentVDir currentDir) {
     if (baseDir == currentDir) {
-      return new StringBuffer();
+      return new StringBuilder();
     }
     CachedParentVDir currentParent = currentDir.getParent();
     assert currentParent != null;

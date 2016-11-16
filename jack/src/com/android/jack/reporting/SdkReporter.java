@@ -143,7 +143,7 @@ public class SdkReporter extends CommonReporter {
   // http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf
   @Nonnull
   private static String convertString(@Nonnull String s) {
-    StringBuffer buffer = new StringBuffer();
+    StringBuilder buffer = new StringBuilder();
     for (int i = 0; i < s.length(); i++) {
       char c = s.charAt(i);
       switch (c) {
