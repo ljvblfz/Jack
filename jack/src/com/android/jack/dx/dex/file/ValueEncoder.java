@@ -254,13 +254,13 @@ public final class ValueEncoder {
         break;
       }
       case VALUE_METHOD_TYPE: {
-        assert file.getDexOptions().targetApiLevel >= DexFormat.API_ANDROID_O;
+        assert file.getDexOptions().getDexVersion() == DexFormat.O_BETA2_DEX_VERSION;
         int index = file.getProtoIds().indexOf(((CstPrototypeRef) cst).getPrototype());
         writeUnsignedIntegralValue(type, index);
         break;
       }
       case VALUE_METHOD_HANDLE: {
-        assert file.getDexOptions().targetApiLevel >= DexFormat.API_ANDROID_O;
+        assert file.getDexOptions().getDexVersion() == DexFormat.O_BETA2_DEX_VERSION;
         int index = file.getMethodHandleIds().indexOf((CstMethodHandleRef) cst);
         writeUnsignedIntegralValue(type, index);
         break;

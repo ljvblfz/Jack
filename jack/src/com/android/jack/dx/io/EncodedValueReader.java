@@ -104,11 +104,11 @@ public class EncodedValueReader {
         visitEncodedBoolean(argAndType);
         break;
       case VALUE_METHOD_TYPE:
-        assert dexBuffer.getTableOfContents().apiLevel >= DexFormat.API_ANDROID_O;
+        assert dexBuffer.getTableOfContents().dexVersion == DexFormat.O_BETA2_DEX_VERSION;
         visitMethodType(readIndex(in, size));
         break;
       case VALUE_METHOD_HANDLE:
-        assert dexBuffer.getTableOfContents().apiLevel >= DexFormat.API_ANDROID_O;
+        assert dexBuffer.getTableOfContents().dexVersion == DexFormat.O_BETA2_DEX_VERSION;
         visitMethodHandle(readIndex(in, size));
         break;
       default:

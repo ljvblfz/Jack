@@ -126,9 +126,7 @@ public abstract class DexWritingTool {
 
   @Nonnull
   protected DexFile createDexFile() {
-    DexOptions options = new DexOptions();
-    options.forceJumbo = forceJumbo;
-    options.targetApiLevel = apiLevel.getReleasedLevel();
+    DexOptions options = new DexOptions(apiLevel, forceJumbo);
     return new DexFile(options);
   }
 

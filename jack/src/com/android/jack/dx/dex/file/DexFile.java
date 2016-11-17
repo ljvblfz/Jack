@@ -50,7 +50,7 @@ import javax.annotation.Nonnull;
  */
 public final class DexFile {
   /** options controlling the creation of the file */
-  private DexOptions dexOptions;
+  private final DexOptions dexOptions;
 
   /** {@code non-null;} word data section */
   private final MixedItemSection wordData;
@@ -145,7 +145,7 @@ public final class DexFile {
      * This is the list of sections in the order they appear in
      * the final output.
      */
-    if (dexOptions.targetApiLevel >= DexFormat.API_ANDROID_O) {
+    if (dexOptions.getDexVersion() == DexFormat.O_BETA2_DEX_VERSION) {
       sections = new Section[] {header,
                                 stringIds,
                                 typeIds,

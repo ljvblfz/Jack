@@ -117,9 +117,7 @@ public abstract class DexInLibraryWriter extends DexWriter implements
     assert cdiMarker != null;
 
     try (Event event = tracer.open(JackEventType.DX_BACKEND)) {
-      DexOptions options = new DexOptions();
-      options.forceJumbo = forceJumbo;
-      options.targetApiLevel = apiLevel.getReleasedLevel();
+      DexOptions options = new DexOptions(apiLevel, forceJumbo);
       DexFile typeDex = new DexFile(options);
       typeDex.add(cdiMarker.getClassDefItem());
       try {

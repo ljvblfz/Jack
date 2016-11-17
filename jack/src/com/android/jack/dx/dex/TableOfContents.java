@@ -71,7 +71,7 @@ public final class TableOfContents {
       encodedArrays,
       annotationsDirectories};
 
-  public int apiLevel;
+  public int dexVersion;
   public byte[] signature;
   public int fileSize;
   public int linkSize;
@@ -92,16 +92,12 @@ public final class TableOfContents {
   private void readHeader(DexBuffer.Section headerIn) {
     byte[] magic = headerIn.readByteArray(8);
 
-    if (!DexFormat.isSupportedDexMagic(magic)) {
-      throw new DexException("Unexpected magic: " + Arrays.toString(magic));
-    }
-
-    apiLevel = DexFormat.magicToApi(magic);
+    dexVersion = DexFormat.getDexVersion(magic);
     headerIn.readInt(); // read checksum
     signature = headerIn.readByteArray(20);
     fileSize = headerIn.readInt();
     int headerSize = headerIn.readInt();
-    if (headerSize != SizeOf.getHeaderSize(apiLevel)) {
+    if (headerSize != SizeOf.getHeaderSize(dexVersion)) {
       throw new DexException("Unexpected header: 0x" + Integer.toHexString(headerSize));
     }
     int endianTag = headerIn.readInt();
@@ -126,7 +122,7 @@ public final class TableOfContents {
     methodIds.off = headerIn.readInt();
     classDefs.size = headerIn.readInt();
     classDefs.off = headerIn.readInt();
-    if (apiLevel >= DexFormat.API_ANDROID_O) {
+    if (dexVersion == DexFormat.O_BETA2_DEX_VERSION) {
       callSiteIds.size = headerIn.readInt();
       callSiteIds.off = headerIn.readInt();
       methodHandleIds.size = headerIn.readInt();

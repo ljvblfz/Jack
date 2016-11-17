@@ -181,7 +181,7 @@ public final class DexBuffer {
 
   @Nonnull
   private List<Integer> readCallSiteIds() {
-    if (tableOfContents.apiLevel < DexFormat.API_ANDROID_O) {
+    if (tableOfContents.dexVersion != DexFormat.O_BETA2_DEX_VERSION) {
       return Collections.emptyList();
     }
 
@@ -195,7 +195,7 @@ public final class DexBuffer {
 
   @Nonnull
   private List<MethodHandleId> readMethodHandleIds() {
-    if (tableOfContents.apiLevel < DexFormat.API_ANDROID_O) {
+    if (tableOfContents.dexVersion != DexFormat.O_BETA2_DEX_VERSION) {
       return Collections.emptyList();
     }
 
@@ -370,7 +370,7 @@ public final class DexBuffer {
           return Collections.<ClassDef>emptySet().iterator();
         }
         return new Iterator<ClassDef>() {
-          private DexBuffer.Section in = open(tableOfContents.classDefs.off);
+          private final DexBuffer.Section in = open(tableOfContents.classDefs.off);
           private int count = 0;
 
           @Override
@@ -516,10 +516,10 @@ public final class DexBuffer {
     }
 
     @Nonnull
-    private CallSiteEncodedArrayReader callSiteReader;
+    private final CallSiteEncodedArrayReader callSiteReader;
 
     @Nonnull
-    private CstIndexMap cstIndexMap;
+    private final CstIndexMap cstIndexMap;
 
     public CstCallSiteRefBuilder(@Nonnull CstIndexMap cstIndexMap,
         @Nonnegative int encodedArrayOffset) {

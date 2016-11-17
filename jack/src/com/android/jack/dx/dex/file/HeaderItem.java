@@ -30,13 +30,13 @@ import javax.annotation.Nonnegative;
 public final class HeaderItem extends IndexedItem {
 
   @Nonnegative
-  private int apiLevel;
+  private final int dexVersion;
 
   /**
    * Constructs an instance.
    */
-  public HeaderItem(@Nonnegative int apiLevel) {
-    this.apiLevel = apiLevel;
+  public HeaderItem(@Nonnegative int dexVersion) {
+    this.dexVersion = dexVersion;
   }
 
   /** {@inheritDoc} */
@@ -47,8 +47,9 @@ public final class HeaderItem extends IndexedItem {
 
   /** {@inheritDoc} */
   @Override
+  @Nonnegative
   public int writeSize() {
-    return SizeOf.getHeaderSize(apiLevel);
+    return SizeOf.getHeaderSize(dexVersion);
   }
 
   /** {@inheritDoc} */
@@ -73,7 +74,7 @@ public final class HeaderItem extends IndexedItem {
       out.annotate(4, "checksum");
       out.annotate(20, "signature");
       out.annotate(4, "file_size:       " + Hex.u4(file.getFileSize()));
-      out.annotate(4, "header_size:     " + Hex.u4(SizeOf.getHeaderSize(apiLevel)));
+      out.annotate(4, "header_size:     " + Hex.u4(SizeOf.getHeaderSize(dexVersion)));
       out.annotate(4, "endian_tag:      " + Hex.u4(DexFormat.ENDIAN_TAG));
       out.annotate(4, "link_size:       0");
       out.annotate(4, "link_off:        0");
@@ -89,7 +90,7 @@ public final class HeaderItem extends IndexedItem {
     out.writeZeroes(24);
 
     out.writeInt(file.getFileSize());
-    out.writeInt(SizeOf.getHeaderSize(apiLevel));
+    out.writeInt(SizeOf.getHeaderSize(dexVersion));
     out.writeInt(DexFormat.ENDIAN_TAG);
 
     /*
@@ -108,7 +109,7 @@ public final class HeaderItem extends IndexedItem {
     file.getMethodIds().writeHeaderPart(out);
     file.getClassDefs().writeHeaderPart(out);
 
-    if (apiLevel >= DexFormat.API_ANDROID_O) {
+    if (dexVersion == DexFormat.O_BETA2_DEX_VERSION) {
       file.getCallSiteIds().writeHeaderPart(out);
       file.getMethodHandleIds().writeHeaderPart(out);
     }

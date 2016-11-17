@@ -498,9 +498,7 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
 
   @Nonnull
   private DalvCode createCode(@Nonnull JMethod method, @Nonnull RopMethod ropMethod) {
-    DexOptions options = new DexOptions();
-    options.forceJumbo = forceJumbo;
-    options.targetApiLevel = apiLevel.getReleasedLevel();
+    DexOptions options = new DexOptions(apiLevel, forceJumbo);
     int paramSize = getParameterWordCount(method);
     int positionListKind;
     LocalVariableInfo lvInfo;

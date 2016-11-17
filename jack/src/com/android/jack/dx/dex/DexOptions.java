@@ -16,6 +16,8 @@
 
 package com.android.jack.dx.dex;
 
+import com.android.jack.util.AndroidApiLevel;
+
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -30,17 +32,31 @@ public class DexOptions {
   public static final boolean ALIGN_64BIT_REGS = true;
 
   /** target API level */
-  @Nonnegative
-  public int targetApiLevel = DexFormat.API_NO_EXTENDED_OPCODES;
+  @Nonnull
+  private final AndroidApiLevel androidApiLevel;
 
   /** force generation of jumbo opcodes */
-  public boolean forceJumbo = false;
+  private final boolean forceJumbo;
+
+  public DexOptions(@Nonnull AndroidApiLevel androidApiLevel, boolean forcejumbo) {
+    this.androidApiLevel = androidApiLevel;
+    this.forceJumbo = forcejumbo;
+  }
+
+  @Nonnegative
+  public int getDexVersion() {
+    return DexFormat.apiToDexVersion(androidApiLevel);
+  }
+
+  public boolean isForceJumbo() {
+    return forceJumbo;
+  }
 
   /**
    * Gets the dex file magic number corresponding to this instance.
    */
   @Nonnull
   public String getMagic() {
-    return DexFormat.apiToMagic(targetApiLevel);
+    return DexFormat.dexVersionToMagic(DexFormat.apiToDexVersion(androidApiLevel));
   }
 }

@@ -34,7 +34,7 @@ public final class SizeOf {
   public static final int SIGNATURE = UBYTE * 20;
 
   @Nonnegative
-  public static final int getHeaderSize(@Nonnegative int apiLevel) {
+  public static final int getHeaderSize(@Nonnegative int dexVersion) {
     /*
      * magic ubyte[8]
      * checksum uint
@@ -62,7 +62,7 @@ public final class SizeOf {
      */
     int headerSize = (8 * UBYTE) + UINT + SIGNATURE + (20 * UINT); // 0x70;
 
-    if (apiLevel >= DexFormat.API_ANDROID_O) {
+    if (dexVersion == DexFormat.O_BETA2_DEX_VERSION) {
       /*
        * call_site_ids_size uint
        * call_site_ids_off uint

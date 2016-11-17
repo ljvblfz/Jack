@@ -549,7 +549,7 @@ while (guess != null) {
          * Don't break out for const_string to generate jumbo version
          * when option is enabled.
          */
-        if (!dexOptions.forceJumbo || guess.getOpcode() != Opcodes.CONST_STRING) {
+        if (!dexOptions.isForceJumbo() || guess.getOpcode() != Opcodes.CONST_STRING) {
           break;
         }
       }
