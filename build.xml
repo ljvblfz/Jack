@@ -1717,11 +1717,12 @@
     <delete dir="${schedtests.dist.dir}" />
   </target>
 
-  <target name="schedtests-lib" depends="jack,sched-copy-libs,sched-lib,guava-lib,jsr305-lib,junit4-lib">
+  <target name="schedtests-lib" depends="jack,sched-build,sched-copy-libs,sched-lib,guava-lib,jsr305-lib,junit4-lib">
     <!-- project layout -->
     <mkdir dir="${schedtests.build.outdir}" />
     <mkdir dir="${schedtests.dist.dir}" />
     <filelist id="schedtests.link.libs.fileset" dir="/">
+      <file name="${sched-build.dist.dir}/${sched-build.libname}" />
       <file name="${schedlib.dist.dir}/${schedlib.libname}" />
       <file name="${guava.dist.dir}/${guava.libname}" />
       <file name="${jsr305.dist.dir}/${jsr305.libname}" />
@@ -1746,6 +1747,8 @@
       <classpath>
         <filelist refid="schedtests.link.libs.fileset"/>
       </classpath>
+      <compilerarg line="-processor com.android.sched.build.SchedAnnotationProcessor" />
+      <compilerarg line="-Xlint:-options"/>
     </javac>
     <!-- package -->
     <jar destfile="${schedtests.dist.dir}/${schedtests.libname}"

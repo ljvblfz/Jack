@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,13 @@
  * limitations under the License.
  */
 
-package com.android.sched;
+package com.android.sched.filter;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses(value = {
-com.android.sched.item.AllTests.class,
-    com.android.sched.filter.AllTests.class,
-    com.android.sched.marker.AllTests.class,
-    com.android.sched.scheduler.AllTests.class,
-    com.android.sched.config.AllTests.class,
-    com.android.sched.util.AllTests.class,
-    com.android.sched.util.file.AllTests.class,
-    com.android.sched.vfs.VFSTest.class})
+@SuiteClasses(value = {FilterTest.class})
 public class AllTests {
 }
