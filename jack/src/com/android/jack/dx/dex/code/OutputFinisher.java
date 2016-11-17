@@ -543,7 +543,7 @@ public final class OutputFinisher {
      * was no possible simple opcode fit.
      */
 
-while (guess != null) {
+    while (guess != null) {
       if (guess.getFormat().isCompatible(insn)) {
         /*
          * Don't break out for const_string to generate jumbo version

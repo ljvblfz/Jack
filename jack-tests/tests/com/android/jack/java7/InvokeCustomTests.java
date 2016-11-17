@@ -27,6 +27,8 @@ import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
+import com.android.jack.util.AndroidApiLevel;
+import com.android.jack.util.AndroidApiLevel.ProvisionalLevel;
 
 import org.junit.Test;
 
@@ -35,16 +37,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
  * JUnit test for usage of invoke custom.
  */
 public class InvokeCustomTests {
-
-  @Nonnegative
-  private static final long O_API_LEVEL = 26;
 
   private RuntimeTestInfo INVOKE_CUSTOM_001 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.java7.invokecustom.test001"),
@@ -53,6 +51,10 @@ public class InvokeCustomTests {
   private RuntimeTestInfo INVOKE_CUSTOM_002 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.java7.invokecustom.test002"),
       "com.android.jack.java7.invokecustom.test002.Tests").setSrcDirName("");
+
+  private RuntimeTestInfo INVOKE_CUSTOM_003 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java7.invokecustom.test003"),
+      "com.android.jack.java7.invokecustom.test003.Tests").setSrcDirName("");
 
   @Test
   @Runtime
@@ -68,6 +70,13 @@ public class InvokeCustomTests {
     run(INVOKE_CUSTOM_002);
   }
 
+  @Test
+  @Runtime
+  @KnownIssue
+  public void testInvokeCustom003() throws Exception {
+    run(INVOKE_CUSTOM_003);
+  }
+
   private void run(@Nonnull RuntimeTestInfo rti) throws Exception {
     List<Class<? extends IToolchain>> excludeClazz = new ArrayList<Class<? extends IToolchain>>(1);
     excludeClazz.add(JillBasedToolchain.class);
@@ -75,7 +84,8 @@ public class InvokeCustomTests {
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeClazz);
 
     File outClassesDex = AbstractTestTools.createTempDir();
-    toolchain.addProperty(Options.ANDROID_MIN_API_LEVEL.getName(), String.valueOf(O_API_LEVEL))
+    toolchain.addProperty(Options.ANDROID_MIN_API_LEVEL.getName(), Options.ANDROID_MIN_API_LEVEL
+        .getCodec().formatValue(new AndroidApiLevel(ProvisionalLevel.O_BETA2)))
         .setSourceLevel(SourceLevel.JAVA_7).addToClasspath(toolchain.getDefaultBootClasspath())
         .addToClasspath(new File(TestsProperties.getJackRootDir(),
             "jack-tests/prebuilts/jack-test-annotations-lib.jack"))
