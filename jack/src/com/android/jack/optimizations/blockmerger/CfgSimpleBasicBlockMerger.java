@@ -121,12 +121,10 @@ public class CfgSimpleBasicBlockMerger
     Processor(@Nonnull JControlFlowGraph cfg) {
       this.cfg = cfg;
 
-      for (JBasicBlock block : cfg.getAllBlocksUnordered()) {
-        if (block != this.cfg.getEntryBlock() && block != this.cfg.getExitBlock()) {
-          assert block instanceof JRegularBasicBlock;
-          successorsCache.put(block, block.getSuccessors());
-          addBlockToSuccessorsGroup(block);
-        }
+      for (JBasicBlock block : cfg.getInternalBlocksUnordered()) {
+        assert block instanceof JRegularBasicBlock;
+        successorsCache.put(block, block.getSuccessors());
+        addBlockToSuccessorsGroup(block);
       }
 
       // We process all groups of the basic blocks sharing the same list of

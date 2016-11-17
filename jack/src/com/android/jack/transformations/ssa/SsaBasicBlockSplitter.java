@@ -18,6 +18,7 @@ package com.android.jack.transformations.ssa;
 
 import com.android.jack.ir.ast.cfg.JBasicBlock;
 import com.android.jack.ir.ast.cfg.JBasicBlockElement;
+import com.android.jack.ir.ast.cfg.JCaseBasicBlock;
 import com.android.jack.ir.ast.cfg.JCatchBasicBlock;
 import com.android.jack.ir.ast.cfg.JControlFlowGraph;
 import com.android.jack.ir.ast.cfg.JEntryBasicBlock;
@@ -61,11 +62,9 @@ public class SsaBasicBlockSplitter implements RunnableSchedulable<JControlFlowGr
    * predecessors.
    */
   private void edgeSplitPredecessors(JControlFlowGraph cfg) {
-    for (JBasicBlock block : cfg.getBlocksDepthFirst(true)) {
-      if (block != cfg.getEntryBlock() && block != cfg.getExitBlock()) {
-        if (nodeNeedsUniquePredecessor(block)) {
-          block.split(0);
-        }
+    for (JBasicBlock block : cfg.getInternalBlocksUnordered()) {
+      if (nodeNeedsUniquePredecessor(block)) {
+        block.split(0);
       }
     }
   }
@@ -84,7 +83,10 @@ public class SsaBasicBlockSplitter implements RunnableSchedulable<JControlFlowGr
      */
     int countPredecessors = SsaUtil.getNumPredecessor(block);
     int countSuccessors = SsaUtil.getNumSuccessor(block);
-    return (countPredecessors > 1 && countSuccessors > 1);
+    boolean needsUniquePredecessor = countPredecessors > 1 && countSuccessors > 1;
+    assert !needsUniquePredecessor
+        || !(block instanceof JCaseBasicBlock || block instanceof JCatchBasicBlock);
+    return needsUniquePredecessor;
   }
 
   private static void edgeSplitMoveExceptionsAndResults(JControlFlowGraph cfg) {
@@ -92,10 +94,7 @@ public class SsaBasicBlockSplitter implements RunnableSchedulable<JControlFlowGr
     /*
      * New blocks are added to the end of the block list during this iteration.
      */
-    for (JBasicBlock block : cfg.getBlocksDepthFirst(true)) {
-      if (block == cfg.getEntryBlock() || block == cfg.getExitBlock()) {
-        continue;
-      }
+    for (JBasicBlock block : cfg.getInternalBlocksUnordered()) {
       /*
        * Any block that starts with a move-exception and has more than one predecessor...
        */
@@ -114,11 +113,7 @@ public class SsaBasicBlockSplitter implements RunnableSchedulable<JControlFlowGr
     /*
      * New blocks are added to the end of the block list during this iteration.
      */
-    for (JBasicBlock block : cfg.getBlocksDepthFirst(true)) {
-      if (block == cfg.getEntryBlock() || block == cfg.getExitBlock()) {
-        continue;
-      }
-
+    for (JBasicBlock block : cfg.getInternalBlocksUnordered()) {
       // Successors list is modified in loop below.
       for (JBasicBlock succ : block.getSuccessors()) {
         if (needsNewSuccessor(block, succ)) {

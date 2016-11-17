@@ -16,9 +16,12 @@
 
 package com.android.jack.optimizations.cfg;
 
+import com.google.common.collect.Sets;
+
 import com.android.jack.ir.ast.cfg.BasicBlockLiveProcessor;
 import com.android.jack.ir.ast.cfg.JBasicBlock;
 import com.android.jack.ir.ast.cfg.JControlFlowGraph;
+import com.android.jack.ir.ast.cfg.JPlaceholderBasicBlock;
 import com.android.jack.ir.ast.cfg.JRegularBasicBlock;
 import com.android.jack.ir.ast.cfg.JSimpleBasicBlock;
 import com.android.jack.ir.sourceinfo.SourceInfo;
@@ -26,6 +29,7 @@ import com.android.jack.transformations.LocalVarCreator;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
 
+import java.util.Set;
 import javax.annotation.Nonnull;
 
 /** Implements series of basic block related utilities. */
@@ -75,5 +79,19 @@ public final class CfgBasicBlockUtils {
         return false;
       }
     }.process();
+  }
+
+  /**
+   * Removes basic blocks unreachable from the entry node, treats catch basic
+   * blocks referenced only from exception handling contexts as still referenced.
+   */
+  public void removeUnreachableBlocks() {
+    Set<JBasicBlock> reachable = Sets.newHashSet(cfg.getReachableBlocksDepthFirst());
+    JPlaceholderBasicBlock placeholder = new JPlaceholderBasicBlock(cfg);
+    for (JBasicBlock block : cfg.getInternalBlocksUnordered()) {
+      if (!reachable.contains(block)) {
+        block.detach(placeholder);
+      }
+    }
   }
 }

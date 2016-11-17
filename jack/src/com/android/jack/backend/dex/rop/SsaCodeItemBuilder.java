@@ -200,7 +200,7 @@ public class SsaCodeItemBuilder implements RunnableSchedulable<JMethod> {
 
       final Map<JBasicBlock, Integer> basicBlocks = new LinkedHashMap<>();
       int blockId = 1; // 0 is reserved for entry block
-      for (JBasicBlock block : cfg.getBlocksDepthFirst(true)) {
+      for (JBasicBlock block : cfg.getReachableBlocksDepthFirst()) {
         if (block != entryBasicBlock && block != exitBasicBlock) {
           basicBlocks.put(block, Integer.valueOf(blockId++));
         }

@@ -46,7 +46,7 @@ public abstract class BasicBlockLiveProcessor extends JVisitor {
         enqueue(block);
         return true;
       }
-    }.iterateDepthFirst(true);
+    }.iterateDepthFirst();
   }
 
   /** Enqueues the element if it was not queued before */

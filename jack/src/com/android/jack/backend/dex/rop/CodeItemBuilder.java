@@ -224,11 +224,15 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
 
       final Map<JBasicBlock, Integer> basicBlocks = new LinkedHashMap<>();
       int blockId = 1; // 0 is reserved for entry block
-      for (JBasicBlock block : cfg.getBlocksDepthFirst(true)) {
+      for (JBasicBlock block : cfg.getReachableBlocksDepthFirst()) {
         if (block != entryBasicBlock && block != exitBasicBlock) {
           basicBlocks.put(block, Integer.valueOf(blockId++));
         }
       }
+
+      // We assume that there are no *internal* blocks in cfg
+      // that are not reachable from entry block
+      assert basicBlocks.size() == cfg.getInternalBlocksUnordered().size();
 
       final RopBasicBlockManager ropBb = new RopBasicBlockManager(blockId + 1);
       JBasicBlock firstBlockOfCode = entryBasicBlock.getOnlySuccessor();

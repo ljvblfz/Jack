@@ -73,38 +73,81 @@ public final class JControlFlowGraph extends JNode implements IGraph<JBasicBlock
     return (JMethodBodyCfg) parent;
   }
 
+  /**
+   * Returns all basic blocks reachable from entry block in depth-first order,
+   * ALSO returns basic blocks 'weakly referenced' via exception handling context.
+   *
+   * Note that the entry block is always the first block of the list, and the
+   * exist block may not be present in this list.
+   */
   @Nonnull
-  public List<JBasicBlock> getBlocksDepthFirst(boolean forward) {
+  public List<JBasicBlock> getReachableBlocksDepthFirst() {
     final List<JBasicBlock> blocks = new ArrayList<>();
     new BasicBlockIterator(this) {
       @Override public boolean process(@Nonnull JBasicBlock block) {
         blocks.add(block);
         return true;
       }
-    }.iterateDepthFirst(forward);
+    }.iterateDepthFirst();
     return blocks;
   }
 
   /**
-   * Returns all basic blocks reachable from entry or exit block via
-   * successor/predecessor edges. Note that some of the blocks may not be
-   * returned by getBlocksDepthFirst(true) or getBlocksDepthFirst(false).
+   * Returns all basic blocks reachable from entry or exit blocks via
+   * successor/predecessor edges OR 'weakly referenced' via exception
+   * handling context.
+   *
+   * Note that basic blocks returned by this method represent a superset
+   * of the blocks returned by getReachableBlocksDepthFirst().
    *
    * The blocks are returned in stable order, i.e. two calls to this method
    * will return the same sequence of the blocks.
-   **/
+   */
   @Nonnull
   public List<JBasicBlock> getAllBlocksUnordered() {
+    ArrayList<JBasicBlock> result = new ArrayList<>();
+    result.add(this.getEntryBlock());
+    result.add(this.getExitBlock());
+
+    Set<JBasicBlock> internalBlocks = getInternalBasicBlocks();
+    assert !internalBlocks.contains(this.getEntryBlock());
+    assert !internalBlocks.contains(this.getExitBlock());
+    result.addAll(internalBlocks);
+
+    return result;
+  }
+
+  /**
+   * Returns all basic blocks reachable from entry or exit blocks via
+   * successor/predecessor edges OR 'weakly referenced' via exception
+   * handling context EXCEPT entry and exit nodes themselves.
+   *
+   * The blocks are returned in stable order, i.e. two calls to this method
+   * will return the same sequence of the blocks.
+   */
+  @Nonnull
+  public List<JBasicBlock> getInternalBlocksUnordered() {
+    return Lists.newArrayList(getInternalBasicBlocks());
+  }
+
+  @Nonnull
+  private Set<JBasicBlock> getInternalBasicBlocks() {
     Set<JBasicBlock> blocks = new LinkedHashSet<>();
+    Set<ExceptionHandlingContext> processedEHContexts = new LinkedHashSet<>();
     Queue<JBasicBlock> queue = new LinkedList<>(); // Contains duplicates
 
-    queue.offer(this.getEntryBlock());
-    queue.offer(this.getExitBlock());
+    JEntryBasicBlock entry = this.getEntryBlock();
+    JExitBasicBlock exit = this.getExitBlock();
+
+    queue.offer(entry);
+    queue.offer(exit);
 
     while (!queue.isEmpty()) {
       JBasicBlock block = queue.remove();
       if (!blocks.contains(block)) {
         blocks.add(block);
+
+        // Successors, then predecessors
         for (JBasicBlock successor : block.getSuccessors()) {
           if (!blocks.contains(successor)) {
             queue.offer(successor);
@@ -115,10 +158,25 @@ public final class JControlFlowGraph extends JNode implements IGraph<JBasicBlock
             queue.offer(predecessor);
           }
         }
+
+        // Catch blocks referenced from EH contexts
+        for (JBasicBlockElement element : block.getElements(true)) {
+          ExceptionHandlingContext context = element.getEHContext();
+          if (!processedEHContexts.contains(context)) {
+            processedEHContexts.add(context);
+            for (JCatchBasicBlock catchBlock : context.getCatchBlocks()) {
+              if (!blocks.contains(catchBlock)) {
+                queue.offer(catchBlock);
+              }
+            }
+          }
+        }
       }
     }
 
-    return Lists.newArrayList(blocks);
+    blocks.remove(entry);
+    blocks.remove(exit);
+    return blocks;
   }
 
   /** Traverses the the blocks in the order provided by `getAllBlocksUnordered()` */

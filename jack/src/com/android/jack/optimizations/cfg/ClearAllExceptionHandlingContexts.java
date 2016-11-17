@@ -16,6 +16,9 @@
 
 package com.android.jack.optimizations.cfg;
 
+import com.android.jack.ir.ast.cfg.ExceptionHandlingContext;
+import com.android.jack.ir.ast.cfg.JBasicBlock;
+import com.android.jack.ir.ast.cfg.JBasicBlockElement;
 import com.android.jack.ir.ast.cfg.JControlFlowGraph;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.sched.item.Description;
@@ -25,15 +28,19 @@ import com.android.sched.schedulable.Transform;
 
 import javax.annotation.Nonnull;
 
-/** Remove all unreachable basic blocks, except catch blocks */
-@Description("Remove all unreachable basic blocks, except catch blocks")
+/** Clear all exception handling contexts */
+@Description("Clear all exception handling contexts")
 @Transform(modify = JControlFlowGraph.class)
 @Filter(TypeWithoutPrebuiltFilter.class)
-public class RemoveUnreachableBasicBlocks
+public class ClearAllExceptionHandlingContexts
     implements RunnableSchedulable<JControlFlowGraph> {
 
   @Override
   public void run(@Nonnull final JControlFlowGraph cfg) {
-    new CfgBasicBlockUtils(cfg).removeUnreachableBlocks();
+    for (JBasicBlock block : cfg.getInternalBlocksUnordered()) {
+      for (JBasicBlockElement element : block.getElements(true)) {
+        element.resetEHContext(ExceptionHandlingContext.EMPTY);
+      }
+    }
   }
 }

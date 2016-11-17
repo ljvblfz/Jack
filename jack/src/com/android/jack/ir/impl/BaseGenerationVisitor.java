@@ -941,8 +941,8 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
 
     // Collect basic blocks backwards to include unreachable ones
     cfgBlocks.put(x.getEntryBlock(), getStringId(0));
-    List<JBasicBlock> blocks = x.getBlocksDepthFirst(true);
-    blocks.addAll(x.getBlocksDepthFirst(false));
+    List<JBasicBlock> blocks = x.getReachableBlocksDepthFirst();
+    blocks.addAll(x.getInternalBlocksUnordered()); // Add unreachable blocks
     for (JBasicBlock block : blocks) {
       if (block != x.getExitBlock() && !cfgBlocks.containsKey(block)) {
         cfgBlocks.put(block, getStringId(cfgBlocks.size()));

@@ -34,33 +34,64 @@ public abstract class BasicBlockIterator {
   /** Processes basic block, returns `false` if the iterations should be stopped */
   public abstract boolean process(@Nonnull JBasicBlock block);
 
-  /** Iterates basic blocks depth first */
-  public final void iterateDepthFirst(boolean forward) {
-    Stack<JBasicBlock> stack = new Stack<>();
-    Set<JBasicBlock> stacked = new HashSet<>();
+  /**
+   * Iterates basic blocks depth first with weak references. Weakly referenced
+   * blocks are iterated after regular referenced blocks.
+   */
+  public final void iterateDepthFirst() {
+    Stack<JBasicBlock> blocksStack = new Stack<>();
+    Set<JBasicBlock> blocksEverStacked = new HashSet<>();
 
-    JBasicBlock start = forward ? cfg.getEntryBlock() : cfg.getExitBlock();
-    stack.push(start);
-    stacked.add(start);
+    Stack<ExceptionHandlingContext> ehcStack = new Stack<>();
+    Set<ExceptionHandlingContext> ehcEverStacked = new HashSet<>();
 
-    while (!stack.isEmpty()) {
-      JBasicBlock block = stack.pop();
-      assert stacked.contains(block);
+    JBasicBlock start = cfg.getEntryBlock();
+    blocksStack.push(start);
+    blocksEverStacked.add(start);
 
-      // Since we use stack to hold the list of the blocks to be processed, we
-      // need to reverse successors lists to visit them not in reversed order
-      List<JBasicBlock> blocks =
-          forward ? block.getSuccessors() : block.getPredecessors();
-      for (int i = blocks.size() - 1; i >= 0; i--) {
-        JBasicBlock next = blocks.get(i);
-        if (!stacked.contains(next)) {
-          stack.push(next);
-          stacked.add(next);
+    while (true) {
+      if (!blocksStack.isEmpty()) {
+        // Block queue is not empty, process the next block
+        JBasicBlock block = blocksStack.pop();
+        assert blocksEverStacked.contains(block);
+        enqueueBlocks(block.getSuccessors(), blocksStack, blocksEverStacked);
+
+        // Compute the list of exception handling contexts
+        for (JBasicBlockElement element : block.getElements(/* forward: */ false)) {
+          ExceptionHandlingContext ehc = element.getEHContext();
+          if (!ehcEverStacked.contains(ehc)) {
+            ehcStack.push(ehc);
+            ehcEverStacked.add(ehc);
+          }
         }
-      }
 
-      if (!process(block)) {
+        if (!process(block)) {
+          break;
+        }
+
+      } else if (!ehcStack.isEmpty()) {
+        // Otherwise, if the block queue is empty fetch check blocks from
+        // the next exception handling context
+        ExceptionHandlingContext ehc = ehcStack.pop();
+        assert ehcEverStacked.contains(ehc);
+        enqueueBlocks(ehc.getCatchBlocks(), blocksStack, blocksEverStacked);
+
+      } else {
+        // Both stacks are empty
         break;
+      }
+    }
+  }
+
+  private void enqueueBlocks(@Nonnull List<? extends JBasicBlock> blocks,
+      @Nonnull Stack<JBasicBlock> blocksStack, @Nonnull Set<JBasicBlock> blocksEverStacked) {
+    // Since we use stack to hold the list of the blocks to be processed, we
+    // need to reverse successors lists to visit them not in reversed order
+    for (int i = blocks.size() - 1; i >= 0; i--) {
+      JBasicBlock next = blocks.get(i);
+      if (!blocksEverStacked.contains(next)) {
+        blocksStack.push(next);
+        blocksEverStacked.add(next);
       }
     }
   }

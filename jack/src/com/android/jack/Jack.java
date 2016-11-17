@@ -135,6 +135,7 @@ import com.android.jack.optimizations.Optimizations;
 import com.android.jack.optimizations.UnusedDefinitionRemover;
 import com.android.jack.optimizations.UseDefsChainsSimplifier;
 import com.android.jack.optimizations.blockmerger.CfgSimpleBasicBlockMerger;
+import com.android.jack.optimizations.cfg.ClearAllExceptionHandlingContexts;
 import com.android.jack.optimizations.cfg.OptimizeConditionalPrimarySuccessor;
 import com.android.jack.optimizations.cfg.RemoveEmptyBasicBlocks;
 import com.android.jack.optimizations.cfg.RemoveRedundantConditionalBlocks;
@@ -1776,6 +1777,12 @@ public abstract class Jack {
       cfgPlan
           .appendSubPlan(JAllBasicBlockAdapter.class)
           .append(CfgBasicBlockTracker.class);
+
+      // As the last step before building code item, we clean
+      // all exception handling context and all weakly referenced
+      // catch blocks.
+      cfgPlan.append(ClearAllExceptionHandlingContexts.class);
+      cfgPlan.append(RemoveUnreachableBasicBlocks.class);
     }
 
     {
