@@ -34,6 +34,7 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -132,8 +133,7 @@ public class NParameter extends NVariable implements ParameterNode {
     return TOKEN;
   }
 
-  @Override
-  public void setIndex(int index) {
+  public void setIndex(@Nonnegative int index) {
     parameterNodeIndex = index;
   }
 

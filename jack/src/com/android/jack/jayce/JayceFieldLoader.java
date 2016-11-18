@@ -31,7 +31,6 @@ import com.android.sched.util.location.Location;
 
 import java.lang.ref.SoftReference;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -45,17 +44,17 @@ public class JayceFieldLoader implements FieldLoader, HasInputLibrary {
   @Nonnull
   private SoftReference<FieldNode> nnode;
 
-  @Nonnegative
-  private final int fieldNodeIndex;
+  @Nonnull
+  private final String fieldId;
 
   private boolean isAnnotationsLoaded = false;
 
   public JayceFieldLoader(@Nonnull FieldNode nnode,
-      @Nonnegative int fieldNodeIndex,
+      @Nonnull String fieldId,
       @Nonnull JayceClassOrInterfaceLoader enclosingClassLoader) {
     this.enclosingClassLoader = enclosingClassLoader;
     this.nnode = new SoftReference<>(nnode);
-    this.fieldNodeIndex = fieldNodeIndex;
+    this.fieldId = fieldId;
   }
 
   @Nonnull
@@ -64,7 +63,7 @@ public class JayceFieldLoader implements FieldLoader, HasInputLibrary {
     FieldNode node = nnode.get();
     if (node == null) {
       DeclaredTypeNode declaredTypeNode = enclosingClassLoader.getNNode(NodeLevel.STRUCTURE);
-      node = declaredTypeNode.getFieldNode(fieldNodeIndex);
+      node = declaredTypeNode.getFieldNode(fieldId);
       nnode = new SoftReference<FieldNode>(node);
     }
     return node;
