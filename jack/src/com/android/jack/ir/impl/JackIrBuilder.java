@@ -251,12 +251,14 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Stack;
 
 import javax.annotation.CheckForNull;
@@ -3148,6 +3150,12 @@ public class JackIrBuilder {
       // bridge methods should not be flagged as VARARGS
       jdtBridgeMethod.modifiers &= ~JModifier.VARARGS;
       JMethod bridgeMethod = createSyntheticMethodFromBinding(info, jdtBridgeMethod, paramNames);
+
+      // We can't complete the bridge yet with annotations because target annotations may not be
+      // created yet, so lets delay their completion for the end the conversion from ecj model to
+      // JNode.
+      targetOfSynthesizedBridge.put(bridgeMethod, implMethod);
+
       JMethodBody body = (JMethodBody) bridgeMethod.getBody();
       assert body != null;
 
@@ -4196,6 +4204,12 @@ public class JackIrBuilder {
   @Nonnull
   private final JSession session;
 
+  /**
+   * Keys are synthesized bridge, value are their target.
+   */
+  @Nonnull
+  private final Map<JMethod, JMethod> targetOfSynthesizedBridge = new HashMap<JMethod, JMethod>();
+
   public static boolean hasError(@Nonnull TypeDeclaration typeDeclaration) {
     return (typeDeclaration.hasErrors()
     || (typeDeclaration.getCompilationUnitDeclaration() != null
@@ -4601,5 +4615,33 @@ public class JackIrBuilder {
         receiverType, targetMethod.getMethodIdWide(), targetMethod.getType(),
         false /* isVirtualDispatch */);
     return call;
+  }
+
+  public void finishCompilation() {
+    CloneExpressionVisitor cloner = new CloneExpressionVisitor();
+
+    for (Entry<JMethod, JMethod> bridgeAndTarget : targetOfSynthesizedBridge.entrySet()) {
+      JMethod bridge = bridgeAndTarget.getKey();
+      JMethod target = bridgeAndTarget.getValue();
+      assert targetOfSynthesizedBridge.get(target) == null;
+
+      for (JAnnotation annotation : target.getAnnotations()) {
+        JAnnotation clonedAnnotation = cloner.cloneExpression(annotation);
+        bridge.addAnnotation(clonedAnnotation);
+        clonedAnnotation.updateParents(bridge);
+      }
+
+      List<JParameter> targetParams = target.getParams();
+      for (int i = 0; i < bridge.getParams().size(); i++) {
+        JParameter bridgeParam = bridge.getParams().get(i);
+        JParameter param = targetParams.get(i);
+        for (JAnnotation annotation : param.getAnnotations()) {
+          JAnnotation clonedAnnotation = cloner.cloneExpression(annotation);
+          bridgeParam.addAnnotation(clonedAnnotation);
+          clonedAnnotation.updateParents(bridgeParam);
+       }
+      }
+
+    }
   }
 }

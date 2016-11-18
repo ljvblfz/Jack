@@ -274,4 +274,8 @@ class JAstBuilder extends JavaParser {
     resetJack = true;
     super.reset();
   }
+
+  public void finishCompilation() {
+    astBuilder.finishCompilation();
+  }
 }

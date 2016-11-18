@@ -49,7 +49,6 @@ public class BridgeAnnotationsTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.annotation.bridge.test010"),
     "com.android.jack.annotation.bridge.test010.dx.Tests");
 
-  @KnownIssue
   @Test
   @Runtime
   @Category(RuntimeRegressionTest.class)
@@ -57,7 +56,6 @@ public class BridgeAnnotationsTests extends RuntimeTest {
     new RuntimeTestHelper(TEST001).compileAndRunTest();
   }
 
-  @KnownIssue
   @Test
   @Runtime
   @Category(RuntimeRegressionTest.class)
@@ -65,7 +63,6 @@ public class BridgeAnnotationsTests extends RuntimeTest {
     new RuntimeTestHelper(TEST002).compileAndRunTest();
   }
 
-  @KnownIssue
   @Test
   @Runtime
   @Category(RuntimeRegressionTest.class)
@@ -80,7 +77,6 @@ public class BridgeAnnotationsTests extends RuntimeTest {
     new RuntimeTestHelper(TEST007).compileAndRunTest();
   }
 
-  @KnownIssue
   @Test
   @Runtime
   @Category(RuntimeRegressionTest.class)
@@ -91,10 +87,10 @@ public class BridgeAnnotationsTests extends RuntimeTest {
 
   @Override
   protected void fillRtTestInfos() {
-//    rtTestInfos.add(TEST001);
-//    rtTestInfos.add(TEST002);
-//    rtTestInfos.add(TEST006);
+    rtTestInfos.add(TEST001);
+    rtTestInfos.add(TEST002);
+    rtTestInfos.add(TEST006);
     rtTestInfos.add(TEST007);
-//    rtTestInfos.add(TEST010);
+    rtTestInfos.add(TEST010);
   }
 }
