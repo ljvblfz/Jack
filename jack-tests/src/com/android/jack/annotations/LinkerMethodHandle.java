@@ -16,11 +16,17 @@
 
 package com.android.jack.annotations;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.invoke.CallSite;
 
 /**
- * Describe a linked method to a method.
+ * Describe a linker method to a method.
  */
+@Retention(RetentionPolicy.CLASS)
+@Target(ElementType.ANNOTATION_TYPE)
 public @interface LinkerMethodHandle {
   MethodHandleKind kind();
   Class<?> enclosingType();

@@ -16,10 +16,18 @@
 
 package com.android.jack.annotations;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 /**
- * Describe an invoke custom call site.
+ * This annotation can be set on method to specify that if this method is called then it must be
+ * called by an invoke custom instruction.
  */
-public @interface InvokeCustomCallSite {
+@Retention(RetentionPolicy.CLASS)
+@Target(ElementType.METHOD)
+public @interface CalledByInvokeCustom {
   LinkerMethodHandle[] invokeMethodHandle() default {};
   LinkerFieldHandle[] fieldMethodHandle() default {};
   String name();
