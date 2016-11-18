@@ -48,8 +48,6 @@ public class NField extends NNode implements HasSourceInfo, FieldNode {
   @Nonnull
   public static final Token TOKEN = Token.FIELD;
 
-  protected static final int INDEX_UNKNOWN = -1;
-
   public int modifiers;
 
   @CheckForNull
@@ -70,7 +68,8 @@ public class NField extends NNode implements HasSourceInfo, FieldNode {
   @CheckForNull
   public SourceInfo sourceInfo;
 
-  protected int fieldNodeIndex = INDEX_UNKNOWN;
+  @CheckForNull
+  protected String fieldId;
 
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
@@ -98,6 +97,7 @@ public class NField extends NNode implements HasSourceInfo, FieldNode {
     assert sourceInfo != null;
     assert name != null;
     assert type != null;
+    assert fieldId != null;
     JDefinedClassOrInterface enclosingType = exportSession.getCurrentType();
     assert enclosingType != null;
     JField jField = new JField(
@@ -106,7 +106,7 @@ public class NField extends NNode implements HasSourceInfo, FieldNode {
         enclosingType,
         exportSession.getLookup().getType(type),
         modifiers,
-        new JayceFieldLoader(this, fieldNodeIndex, enclosingLoader));
+        new JayceFieldLoader(this, fieldId, enclosingLoader));
 
     assert name != null;
     assert type != null;
@@ -160,9 +160,8 @@ public class NField extends NNode implements HasSourceInfo, FieldNode {
     this.sourceInfo = sourceInfo;
   }
 
-  @Override
-  public void setIndex(int index) {
-    fieldNodeIndex = index;
+  public void setId(@Nonnull String id) {
+    this.fieldId = id;
   }
 
   @Nonnull
@@ -181,5 +180,4 @@ public class NField extends NNode implements HasSourceInfo, FieldNode {
       }
     }
   }
-
 }

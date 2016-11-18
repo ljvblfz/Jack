@@ -57,14 +57,12 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
   @Nonnull
   public static final Token TOKEN = Token.METHOD;
 
-  protected static final int INDEX_UNKNOWN = -1;
-
   @CheckForNull
-  public String name;
+  protected String name;
   @CheckForNull
   public String returnType;
   @Nonnull
-  public List<NParameter> parameters = Collections.emptyList();
+  private List<NParameter> parameters = Collections.emptyList();
   @CheckForNull
   public MethodKind methodKind;
 
@@ -80,7 +78,8 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
 
   @CheckForNull
   protected NodeLevel level;
-  protected int methodNodeIndex = INDEX_UNKNOWN;
+  @CheckForNull
+  protected String methodId;
 
   @Override
   @Nonnull
@@ -94,7 +93,7 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
     JMethod jMethod = (JMethod) jElement;
     name = jMethod.getName();
     returnType = ImportHelper.getSignatureName(jMethod.getType());
-    parameters = loader.load(NParameter.class, jMethod.getParams());
+    setParameters(loader.load(NParameter.class, jMethod.getParams()));
     methodKind = jMethod.getMethodIdWide().getKind();
     modifier = jMethod.getModifier();
     annotations = loader.load(NAnnotation.class, jMethod.getAnnotations());
@@ -125,18 +124,18 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
     assert returnType != null;
     assert methodKind != null;
     assert sourceInfo != null;
-    assert methodNodeIndex != INDEX_UNKNOWN;
+    assert methodId != null;
     SourceInfo info = sourceInfo.exportAsJast(exportSession);
     JDefinedClassOrInterface enclosingType = exportSession.getCurrentType();
     assert enclosingType != null;
     JMethodIdWide id = new JMethodIdWide(name, methodKind);
     JType returnJType = exportSession.getLookup().getType(returnType);
-    JayceMethodLoader methodLoader = new JayceMethodLoader(this, methodNodeIndex, enclosingLoader);
+    JayceMethodLoader methodLoader = new JayceMethodLoader(this, methodId, enclosingLoader);
     JMethod jMethod = new JMethod(
         info, new JMethodId(id, returnJType), enclosingType,
         modifier, methodLoader);
     exportSession.setCurrentMethod(jMethod);
-    for (NParameter parameter : parameters) {
+    for (NParameter parameter : getParameters()) {
       JParameter jParam = parameter.exportAsJast(exportSession, methodLoader);
       jMethod.addParam(jParam);
       id.addParam(jParam.getType());
@@ -157,7 +156,7 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
       exportSession.setCurrentType(method.getEnclosingType());
 
       Iterator<JParameter> iter = method.getParams().iterator();
-      for (NParameter parameter : parameters) {
+      for (NParameter parameter : getParameters()) {
         assert parameter.id != null;
         exportSession.getVariableResolver().addTarget(parameter.id, iter.next());
       }
@@ -175,7 +174,7 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
     assert methodKind != null;
     out.writeId(name);
     out.writeId(returnType);
-    out.writeNodes(parameters);
+    out.writeNodes(getParameters());
     out.writeMethodKindEnum(methodKind);
     out.writeInt(modifier);
     out.writeNodes(annotations);
@@ -188,7 +187,7 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
     level = in.getNodeLevel();
     name = in.readId();
     returnType = in.readId();
-    parameters = in.readNodes(NParameter.class);
+    setParameters(in.readNodes(NParameter.class));
     methodKind = in.readMethodKindEnum();
     modifier = in.readInt();
     annotations = in.readNodes(NAnnotation.class);
@@ -214,9 +213,8 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
     this.sourceInfo = sourceInfo;
   }
 
-  @Override
-  public void setIndex(int index) {
-    this.methodNodeIndex = index;
+  public void setId(@Nonnull String id) {
+    this.methodId = id;
   }
 
   protected static void clearBodyResolvers(ExportSession exportSession) {
@@ -238,10 +236,29 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
     }
   }
 
+  @Nonnull
+  public List<NParameter> getParameters() {
+    return parameters;
+  }
+
+  public void setParameters(@Nonnull List<NParameter> parameters) {
+    this.parameters = parameters;
+    int parameterIndex = 0;
+    for (NParameter nParameter : parameters) {
+      nParameter.setIndex(parameterIndex);
+      parameterIndex++;
+    }
+  }
+
   @Override
   @Nonnull
   public ParameterNode getParameterNode(@Nonnegative int parameterNodeIndex) {
-    assert parameters != null;
-    return parameters.get(parameterNodeIndex);
+    return getParameters().get(parameterNodeIndex);
+  }
+
+  @Nonnull
+  public String getName() {
+    assert name != null;
+    return name;
   }
 }

@@ -43,6 +43,7 @@ import com.android.sched.util.log.TracerFactory;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -169,12 +170,12 @@ public class JayceInternalWriterImpl implements JayceInternalWriter {
     }
   }
 
-  public void writeNodes(@Nonnull List<? extends NNode> list) throws IOException {
+  public void writeNodes(@Nonnull Collection<? extends NNode> nodes) throws IOException {
     writeOpen();
 
-    writeTrimmedInt(list.size());
+    writeTrimmedInt(nodes.size());
 
-    for (Iterator<? extends NNode> iterator = list.iterator(); iterator.hasNext();) {
+    for (Iterator<? extends NNode> iterator = nodes.iterator(); iterator.hasNext();) {
       writeNode(iterator.next());
     }
 

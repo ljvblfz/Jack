@@ -90,8 +90,8 @@ public class NClassType extends NDeclaredType {
     enclosingMethodClass = ImportHelper.getMethodClassSignature(jClassType.getEnclosingMethod());
     enclosingMethod = ImportHelper.getMethodSignature(jClassType.getEnclosingMethod());
     inners = ImportHelper.getSignatureNameList(jClassType.getMemberTypes());
-    fields = loader.load(NField.class, jClassType.getFields());
-    methods = loader.load(NMethod.class, jClassType.getMethods());
+    setFields(loader.load(NField.class, jClassType.getFields()));
+    setMethods(loader.load(NMethod.class, jClassType.getMethods()));
     annotations = loader.load(NAnnotation.class, jClassType.getAnnotations());
     markers = loader.load(NMarker.class, jClassType.getAllMarkers());
     sourceInfo = loader.load(jClassType.getSourceInfo());
@@ -154,12 +154,12 @@ public class NClassType extends NDeclaredType {
       jClassType.addMemberType(
           (JClassOrInterface) exportSession.getLookup().getType(memberType));
     }
-    for (NField field : fields) {
+    for (NField field : getFields()) {
       JField jField = field.exportAsJast(exportSession, loader);
       jField.setEnclosingType(jClassType);
       jClassType.addField(jField);
     }
-    for (NMethod method : methods) {
+    for (NMethod method : getMethods()) {
       JMethod jMethod = method.exportAsJast(exportSession, loader);
       jClassType.addMethod(jMethod);
     }
@@ -178,8 +178,8 @@ public class NClassType extends NDeclaredType {
     out.writeId(enclosingMethodClass);
     out.writeId(enclosingMethod);
     out.writeIds(inners);
-    out.writeNodes(fields);
-    out.writeNodes(methods);
+    out.writeNodes(getFields());
+    out.writeNodes(getMethods());
     out.writeNodes(annotations);
     out.writeNodes(markers);
 
@@ -197,9 +197,8 @@ public class NClassType extends NDeclaredType {
       enclosingMethodClass = in.readId();
       enclosingMethod = in.readId();
       inners = in.readIds();
-      fields = in.readNodes(NField.class);
-      methods = in.readNodes(NMethod.class);
-      assert areIndicesValid();
+      setFields(in.readNodes(NField.class));
+      setMethods(in.readNodes(NMethod.class));
       annotations = in.readNodes(NAnnotation.class);
       markers = in.readNodes(NMarker.class);
     }

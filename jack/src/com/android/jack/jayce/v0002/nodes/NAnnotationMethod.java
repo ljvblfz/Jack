@@ -80,7 +80,7 @@ public class NAnnotationMethod extends NMethod {
     assert returnType != null;
     assert sourceInfo != null;
     assert body == null;
-    assert methodNodeIndex != INDEX_UNKNOWN;
+    assert methodId != null;
     SourceInfo info = sourceInfo.exportAsJast(exportSession);
     JDefinedClassOrInterface enclosingType = exportSession.getCurrentType();
     assert enclosingType != null;
@@ -90,7 +90,7 @@ public class NAnnotationMethod extends NMethod {
         new JMethodId(new JMethodIdWide(name, MethodKind.INSTANCE_VIRTUAL), returnJType),
         enclosingType,
         modifier,
-        new JayceMethodLoader(this, methodNodeIndex, enclosingLoader));
+        new JayceMethodLoader(this, methodId, enclosingLoader));
     exportSession.setCurrentMethod(jAnnotationMethod);
     if (defaultValue != null) {
       jAnnotationMethod.setDefaultValue(defaultValue.exportAsJast(exportSession));

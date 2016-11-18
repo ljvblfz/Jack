@@ -26,8 +26,11 @@ import com.android.jack.jayce.NodeLevel;
 import com.android.jack.jayce.v0004.NNode;
 import com.android.jack.jayce.v0004.io.ExportSession;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -41,10 +44,10 @@ public abstract class NDeclaredType extends NNode implements HasSourceInfo, Decl
   protected NodeLevel level;
 
   @Nonnull
-  public List<NMethod> methods = Collections.emptyList();
+  private Map<String, NMethod> methods = Collections.emptyMap();
 
   @Nonnull
-  public List<NField> fields = Collections.emptyList();
+  private Map<String, NField> fields = Collections.emptyMap();
 
   @Nonnull
   public List<NAnnotation> annotations = Collections.emptyList();
@@ -64,8 +67,7 @@ public abstract class NDeclaredType extends NNode implements HasSourceInfo, Decl
   public void loadAnnotations(@Nonnull JDefinedClassOrInterface loading,
       @Nonnull JayceClassOrInterfaceLoader loader) {
     if (!annotations.isEmpty()) {
-      ExportSession exportSession =
-          new ExportSession(loader.getSession(), NodeLevel.STRUCTURE);
+      ExportSession exportSession = new ExportSession(loader.getSession(), NodeLevel.STRUCTURE);
       for (NAnnotation annotation : annotations) {
         JAnnotation annotationLiteral = annotation.exportAsJast(exportSession);
         loading.addAnnotation(annotationLiteral);
@@ -76,28 +78,51 @@ public abstract class NDeclaredType extends NNode implements HasSourceInfo, Decl
 
   @Override
   @Nonnull
-  public FieldNode getFieldNode(int fieldNodeIndex) {
-    return fields.get(fieldNodeIndex);
+  public FieldNode getFieldNode(@Nonnull String fieldId) {
+    return fields.get(fieldId);
   }
 
   @Override
   @Nonnull
-  public MethodNode getMethodNode(@Nonnull int methodNodeIndex) {
-    return methods.get(methodNodeIndex);
+  public MethodNode getMethodNode(@Nonnull String methodId) {
+    return methods.get(methodId);
   }
 
-  protected boolean areIndicesValid() {
-    boolean allValid = true;
-    int size = methods.size();
-    for (int i = 0; (i < size) && allValid; i++) {
-      allValid &= (i == methods.get(i).methodNodeIndex);
-    }
-    size = fields.size();
-    for (int i = 0; (i < size) && allValid; i++) {
-      allValid &= (i == fields.get(i).fieldNodeIndex);
-    }
-
-    return allValid;
+  @Nonnull
+  public Collection<NMethod> getMethods() {
+    return methods.values();
   }
 
+  public void setMethods(@Nonnull List<NMethod> methods) {
+    this.methods = new HashMap<String, NMethod>(methods.size() + 1, 1.0f);
+    for (NMethod nMethod : methods) {
+      assert nMethod.getName() != null;
+      StringBuilder builder = new StringBuilder(nMethod.getName()).append('(');
+      for (NParameter param : nMethod.getParameters()) {
+        assert param.type != null;
+        builder.append(param.type);
+      }
+      assert nMethod.returnType != null;
+      builder.append(')').append(nMethod.returnType);
+      String id = builder.toString();
+      this.methods.put(id, nMethod);
+      nMethod.setId(id);
+    }
+  }
+
+  @Nonnull
+  public Collection<NField> getFields() {
+    return fields.values();
+  }
+
+  public void setFields(@Nonnull List<NField> fields) {
+    this.fields = new HashMap<String, NField>(fields.size() + 1, 1.0f);
+    for (NField nField : fields) {
+      assert nField.name != null;
+      assert nField.type != null;
+      String id = nField.name + '-' + nField.type;
+      this.fields.put(id, nField);
+      nField.setId(id);
+    }
+  }
 }

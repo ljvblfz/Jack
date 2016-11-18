@@ -54,17 +54,17 @@ public class JayceMethodLoader implements MethodLoader, HasInputLibrary {
   private SoftReference<MethodNode> nnode;
 
   @Nonnull
-  private final int methodNodeIndex;
+  private final String methodId;
 
   private boolean isBodyLoaded = false;
 
   private boolean isAnnotationsLoaded = false;
 
-  public JayceMethodLoader(@Nonnull MethodNode nnode, int methodNodeIndex,
+  public JayceMethodLoader(@Nonnull MethodNode nnode, @Nonnull String methodId,
       @Nonnull JayceClassOrInterfaceLoader enclosingClassLoader) {
     this.enclosingClassLoader = enclosingClassLoader;
     this.nnode = new SoftReference<MethodNode>(nnode);
-    this.methodNodeIndex = methodNodeIndex;
+    this.methodId = methodId;
   }
 
   @Override
@@ -122,7 +122,7 @@ public class JayceMethodLoader implements MethodLoader, HasInputLibrary {
     MethodNode methodNode = nnode.get();
     if (methodNode == null || !methodNode.getLevel().keep(minimumLevel)) {
       DeclaredTypeNode declaredTypeNode = enclosingClassLoader.getNNode(minimumLevel);
-      methodNode = declaredTypeNode.getMethodNode(methodNodeIndex);
+      methodNode = declaredTypeNode.getMethodNode(methodId);
       nnode = new SoftReference<MethodNode>(methodNode);
     }
     return methodNode;
