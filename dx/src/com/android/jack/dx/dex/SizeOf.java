@@ -19,15 +19,18 @@ package com.android.jack.dx.dex;
 import javax.annotation.Nonnegative;
 
 /**
- * TODO(jack team)
+ * Size of items contained by a dex file.
  */
 public final class SizeOf {
   private SizeOf() {}
 
+  @Nonnegative
   public static final int UBYTE = 1;
+  @Nonnegative
   public static final int USHORT = 2;
+  @Nonnegative
   public static final int UINT = 4;
-
+  @Nonnegative
   public static final int SIGNATURE = UBYTE * 20;
 
   @Nonnegative
@@ -57,22 +60,35 @@ public final class SizeOf {
      * data_size uint
      * data_off uint
      */
-    return (8 * UBYTE) + UINT + SIGNATURE + (20 * UINT); // 0x70;
+    int headerSize = (8 * UBYTE) + UINT + SIGNATURE + (20 * UINT); // 0x70;
+
+    if (apiLevel >= DexFormat.API_ANDROID_O) {
+      /*
+       * method_handle_ids_size uint
+       * method_handle_ids_off uint
+       */
+      headerSize += 2 * UINT; // 0x78
+    }
+
+    return headerSize;
   }
 
   /**
    * string_data_off uint
    */
+  @Nonnegative
   public static final int STRING_ID_ITEM = UINT;
 
   /**
    * descriptor_idx uint
    */
+  @Nonnegative
   public static final int TYPE_ID_ITEM = UINT;
 
   /**
    * type_idx ushort
    */
+  @Nonnegative
   public static final int TYPE_ITEM = USHORT;
 
   /**
@@ -80,6 +96,7 @@ public final class SizeOf {
    * return_type_idx uint
    * return_type_idx uint
    */
+  @Nonnegative
   public static final int PROTO_ID_ITEM = UINT + UINT + UINT;
 
   /**
@@ -87,6 +104,7 @@ public final class SizeOf {
    * type_idx/proto_idx ushort
    * name_idx uint
    */
+  @Nonnegative
   public static final int MEMBER_ID_ITEM = USHORT + USHORT + UINT;
 
   /**
@@ -99,6 +117,7 @@ public final class SizeOf {
    * class_data_off uint
    * static_values_off uint
    */
+  @Nonnegative
   public static final int CLASS_DEF_ITEM = 8 * UINT;
 
   /**
@@ -107,6 +126,7 @@ public final class SizeOf {
    * size uint
    * offset uint
    */
+  @Nonnegative
   public static final int MAP_ITEM = USHORT + USHORT + UINT + UINT;
 
   /**
@@ -114,5 +134,15 @@ public final class SizeOf {
    * insn_count ushort
    * handler_off ushort
    */
+  @Nonnegative
   public static final int TRY_ITEM = UINT + USHORT + USHORT;
+
+  /**
+   * handle_type ushort
+   * reserved ushort
+   * field_or_method_idx ushort
+   * reserved2 ushort
+   */
+  @Nonnegative
+  public static final int METHOD_HANDLE_ID_ITEM = USHORT + USHORT + USHORT + USHORT;
 }

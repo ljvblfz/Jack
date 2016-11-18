@@ -28,33 +28,43 @@ import javax.annotation.Nonnull;
 public class CstIndexMap {
 
   /** Mapping between index and {@link CstString} value of a dex file.*/
+  @Nonnull
   private final CstString[] strings;
 
   /** Mapping between index and {@link CstType} value of a dex file.*/
+  @Nonnull
   private final CstType[] types;
 
   /** Mapping between index and {@link CstMethodRef} value of a dex file.*/
+  @Nonnull
   private final CstMethodRef[] methods;
 
   /** Mapping between index and {@link CstFieldRef} value of a dex file.*/
+  @Nonnull
   private final CstFieldRef[] fields;
 
   /** Mapping between index and {@link CstPrototypeRef} value of a dex file. */
+  @Nonnull
   private final CstPrototypeRef[] prototypes;
 
-  public CstIndexMap(DexBuffer dexBuffer) {
+  /** Mapping between index and {@link CstMethodHandleRef} value of a dex file. */
+  @Nonnull
+  private final CstMethodHandleRef[] methodHandles;
+
+  public CstIndexMap(@Nonnull DexBuffer dexBuffer) {
     strings = new CstString[dexBuffer.strings().size()];
     types = new CstType[dexBuffer.typeNames().size()];
     methods = new CstMethodRef[dexBuffer.methodIds().size()];
     fields = new CstFieldRef[dexBuffer.fieldIds().size()];
     prototypes = new CstPrototypeRef[dexBuffer.protoIds().size()];
+    methodHandles = new CstMethodHandleRef[dexBuffer.methodHandleIds().size()];
   }
   /**
    * Keeps string mapping of a dex file.
    * @param index String index.
    * @param cstString The string.
    */
-  public void addStringMapping(@Nonnegative int index, CstString cstString) {
+  public void addStringMapping(@Nonnegative int index, @Nonnull CstString cstString) {
     assert strings[index] == null || strings[index].compareTo(cstString) == 0;
 
     if (strings[index] == null) {
@@ -67,7 +77,7 @@ public class CstIndexMap {
    * @param index Type index.
    * @param cstType The type.
    */
-  public void addTypeMapping(@Nonnegative int index, CstType cstType) {
+  public void addTypeMapping(@Nonnegative int index, @Nonnull CstType cstType) {
     assert types[index] == null || types[index].compareTo(cstType) == 0;
 
     if (types[index] == null) {
@@ -80,7 +90,7 @@ public class CstIndexMap {
    * @param index Method index.
    * @param methodRef The method.
    */
-  public void addMethodMapping(@Nonnegative int index, CstMethodRef methodRef) {
+  public void addMethodMapping(@Nonnegative int index, @Nonnull CstMethodRef methodRef) {
     assert methods[index] == null || methods[index].compareTo(methodRef) == 0;
 
     if (methods[index] == null) {
@@ -93,7 +103,7 @@ public class CstIndexMap {
    * @param index Protototype index.
    * @param prototypeRef The prototype.
    */
-  public void addPrototypeMapping(@Nonnegative int index, CstPrototypeRef prototypeRef) {
+  public void addPrototypeMapping(@Nonnegative int index, @Nonnull CstPrototypeRef prototypeRef) {
     assert prototypes[index] == null || prototypes[index].compareTo(prototypeRef) == 0;
 
     if (prototypes[index] == null) {
@@ -106,11 +116,25 @@ public class CstIndexMap {
    * @param index Field index.
    * @param fieldRef The Field.
    */
-  public void addFieldMapping(@Nonnegative int index, CstFieldRef fieldRef) {
+  public void addFieldMapping(@Nonnegative int index, @Nonnull CstFieldRef fieldRef) {
     assert fields[index] == null || fields[index].compareTo(fieldRef) == 0;
 
     if (fields[index] == null) {
       fields[index] = fieldRef;
+    }
+  }
+
+  /**
+   * Keeps method handle mapping of a dex file.
+   * @param index Method handle index.
+   * @param methodHandleRef The method handle.
+   */
+  public void addMethodHandleMapping(@Nonnegative int index,
+      @Nonnull CstMethodHandleRef methodHandleRef) {
+    assert methodHandles[index] == null || methodHandles[index].compareTo(methodHandleRef) == 0;
+
+    if (methodHandles[index] == null) {
+      methodHandles[index] = methodHandleRef;
     }
   }
 
@@ -200,5 +224,12 @@ public class CstIndexMap {
     CstType cstType = types[index];
     assert cstType != null;
     return cstType;
+  }
+
+  @Nonnull
+  public CstMethodHandleRef getCstMethodHandle(@Nonnegative int index) {
+    CstMethodHandleRef cstMethodHandleRef = methodHandles[index];
+    assert cstMethodHandleRef != null;
+    return cstMethodHandleRef;
   }
 }
