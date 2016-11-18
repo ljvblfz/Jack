@@ -16,6 +16,10 @@
 
 package com.android.jack.jayce;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.eventbus.Subscribe;
+
 import com.android.jack.Jack;
 import com.android.jack.LibraryException;
 import com.android.jack.frontend.ParentSetter;
@@ -35,8 +39,12 @@ import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.load.ClassOrInterfaceLoader;
 import com.android.jack.load.JackLoadingException;
 import com.android.jack.lookup.JLookupException;
+import com.android.jack.management.CleanMemoryRequest;
+import com.android.jack.management.Impact;
 import com.android.sched.marker.Marker;
+import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.WrongPermissionException;
+import com.android.sched.util.findbugs.SuppressFBWarnings;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.Tracer;
@@ -54,9 +62,11 @@ import java.io.InputStream;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -74,10 +84,86 @@ public class JayceClassOrInterfaceLoader implements ClassOrInterfaceLoader, HasI
   private static final StatisticId<Percent> NNODE_REREAD = new StatisticId<
       Percent>("jack.jayce-to-nnode", "Jayce file reread versus total jayce file read",
           PercentImpl.class, Percent.class);
+
+  @Nonnull
+  private static final StatisticId<Percent> NNODE_CACHE_HIT = new StatisticId<Percent>(
+      "jack.jayce.cache.hit", "NNode cache hit", PercentImpl.class, Percent.class);
+
+  @Nonnull
+  private static final StatisticId<Percent> NNODE_CACHE_CROSS =
+      new StatisticId<Percent>("jack.jayce.cache.hit.cross-compilation",
+          "NNode cache hit due to previous compilation", PercentImpl.class, Percent.class);
+
+  @Nonnull
+  private static final StatisticId<Percent> NNODE_CACHABLE = new StatisticId<Percent>(
+      "jack.jayce.cache.cachable", "NNode cache possible", PercentImpl.class, Percent.class);
+
   @Nonnull
   private static final StatisticId<Counter> NNODE_STRUCTURE_LOAD = new StatisticId<Counter>(
       "jack.nnode-to-jnode.structure", "NDeclaredType loaded in a JNode at structure level",
           CounterImpl.class, Counter.class);
+
+  private static class NNodeId {
+    @CheckForNull
+    private final String digest;
+    @Nonnull
+    private final String fqName;
+    @Nonnull
+    private final String sessionId;
+
+    public NNodeId(@Nonnull String sessionId, @CheckForNull String digest, @Nonnull String fqName) {
+      this.digest = digest;
+      this.fqName = fqName;
+      this.sessionId = sessionId;
+    }
+
+    public boolean isCachable() {
+      return digest != null;
+    }
+
+    @Nonnull
+    public String getSessionId() {
+      return sessionId;
+    }
+
+    @Override
+    public final boolean equals(Object obj) {
+      if (obj instanceof NNodeId) {
+        NNodeId id = (NNodeId) obj;
+
+        if (digest == null || id.digest == null) {
+          return false;
+        }
+
+        return digest.equals(id.digest) && fqName.equals(id.fqName);
+      }
+
+      return false;
+    }
+
+    @Override
+    public final int hashCode() {
+      return ((digest != null) ? digest.hashCode() : 0) ^ fqName.hashCode();
+    }
+  }
+
+  @Nonnull
+  private static Cache<NNodeId, DeclaredTypeNode> cache =
+      CacheBuilder.newBuilder().softValues().<NNodeId, DeclaredTypeNode>build();
+
+  static {
+    Jack.getResourceRequestBus().register(new Object() {
+      @SuppressFBWarnings({"UMAC_UNCALLABLE_METHOD_OF_ANONYMOUS_CLASS"})
+      // Call by EventBus framework
+      @Subscribe
+      public void cleanMemory(@Nonnull CleanMemoryRequest event) {
+        if (event.getImpacts().contains(Impact.PERFORMANCE)) {
+          logger.log(Level.INFO, "Clean NNode cache on event request");
+          cache.invalidateAll();
+        }
+      }
+    });
+  }
 
   @Nonnull
   private static final Logger logger = LoggerFactory.getLogger();
@@ -86,7 +172,7 @@ public class JayceClassOrInterfaceLoader implements ClassOrInterfaceLoader, HasI
   private final InputVFile source;
 
   @Nonnull
-  private Reference<DeclaredTypeNode> nnode;
+  private Reference<DeclaredTypeNode> nnode = new SoftReference<DeclaredTypeNode>(null);
 
   private boolean structureLoaded = false;
 
@@ -117,6 +203,9 @@ public class JayceClassOrInterfaceLoader implements ClassOrInterfaceLoader, HasI
   private final Object annotationLock = new Object();
 
   @Nonnull
+  private final NNodeId id;
+
+  @Nonnull
   final Tracer tracer = TracerFactory.getTracer();
 
   JayceClassOrInterfaceLoader(@Nonnull InputJackLibrary jackLibrary,
@@ -130,10 +219,10 @@ public class JayceClassOrInterfaceLoader implements ClassOrInterfaceLoader, HasI
     this.simpleName = simpleName;
     this.source = source;
     this.session = session;
-    nnode = new SoftReference<DeclaredTypeNode>(null);
     this.defaultLoadLevel = defaultLoadLevel;
-    location = new TypeInInputLibraryLocation(inputJackLibrary,
-        Jack.getUserFriendlyFormatter().getName(enclosingPackage, simpleName));
+    String fqName = Jack.getUserFriendlyFormatter().getName(enclosingPackage, simpleName);
+    location = new TypeInInputLibraryLocation(inputJackLibrary, fqName);
+    id = new NNodeId(session.getConfig().getName(), inputJackLibrary.getDigest(), fqName);
   }
 
   @Nonnull
@@ -258,14 +347,41 @@ public class JayceClassOrInterfaceLoader implements ClassOrInterfaceLoader, HasI
   @Nonnull
   DeclaredTypeNode getNNode(@Nonnull NodeLevel minimumLevel) throws LibraryFormatException,
       LibraryIOException {
-    DeclaredTypeNode type = nnode.get();
-    if (type == null || !type.getLevel().keep(minimumLevel)) {
+    DeclaredTypeNode candidate;
+
+    if (id.isCachable()) {
+      tracer.getStatistic(NNODE_CACHABLE).addTrue();
+      candidate = cache.getIfPresent(id);
+
+      if (tracer.isTracing()) {
+        boolean hit = (candidate != null) && (candidate.getLevel().keep(minimumLevel));
+        tracer.getStatistic(NNODE_CACHE_HIT).add(hit);
+        if (hit) {
+          for (Entry<NNodeId, DeclaredTypeNode> entry : cache.asMap().entrySet()) {
+            if (entry.getValue() == candidate) {
+              tracer.getStatistic(NNODE_CACHE_CROSS)
+                  .add(!entry.getKey().getSessionId().equals(ThreadConfig.getConfig().getName()));
+              break;
+            }
+          }
+        }
+      }
+    } else {
+      tracer.getStatistic(NNODE_CACHABLE).addFalse();
+      candidate = nnode.get();
+    }
+
+    if (candidate == null || !candidate.getLevel().keep(minimumLevel)) {
       InputStream in = null;
       try {
         in = new BufferedInputStream(source.getInputStream());
         NodeLevel loadLevel = getLevelForLoading(minimumLevel);
-        type = JayceReaderFactory.get(inputJackLibrary, in).readType(loadLevel);
-        nnode = new SoftReference<DeclaredTypeNode>(type);
+        candidate = JayceReaderFactory.get(inputJackLibrary, in).readType(loadLevel);
+        if (id.isCachable()) {
+          cache.put(id, candidate);
+        } else {
+          nnode = new SoftReference<DeclaredTypeNode>(candidate);
+        }
       } catch (IOException | WrongPermissionException e) {
         throw new LibraryIOException(inputJackLibrary.getLocation(), e);
       } catch (JayceFormatException e) {
@@ -285,7 +401,7 @@ public class JayceClassOrInterfaceLoader implements ClassOrInterfaceLoader, HasI
       tracer.getStatistic(NNODE_REREAD).add(nnodeReadCount > 0);
       nnodeReadCount++;
     }
-    return type;
+    return candidate;
   }
 
   private void ensureStructure(@Nonnull JDefinedClassOrInterface loaded) {
