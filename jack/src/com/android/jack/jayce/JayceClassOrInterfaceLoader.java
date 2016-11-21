@@ -42,7 +42,9 @@ import com.android.jack.lookup.JLookupException;
 import com.android.jack.management.CleanMemoryRequest;
 import com.android.jack.management.Impact;
 import com.android.sched.marker.Marker;
+import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.findbugs.SuppressFBWarnings;
 import com.android.sched.util.location.Location;
@@ -73,7 +75,12 @@ import javax.annotation.Nonnull;
 /**
  * {@link ClassOrInterfaceLoader} for jayce files.
  */
+@HasKeyId
 public class JayceClassOrInterfaceLoader implements ClassOrInterfaceLoader, HasInputLibrary {
+  @Nonnull
+  public static final BooleanPropertyId NNODE_CACHE = BooleanPropertyId
+      .create("jack.jayce.cache", "Use NNode cache")
+      .addDefaultValue(Boolean.TRUE);
 
   @Nonnull
   private static final StatisticId<Counter> NNODE_TYPE_LOAD = new StatisticId<
@@ -221,8 +228,10 @@ public class JayceClassOrInterfaceLoader implements ClassOrInterfaceLoader, HasI
     this.session = session;
     this.defaultLoadLevel = defaultLoadLevel;
     String fqName = Jack.getUserFriendlyFormatter().getName(enclosingPackage, simpleName);
-    location = new TypeInInputLibraryLocation(inputJackLibrary, fqName);
-    id = new NNodeId(session.getConfig().getName(), inputJackLibrary.getDigest(), fqName);
+    this.location = new TypeInInputLibraryLocation(inputJackLibrary, fqName);
+    boolean cache = session.getConfig().get(NNODE_CACHE).booleanValue();
+    this.id = new NNodeId(session.getConfig().getName(),
+        cache ? inputJackLibrary.getDigest() : null, fqName);
   }
 
   @Nonnull
