@@ -146,6 +146,8 @@ public class AndroidCompatibilityChecker implements RunnableSchedulable<JMethod>
     }
 
     switch (androidMinApiLevel.getProvisionalLevel()) {
+      // STOPSHIP: Remove none
+      case NONE:
       case O_BETA1:
       case O_BETA2: {
         // invoke to method with polymorphic signature is supported
