@@ -60,7 +60,7 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
   @CheckForNull
   protected String name;
   @CheckForNull
-  public String returnType;
+  protected String returnType;
   @Nonnull
   private List<NParameter> parameters = Collections.emptyList();
   @CheckForNull
@@ -260,5 +260,11 @@ public class NMethod extends NNode implements HasSourceInfo, MethodNode {
   public String getName() {
     assert name != null;
     return name;
+  }
+
+  @Nonnull
+  public String getReturnType() {
+    assert returnType != null;
+    return returnType;
   }
 }

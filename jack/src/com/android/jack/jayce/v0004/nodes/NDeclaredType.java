@@ -102,8 +102,8 @@ public abstract class NDeclaredType extends NNode implements HasSourceInfo, Decl
         assert param.type != null;
         builder.append(param.type);
       }
-      assert nMethod.returnType != null;
-      builder.append(')').append(nMethod.returnType);
+      assert nMethod.getReturnType() != null;
+      builder.append(')').append(nMethod.getReturnType());
       String id = builder.toString();
       this.methods.put(id, nMethod);
       nMethod.setId(id);

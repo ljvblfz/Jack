@@ -118,4 +118,10 @@ public class NConstructor extends NMethod {
   public String getName() {
     return "<init>";
   }
+
+  @Override
+  @Nonnull
+  public String getReturnType() {
+    return "V";
+  }
 }
