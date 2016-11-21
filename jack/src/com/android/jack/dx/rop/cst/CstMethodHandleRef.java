@@ -86,10 +86,10 @@ public final class CstMethodHandleRef extends TypedConstant {
   }
 
   @Nonnull
-  private MethodHandleKind kind;
+  private final MethodHandleKind kind;
 
   @Nonnull
-  private CstMemberRef memberRef;
+  private final CstMemberRef memberRef;
 
   public CstMethodHandleRef(@Nonnull MethodHandleKind kind, @Nonnull CstMemberRef memberRef) {
     this.kind = kind;
@@ -158,7 +158,7 @@ public final class CstMethodHandleRef extends TypedConstant {
   @Override
   @Nonnull
   public String toHuman() {
-    return kind.name() + "," + memberRef.toHuman();
+    return kind.name() + ", " + memberRef.toHuman();
   }
 
   @Nonnull

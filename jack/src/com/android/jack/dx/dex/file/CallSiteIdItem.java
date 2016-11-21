@@ -30,7 +30,7 @@ import javax.annotation.Nonnull;
 public final class CallSiteIdItem extends IndexedItem {
 
   @Nonnull
-  private CstCallSiteRef callSiteRef;
+  private final CstCallSiteRef callSiteRef;
   @Nonnull
   private EncodedArrayItem encodedArray;
 
@@ -73,14 +73,18 @@ public final class CallSiteIdItem extends IndexedItem {
     if (out.annotates()) {
       out.annotate(0, indexString());
       out.annotate(4, "  encoded_array_absolute_offset: " + encodedArray.getAbsoluteOffset());
-      out.annotate(0, "  method_handle_idx:             "
-          + Hex.u2(file.findItemOrNull(callSiteRef.getMethodHandle()).getIndex()));
+      MethodHandleIdItem methodHandle =
+          (MethodHandleIdItem) file.findItemOrNull(callSiteRef.getMethodHandle());
+      out.annotate(0, "  method_handle_idx:             " + Hex.u2(methodHandle.getIndex()) + " // "
+          + methodHandle.getCstMethodHandleRef().toHuman());
       out.annotate(0,
           "  target_method_name:            " + callSiteRef.getTargetMethodName().getString());
       ProtoIdItem methodType =
           (ProtoIdItem) file.findItemOrNull(callSiteRef.getCallSitePrototype());
       out.annotate(0, "  method_type_idx:               " + Hex.u2(methodType.getIndex()) + " // "
           + methodType.toHuman());
+      out.annotate(0, "  extra_args:                    "
+          + callSiteRef.getExtraArgs().getList().toHuman("{", ",", "}"));
     }
 
     out.writeInt(encodedArray.getAbsoluteOffset());

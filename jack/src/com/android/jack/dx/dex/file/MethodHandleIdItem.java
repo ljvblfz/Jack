@@ -30,7 +30,7 @@ import javax.annotation.Nonnull;
 public final class MethodHandleIdItem extends IndexedItem {
 
   @Nonnull
-  private CstMethodHandleRef cstMethodHandleRef;
+  private final CstMethodHandleRef cstMethodHandleRef;
 
   /**
    * Constructs an instance.
@@ -60,6 +60,11 @@ public final class MethodHandleIdItem extends IndexedItem {
   @Override
   public void addContents(@Nonnull DexFile file) {
     file.internIfAppropriate(cstMethodHandleRef.getMemberRef());
+  }
+
+  @Nonnull
+  public CstMethodHandleRef getCstMethodHandleRef() {
+    return cstMethodHandleRef;
   }
 
   /** {@inheritDoc} */

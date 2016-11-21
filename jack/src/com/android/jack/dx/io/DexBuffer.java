@@ -31,6 +31,7 @@ import com.android.jack.dx.util.DexException;
 import com.android.jack.dx.util.FileUtils;
 import com.android.jack.dx.util.Leb128Utils;
 import com.android.jack.dx.util.Mutf8;
+import com.android.jack.tools.merger.MergerTools;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -466,7 +467,7 @@ public final class DexBuffer {
 
       @Override
       protected void visitPrimitive(int type, int arg, int size) {
-        throw new AssertionError("Unsupported encoded value.");
+        callSiteArrayList.set(idx++, MergerTools.createConstant(in, type, arg));
       }
 
       @Override
@@ -511,7 +512,7 @@ public final class DexBuffer {
 
       @Override
       protected void visitType(int index) {
-        throw new AssertionError("Unsupported encoded value.");
+        callSiteArrayList.set(idx++, cstIndexMap.getCstType(index));
       }
     }
 

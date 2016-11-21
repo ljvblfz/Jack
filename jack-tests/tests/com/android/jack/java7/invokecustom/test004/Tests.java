@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.jack.java7.invokecustom.test001;
+package com.android.jack.java7.invokecustom.test004;
 
 import static java.lang.invoke.MethodHandles.lookup;
 
 import com.android.jack.annotations.CalledByInvokeCustom;
+import com.android.jack.annotations.Constant;
 import com.android.jack.annotations.LinkerMethodHandle;
 import com.android.jack.annotations.MethodHandleKind;
 
@@ -39,7 +40,14 @@ public class Tests {
       invokeMethodHandle = @LinkerMethodHandle(kind = MethodHandleKind.INVOKE_STATIC,
           enclosingType = Tests.class,
           name = "linkerMethod",
-          argumentTypes = {MethodHandles.Lookup.class, String.class, MethodType.class}),
+          argumentTypes = {MethodHandles.Lookup.class, String.class, MethodType.class,
+                           boolean.class, byte.class, char.class, short.class, int.class,
+                           float.class, double.class, String.class, Class.class, long.class}),
+      methodHandleExtraArgs = {@Constant(booleanValue = true), @Constant(byteValue = 1),
+                         @Constant(charValue = 'a'), @Constant(shortValue = 1024),
+                         @Constant(intValue = 1), @Constant(floatValue = 11.1f),
+                         @Constant(doubleValue = 2.2), @Constant(stringValue = "Hello"),
+                         @Constant(classValue = Tests.class), @Constant(longValue = 123456789L)},
       name = "add",
       returnType = int.class,
       argumentTypes = {int.class, int.class})
@@ -49,13 +57,24 @@ public class Tests {
 
   @SuppressWarnings("unused")
   private static CallSite linkerMethod(MethodHandles.Lookup caller, String name,
-      MethodType methodType) throws Throwable {
+      MethodType methodType, boolean v1, byte v2, char v3, short v4, int v5, float v6, double v7,
+      String v8, Class<?> v9, long v10) throws Throwable {
+    Assert.assertTrue(v1);
+    Assert.assertEquals(1, v2);
+    Assert.assertEquals('a', v3);
+    Assert.assertEquals(1024, v4);
+    Assert.assertEquals(1, v5);
+    Assert.assertEquals(11.1f, v6, 0);
+    Assert.assertEquals(2.2, v7, 0);
+    Assert.assertEquals("Hello", v8);
+    Assert.assertEquals(Tests.class, v9);
+    Assert.assertEquals(123456789L, v10);
     MethodHandle mh_add = lookup().findStatic(Tests.class, name, methodType);
     return new ConstantCallSite(mh_add);
   }
 
   @Test
   public void test() throws Throwable {
-    Assert.assertEquals(5, Tests.add(2,3));
+    Assert.assertEquals(5, add(2,3));
   }
 }

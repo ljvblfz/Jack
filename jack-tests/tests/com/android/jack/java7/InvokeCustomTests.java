@@ -56,6 +56,10 @@ public class InvokeCustomTests {
       AbstractTestTools.getTestRootDir("com.android.jack.java7.invokecustom.test003"),
       "com.android.jack.java7.invokecustom.test003.Tests").setSrcDirName("");
 
+  private RuntimeTestInfo INVOKE_CUSTOM_004 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java7.invokecustom.test004"),
+      "com.android.jack.java7.invokecustom.test004.Tests").setSrcDirName("");
+
   @Test
   @Runtime
   @KnownIssue
@@ -75,6 +79,13 @@ public class InvokeCustomTests {
   @KnownIssue
   public void testInvokeCustom003() throws Exception {
     run(INVOKE_CUSTOM_003);
+  }
+
+  @Test
+  @Runtime
+  @KnownIssue
+  public void testInvokeCustom004() throws Exception {
+    run(INVOKE_CUSTOM_004);
   }
 
   private void run(@Nonnull RuntimeTestInfo rti) throws Exception {

@@ -57,6 +57,6 @@ public class Tests {
 
   @Test
   public void test() throws Throwable {
-    Assert.assertEquals(5, add(2,3));
+    Assert.assertEquals(5, Tests.add(2,3));
   }
 }

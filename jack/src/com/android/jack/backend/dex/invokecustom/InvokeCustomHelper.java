@@ -19,25 +19,39 @@ package com.android.jack.backend.dex.invokecustom;
 import com.android.jack.Jack;
 import com.android.jack.backend.dex.DexAnnotations;
 import com.android.jack.backend.dex.rop.RopHelper;
+import com.android.jack.dx.rop.cst.CstArray;
 import com.android.jack.dx.rop.cst.CstCallSiteRef;
+import com.android.jack.dx.rop.cst.CstDouble;
 import com.android.jack.dx.rop.cst.CstFieldRef;
+import com.android.jack.dx.rop.cst.CstFloat;
+import com.android.jack.dx.rop.cst.CstInteger;
+import com.android.jack.dx.rop.cst.CstLong;
 import com.android.jack.dx.rop.cst.CstMethodHandleRef;
 import com.android.jack.dx.rop.cst.CstMethodHandleRef.MethodHandleKind;
 import com.android.jack.dx.rop.cst.CstMethodRef;
 import com.android.jack.dx.rop.cst.CstNat;
 import com.android.jack.dx.rop.cst.CstPrototypeRef;
 import com.android.jack.dx.rop.cst.CstString;
+import com.android.jack.dx.rop.cst.TypedConstant;
 import com.android.jack.dx.rop.type.Prototype;
 import com.android.jack.ir.ast.JAbstractMethodCall;
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JAnnotationMethod;
 import com.android.jack.ir.ast.JArrayLiteral;
+import com.android.jack.ir.ast.JBooleanLiteral;
+import com.android.jack.ir.ast.JByteLiteral;
+import com.android.jack.ir.ast.JCharLiteral;
 import com.android.jack.ir.ast.JClassLiteral;
 import com.android.jack.ir.ast.JDefinedAnnotationType;
+import com.android.jack.ir.ast.JDoubleLiteral;
 import com.android.jack.ir.ast.JEnumLiteral;
+import com.android.jack.ir.ast.JFloatLiteral;
+import com.android.jack.ir.ast.JIntLiteral;
 import com.android.jack.ir.ast.JLiteral;
+import com.android.jack.ir.ast.JLongLiteral;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNameValuePair;
+import com.android.jack.ir.ast.JShortLiteral;
 import com.android.jack.ir.ast.JStringLiteral;
 import com.android.jack.ir.formatter.BinarySignatureFormatter;
 
@@ -77,21 +91,37 @@ public class InvokeCustomHelper {
     JStringLiteral callSiteMethodName = null;
     JClassLiteral callSiteReturnType = null;
     JArrayLiteral callSiteArgumentTypes = null;
+    CstArray extraArgs = null;
     for (JNameValuePair nameValuePair : invokeCustomCallSite.getNameValuePairs()) {
-      if (nameValuePair.getName().equals("invokeMethodHandle")) {
-        JArrayLiteral arrayLiteral = (JArrayLiteral) nameValuePair.getValue();
-        assert arrayLiteral.getValues().size() == 1;
-        methodHandle = readLinkerMethodHandle((JAnnotation) arrayLiteral.getValues().get(0));
-      } else if (nameValuePair.getName().equals("fieldMethodHandle")) {
-        JArrayLiteral arrayLiteral = (JArrayLiteral) nameValuePair.getValue();
-        assert arrayLiteral.getValues().size() == 1;
-        methodHandle = readLinkerFieldHandle((JAnnotation) arrayLiteral.getValues().get(0));
-      } else if (nameValuePair.getName().equals("name")) {
-        callSiteMethodName = (JStringLiteral) (nameValuePair.getValue());
-      } else if (nameValuePair.getName().equals("returnType")) {
-        callSiteReturnType = (JClassLiteral) (nameValuePair.getValue());
-      } else if (nameValuePair.getName().equals("argumentTypes")) {
-        callSiteArgumentTypes = (JArrayLiteral) (nameValuePair.getValue());
+      switch (nameValuePair.getName()) {
+        case "invokeMethodHandle": {
+          JArrayLiteral arrayLiteral = (JArrayLiteral) nameValuePair.getValue();
+          assert arrayLiteral.getValues().size() == 1;
+          methodHandle = readLinkerMethodHandle((JAnnotation) arrayLiteral.getValues().get(0));
+          break;
+        }
+        case "fieldMethodHandle": {
+          JArrayLiteral arrayLiteral = (JArrayLiteral) nameValuePair.getValue();
+          assert arrayLiteral.getValues().size() == 1;
+          methodHandle = readLinkerFieldHandle((JAnnotation) arrayLiteral.getValues().get(0));
+          break;
+        }
+        case "methodHandleExtraArgs": {
+          extraArgs = readExtraArgs((JArrayLiteral) nameValuePair.getValue());
+          break;
+        }
+        case "name": {
+          callSiteMethodName = (JStringLiteral) (nameValuePair.getValue());
+          break;
+        }
+        case "returnType": {
+          callSiteReturnType = (JClassLiteral) (nameValuePair.getValue());
+          break;
+        }
+        case "argumentTypes": {
+          callSiteArgumentTypes = (JArrayLiteral) (nameValuePair.getValue());
+          break;
+        }
       }
     }
     assert methodHandle != null;
@@ -103,7 +133,7 @@ public class InvokeCustomHelper {
         Prototype.intern(buildSignature(callSiteArgumentTypes, callSiteReturnType));
 
     return new CstCallSiteRef(methodHandle, callSiteMethodName.getValue(),
-        new CstPrototypeRef(callSitePrototype));
+        new CstPrototypeRef(callSitePrototype), extraArgs);
   }
 
   @CheckForNull
@@ -114,6 +144,73 @@ public class InvokeCustomHelper {
       }
     }
     return null;
+  }
+
+  @Nonnull
+  private static CstArray readExtraArgs(@Nonnull JArrayLiteral extraArgs) {
+    CstArray.List list = new CstArray.List(extraArgs.getValues().size());
+    int idx = 0;
+    for (JLiteral extraArg : extraArgs.getValues()) {
+      assert extraArg instanceof JAnnotation;
+      JAnnotation extrArgAnnot = (JAnnotation) extraArg;
+      for (JNameValuePair nameValuePair : extrArgAnnot.getNameValuePairs()) {
+        JArrayLiteral value = (JArrayLiteral) nameValuePair.getValue();
+        assert value.getValues().size() == 1;
+        TypedConstant cst = null;
+        JLiteral jLiteral = value.getValues().get(0);
+        switch (nameValuePair.getName()) {
+          case "booleanValue" : {
+            cst = CstInteger.make(((JBooleanLiteral) jLiteral).getValue() ? 1 : 0);
+            break;
+          }
+          case "byteValue" : {
+            cst = CstInteger.make(((JByteLiteral) jLiteral).getValue());
+            break;
+          }
+          case "charValue" : {
+            cst = CstInteger.make(((JCharLiteral) jLiteral).getValue());
+            break;
+          }
+          case "shortValue" : {
+            cst = CstInteger.make(((JShortLiteral) jLiteral).getValue());
+            break;
+          }
+          case "intValue" : {
+            cst = CstInteger.make(((JIntLiteral) jLiteral).getValue());
+            break;
+          }
+          case "floatValue" : {
+            cst = CstFloat
+                .make(Float.floatToIntBits(((JFloatLiteral) jLiteral).getValue()));
+            break;
+          }
+          case "doubleValue" : {
+            cst = CstDouble.make(
+                Double.doubleToLongBits(((JDoubleLiteral) jLiteral).getValue()));
+            break;
+          }
+          case "longValue" : {
+            cst = CstLong.make(((JLongLiteral) jLiteral).getValue());
+            break;
+          }
+          case "stringValue" : {
+            cst = new CstString(((JStringLiteral) jLiteral).getValue());
+            break;
+          }
+          case "classValue" : {
+            cst = RopHelper.getCstType(((JClassLiteral) jLiteral).getRefType());
+            break;
+          }
+          default: {
+            throw new AssertionError();
+          }
+        }
+        list.set(idx++, cst);
+      }
+    }
+
+    list.setImmutable();
+    return new CstArray(list);
   }
 
   @Nonnull

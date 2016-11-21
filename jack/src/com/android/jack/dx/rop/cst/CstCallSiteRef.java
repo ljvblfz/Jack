@@ -17,8 +17,10 @@
 package com.android.jack.dx.rop.cst;
 
 import com.android.jack.dx.dex.file.ValueEncoder.ValueType;
+import com.android.jack.dx.rop.cst.CstArray.List;
 import com.android.jack.dx.rop.type.Type;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -33,19 +35,28 @@ public final class CstCallSiteRef extends TypedConstant {
   private static final int TARGET_METHOD_NAME_IDX = 1;
   @Nonnegative
   private static final int CALL_SITE_IDX = 2;
+  @Nonnegative
+  private static final int EXTRA_ARGS_IDX = 3;
   @Nonnull
-  private CstArray callSite;
+  private final CstArray callSite;
 
   public CstCallSiteRef(@Nonnull CstArray callSite) {
     this.callSite = callSite;
   }
 
   public CstCallSiteRef(@Nonnull CstMethodHandleRef methodHandle, @Nonnull String targetMethodName,
-      @Nonnull CstPrototypeRef callSitePrototype) {
-    CstArray.List list = new CstArray.List(3);
+      @Nonnull CstPrototypeRef callSitePrototype, @CheckForNull CstArray extraArgs) {
+    CstArray.List list =
+        new CstArray.List(3 + (extraArgs != null ? extraArgs.getList().size() : 0));
     list.set(METHOD_HANDLE_IDX, methodHandle);
     list.set(TARGET_METHOD_NAME_IDX, new CstString(targetMethodName));
     list.set(CALL_SITE_IDX, callSitePrototype);
+    if (extraArgs != null) {
+      List extraArgList = extraArgs.getList();
+      for (int idx = 0; idx < extraArgList.size(); idx++) {
+        list.set(EXTRA_ARGS_IDX + idx, extraArgList.get(idx));
+      }
+    }
     list.setImmutable();
     callSite = new CstArray(list);
   }
@@ -112,6 +123,17 @@ public final class CstCallSiteRef extends TypedConstant {
   @Nonnull
   public CstPrototypeRef getCallSitePrototype() {
     return (CstPrototypeRef) callSite.getList().get(CALL_SITE_IDX);
+  }
+
+  @Nonnull
+  public CstArray getExtraArgs() {
+    List callSiteList = callSite.getList();
+    CstArray.List list =  new CstArray.List(callSiteList.size() - EXTRA_ARGS_IDX);
+    for (int idx = EXTRA_ARGS_IDX; idx < callSiteList.size(); idx++) {
+      list.set(idx - EXTRA_ARGS_IDX, callSiteList.get(idx));
+    }
+    list.setImmutable();
+    return new CstArray(list);
   }
 
   @Nonnull

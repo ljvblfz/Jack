@@ -16,7 +16,6 @@
 package com.android.jack.java7.invokecustom.test003;
 
 import static java.lang.invoke.MethodHandles.lookup;
-import static java.lang.invoke.MethodType.methodType;
 
 import com.android.jack.annotations.CalledByInvokeCustom;
 import com.android.jack.annotations.LinkerMethodHandle;
@@ -29,6 +28,8 @@ import org.junit.Test;
 import java.lang.invoke.CallSite;
 import java.lang.invoke.ConstantCallSite;
 import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 
 public class Tests {
 
@@ -36,7 +37,9 @@ public class Tests {
 
   @CalledByInvokeCustom(
       invokeMethodHandle = @LinkerMethodHandle(kind = MethodHandleKind.INVOKE_STATIC,
-          enclosingType = Tests.class, name = "linkerMethod"),
+          enclosingType = Tests.class,
+          name = "linkerMethod",
+          argumentTypes = {MethodHandles.Lookup.class, String.class, MethodType.class}),
       name = "add",
       returnType = int.class,
       argumentTypes = {int.class, int.class, int.class, int.class, int.class, int.class})
@@ -45,14 +48,14 @@ public class Tests {
   }
 
   @SuppressWarnings("unused")
-  private static CallSite linkerMethod() throws Throwable {
-    MethodHandle mh_add = lookup().findStatic(Tests.class, "add",
-        methodType(int.class, int.class, int.class, int.class, int.class, int.class, int.class));
+  private static CallSite linkerMethod(MethodHandles.Lookup caller, String name,
+      MethodType methodType) throws Throwable {
+    MethodHandle mh_add = lookup().findStatic(Tests.class, name, methodType);
     return new ConstantCallSite(mh_add);
   }
 
   @Test
   public void test() throws Throwable {
-    Assert.assertEquals(21, add(1, 2, 3, 4, 5, 6));
+    Assert.assertEquals(21, Tests.add(1, 2, 3, 4, 5, 6));
   }
 }

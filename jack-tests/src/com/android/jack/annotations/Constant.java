@@ -22,16 +22,19 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * This annotation can be set on method to specify that if this method is called then it must be
- * called by an invoke custom instruction.
+ * Describes an annotation that allows passing a constant extra argument to a linker method.
  */
 @Retention(RetentionPolicy.CLASS)
-@Target(ElementType.METHOD)
-public @interface CalledByInvokeCustom {
-  LinkerMethodHandle[] invokeMethodHandle() default {};
-  LinkerFieldHandle[] fieldMethodHandle() default {};
-  String name();
-  Class<?> returnType() default void.class;
-  Class<?>[] argumentTypes() default {};
-  Constant[] methodHandleExtraArgs() default {};
+@Target(ElementType.ANNOTATION_TYPE)
+public @interface Constant {
+  boolean[] booleanValue() default {};
+  byte[] byteValue() default {};
+  char[] charValue() default {};
+  short[] shortValue() default {};
+  int[] intValue() default {};
+  float[] floatValue() default {};
+  double[] doubleValue() default {};
+  long[] longValue() default {};
+  Class<?>[] classValue() default {};
+  String[] stringValue() default {};
 }

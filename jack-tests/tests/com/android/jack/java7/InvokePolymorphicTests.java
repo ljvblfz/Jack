@@ -39,16 +39,10 @@ import com.android.jack.util.AndroidApiLevel.ProvisionalLevel;
 
 import junit.framework.Assert;
 
-import org.jf.dexlib.ClassDefItem;
-import org.jf.dexlib.DexFile;
-import org.jf.dexlib.ClassDataItem.EncodedMethod;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
