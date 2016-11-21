@@ -18,7 +18,7 @@ package com.android.jack.java7.invokecustom.test002;
 import static java.lang.invoke.MethodHandles.lookup;
 import static java.lang.invoke.MethodType.methodType;
 
-import com.android.jack.annotations.InvokeCustomCallSite;
+import com.android.jack.annotations.CalledByInvokeCustom;
 import com.android.jack.annotations.LinkerFieldHandle;
 import com.android.jack.annotations.MethodHandleKind;
 
@@ -45,7 +45,7 @@ public class Tests {
     }
   }
 
-  @InvokeCustomCallSite(
+  @CalledByInvokeCustom(
       fieldMethodHandle = @LinkerFieldHandle(kind = MethodHandleKind.GET_STATIC,
           enclosingType = Tests.class, name = "fieldCallSite"),
       name = "add",

@@ -109,7 +109,7 @@ public class InvokeCustomHelper {
   @CheckForNull
   public static JAnnotation getInvokeCustomCallsite(@Nonnull JMethod method) {
     for (JAnnotation annotation : method.getAnnotations()) {
-      if (annotation.getType().getName().equals("InvokeCustomCallSite")) {
+      if (annotation.getType().getName().equals("CalledByInvokeCustom")) {
         return annotation;
       }
     }
