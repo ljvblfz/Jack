@@ -77,7 +77,7 @@ public class FileAccessErrorTest {
   }
 
   /**
-   * Checks that compilation fails correctly when folder containing jack files is not readable.
+   * Checks that compilation fails correctly when a jack library folder is not readable.
    */
   @Test
   public void testFileAccessError002() throws Exception {
@@ -156,7 +156,7 @@ public class FileAccessErrorTest {
   }
 
   /**
-   * Checks that compilation fails correctly when jack file is not readable.
+   * Checks that compilation fails correctly when a jayce file is not readable.
    */
   @Test
   public void testFileAccessError004() throws Exception {
@@ -189,6 +189,8 @@ public class FileAccessErrorTest {
       }
 
       jackApiToolchain.setErrorStream(errOut);
+      // disable the NNode cache because otherwise we may not trigger the read error
+      jackApiToolchain.addProperty("jack.jayce.cache", "false");
       jackApiToolchain.addToClasspath(jackApiToolchain.getDefaultBootClasspath())
       .addToClasspath(te.getJackFolder())
       .srcToExe(AbstractTestTools.createTempDir(), false, te.getSourceFolder());
