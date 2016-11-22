@@ -50,7 +50,7 @@ It can be configured in `$HOME/.jack-settings`
 ### `.jack-settings` file
 
 This file contains script shell variables:  
-`SERVER_HOST`: IP address of the server  
+`SERVER_HOST`: Server host name. Avoid IP addresses since they are unsupported by some clients.  
 by default: `SERVER_HOST=localhost`.
 
 `SERVER_PORT_SERVICE`: Server service TCP port number. Needs to match the service port
