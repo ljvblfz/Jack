@@ -65,6 +65,7 @@ public class NEnumField extends NField {
     assert sourceInfo != null;
     assert name != null;
     assert type != null;
+    assert fieldId != null;
     JDefinedEnum enclosingType = (JDefinedEnum) exportSession.getCurrentType();
     assert enclosingType != null;
     JEnumField jField = new JEnumField(

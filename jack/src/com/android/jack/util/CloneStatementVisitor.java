@@ -280,10 +280,11 @@ public class CloneStatementVisitor extends CloneExpressionVisitor {
       return var;
     }
 
+    String varName = var.getName();
     JLocal clonedVar =
         new JLocal(
             var.getSourceInfo(),
-            cloneLocalName(var.getName()),
+            varName == null ? null : cloneLocalName(varName),
             var.getType(),
             var.getModifier(),
             methodBody);
