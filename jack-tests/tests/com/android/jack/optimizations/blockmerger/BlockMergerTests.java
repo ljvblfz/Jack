@@ -19,9 +19,12 @@ package com.android.jack.optimizations.blockmerger;
 import com.android.jack.optimizations.Optimizations;
 import com.android.jack.optimizations.cfg.VariablesScope;
 import com.android.jack.test.dex.DexFileTypesValidator;
+import com.android.jack.test.dex.DexMethod;
 import com.android.jack.test.dex.DexMethodDalvikCodeValidator;
+import com.android.jack.test.dex.DexNoOpValidator;
 import com.android.jack.test.dex.DexOutputBasedTest;
 import com.android.jack.test.dex.DexTypeMethodsValidator;
+import com.android.jack.test.dex.DexValidator;
 import com.android.jack.test.junit.Runtime;
 
 import org.junit.Test;
@@ -48,8 +51,9 @@ public class BlockMergerTests extends DexOutputBasedTest {
   }
 
   @Nonnull
-  private DexMethodDalvikCodeValidator dalvik(@Nonnull String test, @Nonnull String expected) {
-    return new DexMethodDalvikCodeValidator(resource(test, expected));
+  private DexValidator<DexMethod> dalvik(@Nonnull String test, @Nonnull String expected) {
+    return usingLegacyCompiler() ? new DexNoOpValidator<DexMethod>() :
+        new DexMethodDalvikCodeValidator(resource(test, expected));
   }
 
   @Test
