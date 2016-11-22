@@ -134,7 +134,7 @@ public class JSession extends JNode {
     phantomLookup = new JPhantomLookup(lookup);
   }
 
-  public void reset() {
+  public synchronized void reset() {
     typesToEmit.clear();
     topLevelPackage = new JPackage("", null);
     topLevelPackage.updateParents(this);

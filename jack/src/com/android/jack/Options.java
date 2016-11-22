@@ -143,6 +143,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
+
 /**
  * Jack command line options Bean
  */
@@ -769,7 +770,7 @@ public class Options {
   private CodecContext codecContext = null;
 
   @Nonnull
-  private synchronized CodecContext getCondecContext() throws IllegalOptionsException {
+  private CodecContext getCodecContext() throws IllegalOptionsException {
     if (codecContext == null) {
       codecContext = new CodecContext();
 
@@ -846,14 +847,14 @@ public class Options {
           .setSeparator(",")
           .ensureUnicity();
 
-  public synchronized void ensurePluginManager()
+  public void ensurePluginManager()
       throws IllegalOptionsException {
     if (pluginManager == null) {
       List<InputJarFile> jars;
       try {
-        jars = PLUGIN_PATH_CODEC.checkString(getCondecContext(), pluginPath);
+        jars = PLUGIN_PATH_CODEC.checkString(getCodecContext(), pluginPath);
         if (jars == null) {
-          jars = PLUGIN_PATH_CODEC.parseString(getCondecContext(), pluginPath);
+          jars = PLUGIN_PATH_CODEC.parseString(getCodecContext(), pluginPath);
         }
         pluginManager = new PluginManager();
         try {
@@ -868,9 +869,9 @@ public class Options {
       }
 
       try {
-        List<String> names = PLUGIN_NAMES_CODEC.checkString(getCondecContext(), pluginNames);
+        List<String> names = PLUGIN_NAMES_CODEC.checkString(getCodecContext(), pluginNames);
         if (names == null) {
-          names = PLUGIN_NAMES_CODEC.parseString(getCondecContext(), pluginNames);
+          names = PLUGIN_NAMES_CODEC.parseString(getCodecContext(), pluginNames);
         }
         for (String name : names) {
           try {
@@ -888,7 +889,7 @@ public class Options {
   }
 
   @Nonnull
-  public synchronized PluginManager getPluginManager() {
+  public PluginManager getPluginManager() {
     assert pluginManager != null;
     return pluginManager;
   }
@@ -987,7 +988,7 @@ public class Options {
       ensurePluginManager();
       configBuilder = new GatherConfigBuilder(sanityChecks,
           getPluginManager().getReflectionManager(ReflectionFactory.getManager()));
-      configBuilder.setCodecContext(getCondecContext());
+      configBuilder.setCodecContext(getCodecContext());
 
       try {
         InputStream is = new BufferedInputStream(new FileInputStream(propertiesFile));
