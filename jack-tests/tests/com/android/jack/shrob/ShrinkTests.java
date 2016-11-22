@@ -18,6 +18,7 @@ package com.android.jack.shrob;
 
 import com.android.jack.Options;
 import com.android.jack.ProguardFlags;
+import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
 import com.android.jack.shrob.shrink.ShrinkStructurePrinter;
 import com.android.jack.test.category.SlowTests;
 import com.android.jack.test.comparator.ComparatorMapping;
@@ -30,6 +31,8 @@ import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.DummyToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.Toolchain.SourceLevel;
+import com.android.jack.util.AndroidApiLevel;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -496,4 +499,47 @@ public class ShrinkTests extends AbstractTest {
     new RuntimeTestHelper(runtimeTestInfo).compileAndRunTest(/* checkStructure = */ false);
   }
 
+  @Test
+  @KnownIssue
+  public void test66_001() throws Exception {
+    File testFolder = new File(shrobTestsDir, "test066");
+
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    File lib = AbstractTestTools.createTempFile("lib", toolchain.getLibraryExtension());
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath());
+    toolchain.srcToLib(lib, true /* zipFiles */ , new File(testFolder, "lib"));
+
+    toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath()).addToClasspath(lib);
+
+    File refFolder = new File(testFolder, "refsShrinking");
+
+    File candidateNodeListing = AbstractTestTools.createTempFile("nodeListing", ".txt");
+    toolchain.addProperty(ShrinkStructurePrinter.STRUCTURE_PRINTING.getName(), "true");
+    toolchain.addProperty(ShrinkStructurePrinter.STRUCTURE_PRINTING_FILE.getName(),
+        candidateNodeListing.getPath());
+    toolchain.addProperty(Options.METHOD_FILTER.getName(), "supported-methods");
+    toolchain
+        .addProperty(Options.ANDROID_MIN_API_LEVEL.getName(),
+            String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
+        .setSourceLevel(SourceLevel.JAVA_8);
+    toolchain.disableDxOptimizations();
+
+    File outFolder = AbstractTestTools.createTempDir();
+
+    SourceToDexComparisonTestHelper env =
+        new SourceToDexComparisonTestHelper(new File(testFolder, "jack"));
+
+    env.setWithDebugInfo(true);
+    env.setCandidateTestTools(toolchain);
+    env.setReferenceTestTools(new DummyToolchain());
+    env.setProguardFlags(dontObfuscateFlagFile,
+        new ProguardFlags(shrobTestsDir, "keepAllAttributes.flags"),
+        new ProguardFlags(testFolder, "proguard.flags001"));
+    env.setSourceLevel(SourceLevel.JAVA_8);
+
+    env.runTest(
+        new ComparatorMapping(new File(refFolder, "expected-001.txt"), candidateNodeListing));
+  }
 }
