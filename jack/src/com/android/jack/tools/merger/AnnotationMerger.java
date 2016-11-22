@@ -188,6 +188,7 @@ public class AnnotationMerger extends MergerTools {
         assert cstIndexMap != null;
         CstString pairName = cstIndexMap.getCstString((Leb128Utils.readUnsignedLeb128(in)));
         readValue();
+        assert constantValue != null;
         embeddedAnnotation.add(new NameValuePair(pairName, constantValue));
         constantValue = null;
       }

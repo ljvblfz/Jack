@@ -19,14 +19,19 @@ package com.android.jack.dx.rop.annotation;
 import com.android.jack.dx.rop.cst.Constant;
 import com.android.jack.dx.rop.cst.CstString;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+
 /**
  * A (name, value) pair. These are used as the contents of an annotation.
  */
 public final class NameValuePair implements Comparable<NameValuePair> {
   /** {@code non-null;} the name */
+  @Nonnull
   private final CstString name;
 
   /** {@code non-null;} the value */
+  @Nonnull
   private final Constant value;
 
   /**
@@ -35,7 +40,7 @@ public final class NameValuePair implements Comparable<NameValuePair> {
    * @param name {@code non-null;} the name
    * @param value {@code non-null;} the value
    */
-  public NameValuePair(CstString name, Constant value) {
+  public NameValuePair(@Nonnull CstString name, @Nonnull Constant value) {
     if (name == null) {
       throw new NullPointerException("name == null");
     }
@@ -50,6 +55,7 @@ public final class NameValuePair implements Comparable<NameValuePair> {
 
   /** {@inheritDoc} */
   @Override
+  @Nonnull
   public String toString() {
     return name.toHuman() + ":" + value;
   }
@@ -62,7 +68,7 @@ public final class NameValuePair implements Comparable<NameValuePair> {
 
   /** {@inheritDoc} */
   @Override
-  public boolean equals(Object other) {
+  public boolean equals(@CheckForNull Object other) {
     if (!(other instanceof NameValuePair)) {
       return false;
     }
@@ -79,7 +85,7 @@ public final class NameValuePair implements Comparable<NameValuePair> {
    * order.</p>
    */
   @Override
-  public int compareTo(NameValuePair other) {
+  public int compareTo(@Nonnull NameValuePair other) {
     int result = name.compareTo(other.name);
 
     if (result != 0) {
@@ -94,6 +100,7 @@ public final class NameValuePair implements Comparable<NameValuePair> {
    *
    * @return {@code non-null;} the name
    */
+  @Nonnull
   public CstString getName() {
     return name;
   }
@@ -103,6 +110,7 @@ public final class NameValuePair implements Comparable<NameValuePair> {
    *
    * @return {@code non-null;} the value
    */
+  @Nonnull
   public Constant getValue() {
     return value;
   }

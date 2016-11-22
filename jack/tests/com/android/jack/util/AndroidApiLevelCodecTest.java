@@ -63,7 +63,7 @@ public class AndroidApiLevelCodecTest {
 
 
     try {
-      level = codec.parseString(context, "o-b1");
+      codec.parseString(context, "o-b1");
       Assert.fail();
     } catch (ConfigurationError e) {
     }
