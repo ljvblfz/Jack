@@ -143,7 +143,7 @@ checkport() {
   fi
 
   if [ "$(echo $PS_OUT | awk '{print $2}')" -ne "$(id -u)" ] ; then
-    echo "Port $1 is used b a Jack server from another user uid=$(echo $PS_OUT | awk '{print $2}'), please change port configuration in '$JACK_CLIENT_SETTING' and '$JACK_HOME/config.properties'"
+    echo "Port $1 is used by a Jack server from another user uid=$(echo $PS_OUT | awk '{print $2}'), please change port configuration in '$JACK_CLIENT_SETTING' and '$JACK_HOME/config.properties'"
     return 255
   fi
 }
