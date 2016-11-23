@@ -20,6 +20,13 @@ import com.google.common.base.Splitter;
 
 import com.android.jack.JackAbortException;
 import com.android.jack.Options;
+import com.android.jack.dx.io.ClassData;
+import com.android.jack.dx.io.ClassData.Method;
+import com.android.jack.dx.io.ClassDef;
+import com.android.jack.dx.io.Code;
+import com.android.jack.dx.io.DexBuffer;
+import com.android.jack.dx.io.MethodId;
+import com.android.jack.test.helper.FileChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.junit.Runtime;
@@ -32,9 +39,16 @@ import com.android.jack.util.AndroidApiLevel.ProvisionalLevel;
 
 import junit.framework.Assert;
 
+import org.jf.dexlib.ClassDefItem;
+import org.jf.dexlib.DexFile;
+import org.jf.dexlib.ClassDataItem.EncodedMethod;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -73,6 +87,30 @@ public class InvokePolymorphicTests {
   private RuntimeTestInfo INVOKE_POLYMORPHIC_006 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.java7.invokepolymorphic.test006"),
       "com.android.jack.java7.invokepolymorphic.test006.Tests").setSrcDirName("");
+
+  private RuntimeTestInfo INVOKE_POLYMORPHIC_007 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java7.invokepolymorphic.test007"),
+      "com.android.jack.java7.invokepolymorphic.test007.Tests").setSrcDirName("")
+          .addFileChecker(new FileChecker() {
+            @Override
+            public void check(@Nonnull File file) throws Exception {
+              DexBuffer dexBuffer = new DexBuffer(file);
+              for (ClassDef classDef : dexBuffer.classDefs()) {
+                if (classDef.getTypeName()
+                    .equals("Lcom/android/jack/java7/invokepolymorphic/test007/Tests;")) {
+                  Assert.assertTrue(classDef.getClassDataOffset() != 0);
+                  ClassData classData = dexBuffer.readClassData(classDef);
+                  for (Method method : classData.getVirtualMethods()) {
+                    MethodId methodId = dexBuffer.methodIds().get(method.getMethodIndex());
+                    if (dexBuffer.strings().get(methodId.getNameIndex()).equals("testDummy")) {
+                      Code code = dexBuffer.readCode(method);
+                      Assert.assertEquals(5, code.getOutsSize());
+                    }
+                  }
+                }
+              }
+            }
+          });
 
   @Test
   @Runtime
@@ -163,6 +201,13 @@ public class InvokePolymorphicTests {
     toolchain.srcToExe(AbstractTestTools.createTempDir(), /* zipFile = */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.java7.invokepolymorphic.test006"));
     Assert.assertTrue(errOut.toString().isEmpty());
+  }
+
+  @Test
+  @Runtime
+  @KnownIssue
+  public void testInvokePolymorphic007() throws Exception {
+    run(INVOKE_POLYMORPHIC_007);
   }
 
   private void run(@Nonnull RuntimeTestInfo rti) throws Exception {

@@ -30,6 +30,8 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 
+import javax.annotation.Nonnull;
+
 /**
  * List of {@link DalvInsn} instances.
  */
@@ -188,25 +190,30 @@ public final class DalvInsnList extends FixedSizeList {
     for (int i = 0; i < sz; i++) {
       DalvInsn insn = (DalvInsn) get0(i);
 
-      if (!(insn instanceof CstInsn)) {
-        continue;
-      }
-
-      Constant cst = ((CstInsn) insn).getConstant();
-
-      if (!(cst instanceof CstBaseMethodRef)) {
-        continue;
-      }
-
-      boolean isStatic = (insn.getOpcode().getFamily() == Opcodes.INVOKE_STATIC);
-      int count = ((CstBaseMethodRef) cst).getParameterWordCount(isStatic);
-
-      if (count > result) {
-        result = count;
+      if (isCallInstruction(insn)) {
+        int count = insn.getRegisters().getWordCount();
+        if (count > result) {
+          result = count;
+        }
       }
     }
 
     return result;
+  }
+
+  private boolean isCallInstruction(@Nonnull DalvInsn insn) {
+    if (insn instanceof CstInsn) {
+      Constant cst = ((CstInsn) insn).getConstant();
+      if (cst instanceof CstBaseMethodRef) {
+        return true;
+      }
+    } else if (insn instanceof DualCstInsn) {
+      assert insn.getOpcode().getOpcode() == Opcodes.INVOKE_POLYMORPHIC
+          || insn.getOpcode().getOpcode() == Opcodes.INVOKE_POLYMORPHIC_RANGE;
+      return true;
+    }
+
+    return false;
   }
 
   /**
