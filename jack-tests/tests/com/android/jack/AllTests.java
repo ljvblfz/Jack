@@ -11,6 +11,7 @@ import com.android.jack.assign.AssignTests;
 import com.android.jack.box.BoxTests;
 import com.android.jack.bridge.BridgeTests;
 import com.android.jack.cast.CastAllTests;
+import com.android.jack.classfile.ClassfileTests;
 import com.android.jack.classpath.ClasspathTests;
 import com.android.jack.clinit.ClinitTests;
 import com.android.jack.comparison.ComparisonTests;
@@ -99,6 +100,7 @@ import org.junit.runners.Suite.SuiteClasses;
     BridgeTests.class,
     BridgeAnnotationsTests.class,
     CastAllTests.class,
+    ClassfileTests.class,
     ClasspathTests.class,
     ClinitTests.class,
     ComparisonTests.class,

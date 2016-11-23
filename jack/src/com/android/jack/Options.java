@@ -739,6 +739,19 @@ public class Options {
               "Use mixed case class name when obfuscating")
           .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
 
+  @Nonnull
+  public static final BooleanPropertyId EMIT_CLASS_FILES =
+      BooleanPropertyId.create("jack.class-file", "Generate class files")
+      .addDefaultValue(false);
+
+  @Nonnull
+  public static final PropertyId<Directory> EMIT_CLASS_FILES_FOLDER =
+    PropertyId.create(
+      "jack.class-file.output.dir",
+      "Output folder for class files",
+      new DirectoryCodec(Existence.MUST_EXIST, Permission.WRITE | Permission.READ))
+    .requiredIf(EMIT_CLASS_FILES.getValue().isTrue());
+
   @SuppressWarnings("unchecked")
   @Nonnull
   public static final ImplementationPropertyId<Filter<JMethod>> METHOD_FILTER =
@@ -1344,6 +1357,11 @@ public class Options {
 
       if (!config.get(Options.ANNOTATION_PROCESSOR_ENABLED).booleanValue()) {
         ecjExtraArguments.add("-proc:none");
+      }
+
+      if (config.get(Options.EMIT_CLASS_FILES).booleanValue()) {
+        ecjExtraArguments.add("-d");
+        ecjExtraArguments.add(config.get(Options.EMIT_CLASS_FILES_FOLDER).getPath());
       }
     }
 

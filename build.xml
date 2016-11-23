@@ -1003,6 +1003,7 @@
       <exclude name="com/android/jack/frontend/test015/jack/WithOuterContextButStatic.java"/>
       <exclude name="com/android/jack/frontend/test016/jack/WithDuplicated.java"/>
       <exclude name="com/android/jack/frontend/test017/jack/InvalidQualification.java"/>
+      <exclude name="com/android/jack/frontend/test019/jack/TooBig.java"/>
       <exclude name="com/android/jack/frontend/generic/test002/jack/**"/>
       <exclude name="com/android/jack/frontend/generic/test003/jack/**"/>
       <exclude name="com/android/jack/nopackage/jack/**"/>
