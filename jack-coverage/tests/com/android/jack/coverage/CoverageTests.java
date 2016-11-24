@@ -25,6 +25,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import com.android.jack.test.TestsProperties;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackApiV03Toolchain;
 import com.android.jack.test.toolchain.JackApiV04Toolchain;
@@ -246,6 +247,7 @@ public class CoverageTests {
   }
 
   @Test
+  @KnownIssue  // flaky due to non-determinism
   public void testClassId_005() throws Exception {
     String testPackageName = getTestPackageName("test005");
     File testRootDir = getTestRootDir(testPackageName);
