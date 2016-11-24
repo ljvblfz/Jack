@@ -28,8 +28,10 @@ import org.jacoco.report.html.HTMLFormatter;
 import org.jacoco.report.xml.XMLFormatter;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.MessageFormat;
 import java.util.Collections;
@@ -96,6 +98,12 @@ public class Reporter {
    */
   @Nonnegative
   private int tabWidth = Constants.DEFAULT_TAB_WIDTH;
+
+  /**
+   * The mapping file for shrinking and obfuscation.
+   */
+  @CheckForNull
+  private File mappingFile;
 
   /**
    * @return a list of coverage description files.
@@ -167,6 +175,14 @@ public class Reporter {
   @Nonnegative
   public int getTabWidth() {
     return tabWidth;
+  }
+
+  /**
+   * @return the mapping file
+   */
+  @CheckForNull
+  public File getMappingFile() {
+    return mappingFile;
   }
 
   /**
@@ -284,6 +300,18 @@ public class Reporter {
     this.tabWidth = tabWidth;
   }
 
+  /**
+   * Set the mapping file for the report.
+   *
+   * @param mappingFile a mapping file
+   * @throws ReporterException if the file does not exist or is not readable.
+   */
+  public void setMappingFile(@Nonnull File mappingFile) throws ReporterException {
+    checkFileExists(mappingFile);
+    checkCanReadFromFile(mappingFile);
+    this.mappingFile = mappingFile;
+  }
+
   public void createReport() throws IOException, ReporterException {
     checkFiles();
 
@@ -334,8 +362,18 @@ public class Reporter {
   @Nonnull
   private IBundleCoverage createBundleCoverage(@Nonnull ExecFileLoader loader) throws IOException {
     CoverageBuilder coverageBuilder = new CoverageBuilder();
-    JackCoverageAnalyzer analyzer =
-        new JackCoverageAnalyzer(loader.getExecutionDataStore(), coverageBuilder);
+    MappingFileLoader mappingFileLoader = null;
+    if (mappingFile != null) {
+      mappingFileLoader = new MappingFileLoader();
+      InputStream in = new FileInputStream(mappingFile);
+      try {
+        mappingFileLoader.load(in);
+      } finally {
+        in.close();
+      }
+    }
+    JackCoverageAnalyzer analyzer = new JackCoverageAnalyzer(loader.getExecutionDataStore(),
+        coverageBuilder, mappingFileLoader);
     // Analyze each coverage description file to fill the coverage builder.
     for (File coverageDescriptionFile : coverageDescriptionFiles) {
       analyzer.analyze(coverageDescriptionFile);

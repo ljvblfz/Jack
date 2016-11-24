@@ -24,6 +24,7 @@ import org.kohsuke.args4j.ParserProperties;
 import org.kohsuke.args4j.spi.OptionHandler;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
@@ -87,6 +88,10 @@ public class Main {
     reporter.setOutputEncoding(options.getOutputReportEncoding());
     reporter.setSourceFilesEncoding(options.getInputSourceFilesEncoding());
     reporter.setTabWidth(options.getTabWidth());
+    File mappingFile = options.getMappingFile();
+    if (mappingFile != null) {
+      reporter.setMappingFile(mappingFile);
+    }
     return reporter;
   }
 

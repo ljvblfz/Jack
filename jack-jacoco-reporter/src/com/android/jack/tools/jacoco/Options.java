@@ -81,6 +81,11 @@ public class Options {
       usage = "the width of tabs in source code (default is 4)")
   private int tabWidth = Constants.DEFAULT_TAB_WIDTH;
 
+  @Option(name = "--mapping-file", metaVar = "<file>",
+      usage = "the mapping file to support shrinking and obfuscation")
+  @CheckForNull
+  private File mappingFile;
+
   @Nonnull
   public List<File> getCoverageDescriptionFiles() {
     return coverageDescriptionFiles;
@@ -124,6 +129,11 @@ public class Options {
 
   public int getTabWidth() {
     return tabWidth;
+  }
+
+  @CheckForNull
+  public File getMappingFile() {
+    return mappingFile;
   }
 
   public boolean askForHelp() {

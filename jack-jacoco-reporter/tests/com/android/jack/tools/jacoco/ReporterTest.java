@@ -179,4 +179,16 @@ public class ReporterTest {
     } catch (ReporterException expected) {
     }
   }
+
+  @Test
+  public void testInvalidMappingFile() throws ReporterException {
+    reporter.setCoverageDescriptionFiles(Collections.singletonList(tempCoverageDescriptionFile));
+    reporter.setCoverageExecutionDataFiles(Collections.singletonList(tempCoverageExecutionFile));
+    reporter.setReportOutputDirectory(tempOutputReportDir);
+    try {
+      reporter.setMappingFile(DUMMY_FILE);
+      Assert.fail();
+    } catch (ReporterException expected) {
+    }
+  }
 }
