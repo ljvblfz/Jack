@@ -59,10 +59,8 @@ public class NClassLiteral extends NLiteral {
       throws JTypeLookupException {
     assert sourceInfo != null;
     assert refType != null;
-    return new JClassLiteral(
-        sourceInfo.exportAsJast(exportSession),
-        exportSession.getLookup().getType(refType),
-        exportSession.getLookup().getClass(JAVA_LANG_CLASS));
+    return new JClassLiteral(sourceInfo.exportAsJast(exportSession),
+        exportSession.getLookup().getType(refType));
   }
 
   @Override

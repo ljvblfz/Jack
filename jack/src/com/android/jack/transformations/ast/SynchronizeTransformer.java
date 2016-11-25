@@ -132,8 +132,7 @@ public class SynchronizeTransformer implements RunnableSchedulable<JMethod> {
 
         if (reuseSyncVariable && enclosingMethod.isStatic()) {
           JLocal syncVar = lvCreator.createTempLocal(enclosingType, SourceInfo.UNKNOWN, tr);
-          JExpression syncVarValue =
-              new JClassLiteral(SourceInfo.UNKNOWN, enclosingType, getJLClass());
+          JExpression syncVarValue = new JClassLiteral(SourceInfo.UNKNOWN, enclosingType);
           JAsgOperation asg = new JAsgOperation(SourceInfo.UNKNOWN,
               syncVar.makeRef(SourceInfo.UNKNOWN), syncVarValue);
           newBodyBlock.addStmt(asg.makeStatement());
@@ -141,8 +140,8 @@ public class SynchronizeTransformer implements RunnableSchedulable<JMethod> {
           unlockExpr = syncVar.makeRef(SourceInfo.UNKNOWN);
         } else {
           if (enclosingMethod.isStatic()) {
-            lockExpr = new JClassLiteral(SourceInfo.UNKNOWN, enclosingType, getJLClass());
-            unlockExpr = new JClassLiteral(SourceInfo.UNKNOWN, enclosingType, getJLClass());
+            lockExpr = new JClassLiteral(SourceInfo.UNKNOWN, enclosingType);
+            unlockExpr = new JClassLiteral(SourceInfo.UNKNOWN, enclosingType);
           } else {
             assert enclosingType instanceof JDefinedClass;
             JVariable thisVar = enclosingMethod.getThis();

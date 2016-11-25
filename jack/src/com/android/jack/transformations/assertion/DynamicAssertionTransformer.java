@@ -149,7 +149,7 @@ public class DynamicAssertionTransformer implements RunnableSchedulable<JMethod>
       // A.$assertionsDisabled = !A.class.desiredAssertionStatus();
       JClass javaLangClass =
           Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_CLASS);
-      JClassLiteral thisClass = new JClassLiteral(sourceInfo, type, javaLangClass);
+      JClassLiteral thisClass = new JClassLiteral(sourceInfo, type);
       JFieldRef lhs = new JFieldRef(sourceInfo, null, assertionStatusId, type);
       JExpression rhs = new JPrefixNotOperation(sourceInfo,
           new JMethodCall(sourceInfo, thisClass, javaLangClass,

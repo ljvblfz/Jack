@@ -52,7 +52,6 @@ import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.ir.formatter.InternalFormatter;
 import com.android.jack.ir.formatter.TypeFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfo;
-import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.scheduling.feature.SourceVersion8;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
@@ -103,9 +102,6 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
     @Nonnull
     private final TransformationRequest request;
     @Nonnull
-    private final JClass javaLangClass;
-
-    @Nonnull
     private static final String ELT_VALUE = "value";
     @Nonnull
     private static final String ELT_NAME = "name";
@@ -140,7 +136,6 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
 
     public Visitor(@Nonnull TransformationRequest request, @Nonnull JPhantomLookup lookup) {
       this.request = request;
-      javaLangClass = lookup.getClass(CommonTypes.JAVA_LANG_CLASS);
       defaultAnnotationType =
           lookup.getAnnotationType(DexAnnotations.ANNOTATION_ANNOTATION_DEFAULT);
       signatureAnnotationType = lookup.getAnnotationType(DexAnnotations.ANNOTATION_SIGNATURE);
@@ -244,7 +239,7 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
         JAnnotation annotation = createAnnotation(method, throwsAnnotationType, info);
         List<JLiteral> literals = new ArrayList<JLiteral>();
         for (JClass thrown : throwns) {
-          literals.add(new JClassLiteral(info, thrown, javaLangClass));
+          literals.add(new JClassLiteral(info, thrown));
         }
         JMethodIdWide methodId = getOrCreateMethodId(throwsAnnotationType, ELT_VALUE);
         JArrayLiteral array = new JArrayLiteral(info, literals);
@@ -269,7 +264,7 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
             && ((JDefinedClass) member).getEnclosingMethod() != null) {
           continue;
         }
-        literals.add(new JClassLiteral(info, member, javaLangClass));
+        literals.add(new JClassLiteral(info, member));
       }
       if (!literals.isEmpty()) {
         JMethodIdWide methodId = getOrCreateMethodId(memberClassAnnotationType, ELT_VALUE);
@@ -284,7 +279,7 @@ public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClas
       SourceInfo info = innerType.getSourceInfo();
       JAnnotation annotation =
           createAnnotation(innerType, enclosingClassAnnotationType, info);
-      JLiteral newValue = new JClassLiteral(info, innerType.getEnclosingType(), javaLangClass);
+      JLiteral newValue = new JClassLiteral(info, innerType.getEnclosingType());
       JMethodIdWide methodId = getOrCreateMethodId(enclosingClassAnnotationType, ELT_VALUE);
       JNameValuePair valuePair = new JNameValuePair(info, methodId, newValue);
       request.append(new PutNameValuePair(annotation, valuePair));

@@ -108,7 +108,7 @@ public class MultiDimensionNewArrayRemover implements RunnableSchedulable<JMetho
               jlo,
               newInstance.canBeVirtual());
           call.addArg(new JClassLiteral(sourceInfo,
-              getComponentTypeForNewInstance(newArray, nbPresentDimensions), jlc));
+              getComponentTypeForNewInstance(newArray, nbPresentDimensions)));
          call.addArg(JNewArray.createWithInits(sourceInfo, intArrayType, presentDimensions));
           tr.append(new Replace(newArray, new JDynamicCastOperation(sourceInfo, call, newArray
               .getArrayType())));

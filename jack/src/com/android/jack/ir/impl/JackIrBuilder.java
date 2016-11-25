@@ -631,7 +631,7 @@ public class JackIrBuilder {
       try {
         SourceInfo info = makeSourceInfo(x);
         JType type = getTypeMap().get(x.targetType);
-        push(new JClassLiteral(info, type, javaLangClass));
+        push(new JClassLiteral(info, type));
       } catch (JTypeLookupException e) {
         throw translateException(x, e);
       } catch (RuntimeException e) {
@@ -3846,7 +3846,6 @@ public class JackIrBuilder {
     private void writeEnumValueOfMethod(JDefinedEnum type, JMethod method)
         throws JTypeLookupException {
       ReferenceBinding enumType = curCud.scope.getJavaLangEnum();
-      ReferenceBinding classType = curCud.scope.getJavaLangClass();
 
       /*
        * return Enum.valueOf(<enum>.class, name);
@@ -3859,8 +3858,7 @@ public class JackIrBuilder {
         assert valueOfBindings.length == 1;
         MethodBinding valueOfBinding = valueOfBindings[0];
 
-        JClassLiteral clazz = new JClassLiteral(info, method.getEnclosingType(),
-            (JDefinedClass) getTypeMap().get(classType));
+        JClassLiteral clazz = new JClassLiteral(info, method.getEnclosingType());
         JParameterRef nameRef = method.getParams().get(0).makeRef(info);
         JMethod jValueOfBinding = getTypeMap().get(valueOfBinding);
         JMethodCall call = makeMethodCall(info, null, jValueOfBinding.getEnclosingType(),
@@ -4042,8 +4040,7 @@ public class JackIrBuilder {
     @Override
     public boolean visit(ClassLiteralAccess x, BlockScope scope) {
       try {
-        parsed =
-            new JClassLiteral(makeSourceInfo(x), getTypeMap().get(x.targetType), javaLangClass);
+        parsed = new JClassLiteral(makeSourceInfo(x), getTypeMap().get(x.targetType));
         return false;
       } catch (JTypeLookupException e) {
         throw translateException(x, e);
@@ -4180,8 +4177,6 @@ public class JackIrBuilder {
 
   CudInfo curCud = null;
 
-  JDefinedClass javaLangClass = null;
-
   JDefinedClass javaLangObject = null;
 
   JDefinedClass javaLangString = null;
@@ -4257,7 +4252,6 @@ public class JackIrBuilder {
     try {
       javaLangObject = (JDefinedClass) getTypeMap().get(cud.scope.getJavaLangObject());
       javaLangString = (JDefinedClass) getTypeMap().get(cud.scope.getJavaLangString());
-      javaLangClass = (JDefinedClass) getTypeMap().get(cud.scope.getJavaLangClass());
     } catch (JTypeLookupException e) {
       throw new AssertionError(e);
     }
@@ -4305,7 +4299,6 @@ public class JackIrBuilder {
     curCud = null;
     javaLangObject = null;
     javaLangString = null;
-    javaLangClass = null;
     getClassMethod = null;
 
     return result;

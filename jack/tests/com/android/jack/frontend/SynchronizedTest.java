@@ -18,18 +18,15 @@ package com.android.jack.frontend;
 
 import com.android.jack.Options;
 import com.android.jack.TestTools;
-import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JClassLiteral;
 import com.android.jack.ir.ast.JLock;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JReturnStatement;
-import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JSynchronizedBlock;
 import com.android.jack.ir.ast.JUnlock;
 import com.android.jack.ir.sourceinfo.SourceInfo;
-import com.android.jack.lookup.CommonTypes;
 import com.android.jack.transformations.request.AppendBefore;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.filter.SignatureMethodFilter;
@@ -118,12 +115,10 @@ public class SynchronizedTest {
     SourceInfo srcInfo = firstStmt.getSourceInfo();
 
     TransformationRequest tr = new TransformationRequest(method);
-    JClass javaLangClass = method.getParent(JSession.class).getPhantomLookup()
-        .getClass(CommonTypes.JAVA_LANG_CLASS);
-    tr.append(new AppendBefore(firstStmt, new JLock(srcInfo,
-        new JClassLiteral(srcInfo, method.getEnclosingType(), javaLangClass))));
-    tr.append(new AppendBefore(firstStmt, new JUnlock(srcInfo,
-        new JClassLiteral(srcInfo, method.getEnclosingType(), javaLangClass))));
+    tr.append(new AppendBefore(firstStmt,
+        new JLock(srcInfo, new JClassLiteral(srcInfo, method.getEnclosingType()))));
+    tr.append(new AppendBefore(firstStmt,
+        new JUnlock(srcInfo, new JClassLiteral(srcInfo, method.getEnclosingType()))));
     tr.commit();
 
     stmts = body.getBlock().getStatements();
