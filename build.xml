@@ -1020,6 +1020,8 @@
       <exclude name="com/android/jack/sourcepath/test002/jack/Sourcepath002.java"/>
       <exclude name="com/android/jack/shrob/test062/jack/**"/>
       <exclude name="com/android/jack/shrob/test066/jack/**"/>
+      <exclude name="com/android/jack/shrob/test067/jack/**"/>
+      <exclude name="com/android/jack/shrob/test068/jack/**"/>
       <classpath>
         <filelist dir="/">
           <file name="${jill-api.dist.dir}/${jill-api.lib.name}" />

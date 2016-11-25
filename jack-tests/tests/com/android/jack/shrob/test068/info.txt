@@ -1,0 +1,2 @@
+This tests contains multiple interfaces with default methods to check if the
+right implementation is kept.

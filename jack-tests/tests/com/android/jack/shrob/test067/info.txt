@@ -1,0 +1,2 @@
+This tests contains a class with extends a class and implements an interface
+both with the same concrete method.

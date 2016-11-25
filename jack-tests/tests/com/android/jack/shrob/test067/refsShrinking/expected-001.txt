@@ -1,0 +1,8 @@
+Lcom/android/jack/shrob/test067/jack/MyClass;:
+<init>()V
+Lcom/android/jack/shrob/test067/jack/AbstractClass;:
+<init>()V
+m()I
+Lcom/android/jack/shrob/test067/jack/Kept;:
+<init>()V
+kept(Lcom/android/jack/shrob/test067/jack/MyClass;)V
