@@ -1,0 +1,2 @@
+Lcom/android/jack/shrob/test066/jack/MySuperInterfaceWithDefaultMethod;:
+m()V
