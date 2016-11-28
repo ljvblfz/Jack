@@ -248,14 +248,24 @@ public class CoverageTests extends CoverageTest {
   }
 
   @Test
-  public void testPreDex() throws Exception {
+  public void testImportLibrary_NoPredexing() throws Exception {
+    runTestImportLibrary(false);
+  }
+
+  @Test
+  public void testImportLibrary_WithPredexing() throws Exception {
+    runTestImportLibrary(true);
+  }
+
+  private void runTestImportLibrary(boolean withPredexing) throws Exception {
     String testPackageName = getTestPackageName("test004");
 
-    // 1 - Create a lib.
+    // 1 - Create a lib (with or without predexing)
     JackBasedToolchain toolchain = createJackToolchain();
-    File libDir = AbstractTestTools.createTempDir();
+    toolchain.addProperty("jack.library.dex", Boolean.toString(withPredexing));
+    File libDir = AbstractTestTools.createTempFile("lib", toolchain.getLibraryExtension());
     File libSrcFiles = new File(getTestRootDir(testPackageName), "lib");
-    toolchain.srcToLib(libDir, false, libSrcFiles);
+    toolchain.srcToLib(libDir, true, libSrcFiles);
 
     // 2 - Compile the lib with coverage.
     toolchain = createJackToolchain();
@@ -267,11 +277,18 @@ public class CoverageTests extends CoverageTest {
 
     // 3 - Check types from the lib are instrumented.
     JsonArray classes = loadJsonCoverageClasses(coverageMetadataFile);
-    JsonObject testClass =
-        getJsonClass(classes, getClassNameForJson(testPackageName + ".lib.LibClass"));
+    Assert.assertEquals(2, classes.size());
+    checkClassIsInstrumented(testPackageName + ".src.SrcClass", classes);
+    checkClassIsInstrumented(testPackageName + ".lib.LibClass", classes);
+  }
+
+  private void checkClassIsInstrumented(@Nonnull String classFqName, @Nonnull JsonArray classes) {
+    JsonObject testClass = getJsonClass(classes, getClassNameForJson(classFqName));
+    Assert.assertNotNull(testClass);
     JsonArray probesArray = testClass.get("probes").getAsJsonArray();
     Assert.assertNotNull(probesArray);
     Assert.assertTrue(probesArray.size() > 0);
+
   }
 
   @Test
