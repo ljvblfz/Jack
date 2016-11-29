@@ -134,13 +134,13 @@ public abstract class JAbstractMethodCall extends JExpression {
   }
 
   @Nonnull
-  public JMethodId getMethodIdNotWide() {
-    return methodId;
+  public JMethodIdWide getMethodIdWide() {
+    return methodId.getMethodIdWide();
   }
 
   @Nonnull
-  public JMethodIdWide getMethodId() {
-    return methodId.getMethodIdWide();
+  public JMethodId getMethodId() {
+    return methodId;
   }
 
   @Nonnull

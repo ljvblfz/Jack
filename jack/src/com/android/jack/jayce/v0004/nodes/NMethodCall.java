@@ -87,9 +87,9 @@ public class NMethodCall extends NExpression {
     instance = (NExpression) loader.load(jMethodCall.getInstance());
     receiverType = ImportHelper.getSignatureName(jMethodCall.getReceiverType());
     receiverKind = getReceiverKind(jMethodCall);
-    methodName = jMethodCall.getMethodId().getName();
-    methodArgsType = ImportHelper.getMethodArgsSignature(jMethodCall.getMethodId());
-    methodKind = jMethodCall.getMethodId().getKind();
+    methodName = jMethodCall.getMethodIdWide().getName();
+    methodArgsType = ImportHelper.getMethodArgsSignature(jMethodCall.getMethodIdWide());
+    methodKind = jMethodCall.getMethodIdWide().getKind();
     returnType = ImportHelper.getSignatureName(jMethodCall.getType());
     args = loader.load(NExpression.class, jMethodCall.getArgs());
     dispatchKind = jMethodCall.getDispatchKind();

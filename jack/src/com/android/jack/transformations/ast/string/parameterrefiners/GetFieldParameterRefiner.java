@@ -56,7 +56,7 @@ public class GetFieldParameterRefiner extends CommonStringParameterRefiner imple
   @Override
   public boolean isApplicable(@Nonnull JMethodCall call) throws JMethodLookupException {
     if (call.getReceiverType().isSameType(javaLangClass)
-        && call.getMethodId().equals(getFieldMethodId)) {
+        && call.getMethodIdWide().equals(getFieldMethodId)) {
       assert formatter.getName(call.getType()).equals(FIELD_CLASS_SIGNATURE);
       return true;
     }

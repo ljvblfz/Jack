@@ -78,7 +78,7 @@ public class InlineAnnotatedMethods implements RunnableSchedulable<JMethod> {
   private class InlineVisitor extends JVisitor {
     @Override
     public void endVisit(@Nonnull JMethodCall call) {
-      Collection<JMethod> targets = call.getMethodId().getMethods();
+      Collection<JMethod> targets = call.getMethodIdWide().getMethods();
       if (targets.size() != 1) {
         return;
       }

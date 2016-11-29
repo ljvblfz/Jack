@@ -179,7 +179,7 @@ public class TailRecursionOptimizer implements RunnableSchedulable<JMethod> {
       if (retExpr instanceof JMethodCall) {
         JMethodCall methodCall = (JMethodCall) retExpr;
         JExpression instance = methodCall.getInstance();
-        if (methodCall.getMethodId().equals(enclosingMethod.getMethodIdWide())
+        if (methodCall.getMethodIdWide().equals(enclosingMethod.getMethodIdWide())
             && (instance == null || (instance.getType().isSameType(methodCall.getReceiverType())
             && instance instanceof JThisRef))) {
           tracer.getStatistic(TAIL_RECURSION_OPTS).incValue();

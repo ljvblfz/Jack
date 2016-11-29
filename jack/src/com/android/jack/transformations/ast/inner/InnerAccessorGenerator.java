@@ -212,7 +212,7 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClass
         JType returnType =
             x instanceof JNewInstance ? JPrimitiveTypeEnum.VOID.getType() : x.getType();
         JMethod method = getMethod((JDefinedClassOrInterface) receiverType,
-            (JDefinedClassOrInterface) receiverType, returnType, x.getMethodId());
+            (JDefinedClassOrInterface) receiverType, returnType, x.getMethodIdWide());
         // Method can be null when an interface method is implemented by a sub type of the receiver
         // type, but in this case accessors are not needed
         if (method != null) {

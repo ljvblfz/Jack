@@ -70,7 +70,7 @@ public class InlineAnnotationSanityCheck implements RunnableSchedulable<JMethod>
 
     @Override
     public void endVisit(@Nonnull JMethodCall call) {
-      Collection<JMethod> targets = call.getMethodId().getMethods();
+      Collection<JMethod> targets = call.getMethodIdWide().getMethods();
       if (targets.size() != 1) {
         return;
       }

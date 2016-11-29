@@ -284,7 +284,7 @@ public class FieldFinalizer {
 
             JMethodCall call = (JMethodCall) expr;
             // Must be a constructor call on 'this'
-            if (!call.getMethodId().isInit() ||
+            if (!call.getMethodIdWide().isInit() ||
                 !(call.getInstance() instanceof JThisRef)) {
               return;
             }

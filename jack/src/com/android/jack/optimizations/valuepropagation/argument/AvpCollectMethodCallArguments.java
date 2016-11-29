@@ -61,7 +61,7 @@ public class AvpCollectMethodCallArguments extends AvpSchedulable
           }
           if (expr instanceof JMethodCall) {
             JMethodCall call = (JMethodCall) expr;
-            JMethodIdWide methodId = call.getMethodId();
+            JMethodIdWide methodId = call.getMethodIdWide();
             // Track only method calls with at least one parameter
             if (methodId.getParamTypes().size() > 0) {
               TypeMethodCallArgumentsMarker.markCallOnReceiverType(

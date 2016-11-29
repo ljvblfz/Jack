@@ -114,7 +114,7 @@ public class MethodIdDuplicateRemover implements RunnableSchedulable<JDefinedCla
 
     @Override
     public boolean visit(@Nonnull JMethodCall call) {
-      JMethodId id = getResolvedMethodId(call.getReceiverType(), call.getMethodIdNotWide());
+      JMethodId id = getResolvedMethodId(call.getReceiverType(), call.getMethodId());
       call.resolveMethodId(id);
       return super.visit(call);
     }

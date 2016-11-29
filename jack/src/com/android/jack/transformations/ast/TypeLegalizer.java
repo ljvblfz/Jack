@@ -279,7 +279,7 @@ public class TypeLegalizer implements RunnableSchedulable<JMethod> {
     @Override
     public void endVisit(@Nonnull JMethodCall call) {
       List<JExpression> args = call.getArgs();
-      List<JType> parameterTypes = call.getMethodId().getParamTypes();
+      List<JType> parameterTypes = call.getMethodIdWide().getParamTypes();
       assert args.size() == parameterTypes.size();
       Iterator<JType> paramTypeIterator = parameterTypes.iterator();
       for (JExpression jExpression : args) {

@@ -352,7 +352,7 @@ public class Tracer extends JVisitor {
   public void endVisit(@Nonnull JMethodCall mc) {
     JType returnType = mc.getType();
     trace(returnType);
-    JMethodIdWide methodId = mc.getMethodId();
+    JMethodIdWide methodId = mc.getMethodIdWide();
     JClassOrInterface receiverType = mc.getReceiverType();
     trace(receiverType);
     JMethod implementationOrDefinition = null;
@@ -391,7 +391,7 @@ public class Tracer extends JVisitor {
   public void endVisit(@Nonnull JNewInstance newInstance) {
     JClass returnType = newInstance.getType();
     trace(returnType);
-    JMethodIdWide methodId = newInstance.getMethodId();
+    JMethodIdWide methodId = newInstance.getMethodIdWide();
     trace(methodId, returnType, JPrimitiveTypeEnum.VOID.getType(),
         false /* mustTraceOverridingMethods */);
   }

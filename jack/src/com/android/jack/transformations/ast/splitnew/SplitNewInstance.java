@@ -117,7 +117,7 @@ public class SplitNewInstance implements RunnableSchedulable<JMethod> {
           new JAsgOperation(srcInfos, tmp.makeRef(srcInfos), alloc);
 
       // tmp.init(args)
-      JMethodId methodId = newInstance.getMethodId().getMethodId(JPrimitiveTypeEnum.VOID.getType());
+      JMethodId methodId = newInstance.getMethodIdWide().getMethodId(JPrimitiveTypeEnum.VOID.getType());
       assert methodId != null;
       JMethodCall initCall = new JMethodCall(srcInfos, tmp.makeRef(srcInfos), type, methodId,
           methodId.getMethodIdWide().canBeVirtual());

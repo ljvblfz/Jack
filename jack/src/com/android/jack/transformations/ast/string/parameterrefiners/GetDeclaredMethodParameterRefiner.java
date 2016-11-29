@@ -61,7 +61,7 @@ public class GetDeclaredMethodParameterRefiner extends GetMethodParameterRefiner
   @Override
   public boolean isApplicable(@Nonnull JMethodCall call) throws JMethodLookupException {
     if (call.getReceiverType().isSameType(javaLangClass)
-        && call.getMethodId().equals(getDeclaredMethodMethodId)) {
+        && call.getMethodIdWide().equals(getDeclaredMethodMethodId)) {
       assert formatter.getName(call.getType()).equals(METHOD_CLASS_SIGNATURE);
       return true;
     }

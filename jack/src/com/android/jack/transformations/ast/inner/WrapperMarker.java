@@ -229,7 +229,7 @@ public class WrapperMarker implements Marker {
       JBlock bodyBlock = new JBlock(sourceInfo);
       JMethodBody body = new JMethodBody(sourceInfo, bodyBlock);
 
-      assert methodCall.getArgs().size() == methodCall.getMethodId().getParamTypes().size();
+      assert methodCall.getArgs().size() == methodCall.getMethodIdWide().getParamTypes().size();
 
       if (method.getType() == JPrimitiveTypeEnum.VOID.getType()) {
         bodyBlock.addStmt(methodCall.makeStatement());

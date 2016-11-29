@@ -1222,7 +1222,7 @@ class RopBuilderVisitor extends JVisitor {
     if (InvokeCustomHelper.isInvokeCustom(methodCall)
         && apiLevel.getProvisionalLevel() == ProvisionalLevel.O_BETA2) {
       JAnnotation invokeCustomCallSite = InvokeCustomHelper
-          .getInvokeCustomCallsite(methodCall.getMethodId().getMethods().iterator().next());
+          .getInvokeCustomCallsite(methodCall.getMethodIdWide().getMethods().iterator().next());
       assert invokeCustomCallSite != null;
       CstCallSiteRef callSiteRef =
           InvokeCustomHelper.readInvokeCustomCallSite(invokeCustomCallSite);
@@ -1256,7 +1256,7 @@ class RopBuilderVisitor extends JVisitor {
     int paramIndex = 0;
 
     Rop callOp;
-    MethodKind methodKind = methodCall.getMethodId().getKind();
+    MethodKind methodKind = methodCall.getMethodIdWide().getKind();
     if (methodKind == MethodKind.STATIC) {
       // Reserve space for the method arguments
       sources = new RegisterSpecList(methodCall.getArgs().size());

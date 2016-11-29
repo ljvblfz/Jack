@@ -901,7 +901,7 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
   public boolean visit(@Nonnull JPolymorphicMethodCall x) {
     JExpression instance = x.getInstance();
     assert instance != null;
-    JMethodIdWide target = x.getMethodId();
+    JMethodIdWide target = x.getMethodIdWide();
     if (x.getInstance() instanceof JThisRef) {
         print(CHARS_THIS);
     } else {
@@ -921,7 +921,7 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
   @Override
   public boolean visit(@Nonnull JMethodCall x) {
     JExpression instance = x.getInstance();
-    JMethodIdWide target = x.getMethodId();
+    JMethodIdWide target = x.getMethodIdWide();
     if (instance == null) {
       // Static call.
       printTypeName(x.getReceiverType());
@@ -996,7 +996,7 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
   @Override
   public boolean visit(@Nonnull JNewInstance x) {
     print(CHARS_NEW);
-    JMethodIdWide target = x.getMethodId();
+    JMethodIdWide target = x.getMethodIdWide();
     printName(target);
     lparen();
     visitCollectionWithCommas(x.getArgs().iterator());

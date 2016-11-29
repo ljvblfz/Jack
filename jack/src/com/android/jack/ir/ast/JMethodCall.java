@@ -48,10 +48,10 @@ public class JMethodCall extends JAbstractMethodCall {
    * forces the caller to potentially deal with cloning objects if needed.
    */
   public JMethodCall(@Nonnull JMethodCall other, @CheckForNull JExpression instance) {
-    super(other.getSourceInfo(), instance, other.getReceiverType(), other.getMethodIdNotWide());
+    super(other.getSourceInfo(), instance, other.getReceiverType(), other.getMethodId());
     dispatchKind = other.getDispatchKind();
     assert other.getReceiverType() == null || !JPolymorphicMethodCall
-        .isCallToPolymorphicMethod(other.getReceiverType(), other.getMethodIdNotWide());
+        .isCallToPolymorphicMethod(other.getReceiverType(), other.getMethodId());
   }
 
   public JMethodCall(@Nonnull SourceInfo info, @CheckForNull JExpression instance,
@@ -61,7 +61,7 @@ public class JMethodCall extends JAbstractMethodCall {
     assert methodId != null;
     assert receiverType == null
         || !JPolymorphicMethodCall.isCallToPolymorphicMethod(receiverType, methodId);
-    assert (!isVirtualDispatch) || getMethodId().getKind() == MethodKind.INSTANCE_VIRTUAL;
+    assert (!isVirtualDispatch) || getMethodIdWide().getKind() == MethodKind.INSTANCE_VIRTUAL;
     this.dispatchKind = isVirtualDispatch ? DispatchKind.VIRTUAL : DispatchKind.DIRECT;
   }
 
@@ -92,6 +92,6 @@ public class JMethodCall extends JAbstractMethodCall {
 
   @Override
   public boolean isCallToPolymorphicMethod() {
-    return isCallToPolymorphicMethod(getReceiverType(), getMethodIdNotWide());
+    return isCallToPolymorphicMethod(getReceiverType(), getMethodId());
   }
 }

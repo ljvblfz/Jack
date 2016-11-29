@@ -50,7 +50,7 @@ public class NNewInstance extends NMethodCall {
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JNewInstance jNewInstance = (JNewInstance) node;
     receiverType = ImportHelper.getSignatureName(jNewInstance.getReceiverType());
-    methodArgsType = ImportHelper.getMethodArgsSignature(jNewInstance.getMethodId());
+    methodArgsType = ImportHelper.getMethodArgsSignature(jNewInstance.getMethodIdWide());
     args = loader.load(NExpression.class, jNewInstance.getArgs());
     sourceInfo = loader.load(jNewInstance.getSourceInfo());
   }

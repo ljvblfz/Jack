@@ -167,7 +167,7 @@ public class RopHelper {
     StringBuilder sb = new StringBuilder();
     sb.append('(');
 
-    for (JType p : call.getMethodId().getParamTypes()) {
+    for (JType p : call.getMethodIdWide().getParamTypes()) {
       sb.append(formatter.getName(p));
     }
 
@@ -182,7 +182,7 @@ public class RopHelper {
     StringBuilder sb = new StringBuilder();
     sb.append('(');
 
-    for (JType p : call.getMethodId().getParamTypes()) {
+    for (JType p : call.getMethodIdWide().getParamTypes()) {
       sb.append(formatter.getName(p));
     }
 

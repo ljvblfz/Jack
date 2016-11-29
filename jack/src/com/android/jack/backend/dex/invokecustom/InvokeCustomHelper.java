@@ -68,7 +68,7 @@ import javax.annotation.Nonnull;
 public class InvokeCustomHelper {
 
   public static boolean isInvokeCustom(@Nonnull JAbstractMethodCall call) {
-    Collection<JMethod> methods = call.getMethodId().getMethods();
+    Collection<JMethod> methods = call.getMethodIdWide().getMethods();
     Iterator<JMethod> methodsIt = methods.iterator();
     boolean isInvokeCustom = false;
     while (methodsIt.hasNext()) {
