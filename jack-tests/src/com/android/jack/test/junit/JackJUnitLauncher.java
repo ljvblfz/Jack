@@ -21,6 +21,7 @@ import org.junit.internal.TextListener;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Request;
 import org.junit.runner.Result;
+import org.junit.runner.notification.Failure;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -104,6 +105,9 @@ public class JackJUnitLauncher {
     for (Request req : requests) {
       Result result = core.run(req);
       failureCount += result.getFailureCount();
+      for (Failure f : result.getFailures()) {
+        f.getException().printStackTrace();
+      }
     }
 
     if (dumpTests) {

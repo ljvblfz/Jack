@@ -203,6 +203,7 @@
     <java fork="true"
           failonerror="true"
           output="${jack-coverage-tests.dump.dir}/AllCoverageTests.js"
+          logError="true"
           classname="com.android.jack.test.junit.JackJUnitLauncher">
       <jvmarg value="-Dtests.dump=true" />
       <jvmarg value="-Dtests.config=${tests.config}" />

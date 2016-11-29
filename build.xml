@@ -2435,6 +2435,7 @@
 
     <java fork="true" failonerror="true"
       output="${jack-tests.dir}/dump/PreSubmitTests.js"
+      logError="true"
       classname="com.android.jack.test.junit.JackJUnitLauncher">
       <jvmarg value="-Dtests.dump=true" />
       <jvmarg value="-Dtests.config=${tests.config}"/>
@@ -2452,6 +2453,7 @@
 
     <java fork="true" failonerror="true"
       output="${jack-tests.dir}/dump/LongLastingTests.js"
+      logError="true"
       classname="com.android.jack.test.junit.JackJUnitLauncher">
        <jvmarg value="-Dtests.dump=true" />
        <jvmarg value="-Dtests.config=${tests.config}"/>
@@ -2469,6 +2471,7 @@
 
     <java fork="true" failonerror="true"
       output="${jack-tests.dir}/dump/SchedAllTests.js"
+      logError="true"
       classname="com.android.jack.test.junit.JackJUnitLauncher">
       <jvmarg value="-Dtests.dump=true" />
       <jvmarg value="-Dtests.config=${tests.config}"/>
