@@ -512,9 +512,7 @@ public final class LambdaGroupClassFinalizer
         // Generate a body of the main method
         JMethodIdRef lambdaMethodIdRef = lambda.getMethodIdRef();
         JMethodId methodId = lambdaMethodIdRef.getMethodId();
-        JMethod lambdaMethod = lambdaMethodIdRef.getEnclosingType()
-            .getMethod(methodId.getMethodIdWide().getName(), methodId.getType(),
-                methodId.getMethodIdWide().getParamTypes());
+        JMethod lambdaMethod = lambdaMethodIdRef.getEnclosingType().getMethod(methodId);
 
         LambdaInfoMarker marker = lambda.getMarker(LambdaInfoMarker.class);
         assert marker != null;

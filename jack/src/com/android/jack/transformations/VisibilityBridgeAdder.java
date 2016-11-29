@@ -91,8 +91,7 @@ public class VisibilityBridgeAdder implements RunnableSchedulable<JDefinedClassO
         if (method.isPublic() && !(method instanceof JConstructor) && !method.isStatic()
             && !method.isFinal()) {
           try {
-            declaredType.getMethod(method.getName(), method.getType(),
-                method.getMethodIdWide().getParamTypes());
+            declaredType.getMethod(method.getMethodId());
           } catch (JMethodLookupException e) {
             // the method is not declared in class, a bridge is required
             synthesizeBridge((JDefinedClass) declaredType, method);

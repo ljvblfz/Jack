@@ -68,7 +68,6 @@ import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
 
-import java.util.Collections;
 import java.util.Map;
 
 import javax.annotation.CheckForNull;
@@ -190,9 +189,8 @@ public class OptimizedSwitchEnumSupport implements RunnableSchedulable<JMethod> 
                 syntheticInitializer.getMethodId(),
                 syntheticInitializer.canBeVirtual());
 
-        JMethod ordinalMethod =
-            Jack.getSession().getLookup().getClass("Ljava/lang/Enum;").
-            getMethod("ordinal", JPrimitiveTypeEnum.INT.getType(), Collections.<JType>emptyList());
+        JMethod ordinalMethod = Jack.getSession().getLookup().getClass("Ljava/lang/Enum;")
+            .getMethod("ordinal", JPrimitiveTypeEnum.INT.getType());
 
         transformRequest.append(
             new Replace(switchExpr, new JArrayRef(switchStmt.getSourceInfo(), getSwitchMapInvocExpr,

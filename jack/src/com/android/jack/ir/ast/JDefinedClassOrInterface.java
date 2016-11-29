@@ -287,6 +287,17 @@ public abstract class JDefinedClassOrInterface extends JDefinedReferenceType
    * @return Returns the matching method if any, throws a {@link JMethodLookupException} otherwise.
    */
   @Nonnull
+  public JMethod getMethod(@Nonnull JMethodId methodId) throws JMethodLookupException {
+    JMethodIdWide methodIdWide = methodId.getMethodIdWide();
+    return getMethod(methodIdWide.getName(), methodId.getType(), methodIdWide.getParamTypes());
+  }
+
+  /**
+   * Returns the {@link JMethod} with the signature {@code signature} declared for this type.
+   *
+   * @return Returns the matching method if any, throws a {@link JMethodLookupException} otherwise.
+   */
+  @Nonnull
   public JMethod getMethod(@Nonnull String name, @Nonnull JType returnType,
       @Nonnull JType... args) throws JMethodLookupException {
     return (getMethod(name, returnType, Arrays.asList(args)));
