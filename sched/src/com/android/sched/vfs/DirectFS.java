@@ -128,8 +128,11 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
     try {
       return new FileInputStream(path);
     } catch (FileNotFoundException e) {
-      FileOrDirectory.checkPermissions(path, file.getLocation(), Permission.READ);
-      throw new ConcurrentIOException(e);
+
+      checkPermissionsIfExists(path, file.getLocation(), Permission.READ);
+
+      // should not happen
+      throw new AssertionError(e);
     }
   }
 
@@ -153,9 +156,27 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
     try {
       return new FileOutputStream(path, append);
     } catch (FileNotFoundException e) {
-      FileOrDirectory.checkPermissions(path, file.getLocation(), Permission.WRITE);
-      throw new ConcurrentIOException(e);
+
+      checkPermissionsIfExists(path, file.getLocation(), Permission.WRITE);
+
+      // should not happen
+      throw new AssertionError(e);
     }
+  }
+
+  static void checkPermissionsIfExists(
+      @Nonnull File path,
+      @Nonnull Location location,
+      int permission)
+      throws WrongPermissionException {
+    // Let's find out if the file has disappeared since we last checked or if this is a permission
+    // issue. We need to check if the file exists first.
+    try {
+      AbstractStreamFile.check(path, location);
+    } catch (NotFileException | NoSuchFileException e1) {
+      throw new ConcurrentIOException(e1);
+    }
+    FileOrDirectory.checkPermissions(path, location, permission);
   }
 
   @Nonnull

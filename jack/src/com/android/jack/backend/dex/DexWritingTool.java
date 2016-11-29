@@ -157,8 +157,10 @@ public abstract class DexWritingTool {
     try {
       inputStream = inputDex.getInputStream();
       merger.addDexFile(new DexBuffer(inputStream));
-    } catch (IOException | WrongPermissionException e) {
+    } catch (IOException e) {
       throw new DexWritingException(new CannotReadException(inputDex, e));
+    } catch (WrongPermissionException e) {
+      throw new DexWritingException(e);
     } finally {
       if (inputStream != null) {
         try {

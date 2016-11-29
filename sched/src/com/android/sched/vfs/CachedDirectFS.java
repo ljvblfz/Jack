@@ -16,14 +16,12 @@
 
 package com.android.sched.vfs;
 
-import com.android.sched.util.ConcurrentIOException;
 import com.android.sched.util.file.AbstractStreamFile;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.CannotGetModificationTimeException;
 import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileAlreadyExistsException;
-import com.android.sched.util.file.FileOrDirectory;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
@@ -273,8 +271,11 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
       assert (is = trackOpenedStream(is, file)) != null;
       return is;
     } catch (FileNotFoundException e) {
-      FileOrDirectory.checkPermissions(path, file.getLocation(), Permission.READ);
-      throw new ConcurrentIOException(e);
+
+      DirectFS.checkPermissionsIfExists(path, file.getLocation(), Permission.READ);
+
+      // should not happen
+      throw new AssertionError(e);
     }
   }
 
@@ -300,8 +301,11 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
       assert (os = trackOpenedStream(os, file)) != null;
       return os;
     } catch (FileNotFoundException e) {
-      FileOrDirectory.checkPermissions(path, file.getLocation(), Permission.WRITE);
-      throw new ConcurrentIOException(e);
+
+      DirectFS.checkPermissionsIfExists(path, file.getLocation(), Permission.WRITE);
+
+      // should not happen
+      throw new AssertionError(e);
     }
   }
 
