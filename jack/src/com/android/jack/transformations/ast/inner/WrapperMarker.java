@@ -203,10 +203,10 @@ public class WrapperMarker implements Marker {
         instance = thisParam.makeRef(sourceInfo);
       }
 
-      JMethodIdWide calledMethodId = method.getMethodIdWide();
-      JMethodCall methodCall = new JMethodCall(sourceInfo, instance, mthCallReceiverType,
-          calledMethodId,
-          method.getType(), calledMethodId.canBeVirtual() && !isSuper /* isVirtualDispatch */);
+      JMethodId calledMethodId = method.getMethodId();
+      JMethodCall methodCall =
+          new JMethodCall(sourceInfo, instance, mthCallReceiverType, calledMethodId,
+              calledMethodId.getMethodIdWide().canBeVirtual() && !isSuper /* isVirtualDispatch */);
       for (JParameter param : method.getParams()) {
         JType paramType = param.getType();
         JParameter newParam = new JParameter(sourceInfo, param.getName(), paramType,

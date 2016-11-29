@@ -26,7 +26,7 @@ import com.android.jack.ir.ast.JDynamicCastOperation;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
-import com.android.jack.ir.ast.JMethodIdWide;
+import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JNewArray;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JType;
@@ -81,7 +81,7 @@ public class MultiDimensionNewArrayRemover implements RunnableSchedulable<JMetho
   private final JArrayType intArrayType =
       Jack.getSession().getLookup().getArrayType(JPrimitiveTypeEnum.INT.getType(), 1);
   @Nonnull
-  private final JMethodIdWide newInstance;
+  private final JMethodId newInstance;
 
   private class Visitor extends JVisitor {
 
@@ -105,8 +105,7 @@ public class MultiDimensionNewArrayRemover implements RunnableSchedulable<JMetho
               null,
               reflectArrayType,
               newInstance,
-              jlo,
-              newInstance.canBeVirtual());
+              newInstance.getMethodIdWide().canBeVirtual());
           call.addArg(new JClassLiteral(sourceInfo,
               getComponentTypeForNewInstance(newArray, nbPresentDimensions)));
          call.addArg(JNewArray.createWithInits(sourceInfo, intArrayType, presentDimensions));
@@ -155,8 +154,8 @@ public class MultiDimensionNewArrayRemover implements RunnableSchedulable<JMetho
     List<JType> argsType = new ArrayList<JType>(2);
     argsType.add(jlc);
     argsType.add(intArrayType);
-    newInstance = reflectArrayType.getOrCreateMethodIdWide("newInstance", argsType,
-        MethodKind.STATIC);
+    newInstance = reflectArrayType.getOrCreateMethodId("newInstance", argsType,
+        MethodKind.STATIC, jlo);
   }
 
   @Override

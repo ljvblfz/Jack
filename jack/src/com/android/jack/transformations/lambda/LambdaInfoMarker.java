@@ -24,7 +24,7 @@ import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JIntLiteral;
 import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.ir.ast.JMethodIdWide;
+import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JNewInstance;
 import com.android.jack.ir.ast.JShortLiteral;
 import com.android.jack.ir.ast.JType;
@@ -39,6 +39,7 @@ import com.android.sched.marker.ValidOn;
 import com.android.sched.schedulable.Transform;
 
 import java.util.List;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -58,9 +59,9 @@ final class LambdaInfoMarker implements Marker {
   @CheckForNull
   private final JField instanceField;
   /** Lambda class id or NO_LAMBDA_ID */
-  private int lambdaId;
+  private final int lambdaId;
   @Nonnull
-  private int[] captureMapping;
+  private final int[] captureMapping;
 
   LambdaInfoMarker(@Nonnull JDefinedClass groupClass,
       @CheckForNull JField instanceField, int lambdaId, @Nonnull int[] captureMapping) {
@@ -119,8 +120,8 @@ final class LambdaInfoMarker implements Marker {
       @Nonnull TransformationRequest request, @Nonnull JConstructor constructor,
       @Nonnull List<JExpression> args, @Nonnull SourceInfo sourceInfo) {
 
-    JMethodIdWide constructorIdWide = constructor.getMethodIdWide();
-    List<JType> paramTypes = constructorIdWide.getParamTypes();
+    JMethodId constructorId = constructor.getMethodId();
+    List<JType> paramTypes = constructorId.getMethodIdWide().getParamTypes();
     JExpression[] newArgs = new JExpression[paramTypes.size()];
     int offset = 0;
 
@@ -147,7 +148,7 @@ final class LambdaInfoMarker implements Marker {
 
     // Create instance creation
     JNewInstance newNode = new JNewInstance(
-        sourceInfo, this.groupClass, constructorIdWide);
+        sourceInfo, this.groupClass, constructorId);
     for (JExpression newArg : newArgs) {
       assert newArg != null;
       request.append(new AppendArgument(newNode, newArg));

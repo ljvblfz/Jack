@@ -44,10 +44,10 @@ public class JPolymorphicMethodCall extends JAbstractMethodCall {
   public JPolymorphicMethodCall(@Nonnull SourceInfo info, @Nonnull JExpression instance,
       @Nonnull JClassOrInterface receiverType, @Nonnull JMethodId methodId,
       @Nonnull JType callSiteReturnType, @Nonnull List<JType> callSiteParameterTypes) {
-    super(info, instance, receiverType, methodId.getMethodIdWide(), methodId.getType());
+    super(info, instance, receiverType, methodId);
 
     assert instance != null;
-    assert isCallToPolymorphicMethod(receiverType, methodId.getMethodIdWide(), methodId.getType());
+    assert isCallToPolymorphicMethod(receiverType, methodId);
 
     this.callSiteReturnType = callSiteReturnType;
     this.callSiteParameterTypes = callSiteParameterTypes;

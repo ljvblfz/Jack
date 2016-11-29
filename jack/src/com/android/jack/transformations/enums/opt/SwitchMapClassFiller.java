@@ -202,8 +202,7 @@ public class SwitchMapClassFiller {
       JMethodCall superCall = new JMethodCall(SourceInfo.UNKNOWN,
           thisRef,
           objectClass,
-          superConstruct.getMethodIdWide(),
-          JPrimitiveTypeEnum.VOID.getType(),
+          superConstruct.getMethodId(),
           superConstruct.canBeVirtual());
       transformRequest.append(new AppendStatement(block, superCall.makeStatement()));
 
@@ -389,8 +388,7 @@ public class SwitchMapClassFiller {
         new JMethodCall(SourceInfo.UNKNOWN,
             null /* instance */,
             enumType,
-            valuesMethod.getMethodIdWide(),
-            valuesMethod.getType(),
+            valuesMethod.getMethodId(),
             valuesMethod.canBeVirtual()));
 
     JLocal switchmapLocal = createSwitchmapArrayStatement(
@@ -461,8 +459,7 @@ public class SwitchMapClassFiller {
           SourceInfo.UNKNOWN,
           enumFieldExpr,
           enumType,
-          ordinalMethod.getMethodIdWide(),
-          JPrimitiveTypeEnum.INT.getType(),
+          ordinalMethod.getMethodId(),
           ordinalMethod.canBeVirtual());
 
       transformRequest.append(new AppendStatement(tryBlock,

@@ -29,6 +29,9 @@ import javax.annotation.Nonnull;
 @Description("A new instance expression")
 public class JNewInstance extends JMethodCall {
 
+  @Nonnull
+  private final JClass createdType;
+
   /**
    * Initialize a new instance operation equivalent to another one. The new
    * object has no arguments on initialization. This forces the caller to
@@ -36,17 +39,19 @@ public class JNewInstance extends JMethodCall {
    */
   public JNewInstance(JNewInstance other) {
     super(other, null);
+    createdType = other.createdType;
   }
 
   public JNewInstance(@Nonnull SourceInfo info, @Nonnull JClassOrInterface receiverType,
-      @Nonnull JMethodIdWide ctor) {
-    super(info, null, receiverType, ctor, receiverType, false /* isVirtualDispatch */);
+      @Nonnull JMethodId ctor) {
+    super(info, null, receiverType, ctor, false /* isVirtualDispatch */);
+    createdType = (JClass) receiverType;
   }
 
   @Nonnull
   @Override
   public JClass getType() {
-    return (JClass) super.getType();
+    return createdType;
   }
 
   @Override

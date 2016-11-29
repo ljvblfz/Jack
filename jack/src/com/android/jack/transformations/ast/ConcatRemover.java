@@ -27,7 +27,7 @@ import com.android.jack.ir.ast.JDynamicCastOperation;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
-import com.android.jack.ir.ast.JMethodIdWide;
+import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JNewInstance;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JPrimitiveType;
@@ -131,23 +131,22 @@ public class ConcatRemover implements RunnableSchedulable<JMethod> {
         } else {
           JClassOrInterface stringBuilder = getStringBuilder();
           JNewInstance instance = new JNewInstance(sourceInfo, stringBuilder,
-              stringBuilder.getOrCreateMethodIdWide(STRING_BUILDER_CONSTRUCTOR_NAME,
-                  Lists.<JType>create(), MethodKind.INSTANCE_NON_VIRTUAL));
+              stringBuilder.getOrCreateMethodId(STRING_BUILDER_CONSTRUCTOR_NAME,
+                  Lists.<JType>create(), MethodKind.INSTANCE_NON_VIRTUAL,
+                  JPrimitiveTypeEnum.VOID.getType()));
 
           JMethodCall appendLhs = getCallToAppend(sourceInfo, instance, binary.getLhs());
 
           JMethodCall appendRhs = getCallToAppend(sourceInfo, appendLhs, binary.getRhs());
 
-          JMethodIdWide stringBuilderToString =
-              stringBuilder.getOrCreateMethodIdWide(TO_STRING, Lists.<JType>create(),
-                  MethodKind.INSTANCE_VIRTUAL);
+          JMethodId stringBuilderToString = stringBuilder.getOrCreateMethodId(TO_STRING,
+              Lists.<JType>create(), MethodKind.INSTANCE_VIRTUAL, jls);
           assert session != null;
           JMethodCall toString = new JMethodCall(sourceInfo,
               appendRhs,
               stringBuilder,
               stringBuilderToString,
-              jls,
-              stringBuilderToString.canBeVirtual());
+              stringBuilderToString.getMethodIdWide().canBeVirtual());
 
           tr.append(new Replace(binary, toString));
         }
@@ -245,14 +244,13 @@ public class ConcatRemover implements RunnableSchedulable<JMethod> {
     }
 
     JClassOrInterface stringBuilder = getStringBuilder();
-    JMethodIdWide stringBuilderAppend =
-        stringBuilder.getOrCreateMethodIdWide(APPEND_METHOD_NAME, Lists.create(appendArgType),
-        MethodKind.INSTANCE_VIRTUAL);
+    JMethodId stringBuilderAppend =
+        stringBuilder.getOrCreateMethodId(APPEND_METHOD_NAME, Lists.create(appendArgType),
+        MethodKind.INSTANCE_VIRTUAL, stringBuilder);
     JMethodCall call = new JMethodCall(sourceInfo,
         stringBuilderInstance,
         stringBuilder,
         stringBuilderAppend,
-        stringBuilder,
         true /* isVirtualDispatch */);
     call.addArg(toAppend);
     return call;

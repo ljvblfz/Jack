@@ -48,21 +48,20 @@ public class JMethodCall extends JAbstractMethodCall {
    * forces the caller to potentially deal with cloning objects if needed.
    */
   public JMethodCall(@Nonnull JMethodCall other, @CheckForNull JExpression instance) {
-    super(other.getSourceInfo(), instance, other.getReceiverType(), other.getMethodId(),
-        other.getType());
+    super(other.getSourceInfo(), instance, other.getReceiverType(), other.getMethodIdNotWide());
     dispatchKind = other.getDispatchKind();
     assert other.getReceiverType() == null || !JPolymorphicMethodCall
-        .isCallToPolymorphicMethod(other.getReceiverType(), other.getMethodId(), other.getType());
+        .isCallToPolymorphicMethod(other.getReceiverType(), other.getMethodIdNotWide());
   }
 
   public JMethodCall(@Nonnull SourceInfo info, @CheckForNull JExpression instance,
-      @Nonnull JClassOrInterface receiverType, @Nonnull JMethodIdWide methodId,
-      @Nonnull JType returnType, boolean isVirtualDispatch) {
-    super(info, instance, receiverType, methodId, returnType);
+      @Nonnull JClassOrInterface receiverType, @Nonnull JMethodId methodId,
+      boolean isVirtualDispatch) {
+    super(info, instance, receiverType, methodId);
     assert methodId != null;
     assert receiverType == null
-        || !JPolymorphicMethodCall.isCallToPolymorphicMethod(receiverType, methodId, returnType);
-    assert (!isVirtualDispatch) || methodId.getKind() == MethodKind.INSTANCE_VIRTUAL;
+        || !JPolymorphicMethodCall.isCallToPolymorphicMethod(receiverType, methodId);
+    assert (!isVirtualDispatch) || getMethodId().getKind() == MethodKind.INSTANCE_VIRTUAL;
     this.dispatchKind = isVirtualDispatch ? DispatchKind.VIRTUAL : DispatchKind.DIRECT;
   }
 
@@ -93,6 +92,6 @@ public class JMethodCall extends JAbstractMethodCall {
 
   @Override
   public boolean isCallToPolymorphicMethod() {
-    return isCallToPolymorphicMethod(getReceiverType(), getMethodId(), getType());
+    return isCallToPolymorphicMethod(getReceiverType(), getMethodIdNotWide());
   }
 }

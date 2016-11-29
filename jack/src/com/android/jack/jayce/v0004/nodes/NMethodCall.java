@@ -21,7 +21,7 @@ import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodCall.DispatchKind;
-import com.android.jack.ir.ast.JMethodIdWide;
+import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.ir.ast.MethodKind;
@@ -120,11 +120,11 @@ public class NMethodCall extends NExpression {
     } else {
       jReceiverType = exportSession.getLookup().getInterface(receiverType);
     }
-    JMethodIdWide methodId = jReceiverType.getOrCreateMethodIdWide(methodName,
-        exportSession.getTypeListFromSignatureList(methodArgsType), methodKind);
     JType jReturnType = exportSession.getLookup().getType(returnType);
+    JMethodId methodId = jReceiverType.getOrCreateMethodId(methodName,
+        exportSession.getTypeListFromSignatureList(methodArgsType), methodKind, jReturnType);
     JMethodCall jMethodCall = new JMethodCall(sourceInfo, jInstance, jReceiverType, methodId,
-        jReturnType, dispatchKind == DispatchKind.VIRTUAL /* isVirtualDispatch */);
+        dispatchKind == DispatchKind.VIRTUAL /* isVirtualDispatch */);
     for (NExpression arg : args) {
       jMethodCall.addArg(arg.exportAsJast(exportSession));
     }

@@ -28,6 +28,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JNewInstance;
 import com.android.jack.ir.ast.JPrefixNotOperation;
+import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JThrowStatement;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
@@ -105,10 +106,9 @@ public class EnabledAssertionTransformer implements RunnableSchedulable<JMethod>
         ctorDescriptor.add(jlo);
       }
 
-      JNewInstance newAssertionError = new JNewInstance(assertSt.getSourceInfo(),
-          assertionError,
-          assertionError.getOrCreateMethodIdWide(NamingTools.INIT_NAME, ctorDescriptor,
-              MethodKind.INSTANCE_NON_VIRTUAL));
+      JNewInstance newAssertionError = new JNewInstance(assertSt.getSourceInfo(), assertionError,
+          assertionError.getOrCreateMethodId(NamingTools.INIT_NAME, ctorDescriptor,
+              MethodKind.INSTANCE_NON_VIRTUAL, JPrimitiveTypeEnum.VOID.getType()));
 
       if (arg != null) {
         newAssertionError.addArg(arg);

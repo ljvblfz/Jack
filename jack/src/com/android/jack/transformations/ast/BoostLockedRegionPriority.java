@@ -24,7 +24,7 @@ import com.android.jack.ir.ast.JExpressionStatement;
 import com.android.jack.ir.ast.JLock;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
-import com.android.jack.ir.ast.JMethodIdWide;
+import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JStatementList;
@@ -111,8 +111,8 @@ public class BoostLockedRegionPriority implements RunnableSchedulable<JMethod> {
   @CheckForNull private final JClass lockClass;
   @CheckForNull private final JClass requestClass;
   @CheckForNull private final JClass resetClass;
-  @CheckForNull private final JMethodIdWide requestMethodId;
-  @CheckForNull private final JMethodIdWide resetMethodId;
+  @CheckForNull private final JMethodId requestMethodId;
+  @CheckForNull private final JMethodId resetMethodId;
   @Nonnull private final Filter<JMethod> filter = ThreadConfig.get(Options.METHOD_FILTER);
 
   public BoostLockedRegionPriority() {
@@ -162,10 +162,11 @@ public class BoostLockedRegionPriority implements RunnableSchedulable<JMethod> {
     }
   }
 
-  private static JMethodIdWide getStaticMethodOrReportFailure(
+  private static JMethodId getStaticMethodOrReportFailure(
       JClass cls, String name, String prop) {
     try {
-      return cls.getMethodIdWide(name, Collections.<JType>emptyList(), MethodKind.STATIC);
+      return cls.getMethodId(name, Collections.<JType>emptyList(), MethodKind.STATIC,
+          JPrimitiveTypeEnum.VOID.getType());
     } catch (Throwable e) {
       Jack.getSession()
           .getReporter()
@@ -240,16 +241,14 @@ public class BoostLockedRegionPriority implements RunnableSchedulable<JMethod> {
       return new JExpressionStatement(
           info,
           new JMethodCall(
-              info, null, requestClass, requestMethodId, JPrimitiveTypeEnum.VOID.getType(), false));
+              info, null, requestClass, requestMethodId, false));
     }
 
     @Nonnull
     private JExpressionStatement makeResetCall(SourceInfo info) {
       assert lockClass != null && resetClass != null && resetMethodId != null;
-      return new JExpressionStatement(
-          info,
-          new JMethodCall(
-              info, null, resetClass, resetMethodId, JPrimitiveTypeEnum.VOID.getType(), false));
+      return new JExpressionStatement(info,
+          new JMethodCall(info, null, resetClass, resetMethodId, false));
     }
   }
 
