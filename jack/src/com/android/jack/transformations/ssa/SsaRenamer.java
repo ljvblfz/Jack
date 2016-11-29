@@ -309,6 +309,7 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
         }
         index = SsaUtil.getLocalIndex(method, cfg, target);
         nextSsaReg[index]++;
+        // It is probably ok to not have any debug marker here.
         JSsaVariableRef lhs =
             new JSsaVariableRef(phi.getSourceInfo(), target, nextSsaReg[index], phi, true);
         TransformationRequest tr = new TransformationRequest(phi);
@@ -336,6 +337,7 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
         nextSsaReg[index]++;
         JSsaVariableRef ref =
             new JSsaVariableRef(dv.getSourceInfo(), ropReg, nextSsaReg[index], insn, true);
+        ref.addAllMarkers(dv.getAllMarkers());
         TransformationRequest tr = new TransformationRequest(method);
         tr.append(new Replace(dv, ref));
         tr.commit();
@@ -358,6 +360,7 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
             System.out.println("this is not good for business");
           }
           JSsaVariableRef ref = currentMapping[index].makeRef(varRef.getSourceInfo());
+          ref.addAllMarkers(varRef.getAllMarkers());
           tr.append(new Replace(varRef, ref));
         }
         tr.commit();
@@ -388,9 +391,9 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
               JSsaVariableRef stackTop = currentMapping[ropReg];
               if (!isVersionZeroRegister(stackTop)) {
                 TransformationRequest tr = new TransformationRequest(phi);
-                int idx = successor.getPredecessors().indexOf(block);
                 JSsaVariableRef rhs = stackTop.makeRef(phi.getSourceInfo());
-                tr.append(new Replace(phi.getRhs(idx), rhs));
+                rhs.addAllMarkers(phi.getRhs(block).getAllMarkers());
+                tr.append(new Replace(phi.getRhs(block), rhs));
                 tr.commit();
               }
             }

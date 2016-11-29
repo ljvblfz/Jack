@@ -152,12 +152,11 @@ public final class PhiInsn extends SsaInsn {
    */
   public void resolveOperandBlockIndex(Map<Integer, Integer> labelToIndex) {
     for (Operand o : operands) {
-      @SuppressWarnings("boxing")
-      Integer index = labelToIndex.get(o.ropLabel);
-      o.blockIndex = index.intValue(); 
+      Integer index = labelToIndex.get(Integer.valueOf(o.ropLabel));
+      o.blockIndex = index.intValue();
     }
   }
-  
+
   /**
    * Removes all operand uses of a register from this phi instruction.
    *

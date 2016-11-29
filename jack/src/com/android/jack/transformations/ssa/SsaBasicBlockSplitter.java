@@ -16,6 +16,8 @@
 
 package com.android.jack.transformations.ssa;
 
+import com.google.common.collect.Lists;
+
 import com.android.jack.ir.ast.cfg.JBasicBlock;
 import com.android.jack.ir.ast.cfg.JBasicBlockElement;
 import com.android.jack.ir.ast.cfg.JCaseBasicBlock;
@@ -23,6 +25,7 @@ import com.android.jack.ir.ast.cfg.JCatchBasicBlock;
 import com.android.jack.ir.ast.cfg.JControlFlowGraph;
 import com.android.jack.ir.ast.cfg.JEntryBasicBlock;
 import com.android.jack.ir.ast.cfg.JExitBasicBlock;
+import com.android.jack.ir.ast.cfg.JSimpleBasicBlock;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
@@ -37,7 +40,8 @@ import javax.annotation.Nonnull;
  */
 @Description("Split basic blocks for Phi element insertion.")
 @Name("SsaBasicBlockSplitter")
-@Transform(add = {SsaBasicBlockSplitterMarker.class}, modify = {JControlFlowGraph.class})
+@Transform(add = {SsaBasicBlockSplitterMarker.class},
+    modify = {JControlFlowGraph.class})
 @Filter(TypeWithoutPrebuiltFilter.class)
 public class SsaBasicBlockSplitter implements RunnableSchedulable<JControlFlowGraph> {
 
@@ -90,7 +94,6 @@ public class SsaBasicBlockSplitter implements RunnableSchedulable<JControlFlowGr
   }
 
   private static void edgeSplitMoveExceptionsAndResults(JControlFlowGraph cfg) {
-
     /*
      * New blocks are added to the end of the block list during this iteration.
      */
@@ -99,9 +102,9 @@ public class SsaBasicBlockSplitter implements RunnableSchedulable<JControlFlowGr
        * Any block that starts with a move-exception and has more than one predecessor...
        */
       if (!(block instanceof JExitBasicBlock) && block.getPredecessorCount() > 1
-          && block instanceof JCatchBasicBlock) {
-        for (JBasicBlock predecssor : block.getPredecessors()) {
-          predecssor.split(0);
+          && (block instanceof JCatchBasicBlock)) {
+        for (JBasicBlock predecessor : Lists.newArrayList(block.getPredecessors())) {
+          insertNewSimpleSuccessor(predecessor, block);
         }
       }
     }
@@ -119,10 +122,13 @@ public class SsaBasicBlockSplitter implements RunnableSchedulable<JControlFlowGr
       // Successors list is modified in loop below.
       for (JBasicBlock succ : block.getSuccessors()) {
         if (needsNewSuccessor(block, succ)) {
+          // These two type of basic block requires special case handling. Otherwise, we might
+          // up with an IR that is very difficult to understand. Please refer to the design for
+          // detail information.
           if (succ instanceof JCatchBasicBlock || succ instanceof JCaseBasicBlock) {
             block.split(-1);
           } else {
-            succ.split(0);
+            insertNewSimpleSuccessor(block, succ);
           }
         }
       }
@@ -152,5 +158,13 @@ public class SsaBasicBlockSplitter implements RunnableSchedulable<JControlFlowGr
     int uvCount = SsaUtil.getUsedVariables(lastInsn).size();
     int dvCount = SsaUtil.getDefinedVariable(lastInsn) == null ? 0 : 1;
     return (uvCount + dvCount > 0) && succ.getPredecessorCount() > 1;
+  }
+
+  /**
+   * Insert a new successor between a block and one of its successor.
+   */
+  private static void insertNewSimpleSuccessor(JBasicBlock block, JBasicBlock other) {
+    JSimpleBasicBlock newSucc = new JSimpleBasicBlock(block.getCfg(), other);
+    block.replaceAllSuccessors(other, newSucc);
   }
 }

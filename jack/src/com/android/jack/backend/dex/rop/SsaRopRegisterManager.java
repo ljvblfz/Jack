@@ -161,6 +161,7 @@ class SsaRopRegisterManager {
     return regNum;
   }
 
+  @Nonnull
   RegisterSpec getOrCreateRegisterSpec(@Nonnull JParameter param) {
     return getOrCreateRegisterSpec(
         new JSsaVariableRef(param.getSourceInfo(), param, 0, null, true));
@@ -182,6 +183,24 @@ class SsaRopRegisterManager {
     JVariable variable = varRef.getTarget();
     RegisterSpec register = getRegisterSpec(getRegisterNumber(varRef), variable,
         varRef.getMarker(DebugVariableInfoMarker.class));
+
+    assert RopHelper.areTypeCompatible(
+        RopHelper.convertTypeToDx(varRef.getType()),
+        register.getType());
+
+    return register;
+  }
+
+  @Nonnull
+  RegisterSpec getOrCreateRegisterSpec(@Nonnull JSsaVariableRef varRef,
+      @CheckForNull LocalItem localItem) {
+    if (varRef.getTarget() instanceof JThis) {
+      assert thisReg != null : "This register was not created.";
+      return (thisReg);
+    }
+
+    JVariable variable = varRef.getTarget();
+    RegisterSpec register = getRegisterSpec(getRegisterNumber(varRef), variable, localItem);
 
     assert RopHelper.areTypeCompatible(
         RopHelper.convertTypeToDx(varRef.getType()),
@@ -226,6 +245,17 @@ class SsaRopRegisterManager {
     }
 
     return (reg);
+  }
+
+  @Nonnull
+  private RegisterSpec getRegisterSpec(@Nonnegative int regNum, @Nonnull JVariable variable,
+      @Nonnull LocalItem localItem) {
+    RegisterSpec reg;
+    JType variableType = variable.getType();
+    Type regType = RopHelper.convertTypeToDx(variableType);
+    reg = RegisterSpec.make(regNum, regType, localItem);
+    count++;
+    return reg;
   }
 
   /**

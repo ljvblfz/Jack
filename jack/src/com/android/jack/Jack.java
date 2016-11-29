@@ -146,6 +146,7 @@ import com.android.jack.optimizations.common.DirectlyDerivedClassesProvider;
 import com.android.jack.optimizations.modifiers.ClassFinalizer;
 import com.android.jack.optimizations.modifiers.FieldFinalizer;
 import com.android.jack.optimizations.modifiers.MethodFinalizer;
+import com.android.jack.optimizations.ssa.CopyPropagation;
 import com.android.jack.optimizations.tailrecursion.TailRecursionOptimization;
 import com.android.jack.optimizations.tailrecursion.TailRecursionOptimizer;
 import com.android.jack.optimizations.valuepropagation.argument.AvpCalculateTaintedMethods;
@@ -1786,6 +1787,7 @@ public abstract class Jack {
       cfgPlan.append(JPhiElementInsertion.class);
       cfgPlan.append(SsaRenamer.class);
       cfgPlan.append(OptimizeJPhiElements.class);
+      cfgPlan.append(CopyPropagation.class);
     }
 
     {

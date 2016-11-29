@@ -127,8 +127,8 @@ public class JPhiElementInsertion implements RunnableSchedulable<JControlFlowGra
 
             JVariable target = SsaUtil.getVariableByIndex(method, cfg, reg);
 
-            JPhiBlockElement phi = new JPhiBlockElement(target,
-                dfBlock.getPredecessors().size(), method.getSourceInfo());
+            JPhiBlockElement phi =
+                new JPhiBlockElement(target, dfBlock.getPredecessors(), method.getSourceInfo());
             dfBlock.insertElement(0, phi);
 
             if (!defsites[reg].get(dfBlockIndex)) {

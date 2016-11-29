@@ -18,6 +18,7 @@ package com.android.jack.ir.ast;
 
 import com.android.jack.ir.ast.cfg.JBasicBlockElement;
 import com.android.jack.ir.ast.cfg.JPhiBlockElement;
+import com.android.jack.ir.ast.cfg.JVariableAsgBlockElement;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
@@ -47,8 +48,10 @@ public class JSsaVariableRef extends JVariableRef {
   @Nonnegative
   private final int version;
 
+  @Nonnull
   private final JBasicBlockElement def;
 
+  @Nonnull
   private final List<JSsaVariableRef> uses = new ArrayList<>();
 
   /**
@@ -58,7 +61,7 @@ public class JSsaVariableRef extends JVariableRef {
    * @Param version The version number of the variable if it is renamed.
    */
   public JSsaVariableRef(@Nonnull SourceInfo info, @Nonnull JVariable target,
-      @Nonnegative int version, JBasicBlockElement def, boolean isDef) {
+      @Nonnegative int version, @Nonnull JBasicBlockElement def, boolean isDef) {
     super(info, target);
     this.version = version;
     this.def = def;
@@ -80,16 +83,15 @@ public class JSsaVariableRef extends JVariableRef {
     return !uses.isEmpty();
   }
 
+  /**
+   * @return true if it is used in a Phi element.
+   */
   public boolean isPhiUse() {
     if (isDef) {
       return false;
     }
     JNode parent = getParent();
-    if (parent instanceof JPhiBlockElement) {
-      return true;
-    } else {
-      return false;
-    }
+    return parent instanceof JPhiBlockElement;
   }
 
   public boolean hasUsesOutsideOfPhis() {
@@ -115,8 +117,20 @@ public class JSsaVariableRef extends JVariableRef {
     visitor.endVisit(this);
   }
 
+  @Nonnull
   public List<JSsaVariableRef> getUses() {
     return uses;
+  }
+
+  @Nonnull
+  public JSsaVariableRef getDef() {
+    if (def instanceof JPhiBlockElement) {
+      JPhiBlockElement phi = (JPhiBlockElement) def;
+      return phi.getLhs();
+    } else {
+      JVariableAsgBlockElement assign = (JVariableAsgBlockElement) def;
+      return (JSsaVariableRef) assign.getAssignment().getLhs();
+    }
   }
 
   /**

@@ -882,6 +882,11 @@ public final class SsaMethod {
    */
   public void setBlocks(ArrayList<SsaBasicBlock> blocks) {
     this.blocks = blocks;
+    for (SsaBasicBlock b : blocks) {
+      if (b.getRopLabel() >= maxLabel) {
+        maxLabel = b.getRopLabel() + 1;
+      }
+    }
   }
 
   /**
@@ -891,6 +896,14 @@ public final class SsaMethod {
    */
   public void setRegisterCount(int count) {
     this.registerCount = count;
+  }
+
+  public void setEntryBlockIndex(int entryBlockIndex) {
+    this.entryBlockIndex = entryBlockIndex;
+  }
+
+  public void setMaxLabel(int maxLabel) {
+    this.maxLabel = maxLabel;
   }
 
   /**

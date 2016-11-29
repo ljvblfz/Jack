@@ -16,7 +16,7 @@
 
 package com.android.jack.ir.ast.cfg;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JSsaVariableRef;
@@ -29,8 +29,8 @@ import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 
 import java.util.List;
+import java.util.Map;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -45,7 +45,7 @@ public class JPhiBlockElement extends JBasicBlockElement {
   private JSsaVariableRef lhs;
 
   @Nonnull
-  private final List<JSsaVariableRef> rhs;
+  private final Map<JBasicBlock, JSsaVariableRef> rhs;
 
   /**
    * Creates a new Phi statement.
@@ -53,14 +53,14 @@ public class JPhiBlockElement extends JBasicBlockElement {
    * @param var The original variable.
    * @param numPred Number of predecesssors of this Phi statement.
    */
-  public JPhiBlockElement(JVariable var, int numPred, SourceInfo info) {
+  public JPhiBlockElement(JVariable var, List<JBasicBlock> preds, SourceInfo info) {
     // Phi instructions are not real instructions and should not throw any exception.
     super(info, ExceptionHandlingContext.EMPTY);
-    rhs = Lists.newArrayListWithCapacity(numPred);
-    for (int i = 0; i < numPred; i++) {
+    rhs = Maps.newHashMap();
+    for (JBasicBlock pred : preds) {
       // We are going to insert a place holder first. The SSA renamer will replace the var ref
       // with a proper version.
-      rhs.add(new JSsaVariableRef(info, var, 0, this, true));
+      rhs.put(pred, new JSsaVariableRef(info, var, 0, this, true));
     }
     lhs = new JSsaVariableRef(info, var, 0, this, false);
     this.var = var;
@@ -71,7 +71,7 @@ public class JPhiBlockElement extends JBasicBlockElement {
   public void traverse(@Nonnull JVisitor visitor) {
     if (visitor.visit(this)) {
       visitor.accept(lhs);
-      for (JSsaVariableRef rhsVar : rhs) {
+      for (JSsaVariableRef rhsVar : rhs.values()) {
         if (rhsVar == null) {
           throw new RuntimeException("this can't be that good for business");
         }
@@ -85,7 +85,7 @@ public class JPhiBlockElement extends JBasicBlockElement {
   public void traverse(@Nonnull ScheduleInstance<? super Component> schedule) throws Exception {
     schedule.process(this);
     lhs.traverse(schedule);
-    for (JSsaVariableRef var : rhs) {
+    for (JSsaVariableRef var : rhs.values()) {
       var.traverse(schedule);
     }
   }
@@ -104,14 +104,12 @@ public class JPhiBlockElement extends JBasicBlockElement {
       return;
     }
 
-    for (int i = 0; i < rhs.size(); i++) {
-      JSsaVariableRef var = rhs.get(i);
-      if (var == existingNode) {
-        rhs.set(i, (JSsaVariableRef) newNode);
+    for (JBasicBlock pred : rhs.keySet()) {
+      if (rhs.get(pred) == existingNode) {
+        rhs.put(pred, (JSsaVariableRef) newNode);
         return;
       }
     }
-
     super.replaceImpl(existingNode, newNode);
   }
 
@@ -127,12 +125,14 @@ public class JPhiBlockElement extends JBasicBlockElement {
 
   @Nonnull
   public Iterable<JSsaVariableRef> getRhs() {
-    return rhs;
+    return rhs.values();
   }
 
   @Nonnull
-  public JSsaVariableRef getRhs(@Nonnegative int index) {
-    return rhs.get(index);
+  public JSsaVariableRef getRhs(@Nonnull JBasicBlock pred) {
+    JSsaVariableRef ref = rhs.get(pred);
+    assert ref != null;
+    return ref;
   }
 
   @Override

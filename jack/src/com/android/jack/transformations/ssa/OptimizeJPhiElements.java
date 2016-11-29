@@ -16,6 +16,7 @@
 
 package com.android.jack.transformations.ssa;
 
+import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JSsaVariableRef;
 import com.android.jack.ir.ast.cfg.JBasicBlock;
 import com.android.jack.ir.ast.cfg.JBasicBlockElement;
@@ -23,12 +24,14 @@ import com.android.jack.ir.ast.cfg.JControlFlowGraph;
 import com.android.jack.ir.ast.cfg.JPhiBlockElement;
 import com.android.jack.ir.ast.cfg.JRegularBasicBlock;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
+import com.android.jack.transformations.request.Replace;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
+import com.android.sched.transform.TransformRequest;
 
 /**
  * Remove unnecessary Phi nodes.
@@ -36,7 +39,7 @@ import com.android.sched.schedulable.Transform;
 @Description("OptimizeJPhiElements")
 @Name("OptimizeJPhiElements")
 @Constraint(need = {JPhiBlockElement.class, JSsaVariableRef.class})
-@Transform(modify = {JPhiBlockElement.class, JSsaVariableRef.class})
+@Transform(modify = {JControlFlowGraph.class})
 @Filter(TypeWithoutPrebuiltFilter.class)
 public class OptimizeJPhiElements implements RunnableSchedulable<JControlFlowGraph> {
   @Override
@@ -45,11 +48,27 @@ public class OptimizeJPhiElements implements RunnableSchedulable<JControlFlowGra
       for (JBasicBlockElement e : bb.getElements(true)) {
         if (e instanceof JPhiBlockElement) {
           JPhiBlockElement phi = (JPhiBlockElement) e;
+          // First remove it if it is redundant.
           if (phi.getLhs().getUses().isEmpty()) {
             ((JRegularBasicBlock) bb).removeElement(e);
+            continue;
           }
+          pruneUnreachableDef(phi);
         }
       }
     }
+  }
+
+  private void pruneUnreachableDef(JPhiBlockElement phi) {
+    if (phi.getLhs().getTarget() instanceof JParameter) {
+      return;
+    }
+    TransformRequest tr = new TransformRequest();
+    for (JSsaVariableRef rhs : phi.getRhs()) {
+      if (rhs.getVersion() == 0) {
+        tr.append(new Replace(rhs, phi.getLhs().makeRef(rhs.getSourceInfo())));
+      }
+    }
+    tr.commit();
   }
 }

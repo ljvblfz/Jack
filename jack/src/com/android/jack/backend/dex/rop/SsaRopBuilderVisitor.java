@@ -162,6 +162,8 @@ class SsaRopBuilderVisitor extends JVisitor {
 
   private class AssignBuilderVisitor extends JVisitor {
     @Nonnull
+    private final JSsaVariableRef destRef;
+    @Nonnull
     private final RegisterSpec destReg;
     @Nonnull
     private final SourcePosition sourcePosition;
@@ -169,6 +171,7 @@ class SsaRopBuilderVisitor extends JVisitor {
     public AssignBuilderVisitor(
         @Nonnull SourcePosition sourcePosition,
         @Nonnull JSsaVariableRef destRef) {
+      this.destRef = destRef;
       this.destReg = ropReg.getOrCreateRegisterSpec(destRef);
       this.sourcePosition = sourcePosition;
     }
@@ -267,8 +270,14 @@ class SsaRopBuilderVisitor extends JVisitor {
     public boolean visit(@Nonnull JSsaVariableRef varRef) {
       RegisterSpec valueReg = ropReg.getOrCreateRegisterSpec(varRef);
       RegisterSpecList sources = RegisterSpecList.make(valueReg);
-      addInstruction(
-          new PlainInsn(Rops.opMove(valueReg.getTypeBearer()), sourcePosition, destReg, sources));
+      RegisterSpec copyDestReg;
+      if (destReg.getLocalItem() == null && valueReg.getLocalItem() != null) {
+        copyDestReg = ropReg.getOrCreateRegisterSpec(destRef, valueReg.getLocalItem());
+      } else {
+        copyDestReg = destReg;
+      }
+      addInstruction(new PlainInsn(Rops.opMove(valueReg.getTypeBearer()), sourcePosition,
+          copyDestReg, sources));
       return false;
     }
 
@@ -456,14 +465,14 @@ class SsaRopBuilderVisitor extends JVisitor {
     RegisterSpec result = ropReg.getOrCreateRegisterSpec(phi.getLhs());
 
     PhiInsn phiInsn = new PhiInsn(result, ssaBb);
-    for (int i = 0; i < currentBasicBlock.getPredecessors().size(); i++) {
-      Integer predLabel = labelMap.get(currentBasicBlock.getPredecessors().get(i));
+    for (JBasicBlock pred : currentBasicBlock.getPredecessors()) {
+      Integer predLabel = labelMap.get(pred);
       assert predLabel != null;
 
       // Because we don't know the predIndex until the whole CFG is traversed, we are going to
       // set the predIndex at the very end instead.
-      phiInsn.addPhiOperand(ropReg.getOrCreateRegisterSpec(phi.getRhs(i)),
-          -1 /* predIndex */, predLabel.intValue());
+      phiInsn.addPhiOperand(ropReg.getOrCreateRegisterSpec(phi.getRhs(pred)),
+          predLabel.intValue(), predLabel.intValue());
     }
     addInstruction(phiInsn);
     return false;
@@ -1387,6 +1396,11 @@ class SsaRopBuilderVisitor extends JVisitor {
     List<JType> catchTypes = new ArrayList<JType>();
 
     for (JBasicBlock bb : block.getCatchBlocks()) {
+      if (!(bb instanceof JCatchBasicBlock)) {
+        // We must have either some Phi nodes here or just empty gotos.
+        assert bb.getSuccessors().size() == 1;
+        bb = bb.getSuccessors().get(0);
+      }
       for (JClass catchType : ((JCatchBasicBlock) bb).getCatchTypes()) {
         catchTypes.add(catchType);
       }

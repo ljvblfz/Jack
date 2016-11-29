@@ -236,8 +236,11 @@ public class SsaCodeItemBuilder implements RunnableSchedulable<JMethod> {
       initBb.setSuccessors(
           IntList.makeImmutable(ropBb.getSpecialLabel(SsaRopBasicBlockManager.PARAM_ASSIGNMENT)),
           ropBb.getSpecialLabel(SsaRopBasicBlockManager.PARAM_ASSIGNMENT));
-      initBb.setInsns(Lists.<SsaInsn>newArrayList());
-      initBb.setRopLabel(blockId + 2);
+      List<SsaInsn> insns = Lists.newArrayList();
+      insns.add(new NormalSsaInsn(
+          new PlainInsn(Rops.GOTO, SourcePosition.NO_INFO, null, RegisterSpecList.EMPTY), initBb));
+      initBb.setInsns(insns);
+      initBb.setRopLabel(ropBb.getSpecialLabel(SsaRopBasicBlockManager.SSA_INIT));
 
       addSetupBlocks(method, ropReg, ropBb, firstJackBlockIndex);
 
@@ -407,6 +410,11 @@ public class SsaCodeItemBuilder implements RunnableSchedulable<JMethod> {
               @Nonnull List<JBasicBlock> catchBlocks,
               @Nonnull IntList successors) {
             for (JBasicBlock catchBlock : catchBlocks) {
+              if (!(catchBlock instanceof JCatchBasicBlock)) {
+                // We must have either some Phi nodes here or just empty gotos.
+                assert catchBlock.getSuccessors().size() == 1;
+                catchBlock = catchBlock.getSuccessors().get(0);
+              }
               int catchTypeCount = 0;
               int catchTypesSize = ((JCatchBasicBlock) catchBlock).getCatchTypes().size();
               while (catchTypeCount++ < catchTypesSize) {
@@ -424,6 +432,7 @@ public class SsaCodeItemBuilder implements RunnableSchedulable<JMethod> {
       }
 
       ssaMethod.setBlocks(ropBb.computeSsaBasicBlockList());
+      ssaMethod.setEntryBlockIndex(initBb.getIndex());
       ssaMethod.setRegisterCount(ropReg.getRegisterCount());
       ssaMethod.makeExitBlock();
 

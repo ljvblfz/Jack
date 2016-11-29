@@ -36,6 +36,8 @@ class SsaRopBasicBlockManager {
   static final int PARAM_ASSIGNMENT = -1;
   /** label offset for the return block */
   static final int RETURN = -2;
+  /** Reserved for SSA init */
+  static final int SSA_INIT = -3;
   /** number of special label offsets */
   static final int SPECIAL_LABEL_COUNT = 7;
   /** max label (exclusive) of any original code block */
