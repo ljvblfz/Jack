@@ -131,8 +131,8 @@ public class Tracer extends JVisitor {
     return m instanceof JConstructor && m.getParams().isEmpty();
   }
 
-  private void traceImplementation(
-      @Nonnull JDefinedClass extendingOrImplementingClass, @Nonnull JClassOrInterface superClOrI) {
+  private void traceImplementation(@Nonnull JDefinedClassOrInterface extendingOrImplementingClOrI,
+      @Nonnull JClassOrInterface superClOrI) {
     if (superClOrI instanceof JDefinedClassOrInterface) {
       JDefinedClassOrInterface definedSuperClOrI = (JDefinedClassOrInterface) superClOrI;
       for (JMethod method : definedSuperClOrI.getMethods()) {
@@ -140,7 +140,7 @@ public class Tracer extends JVisitor {
           JMethodIdWide methodId = method.getMethodIdWide();
           JType returnType = method.getType();
           JMethod implementation =
-              findImplementation(methodId, returnType, extendingOrImplementingClass);
+              findImplementation(methodId, returnType, extendingOrImplementingClOrI);
           // method was already marked, if implementation is the same, no need to re-trace it, and
           // no need to mark implementation in subtypes. It was already done when the method
           // was marked the first time, and for further subtypes that will be marked later,
@@ -155,10 +155,10 @@ public class Tracer extends JVisitor {
 
       JClass superClass = definedSuperClOrI.getSuperClass();
       if (superClass != null) {
-        traceImplementation(extendingOrImplementingClass, superClass);
+        traceImplementation(extendingOrImplementingClOrI, superClass);
       }
       for (JInterface i : definedSuperClOrI.getImplements()) {
-        traceImplementation(extendingOrImplementingClass, i);
+        traceImplementation(extendingOrImplementingClOrI, i);
       }
     }
   }
@@ -167,16 +167,16 @@ public class Tracer extends JVisitor {
     if (brush.startTrace(t)) {
       traceAnnotations(t);
 
+      for (JInterface i : t.getImplements()) {
+        traceImplementation(t, i);
+      }
+
       if (t instanceof JDefinedClass) {
         JDefinedClass definedClass = (JDefinedClass) t;
         JClass superClass = definedClass.getSuperClass();
 
         if (superClass != null) {
           traceImplementation(definedClass, superClass);
-        }
-
-        for (JInterface i : definedClass.getImplements()) {
-          traceImplementation(definedClass, i);
         }
 
 
@@ -426,18 +426,38 @@ public class Tracer extends JVisitor {
   }
 
   @CheckForNull
-  private JMethod findImplementation(
-      @Nonnull JMethodIdWide methodId, @Nonnull JType returnType,
-      @Nonnull JDefinedClass receiverType) {
-    JClass currentType = receiverType;
+  private JMethod findImplementation(@Nonnull JMethodIdWide methodId, @Nonnull JType returnType,
+      @Nonnull JDefinedClassOrInterface receiverType) {
+    JMethod foundMethod = findMethod(methodId, receiverType, returnType);
+    if (foundMethod != null) {
+      return foundMethod;
+    }
+
+    JClass currentType = receiverType.getSuperClass();
     while (currentType instanceof JDefinedClass) {
-      JMethod foundMethod = findMethod(methodId, currentType, returnType);
+      foundMethod = findMethod(methodId, currentType, returnType);
       if (foundMethod != null) {
         return foundMethod;
       }
       currentType = ((JDefinedClass) currentType).getSuperClass();
     }
 
+    foundMethod = findImplementationInInterfaces(methodId, returnType, receiverType);
+
+    return foundMethod;
+  }
+
+  @CheckForNull
+  private JMethod findImplementationInInterfaces(@Nonnull JMethodIdWide methodId,
+      @Nonnull JType returnType, @Nonnull JDefinedClassOrInterface receiverType) {
+    for (JInterface interfaze : receiverType.getImplements()) {
+      JMethod foundMethod = findMethod(methodId, interfaze, returnType);
+      if (foundMethod != null) {
+        return foundMethod;
+      } else if (interfaze instanceof JDefinedClassOrInterface) {
+        findImplementationInInterfaces(methodId, returnType, (JDefinedClassOrInterface) interfaze);
+      }
+    }
     return null;
   }
 
