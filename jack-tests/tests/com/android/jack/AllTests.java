@@ -2,6 +2,7 @@ package com.android.jack;
 
 import com.android.jack.analysis.dfa.reachingdefs.ReachingDefsTests;
 import com.android.jack.annotation.AnnotationTests;
+import com.android.jack.annotation.bridge.BridgeAnnotationsTests;
 import com.android.jack.annotation.processor.AnnotationProcessorTests;
 import com.android.jack.arithmetic.ArithmeticTests;
 import com.android.jack.array.ArrayTests;
@@ -96,6 +97,7 @@ import org.junit.runners.Suite.SuiteClasses;
     BoostLockedRegionPriorityTests.class,
     BoxTests.class,
     BridgeTests.class,
+    BridgeAnnotationsTests.class,
     CastAllTests.class,
     ClasspathTests.class,
     ClinitTests.class,
