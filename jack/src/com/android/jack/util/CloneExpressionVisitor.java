@@ -33,6 +33,7 @@ import com.android.jack.ir.ast.JConcatOperation;
 import com.android.jack.ir.ast.JConditionalExpression;
 import com.android.jack.ir.ast.JDoubleLiteral;
 import com.android.jack.ir.ast.JDynamicCastOperation;
+import com.android.jack.ir.ast.JEnumLiteral;
 import com.android.jack.ir.ast.JExceptionRuntimeValue;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JFieldRef;
@@ -152,6 +153,13 @@ public class CloneExpressionVisitor extends JVisitor {
     expression =
         new JArrayRef(x.getSourceInfo(), cloneExpression(x.getInstance()), cloneExpression(x
             .getIndexExpr()));
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JEnumLiteral x) {
+    expression =
+        new JEnumLiteral(x.getSourceInfo(), x.getFieldId());
     return false;
   }
 
