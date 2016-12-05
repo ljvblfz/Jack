@@ -8,11 +8,13 @@ import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Access;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
@@ -29,6 +31,7 @@ import javax.annotation.Nonnull;
 @Use(LambdaInfoMarker.class)
 @Support(LambdaToAnonymousConverter.class)
 @Access(JDefinedClassOrInterface.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class LambdaConverter implements RunnableSchedulable<JMethod> {
   @Override
   public void run(@Nonnull JMethod method) {

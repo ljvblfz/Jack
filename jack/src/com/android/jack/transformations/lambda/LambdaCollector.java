@@ -22,9 +22,11 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.formatter.TypePackageAndMethodFormatter;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Access;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
@@ -37,6 +39,7 @@ import javax.annotation.Nonnull;
 @Transform(add = LambdaCollectionMarker.class)
 @Support(LambdaToAnonymousConverter.class)
 @Access(JSession.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class LambdaCollector implements RunnableSchedulable<JMethod> {
   @Nonnull
   private static final TypePackageAndMethodFormatter FORMATTER = Jack.getLookupFormatter();
