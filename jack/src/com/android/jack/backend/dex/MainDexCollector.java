@@ -51,8 +51,8 @@ import javax.annotation.Nonnull;
 public class MainDexCollector extends TypeReferenceCollector
   implements RunnableSchedulable<JDefinedClassOrInterface> {
 
-  private final boolean isShrinkEnabled =
-      ThreadConfig.get(Options.SHRINKING_ENABLED).booleanValue();
+  private final boolean isShrinkEnabled = ThreadConfig.get(Options.SHROB_ENABLED).booleanValue()
+      && ThreadConfig.get(Options.FLAGS).shrink();
 
   @Override
   protected void collect(@Nonnull JType type) {
