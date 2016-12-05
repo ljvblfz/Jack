@@ -68,6 +68,7 @@ import com.android.jack.backend.dex.MultiDex;
 import com.android.jack.backend.dex.MultiDexAnnotationsFinder;
 import com.android.jack.backend.dex.MultiDexLegacy;
 import com.android.jack.backend.dex.MultiDexWritingTool;
+import com.android.jack.backend.dex.OrphanDexFileWriter;
 import com.android.jack.backend.dex.annotations.DefaultValueAnnotationAdder;
 import com.android.jack.backend.dex.annotations.ReflectAnnotationsAdder;
 import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
@@ -805,7 +806,14 @@ public abstract class Jack {
           if (targetProduction.contains(JayceInLibraryProduct.class)) {
             planBuilder.append(LibraryMetaWriter.class);
           }
-
+          if (targetProduction.contains(JayceInLibraryProduct.class)
+              && targetProduction.contains(DexInLibraryProduct.class)) {
+            // Orphan dex files must only be copied into a Jack library when prebuilts are requested
+            // (DexInLibraryProduct). Jack must also check JayceInLibraryProduct to be sure that a
+            // Jack library is requested since DexInLibraryProduct is also used to generate an
+            // internal intermediate library that must not be take into account.
+            planBuilder.append(OrphanDexFileWriter.class);
+          }
           Plan<JSession> plan = null;
           try {
             try {

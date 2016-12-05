@@ -121,8 +121,9 @@ public abstract class DexWritingTool {
   @Nonnull
   private final AndroidApiLevel apiLevel = ThreadConfig.get(Options.ANDROID_MIN_API_LEVEL);
 
-  private final boolean usePrebuilts =
-      ThreadConfig.get(Options.USE_PREBUILT_FROM_LIBRARY).booleanValue();
+  protected final boolean usePrebuilts =
+            ThreadConfig.get(Options.USE_PREBUILT_FROM_LIBRARY).booleanValue();
+
 
   @Nonnull
   protected DexFile createDexFile() {
@@ -215,7 +216,10 @@ public abstract class DexWritingTool {
       anyDexList.add(new MatchableInputVFile(getDexInputVFileOfType(jackOutputLibrary, type)));
     }
 
-    addOrphanDexFiles(mainDexList, new HashSet<MatchableInputVFile>(anyDexList));
+    if (usePrebuilts) {
+      DexWritingTool.addOrphanDexFiles(/*outputLibrary = */ null, mainDexList,
+          new HashSet<MatchableInputVFile>(anyDexList));
+    }
   }
 
   @Nonnull
@@ -245,36 +249,40 @@ public abstract class DexWritingTool {
     return inputVFile;
   }
 
-  protected void addOrphanDexFiles(@Nonnull Set<MatchableInputVFile> mainDexToMerge) {
-    addOrphanDexFiles(mainDexToMerge, Collections.<MatchableInputVFile>emptySet());
+  static void addOrphanDexFiles(@CheckForNull OutputJackLibrary outputLibrary,
+      @Nonnull Set<MatchableInputVFile> mainDexToMerge) {
+    DexWritingTool.addOrphanDexFiles(outputLibrary, mainDexToMerge,
+        Collections.<MatchableInputVFile>emptySet());
   }
 
   /**
    * Orphan dex file is a dex file without an associated Jayce file.
    */
-  @Nonnull
-  protected void addOrphanDexFiles(@Nonnull Set<MatchableInputVFile> mainDexToMerge,
+  static void addOrphanDexFiles(@CheckForNull OutputJackLibrary outputLibrary,
+      @Nonnull Set<MatchableInputVFile> mainDexToMerge,
       @Nonnull Set<MatchableInputVFile> othersDexToMerge) {
-    if (usePrebuilts) {
-      for (InputLibrary inputLibrary : Jack.getSession().getImportedLibraries()) {
-        if (inputLibrary instanceof InputJackLibrary) {
-          InputJackLibrary inputJackLibrary = (InputJackLibrary) inputLibrary;
-          Iterator<InputVFile> dexFileIt = inputJackLibrary.iterator(FileType.PREBUILT);
-          while (dexFileIt.hasNext()) {
-            InputVFile dexFile = dexFileIt.next();
-            String dexFilePath = dexFile.getPathFromRoot().getPathAsString('/');
-            int indexOfDexExtension = dexFilePath.indexOf(DexFileWriter.DEX_FILE_EXTENSION);
-            // Prebuilt section of library does not contains only dex files
-            if (indexOfDexExtension != -1) {
-              String type =
-                  dexFilePath.substring(0, dexFilePath.indexOf(DexFileWriter.DEX_FILE_EXTENSION));
-              try {
-                inputJackLibrary.getFile(FileType.JAYCE, new VPath(type, '/'));
-              } catch (FileTypeDoesNotExistException e) {
-                MatchableInputVFile orphanDex = new MatchableInputVFile(dexFile);
-                if (!othersDexToMerge.contains(orphanDex)) {
-                  mainDexToMerge.add(orphanDex);
-                }
+    for (InputLibrary inputLibrary : Jack.getSession().getImportedLibraries()) {
+      if (inputLibrary instanceof InputJackLibrary) {
+        InputJackLibrary inputJackLibrary = (InputJackLibrary) inputLibrary;
+        if (outputLibrary != null
+            && outputLibrary.containsLibraryLocation(inputJackLibrary.getLocation())) {
+          continue;
+        }
+        Iterator<InputVFile> dexFileIt = inputJackLibrary.iterator(FileType.PREBUILT);
+        while (dexFileIt.hasNext()) {
+          InputVFile dexFile = dexFileIt.next();
+          String dexFilePath = dexFile.getPathFromRoot().getPathAsString('/');
+          int indexOfDexExtension = dexFilePath.indexOf(DexFileWriter.DEX_FILE_EXTENSION);
+          // Prebuilt section of library does not contains only dex files
+          if (indexOfDexExtension != -1) {
+            String type =
+                dexFilePath.substring(0, dexFilePath.indexOf(DexFileWriter.DEX_FILE_EXTENSION));
+            try {
+              inputJackLibrary.getFile(FileType.JAYCE, new VPath(type, '/'));
+            } catch (FileTypeDoesNotExistException e) {
+              MatchableInputVFile orphanDex = new MatchableInputVFile(dexFile);
+              if (!othersDexToMerge.contains(orphanDex)) {
+                mainDexToMerge.add(orphanDex);
               }
             }
           }
