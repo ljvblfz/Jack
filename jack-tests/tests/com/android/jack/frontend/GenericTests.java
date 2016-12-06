@@ -70,4 +70,19 @@ public class GenericTests {
         /* zipFile = */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.frontend.generic.test002.jack"));
   }
+
+  /**
+   * Verifies that the test source can compile from source to dex file.
+   */
+  @Test
+  @KnownIssue
+  public void testCompileTest003() throws Exception {
+    IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .setSourceLevel(SourceLevel.JAVA_8)
+    .srcToExe(
+        AbstractTestTools.createTempDir(),
+        /* zipFile = */ false,
+        AbstractTestTools.getTestRootDir("com.android.jack.frontend.generic.test003.jack"));
+  }
 }
