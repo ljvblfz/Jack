@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.jack.generic.basic.jack;
+package com.android.jack.frontend.generic.basic.jack;
 
 import java.util.Iterator;
 

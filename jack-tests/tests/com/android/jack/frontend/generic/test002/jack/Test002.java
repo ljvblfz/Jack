@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.jack.generic.test002.jack;
+package com.android.jack.frontend.generic.test002.jack;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;

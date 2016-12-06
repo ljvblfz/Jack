@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.jack.generic.test001.jack;
+package com.android.jack.frontend.generic.test001.jack;
 
 interface I<T> {
   I<T> get();

@@ -985,6 +985,7 @@
       <exclude name="com/android/jack/frontend/test015/jack/WithOuterContextButStatic.java"/>
       <exclude name="com/android/jack/frontend/test016/jack/WithDuplicated.java"/>
       <exclude name="com/android/jack/frontend/test017/jack/InvalidQualification.java"/>
+      <exclude name="com/android/jack/frontend/generic/test002/jack/**"/>
       <exclude name="com/android/jack/nopackage/jack/**"/>
       <exclude name="com/android/jack/multidex/test004/jack/**"/>
       <exclude name="com/android/jack/java8/lambda/**"/>
@@ -1022,7 +1023,6 @@
       <exclude name="com/android/jack/shrob/test066/jack/**"/>
       <exclude name="com/android/jack/shrob/test067/jack/**"/>
       <exclude name="com/android/jack/shrob/test068/jack/**"/>
-      <exclude name="com/android/jack/generic/test002/jack/**"/>
       <classpath>
         <filelist dir="/">
           <file name="${jill-api.dist.dir}/${jill-api.lib.name}" />

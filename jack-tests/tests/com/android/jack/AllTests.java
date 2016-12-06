@@ -31,7 +31,7 @@ import com.android.jack.fileconflict.FileConflictTests;
 import com.android.jack.flow.FlowTests;
 import com.android.jack.frontend.DuplicateSourceTest;
 import com.android.jack.frontend.FrontEndTests;
-import com.android.jack.generic.GenericTests;
+import com.android.jack.frontend.GenericTests;
 import com.android.jack.ifstatement.IfstatementTests;
 import com.android.jack.imports.ImportTests;
 import com.android.jack.init.InitTests;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.jack.generic;
+package com.android.jack.frontend;
 
 import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -38,7 +38,7 @@ public class GenericTests {
     .srcToExe(
         AbstractTestTools.createTempDir(),
         /* zipFile = */ false,
-        AbstractTestTools.getTestRootDir("com.android.jack.generic.basic.jack"));
+        AbstractTestTools.getTestRootDir("com.android.jack.frontend.generic.basic.jack"));
   }
 
   /**
@@ -53,7 +53,7 @@ public class GenericTests {
     .srcToExe(
         AbstractTestTools.createTempDir(),
         /* zipFile = */ false,
-        AbstractTestTools.getTestRootDir("com.android.jack.generic.test001.jack"));
+        AbstractTestTools.getTestRootDir("com.android.jack.frontend.generic.test001.jack"));
   }
 
   /**
@@ -68,6 +68,6 @@ public class GenericTests {
     .srcToExe(
         AbstractTestTools.createTempDir(),
         /* zipFile = */ false,
-        AbstractTestTools.getTestRootDir("com.android.jack.generic.test002.jack"));
+        AbstractTestTools.getTestRootDir("com.android.jack.frontend.generic.test002.jack"));
   }
 }
