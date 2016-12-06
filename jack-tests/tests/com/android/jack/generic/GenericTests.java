@@ -28,8 +28,6 @@ import org.junit.Test;
  */
 public class GenericTests {
 
-
-
   /**
    * Verifies that the test source can compile from source to dex file.
    */
@@ -56,5 +54,20 @@ public class GenericTests {
         AbstractTestTools.createTempDir(),
         /* zipFile = */ false,
         AbstractTestTools.getTestRootDir("com.android.jack.generic.test001.jack"));
+  }
+
+  /**
+   * Verifies that the test source can compile from source to dex file.
+   */
+  @Test
+  @KnownIssue
+  public void testCompileTest002() throws Exception {
+    IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .setSourceLevel(SourceLevel.JAVA_8)
+    .srcToExe(
+        AbstractTestTools.createTempDir(),
+        /* zipFile = */ false,
+        AbstractTestTools.getTestRootDir("com.android.jack.generic.test002.jack"));
   }
 }
