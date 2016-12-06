@@ -49,10 +49,12 @@ import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.logging.Level;
@@ -566,13 +568,14 @@ public class MultiWorkersScheduleInstance<T extends Component>
     @Nonnull
     public static final ListPropertyId<ReflectFactory<Detector>> DETECTORS =
         new ListPropertyId<ReflectFactory<Detector>>("sched.runner.thread.detectors",
-            "Set a list of detectors", new ReflectFactorySelector<Detector>(Detector.class)
-                .addArgType(Integer.TYPE).bypassAccessibility())
-            .minElements(1)
-            .requiredIf(
-                ScheduleInstance.DEFAULT_RUNNER.getClazz().isSubClassOf(
-                    MultiWorkersScheduleInstance.class)).addDefaultValue("deadlock,long-running")
-            .addDefaultValue("long-running");
+            "Set a list of detectors",
+            new ReflectFactorySelector<Detector>(Detector.class).addArgType(Integer.TYPE)
+                .bypassAccessibility())
+                    .minElements(1)
+                    .requiredIf(ScheduleInstance.DEFAULT_RUNNER.getClazz()
+                        .isSubClassOf(MultiWorkersScheduleInstance.class))
+                    .addDefaultValue("deadlock,log-long-running")
+                    .addDefaultValue("log-long-running");
 
     protected Detector(@Nonnegative int size) {
     }
@@ -597,15 +600,15 @@ public class MultiWorkersScheduleInstance<T extends Component>
   }
 
   //
-  // Long running task detector (based on timeout)
+  // Long running task detector which aborts the compilation (based on timeout)
   //
 
   @HasKeyId
-  @ImplementationName(iface = Detector.class, name = "long-running")
+  @ImplementationName(iface = Detector.class, name = "abort-long-running")
   private static class LongRunning extends Detector {
     @Nonnull
     private static final LongPropertyId TIMEOUT = LongPropertyId.create(
-        "sched.runner.thread.detector.long-running.timeout",
+        "sched.runner.thread.detector.abort-long-running.timeout",
         "Duration allowed by the detector before aborting compilation (in ms)")
         .addDefaultValue("3600000")
         .withMin(0);
@@ -655,7 +658,7 @@ public class MultiWorkersScheduleInstance<T extends Component>
     private void dump(@Nonnull List<Worker> workers) {
       Map<Thread, StackTraceElement[]> stackTraces = Thread.getAllStackTraces();
 
-      logger.log(Level.SEVERE, "Timeout detected during run:");
+      logger.log(Level.SEVERE, "Long running worker detected:");
 
       boolean atLeastOne = false;
       for (Worker worker : workers) {
@@ -685,6 +688,80 @@ public class MultiWorkersScheduleInstance<T extends Component>
         logger.log(Level.SEVERE,
             "  No thread. Wrong detection. Try to increase timeout with ''{0}'' property",
             TIMEOUT.getName());
+      }
+    }
+  }
+
+  //
+  // Long running task detector which logs (based on timeout)
+  //
+
+  @HasKeyId
+  @ImplementationName(iface = Detector.class, name = "log-long-running")
+  private static class LongRunningLog extends Detector {
+    @Nonnull
+    private static final LongPropertyId TIMEOUT = LongPropertyId.create(
+        "sched.runner.thread.detector.log-long-running.timeout",
+        "Duration allowed by the detector before logging long running worker (in ms)")
+        .addDefaultValue("3600000")
+        .withMin(0);
+
+    @Nonnull
+    private final Logger logger = LoggerFactory.getLogger();
+
+    @Nonnegative
+    private final long timeout = ThreadConfig.get(TIMEOUT).longValue();
+
+    @Nonnull
+    private final Set<Task> signaledTasks;
+
+    protected LongRunningLog(@Nonnegative int size) {
+      super(size);
+      signaledTasks = new HashSet<>();
+    }
+
+    @Override
+    public boolean check(@Nonnull List<Worker> activeWorkers) {
+      // Check for blocked threads
+      long time = System.currentTimeMillis();
+      for (Worker worker : activeWorkers) {
+        WorkerStatus status = worker.getStatus();
+        Task task = worker.getStatus().getCurrentTask();
+        if (task != null && !signaledTasks.contains(task)) {
+          if (((int) (time - status.getCurrentTaskStartOn())) > timeout) {
+            // Here, and in dump, we can log the wrong task, because we do not want to synchronize
+            // workers. We just do the best effort.
+            signaledTasks.add(task);
+            dump(worker);
+          }
+        }
+      }
+
+      return true;
+    }
+
+    private void dump(@Nonnull Worker worker) {
+      StackTraceElement[] stackTrace = worker.getStackTrace();
+
+      logger.log(Level.WARNING, "Long running worker detected:");
+
+      if (worker.isAlive()) {
+        WorkerStatus status = worker.getStatus();
+
+        logger.log(Level.WARNING, "  Thread ''{0}'' ({1}) {2}",
+            new Object[] {worker.getName(), Long.valueOf(worker.getId()), worker.getState()});
+        logger.log(Level.WARNING, "    Works on {0} during {1} ms",
+            new Object[] {status.getCurrentTask(), Integer
+                .valueOf((int) (System.currentTimeMillis() - status.getCurrentTaskStartOn()))});
+        logger.log(Level.WARNING, "    Stack traces:");
+
+        if (stackTrace != null) {
+          for (StackTraceElement stackTraceElement : stackTrace) {
+            logger.log(Level.WARNING, "      {0}", stackTraceElement);
+          }
+        } else {
+          logger.log(Level.WARNING, "      no stack traces available");
+        }
       }
     }
   }
