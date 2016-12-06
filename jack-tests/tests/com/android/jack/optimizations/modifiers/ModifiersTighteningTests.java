@@ -140,7 +140,13 @@ public class ModifiersTighteningTests extends DexOutputBasedTest {
     mBase.update("g(Ljava/lang/String;)Ljava/util/AbstractList;", isFinal);
     mBase.update("g(Ljava/lang/String;)Ljava/util/ArrayList;", isFinal);
 
-    mD2.insert("foo()Ljava/lang/Object;", isFinal);
+    // NOTE: the legacy compiler create this method in 'D2' as well,
+    //       thus this one is not marked as final in 'D1'.
+    if (!usingLegacyCompiler()) {
+      mD1.update("foo()Ljava/lang/Object;", isFinal);
+    } else {
+      mD2.insert("foo()Ljava/lang/Object;", isFinal);
+    }
 
     mD2.update("bar()Ljava/lang/Object;", isFinal);
     mD2.update("foo()Lcom/android/jack/optimizations/modifiers/test002/jack/Base;", isFinal);
