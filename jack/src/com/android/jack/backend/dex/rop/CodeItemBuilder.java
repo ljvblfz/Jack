@@ -71,6 +71,7 @@ import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JThis;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.library.DumpInLibrary;
+import com.android.jack.library.PrebuiltCompatibility;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.scheduling.marker.DexCodeMarker;
 import com.android.jack.transformations.EmptyClinit;
@@ -159,25 +160,35 @@ import javax.annotation.Nonnull;
 public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
 
   @Nonnull
-  public static final BooleanPropertyId EMIT_SYNTHETIC_LOCAL_DEBUG_INFO = BooleanPropertyId
-      .create("jack.dex.debug.vars.synthetic",
-          "Emit synthetic local variable debug info into generated dex")
-      .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
+  public static final BooleanPropertyId EMIT_SYNTHETIC_LOCAL_DEBUG_INFO =
+      BooleanPropertyId.create(
+              "jack.dex.debug.vars.synthetic",
+              "Emit synthetic local variable debug info into generated dex")
+          .addDefaultValue(Boolean.FALSE)
+          .addCategory(DumpInLibrary.class)
+          .addCategory(PrebuiltCompatibility.class);
 
   @Nonnull
-  public static final BooleanPropertyId DEX_OPTIMIZE = BooleanPropertyId.create(
-      "jack.dex.optimize", "Define if Dex optimizations are activated")
-      .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
+  public static final BooleanPropertyId DEX_OPTIMIZE =
+      BooleanPropertyId.create("jack.dex.optimize", "Define if Dex optimizations are activated")
+          .addDefaultValue(Boolean.TRUE)
+          .addCategory(DumpInLibrary.class)
+          .addCategory(PrebuiltCompatibility.class);
 
   @Nonnull
-  public static final BooleanPropertyId FORCE_JUMBO = BooleanPropertyId.create(
-      "jack.dex.forcejumbo", "Force string opcodes to be emitted as jumbo in dex")
-      .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
+  public static final BooleanPropertyId FORCE_JUMBO =
+      BooleanPropertyId.create(
+              "jack.dex.forcejumbo", "Force string opcodes to be emitted as jumbo in dex")
+          .addDefaultValue(Boolean.TRUE)
+          .addCategory(DumpInLibrary.class)
+          .addCategory(PrebuiltCompatibility.class);
 
   @Nonnull
-  public static final BooleanPropertyId OPTIMIZE_BRANCHES = BooleanPropertyId.create(
-      "jack.dex.optimizebranches", "Remove redundant branches in dex")
-      .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
+  public static final BooleanPropertyId OPTIMIZE_BRANCHES =
+      BooleanPropertyId.create("jack.dex.optimizebranches", "Remove redundant branches in dex")
+          .addDefaultValue(Boolean.TRUE)
+          .addCategory(DumpInLibrary.class)
+          .addCategory(PrebuiltCompatibility.class);
 
   @Nonnull
   private final com.android.jack.util.filter.Filter<JMethod> filter =

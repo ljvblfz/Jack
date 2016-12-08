@@ -197,6 +197,7 @@ public class Options {
           .addDefaultValue(AssertionPolicy.RUNTIME)
           .ignoreCase()
           .addCategory(DumpInLibrary.class)
+          .addCategory(PrebuiltCompatibility.class)
           .addCategory(Carnac.class);
 
   @Nonnull
@@ -218,7 +219,8 @@ public class Options {
   public static final BooleanPropertyId LAMBDA_TO_ANONYMOUS_CONVERTER = BooleanPropertyId
       .create("jack.lambda.anonymous", "Enable lambda support with an anonymous class")
       .addDefaultValue(Boolean.TRUE)
-      .addCategory(DumpInLibrary.class);
+      .addCategory(DumpInLibrary.class)
+      .addCategory(PrebuiltCompatibility.class);
 
   @Nonnull
   public static final EnumPropertyId<LambdaGroupingScope> LAMBDA_GROUPING_SCOPE = EnumPropertyId
@@ -267,14 +269,17 @@ public class Options {
           .addCategory(DumpInLibrary.class);
 
   /**
-   * property used to specify the kind of switch enum optimization that is enabled.
-   * See(@link SwitchEnumOptStrategy)
+   * property used to specify the kind of switch enum optimization that is enabled. See(@link
+   * SwitchEnumOptStrategy)
    */
   @Nonnull
   public static final EnumPropertyId<SwitchEnumOptStrategy> OPTIMIZED_ENUM_SWITCH =
-      EnumPropertyId.create("jack.optimization.enum.switch", "Optimize enum switch",
-          SwitchEnumOptStrategy.class)
-      .addDefaultValue(SwitchEnumOptStrategy.NEVER).ignoreCase().addCategory(DumpInLibrary.class);
+      EnumPropertyId.create(
+              "jack.optimization.enum.switch", "Optimize enum switch", SwitchEnumOptStrategy.class)
+          .addDefaultValue(SwitchEnumOptStrategy.NEVER)
+          .ignoreCase()
+          .addCategory(DumpInLibrary.class)
+          .addCategory(PrebuiltCompatibility.class);
 
   @Nonnull
   public static final BooleanPropertyId GENERATE_DEX_IN_LIBRARY = BooleanPropertyId
@@ -652,25 +657,35 @@ public class Options {
       .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
 
   @Nonnull
-  public static final BooleanPropertyId OPTIMIZE_TAIL_RECURSION = BooleanPropertyId.create(
-      "jack.optimization.tail-recursion",
-      "Optimize tail recursive calls")
-      .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
+  public static final BooleanPropertyId OPTIMIZE_TAIL_RECURSION =
+      BooleanPropertyId.create("jack.optimization.tail-recursion", "Optimize tail recursive calls")
+          .addDefaultValue(Boolean.FALSE)
+          .addCategory(DumpInLibrary.class)
+          .addCategory(PrebuiltCompatibility.class);
 
   @Nonnull
-  public static final BooleanPropertyId EMIT_LOCAL_DEBUG_INFO = BooleanPropertyId.create(
-      "jack.dex.debug.vars", "Emit local variable debug info into generated dex")
-      .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
+  public static final BooleanPropertyId EMIT_LOCAL_DEBUG_INFO =
+      BooleanPropertyId.create(
+              "jack.dex.debug.vars", "Emit local variable debug info into generated dex")
+          .addDefaultValue(Boolean.FALSE)
+          .addCategory(DumpInLibrary.class)
+          .addCategory(PrebuiltCompatibility.class);
 
   @Nonnull
-  public static final BooleanPropertyId EMIT_LINE_NUMBER_DEBUG_INFO = BooleanPropertyId.create(
-      "jack.dex.debug.lines", "Emit line number debug info into generated dex")
-      .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
+  public static final BooleanPropertyId EMIT_LINE_NUMBER_DEBUG_INFO =
+      BooleanPropertyId.create(
+              "jack.dex.debug.lines", "Emit line number debug info into generated dex")
+          .addDefaultValue(Boolean.TRUE)
+          .addCategory(DumpInLibrary.class)
+          .addCategory(PrebuiltCompatibility.class);
 
   @Nonnull
-  public static final BooleanPropertyId EMIT_SOURCE_FILE_DEBUG_INFO = BooleanPropertyId.create(
-      "jack.dex.debug.source", "Emit source file debug info into generated dex")
-      .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
+  public static final BooleanPropertyId EMIT_SOURCE_FILE_DEBUG_INFO =
+      BooleanPropertyId.create(
+              "jack.dex.debug.source", "Emit source file debug info into generated dex")
+          .addDefaultValue(Boolean.TRUE)
+          .addCategory(DumpInLibrary.class)
+          .addCategory(PrebuiltCompatibility.class);
 
   @Nonnull
   public static final PropertyId<AndroidApiLevel> ANDROID_MIN_API_LEVEL = PropertyId

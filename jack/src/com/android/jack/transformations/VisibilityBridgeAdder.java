@@ -37,6 +37,7 @@ import com.android.jack.ir.ast.JThis;
 import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.library.DumpInLibrary;
+import com.android.jack.library.PrebuiltCompatibility;
 import com.android.jack.lookup.JMethodLookupException;
 import com.android.jack.scheduling.feature.VisibilityBridge;
 import com.android.jack.scheduling.filter.SourceTypeFilter;
@@ -77,7 +78,7 @@ public class VisibilityBridgeAdder implements RunnableSchedulable<JDefinedClassO
   @Nonnull
   public static final BooleanPropertyId VISIBILITY_BRIDGE = BooleanPropertyId.create(
       "jack.legacy.runtime.visibilitybridges", "Generate visibility bridges").addDefaultValue(
-      Boolean.TRUE).addCategory(DumpInLibrary.class);
+      Boolean.TRUE).addCategory(DumpInLibrary.class).addCategory(PrebuiltCompatibility.class);
 
   @Override
   public synchronized void run(@Nonnull JDefinedClassOrInterface declaredType) {

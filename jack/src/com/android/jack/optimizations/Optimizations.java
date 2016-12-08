@@ -40,9 +40,11 @@ public class Optimizations {
   @Description("Optimize def/use chain")
   public static class DefUseSimplifier implements Feature {
     @Nonnull
-    public static final BooleanPropertyId ENABLE = BooleanPropertyId
-        .create("jack.optimization.def-use-simplifier", "Optimize def/use chain")
-        .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
+    public static final BooleanPropertyId ENABLE =
+        BooleanPropertyId.create("jack.optimization.def-use-simplifier", "Optimize def/use chain")
+            .addDefaultValue(Boolean.TRUE)
+            .addCategory(DumpInLibrary.class)
+            .addCategory(PrebuiltCompatibility.class);
   }
 
   /**
@@ -52,9 +54,11 @@ public class Optimizations {
   @Description("Optimize use/def chain")
   public static class UseDefSimplifier implements Feature {
     @Nonnull
-    public static final BooleanPropertyId ENABLE = BooleanPropertyId
-        .create("jack.optimization.use-def-simplifier", "Optimize use/def chain")
-        .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
+    public static final BooleanPropertyId ENABLE =
+        BooleanPropertyId.create("jack.optimization.use-def-simplifier", "Optimize use/def chain")
+            .addDefaultValue(Boolean.TRUE)
+            .addCategory(DumpInLibrary.class)
+            .addCategory(PrebuiltCompatibility.class);
   }
 
   /**
@@ -64,10 +68,12 @@ public class Optimizations {
   @Description("Optimize expressions using constants")
   public static class ExpressionSimplifier implements Feature {
     @Nonnull
-    public static final BooleanPropertyId ENABLE = BooleanPropertyId
-        .create("jack.optimization.expression-simplifier",
-            "Optimize expressions using constants")
-        .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
+    public static final BooleanPropertyId ENABLE =
+        BooleanPropertyId.create(
+                "jack.optimization.expression-simplifier", "Optimize expressions using constants")
+            .addDefaultValue(Boolean.TRUE)
+            .addCategory(DumpInLibrary.class)
+            .addCategory(PrebuiltCompatibility.class);
   }
 
   /**
@@ -77,10 +83,13 @@ public class Optimizations {
   @Description("Optimize 'if' expressions using a boolean constant")
   public static class IfSimplifier implements Feature {
     @Nonnull
-    public static final BooleanPropertyId ENABLE = BooleanPropertyId
-        .create("jack.optimization.if-simplifier",
-            "Optimize 'if' expressions using a boolean constant")
-        .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
+    public static final BooleanPropertyId ENABLE =
+        BooleanPropertyId.create(
+                "jack.optimization.if-simplifier",
+                "Optimize 'if' expressions using a boolean constant")
+            .addDefaultValue(Boolean.TRUE)
+            .addCategory(DumpInLibrary.class)
+            .addCategory(PrebuiltCompatibility.class);
   }
 
   /**
@@ -92,7 +101,9 @@ public class Optimizations {
     @Nonnull
     public static final BooleanPropertyId ENABLE =
         BooleanPropertyId.create("jack.optimization.not-simplifier", "Optimize '!' operator")
-            .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
+            .addDefaultValue(Boolean.TRUE)
+            .addCategory(DumpInLibrary.class)
+            .addCategory(PrebuiltCompatibility.class);
   }
 
   /**
