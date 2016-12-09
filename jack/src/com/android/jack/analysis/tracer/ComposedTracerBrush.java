@@ -69,8 +69,8 @@ public class ComposedTracerBrush implements TracerBrush {
   @Override
   public void endTrace(@Nonnull JDefinedClassOrInterface type) {
     composedStatus.pop();
-    for (TracerBrush config : brushes) {
-      config.endTrace(type);
+    for (TracerBrush brush : brushes) {
+      brush.endTrace(type);
     }
   }
 
@@ -93,8 +93,8 @@ public class ComposedTracerBrush implements TracerBrush {
   @Override
   public void endTrace(@Nonnull JMethod method) {
     composedStatus.pop();
-    for (TracerBrush config : brushes) {
-      config.endTrace(method);
+    for (TracerBrush brush : brushes) {
+      brush.endTrace(method);
     }
   }
 
@@ -117,8 +117,8 @@ public class ComposedTracerBrush implements TracerBrush {
   @Override
   public void endTrace(@Nonnull JField field) {
     composedStatus.pop();
-    for (TracerBrush config : brushes) {
-      config.endTrace(field);
+    for (TracerBrush brush : brushes) {
+      brush.endTrace(field);
     }
   }
 
@@ -141,8 +141,8 @@ public class ComposedTracerBrush implements TracerBrush {
   @Override
   public void endTraceOverridingMethod(@Nonnull JMethod method) {
     composedStatus.pop();
-    for (TracerBrush config : brushes) {
-      config.endTraceOverridingMethod(method);
+    for (TracerBrush brush : brushes) {
+      brush.endTraceOverridingMethod(method);
     }
   }
 
@@ -191,16 +191,16 @@ public class ComposedTracerBrush implements TracerBrush {
   @Override
   public void endTraceEnclosingMethod() {
     composedStatus.pop();
-    for (TracerBrush config : brushes) {
-      config.endTraceEnclosingMethod();
+    for (TracerBrush brush : brushes) {
+      brush.endTraceEnclosingMethod();
     }
   }
 
   @Override
   public void endTraceMarked(@Nonnull JNode node) {
     composedStatus.pop();
-    for (TracerBrush config : brushes) {
-      config.endTraceMarked(node);
+    for (TracerBrush brush : brushes) {
+      brush.endTraceMarked(node);
     }
   }
 
@@ -223,6 +223,9 @@ public class ComposedTracerBrush implements TracerBrush {
   @Override
   public void endTraceSeed(@Nonnull JDefinedClassOrInterface type) {
     composedStatus.pop();
+    for (TracerBrush brush : brushes) {
+      brush.endTraceSeed(type);
+    }
   }
 
   @Override
@@ -244,6 +247,9 @@ public class ComposedTracerBrush implements TracerBrush {
   @Override
   public void endTraceSeed(@Nonnull JMethod method) {
     composedStatus.pop();
+    for (TracerBrush brush : brushes) {
+      brush.endTraceSeed(method);
+    }
   }
 
   @Override
@@ -265,5 +271,8 @@ public class ComposedTracerBrush implements TracerBrush {
   @Override
   public void endTraceSeed(@Nonnull JField field) {
     composedStatus.pop();
+    for (TracerBrush brush : brushes) {
+      brush.endTraceSeed(field);
+    }
   }
 }
