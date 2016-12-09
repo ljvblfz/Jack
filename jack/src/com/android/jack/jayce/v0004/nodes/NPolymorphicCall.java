@@ -33,6 +33,7 @@ import com.android.jack.jayce.v0004.nodes.NMethodCall.ReceiverKind;
 import com.android.jack.lookup.JMethodLookupException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -74,6 +75,9 @@ public class NPolymorphicCall extends NExpression {
   @CheckForNull
   public String callSiteReturnType;
 
+  @Nonnull
+  public List<String> callSiteParameterStrTypes = Collections.emptyList();
+
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JPolymorphicMethodCall pmc = (JPolymorphicMethodCall) node;
@@ -87,6 +91,7 @@ public class NPolymorphicCall extends NExpression {
     args = loader.load(NExpression.class, pmc.getArgs());
     sourceInfo = pmc.getSourceInfo();
     callSiteReturnType = ImportHelper.getSignatureName(pmc.getType());
+    callSiteParameterStrTypes = ImportHelper.getSignatureNameList(pmc.getCallSiteParameterTypes());
   }
 
   private ReceiverKind getReceiverKind(JAbstractMethodCall jMethodCall) {
@@ -119,9 +124,14 @@ public class NPolymorphicCall extends NExpression {
     JMethodId methodId = jReceiverType.getOrCreateMethodId(methodName,
         exportSession.getTypeListFromSignatureList(methodArgsType), methodKind, jReturnType);
 
-    JPolymorphicMethodCall pmc =
-        new JPolymorphicMethodCall(sourceInfo, instance.exportAsJast(exportSession), jReceiverType,
-            methodId, exportSession.getLookup().getType(callSiteReturnType));
+    List<JType> callSiteParameterTypes = new ArrayList<>(callSiteParameterStrTypes.size());
+    for (String callsiteParameterType : callSiteParameterStrTypes) {
+      callSiteParameterTypes.add(exportSession.getLookup().getType(callsiteParameterType));
+    }
+
+    JPolymorphicMethodCall pmc = new JPolymorphicMethodCall(sourceInfo,
+        instance.exportAsJast(exportSession), jReceiverType, methodId,
+        exportSession.getLookup().getType(callSiteReturnType), callSiteParameterTypes);
 
     for (NExpression arg : args) {
       pmc.addArg(arg.exportAsJast(exportSession));
@@ -148,6 +158,7 @@ public class NPolymorphicCall extends NExpression {
     out.writeId(returnType);
     out.writeNodes(args);
     out.writeId(callSiteReturnType);
+    out.writeIds(callSiteParameterStrTypes);
   }
 
   @Override
@@ -161,6 +172,7 @@ public class NPolymorphicCall extends NExpression {
     returnType = in.readId();
     args = in.readNodes(NExpression.class);
     callSiteReturnType = in.readId();
+    callSiteParameterStrTypes = in.readIds();
   }
 
   @Override

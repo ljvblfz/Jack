@@ -23,6 +23,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses(value = {
 com.android.sched.item.AllTests.class,
+    com.android.sched.filter.AllTests.class,
     com.android.sched.marker.AllTests.class,
     com.android.sched.scheduler.AllTests.class,
     com.android.sched.config.AllTests.class,

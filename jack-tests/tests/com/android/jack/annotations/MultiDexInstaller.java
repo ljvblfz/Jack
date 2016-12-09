@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
  * Indicate that the element may be used during the multidex legacy support installation. As such it
  * must be kept in main dex along with its dependencies.
  */
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.CLASS)
 @Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.CONSTRUCTOR})
 public @interface MultiDexInstaller {
 

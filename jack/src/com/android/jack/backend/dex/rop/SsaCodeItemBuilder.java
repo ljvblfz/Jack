@@ -100,6 +100,7 @@ import com.android.jack.transformations.ast.switches.UselessSwitches;
 import com.android.jack.transformations.cast.SourceCast;
 import com.android.jack.transformations.rop.cast.RopLegalCast;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
+import com.android.jack.util.AndroidApiLevel;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
@@ -180,7 +181,7 @@ public class SsaCodeItemBuilder implements RunnableSchedulable<JMethod> {
   private final boolean forceJumbo = ThreadConfig.get(CodeItemBuilder.FORCE_JUMBO).booleanValue();
   private final boolean removeRedundantConditionalBranch =
       ThreadConfig.get(CodeItemBuilder.OPTIMIZE_BRANCHES).booleanValue();
-  private final int apiLevel = ThreadConfig.get(Options.ANDROID_MIN_API_LEVEL).intValue();
+  private final AndroidApiLevel apiLevel = ThreadConfig.get(Options.ANDROID_MIN_API_LEVEL);
   private final boolean emitLineNumberTable =
       ThreadConfig.get(Options.EMIT_LINE_NUMBER_DEBUG_INFO).booleanValue();
 
@@ -255,7 +256,7 @@ public class SsaCodeItemBuilder implements RunnableSchedulable<JMethod> {
         assert bb != entryBasicBlock && bb != exitBasicBlock;
         final SsaBasicBlock ssaBb = ropBb.createBasicBlock();
         final SsaRopBuilderVisitor ropBuilder =
-            new SsaRopBuilderVisitor(ropReg, bb, ssaBb, basicBlocks);
+            new SsaRopBuilderVisitor(ropReg, bb, ssaBb, basicBlocks, apiLevel);
 
         ropBuilder.processBasicBlockElements();
         final List<SsaInsn> instructions = ropBuilder.getInstructions();
@@ -540,9 +541,7 @@ public class SsaCodeItemBuilder implements RunnableSchedulable<JMethod> {
 
   @Nonnull
   private DalvCode createCode(@Nonnull JMethod method, @Nonnull RopMethod ropMethod) {
-    DexOptions options = new DexOptions();
-    options.forceJumbo = forceJumbo;
-    options.targetApiLevel = apiLevel;
+    DexOptions options = new DexOptions(apiLevel, forceJumbo);
     int paramSize = getParameterWordCount(method);
     int positionListKind;
     LocalVariableInfo lvInfo;

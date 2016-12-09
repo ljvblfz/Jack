@@ -37,6 +37,8 @@ import com.android.jack.lookup.JLookupException;
 import com.android.jack.lookup.JMethodLookupException;
 import com.android.jack.lookup.JNodeLookup;
 import com.android.jack.reporting.Reporter.Severity;
+import com.android.jack.shrob.obfuscation.key.FieldKey;
+import com.android.jack.shrob.obfuscation.key.MethodKey;
 import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.shrob.shrink.MappingCollisionException;
 import com.android.jack.shrob.shrink.MappingCollisionPolicy;
@@ -103,7 +105,7 @@ public class MappingApplier {
               "jack.obfuscation.mapping.collision-policy",
               "Abort obfuscation when a mapping collision is detected",
               new EnumCodec<MappingCollisionPolicy>(
-                  MappingCollisionPolicy.class, MappingCollisionPolicy.values()).ignoreCase())
+                  MappingCollisionPolicy.class).ignoreCase())
           .addDefaultValue(MappingCollisionPolicy.FAIL);
 
   @Nonnull
@@ -285,17 +287,18 @@ public class MappingApplier {
       String newName = line.substring(startIndex, endIndex);
       JField field = findField(currentType, oldName, typeSignature);
       if (field != null) {
-        if (newName.equals(oldName)
-            || !FieldInHierarchyFinderVisitor.containsFieldKey(newName, field)) {
+        if (newName.equals(oldName) || !FieldInHierarchyFinderVisitor
+            .containsFieldKey(new FieldKey(newName, field.getType()), field)) {
           // No collision was found
           // (the name was not used or the field is renamed with its own name)
           renameField(field, mappingFile, lineNumber, newName);
-          NewFieldNameMarker marker = currentType.getMarker(NewFieldNameMarker.class);
+          NewFieldKeyMarker marker = currentType.getMarker(NewFieldKeyMarker.class);
           if (marker == null) {
-            marker = new NewFieldNameMarker();
+            marker = new NewFieldKeyMarker();
+            currentType.addMarker(marker);
           }
           assert marker != null;
-          marker.add(newName);
+          marker.add(new FieldKey(newName, field.getType()));
         } else {
           throw new MappingCollisionException(
               new ColumnAndLineLocation(new FileLocation(mappingFile), lineNumber), field, newName);
@@ -349,11 +352,11 @@ public class MappingApplier {
   }
 
   @CheckForNull
-  private String getPreviousNewSignature(@Nonnull JMethod method) {
-    NewMethodSignatureMarker marker =
-        method.getEnclosingType().getMarker(NewMethodSignatureMarker.class);
+  private MethodKey getPreviousNewKey(@Nonnull JMethod method) {
+    NewMethodKeyMarker marker =
+        method.getEnclosingType().getMarker(NewMethodKeyMarker.class);
     if (marker != null) {
-      return marker.getNewSignature(method.getMethodId().getMethodIdWide());
+      return marker.getNewKey(method.getMethodId().getMethodIdWide());
     }
     return null;
   }
@@ -393,37 +396,35 @@ public class MappingApplier {
       String newName = line.substring(startIndex, endIndex);
       try {
         JMethod method = currentType.getMethod(oldName, returnType, args);
-        String newSignature =
-            GrammarActions.getSignatureFormatter().getNameWithoutReturnType(newName, args);
+        MethodKey newKey = new MethodKey(newName, args);
         JMethodIdWide methodId = method.getMethodId().getMethodIdWide();
-        String previousNewSignature = getPreviousNewSignature(method);
-        if (previousNewSignature != null) {
+        MethodKey previousNewKey = getPreviousNewKey(method);
+        if (previousNewKey != null) {
           // The methodId was already renamed
-          if (!previousNewSignature.equals(newSignature)) {
+          if (!previousNewKey.equals(newKey)) {
             throw new MappingCollisionException(
                 new ColumnAndLineLocation(new FileLocation(mappingFile), lineNumber), method,
                 newName);
           }
-        } else if (newSignature.equals(
-                Jack.getUserFriendlyFormatter().getNameWithoutReturnType(methodId))
-            || !MethodInHierarchyFinder.containsMethodKey(newSignature, methodId)) {
+        } else if (newKey.getName().equals(oldName)
+            || !MethodInHierarchyFinder.containsMethodKey(newKey, methodId)) {
           // No collision was found
           // (the name was not used or the method is renamed with its own name)
           renameMethod(method, mappingFile, lineNumber, newName);
           for (JMethod methodWithSameId : methodId.getMethods()) {
             JDefinedClassOrInterface methodWithSameIdEnclosingType =
                 methodWithSameId.getEnclosingType();
-            NewMethodSignatureMarker marker =
-                methodWithSameIdEnclosingType.getMarker(NewMethodSignatureMarker.class);
+            NewMethodKeyMarker marker =
+                methodWithSameIdEnclosingType.getMarker(NewMethodKeyMarker.class);
             if (marker == null) {
-              NewMethodSignatureMarker newMarker = new NewMethodSignatureMarker();
+              NewMethodKeyMarker newMarker = new NewMethodKeyMarker();
               marker = methodWithSameIdEnclosingType.addMarker(newMarker);
               if (marker == null) {
                 marker = newMarker;
               }
             }
             assert marker != null;
-            marker.add(methodId, newSignature);
+            marker.add(methodId, newKey);
           }
         } else {
           throw new MappingCollisionException(

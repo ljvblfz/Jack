@@ -45,6 +45,11 @@ public class JarLibrary implements InputLibrary {
   }
 
   @Override
+  public boolean isClosed() {
+    return true;
+  }
+
+  @Override
   public int getMinorVersion() {
     return 0;
   }

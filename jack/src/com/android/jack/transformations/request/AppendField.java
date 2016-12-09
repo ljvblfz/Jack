@@ -23,8 +23,8 @@ import com.android.sched.transform.TransformStep;
 import javax.annotation.Nonnull;
 
 /**
- * A {@code TransformationStep} allowing to add a {@code JField}
- * as the last field of a {@code JDeclaredType}
+ * A {@link TransformationStep} allowing to add a {@link JField}
+ * as the last field of a {@link JDefinedClassOrInterface}.
  */
 public class AppendField implements TransformationStep, TransformStep {
 
@@ -34,6 +34,12 @@ public class AppendField implements TransformationStep, TransformStep {
   @Nonnull
   private final JField field;
 
+  /**
+   * Constructor specifying the {@code field} to add to the given {@code type}.
+   *
+   * @param type the class or interface to update
+   * @param field the field to add to the class or interface
+   */
   public AppendField(@Nonnull JDefinedClassOrInterface type, @Nonnull JField field) {
     this.type = type;
     this.field = field;

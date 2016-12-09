@@ -17,6 +17,7 @@
 package com.android.jack.server.tasks;
 
 import com.android.jack.server.JackHttpServer;
+import com.android.sched.util.log.LoggerFactory;
 
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
@@ -32,7 +33,7 @@ import javax.annotation.Nonnull;
 abstract class SynchronousServiceTask implements Container {
 
   @Nonnull
-  private static final Logger logger = Logger.getLogger(SynchronousServiceTask.class.getName());
+  private static final Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
   protected final JackHttpServer jackServer;

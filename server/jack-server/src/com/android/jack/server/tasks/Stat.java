@@ -21,6 +21,7 @@ import com.google.common.base.Joiner;
 import com.android.jack.server.JackHttpServer;
 import com.android.jack.server.ServerInfo;
 import com.android.jack.server.type.TextPlain;
+import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.tracer.probe.MemoryBytesProbe;
 import com.android.sched.util.log.tracer.probe.TimeNanosProbe;
 
@@ -53,7 +54,7 @@ import javax.annotation.Nonnull;
 public class Stat extends SynchronousAdministrativeTask {
 
   @Nonnull
-  private static Logger logger = Logger.getLogger(Stat.class.getName());
+  private static Logger logger = LoggerFactory.getLogger();
 
   public Stat(@Nonnull JackHttpServer jackServer) {
     super(jackServer);

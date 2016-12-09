@@ -21,8 +21,6 @@ import org.simpleframework.http.Part;
 import org.simpleframework.http.Request;
 import org.simpleframework.http.core.Container;
 
-import java.util.logging.Logger;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
@@ -31,9 +29,6 @@ import javax.annotation.Nonnull;
  * "multipart/form-data".
  */
 public class PartContentTypeParameterRouter extends ContentTypeParameterRouter {
-
-  @Nonnull
-  private static Logger logger = Logger.getLogger(PartContentTypeParameterRouter.class.getName());
 
   @Nonnull
   private final String partName;
@@ -47,6 +42,12 @@ public class PartContentTypeParameterRouter extends ContentTypeParameterRouter {
       @Nonnull Container primary) {
     super(parameter, primary);
     this.partName = partName;
+  }
+
+  @Override
+  @Nonnull
+  protected String getDescription() {
+    return "part '" + partName + "'";
   }
 
   @Override

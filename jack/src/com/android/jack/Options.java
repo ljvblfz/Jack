@@ -29,7 +29,7 @@ import com.android.jack.incremental.InputFilter;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.library.DumpInLibrary;
 import com.android.jack.library.InputLibrary;
-import com.android.jack.library.InputLibraryCodec;
+import com.android.jack.library.LibraryPathPropertyId;
 import com.android.jack.library.PrebuiltCompatibility;
 import com.android.jack.meta.MetaImporter;
 import com.android.jack.plugin.JackPluginJarCodec;
@@ -51,19 +51,21 @@ import com.android.jack.shrob.seed.SeedPrinter;
 import com.android.jack.shrob.spec.Flags;
 import com.android.jack.transformations.lambda.LambdaGroupingScope;
 import com.android.jack.transformations.renamepackage.PackageRenamer;
+import com.android.jack.util.AndroidApiLevel;
+import com.android.jack.util.AndroidApiLevelCodec;
 import com.android.jack.util.ClassNameCodec;
 import com.android.jack.util.args4j.JackEnumOptionHandler;
 import com.android.jack.util.filter.Filter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Feature;
 import com.android.sched.reflections.ReflectionFactory;
-import com.android.sched.util.HasDescription;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.SubReleaseKind;
 import com.android.sched.util.codec.CaseInsensitiveDirectFSCodec;
 import com.android.sched.util.codec.CodecContext;
 import com.android.sched.util.codec.DirectDirOutputVFSCodec;
 import com.android.sched.util.codec.DirectoryCodec;
+import com.android.sched.util.codec.EnumName;
 import com.android.sched.util.codec.InputFileOrDirectoryCodec;
 import com.android.sched.util.codec.ListCodec;
 import com.android.sched.util.codec.PairCodec;
@@ -84,8 +86,8 @@ import com.android.sched.util.config.category.Private;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.EnumPropertyId;
 import com.android.sched.util.config.id.ImplementationPropertyId;
-import com.android.sched.util.config.id.IntegerPropertyId;
 import com.android.sched.util.config.id.ListPropertyId;
+import com.android.sched.util.config.id.MessageDigestPropertyId;
 import com.android.sched.util.config.id.ObjectId;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.config.id.ReflectFactoryPropertyId;
@@ -143,6 +145,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
+
 /**
  * Jack command line options Bean
  */
@@ -178,23 +181,13 @@ public class Options {
    * Assertion policies
    */
   @VariableName("policy")
-  public enum AssertionPolicy implements HasDescription {
-    ALWAYS("always check assert statements"),
-    NEVER("remove assert statements"),
-    RUNTIME("check according to runtime configuration");
-
-    @Nonnull
-    private final String description;
-
-    private AssertionPolicy(@Nonnull String description) {
-      this.description = description;
-    }
-
-    @Override
-    @Nonnull
-    public String getDescription() {
-      return description;
-    }
+  public enum AssertionPolicy {
+    @EnumName(name = "always", description = "always check assert statements")
+    ALWAYS,
+    @EnumName(name = "never", description = "remove assert statements")
+    NEVER,
+    @EnumName(name = "runtime", description = "check according to runtime configuration")
+    RUNTIME;
   }
 
   @Nonnull
@@ -202,11 +195,11 @@ public class Options {
       EnumPropertyId.create(
               "jack.assert.policy",
               "Assert statement policy",
-              AssertionPolicy.class,
-              AssertionPolicy.values())
+              AssertionPolicy.class)
           .addDefaultValue(AssertionPolicy.RUNTIME)
           .ignoreCase()
           .addCategory(DumpInLibrary.class)
+          .addCategory(PrebuiltCompatibility.class)
           .addCategory(Carnac.class);
 
   @Nonnull
@@ -228,19 +221,25 @@ public class Options {
   public static final BooleanPropertyId LAMBDA_TO_ANONYMOUS_CONVERTER = BooleanPropertyId
       .create("jack.lambda.anonymous", "Enable lambda support with an anonymous class")
       .addDefaultValue(Boolean.TRUE)
-      .addCategory(DumpInLibrary.class);
+      .addCategory(DumpInLibrary.class)
+      .addCategory(PrebuiltCompatibility.class);
 
   @Nonnull
   public static final EnumPropertyId<LambdaGroupingScope> LAMBDA_GROUPING_SCOPE = EnumPropertyId
       .create(
           "jack.lambda.grouping-scope", "Defines the scope for lambda grouping",
-          LambdaGroupingScope.class, LambdaGroupingScope.values())
+          LambdaGroupingScope.class)
       .ignoreCase()
       .addDefaultValue(LambdaGroupingScope.NONE)
       .requiredIf(LAMBDA_TO_ANONYMOUS_CONVERTER.getValue().isTrue())
       .addCategory(DumpInLibrary.class)
       .addCategory(PrebuiltCompatibility.class)
       .addCategory(Private.class);
+
+  @Nonnull
+  public static final MessageDigestPropertyId LAMBDA_NAME_DIGEST_ALGO = MessageDigestPropertyId
+      .create("jack.lambda.name.digest.algo", "Digest algorithm use for lambda class name")
+      .requiredIf(LAMBDA_TO_ANONYMOUS_CONVERTER.getValue().isTrue()).addDefaultValue("SHA");
 
   @Nonnull
   public static final BooleanPropertyId LAMBDA_MERGE_INTERFACES = BooleanPropertyId
@@ -272,14 +271,17 @@ public class Options {
           .addCategory(DumpInLibrary.class);
 
   /**
-   * property used to specify the kind of switch enum optimization that is enabled.
-   * See(@link SwitchEnumOptStrategy)
+   * property used to specify the kind of switch enum optimization that is enabled. See(@link
+   * SwitchEnumOptStrategy)
    */
   @Nonnull
   public static final EnumPropertyId<SwitchEnumOptStrategy> OPTIMIZED_ENUM_SWITCH =
-      EnumPropertyId.create("jack.optimization.enum.switch", "Optimize enum switch",
-          SwitchEnumOptStrategy.class, SwitchEnumOptStrategy.values())
-      .addDefaultValue(SwitchEnumOptStrategy.NEVER).ignoreCase().addCategory(DumpInLibrary.class);
+      EnumPropertyId.create(
+              "jack.optimization.enum.switch", "Optimize enum switch", SwitchEnumOptStrategy.class)
+          .addDefaultValue(SwitchEnumOptStrategy.NEVER)
+          .ignoreCase()
+          .addCategory(DumpInLibrary.class)
+          .addCategory(PrebuiltCompatibility.class);
 
   @Nonnull
   public static final BooleanPropertyId GENERATE_DEX_IN_LIBRARY = BooleanPropertyId
@@ -314,14 +316,14 @@ public class Options {
           .addCategory(Private.class);
 
   @Nonnull
-  public static final EnumPropertyId<Container> DEX_OUTPUT_CONTAINER_TYPE = EnumPropertyId
-      .create("jack.dex.output.container", "Output container type", Container.class,
-          Container.values()).ignoreCase().requiredIf(GENERATE_DEX_FILE.getValue().isTrue());
+  public static final EnumPropertyId<Container> DEX_OUTPUT_CONTAINER_TYPE =
+      EnumPropertyId.create("jack.dex.output.container", "Output container type", Container.class)
+          .ignoreCase().requiredIf(GENERATE_DEX_FILE.getValue().isTrue());
 
   @Nonnull
   public static final EnumPropertyId<Container> LIBRARY_OUTPUT_CONTAINER_TYPE = EnumPropertyId
-      .create("jack.library.output.container", "Library output container type", Container.class,
-          Container.values()).ignoreCase().requiredIf(GENERATE_JACK_LIBRARY.getValue().isTrue());
+      .create("jack.library.output.container", "Library output container type", Container.class)
+      .ignoreCase().requiredIf(GENERATE_JACK_LIBRARY.getValue().isTrue());
 
   @Nonnull
   public static final VFSPropertyId LIBRARY_OUTPUT_ZIP = VFSPropertyId
@@ -358,16 +360,16 @@ public class Options {
       DEX_OUTPUT_CONTAINER_TYPE.is(Container.ZIP));
 
   @Nonnull
-  public static final ListPropertyId<InputLibrary> IMPORTED_LIBRARIES =
-      new ListPropertyId<InputLibrary>("jack.library.import", "Libraries to import",
-          new InputLibraryCodec().setInfoString("imported-lib")).minElements(0).addDefaultValue(
-          Collections.<InputLibrary>emptyList());
+  public static final LibraryPathPropertyId IMPORTED_LIBRARIES =
+      new LibraryPathPropertyId("jack.library.import", "Libraries to import", "imported-lib")
+          .withoutAutoAction()
+          .addDefaultValue(Collections.<InputLibrary>emptyList());
 
   @Nonnull
-  public static final ListPropertyId<InputLibrary> CLASSPATH =
-      new ListPropertyId<InputLibrary>("jack.classpath", "Classpath",
-          new InputLibraryCodec().setInfoString("classpath-lib")).minElements(0)
-              .on(File.pathSeparator).addDefaultValue(Collections.<InputLibrary>emptyList());
+  public static final LibraryPathPropertyId CLASSPATH =
+      new LibraryPathPropertyId("jack.classpath", "Classpath", "classpath-lib")
+          .withoutAutoAction()
+          .addDefaultValue(Collections.<InputLibrary>emptyList());
 
   @Nonnull
   public static final BooleanPropertyId ENABLE_COMPILED_FILES_STATISTICS = BooleanPropertyId.create(
@@ -436,7 +438,15 @@ public class Options {
    */
   @VariableName("level")
   public enum VerbosityLevel {
-    ERROR("error"), WARNING("warning"), INFO("info"), @Deprecated DEBUG("debug"),
+    @EnumName(name = "error")
+    ERROR("error"),
+    @EnumName(name = "warning")
+    WARNING("warning"),
+    @EnumName(name = "info")
+    INFO("info"),
+    @EnumName(name = "debug", hide = true)
+    @Deprecated DEBUG("debug"),
+    @EnumName(name = "trace", hide = true)
     @Deprecated TRACE("trace");
 
     @Nonnull
@@ -463,21 +473,24 @@ public class Options {
     // compile time information collected, e.g., if it is detected that an enum is only
     // used in one/few switch statements, it is useless to optimize it. Potentially enable
     // this strategy will cost more compilation time, but save more dex code
+    @EnumName(name = "feedback")
     FEEDBACK(),
     // different from feedback-based optimization, always strategy doesn't collect compile-
     // time information to guide switch enum optimization. It will always enable switch enum
     // optimization no matter the enum is rarely/frequently used. Ideally this strategy will
     // compile code quicker than feedback-based strategy does, but the generated dex may be
     // larger than feedback strategy
+    @EnumName(name = "always")
     ALWAYS(),
     // this actually is not real strategy, but we still need it because switch enum
     // optimization is disabled when incremental compilation is triggered
+    @EnumName(name = "never")
     NEVER();
   }
 
   @Nonnull
   public static final EnumPropertyId<VerbosityLevel> VERBOSITY_LEVEL = EnumPropertyId.create(
-      "jack.verbose.level", "Verbosity level", VerbosityLevel.class, VerbosityLevel.values())
+      "jack.verbose.level", "Verbosity level", VerbosityLevel.class)
       .addDefaultValue(VerbosityLevel.WARNING);
 
   @Option(name = "--verbose", usage = "set verbosity (default: warning)",
@@ -504,8 +517,6 @@ public class Options {
   /**
    * Output jack library to this folder.
    */
-  @Option(name = "--output-jack-dir",
-      metaVar = "<DIRECTORY>")
   private File libraryOutDir = null;
 
   @Option(name = "--output-jack", usage = "output jack library file", metaVar = "<FILE>")
@@ -663,39 +674,57 @@ public class Options {
       .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
 
   @Nonnull
-  public static final BooleanPropertyId OPTIMIZE_TAIL_RECURSION = BooleanPropertyId.create(
-      "jack.optimization.tail-recursion",
-      "Optimize tail recursive calls")
-      .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
+  public static final BooleanPropertyId OPTIMIZE_TAIL_RECURSION =
+      BooleanPropertyId.create("jack.optimization.tail-recursion", "Optimize tail recursive calls")
+          .addDefaultValue(Boolean.FALSE)
+          .addCategory(DumpInLibrary.class)
+          .addCategory(PrebuiltCompatibility.class);
 
   @Nonnull
-  public static final BooleanPropertyId EMIT_LOCAL_DEBUG_INFO = BooleanPropertyId.create(
-      "jack.dex.debug.vars", "Emit local variable debug info into generated dex")
-      .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
+  public static final BooleanPropertyId EMIT_LOCAL_DEBUG_INFO =
+      BooleanPropertyId.create(
+              "jack.dex.debug.vars", "Emit local variable debug info into generated dex")
+          .addDefaultValue(Boolean.FALSE)
+          .addCategory(DumpInLibrary.class)
+          .addCategory(PrebuiltCompatibility.class);
 
   @Nonnull
-  public static final BooleanPropertyId EMIT_LINE_NUMBER_DEBUG_INFO = BooleanPropertyId.create(
-      "jack.dex.debug.lines", "Emit line number debug info into generated dex")
-      .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
+  public static final BooleanPropertyId EMIT_LINE_NUMBER_DEBUG_INFO =
+      BooleanPropertyId.create(
+              "jack.dex.debug.lines", "Emit line number debug info into generated dex")
+          .addDefaultValue(Boolean.TRUE)
+          .addCategory(DumpInLibrary.class)
+          .addCategory(PrebuiltCompatibility.class);
 
   @Nonnull
-  public static final BooleanPropertyId EMIT_SOURCE_FILE_DEBUG_INFO = BooleanPropertyId.create(
-      "jack.dex.debug.source", "Emit source file debug info into generated dex")
-      .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
+  public static final BooleanPropertyId EMIT_SOURCE_FILE_DEBUG_INFO =
+      BooleanPropertyId.create(
+              "jack.dex.debug.source", "Emit source file debug info into generated dex")
+          .addDefaultValue(Boolean.TRUE)
+          .addCategory(DumpInLibrary.class)
+          .addCategory(PrebuiltCompatibility.class);
 
   @Nonnull
-  public static final IntegerPropertyId ANDROID_MIN_API_LEVEL = IntegerPropertyId
-      .create("jack.android.min-api-level", "Minimum Android API level compatibility")
-      .withMin(1)
-      .addDefaultValue(1)
+  public static final PropertyId<AndroidApiLevel> ANDROID_MIN_API_LEVEL = PropertyId
+      .create("jack.android.min-api-level", "Minimum Android API level compatibility",
+          new AndroidApiLevelCodec())
+      .addDefaultValue(new AndroidApiLevel(AndroidApiLevel.ReleasedLevel.B))
       .addCategory(DumpInLibrary.class)
       .addCategory(Carnac.class)
       .addCategory(new PrebuiltCompatibility() {
         @Override
         public boolean isCompatible(@Nonnull Config config, @Nonnull String valueFromLibrary)
             throws ParsingException {
-          return config.parseAs(valueFromLibrary, ANDROID_MIN_API_LEVEL).longValue()  <=
-              config.get(ANDROID_MIN_API_LEVEL).longValue();
+          AndroidApiLevel levelFromLib = config.parseAs(valueFromLibrary, ANDROID_MIN_API_LEVEL);
+          AndroidApiLevel levelFromConf = config.get(ANDROID_MIN_API_LEVEL);
+
+          if (levelFromLib.isReleasedLevel() && levelFromConf.isReleasedLevel()) {
+            return levelFromLib.getReleasedLevel() <= levelFromConf.getReleasedLevel();
+          } else if (!levelFromLib.isReleasedLevel() && !levelFromConf.isReleasedLevel()) {
+            return levelFromLib.getProvisionalLevel() == levelFromConf.getProvisionalLevel();
+          } else {
+            return false;
+          }
         }
       });
 
@@ -768,7 +797,7 @@ public class Options {
   private CodecContext codecContext = null;
 
   @Nonnull
-  private synchronized CodecContext getCondecContext() throws IllegalOptionsException {
+  private CodecContext getCodecContext() throws IllegalOptionsException {
     if (codecContext == null) {
       codecContext = new CodecContext();
 
@@ -845,14 +874,14 @@ public class Options {
           .setSeparator(",")
           .ensureUnicity();
 
-  public synchronized void ensurePluginManager()
+  public void ensurePluginManager()
       throws IllegalOptionsException {
     if (pluginManager == null) {
       List<InputJarFile> jars;
       try {
-        jars = PLUGIN_PATH_CODEC.checkString(getCondecContext(), pluginPath);
+        jars = PLUGIN_PATH_CODEC.checkString(getCodecContext(), pluginPath);
         if (jars == null) {
-          jars = PLUGIN_PATH_CODEC.parseString(getCondecContext(), pluginPath);
+          jars = PLUGIN_PATH_CODEC.parseString(getCodecContext(), pluginPath);
         }
         pluginManager = new PluginManager();
         try {
@@ -867,9 +896,9 @@ public class Options {
       }
 
       try {
-        List<String> names = PLUGIN_NAMES_CODEC.checkString(getCondecContext(), pluginNames);
+        List<String> names = PLUGIN_NAMES_CODEC.checkString(getCodecContext(), pluginNames);
         if (names == null) {
-          names = PLUGIN_NAMES_CODEC.parseString(getCondecContext(), pluginNames);
+          names = PLUGIN_NAMES_CODEC.parseString(getCodecContext(), pluginNames);
         }
         for (String name : names) {
           try {
@@ -887,7 +916,7 @@ public class Options {
   }
 
   @Nonnull
-  public synchronized PluginManager getPluginManager() {
+  public PluginManager getPluginManager() {
     assert pluginManager != null;
     return pluginManager;
   }
@@ -986,7 +1015,7 @@ public class Options {
       ensurePluginManager();
       configBuilder = new GatherConfigBuilder(sanityChecks,
           getPluginManager().getReflectionManager(ReflectionFactory.getManager()));
-      configBuilder.setCodecContext(getCondecContext());
+      configBuilder.setCodecContext(getCodecContext());
 
       try {
         InputStream is = new BufferedInputStream(new FileInputStream(propertiesFile));
@@ -1186,7 +1215,8 @@ public class Options {
     configBuilder.popDefaultLocation();
 
     if (importedLibraries != null) {
-      configBuilder.setString(IMPORTED_LIBRARIES, Joiner.on(',').join(importedLibraries));
+      configBuilder.setString(
+          IMPORTED_LIBRARIES, Joiner.on(File.pathSeparator).join(importedLibraries));
     }
 
     if (classpath != null) {

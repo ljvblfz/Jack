@@ -95,6 +95,10 @@ public class DexType {
     return ((item.getAccessFlags() & AccessFlags.ACC_FINAL) != 0);
   }
 
+  public boolean isPublic() {
+    return ((item.getAccessFlags() & AccessFlags.ACC_PUBLIC) != 0);
+  }
+
   @Nonnull
   public TypeIdItem getTypeId() {
     return item.getClassType();

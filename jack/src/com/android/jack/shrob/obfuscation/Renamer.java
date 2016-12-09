@@ -20,7 +20,6 @@ package com.android.jack.shrob.obfuscation;
 import com.android.jack.Jack;
 import com.android.jack.frontend.MethodIdDuplicateRemover.UniqMethodIds;
 import com.android.jack.ir.ast.CanBeRenamed;
-import com.android.jack.ir.ast.HasName;
 import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
@@ -29,14 +28,15 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSession;
-import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.library.DumpInLibrary;
 import com.android.jack.reporting.Reportable.ProblemLevel;
 import com.android.jack.reporting.Reporter.Severity;
+import com.android.jack.shrob.obfuscation.key.FieldKey;
+import com.android.jack.shrob.obfuscation.key.Key;
+import com.android.jack.shrob.obfuscation.key.MethodKey;
 import com.android.jack.shrob.obfuscation.nameprovider.NameProvider;
-import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.transformations.request.ChangeEnclosingPackage;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.jack.util.NamingTools;
@@ -154,37 +154,9 @@ public class Renamer implements RunnableSchedulable<JSession> {
         && !node.containsMarker(OriginalNameMarker.class);
   }
 
-  @Nonnull
-  static String getFieldKey(@Nonnull JFieldId fieldId) {
-    return fieldId.getName() + ':'
-        + GrammarActions.getSignatureFormatter().getName(fieldId.getType());
-  }
-
-  @Nonnull
-  static String getFieldKey(@Nonnull String name, @Nonnull JType type) {
-    return name + ':' + GrammarActions.getSignatureFormatter().getName(type);
-  }
-
-  @Nonnull
-  static String getMethodKey(@Nonnull String name, @Nonnull List<? extends JType> argumentTypes) {
-    return GrammarActions.getSignatureFormatter().getNameWithoutReturnType(name, argumentTypes);
-  }
-
-  @Nonnull
-  static String getKey(@Nonnull HasName namedElement) {
-    if (namedElement instanceof JFieldId) {
-      return Renamer.getFieldKey((JFieldId) namedElement);
-    } else if (namedElement instanceof JMethodIdWide) {
-      JMethodIdWide mid = (JMethodIdWide) namedElement;
-      return GrammarActions.getSignatureFormatter().getNameWithoutReturnType(mid);
-    } else {
-      return namedElement.getName();
-    }
-  }
-
   private static void rename(@Nonnull CanBeRenamed node, @Nonnull NameProvider nameProvider) {
     if (mustBeRenamed((MarkerManager) node)) {
-      String newName = nameProvider.getNewName(getKey(node));
+      String newName = nameProvider.getNewName(Key.getKey(node));
       ((MarkerManager) node).addMarker(new OriginalNameMarker(node.getName()));
       node.setName(newName);
     }
@@ -229,11 +201,10 @@ public class Renamer implements RunnableSchedulable<JSession> {
             boolean foundName;
             try {
               do {
-                String oldFieldKey = getKey(fieldId);
+                FieldKey oldFieldKey = new FieldKey(fieldId);
                 name = fieldNameProvider.getNewName(oldFieldKey);
-                foundName =
-                    FieldInHierarchyFinderVisitor.containsFieldKey(
-                        getFieldKey(name, field.getType()), field);
+                foundName = FieldInHierarchyFinderVisitor
+                    .containsFieldKey(new FieldKey(name, field.getType()), field);
                 if (foundName && !fieldNameProvider.hasAlternativeName(oldFieldKey)) {
                   throw new MaskedHierarchy(field.getName(), type, name);
                 }
@@ -263,11 +234,10 @@ public class Renamer implements RunnableSchedulable<JSession> {
             boolean foundName;
             try {
               do {
-                String oldMethodKey = getKey(methodId);
+                MethodKey oldMethodKey = new MethodKey(methodId);
                 name = methodNameProvider.getNewName(oldMethodKey);
-                foundName =
-                    MethodInHierarchyFinder.containsMethodKey(
-                        getMethodKey(name, methodId.getParamTypes()), methodId);
+                foundName = MethodInHierarchyFinder
+                    .containsMethodKey(new MethodKey(name, methodId.getParamTypes()), methodId);
                 if (foundName && !methodNameProvider.hasAlternativeName(oldMethodKey)) {
                   throw new MaskedHierarchy(methodId.getName(), type, name);
                 }
@@ -406,8 +376,8 @@ public class Renamer implements RunnableSchedulable<JSession> {
   @Override
   public void run(@Nonnull JSession session) {
     allTypes = session.getTypesToEmit();
-    Map<String, String> fieldNames = new HashMap<String, String>();
-    Map<String, String> methodNames = new HashMap<String, String>();
+    Map<FieldKey, String> fieldNames = new HashMap<FieldKey, String>();
+    Map<MethodKey, String> methodNames = new HashMap<MethodKey, String>();
     boolean useUniqueClassMemberNames =
         ThreadConfig.get(USE_UNIQUE_CLASSMEMBERNAMES).booleanValue();
     if (ThreadConfig.get(USE_MAPPING).booleanValue()) {

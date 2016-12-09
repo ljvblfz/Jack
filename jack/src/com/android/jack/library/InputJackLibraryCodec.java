@@ -17,7 +17,6 @@
 package com.android.jack.library;
 
 import com.android.jack.LibraryException;
-import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.codec.CodecContext;
 import com.android.sched.util.codec.MessageDigestCodec;
 import com.android.sched.util.codec.ParsingException;
@@ -37,11 +36,11 @@ import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.file.ZipException;
+import com.android.sched.vfs.BadVFSFormatException;
 import com.android.sched.vfs.CaseInsensitiveFS;
 import com.android.sched.vfs.DirectFS;
 import com.android.sched.vfs.ReadZipFS;
 import com.android.sched.vfs.VFS;
-import com.android.sched.vfs.WrongVFSFormatException;
 
 import java.io.File;
 import java.security.Provider.Service;
@@ -93,14 +92,12 @@ public class InputJackLibraryCodec implements StringCodec<InputJackLibrary> {
           vfs = new CaseInsensitiveFS(directFS, /* numGroups = */ JackLibrary.NUM_GROUPS_FOR_DIRS,
               /* groupSize = */ JackLibrary.GROUP_SIZE_FOR_DIRS,
               new MessageDigestFactory(service), /* debug = */ false);
-        } catch (WrongVFSFormatException e) {
+        } catch (BadVFSFormatException e) {
           vfs = directFS;
         }
       } else {
-        RunnableHooks hooks = context.getRunnableHooks();
         @SuppressWarnings("resource")
-        ReadZipFS rzFS = new ReadZipFS(new InputZipFile(workingDirectory, string, hooks,
-            Existence.MUST_EXIST, ChangePermission.NOCHANGE));
+        ReadZipFS rzFS = new ReadZipFS(new InputZipFile(workingDirectory, string));
         rzFS.setInfoString(infoString);
         vfs = rzFS;
       }

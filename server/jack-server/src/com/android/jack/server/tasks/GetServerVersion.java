@@ -21,7 +21,6 @@ import com.android.jack.server.JackHttpServer;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
@@ -29,9 +28,6 @@ import javax.annotation.Nonnull;
  * Administrative task: Returns server version.
  */
 public class GetServerVersion extends GetVersions {
-
-  @Nonnull
-  private static final Logger logger = Logger.getLogger(GetServerVersion.class.getName());
 
   public GetServerVersion(@Nonnull JackHttpServer jackServer) {
     super("server", jackServer);

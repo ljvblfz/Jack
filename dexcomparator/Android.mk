@@ -12,7 +12,7 @@ LOCAL_MODULE := dexcomparator
 LOCAL_MODULE_TAGS := optional
 
 LOCAL_JAVA_LIBRARIES := \
-    dx-jack \
+    jack \
     dexlib-jack \
     jsr305lib-jack \
     args4j-jack
@@ -29,7 +29,7 @@ LOCAL_JAR_MANIFEST := etc/manifest.txt
 LOCAL_MODULE_TAGS := optional
 
 LOCAL_STATIC_JAVA_LIBRARIES := \
-    dx-jack \
+    jack \
     dexlib-jack \
     jsr305lib-jack \
     args4j-jack

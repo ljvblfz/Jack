@@ -65,6 +65,7 @@ public class NEnumField extends NField {
     assert sourceInfo != null;
     assert name != null;
     assert type != null;
+    assert fieldId != null;
     JDefinedEnum enclosingType = (JDefinedEnum) exportSession.getCurrentType();
     assert enclosingType != null;
     JEnumField jField = new JEnumField(
@@ -73,7 +74,7 @@ public class NEnumField extends NField {
         ordinal,
         enclosingType,
         (JDefinedClass) exportSession.getLookup().getType(type),
-        new JayceFieldLoader(this, fieldNodeIndex, enclosingLoader));
+        new JayceFieldLoader(this, fieldId, enclosingLoader));
 
     assert name != null;
     assert type != null;

@@ -193,8 +193,9 @@ class RopRegisterManager {
       if (debugInfo != null) {
         // Debug info marker exists, uses debug information from it
         CstString cstSignature = null;
-        if (debugInfo.getGenericSignature() != null) {
-          cstSignature = new CstString(debugInfo.getGenericSignature());
+        String genericSignature = debugInfo.getGenericSignature();
+        if (genericSignature != null) {
+          cstSignature = new CstString(genericSignature);
         }
         LocalItem localItem = LocalItem.make(new CstString(debugInfo.getName()),
             CstType.intern(RopHelper.convertTypeToDx(debugInfo.getType())), cstSignature);

@@ -143,8 +143,9 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
       @Nonnull String[] classes, @Nonnull File... classpathFiles)
       throws RuntimeRunnerException {
 
-    // Assumes adb is in PATH
-    AndroidDebugBridge adb = AndroidDebugBridge.createBridge("adb", false);
+    AndroidDebugBridge adb;
+
+    adb = AndroidDebugBridge.createBridge(getAdbLocation(), false);
 
     long start = System.currentTimeMillis();
 
@@ -163,8 +164,17 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
         throw new RuntimeRunnerException(e);
       }
     }
+
     if (!isAdbInitialized(adb)) {
-      throw new RuntimeRunnerException("adb is not initialized");
+      if (AbstractTestTools.getAndroidSdkLocation() != null) {
+        throw new RuntimeRunnerException(
+            "Adb not found. Check SDK location '"
+                + AbstractTestTools.getAndroidSdkLocation()
+                + "'");
+      } else {
+        throw new RuntimeRunnerException(
+            "Adb not found. Set either PATH or 'android.sdk' property in configuration file");
+      }
     }
 
     if (isVerbose) {
@@ -361,6 +371,22 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
     return adb.isConnected() && adb.hasInitialDeviceList();
   }
 
+  @Nonnull
+  private String getAdbLocation() {
+    String adbLocation = "adb";
+    File userSpecifiedSdkLocation = AbstractTestTools.getAndroidSdkLocation();
+    if (userSpecifiedSdkLocation != null) {
+      adbLocation =
+          userSpecifiedSdkLocation.getPath()
+              + File.separatorChar
+              + "platform-tools"
+              + File.separatorChar
+              + "adb";
+    }
+    return adbLocation;
+  }
+
+
   private void ensureAdbRoot(@Nonnull IDevice device) throws RuntimeRunnerException {
     ShellOutputToStringReceiver outputToString = new ShellOutputToStringReceiver();
     try {
@@ -368,7 +394,7 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
 
       if (!outputToString.getOutput().contains("uid=0(root)")) {
         ExecuteFile ef;
-        ef = new ExecuteFile("adb -s " + device.getSerialNumber() + " root");
+        ef = new ExecuteFile(getAdbLocation() + " -s " + device.getSerialNumber() + " root");
         ef.inheritEnvironment();
         ef.setOut(System.out);
         ef.setErr(System.err);

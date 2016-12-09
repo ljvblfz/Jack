@@ -33,7 +33,7 @@ import javax.annotation.Nonnull;
 /**
  * A {@link StringCodec} is used to create an instance of a {@link ServiceLoader}.
  *
- * @param T the type of the service
+ * @param <T> the type of the service
  */
 public class ServiceJarCodec<T> implements StringCodec<InputJarFile> {
   @Nonnull

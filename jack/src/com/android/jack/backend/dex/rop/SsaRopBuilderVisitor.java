@@ -18,6 +18,7 @@ package com.android.jack.backend.dex.rop;
 
 import com.google.common.collect.Lists;
 
+import com.android.jack.backend.dex.invokecustom.InvokeCustomHelper;
 import com.android.jack.dx.rop.code.FillArrayDataInsn;
 import com.android.jack.dx.rop.code.Insn;
 import com.android.jack.dx.rop.code.PlainCstInsn;
@@ -33,6 +34,7 @@ import com.android.jack.dx.rop.code.ThrowingDualCstInsn;
 import com.android.jack.dx.rop.code.ThrowingInsn;
 import com.android.jack.dx.rop.cst.Constant;
 import com.android.jack.dx.rop.cst.CstBoolean;
+import com.android.jack.dx.rop.cst.CstCallSiteRef;
 import com.android.jack.dx.rop.cst.CstDouble;
 import com.android.jack.dx.rop.cst.CstFieldRef;
 import com.android.jack.dx.rop.cst.CstFloat;
@@ -60,6 +62,7 @@ import com.android.jack.ir.ast.FieldKind;
 import com.android.jack.ir.ast.JAbsentArrayDimension;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JAlloc;
+import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JArrayLength;
 import com.android.jack.ir.ast.JArrayRef;
 import com.android.jack.ir.ast.JArrayType;
@@ -125,17 +128,20 @@ import com.android.jack.ir.ast.cfg.JThrowingBasicBlock;
 import com.android.jack.ir.ast.cfg.JUnlockBlockElement;
 import com.android.jack.ir.ast.cfg.JVariableAsgBlockElement;
 import com.android.jack.ir.types.JIntegralType32;
+import com.android.jack.util.AndroidApiLevel;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 class SsaRopBuilderVisitor extends JVisitor {
+
+  @Nonnull
+  private final AndroidApiLevel apiLevel;
 
   @Nonnull
   private final SsaRopRegisterManager ropReg;
@@ -433,11 +439,13 @@ class SsaRopBuilderVisitor extends JVisitor {
 
   SsaRopBuilderVisitor(@Nonnull SsaRopRegisterManager ropReg,
       @Nonnull JBasicBlock currentBasicBlock, @Nonnull SsaBasicBlock ssaBb,
-      @Nonnull Map<JBasicBlock, Integer> labelMap) {
+      @Nonnull Map<JBasicBlock, Integer> labelMap,
+      @Nonnull AndroidApiLevel apiLevel) {
     this.ropReg = ropReg;
     this.currentBasicBlock = currentBasicBlock;
     this.ssaBb = ssaBb;
     this.labelMap = labelMap;
+    this.apiLevel = apiLevel;
   }
 
   @CheckForNull
@@ -1269,6 +1277,34 @@ class SsaRopBuilderVisitor extends JVisitor {
   }
 
   private void buildCall(@CheckForNull RegisterSpec result, @Nonnull JMethodCall methodCall) {
+    if (InvokeCustomHelper.isInvokeCustom(methodCall)
+        && apiLevel.getProvisionalLevel() == AndroidApiLevel.ProvisionalLevel.O_BETA2) {
+      JAnnotation invokeCustomCallSite = InvokeCustomHelper
+          .getInvokeCustomCallsite(methodCall.getMethodId().getMethods().iterator().next());
+      assert invokeCustomCallSite != null;
+      CstCallSiteRef callSiteRef =
+          InvokeCustomHelper.readInvokeCustomCallSite(invokeCustomCallSite);
+
+      SourcePosition methodCallSrcPos = RopHelper.getSourcePosition(methodCall);
+
+      RegisterSpecList sources = new RegisterSpecList(methodCall.getArgs().size());
+      int paramIndex = 0;
+      for (JExpression exprArg : methodCall.getArgs()) {
+        sources.set(paramIndex++, getRegisterSpec(exprArg));
+      }
+
+      Insn invokeCustom = new ThrowingCstInsn(
+          Rops.opInvokeCustom(callSiteRef.getCallSitePrototype().getPrototype()), methodCallSrcPos,
+          sources, getCatchTypes(), callSiteRef);
+      addInstruction(invokeCustom);
+
+      if (result != null) {
+        addMoveResultAsExtraInstruction(callSiteRef.getType(), result, methodCallSrcPos);
+      }
+
+      return;
+    }
+
     String signatureWithoutName = RopHelper.getMethodSignatureWithoutName(methodCall);
     SourcePosition methodCallSrcPos = RopHelper.getSourcePosition(methodCall);
 

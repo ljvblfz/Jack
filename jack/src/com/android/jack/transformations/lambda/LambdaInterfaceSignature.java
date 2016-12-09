@@ -36,6 +36,28 @@ import javax.annotation.Nonnull;
  * by a particular lambda class, i.e. essentially the transitive closure of the
  * interfaces the class explicitly specifies in its 'implements' clause.
  *
+ * Interface signature can be normalized or not. If it is normalized, it represents
+ * interfaces in a way, when order and set of interfaces 'directly' implemented
+ * by the lambda does not make difference, like in the example below. If the signature
+ * is not normalized, the set and order of 'directly' implemented interfaces matter.
+ *
+ * <pre>
+ *    interface A {}
+ *    interface B extends A {}
+ *    interface C { void m(); }
+ *
+ *    class Foo {
+ *      void bar() {
+ *        ((C & A & B) () -> {}).m();
+ *        ((C & B & A) () -> {}).m();
+ *        ((C & B) () -> {}).m();
+ *      }
+ *    }
+ * </pre>
+ *
+ * In the example above, normalized interface signature of these three
+ * lambdas will be the same, but not normalized signature will be different.
+ *
  * NOTE: interface signature is used for hashing and sorting purposes only, it is
  * not intended to actually store the exact set of the interfaces.
  */
@@ -51,25 +73,48 @@ final class LambdaInterfaceSignature {
   @Nonnull
   private final String allInterfaces;
 
-  private LambdaInterfaceSignature(@Nonnull JLambda lambda) {
+  private LambdaInterfaceSignature(@Nonnull JLambda lambda, boolean normalize) {
     StringBuilder sb = new StringBuilder();
-    List<JInterface> interfaces = new ArrayList<>(lambda.getInterfaceBounds());
-    interfaces.add(lambda.getType());
-    for (String key : getNormalizedInterfacesMap(interfaces).keySet()) {
-      sb.append(key);
+    List<JInterface> interfaces = extractOrderedInterfaces(lambda);
+    if (normalize) {
+      for (String key : getNormalizedInterfacesMap(interfaces).keySet()) {
+        sb.append(key);
+      }
+    } else {
+      for (JInterface inter : interfaces) {
+        sb.append(FORMATTER.getName(inter));
+      }
     }
     allInterfaces = sb.toString();
   }
 
   /** create an interface signature for a given lambda */
-  static LambdaInterfaceSignature forLambda(@Nonnull JLambda lambda) {
-    return new LambdaInterfaceSignature(lambda);
+  @Nonnull
+  static LambdaInterfaceSignature forLambda(@Nonnull JLambda lambda, boolean normalize) {
+    return new LambdaInterfaceSignature(lambda, normalize);
   }
 
   /** A short id that can be used to uniquely identify and sort interface signatures */
   @Nonnull
   String getUniqueId() {
     return allInterfaces;
+  }
+
+  /**
+   * Extracts interfaces from lambda in the order they should be present
+   * in the implementation class.
+   */
+  @Nonnull
+  static List<JInterface> extractOrderedInterfaces(@Nonnull JLambda lambda) {
+    ArrayList<JInterface> interfaces = new ArrayList<>();
+    JInterface mainInterface = lambda.getType();
+    interfaces.add(mainInterface);
+    for (JInterface bound : lambda.getInterfaceBounds()) {
+      if (!bound.isSameType(mainInterface)) {
+        interfaces.add(bound);
+      }
+    }
+    return interfaces;
   }
 
   /**
@@ -88,8 +133,7 @@ final class LambdaInterfaceSignature {
   static List<JInterface> normalizeInterfaces(@Nonnull List<JLambda> lambdas) {
     ArrayList<JInterface> interfaces = new ArrayList<>();
     for (JLambda lambda : lambdas) {
-      interfaces.addAll(lambda.getInterfaceBounds());
-      interfaces.add(lambda.getType());
+      interfaces.addAll(extractOrderedInterfaces(lambda));
     }
     return new ArrayList<>(getNormalizedInterfacesMap(interfaces).values());
   }

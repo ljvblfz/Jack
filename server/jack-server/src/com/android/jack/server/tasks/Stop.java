@@ -17,6 +17,7 @@
 package com.android.jack.server.tasks;
 
 import com.android.jack.server.JackHttpServer;
+import com.android.sched.util.log.LoggerFactory;
 
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
@@ -33,7 +34,7 @@ import javax.annotation.Nonnull;
 public class Stop extends SynchronousAdministrativeTask {
 
   @Nonnull
-  private static Logger logger = Logger.getLogger(Stop.class.getName());
+  private static Logger logger = LoggerFactory.getLogger();
 
   public Stop(@Nonnull JackHttpServer jackServer) {
     super(jackServer);

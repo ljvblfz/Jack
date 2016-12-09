@@ -40,6 +40,7 @@ import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
+import com.android.sched.vfs.BadVFSFormatException;
 import com.android.sched.vfs.DeflateFS;
 import com.android.sched.vfs.GenericInputVFS;
 import com.android.sched.vfs.InputVDir;
@@ -49,7 +50,6 @@ import com.android.sched.vfs.MessageDigestFS;
 import com.android.sched.vfs.PrefixedFS;
 import com.android.sched.vfs.VFS;
 import com.android.sched.vfs.VPath;
-import com.android.sched.vfs.WrongVFSFormatException;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -110,9 +110,10 @@ public class InputJackLibraryImpl extends InputJackLibrary {
     super(libraryProperties, jackOutputLibrary.getVfs());
     linkedOutputJackLib = jackOutputLibrary;
     originalVFS = jackOutputLibrary.getVfs();
+
+    check(); // check that this lib is valid before incrementing the output lib counter
     jackOutputLibrary.incrementNumLinkedLibraries();
 
-    check();
     fillFileTypes();
   }
 
@@ -184,7 +185,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
         try {
           inputVFS = new MessageDigestFS(inputVFS,
                   ThreadConfig.get(JackLibraryFactory.MESSAGE_DIGEST_ALGO));
-        } catch (WrongVFSFormatException e) {
+        } catch (BadVFSFormatException e) {
           // If library is well formed this exception can not be triggered
           throw new AssertionError(e);
         }
@@ -220,6 +221,11 @@ public class InputJackLibraryImpl extends InputJackLibrary {
       }
       closed = true;
     }
+  }
+
+  @Override
+  public boolean isClosed() {
+    return closed;
   }
 
   @Override
@@ -380,7 +386,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
           logger.log(Level.FINE, e.getMessage());
           return false;
         } catch (ParsingException e) {
-          logger.log(Level.FINE, "Property ''{0}'' is malformed from library {1}: {2}",
+          logger.log(Level.FINE, "Property ''{0}'' is not parsable from library {1}: {2}",
               new Object[] {property.getName(), getLocation().getDescription(), e.getMessage()});
           return false;
         }

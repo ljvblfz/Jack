@@ -26,7 +26,7 @@ import com.android.sched.transform.TransformStep;
 import javax.annotation.Nonnull;
 
 /**
- * A {@code TransformationStep} allowing to change the enclosing package of a {@code JPackage}
+ * A {@link TransformationStep} allowing to change the enclosing package of a {@link JPackage}.
  */
 public class ChangeEnclosingPackage implements TransformationStep, TransformStep {
 
@@ -39,6 +39,13 @@ public class ChangeEnclosingPackage implements TransformationStep, TransformStep
   @Nonnull
   private final JSession session = Jack.getSession();
 
+  /**
+   * Constructor specifying the package {@code newEnclosingPackage} that will become
+   * the enclosing package of {@code existingNode}.
+   *
+   * @param existingNode the existing {@link JNode} to update
+   * @param newEnclosingPackage the new enclosing package of the existing node
+   */
   public ChangeEnclosingPackage(
       @Nonnull HasEnclosingPackage existingNode, @Nonnull JPackage newEnclosingPackage) {
     assert existingNode != session.getTopLevelPackage()
@@ -47,6 +54,13 @@ public class ChangeEnclosingPackage implements TransformationStep, TransformStep
     this.existingNode = existingNode;
   }
 
+  /**
+   * Changes the enclosing package of the existing node to the new package. The existing node
+   * is removed from its previous enclosing package and added to the new one. The existing node
+   * becomes the parent of the new enclosing package.
+   *
+   * @see HasEnclosingPackage#setEnclosingPackage(JPackage)
+   */
   @Override
   public void apply() throws UnsupportedOperationException {
     JPackage enclosingPackage = existingNode.getEnclosingPackage();

@@ -23,7 +23,7 @@ import com.google.common.collect.Collections2;
 import com.android.sched.util.config.ConfigurationError;
 
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.annotation.CheckForNull;
@@ -43,9 +43,17 @@ public class OrCodec<T> implements StringCodec<T> {
     this.codecList = codecList;
   }
 
+
+  @SafeVarargs
   public OrCodec(@Nonnull StringCodec<? extends T>... codecList) {
     assert codecList.length >= 2;
     this.codecList = Arrays.asList(codecList);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Nonnull
+  public StringCodec<? extends T>[] getCodecs() {
+    return codecList.toArray(new StringCodec[codecList.size()]);
   }
 
   @Override
@@ -103,7 +111,13 @@ public class OrCodec<T> implements StringCodec<T> {
   @Override
   @Nonnull
   public List<ValueDescription> getValueDescriptions() {
-    return Collections.<ValueDescription> emptyList();
+    List<ValueDescription> descriptions = new LinkedList<>();
+
+    for (StringCodec<? extends T> codec : codecList) {
+      descriptions.addAll(codec.getValueDescriptions());
+    }
+
+    return descriptions;
   }
 
   @SuppressWarnings("unchecked")

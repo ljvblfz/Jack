@@ -216,6 +216,10 @@ public class LambdaTest {
       AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test038"),
       "com.android.jack.java8.lambda.test038.jack.Tests");
 
+  private RuntimeTestInfo LAMBDA042 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test042"),
+      "com.android.jack.java8.lambda.test042.Tests").setSrcDirName("");
+
   @Test
   @Runtime
   public void testLamba001() throws Exception {
@@ -794,6 +798,12 @@ public class LambdaTest {
             new File(TestsProperties.getJackRootDir(), "jack-tests/prebuilts/junit4-hostdex.jar"),
             new File(libDexFolder, DexFileWriter.DEX_FILENAME),
             new File(srcDexFolder, DexFileWriter.DEX_FILENAME)});
+  }
+
+  @Test
+  @Runtime
+  public void testLamba042() throws Exception {
+    run(LAMBDA042);
   }
 
   private void run(@Nonnull String mainClass, @Nonnull File[] dexFiles) throws Exception {

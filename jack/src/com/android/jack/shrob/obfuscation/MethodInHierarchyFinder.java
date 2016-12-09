@@ -19,6 +19,8 @@ package com.android.jack.shrob.obfuscation;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodIdWide;
+import com.android.jack.shrob.obfuscation.key.Key;
+import com.android.jack.shrob.obfuscation.key.MethodKey;
 
 import javax.annotation.Nonnull;
 
@@ -28,11 +30,11 @@ import javax.annotation.Nonnull;
 public class MethodInHierarchyFinder extends OneTimeHierarchyVisitor {
 
   @Nonnull
-  private final String methodKey;
+  private final MethodKey methodKey;
 
   private boolean hasFoundMethodId = false;
 
-  private MethodInHierarchyFinder(@Nonnull String methodKey) {
+  private MethodInHierarchyFinder(@Nonnull MethodKey methodKey) {
     this.methodKey = methodKey;
   }
 
@@ -41,7 +43,7 @@ public class MethodInHierarchyFinder extends OneTimeHierarchyVisitor {
     for (JMethod sameEnclosingTypeMethod : type.getMethods()) {
       JMethodIdWide id = sameEnclosingTypeMethod.getMethodId().getMethodIdWide();
       if (!id.canBeVirtual() && !Renamer.mustBeRenamed(id)) {
-        if (Renamer.getKey(id).equals(methodKey)) {
+        if (Key.getKey(id).equals(methodKey)) {
           hasFoundMethodId = true;
           return;
         }
@@ -55,8 +57,8 @@ public class MethodInHierarchyFinder extends OneTimeHierarchyVisitor {
   @Override
   public boolean doAction(@Nonnull JDefinedClassOrInterface type) {
     // Search in already renamed methods
-    NewMethodSignatureMarker marker = type.getMarker(NewMethodSignatureMarker.class);
-    if (marker != null && marker.getNewNames().contains(methodKey)) {
+    NewMethodKeyMarker marker = type.getMarker(NewMethodKeyMarker.class);
+    if (marker != null && marker.getNewKeys().contains(methodKey)) {
       hasFoundMethodId = true;
       return false;
     }
@@ -65,7 +67,7 @@ public class MethodInHierarchyFinder extends OneTimeHierarchyVisitor {
     for (JMethod sameEnclosingTypeMethod : type.getMethods()) {
       JMethodIdWide id = sameEnclosingTypeMethod.getMethodId().getMethodIdWide();
       if (id.canBeVirtual() && !Renamer.mustBeRenamed(id)) {
-        if (Renamer.getKey(id).equals(methodKey)) {
+        if (Key.getKey(id).equals(methodKey)) {
           hasFoundMethodId = true;
           return false;
         }
@@ -75,7 +77,7 @@ public class MethodInHierarchyFinder extends OneTimeHierarchyVisitor {
   }
 
   public static boolean containsMethodKey(
-      @Nonnull String methodKey, @Nonnull JMethodIdWide methodId) {
+      @Nonnull MethodKey methodKey, @Nonnull JMethodIdWide methodId) {
     MethodInHierarchyFinder visitor = new MethodInHierarchyFinder(methodKey);
     for (JMethod otherMethod : methodId.getMethods()) {
       visitor.startVisit(otherMethod.getEnclosingType());

@@ -16,6 +16,8 @@
 
 package com.android.jack.server.router;
 
+import com.android.sched.util.log.LoggerFactory;
+
 import org.simpleframework.http.Method;
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
@@ -35,7 +37,7 @@ import javax.annotation.Nonnull;
 public class MethodRouter implements Container {
 
   @Nonnull
-  private static Logger logger = Logger.getLogger(MethodRouter.class.getName());
+  private static Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
   private final Map<String, Container> registry = new HashMap<String, Container>();
@@ -66,6 +68,7 @@ public class MethodRouter implements Container {
     if (container != null) {
       container.handle(request, response);
     } else {
+      logger.log(Level.INFO, "Using primary route for method '" + method + "'");
       primary.handle(request, response);
     }
   }

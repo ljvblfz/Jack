@@ -16,8 +16,8 @@
 
 package com.android.sched.util.codec;
 
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Locale;
 
 import javax.annotation.Nonnull;
 
@@ -39,13 +39,24 @@ public class QuantityFormatter implements Formatter<Long> {
   private int     base;
 
   @Nonnull
-  private DecimalFormat formatter = (DecimalFormat) NumberFormat.getIntegerInstance();
+  private NumberFormat formatter;
 
   public QuantityFormatter() {
     si = true;
     prefix = UNIT_PREFIX_SI;
     base = 1000;
+    formatter = NumberFormat.getIntegerInstance();
     formatter.setMaximumFractionDigits(4);
+    formatter.setGroupingUsed(false);
+  }
+
+  public QuantityFormatter(@Nonnull Locale locale) {
+    si = true;
+    prefix = UNIT_PREFIX_SI;
+    base = 1000;
+    formatter = NumberFormat.getIntegerInstance(locale);
+    formatter.setMaximumFractionDigits(4);
+    formatter.setGroupingUsed(false);
   }
 
   @Nonnull
@@ -81,12 +92,12 @@ public class QuantityFormatter implements Formatter<Long> {
   }
 
   @Nonnull
-  public DecimalFormat getNumberFormatter() {
+  public NumberFormat getNumberFormatter() {
     return formatter;
   }
 
   @Nonnull
-  public QuantityFormatter setNumberFormatter(@Nonnull DecimalFormat formatter) {
+  public QuantityFormatter setNumberFormatter(@Nonnull NumberFormat formatter) {
     this.formatter = formatter;
 
     return this;
@@ -97,32 +108,25 @@ public class QuantityFormatter implements Formatter<Long> {
   public String formatValue(@Nonnull Long data) {
     StringBuilder sb = new StringBuilder();
     long value = data.longValue();
-    boolean negative = value < 0;
+    long absValue = (value < 0) ? -value : value;
 
-    if (negative) {
-      sb.append(formatter.getNegativePrefix());
-      value = -value;
-    }
-
-    if (value < base) {
-      sb.append(value);
+    if (absValue < base) {
+      sb.append(formatter.format(value));
       if (!unit.isEmpty()) {
         sb.append(' ');
       }
     } else {
-      int exp = (int) (Math.log(value) / Math.log(base));
-      sb.append(formatter.format(Double.valueOf(value / Math.pow(base, exp))));
+      int exp = (int) (Math.log(absValue) / Math.log(base));
+      double d = Double.valueOf(absValue / Math.pow(base, exp)).doubleValue();
+      sb.append(formatter.format((value < 0) ? -d : d));
       sb.append(' ');
       sb.append(prefix[exp - 1]);
       if (!si) {
         sb.append('i');
       }
     }
-    sb.append(unit);
 
-    if (negative) {
-      sb.append(formatter.getNegativeSuffix());
-    }
+    sb.append(unit);
 
     return sb.toString();
   }

@@ -24,7 +24,7 @@ umask 077
 # Settings
 #
 JACK_HOME="${JACK_HOME:=$HOME/.jack-server}"
-CLIENT_SETTING="${CLIENT_SETTING:=$HOME/.jack-settings}"
+JACK_CLIENT_SETTING="${JACK_CLIENT_SETTING:=$HOME/.jack-settings}"
 TMPDIR=${TMPDIR:=/tmp}
 JACK_SERVER_VM_ARGUMENTS="${JACK_SERVER_VM_ARGUMENTS:=-Dfile.encoding=UTF-8}"
 JACK_EXTRA_CURL_OPTIONS=${JACK_EXTRA_CURL_OPTIONS:=}
@@ -45,27 +45,27 @@ JACK_CONNECTION_TIMEOUT=300
 #
 # Load client settings
 #
-if [ -f "$CLIENT_SETTING" ]; then
-  source "$CLIENT_SETTING"
+if [ -f "$JACK_CLIENT_SETTING" ]; then
+  source "$JACK_CLIENT_SETTING"
 fi
 
 #
 # Create or update client settings if needed
 #
-if [[ ! -f "$CLIENT_SETTING" || $SETTING_VERSION -lt 4 ]]; then
-  echo "Writing client settings in" $CLIENT_SETTING
-  cat >"$CLIENT_SETTING.$$" <<-EOT
+if [[ ! -f "$JACK_CLIENT_SETTING" || $SETTING_VERSION -lt 4 ]]; then
+  echo "Writing client settings in" $JACK_CLIENT_SETTING
+  cat >"$JACK_CLIENT_SETTING.$$" <<-EOT
 	# Server settings
-	SERVER_HOST=${SERVER_HOST:=127.0.0.1}
+	SERVER_HOST=${SERVER_HOST:=localhost}
 	SERVER_PORT_SERVICE=${SERVER_PORT_SERVICE:=8076}
 	SERVER_PORT_ADMIN=${SERVER_PORT_ADMIN:=8077}
 
 	# Internal, do not touch
 	SETTING_VERSION=4
 EOT
-  ln -f "$CLIENT_SETTING.$$" "$CLIENT_SETTING"
-  rm "$CLIENT_SETTING.$$"
-  source "$CLIENT_SETTING"
+  ln -f "$JACK_CLIENT_SETTING.$$" "$JACK_CLIENT_SETTING"
+  rm "$JACK_CLIENT_SETTING.$$"
+  source "$JACK_CLIENT_SETTING"
 fi
 
 usage () {
@@ -613,8 +613,8 @@ case $COMMAND in
 
     echo "Collecting Jack client configuration..."
     echo >>"$REPORT_INFO"
-    echo "\$ cat \"\$CLIENT_SETTING\"" >>"$REPORT_INFO"
-             cat   "$CLIENT_SETTING"   >>"$REPORT_INFO" 2>&1
+    echo "\$ cat \"\$JACK_CLIENT_SETTING\"" >>"$REPORT_INFO"
+             cat   "$JACK_CLIENT_SETTING"   >>"$REPORT_INFO" 2>&1
 
     echo "Listing Jack server installation dir..."
     echo >>"$REPORT_INFO"

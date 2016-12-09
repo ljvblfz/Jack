@@ -44,7 +44,7 @@ public class SdkReporter extends CommonReporter {
       @Nonnull String message, @CheckForNull Location location) {
     String escapedMessage = convertString(message);
 
-    StringBuffer messageBuffer = new StringBuffer("MESSAGE:{");
+    StringBuffer messageBuffer = new StringBuffer("AGPBI: {");
 
     messageBuffer.append("\"kind\":\"").append(convertLevelName(problemLevel)).append("\",");
     messageBuffer.append("\"text\":\"").append(escapedMessage).append("\",");
@@ -82,21 +82,25 @@ public class SdkReporter extends CommonReporter {
           int sdkEndColumn = SDK_UNKNOWN_VALUE;
 
           if (call.hasStartLine()) {
-            sdkStartLine = call.getStartLine();
+            sdkStartLine = call.getStartLine() - 1; // first line is line 0 for the SDK
+            assert sdkStartLine >= 0;
           }
 
           if (call.hasEndLine()) {
-            sdkEndLine = call.getEndLine();
+            sdkEndLine = call.getEndLine() - 1; // first line is line 0 for the SDK
+            assert sdkEndLine >= 0;
           } else {
             sdkEndLine = sdkStartLine;
           }
 
           if (call.hasStartColumn()) {
-            sdkStartColumn = call.getStartColumn();
+            sdkStartColumn = call.getStartColumn() - 1; // first column is column 0 for the SDK
+            assert sdkStartColumn >= 0;
           }
 
           if (call.hasEndColumn()) {
-            sdkEndColumn = call.getEndColumn();
+            sdkEndColumn = call.getEndColumn() - 1; // first column is column 0 for the SDK
+            assert sdkEndColumn >= 0;
           } else {
             sdkEndColumn = sdkStartColumn;
           }
@@ -139,7 +143,7 @@ public class SdkReporter extends CommonReporter {
   // http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf
   @Nonnull
   private static String convertString(@Nonnull String s) {
-    StringBuffer buffer = new StringBuffer();
+    StringBuilder buffer = new StringBuilder();
     for (int i = 0; i < s.length(); i++) {
       char c = s.charAt(i);
       switch (c) {

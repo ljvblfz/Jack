@@ -34,4 +34,8 @@ public interface InputVFS extends HasLocation, AutoCloseable {
   String getDigest();
   @Override
   void close() throws CannotCloseException;
+
+  boolean isClosed();
+  @Nonnull
+  VFS getVFS();
 }

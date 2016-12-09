@@ -1,0 +1,2 @@
+This tests contains an Interface with a default method which should be kept if
+the overridden method is kept as well or is in the classpath.

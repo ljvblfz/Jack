@@ -22,8 +22,10 @@ import com.android.jack.ir.ast.JNameValuePair;
 import javax.annotation.Nonnull;
 
 /**
- * A {@code TransformationStep} allowing to put a {@link JNameValuePair}
+ * A {@link TransformationStep} allowing to put a {@link JNameValuePair}
  * in a {@link JAnnotation} (replaces existing pair with same name).
+ *
+ * @see AddNameValuePair
  */
 public class PutNameValuePair implements TransformationStep {
   @Nonnull
@@ -31,6 +33,12 @@ public class PutNameValuePair implements TransformationStep {
   @Nonnull
   private final JNameValuePair pair;
 
+  /**
+   * Constructor specifying a name-value pair to put to an annotation.
+   *
+   * @param annotation the annotation to update
+   * @param nameValuePair the name-value pair to add to the annotation
+   */
   public PutNameValuePair(@Nonnull JAnnotation annotation,
       @Nonnull JNameValuePair nameValuePair) {
     this.annotation = annotation;

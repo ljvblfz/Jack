@@ -202,7 +202,7 @@ public class VFSTest {
   public void testCaseInsensitiveFS()
       throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
       NoSuchFileException, FileAlreadyExistsException, IOException, CannotDeleteFileException,
-      NotFileOrDirectoryException, CannotCloseException, WrongVFSFormatException {
+      NotFileOrDirectoryException, CannotCloseException, BadVFSFormatException {
     File file = null;
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
@@ -244,7 +244,7 @@ public class VFSTest {
   public void testMessageDigestFS()
       throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
       NoSuchFileException, FileAlreadyExistsException, IOException, CannotDeleteFileException,
-      NotFileOrDirectoryException, CannotCloseException, WrongVFSFormatException {
+      NotFileOrDirectoryException, CannotCloseException, BadVFSFormatException {
     File file = null;
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
@@ -301,7 +301,7 @@ public class VFSTest {
   public void testMessageDigestFSWithCaseInsensitiveFS()
       throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
       NoSuchFileException, FileAlreadyExistsException, IOException, CannotDeleteFileException,
-      NotFileOrDirectoryException, CannotCloseException, WrongVFSFormatException {
+      NotFileOrDirectoryException, CannotCloseException, BadVFSFormatException {
     File file = null;
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
@@ -365,7 +365,7 @@ public class VFSTest {
   public void testDeflatePrefixedCaseInsensitiveDirectFS()
       throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
       NoSuchFileException, FileAlreadyExistsException, IOException, CannotDeleteFileException,
-      NotFileOrDirectoryException, CannotCloseException, WrongVFSFormatException {
+      NotFileOrDirectoryException, CannotCloseException, BadVFSFormatException {
     File file = null;
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
@@ -413,7 +413,7 @@ public class VFSTest {
   public void testMessageDigestFSWithCachedDirectFS()
       throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
       NoSuchFileException, FileAlreadyExistsException, IOException, CannotDeleteFileException,
-      NotFileOrDirectoryException, CannotCloseException, WrongVFSFormatException {
+      NotFileOrDirectoryException, CannotCloseException, BadVFSFormatException {
     File file = null;
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
@@ -543,8 +543,7 @@ public class VFSTest {
       ioVFS1.close();
       writeZipFS.close();
 
-      ReadZipFS readZipFS = new ReadZipFS(
-          new InputZipFile(path, null, Existence.MUST_EXIST, ChangePermission.NOCHANGE));
+      ReadZipFS readZipFS = new ReadZipFS(new InputZipFile(path));
 
       ioVFS2 = new GenericInputOutputVFS(new PrefixedFS(readZipFS, new VPath(prefix, '/')));
       testInputVFS(ioVFS2);
@@ -569,7 +568,7 @@ public class VFSTest {
   public void testPrefixedFSWithCaseInsensitiveFS()
       throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
       NoSuchFileException, FileAlreadyExistsException, IOException, CannotDeleteFileException,
-      NotFileOrDirectoryException, CannotCloseException, WrongVFSFormatException {
+      NotFileOrDirectoryException, CannotCloseException, BadVFSFormatException {
     File file = null;
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
@@ -615,7 +614,7 @@ public class VFSTest {
   public void testMessageDigestFSWithPrefixedFSAndCaseInsensitiveFS()
       throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
       NoSuchFileException, FileAlreadyExistsException, IOException, CannotDeleteFileException,
-      NotFileOrDirectoryException, CannotCloseException, WrongVFSFormatException {
+      NotFileOrDirectoryException, CannotCloseException, BadVFSFormatException {
     File file = null;
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
@@ -684,8 +683,7 @@ public class VFSTest {
           Existence.MAY_EXIST, ChangePermission.NOCHANGE, Compression.COMPRESSED)));
       testOutputVFS(ioVFS1);
       ioVFS1.close();
-      iVFS2 = new GenericInputVFS(new ReadZipFS(
-          new InputZipFile(path, null, Existence.MUST_EXIST, ChangePermission.NOCHANGE)));
+      iVFS2 = new GenericInputVFS(new ReadZipFS(new InputZipFile(path)));
       testInputVFS(iVFS2);
       checkZipLocations(iVFS2);
     } finally {
@@ -730,8 +728,7 @@ public class VFSTest {
       // create UnionVFS with dir and read-only zip
       List<VFS> vfsList = new ArrayList<VFS>(2);
       vfsList.add(dirVFS);
-      vfsList.add(new ReadZipFS(new InputZipFile(zipFile.getPath(), null, Existence.MUST_EXIST,
-          ChangePermission.NOCHANGE)));
+      vfsList.add(new ReadZipFS(new InputZipFile(zipFile.getPath())));
       VFS unionVFS = new UnionVFS(vfsList);
       testInputVFS(new GenericInputVFS(unionVFS));
 
@@ -831,7 +828,7 @@ public class VFSTest {
   public void testIncrementalStack() throws IOException, CannotCreateFileException,
       WrongPermissionException, CannotChangePermissionException, NoSuchFileException,
       FileAlreadyExistsException, ZipException, NotFileOrDirectoryException,
-      CannotDeleteFileException, CannotCloseException, WrongVFSFormatException {
+      CannotDeleteFileException, CannotCloseException, BadVFSFormatException {
     final VPath prefix = new VPath("pre", '/');
     File inputZipFile = null;
     File outputZipFile = null;
@@ -872,8 +869,7 @@ public class VFSTest {
       {
         List<VFS> vfsList = new ArrayList<VFS>(2);
         vfsList.add(ciVFS);
-        vfsList.add(new ReadZipFS(new InputZipFile(inputZipFile.getPath(), null,
-            Existence.MUST_EXIST, ChangePermission.NOCHANGE)));
+        vfsList.add(new ReadZipFS(new InputZipFile(inputZipFile.getPath())));
         VFS unionVFS = new UnionVFS(vfsList);
         rwzfs.setWorkVFS(unionVFS);
       }
@@ -1067,8 +1063,7 @@ public class VFSTest {
 //      checkZipLocations(zipVFS);
       testInputVFS(zipVFS);
       zipVFS.close();
-      inputZipVFS = new GenericInputVFS(new ReadZipFS(
-          new InputZipFile(path, null, Existence.MUST_EXIST, ChangePermission.NOCHANGE)));
+      inputZipVFS = new GenericInputVFS(new ReadZipFS(new InputZipFile(path)));
       testInputVFS(inputZipVFS);
       checkZipLocations(inputZipVFS);
     } finally {
@@ -1088,7 +1083,7 @@ public class VFSTest {
   public void testDeflateFSWithMessageDigestFS()
       throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
       NoSuchFileException, FileAlreadyExistsException, IOException, CannotDeleteFileException,
-      NotFileOrDirectoryException, ZipException, CannotCloseException, WrongVFSFormatException {
+      NotFileOrDirectoryException, ZipException, CannotCloseException, BadVFSFormatException {
     File file = null;
     InputOutputVFS ioVFS1 = null;
     InputVFS ioVFS2 = null;
@@ -1116,7 +1111,7 @@ public class VFSTest {
       ioVFS1.close();
 
       ioVFS2 = new GenericInputVFS(new DeflateFS(new MessageDigestFS(new ReadZipFS(
-          new InputZipFile(file.getPath(), null, Existence.MUST_EXIST, ChangePermission.NOCHANGE)),
+          new InputZipFile(file.getPath())),
           new MessageDigestFactory(sha1))));
       testInputVFS(ioVFS2);
 

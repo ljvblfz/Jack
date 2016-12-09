@@ -20,10 +20,22 @@ import com.android.jack.api.JackProvider;
 import com.android.jack.server.JackHttpServer;
 import com.android.jack.server.JackHttpServer.Program;
 import com.android.jack.server.NoSuchVersionException;
+import com.android.jack.server.UnsupportedProgramException;
 import com.android.jack.server.type.ExactCodeVersionFinder;
 import com.android.sched.util.SubReleaseKind;
 import com.android.sched.util.Version;
+import com.android.sched.util.file.CannotChangePermissionException;
+import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.Directory;
+import com.android.sched.util.file.FileAlreadyExistsException;
+import com.android.sched.util.file.FileOrDirectory.ChangePermission;
+import com.android.sched.util.file.FileOrDirectory.Existence;
+import com.android.sched.util.file.FileOrDirectory.Permission;
+import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotDirectoryException;
+import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.findbugs.SuppressFBWarnings;
+import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.stream.ByteStreamSucker;
 
 import org.simpleframework.http.Part;
@@ -38,6 +50,9 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -49,7 +64,7 @@ import javax.annotation.Nonnull;
 public class InstallJack extends SynchronousAdministrativeTask {
 
   @Nonnull
-  private static Logger logger = Logger.getLogger(InstallJack.class.getName());
+  private static Logger logger = LoggerFactory.getLogger();
 
   public InstallJack(@Nonnull JackHttpServer jackServer) {
     super(jackServer);
@@ -76,25 +91,35 @@ public class InstallJack extends SynchronousAdministrativeTask {
     InputStream jarIn = null;
     FileOutputStream out = null;
     File tmpJack = null;
-    File jackDir = new File(jackServer.getServerDir(), programName);
     try {
+      Directory jackDir = new Directory(new File(jackServer.getServerDir(), programName).getPath(),
+          null,
+          Existence.MUST_EXIST,
+          Permission.READ | Permission.WRITE,
+          ChangePermission.NOCHANGE);
       jarIn = jarPart.getInputStream();
-      tmpJack = File.createTempFile("jackserver-", ".tmp", jackDir);
+      tmpJack = com.android.sched.util.file.Files.createTempFile("jackserver-", ".tmp", jackDir);
       out = new FileOutputStream(tmpJack);
       new ByteStreamSucker(jarIn, out).suck();
       out.close();
       out = null;
 
-      URLClassLoader tmpLoader;
+      Version version;
       try {
-        tmpLoader = new URLClassLoader(new URL[] {tmpJack.toURI().toURL()},
+        final URL[] path = new URL[] {tmpJack.toURI().toURL()};
+        URLClassLoader tmpLoader = new URLClassLoader(path,
             this.getClass().getClassLoader());
+        JackProvider tmpProvider = JackHttpServer.getJackProvider(tmpLoader, path);
+        version = JackHttpServer.getJackVersion(tmpProvider);
       } catch (MalformedURLException e) {
         logger.log(Level.SEVERE, e.getMessage(), e);
         throw new AssertionError();
+      } catch (UnsupportedProgramException e) {
+        logger.log(Level.WARNING, "Uploaded jar does not contain a supported Jack");
+        response.setStatus(Status.BAD_REQUEST);
+        return;
       }
 
-      Version version = new Version("jack", tmpLoader);
       try {
         if (version.getSubReleaseKind() != SubReleaseKind.ENGINEERING) {
           jackServer.selectJack(
@@ -108,10 +133,27 @@ public class InstallJack extends SynchronousAdministrativeTask {
       } catch (NoSuchVersionException e) {
         // expected
       }
-      File newInstalledJack = File.createTempFile("jack-", ".jar", jackDir);
-      if (!tmpJack.renameTo(newInstalledJack)) {
+      File newInstalledJack = com.android.sched.util.file.Files.createTempFile("jack-", ".jar",
+          jackDir);
+
+      try {
+        try {
+          Files.move(
+              tmpJack.toPath(),
+              newInstalledJack.toPath(),
+              StandardCopyOption.REPLACE_EXISTING,
+              StandardCopyOption.ATOMIC_MOVE);
+        } catch (AtomicMoveNotSupportedException e) {
+          logger.log(Level.WARNING, "Atomic move not supported for renaming '" + tmpJack.getPath()
+            + "' to '" + newInstalledJack.getPath() + "'");
+          Files.move(
+              tmpJack.toPath(),
+              newInstalledJack.toPath(),
+              StandardCopyOption.REPLACE_EXISTING);
+        }
+      } catch (IOException e) {
         logger.log(Level.SEVERE, "Failed to rename '" + tmpJack
-            + "' to '" + newInstalledJack + "'");
+            + "' to '" + newInstalledJack + "'", e);
         if (!newInstalledJack.delete()) {
           logger.log(Level.WARNING, "Failed to delete empty file '" + newInstalledJack + "'");
         }
@@ -120,7 +162,9 @@ public class InstallJack extends SynchronousAdministrativeTask {
       }
       jackServer.addInstalledJack(
           new Program<JackProvider>(version, newInstalledJack, null));
-    } catch (IOException e) {
+    } catch (IOException | CannotCreateFileException | CannotChangePermissionException
+        | NotDirectoryException | WrongPermissionException | NoSuchFileException
+        | FileAlreadyExistsException e) {
       logger.log(Level.SEVERE, e.getMessage(), e);
       response.setStatus(Status.INTERNAL_SERVER_ERROR);
       return;

@@ -90,4 +90,9 @@ public class JMethodCall extends JAbstractMethodCall {
   public DispatchKind getDispatchKind() {
     return dispatchKind;
   }
+
+  @Override
+  public boolean isCallToPolymorphicMethod() {
+    return isCallToPolymorphicMethod(getReceiverType(), getMethodId(), getType());
+  }
 }

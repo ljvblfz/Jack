@@ -280,7 +280,6 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
       T node = readNode(nodeClass);
       if (node != null) {
         nodes.add(node);
-        node.setIndex(i);
       }
     }
     tokenizer.readClose();

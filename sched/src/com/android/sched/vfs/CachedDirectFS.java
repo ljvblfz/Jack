@@ -16,14 +16,12 @@
 
 package com.android.sched.vfs;
 
-import com.android.sched.util.ConcurrentIOException;
 import com.android.sched.util.file.AbstractStreamFile;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.CannotGetModificationTimeException;
 import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileAlreadyExistsException;
-import com.android.sched.util.file.FileOrDirectory;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
@@ -31,7 +29,12 @@ import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.DirectoryLocation;
 import com.android.sched.util.location.FileLocation;
+import com.android.sched.util.location.HasLocation;
 import com.android.sched.util.location.Location;
+import com.android.sched.util.log.LoggerFactory;
+import com.android.sched.util.stream.QueryableInputStream;
+import com.android.sched.util.stream.QueryableOutputStream;
+import com.android.sched.util.stream.QueryableStream;
 import com.android.sched.vfs.CachedDirectFS.CachedParentVDir;
 import com.android.sched.vfs.CachedDirectFS.CachedParentVFile;
 
@@ -47,7 +50,11 @@ import java.nio.file.attribute.FileTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -140,11 +147,16 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
   }
 
   @Nonnull
+  private static final Logger logger = LoggerFactory.getLogger();
+  @Nonnull
   private final Directory  dir;
   @Nonnull
   private final CachedParentVDir root;
   @Nonnull
   private final Set<Capabilities> capabilities;
+  @Nonnull
+  private final List<TrackedStream> openedStreams =
+      Collections.synchronizedList(new LinkedList<TrackedStream>());
   @CheckForNull
   private String infoString;
 
@@ -205,7 +217,32 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
 
   @Override
   public synchronized void close() {
-    closed = true;
+    if (!closed) {
+      assert areStreamsClosed()
+          : "At least one stream from VFS '"
+              + getDescription()
+              + "' in "
+              + getLocation().getDescription()
+              + " has not been closed, see log for details";
+      openedStreams.clear();
+      closed = true;
+    }
+  }
+
+  private boolean areStreamsClosed() {
+    boolean allClosed = true;
+    synchronized (openedStreams) { // iteration on synchronized list needs to use the list as lock
+      for (TrackedStream stream : openedStreams) {
+        if (!stream.isClosed()) {
+          logger.log(
+              Level.SEVERE,
+              "Stream from {0} hasn't been closed",
+              stream.getLocation().getDescription());
+          allClosed &= false;
+        }
+      }
+    }
+    return allClosed;
   }
 
   @Override
@@ -219,6 +256,7 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
     return root;
   }
 
+  @SuppressWarnings("resource")
   @Override
   @Nonnull
   InputStream openRead(@Nonnull CachedParentVFile file) throws WrongPermissionException {
@@ -229,10 +267,15 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
 
     File path = getNativeFile(file.getPath());
     try {
-      return new FileInputStream(path);
+      InputStream is = new FileInputStream(path);
+      assert (is = trackOpenedStream(is, file)) != null;
+      return is;
     } catch (FileNotFoundException e) {
-      FileOrDirectory.checkPermissions(path, file.getLocation(), Permission.READ);
-      throw new ConcurrentIOException(e);
+
+      DirectFS.checkPermissionsIfExists(path, file.getLocation(), Permission.READ);
+
+      // should not happen
+      throw new AssertionError(e);
     }
   }
 
@@ -242,6 +285,7 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
     return openWrite(file, false);
   }
 
+  @SuppressWarnings("resource")
   @Nonnull
   @Override
   OutputStream openWrite(@Nonnull CachedParentVFile file, boolean append)
@@ -253,11 +297,65 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
 
     File path = getNativeFile(file.getPath());
     try {
-      return new FileOutputStream(path, append);
+      OutputStream os = new FileOutputStream(path, append);
+      assert (os = trackOpenedStream(os, file)) != null;
+      return os;
     } catch (FileNotFoundException e) {
-      FileOrDirectory.checkPermissions(path, file.getLocation(), Permission.WRITE);
-      throw new ConcurrentIOException(e);
+
+      DirectFS.checkPermissionsIfExists(path, file.getLocation(), Permission.WRITE);
+
+      // should not happen
+      throw new AssertionError(e);
     }
+  }
+
+  private interface TrackedStream extends QueryableStream, HasLocation {
+  }
+
+  private static class TrackedInputStream extends QueryableInputStream implements TrackedStream {
+
+    private final VFile file;
+
+    public TrackedInputStream(@Nonnull InputStream is, @Nonnull VFile file) {
+      super(is);
+      this.file = file;
+    }
+
+    @Override
+    @Nonnull
+    public Location getLocation() {
+      return file.getLocation();
+    }
+  }
+
+  private static class TrackedOutputStream extends QueryableOutputStream implements TrackedStream {
+
+    private final VFile file;
+
+    public TrackedOutputStream(@Nonnull OutputStream os, @Nonnull VFile file) {
+      super(os);
+      this.file = file;
+    }
+
+    @Override
+    @Nonnull
+    public Location getLocation() {
+      return file.getLocation();
+    }
+  }
+
+  @Nonnull
+  private InputStream trackOpenedStream(@Nonnull InputStream is, @Nonnull VFile file) {
+    TrackedInputStream qis = new TrackedInputStream(is, file);
+    openedStreams.add(qis);
+    return qis;
+  }
+
+  @Nonnull
+  private OutputStream trackOpenedStream(@Nonnull OutputStream os, @Nonnull VFile file) {
+    TrackedOutputStream qos = new TrackedOutputStream(os, file);
+    openedStreams.add(qos);
+    return qos;
   }
 
   @Nonnull
@@ -445,16 +543,16 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
   @Override
   @Nonnull
   VPath getPathFromDir(@Nonnull CachedParentVDir parent, @Nonnull CachedParentVFile file) {
-    StringBuffer path = getPathFromDirInternal(parent, (CachedParentVDir) file.getParent())
+    StringBuilder path = getPathFromDirInternal(parent, (CachedParentVDir) file.getParent())
         .append(file.getName());
     return new VPath(path.toString(), '/');
   }
 
   @Nonnull
-  private static StringBuffer getPathFromDirInternal(@Nonnull CachedParentVDir baseDir,
+  private static StringBuilder getPathFromDirInternal(@Nonnull CachedParentVDir baseDir,
       @Nonnull CachedParentVDir currentDir) {
     if (baseDir == currentDir) {
-      return new StringBuffer();
+      return new StringBuilder();
     }
     CachedParentVDir currentParent = currentDir.getParent();
     assert currentParent != null;

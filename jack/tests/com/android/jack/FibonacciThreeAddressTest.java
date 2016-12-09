@@ -22,6 +22,7 @@ import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
+import com.android.jack.util.AndroidApiLevel;
 import com.android.sched.util.config.ThreadConfig;
 
 import junit.framework.Assert;
@@ -74,7 +75,7 @@ public class FibonacciThreeAddressTest {
     ClassDefItemMarker marker = fibo.getMarker(ClassDefItemMarker.class);
     Assert.assertNotNull(marker);
 
-    DexFile dexFile = new DexFile(new DexOptions());
+    DexFile dexFile = new DexFile(new DexOptions(new AndroidApiLevel(AndroidApiLevel.ReleasedLevel.M),true));
     ClassDefItem cdi = marker.getClassDefItem();
     Assert.assertNotNull(cdi);
     dexFile.add(cdi);

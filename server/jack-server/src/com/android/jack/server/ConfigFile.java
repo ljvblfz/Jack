@@ -24,12 +24,20 @@ import com.android.sched.util.codec.PairCodec;
 import com.android.sched.util.codec.PairCodec.Pair;
 import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.codec.StringCodec;
+import com.android.sched.util.file.CannotChangePermissionException;
 import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.Directory;
+import com.android.sched.util.file.FileAlreadyExistsException;
+import com.android.sched.util.file.FileOrDirectory.ChangePermission;
+import com.android.sched.util.file.FileOrDirectory.Existence;
+import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.InputStreamFile;
 import com.android.sched.util.file.NoSuchFileException;
+import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.OutputStreamFile;
 import com.android.sched.util.file.WrongPermissionException;
+import com.android.sched.util.log.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -40,22 +48,35 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 class ConfigFile extends Properties {
 
   @Nonnull
-  private static Logger logger = Logger.getLogger(ConfigFile.class.getName());
+  private static Logger logger = LoggerFactory.getLogger();
 
-  static final int CURRENT_CONFIG_VERSION = 3;
+  static final int CURRENT_CONFIG_VERSION = 4;
 
-  static final int TIME_DISABLED_VALUE = -1;
+  /**
+   * Disabled value for delays returned by public methods of this class.
+   */
+  @Nonnegative
+  static final int TIME_DISABLED_VALUE = Integer.MAX_VALUE;
+
+  /**
+   * Disabled value for delays specified in the config file.
+   */
+  private static final int CONFIG_TIME_DISABLED_VALUE = -1;
 
   @Nonnull
   private static final Charset CONFIG_CHARSET = StandardCharsets.UTF_8;
@@ -77,6 +98,8 @@ class ConfigFile extends Properties {
   private static final String IDLE_PROPERTY = "jack.server.idle";
   @Nonnull
   private static final String DEEP_IDLE_PROPERTY = "jack.server.deep-idle";
+  @Nonnull
+  private static final String SHUTDOWN_PROPERTY = "jack.server.shutdown";
   @Nonnull
   private static final String CONFIG_VERSION_PROPERTY = "jack.server.config.version";
   @Nonnull
@@ -105,13 +128,7 @@ class ConfigFile extends Properties {
       if (!(storageFile.createNewFile())) {
         throw new IOException("Failed to create '" + storageFile.getPath() + "'");
       }
-      if (!(storageFile.setExecutable(false, false)
-         && storageFile.setWritable(false, false)
-         && storageFile.setReadable(false, false)
-         && storageFile.setWritable(true, true)
-         && storageFile.setReadable(true, true))) {
-        throw new IOException("Failed to set permissions of '" + storageFile.getPath() + "'");
-      }
+      FileAccess.get(storageFile.toPath()).removeAccessRightButOwner();
     }
     loadIfPossible(storageFile);
   }
@@ -149,26 +166,36 @@ class ConfigFile extends Properties {
   }
 
   public void store() throws WrongPermissionException, NotFileException, IOException,
-      CannotCreateFileException {
+      CannotCreateFileException, CannotChangePermissionException {
     setProperty(ConfigFile.CONFIG_VERSION_PROPERTY,
         Integer.toString(CURRENT_CONFIG_VERSION));  // FINDBUGS
 
     new OutputStreamFile(storageFile.getPath(), /* hooks = */ null);
-    File tmpOut = File.createTempFile("jackserver-" + storageFile.getName(), ".tmp",
-        storageFile.getParentFile());
+    File tmpOut;
     try {
-      if (!(tmpOut.setExecutable(false, false)
-          && tmpOut.setWritable(false, false)
-          && tmpOut.setReadable(false, false)
-          && tmpOut.setWritable(true, true)
-          && tmpOut.setReadable(true, true))) {
-        throw new IOException("Failed to set permissions of '" + tmpOut.getPath() + "'");
-      }
+      tmpOut = com.android.sched.util.file.Files.createTempFile(
+          "jackserver-" + storageFile.getName(), ".tmp",
+          new Directory(storageFile.getParentFile().getPath(),
+              null,
+              Existence.MUST_EXIST,
+              Permission.READ | Permission.WRITE,
+              ChangePermission.NOCHANGE));
+    } catch (NotDirectoryException | NoSuchFileException | FileAlreadyExistsException e) {
+      // storageFile.getParentFile() is serverDir, it is a directory and we do not ask for creation
+      throw new AssertionError(e.getMessage(), e);
+    }
+    try {
+      FileAccess.get(tmpOut.toPath()).removeAccessRightButOwner();
       try (Writer writer = new OutputStreamWriter(new FileOutputStream(tmpOut), CONFIG_CHARSET)) {
         store(writer, "");
       }
-      if (!tmpOut.renameTo(storageFile)) {
-        throw new IOException("failed to rename temp config file '" + tmpOut);
+      try {
+        Files.move(tmpOut.toPath(), storageFile.toPath(), StandardCopyOption.REPLACE_EXISTING,
+            StandardCopyOption.ATOMIC_MOVE);
+      } catch (AtomicMoveNotSupportedException e) {
+        logger.log(Level.WARNING, "Atomic move not supported for renaming '" + tmpOut.getPath()
+          + "' to '" + storageFile.getPath() + "'");
+        Files.move(tmpOut.toPath(), storageFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
       }
       tmpOut = null;
     } finally {
@@ -194,16 +221,23 @@ class ConfigFile extends Properties {
         .intValue();
   }
 
+  @Nonnegative
   public int getTimeout() {
     return getDelay(ConfigFile.TIME_OUT_PROPERTY, 2 * 60 * 60);
   }
 
+  @Nonnegative
   public int getIdleDelay() {
     return getDelay(ConfigFile.IDLE_PROPERTY, 3 * 60);
   }
 
+  @Nonnegative
   public int getDeepIdleDelay() {
     return getDelay(ConfigFile.DEEP_IDLE_PROPERTY, 15 * 60);
+  }
+
+  public int getShutdownDelay() {
+    return getDelay(ConfigFile.SHUTDOWN_PROPERTY, 6 * 60 * 60);
   }
 
   public long getMaxJarSize() {
@@ -240,12 +274,14 @@ class ConfigFile extends Properties {
     return list;
   }
 
-  private int getDelay(String property, int defaultValue) {
+  @Nonnegative
+  private int getDelay(@Nonnull String property, int defaultValue) {
     int delay = getProperty(property, Integer.valueOf(defaultValue), new IntCodec())
         .intValue();
-    if (delay < 0 && delay != TIME_DISABLED_VALUE) {
-      logger.log(Level.WARNING,
-          "Invalid config value for " + property + ": " + delay);
+    if (delay == CONFIG_TIME_DISABLED_VALUE) {
+      delay = TIME_DISABLED_VALUE;
+    } else if (delay < 0) {
+      logger.log(Level.WARNING, "Invalid config value for " + property + ": " + delay);
       delay = TIME_DISABLED_VALUE;
     }
     return delay;

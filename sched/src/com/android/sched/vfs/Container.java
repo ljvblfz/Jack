@@ -16,6 +16,7 @@
 
 package com.android.sched.vfs;
 
+import com.android.sched.util.codec.EnumName;
 import com.android.sched.util.codec.VariableName;
 
 /**
@@ -23,6 +24,8 @@ import com.android.sched.util.codec.VariableName;
  */
 @VariableName("container")
 public enum Container {
+  @EnumName(name = "dir")
   DIR,
+  @EnumName(name = "zip")
   ZIP
 }

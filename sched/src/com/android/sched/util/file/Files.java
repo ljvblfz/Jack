@@ -17,6 +17,7 @@
 package com.android.sched.util.file;
 
 import com.android.sched.util.file.FileOrDirectory.ChangePermission;
+import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.location.DirectoryLocation;
 import com.android.sched.util.location.FileLocation;
@@ -39,7 +40,9 @@ public class Files {
   @Nonnull
   public static File createTempDir(@Nonnull String prefix) throws CannotCreateFileException,
       CannotChangePermissionException {
-    File baseDir = new File(System.getProperty("java.io.tmpdir"));
+    String tmpdir = System.getProperty("java.io.tmpdir");
+    assert tmpdir != null;
+    File baseDir = new File(tmpdir);
     String baseName = prefix + System.currentTimeMillis() + "-";
     Location location = null;
 
@@ -71,8 +74,37 @@ public class Files {
   @Nonnull
   public static File createTempFile(@Nonnull String prefix, @Nonnull String suffix)
       throws CannotCreateFileException, CannotChangePermissionException {
-    File baseDir = new File(System.getProperty("java.io.tmpdir"));
     String baseName = prefix + System.currentTimeMillis() + "-";
+
+    String tmpdir = System.getProperty("java.io.tmpdir");
+    assert tmpdir != null;
+    Directory baseDir;
+    try {
+      baseDir = new Directory(
+          tmpdir,
+          null,
+          Existence.MUST_EXIST, Permission.READ | Permission.WRITE, ChangePermission.NOCHANGE);
+    } catch (NotDirectoryException | WrongPermissionException | NoSuchFileException e) {
+      throw new CannotCreateFileException(
+          new FileLocation(new File(tmpdir, baseName + "0" + suffix)), e);
+    } catch (FileAlreadyExistsException e) {
+      throw new AssertionError(e);
+    }
+    return createTempFile(baseName, suffix, baseDir.getFile());
+  }
+
+  @Nonnull
+  public static File createTempFile(@Nonnull String prefix, @Nonnull String suffix,
+      @Nonnull Directory baseDir)
+      throws CannotCreateFileException, CannotChangePermissionException {
+    String baseName = prefix + System.currentTimeMillis() + "-";
+    return createTempFile(baseName, suffix, baseDir.getFile());
+  }
+
+  @Nonnull
+  private static File createTempFile(@Nonnull String baseName, @Nonnull String suffix,
+      @Nonnull File baseDir)
+      throws CannotCreateFileException, CannotChangePermissionException {
     Location location = null;
 
     for (int counter = 0; counter < TEMP_ATTEMPTS; counter++) {
@@ -81,7 +113,7 @@ public class Files {
       try {
         AbstractStreamFile.create(tempFile, location);
         FileOrDirectory.unsetPermissions(tempFile, location,
-            Permission.READ | Permission.WRITE, ChangePermission.EVERYBODY);
+            Permission.READ | Permission.WRITE | Permission.EXECUTE, ChangePermission.EVERYBODY);
         FileOrDirectory.setPermissions(tempFile, location,
             Permission.READ | Permission.WRITE, ChangePermission.OWNER);
         return tempFile;

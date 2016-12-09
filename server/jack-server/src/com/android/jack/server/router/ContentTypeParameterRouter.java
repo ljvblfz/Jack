@@ -16,6 +16,8 @@
 
 package com.android.jack.server.router;
 
+import com.android.sched.util.log.LoggerFactory;
+
 import org.simpleframework.http.ContentType;
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
@@ -36,7 +38,7 @@ import javax.annotation.Nonnull;
 public class ContentTypeParameterRouter implements Container {
 
   @Nonnull
-  private static Logger logger = Logger.getLogger(ContentTypeParameterRouter.class.getName());
+  private static Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
   private final String parameter;
@@ -67,7 +69,8 @@ public class ContentTypeParameterRouter implements Container {
     ContentType contentType = getContentType(request);
     Container container;
     if (contentType == null) {
-      logger.log(Level.FINE, "Route request for no content type");
+      logger.log(Level.INFO, "Using primary route for " + getDescription()
+        + " without content type parameter '" + parameter + "'");
       container = primaryContainer;
     } else {
       String value = contentType.getParameter(parameter);
@@ -77,11 +80,17 @@ public class ContentTypeParameterRouter implements Container {
 
       container = registry.get(value);
       if (container == null) {
-        logger.log(Level.FINE, "No route for '" + parameter + "' with value '" + value + "'");
+        logger.log(Level.INFO, "Using primary route for " + getDescription()
+          + " with content type parameter '" + parameter + "' of value '" + value + "'");
         container = primaryContainer;
       }
     }
     container.handle(request, response);
+  }
+
+  @Nonnull
+  protected String getDescription() {
+    return "request";
   }
 
   @CheckForNull

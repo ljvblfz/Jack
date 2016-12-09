@@ -35,7 +35,7 @@ import javax.annotation.Nonnull;
  * All classes selected for code coverage are marked with a {@link CodeCoverageMarker} marker.
  */
 @Description("Filters classes for code coverage")
-@Support(CodeCoverage.class)
+@Support(CodeCoverageFeature.class)
 @Constraint(need = OriginalNames.class)
 @Transform(add = CodeCoverageMarker.Initialized.class)
 @Protect(add = JDefinedClassOrInterface.class)
@@ -50,8 +50,8 @@ public class CodeCoverageSelector implements RunnableSchedulable<JDefinedClassOr
   @Nonnull
   private final CoverageFilter filter =
       new CoverageFilter(
-          ThreadConfig.get(CodeCoverage.COVERAGE_JACOCO_INCLUDES),
-          ThreadConfig.get(CodeCoverage.COVERAGE_JACOCO_EXCLUDES));
+          ThreadConfig.get(CodeCoverageFeature.COVERAGE_JACOCO_INCLUDES),
+          ThreadConfig.get(CodeCoverageFeature.COVERAGE_JACOCO_EXCLUDES));
 
   @Override
   public void run(@Nonnull JDefinedClassOrInterface t) {

@@ -2,4 +2,4 @@
 -adaptclassstrings
 -keepattributes RuntimeVisibleAnnotations
 
--keepnames class com.android.jack.shrob.test016.jack.KeepClass
+-keepnames class com.android.jack.shrob.test016.jack.KeepClass,**.KeepClass2,**.KeepClass3

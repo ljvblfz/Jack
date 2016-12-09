@@ -35,6 +35,7 @@ import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
+import com.android.sched.vfs.BadVFSFormatException;
 import com.android.sched.vfs.GenericInputVFS;
 import com.android.sched.vfs.InputVDir;
 import com.android.sched.vfs.InputVFS;
@@ -43,7 +44,6 @@ import com.android.sched.vfs.MessageDigestFS;
 import com.android.sched.vfs.PrefixedFS;
 import com.android.sched.vfs.VFS;
 import com.android.sched.vfs.VPath;
-import com.android.sched.vfs.WrongVFSFormatException;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -160,7 +160,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
         try {
           currentSectionVFS = new GenericInputVFS(new MessageDigestFS(prefixedInputVFS,
               ThreadConfig.get(JackLibraryFactory.MESSAGE_DIGEST_ALGO)));
-        } catch (WrongVFSFormatException e) {
+        } catch (BadVFSFormatException e) {
           // If library is well formed this exception can not be triggered
           throw new AssertionError(e);
         }
@@ -182,6 +182,17 @@ public class InputJackLibraryImpl extends InputJackLibrary {
     } catch (CannotCloseException e) {
       throw new LibraryIOException(getLocation(), e);
     }
+  }
+
+  @Override
+  public boolean isClosed() {
+    boolean baseVFSClosed = vfs.isClosed();
+    if (baseVFSClosed) {
+      for (InputVFS currentSectionVFS : sectionVFS.values()) {
+        assert currentSectionVFS.isClosed();
+      }
+    }
+    return baseVFSClosed;
   }
 
   @Override

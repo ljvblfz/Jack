@@ -35,6 +35,7 @@ import com.android.jack.test.toolchain.JackApiV03Toolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
+import com.android.jack.util.AndroidApiLevel;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -57,7 +58,7 @@ public class BridgeTestPostM {
     new RuntimeTestHelper(BRIDGE002)
         .setSourceLevel(SourceLevel.JAVA_8)
         .addProperty(Options.ANDROID_MIN_API_LEVEL.getName(),
-            String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL))
+            String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
         .addIgnoredCandidateToolchain(JackApiV01.class).compileAndRunTest();
   }
 
@@ -119,7 +120,7 @@ public class BridgeTestPostM {
       toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeClazz);
       toolchain.addProperty(
           Options.ANDROID_MIN_API_LEVEL.getName(),
-          String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL))
+          String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
       .libToExe(lib23, dex24, /* zipFiles = */ false);
 
       // Run to check everything went as expected
@@ -145,7 +146,7 @@ public class BridgeTestPostM {
         AbstractTestTools.createTempFile("lib23", toolchain.getLibraryExtension());
     toolchain.addProperty(
         Options.ANDROID_MIN_API_LEVEL.getName(),
-        String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL))
+        String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
     .setSourceLevel(SourceLevel.JAVA_8)
     .addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(lib23,
@@ -155,7 +156,7 @@ public class BridgeTestPostM {
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeClazz);
     toolchain.addProperty(
         Options.ANDROID_MIN_API_LEVEL.getName(),
-        String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL))
+        String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
     .libToExe(lib23, dex24, /* zipFiles = */ false);
 
     // Run to check everything went as expected

@@ -1,0 +1,2 @@
+This tests contains a class and its superclass both containing a method that will
+be renamed.

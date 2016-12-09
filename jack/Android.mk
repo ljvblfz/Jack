@@ -78,7 +78,6 @@ JACK_STATIC_JAVA_LIBRARIES := \
   ecj-jack \
   guava-jack \
   jsr305lib-jack \
-  dx-jack \
   schedlib \
   freemarker-jack \
   watchmaker-jack \
@@ -220,15 +219,3 @@ test-jack-unit-all: PRIVATE_PATH := $(LOCAL_PATH)
 test-jack-unit-all: $(LIB_JACK_UNIT_TESTS) $(LOCAL_PATH)/run-jack-unit-tests $(local_unit_libs) $(local_long_libs) $(JACK_JAR)
 	$(hide) cd $(PRIVATE_PATH) && $(PRIVATE_RUN_TESTS) com.android.jack.AllUnitTests
 
-.PHONY: clean-jack-files
-clean-jack-files: clean-dex-files
-	$(hide) find $(OUT_DIR) -name "*.jack" | xargs rm -f
-	$(hide) find $(OUT_DIR) -type d -name "jack" | xargs rm -rf
-	@echo "All jack files have been removed."
-
-.PHONY: clean-dex-files
-clean-dex-files:
-	$(hide) find $(OUT_DIR) -name "*.dex" | xargs rm -f
-	$(hide) for i in `find $(OUT_DIR) -name "*.jar" -o -name "*.apk"` ; do ((unzip -l $$i 2> /dev/null | \
-				grep -q "\.dex$$" && rm -f $$i) || continue ) ; done
-	@echo "All dex files and archives containing dex files have been removed."

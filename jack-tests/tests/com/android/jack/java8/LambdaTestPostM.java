@@ -31,6 +31,7 @@ import com.android.jack.test.toolchain.JackApiV01;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
+import com.android.jack.util.AndroidApiLevel;
 
 import junit.framework.Assert;
 
@@ -77,7 +78,7 @@ public class LambdaTestPostM {
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
     File libDexFolder = AbstractTestTools.createTempDir();
     toolchain.addProperty(Options.ANDROID_MIN_API_LEVEL.getName(),
-        String.valueOf(AndroidCompatibilityChecker.N_API_LEVEL));
+        String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()));
     toolchain.addToClasspath(defaultClasspath).setSourceLevel(SourceLevel.JAVA_8).libToExe(lib,
         libDexFolder, /* zipFiles = */ false);
 

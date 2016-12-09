@@ -198,7 +198,7 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
   @Nonnull
   private final BaseVFS<BaseVDir, BaseVFile> vfs;
 
-  public CaseInsensitiveFS(@Nonnull VFS vfs) throws WrongVFSFormatException {
+  public CaseInsensitiveFS(@Nonnull VFS vfs) throws BadVFSFormatException {
     this(vfs, ThreadConfig.get(NB_GROUP).intValue(), ThreadConfig.get(SZ_GROUP).intValue(),
         ThreadConfig.get(ALGO), ThreadConfig.get(DEBUG).booleanValue());
   }
@@ -206,7 +206,7 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
   @SuppressWarnings("unchecked")
   public CaseInsensitiveFS(@Nonnull VFS vfs, int numGroups, int groupSize,
       @Nonnull MessageDigestFactory mdf, boolean debug)
-      throws WrongVFSFormatException {
+      throws BadVFSFormatException {
     this.vfs = (BaseVFS<BaseVDir, BaseVFile>) vfs;
 
     Set<Capabilities> capabilities = EnumSet.copyOf(vfs.getCapabilities());
@@ -222,7 +222,7 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
     initVFS();
   }
 
-  private void initVFS() throws WrongVFSFormatException {
+  private void initVFS() throws BadVFSFormatException {
     LineNumberReader reader = null;
     VFile file = null;
     try {
@@ -231,25 +231,25 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
       } catch (NoSuchFileException e) {
         if (!vfs.getRootDir().isEmpty()) {
           // If VFS is not empty, index file is missing
-          throw new WrongVFSFormatException(this, vfs.getLocation(), e);
+          throw new BadVFSFormatException(this, vfs.getLocation(), e);
         }
 
         return;
       } catch (NotFileException e) {
-        throw new WrongVFSFormatException(this, vfs.getLocation(), e);
+        throw new BadVFSFormatException(this, vfs.getLocation(), e);
       }
 
       try {
         reader = new LineNumberReader(new InputStreamReader(file.getInputStream()));
       } catch (WrongPermissionException e) {
-        throw new WrongVFSFormatException(this, vfs.getLocation(), e);
+        throw new BadVFSFormatException(this, vfs.getLocation(), e);
       }
 
       String line;
       try {
         while ((line = reader.readLine()) != null) {
           if (line.charAt(1) != ':') {
-            throw new WrongVFSFormatException(this, vfs.getLocation(),
+            throw new BadVFSFormatException(this, vfs.getLocation(),
                 new WrongFileFormatException(new ColumnAndLineLocation(file.getLocation(),
                     reader.getLineNumber())));
           }
@@ -263,15 +263,15 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
               root.createVFile(new VPath(line.substring(2), '/'));
               break;
             default:
-              throw new WrongVFSFormatException(this, vfs.getLocation(),
+              throw new BadVFSFormatException(this, vfs.getLocation(),
                   new WrongFileFormatException(new ColumnAndLineLocation(file.getLocation(),
                       reader.getLineNumber())));
           }
         }
       } catch (CannotCreateFileException e) {
-        throw new WrongVFSFormatException(this, vfs.getLocation(), e);
+        throw new BadVFSFormatException(this, vfs.getLocation(), e);
       } catch (IOException e) {
-        throw new WrongVFSFormatException(this, vfs.getLocation(), e);
+        throw new BadVFSFormatException(this, vfs.getLocation(), e);
       }
     } finally {
       if (reader != null) {
@@ -578,7 +578,7 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
   private VPath encode(@Nonnull VPath path) {
     char[] digest = encode(mdf.create().digest(path.getPathAsString('/').getBytes()));
 
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     int idx = 0;
     try {
       for (int groupIdx = 0; groupIdx < numGroups; groupIdx++) {
@@ -619,16 +619,16 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
   @Override
   @Nonnull
   VPath getPathFromDir(@Nonnull CaseInsensitiveVDir parent, @Nonnull CaseInsensitiveVFile file) {
-    StringBuffer path = getPathFromDirInternal(parent, (CaseInsensitiveVDir) file.getParent())
+    StringBuilder path = getPathFromDirInternal(parent, (CaseInsensitiveVDir) file.getParent())
         .append(file.getName());
     return new VPath(path.toString(), '/');
   }
 
   @Nonnull
-  private StringBuffer getPathFromDirInternal(@Nonnull CaseInsensitiveVDir baseDir,
+  private StringBuilder getPathFromDirInternal(@Nonnull CaseInsensitiveVDir baseDir,
       @Nonnull CaseInsensitiveVDir currentDir) {
     if (baseDir == currentDir) {
-      return new StringBuffer();
+      return new StringBuilder();
     }
     CaseInsensitiveVDir currentParent = (CaseInsensitiveVDir) currentDir.getParent();
     assert currentParent != null;

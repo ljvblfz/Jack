@@ -24,6 +24,7 @@ import com.android.jack.server.api.v01.ServerException;
 import com.android.sched.util.FinalizerRunner;
 import com.android.sched.util.UncomparableVersion;
 import com.android.sched.util.Version;
+import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.stream.ByteStreamSucker;
 
 import java.io.File;
@@ -201,7 +202,7 @@ public final class ServerLauncher {
   }
 
   @Nonnull
-  private static final Logger logger = Logger.getLogger(ServerLauncher.class.getName());
+  private static final Logger logger = LoggerFactory.getLogger();
 
   @Nonnull
   private static final String HELP = "--help";

@@ -50,9 +50,6 @@ public class KeyValueCodec<T> implements StringCodec<T> {
   protected void setElements(@Nonnull Entry<T>[] entries) {
     this.entries = Arrays.copyOf(entries, entries.length);
 
-    if (ignoreCase) {
-      ignoreCase();
-    }
     if (sorted) {
       sorted();
     }
@@ -61,10 +58,6 @@ public class KeyValueCodec<T> implements StringCodec<T> {
   @Nonnull
   public KeyValueCodec<T> ignoreCase() {
     this.ignoreCase = true;
-
-    for (int idx = 0; idx < this.entries.length; idx++) {
-      this.entries[idx].key = this.entries[idx].key.toLowerCase();
-    }
 
     return this;
   }
@@ -90,13 +83,15 @@ public class KeyValueCodec<T> implements StringCodec<T> {
     boolean first = true;
     sb.append('{');
     for (Entry<T> entry : entries) {
-      if (first) {
-        first = false;
-      } else {
-        sb.append(',');
-      }
+      if (!entry.hidden) {
+        if (first) {
+          first = false;
+        } else {
+          sb.append(',');
+        }
 
-      sb.append(entry.key);
+        sb.append(entry.key);
+      }
     }
     sb.append("} (case ");
     sb.append(ignoreCase ? "insensitive" : "sensitive");
@@ -111,6 +106,16 @@ public class KeyValueCodec<T> implements StringCodec<T> {
     return varName;
   }
 
+  public boolean hasPublicEntries() {
+    for (Entry<T> entry : entries) {
+      if (!entry.hidden) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   @Override
   @Nonnull
   public List<ValueDescription> getValueDescriptions() {
@@ -118,7 +123,7 @@ public class KeyValueCodec<T> implements StringCodec<T> {
       descriptions = new ArrayList<ValueDescription>(entries.length);
 
       for (Entry<T> entry : entries) {
-        if (entry.description != null) {
+        if (!entry.hidden && entry.description != null) {
           descriptions.add(new ValueDescription(entry.key, entry.description));
         }
       }
@@ -133,12 +138,16 @@ public class KeyValueCodec<T> implements StringCodec<T> {
   public T checkString(@Nonnull CodecContext context, @Nonnull String string)
       throws ParsingException {
     if (ignoreCase) {
-      string = string.toLowerCase();
-    }
-
-    for (Entry<T> entry : entries) {
-      if (entry.key.equals(string)) {
-        return entry.value;
+      for (Entry<T> entry : entries) {
+        if (entry.key.equalsIgnoreCase(string)) {
+          return entry.value;
+        }
+      }
+    } else {
+      for (Entry<T> entry : entries) {
+        if (entry.key.equals(string)) {
+          return entry.value;
+        }
       }
     }
 
@@ -194,20 +203,33 @@ public class KeyValueCodec<T> implements StringCodec<T> {
    */
   public static class Entry<T> {
     @Nonnull
-    String key;
+    String  key;
     @Nonnull
-    T      value;
+    T       value;
     @CheckForNull
-    String description;
+    String  description;
+    boolean hidden;
 
     public Entry (@Nonnull String key, @Nonnull T value) {
       this.key   = key;
       this.value = value;
     }
 
-    public Entry (@Nonnull String key, @Nonnull T value, @CheckForNull String description) {
-      this.key   = key;
-      this.value = value;
+    public Entry (
+        @Nonnull String key,
+        @Nonnull T value,
+        @CheckForNull String description) {
+      this(key, value, description, /* hidden = */ false);
+    }
+
+    public Entry (
+        @Nonnull String key,
+        @Nonnull T value,
+        @CheckForNull String description,
+        boolean hidden) {
+      this.key    = key;
+      this.value  = value;
+      this.hidden = hidden;
 
       if (description != null && !description.isEmpty()) {
         this.description = description;

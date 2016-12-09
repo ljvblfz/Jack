@@ -27,6 +27,6 @@ public class Tests {
   @Test
   public void test001() throws Exception {
     Lambda l = new Lambda();
-    Assert.assertEquals("default : String", l.testLambdaRedefiningADefault());
+    Assert.assertEquals("lambda : String", l.testLambdaRedefiningADefault());
   }
 }

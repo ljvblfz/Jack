@@ -35,6 +35,7 @@ import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.tools.merger.JackMerger;
 import com.android.jack.tools.merger.MergingOverflowException;
+import com.android.jack.util.AndroidApiLevel;
 import com.android.sched.util.codec.VariableName;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.CannotCreateFileException;
@@ -117,16 +118,15 @@ public abstract class DexWritingTool {
 
   private final boolean forceJumbo = ThreadConfig.get(CodeItemBuilder.FORCE_JUMBO).booleanValue();
 
-  private final int apiLevel = ThreadConfig.get(Options.ANDROID_MIN_API_LEVEL).intValue();
+  @Nonnull
+  private final AndroidApiLevel apiLevel = ThreadConfig.get(Options.ANDROID_MIN_API_LEVEL);
 
   private final boolean usePrebuilts =
       ThreadConfig.get(Options.USE_PREBUILT_FROM_LIBRARY).booleanValue();
 
   @Nonnull
   protected DexFile createDexFile() {
-    DexOptions options = new DexOptions();
-    options.forceJumbo = forceJumbo;
-    options.targetApiLevel = apiLevel;
+    DexOptions options = new DexOptions(apiLevel, forceJumbo);
     return new DexFile(options);
   }
 
@@ -157,8 +157,10 @@ public abstract class DexWritingTool {
     try {
       inputStream = inputDex.getInputStream();
       merger.addDexFile(new DexBuffer(inputStream));
-    } catch (IOException | WrongPermissionException e) {
+    } catch (IOException e) {
       throw new DexWritingException(new CannotReadException(inputDex, e));
+    } catch (WrongPermissionException e) {
+      throw new DexWritingException(e);
     } finally {
       if (inputStream != null) {
         try {

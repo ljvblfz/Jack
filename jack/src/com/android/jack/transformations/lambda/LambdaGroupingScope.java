@@ -16,28 +16,17 @@
 
 package com.android.jack.transformations.lambda;
 
-import com.android.sched.util.HasDescription;
+import com.android.sched.util.codec.EnumName;
 import com.android.sched.util.codec.VariableName;
-
-import javax.annotation.Nonnull;
 
 /** Defines how to group lambdas into lambda classes */
 @VariableName("scope")
-public enum LambdaGroupingScope implements HasDescription {
-  NONE("one lambda class for each lambda"),
-  TYPE("one lambda class for all lambdas inside a top-level type"),
-  PACKAGE("one lambda class for all lambdas inside a package");
-
-  @Nonnull
-  private final String description;
-
-  LambdaGroupingScope(@Nonnull String description) {
-    this.description = description;
-  }
-
-  @Override
-  @Nonnull
-  public String getDescription() {
-    return description;
-  }
+public enum LambdaGroupingScope {
+  @EnumName(name = "none", description = "one lambda class for each lambda")
+  NONE,
+  @EnumName(name = "type",
+          description = "one lambda class for all lambdas inside a top-level type")
+  TYPE,
+  @EnumName(name = "package", description = "one lambda class for all lambdas inside a package")
+  PACKAGE;
 }

@@ -19,7 +19,6 @@ package com.android.jack.jayce;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JPackage;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -45,10 +44,10 @@ public interface DeclaredTypeNode extends Node {
   String getSignature();
 
   @Nonnull
-  FieldNode getFieldNode(@Nonnegative int fieldNodeIndex);
+  FieldNode getFieldNode(@Nonnull String fieldId);
 
   @Nonnull
-  MethodNode getMethodNode(@Nonnegative int methodNodeIndex);
+  MethodNode getMethodNode(@Nonnull String methodId);
 
   @Nonnull
   NodeLevel getLevel();

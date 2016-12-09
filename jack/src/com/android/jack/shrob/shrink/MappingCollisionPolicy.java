@@ -16,6 +16,7 @@
 
 package com.android.jack.shrob.shrink;
 
+import com.android.sched.util.codec.EnumName;
 import com.android.sched.util.codec.VariableName;
 
 /**
@@ -26,10 +27,12 @@ public enum MappingCollisionPolicy {
   /**
    * In case of collision between names, ignore the mapping entry.
    */
+  @EnumName(name = "ignore")
   IGNORE,
 
   /**
    * In case of name collision, fail.
    */
+  @EnumName(name = "fail")
   FAIL
 }

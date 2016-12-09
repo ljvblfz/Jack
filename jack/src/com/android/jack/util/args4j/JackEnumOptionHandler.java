@@ -84,7 +84,7 @@ public class JackEnumOptionHandler<T extends Enum<T>> extends OptionHandler<T> {
                     + e.getMessage());
       }
     }
-    return new StringBuffer()
+    return new StringBuilder()
         .append('[')
         .append(Joiner.on(" | ").join(items))
         .append(']')

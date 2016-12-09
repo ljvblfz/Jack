@@ -77,6 +77,7 @@ import com.android.jack.ir.ast.cfg.JThrowingExpressionBasicBlock;
 import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.library.DumpInLibrary;
+import com.android.jack.library.PrebuiltCompatibility;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.scheduling.marker.DexCodeMarker;
 import com.android.jack.transformations.EmptyClinit;
@@ -95,6 +96,7 @@ import com.android.jack.transformations.ast.switches.UselessSwitches;
 import com.android.jack.transformations.cast.SourceCast;
 import com.android.jack.transformations.rop.cast.RopLegalCast;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeForm;
+import com.android.jack.util.AndroidApiLevel;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
@@ -165,25 +167,35 @@ import javax.annotation.Nonnull;
 public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
 
   @Nonnull
-  public static final BooleanPropertyId EMIT_SYNTHETIC_LOCAL_DEBUG_INFO = BooleanPropertyId
-      .create("jack.dex.debug.vars.synthetic",
-          "Emit synthetic local variable debug info into generated dex")
-      .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
+  public static final BooleanPropertyId EMIT_SYNTHETIC_LOCAL_DEBUG_INFO =
+      BooleanPropertyId.create(
+              "jack.dex.debug.vars.synthetic",
+              "Emit synthetic local variable debug info into generated dex")
+          .addDefaultValue(Boolean.FALSE)
+          .addCategory(DumpInLibrary.class)
+          .addCategory(PrebuiltCompatibility.class);
 
   @Nonnull
-  public static final BooleanPropertyId DEX_OPTIMIZE = BooleanPropertyId.create(
-      "jack.dex.optimize", "Define if Dex optimizations are activated")
-      .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
+  public static final BooleanPropertyId DEX_OPTIMIZE =
+      BooleanPropertyId.create("jack.dex.optimize", "Define if Dex optimizations are activated")
+          .addDefaultValue(Boolean.TRUE)
+          .addCategory(DumpInLibrary.class)
+          .addCategory(PrebuiltCompatibility.class);
 
   @Nonnull
-  public static final BooleanPropertyId FORCE_JUMBO = BooleanPropertyId.create(
-      "jack.dex.forcejumbo", "Force string opcodes to be emitted as jumbo in dex")
-      .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
+  public static final BooleanPropertyId FORCE_JUMBO =
+      BooleanPropertyId.create(
+              "jack.dex.forcejumbo", "Force string opcodes to be emitted as jumbo in dex")
+          .addDefaultValue(Boolean.TRUE)
+          .addCategory(DumpInLibrary.class)
+          .addCategory(PrebuiltCompatibility.class);
 
   @Nonnull
-  public static final BooleanPropertyId OPTIMIZE_BRANCHES = BooleanPropertyId.create(
-      "jack.dex.optimizebranches", "Remove redundant branches in dex")
-      .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
+  public static final BooleanPropertyId OPTIMIZE_BRANCHES =
+      BooleanPropertyId.create("jack.dex.optimizebranches", "Remove redundant branches in dex")
+          .addDefaultValue(Boolean.TRUE)
+          .addCategory(DumpInLibrary.class)
+          .addCategory(PrebuiltCompatibility.class);
 
   @Nonnull
   private final com.android.jack.util.filter.Filter<JMethod> filter =
@@ -196,7 +208,8 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
   private final boolean forceJumbo = ThreadConfig.get(FORCE_JUMBO).booleanValue();
   private final boolean removeRedundantConditionalBranch =
       ThreadConfig.get(OPTIMIZE_BRANCHES).booleanValue();
-  private final int apiLevel = ThreadConfig.get(Options.ANDROID_MIN_API_LEVEL).intValue();
+  @Nonnull
+  private final AndroidApiLevel apiLevel = ThreadConfig.get(Options.ANDROID_MIN_API_LEVEL);
   private final boolean emitLineNumberTable =
       ThreadConfig.get(Options.EMIT_LINE_NUMBER_DEBUG_INFO).booleanValue();
 
@@ -244,7 +257,7 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
 
       for (JBasicBlock bb : basicBlocks.keySet()) {
         assert bb != entryBasicBlock && bb != exitBasicBlock;
-        final RopBuilderVisitor ropBuilder = new RopBuilderVisitor(ropReg, bb);
+        final RopBuilderVisitor ropBuilder = new RopBuilderVisitor(ropReg, bb, apiLevel);
 
         ropBuilder.processBasicBlockElements();
         final List<Insn> instructions = ropBuilder.getInstructions();
@@ -509,9 +522,7 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
 
   @Nonnull
   private DalvCode createCode(@Nonnull JMethod method, @Nonnull RopMethod ropMethod) {
-    DexOptions options = new DexOptions();
-    options.forceJumbo = forceJumbo;
-    options.targetApiLevel = apiLevel;
+    DexOptions options = new DexOptions(apiLevel, forceJumbo);
     int paramSize = getParameterWordCount(method);
     int positionListKind;
     LocalVariableInfo lvInfo;

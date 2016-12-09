@@ -17,7 +17,6 @@
 package com.android.sched.util.file;
 
 import com.android.sched.util.ConcurrentIOException;
-import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.location.FileLocation;
 
 import java.io.File;
@@ -32,53 +31,66 @@ import javax.annotation.Nonnull;
 /**
  * Class representing a zip file designed to be read.
  */
-public class InputZipFile extends StreamFile {
+public class InputZipFile extends AbstractStreamFile {
 
   @Nonnull
-  ZipFile zipFile;
+  private final ZipFile zipFile;
 
-  public InputZipFile(@Nonnull String path, @CheckForNull RunnableHooks hooks,
-      @Nonnull Existence existence, @Nonnull ChangePermission change)
-      throws FileAlreadyExistsException,
-      CannotCreateFileException,
-      CannotChangePermissionException,
-      WrongPermissionException,
+  public InputZipFile(@Nonnull String path)
+      throws WrongPermissionException,
       NoSuchFileException,
       NotFileException,
       ZipException {
-    this(new File(path), new FileLocation(path), hooks, existence, change);
+    this(new File(path), new FileLocation(path));
   }
 
-  public InputZipFile(@CheckForNull Directory workingDirectory, String path,
-      @CheckForNull RunnableHooks hooks, @Nonnull Existence mustExist,
-      @Nonnull ChangePermission change)
+  public InputZipFile(@CheckForNull Directory workingDirectory, String path)
       throws NotFileException,
-      FileAlreadyExistsException,
-      CannotCreateFileException,
-      CannotChangePermissionException,
       WrongPermissionException,
       NoSuchFileException,
       ZipException {
     this(getFileFromWorkingDirectory(workingDirectory, path),
-        new FileLocation(path), hooks, mustExist, change);
+        new FileLocation(path));
   }
 
-  private InputZipFile(@Nonnull File file, @Nonnull FileLocation location,
-      @CheckForNull RunnableHooks hooks, @Nonnull Existence existence,
-      @Nonnull ChangePermission change)
-      throws FileAlreadyExistsException,
-      CannotCreateFileException,
-      CannotChangePermissionException,
-      WrongPermissionException,
+  protected InputZipFile(@Nonnull File file, @Nonnull FileLocation location,
+      @Nonnull ZipFile zipFile)
+      throws WrongPermissionException,
+      NoSuchFileException,
+      NotFileException {
+    super(file, location, null /* hooks */);
+    try {
+      performChecks(Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE);
+    } catch (FileAlreadyExistsException e) {
+      throw new AssertionError(e);
+    } catch (CannotCreateFileException e) {
+      throw new AssertionError(e);
+    } catch (CannotChangePermissionException e) {
+      throw new AssertionError(e);
+    }
+    this.zipFile = zipFile;
+  }
+
+  private InputZipFile(@Nonnull File file, @Nonnull FileLocation location)
+      throws WrongPermissionException,
       NoSuchFileException,
       NotFileException,
       ZipException {
-    super(file, location, hooks, existence, Permission.READ, change);
+    super(file, location, null /* hooks */);
+    try {
+      performChecks(Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE);
+    } catch (FileAlreadyExistsException e) {
+      throw new AssertionError(e);
+    } catch (CannotCreateFileException e) {
+      throw new AssertionError(e);
+    } catch (CannotChangePermissionException e) {
+      throw new AssertionError(e);
+    }
     zipFile = processZip(file);
   }
 
   @Nonnull
-  private ZipFile processZip(@Nonnull File file) throws ZipException {
+  protected ZipFile processZip(@Nonnull File file) throws ZipException {
     try {
       return new ZipFile(file);
     } catch (java.util.zip.ZipException e) {
@@ -91,7 +103,6 @@ public class InputZipFile extends StreamFile {
 
   @Nonnull
   public ZipFile getZipFile() {
-    clearRemover();
     return zipFile;
   }
 

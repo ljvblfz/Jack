@@ -16,6 +16,7 @@
 
 package com.android.jack.flow.loop.jack;
 
+@SuppressWarnings("all")
 public class LoopInInit {
   {
     for (int i = 1; i < 1; );

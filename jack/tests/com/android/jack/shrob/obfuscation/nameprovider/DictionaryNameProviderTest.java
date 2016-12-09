@@ -16,6 +16,7 @@
 
 package com.android.jack.shrob.obfuscation.nameprovider;
 
+import com.android.jack.shrob.obfuscation.key.TypeKey;
 import com.android.jack.test.TestsProperties;
 
 import junit.framework.Assert;
@@ -28,22 +29,22 @@ public class DictionaryNameProviderTest {
 
   @Test
   public void dictionaryNameProviderTest() throws Exception {
-    String oldName = "old";
+    TypeKey oldKey = new TypeKey("old");
     File dictionaryFile = new File(TestsProperties.getJackRootDir(),
         "jack/tests/com/android/jack/shrob/obfuscation/nameprovider/dictionary.txt");
     DictionaryNameProvider dnp =
         new DictionaryNameProvider(dictionaryFile, new LowerCaseAlphabeticalNameProvider());
-    Assert.assertEquals("abc", dnp.getNewName(oldName));
-    Assert.assertEquals("def", dnp.getNewName(oldName));
-    Assert.assertEquals("ghi", dnp.getNewName(oldName));
-    Assert.assertEquals("jkl", dnp.getNewName(oldName));
-    Assert.assertEquals("mno", dnp.getNewName(oldName));
-    Assert.assertEquals("pqr", dnp.getNewName(oldName));
-    Assert.assertEquals("stu", dnp.getNewName(oldName));
-    Assert.assertEquals("vw$", dnp.getNewName(oldName));
-    Assert.assertEquals("xyz_", dnp.getNewName(oldName));
-    Assert.assertEquals("éà", dnp.getNewName(oldName));
-    Assert.assertEquals("abc", dnp.getNewName(oldName));
-    Assert.assertEquals("a", dnp.getNewName(oldName));
+    Assert.assertEquals("abc", dnp.getNewName(oldKey));
+    Assert.assertEquals("def", dnp.getNewName(oldKey));
+    Assert.assertEquals("ghi", dnp.getNewName(oldKey));
+    Assert.assertEquals("jkl", dnp.getNewName(oldKey));
+    Assert.assertEquals("mno", dnp.getNewName(oldKey));
+    Assert.assertEquals("pqr", dnp.getNewName(oldKey));
+    Assert.assertEquals("stu", dnp.getNewName(oldKey));
+    Assert.assertEquals("vw$", dnp.getNewName(oldKey));
+    Assert.assertEquals("xyz_", dnp.getNewName(oldKey));
+    Assert.assertEquals("éà", dnp.getNewName(oldKey));
+    Assert.assertEquals("abc", dnp.getNewName(oldKey));
+    Assert.assertEquals("a", dnp.getNewName(oldKey));
   }
 }

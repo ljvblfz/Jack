@@ -16,6 +16,8 @@
 
 package com.android.jack.shrob.obfuscation.nameprovider;
 
+import com.android.jack.shrob.obfuscation.key.Key;
+
 import java.util.Set;
 
 import javax.annotation.Nonnull;
@@ -39,10 +41,10 @@ public class UniqueNameProvider implements NameProvider {
 
   @Override
   @Nonnull
-  public String getNewName(@Nonnull String oldName) {
-    String newName = nameProvider.getNewName(oldName);
+  public String getNewName(@Nonnull Key key) {
+    String newName = nameProvider.getNewName(key);
     while (names.contains(newName)) {
-      String candidate = nameProvider.getNewName(oldName);
+      String candidate = nameProvider.getNewName(key);
       assert !candidate.equals(newName);
       newName = candidate;
     }
@@ -51,7 +53,7 @@ public class UniqueNameProvider implements NameProvider {
   }
 
   @Override
-  public boolean hasAlternativeName(@Nonnull String oldName) {
-    return nameProvider.hasAlternativeName(oldName);
+  public boolean hasAlternativeName(@Nonnull Key key) {
+    return nameProvider.hasAlternativeName(key);
   }
 }

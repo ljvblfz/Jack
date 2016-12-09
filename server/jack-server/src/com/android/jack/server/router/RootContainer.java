@@ -16,6 +16,8 @@
 
 package com.android.jack.server.router;
 
+import com.android.sched.util.log.LoggerFactory;
+
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
 import org.simpleframework.http.Status;
@@ -33,7 +35,7 @@ import javax.annotation.Nonnull;
 public class RootContainer implements Container {
 
   @Nonnull
-  private static Logger logger = Logger.getLogger(RootContainer.class.getName());
+  private static Logger logger = LoggerFactory.getLogger();
 
   private final Container guarded;
 

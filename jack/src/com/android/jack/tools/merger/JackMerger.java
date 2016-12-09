@@ -58,7 +58,6 @@ public class JackMerger extends MergerTools {
 
   public JackMerger(@Nonnull DexFile dexResult) {
     this.dexResult = dexResult;
-    dexResult.getDexOptions().forceJumbo = true;
   }
 
   public void addDexFile(@Nonnull DexBuffer dexToMerge) throws MergingOverflowException {

@@ -15,6 +15,7 @@
  */
 package com.android.jack.tools.merger;
 
+import com.android.jack.dx.dex.file.ValueEncoder.ValueType;
 import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.dx.io.EncodedValueCodec;
 import com.android.jack.dx.io.EncodedValueReader;
@@ -51,12 +52,8 @@ public class MergerTools {
     @CheckForNull
     private Constant[] constantValues;
 
-    @Nonnull
-    private final DexBuffer dex;
-
     public ConstantValueArrayBuilder(@Nonnull DexBuffer dex, @Nonnull ByteInput in) {
-      super(in);
-      this.dex = dex;
+      super(dex, in);
     }
 
     @Nonnegative
@@ -84,8 +81,8 @@ public class MergerTools {
     }
 
     @Override
-    protected void visitString(int type, int index) {
-      addConstant(new CstString(dex.strings().get(index)));
+    protected void visitString(int index) {
+      addConstant(new CstString(dexBuffer.strings().get(index)));
     }
 
     @Override
@@ -120,59 +117,69 @@ public class MergerTools {
 
 
     @Override
-    protected void visitMethod(int type, int index) {
+    protected void visitMethod(int index) {
       throw new AssertionError("Unsupported encoded value.");
     }
 
     @Override
-    protected void visitType(int type, int index) {
+    protected void visitType(int index) {
       throw new AssertionError("Unsupported encoded value.");
     }
 
     @Override
-    protected void visitPrimitive(int argAndType, int type, int arg, int size) {
-      Constant cst;
+    protected void visitMethodType(int index) {
+      throw new AssertionError("Unsupported encoded value.");
+    }
 
-      switch (type) {
-        case ENCODED_BYTE: {
-          cst = CstByte.make((byte) EncodedValueCodec.readSignedInt(in, arg));
-          break;
-        }
-        case ENCODED_CHAR: {
-          cst = CstChar.make((char) EncodedValueCodec.readUnsignedInt(in, arg, false));
-          break;
-        }
-        case ENCODED_SHORT: {
-          cst = CstShort.make((short) EncodedValueCodec.readSignedInt(in, arg));
-          break;
-        }
-        case ENCODED_INT: {
-          cst = CstInteger.make(EncodedValueCodec.readSignedInt(in, arg));
-          break;
-        }
-        case ENCODED_LONG: {
-          cst = CstLong.make(EncodedValueCodec.readSignedLong(in, arg));
-          break;
-        }
-        case ENCODED_FLOAT: {
-          cst = CstFloat.make(EncodedValueCodec.readUnsignedInt(in, arg, true));
-          break;
-        }
-        case ENCODED_DOUBLE: {
-          cst = CstDouble.make(EncodedValueCodec.readUnsignedLong(in, arg, true));
-          break;
-        }
-        default: {
-          throw new AssertionError();
-        }
-      }
-
-      addConstant(cst);
+    @Override
+    protected void visitPrimitive(int type, int arg, int size) {
+      addConstant(createConstant(in, type, arg));
     }
 
     private void addConstant(@Nonnull Constant cst) {
       assert constantValues != null;
       constantValues[cstIndex++] = cst;
     }
+  }
+
+  @Nonnull
+  public static Constant createConstant(@Nonnull ByteInput in, @Nonnegative int type, int arg)  {
+    Constant cst;
+
+    switch (ValueType.getValueType(type)) {
+      case VALUE_BYTE: {
+        cst = CstByte.make((byte) EncodedValueCodec.readSignedInt(in, arg));
+        break;
+      }
+      case VALUE_CHAR: {
+        cst = CstChar.make((char) EncodedValueCodec.readUnsignedInt(in, arg, false));
+        break;
+      }
+      case VALUE_SHORT: {
+        cst = CstShort.make((short) EncodedValueCodec.readSignedInt(in, arg));
+        break;
+      }
+      case VALUE_INT: {
+        cst = CstInteger.make(EncodedValueCodec.readSignedInt(in, arg));
+        break;
+      }
+      case VALUE_LONG: {
+        cst = CstLong.make(EncodedValueCodec.readSignedLong(in, arg));
+        break;
+      }
+      case VALUE_FLOAT: {
+        cst = CstFloat.make(EncodedValueCodec.readUnsignedInt(in, arg, true));
+        break;
+      }
+      case VALUE_DOUBLE: {
+        cst = CstDouble.make(EncodedValueCodec.readUnsignedLong(in, arg, true));
+        break;
+      }
+      default: {
+        throw new AssertionError();
+      }
+    }
+
+    return cst;
   }
  }

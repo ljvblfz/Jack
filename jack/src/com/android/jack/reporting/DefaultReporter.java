@@ -37,7 +37,7 @@ public class DefaultReporter extends CommonReporter {
   @Override
   protected void printFilteredProblem(@Nonnull ProblemLevel problemLevel, @Nonnull String message,
       @CheckForNull Location location) {
-    StringBuffer messageBuffer = new StringBuffer(problemLevel.toString());
+    StringBuilder messageBuffer = new StringBuilder(problemLevel.toString());
 
     if (location != null) {
 

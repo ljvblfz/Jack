@@ -18,7 +18,6 @@ package com.android.jack.jarjar.test006.lib2;
 
 import com.android.jack.jarjar.test006.lib1.Repackaged;
 import com.android.jack.jarjar.test006.lib1.RepackagedAnnotation;
-import com.android.jack.jarjar.test006.lib1.RepackagedEnum;
 import com.android.jack.jarjar.test006.lib1.RepackagedInterface;
 
 @RepackagedAnnotation

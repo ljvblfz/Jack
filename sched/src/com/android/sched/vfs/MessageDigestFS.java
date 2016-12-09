@@ -172,7 +172,7 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
 
   @SuppressWarnings("unchecked")
   public MessageDigestFS(@Nonnull VFS vfs, @Nonnull MessageDigestFactory factory)
-      throws WrongVFSFormatException {
+      throws BadVFSFormatException {
     this.vfs = (BaseVFS<BaseVDir, BaseVFile>) vfs;
     this.mdFactory = factory;
 
@@ -184,16 +184,16 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
     init();
   }
 
-  private void init() throws WrongVFSFormatException {
+  private void init() throws BadVFSFormatException {
     BaseVFile digestFile;
 
     try {
       digestFile = vfs.getRootDir().getVFile(DIGEST_FILE_NAME);
     } catch (NotFileException e) {
-      throw new WrongVFSFormatException(this, vfs.getLocation(), e);
+      throw new BadVFSFormatException(this, vfs.getLocation(), e);
     } catch (NoSuchFileException e) {
       if (!vfs.getRootDir().isEmpty()) {
-        throw new WrongVFSFormatException(this, vfs.getLocation(), e);
+        throw new BadVFSFormatException(this, vfs.getLocation(), e);
       }
 
       return;
@@ -204,7 +204,7 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
       try {
         in = new LineNumberReader(new InputStreamReader(digestFile.getInputStream()));
       } catch (WrongPermissionException e) {
-        throw new WrongVFSFormatException(this, vfs.getLocation(), e);
+        throw new BadVFSFormatException(this, vfs.getLocation(), e);
       }
 
       try {
@@ -212,7 +212,7 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
         while ((line = in.readLine()) != null) {
           int index = line.indexOf(':');
           if (index < 1) {
-            throw new WrongVFSFormatException(this, vfs.getLocation(),
+            throw new BadVFSFormatException(this, vfs.getLocation(),
                 new WrongFileFormatException(new ColumnAndLineLocation(digestFile.getLocation(),
                     in.getLineNumber())));
           }
@@ -226,7 +226,7 @@ public class MessageDigestFS extends BaseVFS<MessageDigestVDir, MessageDigestVFi
           }
         }
       } catch (IOException e) {
-        throw new WrongVFSFormatException(this, vfs.getLocation(), new CannotReadException(
+        throw new BadVFSFormatException(this, vfs.getLocation(), new CannotReadException(
             digestFile));
       }
     } finally {

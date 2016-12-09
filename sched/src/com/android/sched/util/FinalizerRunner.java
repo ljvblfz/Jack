@@ -16,6 +16,8 @@
 
 package com.android.sched.util;
 
+import com.android.sched.util.log.LoggerFactory;
+
 import java.lang.ref.PhantomReference;
 import java.lang.ref.ReferenceQueue;
 import java.util.LinkedList;
@@ -31,7 +33,7 @@ import javax.annotation.Nonnull;
  */
 public class FinalizerRunner {
   @Nonnull
-  private static final Logger logger = Logger.getLogger(FinalizerRunner.class.getName());
+  private static final Logger logger = LoggerFactory.getLogger();
 
   private class FinalizerThread extends Thread {
     private FinalizerThread(@Nonnull String name) {

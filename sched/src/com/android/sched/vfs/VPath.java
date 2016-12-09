@@ -133,7 +133,7 @@ public final class VPath implements Cloneable {
    */
   @Nonnull
   public String getPathAsString(char separator) {
-    StringBuffer buffer = new StringBuffer();
+    StringBuilder buffer = new StringBuilder();
     for (VPathFragment pathElement : pathFragments) {
       buffer.append(pathElement.getPathElementAsString(separator));
     }

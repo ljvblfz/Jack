@@ -18,6 +18,8 @@ package com.android.jack.util;
 
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JAnnotationType;
+import com.android.jack.ir.ast.JBooleanLiteral;
+import com.android.jack.ir.ast.JNameValuePair;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,5 +56,16 @@ public class AnnotationUtils {
     }
 
     return foundAnnotations;
+  }
+
+  public static boolean getBooleanValueFromAnnotation(@Nonnull JAnnotation annotation,
+      @Nonnull String name, boolean defaultValue) {
+    boolean value = defaultValue;
+    JNameValuePair removeAfterValuePair = annotation.getNameValuePair(name);
+    if (removeAfterValuePair != null
+        && removeAfterValuePair.getValue() instanceof JBooleanLiteral) {
+      value = ((JBooleanLiteral) removeAfterValuePair.getValue()).getValue();
+    }
+    return value;
   }
 }

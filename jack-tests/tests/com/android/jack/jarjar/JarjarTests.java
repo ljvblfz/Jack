@@ -221,8 +221,7 @@ public class JarjarTests {
       // work around a VFS bug
       // inputJackLibrary = AbstractTestTools.getInputJackLibrary(outLib);
 
-      vfs = new ReadZipFS(
-          new InputZipFile(outLib.getPath(), hooks, Existence.MUST_EXIST, ChangePermission.NOCHANGE));
+      vfs = new ReadZipFS(new InputZipFile(outLib.getPath()));
 
       inputJackLibrary = JackLibraryFactory.getInputLibrary(vfs);
 

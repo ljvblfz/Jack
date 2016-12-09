@@ -59,4 +59,5 @@ public interface InputLibrary extends Library {
   public void delete(@Nonnull FileType fileType, @Nonnull VPath typePath)
       throws CannotDeleteFileException, FileTypeDoesNotExistException;
 
+  public boolean isClosed();
 }

@@ -1,11 +1,15 @@
-# Eclipse project files
-.classpath
-.project
+# Gradle
+.gradle/
+build/
 
-# Android Studio
+# IntelliJ
 .idea
 *.iml
 
-#.idea/workspace.xml - remove # and delete .idea if it better suit your needs.
-.gradle/
-build/
+# Eclipse
+.classpath
+.project
+
+# Jack local dependencies
+libs/
+tools/

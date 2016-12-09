@@ -16,9 +16,10 @@
 
 package com.android.sched.util.codec;
 
-import com.android.sched.util.HasDescription;
 import com.android.sched.util.codec.KeyValueCodec.Entry;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -30,25 +31,24 @@ import javax.annotation.Nonnull;
  */
 public class EnumCodec<T extends Enum<T>> implements StringCodec<T> {
   @Nonnull
-  KeyValueCodec<T> parser;
+  private final KeyValueCodec<T> parser;
 
-  public EnumCodec(@Nonnull Class<T> type, @Nonnull T[] values) {
-    assert values.length > 0;
+  @SuppressWarnings("unchecked")
+  public EnumCodec(@Nonnull Class<T> type) {
+    Field[] fields = type.getDeclaredFields();
+    List<Entry<?>> entries = new ArrayList<>(fields.length);
 
-    @SuppressWarnings("unchecked")
-    Entry<T>[] entries = new Entry[values.length];
+    for (Field field : fields) {
+      if (field.isEnumConstant()) {
+        EnumName meta = field.getAnnotation(EnumName.class);
+        if (meta != null) {
 
-    int idx = 0;
-    if (values instanceof HasDescription[]) {
-      for (T value : values) {
-        entries[idx++] =
-            new Entry<T>(value.name().replace('_', '-'), value,
-                ((HasDescription) value).getDescription());
-      }
-    } else {
-      for (T value : values) {
-
-        entries[idx++] = new Entry<T>(value.name().replace('_', '-'), value);
+          entries.add(new Entry<>(
+              meta.name(),
+              Enum.valueOf(type, field.getName()),
+              meta.description(),
+              meta.hide()));
+        }
       }
     }
 
@@ -58,7 +58,7 @@ public class EnumCodec<T extends Enum<T>> implements StringCodec<T> {
           + VariableName.class.getSimpleName());
     }
 
-    parser = new KeyValueCodec<T>(variableName.value(), entries);
+    parser = new KeyValueCodec<T>(variableName.value(), entries.toArray(new Entry[entries.size()]));
   }
 
   @Nonnull
@@ -116,5 +116,9 @@ public class EnumCodec<T extends Enum<T>> implements StringCodec<T> {
   @Nonnull
   public String getVariableName() {
     return parser.getVariableName();
+  }
+
+  public boolean hasPublicEntries() {
+    return parser.hasPublicEntries();
   }
 }

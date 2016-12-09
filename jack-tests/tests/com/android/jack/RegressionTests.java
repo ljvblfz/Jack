@@ -17,6 +17,7 @@
 package com.android.jack;
 
 import com.android.jack.annotation.AnnotationTests;
+import com.android.jack.annotation.bridge.BridgeAnnotationsTests;
 import com.android.jack.arithmetic.ArithmeticTests;
 import com.android.jack.array.ArrayTests;
 import com.android.jack.assertion.AssertionTests;
@@ -40,6 +41,7 @@ import com.android.jack.invoke.InvokeTests;
 import com.android.jack.newarray.NewarrayTests;
 import com.android.jack.opcodes.OpcodesTests;
 import com.android.jack.optimizations.exprsimplifier.ExprsimplifierTests;
+import com.android.jack.optimizations.ifwithconstantsimplifier.IfWithConstantSimplifierTests;
 import com.android.jack.optimizations.notsimplifier.NotsimplifierTests;
 import com.android.jack.optimizations.tailrecursion.TailRecursionTests;
 import com.android.jack.optimizations.usedef.UseDefTests;
@@ -76,6 +78,7 @@ public class RegressionTests {
       new AssignTests(),
       new BoxTests(),
       new BridgeTests(),
+      new BridgeAnnotationsTests(),
       new CastTests(),
       new ComparisonTests(),
       new ConditionalTests(),
@@ -88,6 +91,7 @@ public class RegressionTests {
       new FieldTests(),
       new FlowTests(),
       new IfstatementTests(),
+      new IfWithConstantSimplifierTests(),
       new InitTests(),
       new InnerTests(),
       new InvokeTests(),

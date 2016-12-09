@@ -2,6 +2,7 @@ package com.android.jack;
 
 import com.android.jack.analysis.dfa.reachingdefs.ReachingDefsTests;
 import com.android.jack.annotation.AnnotationTests;
+import com.android.jack.annotation.bridge.BridgeAnnotationsTests;
 import com.android.jack.annotation.processor.AnnotationProcessorTests;
 import com.android.jack.arithmetic.ArithmeticTests;
 import com.android.jack.array.ArrayTests;
@@ -30,7 +31,7 @@ import com.android.jack.fileconflict.FileConflictTests;
 import com.android.jack.flow.FlowTests;
 import com.android.jack.frontend.DuplicateSourceTest;
 import com.android.jack.frontend.FrontEndTests;
-import com.android.jack.generic.GenericTests;
+import com.android.jack.frontend.GenericTests;
 import com.android.jack.ifstatement.IfstatementTests;
 import com.android.jack.imports.ImportTests;
 import com.android.jack.init.InitTests;
@@ -51,6 +52,8 @@ import com.android.jack.opcodes.OpcodesTests;
 import com.android.jack.optimizations.blockmerger.BlockMergerTests;
 import com.android.jack.optimizations.defuse.DefUseTests;
 import com.android.jack.optimizations.exprsimplifier.ExprsimplifierTests;
+import com.android.jack.optimizations.ifwithconstantsimplifier.IfWithConstantSimplifierTests;
+import com.android.jack.optimizations.inlinemethod.InlineMethodTest;
 import com.android.jack.optimizations.lambdas.LambdaTests;
 import com.android.jack.optimizations.modifiers.ModifiersTighteningTests;
 import com.android.jack.optimizations.notsimplifier.NotsimplifierTests;
@@ -96,6 +99,7 @@ import org.junit.runners.Suite.SuiteClasses;
     BoostLockedRegionPriorityTests.class,
     BoxTests.class,
     BridgeTests.class,
+    BridgeAnnotationsTests.class,
     CastAllTests.class,
     ClasspathTests.class,
     ClinitTests.class,
@@ -138,6 +142,8 @@ import org.junit.runners.Suite.SuiteClasses;
     MultiDexAllTests.class,
     NewarrayTests.class,
     ExprsimplifierTests.class,
+    IfWithConstantSimplifierTests.class,
+    InlineMethodTest.class,
     NotsimplifierTests.class,
     NoPackageTests.class,
     OrderTests.class,

@@ -16,6 +16,7 @@
 
 package com.android.jack.shrob.obfuscation.nameprovider;
 
+import com.android.jack.shrob.obfuscation.key.Key;
 import com.android.sched.util.codec.VariableName;
 
 import javax.annotation.Nonnull;
@@ -26,7 +27,7 @@ import javax.annotation.Nonnull;
 @VariableName("provider")
 public interface NameProvider {
   @Nonnull
-  public String getNewName(@Nonnull String oldName);
+  public String getNewName(@Nonnull Key key);
 
-  public boolean hasAlternativeName(@Nonnull String oldName);
+  public boolean hasAlternativeName(@Nonnull Key key);
 }

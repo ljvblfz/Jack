@@ -45,6 +45,18 @@ public class JillTests {
     runJillTest("002");
   }
 
+  @Test
+  @Runtime
+  public void test003() throws Exception {
+    runJillTest("003");
+  }
+
+  @Test
+  @Runtime
+  public void test004() throws Exception {
+    runJillTest("004");
+  }
+
   private static void runJillTest(@Nonnull String testNumber) throws Exception {
     String jackFolder = getJackFolder(testNumber);
     String jasminFolder = getJasminFolder(testNumber);

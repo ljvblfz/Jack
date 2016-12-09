@@ -36,8 +36,8 @@ import com.android.jack.reporting.Reporter;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.resource.ResourceImportConflictException;
 import com.android.jack.resource.ResourceImporter;
-import com.android.sched.util.HasDescription;
 import com.android.sched.util.codec.EnumCodec;
+import com.android.sched.util.codec.EnumName;
 import com.android.sched.util.codec.VariableName;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.ThreadConfig;
@@ -84,29 +84,18 @@ public class JayceFileImporter {
    * How to handle file collisions.
    */
   @VariableName("policy")
-  public enum CollisionPolicy implements HasDescription {
-    KEEP_FIRST("keep the first element encountered"),
-    FAIL("fail when a collision occurs");
-
-    @Nonnull
-    private String description;
-
-    private CollisionPolicy(@Nonnull String description) {
-      this.description = description;
-    }
-
-    @Override
-    @Nonnull
-    public String getDescription() {
-      return description;
-    }
+  public enum CollisionPolicy {
+    @EnumName(name = "keep-first", description = "keep the first element encountered")
+    KEEP_FIRST,
+    @EnumName(name = "fail", description = "fail when a collision occurs")
+    FAIL;
   }
 
   @Nonnull
   public static final PropertyId<CollisionPolicy> COLLISION_POLICY = PropertyId.create(
       "jack.import.type.policy",
       "Defines the policy to follow concerning type collision",
-      new EnumCodec<CollisionPolicy>(CollisionPolicy.class, CollisionPolicy.values()).ignoreCase())
+      new EnumCodec<CollisionPolicy>(CollisionPolicy.class).ignoreCase())
       .addDefaultValue(CollisionPolicy.FAIL).addCategory(Brest.class);
 
   @Nonnull

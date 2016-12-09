@@ -217,6 +217,7 @@ public class JackBatchCompiler extends Main {
     logger.startLoggingSources();
     try {
       batchCompiler.compile(getCompilationUnits());
+      ((JAstBuilder) batchCompiler).finishCompilation();
     } catch (IllegalArgumentException e) {
       // IllegalArgumentException should no longer exist
       throw new AssertionError(e);

@@ -126,7 +126,7 @@ import com.android.jack.library.LibraryWritingException;
 import com.android.jack.library.OutputJackLibrary;
 import com.android.jack.meta.LibraryMetaWriter;
 import com.android.jack.meta.Meta;
-import com.android.jack.optimizations.ConstantRefinerAndVariableRemover;
+import com.android.jack.optimizations.ConstantRefiner;
 import com.android.jack.optimizations.DefUsesChainsSimplifier;
 import com.android.jack.optimizations.ExpressionSimplifier;
 import com.android.jack.optimizations.IfWithConstantSimplifier;
@@ -143,6 +143,9 @@ import com.android.jack.optimizations.cfg.RemoveRedundantGotoReturnEdges;
 import com.android.jack.optimizations.cfg.RemoveUnreachableBasicBlocks;
 import com.android.jack.optimizations.cfg.SimplifyConditionalExpressions;
 import com.android.jack.optimizations.common.DirectlyDerivedClassesProvider;
+import com.android.jack.optimizations.inlining.InlineAnnotatedMethods;
+import com.android.jack.optimizations.inlining.InlineAnnotationSanityCheck;
+import com.android.jack.optimizations.inlining.JMethodInliner;
 import com.android.jack.optimizations.modifiers.ClassFinalizer;
 import com.android.jack.optimizations.modifiers.FieldFinalizer;
 import com.android.jack.optimizations.modifiers.MethodFinalizer;
@@ -405,7 +408,7 @@ public abstract class Jack {
       new ObjectId<JSession>("jack.session", JSession.class);
 
   @Nonnull
-  private static final EventBus requestBus = new EventBus(Jack.class.getSimpleName());
+  private static final EventBus requestBus = new EventBus("JackResourceRequest");
 
   // Compilation configuration kept in a static field to avoid ThreadConfig overhead
   @CheckForNull
@@ -755,6 +758,9 @@ public abstract class Jack {
             request.addFeature(Optimizations.SimpleBasicBlockMerging.class);
           }
 
+          if (config.get(Optimizations.InlineAnnotatedMethods.ENABLE).booleanValue()) {
+            request.addFeature(Optimizations.InlineAnnotatedMethods.class);
+          }
           if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.ALWAYS) {
             request.addFeature(EnabledAssertionFeature.class);
           } else if (config.get(Options.ASSERTION_POLICY) == AssertionPolicy.RUNTIME) {
@@ -1477,6 +1483,9 @@ public abstract class Jack {
           .append(LambdaConverter.class);
     }
 
+    boolean enableInlineAnnotatedMethods =
+        features.contains(Optimizations.InlineAnnotatedMethods.class);
+
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
@@ -1580,6 +1589,18 @@ public abstract class Jack {
       }
     }
 
+    if (enableInlineAnnotatedMethods) {
+
+      SubPlanBuilder<JMethod> methodPlan = planBuilder
+          .appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
+          .appendSubPlan(JMethodAdapter.class);
+      if (hasSanityChecks) {
+        methodPlan.append(InlineAnnotationSanityCheck.class);
+      }
+      methodPlan.append(InlineAnnotatedMethods.class);
+      methodPlan.append(JMethodInliner.class);
+    }
+
     if (features.contains(DalvikProtectedInnerCheck.class)) {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
@@ -1673,7 +1694,7 @@ public abstract class Jack {
           if (hasSanityChecks) {
             methodPlan4.append(UseDefsChecker.class);
           }
-          methodPlan4.append(ConstantRefinerAndVariableRemover.class);
+          methodPlan4.append(ConstantRefiner.class);
           if (features.contains(Optimizations.UseDefSimplifier.class)) {
             methodPlan4.append(UseDefsChainsSimplifier.class);
           }

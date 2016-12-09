@@ -34,6 +34,7 @@ import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JReferenceType;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.library.DumpInLibrary;
+import com.android.jack.library.PrebuiltCompatibility;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.jack.transformations.request.Remove;
@@ -72,13 +73,15 @@ public class FieldInitializerRemover implements RunnableSchedulable<JField> {
       BooleanPropertyId
           .create("jack.legacy.dx.initialvalue.class",
               "Emit class literal as initial value of field")
-          .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
+          .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class)
+          .addCategory(PrebuiltCompatibility.class);
 
   @Nonnull
   public static final BooleanPropertyId STRING_AS_INITIALVALUE_OF_OBJECT = BooleanPropertyId
       .create("jack.legacy.runtime.initialvalue.string",
           "Emit string literal as initial value of field")
-      .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class);
+      .addDefaultValue(Boolean.FALSE).addCategory(DumpInLibrary.class)
+      .addCategory(PrebuiltCompatibility.class);
 
   private final boolean allowClassInInitialValue =
       ThreadConfig.get(CLASS_AS_INITIALVALUE).booleanValue();

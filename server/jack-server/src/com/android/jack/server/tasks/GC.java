@@ -18,6 +18,7 @@ package com.android.jack.server.tasks;
 
 import com.android.jack.server.JackHttpServer;
 import com.android.sched.util.findbugs.SuppressFBWarnings;
+import com.android.sched.util.log.LoggerFactory;
 
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
@@ -34,7 +35,7 @@ import javax.annotation.Nonnull;
 @SuppressFBWarnings("DM_GC")
 public class GC extends SynchronousAdministrativeTask {
   @Nonnull
-  private static Logger logger = Logger.getLogger(GC.class.getName());
+  private static Logger logger = LoggerFactory.getLogger();
 
   public GC(@Nonnull JackHttpServer jackServer) {
     super(jackServer);

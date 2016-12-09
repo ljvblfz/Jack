@@ -140,15 +140,33 @@ private nonEmptytFilter [List<FilterSpecification> filter, FilterSeparator separ
 private classSpecification returns [ClassSpecification classSpec]
 @init{
   ModifierSpecification modifier = new ModifierSpecification();
-  boolean hasNameNegator = false;
 }
   :
   (annotation)?
   cType=classModifierAndType[modifier]
-  (NEGATOR {hasNameNegator = true;})? NAME {classSpec = GrammarActions.classSpec($NAME.text, hasNameNegator, cType, $annotation.annotSpec, modifier);}
+  classNames {classSpec = GrammarActions.classSpec($classNames.names, cType,
+    $annotation.annotSpec, modifier);}
   (inheritanceSpec=inheritance {classSpec.setInheritance(inheritanceSpec);})?
   members[classSpec]?
   ;
+
+private classNames returns [List<NameSpecification> names]
+@init{
+  names = new ArrayList<NameSpecification>();
+}
+  :
+  firstName=className {names.add($firstName.nameSpec);}
+  (',' otherName=className {names.add($otherName.nameSpec);} )*
+;
+
+private className returns [NameSpecification nameSpec]
+@init{
+    boolean hasNameNegator = false;
+}
+  :
+  (NEGATOR {hasNameNegator = true;})?
+  NAME {nameSpec=GrammarActions.className($NAME.text, hasNameNegator);}
+;
 
 private classModifierAndType[ModifierSpecification modifier] returns [ClassTypeSpecification cType]
 @init{

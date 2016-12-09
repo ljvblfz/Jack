@@ -196,8 +196,6 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
       return null;
     }
 
-
-
     tokenizer.readOpen();
     NNode node;
     try {
@@ -236,6 +234,7 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
       assert !(node instanceof NMethod) || currentCatchBlockList.isEmpty();
       tokenizer.readClose();
     }
+
     if (nodeLevel.keep(token.getNodeLevel())) {
       if (statistic != null) {
         statistic.addFalse();
@@ -272,7 +271,6 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
       T node = readNode(nodeClass);
       if (node != null) {
         nodes.add(node);
-        node.setIndex(i);
       }
     }
     tokenizer.readClose();

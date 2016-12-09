@@ -16,6 +16,7 @@
 
 package com.android.sched.util.file;
 
+import com.android.sched.util.ConcurrentIOException;
 import com.android.sched.util.location.FileLocation;
 
 import java.io.File;
@@ -28,51 +29,48 @@ import javax.annotation.Nonnull;
 /**
  * An class that represents a Jar.
  */
-public class InputJarFile extends AbstractStreamFile {
-  @Nonnull
-  private final JarFile jarFile;
+public class InputJarFile extends InputZipFile {
 
-  public InputJarFile(@Nonnull String name)
+  public InputJarFile(@Nonnull String path)
       throws WrongPermissionException, NotFileException, NoSuchFileException, NotJarFileException {
-    this(new File(name), new FileLocation(name));
+    this(new File(path), new FileLocation(path));
   }
 
-  public InputJarFile(@CheckForNull Directory workingDirectory, @Nonnull String string)
+  public InputJarFile(@CheckForNull Directory workingDirectory, @Nonnull String path)
       throws NotFileException, WrongPermissionException, NoSuchFileException, NotJarFileException {
-    this(getFileFromWorkingDirectory(workingDirectory, string), new FileLocation(string));
+    this(getFileFromWorkingDirectory(workingDirectory, path),
+        new FileLocation(path));
   }
 
-  private InputJarFile(@Nonnull File file, @Nonnull FileLocation location)
-      throws WrongPermissionException, NotFileException, NoSuchFileException, NotJarFileException {
-    super(file, location, null /* hooks */);
+  protected InputJarFile(@Nonnull File file, @Nonnull FileLocation location)
+      throws WrongPermissionException,
+      NoSuchFileException,
+      NotFileException,
+      NotJarFileException {
+    super(file, location, processJar(file, location));
+  }
 
+  @Nonnull
+  private static JarFile processJar(@Nonnull File file, @Nonnull FileLocation location)
+      throws NotJarFileException {
     try {
-      performChecks(Existence.MUST_EXIST, Permission.READ, ChangePermission.NOCHANGE);
-    } catch (FileAlreadyExistsException e) {
-      throw new AssertionError(e);
-    } catch (CannotCreateFileException e) {
-      throw new AssertionError(e);
-    } catch (CannotChangePermissionException e) {
-      throw new AssertionError(e);
-    }
-
-    try {
-      jarFile = new JarFile(file);
-    } catch (IOException e) {
+      return new JarFile(file);
+    } catch (java.util.zip.ZipException e) {
       throw new NotJarFileException(location, e);
+    } catch (IOException e) {
+      // should not happen, because checks should already have been performed in processExisting
+      throw new ConcurrentIOException(e);
     }
   }
-
 
   @Nonnull
   public JarFile getJarFile() {
-    return jarFile;
+    return (JarFile) getZipFile();
   }
 
   @Nonnull
   public File getFile() {
     assert file != null;
-
     return file;
   }
 }

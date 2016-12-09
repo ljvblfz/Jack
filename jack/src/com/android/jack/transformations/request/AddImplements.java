@@ -23,8 +23,8 @@ import com.android.sched.transform.TransformStep;
 import javax.annotation.Nonnull;
 
 /**
- * A {@code TransformationStep} to add implements of {@code JInterface}
- * to {@code JDefinedClass}.
+ * A {@link TransformationStep} to add implements of {@link JInterface}
+ * to {@link JDefinedClass}.
  */
 public class AddImplements implements TransformationStep, TransformStep {
 
@@ -34,6 +34,12 @@ public class AddImplements implements TransformationStep, TransformStep {
   @Nonnull
   private final JInterface iface;
 
+  /**
+   * Constructor specifying a class that will implement an interface.
+   *
+   * @param definedClass the defined class that will implement the interface
+   * @param iface the interface to be implemented by the defined class
+   */
   public AddImplements(@Nonnull JDefinedClass definedClass, @Nonnull JInterface iface) {
     this.definedClass = definedClass;
     this.iface = iface;

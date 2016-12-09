@@ -16,6 +16,8 @@
 
 package com.android.jack.shrob.obfuscation.nameprovider;
 
+import com.android.jack.shrob.obfuscation.key.Key;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -31,7 +33,7 @@ public abstract class AlphabeticalNameProvider implements NameProvider {
 
   @Override
   @Nonnull
-  public String getNewName(@Nonnull String oldName) {
+  public String getNewName(@Nonnull Key key) {
     for (int index = sb.length() - 1; index >= 0; index--) {
       char c = sb.charAt(index);
       if (!hasNextChar(c)) {
@@ -48,7 +50,7 @@ public abstract class AlphabeticalNameProvider implements NameProvider {
   protected abstract char getFirstChar();
 
   @Override
-  public boolean hasAlternativeName(@Nonnull String oldName) {
+  public boolean hasAlternativeName(@Nonnull Key key) {
     return true;
   }
 }

@@ -21,7 +21,8 @@ import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JFieldId;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodIdWide;
-import com.android.jack.shrob.proguard.GrammarActions;
+import com.android.jack.shrob.obfuscation.key.FieldKey;
+import com.android.jack.shrob.obfuscation.key.MethodKey;
 import com.android.jack.transformations.request.TransformationRequest;
 
 import java.io.File;
@@ -38,18 +39,18 @@ import javax.annotation.Nonnull;
 public class CollectingMappingApplier extends MappingApplier {
 
   @Nonnull
-  private final Map<String, String> fieldNames = new HashMap<String, String>();
+  private final Map<FieldKey, String> fieldNames = new HashMap<FieldKey, String>();
 
   @Nonnull
-  private final Map<String, String> methodNames = new HashMap<String, String>();
+  private final Map<MethodKey, String> methodNames = new HashMap<MethodKey, String>();
 
   @Nonnull
-  public Map<String, String> getFieldNames() {
+  public Map<FieldKey, String> getFieldNames() {
     return fieldNames;
   }
 
   @Nonnull
-  public Map<String, String> getMethodNames() {
+  public Map<MethodKey, String> getMethodNames() {
     return methodNames;
   }
 
@@ -63,19 +64,19 @@ public class CollectingMappingApplier extends MappingApplier {
     JFieldId id = field.getId();
     if (!id.containsMarker(OriginalNameMarker.class)) {
       super.renameField(field, mappingFile, lineNumber, newName);
-      String oldName = id.getName();
-      String previousNewName = fieldNames.get(oldName);
+      FieldKey oldKey = new FieldKey(id);
+      String previousNewName = fieldNames.get(oldKey);
       if (previousNewName != null && !previousNewName.equals(newName)) {
         logger.log(Level.WARNING, "{0}:{1}: Cannot rename field {2} in {3} to {4} "
             + "because it has already been mapped to {5}",
             new Object[] {mappingFile.getPath(),
                 Integer.valueOf(lineNumber),
-                oldName,
+                oldKey,
                 Jack.getUserFriendlyFormatter().getName(field.getEnclosingType()),
                 previousNewName,
                 newName});
       } else {
-        fieldNames.put(Renamer.getFieldKey(id), newName);
+        fieldNames.put(new FieldKey(id), newName);
       }
     }
   }
@@ -87,8 +88,8 @@ public class CollectingMappingApplier extends MappingApplier {
     if (!id.containsMarker(OriginalNameMarker.class)) {
       super.renameMethod(method, mappingFile, lineNumber, newName);
       if (methodNames != null) {
-        String methodSignature = GrammarActions.getSignatureFormatter().getName(method);
-        String previousNewName = methodNames.get(methodSignature);
+        MethodKey methodKey = new MethodKey(id);
+        String previousNewName = methodNames.get(methodKey);
         if (previousNewName != null && !previousNewName.equals(newName)) {
           logger.log(Level.WARNING, "{0}:{1}: Cannot rename method {2} in {3} to {4} "
               + "because it has already been mapped to {5}",
@@ -99,7 +100,7 @@ public class CollectingMappingApplier extends MappingApplier {
                   previousNewName,
                   newName});
         } else {
-          methodNames.put(methodSignature, newName);
+          methodNames.put(methodKey, newName);
         }
       }
     }

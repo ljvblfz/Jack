@@ -1,0 +1,11 @@
+Lcom/android/jack/shrob/test068/jack/I2ImplImpl;:
+<init>()V
+Lcom/android/jack/shrob/test068/jack/I2Impl;:
+<init>()V
+Lcom/android/jack/shrob/test068/jack/I1;:
+m()Ljava/lang/String;
+Lcom/android/jack/shrob/test068/jack/Kept;:
+<init>()V
+kept2()V
+Lcom/android/jack/shrob/test068/jack/I2;:
+m()Ljava/lang/String;

@@ -57,6 +57,11 @@ public class GenericInputVFS extends AbstractVFS implements InputVFS {
   }
 
   @Override
+  public boolean isClosed() {
+    return vfs.isClosed();
+  }
+
+  @Override
   @CheckForNull
   public String getDigest() {
     return vfs.getDigest();
@@ -66,6 +71,12 @@ public class GenericInputVFS extends AbstractVFS implements InputVFS {
   @Nonnull
   public VPath getPathFromRoot(@Nonnull InputVFile file) {
     return ((BaseVFS) vfs).getPathFromRoot((BaseVFile) file.getVFile());
+  }
+
+  @Override
+  @Nonnull
+  public VFS getVFS() {
+    return vfs;
   }
 
   @Override

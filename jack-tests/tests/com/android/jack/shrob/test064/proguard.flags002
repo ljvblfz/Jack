@@ -1,0 +1,5 @@
+-dontshrink
+-keep class * {
+  int getValue();
+}
+-applymapping mapping.txt

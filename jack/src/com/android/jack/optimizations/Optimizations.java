@@ -42,9 +42,11 @@ public class Optimizations {
   @Description("Optimize def/use chain")
   public static class DefUseSimplifier implements Feature {
     @Nonnull
-    public static final BooleanPropertyId ENABLE = BooleanPropertyId
-        .create("jack.optimization.def-use-simplifier", "Optimize def/use chain")
-        .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
+    public static final BooleanPropertyId ENABLE =
+        BooleanPropertyId.create("jack.optimization.def-use-simplifier", "Optimize def/use chain")
+            .addDefaultValue(Boolean.TRUE)
+            .addCategory(DumpInLibrary.class)
+            .addCategory(PrebuiltCompatibility.class);
   }
 
   /**
@@ -54,9 +56,11 @@ public class Optimizations {
   @Description("Optimize use/def chain")
   public static class UseDefSimplifier implements Feature {
     @Nonnull
-    public static final BooleanPropertyId ENABLE = BooleanPropertyId
-        .create("jack.optimization.use-def-simplifier", "Optimize use/def chain")
-        .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
+    public static final BooleanPropertyId ENABLE =
+        BooleanPropertyId.create("jack.optimization.use-def-simplifier", "Optimize use/def chain")
+            .addDefaultValue(Boolean.TRUE)
+            .addCategory(DumpInLibrary.class)
+            .addCategory(PrebuiltCompatibility.class);
   }
 
   /**
@@ -66,10 +70,12 @@ public class Optimizations {
   @Description("Optimize expressions using constants")
   public static class ExpressionSimplifier implements Feature {
     @Nonnull
-    public static final BooleanPropertyId ENABLE = BooleanPropertyId
-        .create("jack.optimization.expression-simplifier",
-            "Optimize expressions using constants")
-        .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
+    public static final BooleanPropertyId ENABLE =
+        BooleanPropertyId.create(
+                "jack.optimization.expression-simplifier", "Optimize expressions using constants")
+            .addDefaultValue(Boolean.TRUE)
+            .addCategory(DumpInLibrary.class)
+            .addCategory(PrebuiltCompatibility.class);
   }
 
   /**
@@ -79,10 +85,13 @@ public class Optimizations {
   @Description("Optimize 'if' expressions using a boolean constant")
   public static class IfSimplifier implements Feature {
     @Nonnull
-    public static final BooleanPropertyId ENABLE = BooleanPropertyId
-        .create("jack.optimization.if-simplifier",
-            "Optimize 'if' expressions using a boolean constant")
-        .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
+    public static final BooleanPropertyId ENABLE =
+        BooleanPropertyId.create(
+                "jack.optimization.if-simplifier",
+                "Optimize 'if' expressions using a boolean constant")
+            .addDefaultValue(Boolean.TRUE)
+            .addCategory(DumpInLibrary.class)
+            .addCategory(PrebuiltCompatibility.class);
   }
 
   /**
@@ -94,7 +103,9 @@ public class Optimizations {
     @Nonnull
     public static final BooleanPropertyId ENABLE =
         BooleanPropertyId.create("jack.optimization.not-simplifier", "Optimize '!' operator")
-            .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
+            .addDefaultValue(Boolean.TRUE)
+            .addCategory(DumpInLibrary.class)
+            .addCategory(PrebuiltCompatibility.class);
   }
 
   /**
@@ -180,6 +191,22 @@ public class Optimizations {
             "Set final modifier to all effectively final fields")
         .addDefaultValue(Boolean.TRUE)
         .requiredIf(ENABLE.getValue().isTrue())
+        .addCategory(DumpInLibrary.class)
+        .addCategory(PrebuiltCompatibility.class)
+        .addCategory(Private.class);
+  }
+
+  /**
+   * A {@link Feature} that represents inlining of methods based on @ForceInline annotations.
+   */
+  @HasKeyId
+  @Description("Inline methods with @ForceInline annotation")
+  public static class InlineAnnotatedMethods implements Feature {
+    @Nonnull
+    public static final BooleanPropertyId ENABLE = BooleanPropertyId
+        .create("jack.optimization.inline-annotated-methods",
+            "Inline methods annotated with @ForceInline")
+        .addDefaultValue(Boolean.FALSE)
         .addCategory(DumpInLibrary.class)
         .addCategory(PrebuiltCompatibility.class)
         .addCategory(Private.class);
@@ -321,38 +348,9 @@ public class Optimizations {
     @Nonnull
     public static final EnumPropertyId<VariablesScope> MERGE_VARIABLES = EnumPropertyId
         .create("jack.optimization.simple-block-merging.merge-vars",
-            "Merge variables before merging blocks",
-            VariablesScope.class, VariablesScope.values())
+            "Merge variables before merging blocks", VariablesScope.class)
         .ignoreCase()
         .addDefaultValue(VariablesScope.SYNTHETIC)
-        .requiredIf(ENABLE.getValue().isTrue())
-        .addCategory(DumpInLibrary.class)
-        .addCategory(PrebuiltCompatibility.class)
-        .addCategory(Private.class);
-  }
-
-  /**
-   * A {@link Feature} that represents unused variables removal optimization.
-   */
-  @HasKeyId
-  @Description("Apply unused variables removal optimization")
-  public static class UnusedVariableRemoval implements Feature {
-    @Nonnull
-    public static final BooleanPropertyId ENABLE = BooleanPropertyId
-        .create("jack.optimization.unused-variables-removal",
-            "Apply unused variables removal optimization")
-        .addDefaultValue(Boolean.TRUE)
-        .addCategory(DumpInLibrary.class)
-        .addCategory(PrebuiltCompatibility.class)
-        .addCategory(Private.class);
-
-    @Nonnull
-    public static final EnumPropertyId<VariablesScope> MERGE_VARIABLES = EnumPropertyId
-        .create("jack.optimization.unused- variables-removal.merge-vars",
-            "Merge variables before unused variables removal",
-            VariablesScope.class, VariablesScope.values())
-        .ignoreCase()
-        .addDefaultValue(VariablesScope.ALL)
         .requiredIf(ENABLE.getValue().isTrue())
         .addCategory(DumpInLibrary.class)
         .addCategory(PrebuiltCompatibility.class)

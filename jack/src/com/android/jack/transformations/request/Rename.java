@@ -17,12 +17,13 @@
 package com.android.jack.transformations.request;
 
 import com.android.jack.ir.ast.CanBeRenamed;
+import com.android.jack.ir.ast.JNode;
 import com.android.sched.transform.TransformStep;
 
 import javax.annotation.Nonnull;
 
 /**
- * A {@code TransformationStep} allowing to rename one {@code JNode}.
+ * A {@link TransformationStep} allowing to rename one {@link JNode}.
  */
 public class Rename implements TransformationStep, TransformStep {
 
@@ -32,6 +33,12 @@ public class Rename implements TransformationStep, TransformStep {
   @Nonnull
   private final String newName;
 
+  /**
+   * Constructor specifying the {@code node} to rename with {@code newName}.
+   *
+   * @param node the node to rename
+   * @param newName the new name of the node
+   */
   public Rename(@Nonnull CanBeRenamed node, @Nonnull String newName) {
     this.node = node;
     this.newName = newName;

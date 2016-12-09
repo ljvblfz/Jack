@@ -23,8 +23,10 @@ import com.android.sched.transform.TransformStep;
 import javax.annotation.Nonnull;
 
 /**
- * A {@code TransformationStep} allowing to prepend a {@code JParameter}
- * as the first parameter of a {@code JMethod}
+ * A {@link TransformationStep} allowing to prepend a {@link JParameter}
+ * as the first parameter of a {@link JMethod}.
+ *
+ * @see AppendMethodParam
  */
 public class PrependMethodParam implements TransformationStep, TransformStep {
 
@@ -34,6 +36,13 @@ public class PrependMethodParam implements TransformationStep, TransformStep {
   @Nonnull
   private final JParameter parameter;
 
+  /**
+   * Constructor specifying the {@code parameter} to add as the first parameter of
+   * the given {@code method}.
+   *
+   * @param method the method to update
+   * @param parameter the parameter to add to the method
+   */
   public PrependMethodParam(@Nonnull JMethod method, @Nonnull JParameter parameter) {
     this.method = method;
     this.parameter = parameter;

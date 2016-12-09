@@ -39,6 +39,7 @@ import com.android.sched.util.file.OutputZipFile;
 import com.android.sched.util.file.OutputZipFile.Compression;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
+import com.android.sched.vfs.BadVFSFormatException;
 import com.android.sched.vfs.DeflateFS;
 import com.android.sched.vfs.DirectFS;
 import com.android.sched.vfs.GenericOutputVFS;
@@ -49,7 +50,6 @@ import com.android.sched.vfs.PrefixedFS;
 import com.android.sched.vfs.VFS;
 import com.android.sched.vfs.VPath;
 import com.android.sched.vfs.WriteZipFS;
-import com.android.sched.vfs.WrongVFSFormatException;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
@@ -77,13 +77,13 @@ public class JavaTransformer {
   private static final String LIB_MAJOR_VERSION = "3";
 
   @Nonnull
-  private static final String LIB_MINOR_VERSION = "3";
+  private static final String LIB_MINOR_VERSION = "4";
 
   @Nonnull
   private static final String JAYCE_MAJOR_VERSION = "4";
 
   @Nonnull
-  private static final String JAYCE_MINOR_VERSION = "2";
+  private static final String JAYCE_MINOR_VERSION = "3";
 
   @Nonnull
   private static final String KEY_LIB_MAJOR_VERSION = "lib.version.major";
@@ -202,7 +202,7 @@ public class JavaTransformer {
     try {
       return new GenericOutputVFS(new DeflateFS(new MessageDigestFS(
           new PrefixedFS(baseVFS, new VPath("jayce", '/')), new MessageDigestFactory(service))));
-    } catch (NotDirectoryException | CannotCreateFileException | WrongVFSFormatException e) {
+    } catch (NotDirectoryException | CannotCreateFileException | BadVFSFormatException e) {
       throw new JillException(e);
     }
   }

@@ -42,6 +42,7 @@ import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.library.DumpInLibrary;
+import com.android.jack.library.PrebuiltCompatibility;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.LocalVarCreator;
@@ -93,7 +94,9 @@ public class SynchronizeTransformer implements RunnableSchedulable<JMethod> {
   public static final BooleanPropertyId REUSE_SYNC_VARIABLE = BooleanPropertyId.create(
       "jack.transformation.reusesyncvariable",
       "Reduce the 'get class' usage in static synchronized methods by reusing a local variable")
-      .addDefaultValue(Boolean.TRUE).addCategory(DumpInLibrary.class);
+      .addDefaultValue(Boolean.TRUE)
+      .addCategory(DumpInLibrary.class)
+      .addCategory(PrebuiltCompatibility.class);
 
   private final boolean reuseSyncVariable = ThreadConfig.get(REUSE_SYNC_VARIABLE).booleanValue();
 

@@ -29,6 +29,7 @@ import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.vfs.CachedDirectFS;
+import com.android.sched.vfs.DirectFS;
 import com.android.sched.vfs.VFS;
 
 import javax.annotation.CheckForNull;
@@ -43,6 +44,8 @@ public class DirectFSCodec extends FileOrDirCodec<VFS> implements VFSCodec {
   @CheckForNull
   private String infoString;
 
+  private boolean useCache = true;
+
   public DirectFSCodec() {
     super(Existence.MUST_EXIST, Permission.READ | Permission.WRITE);
 
@@ -51,6 +54,13 @@ public class DirectFSCodec extends FileOrDirCodec<VFS> implements VFSCodec {
 
   public DirectFSCodec(@Nonnull Existence existence) {
     super(existence, Permission.READ | Permission.WRITE);
+  }
+
+  @Nonnull
+  public DirectFSCodec withoutCache() {
+    this.useCache = false;
+
+    return this;
   }
 
   @Nonnull
@@ -99,15 +109,25 @@ public class DirectFSCodec extends FileOrDirCodec<VFS> implements VFSCodec {
     return "dir";
   }
 
+  @SuppressWarnings("resource")
   @Override
   @Nonnull
   public VFS checkString(@Nonnull CodecContext context,
       @Nonnull final String string) throws ParsingException {
     try {
-      CachedDirectFS cdFS = new CachedDirectFS(new Directory(context.getWorkingDirectory(), string,
-          context.getRunnableHooks(), existence, permissions, change), permissions);
-      cdFS.setInfoString(infoString);
-      return cdFS;
+      Directory dir = new Directory(context.getWorkingDirectory(), string,
+          context.getRunnableHooks(), existence, permissions, change);
+      VFS vfs;
+      if (useCache) {
+        CachedDirectFS cdFS = new CachedDirectFS(dir, permissions);
+        cdFS.setInfoString(infoString);
+        vfs = cdFS;
+      } else {
+        DirectFS dFS = new DirectFS(dir, permissions);
+        dFS.setInfoString(infoString);
+        vfs = dFS;
+      }
+      return vfs;
     } catch (CannotChangePermissionException | NotDirectoryException | WrongPermissionException
         | NoSuchFileException | FileAlreadyExistsException | CannotCreateFileException e) {
       throw new ParsingException(e);

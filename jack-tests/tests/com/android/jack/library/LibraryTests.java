@@ -16,11 +16,9 @@
 
 package com.android.jack.library;
 
-import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.AndroidToolchain;
 import com.android.jack.test.toolchain.IToolchain;
-import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.sched.util.RunnableHooks;
@@ -90,9 +88,7 @@ public class LibraryTests {
     .srcToLib(out, /* zipFile = */ true,
         AbstractTestTools.getTestRootDir("com.android.jack.library.test001.jack"));
 
-    RunnableHooks hooks = new RunnableHooks();
-    VFS vfs = new ReadZipFS(
-        new InputZipFile(out.getPath(), hooks, Existence.MUST_EXIST, ChangePermission.NOCHANGE));
+    VFS vfs = new ReadZipFS(new InputZipFile(out.getPath()));
     try {
       InputJackLibrary inputJackLibrary = JackLibraryFactory.getInputLibrary(vfs);
       Assert.assertTrue(inputJackLibrary.containsFileType(FileType.RSC));

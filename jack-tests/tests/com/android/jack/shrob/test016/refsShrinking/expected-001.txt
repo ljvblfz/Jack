@@ -11,6 +11,10 @@ value6()Ljava/lang/String;
 value7()Ljava/lang/String;
 value8()Ljava/lang/String;
 value9()Ljava/lang/String;
+Lcom/android/jack/shrob/test016/jack/KeepClass2;:
+<init>()V
+Lcom/android/jack/shrob/test016/jack/KeepClass3;:
+<init>()V
 Lcom/android/jack/shrob/test016/jack/A;:
 <init>()V
 Lcom/android/jack/shrob/test016/jack/Annot4;:

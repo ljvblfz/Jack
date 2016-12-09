@@ -16,17 +16,14 @@
 package com.android.jack.ir.ast;
 
 
-import com.android.jack.Jack;
 import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.sourceinfo.SourceInfo;
-import com.android.jack.lookup.CommonTypes;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 import com.android.sched.util.findbugs.SuppressFBWarnings;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -40,16 +37,20 @@ public class JPolymorphicMethodCall extends JAbstractMethodCall {
   @Nonnull
   private final JType callSiteReturnType;
 
+  @Nonnull
+  private final List<JType> callSiteParameterTypes;
+
   @SuppressFBWarnings("NP_METHOD_PARAMETER_TIGHTENS_ANNOTATION")
   public JPolymorphicMethodCall(@Nonnull SourceInfo info, @Nonnull JExpression instance,
       @Nonnull JClassOrInterface receiverType, @Nonnull JMethodId methodId,
-      @Nonnull JType callSiteReturnType) {
+      @Nonnull JType callSiteReturnType, @Nonnull List<JType> callSiteParameterTypes) {
     super(info, instance, receiverType, methodId.getMethodIdWide(), methodId.getType());
 
     assert instance != null;
     assert isCallToPolymorphicMethod(receiverType, methodId.getMethodIdWide(), methodId.getType());
 
     this.callSiteReturnType = callSiteReturnType;
+    this.callSiteParameterTypes = callSiteParameterTypes;
   }
 
   public JType getReturnTypeOfPolymorphicMethod() {
@@ -64,18 +65,6 @@ public class JPolymorphicMethodCall extends JAbstractMethodCall {
 
   @Nonnull
   public List<JType> getCallSiteParameterTypes() {
-    JType jlv = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_VOID);
-
-    List<JType> callSiteParameterTypes = new ArrayList<>(getArgs().size());
-
-    for (JExpression pExp : getArgs()) {
-      if (pExp instanceof JNullLiteral) {
-        callSiteParameterTypes.add(jlv);
-      } else {
-        callSiteParameterTypes.add(pExp.getType());
-      }
-    }
-
     return callSiteParameterTypes;
   }
 
@@ -109,5 +98,14 @@ public class JPolymorphicMethodCall extends JAbstractMethodCall {
     if (!getReceiverType().isSameType(instance.getType())) {
       throw new JNodeInternalError(this, "Receiver type mismatch with instance type");
     }
+    if (callSiteParameterTypes.size() != getArgs().size()) {
+      throw new JNodeInternalError(this,
+          "Number of method call arguments does not match the number of call site parameters");
+    }
+  }
+
+  @Override
+  public boolean isCallToPolymorphicMethod() {
+    return true;
   }
 }

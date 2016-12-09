@@ -13,10 +13,16 @@ jack/src/com/android/jack/shrob/proguard/ProguardParser.java
 **/build/
 **/dist/
 **/libs/
-*/tools/
+**/tools/
 jack-tests/intermediates/
 tests-results/
 
 # Version propertie files
 jack/rsc/jack-version.properties
 jill/rsc/jill-version.properties
+
+# IDEA
+.idea
+JackCheckStyleSuppressions.xml
+JackStyleRules.xml
+**/*.iml

@@ -18,7 +18,6 @@ package com.android.jack.error;
 
 import com.android.jack.JackAbortException;
 import com.android.jack.library.JackLibrary;
-import com.android.jack.library.JackLibraryFactory;
 import com.android.jack.library.LibraryFormatException;
 import com.android.jack.library.LibraryReadingException;
 import com.android.jack.library.v0001.Version;
@@ -32,7 +31,6 @@ import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
@@ -51,17 +49,16 @@ public class JayceFormatErrorTest {
   public void testJayceFormatError() throws Exception {
     ErrorTestHelper helper = new ErrorTestHelper();
 
-    AbstractTestTools.createFile(new File(helper.getJackFolder(), JAYCE_SECTION_PATH), "jack.incremental",
-                "A.jayce", "jayce(" + JackLibraryFactory.DEFAULT_MAJOR_VERSION + "." + Version.MINOR
-                    + ")Corrupted");
+    AbstractTestTools.createFile(new File(helper.getJackFolder(), JAYCE_SECTION_PATH),
+        "jack.incremental", "A.jayce", "corrupted");
     AbstractTestTools.createFile(helper.getJackFolder(), "", "jack.properties",
                 JackLibrary.KEY_LIB_EMITTER + "=unknown\n"
                 + JackLibrary.KEY_LIB_EMITTER_VERSION + "=0\n"
                 + JackLibrary.KEY_LIB_MAJOR_VERSION + "=" + Version.MAJOR + "\n"
                 + JackLibrary.KEY_LIB_MINOR_VERSION + "=" + Version.MINOR + "\n"
                 + "jayce=true\n"
-                + "jayce.version.major=2\n"
-                + "jayce.version.minor=14\n");
+                + "jayce.version.major=3\n"
+                + "jayce.version.minor=6\n");
 
     AbstractTestTools.createFile(helper.getSourceFolder(),"jack.incremental", "B.java",
         "package jack.incremental; \n"+
@@ -84,8 +81,7 @@ public class JayceFormatErrorTest {
       Assert.assertTrue(e.getCause().getCause() instanceof LibraryFormatException);
     } finally {
       Assert.assertTrue(errOut.toString().contains("is an invalid library")); // user reporting
-      Assert.assertTrue(errOut.toString().contains(
-          "Unexpected node NForStatement, NDeclaredType was expected")); // system log
+      Assert.assertTrue(errOut.toString().contains("Unexpected node")); // system log
     }
   }
 

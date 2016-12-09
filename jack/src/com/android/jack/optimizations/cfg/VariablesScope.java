@@ -16,28 +16,16 @@
 
 package com.android.jack.optimizations.cfg;
 
-import com.android.sched.util.HasDescription;
+import com.android.sched.util.codec.EnumName;
 import com.android.sched.util.codec.VariableName;
-
-import javax.annotation.Nonnull;
 
 /** Defines the variable scope (i.e. a set of the variables) relevant to a context */
 @VariableName("scope")
-public enum VariablesScope implements HasDescription {
-  NONE("does not apply to any variables"),
-  SYNTHETIC("only applies to synthetic variables"),
-  ALL("applies to all variables");
-
-  @Nonnull
-  private final String description;
-
-  VariablesScope(@Nonnull String description) {
-    this.description = description;
-  }
-
-  @Override
-  @Nonnull
-  public String getDescription() {
-    return description;
-  }
+public enum VariablesScope {
+  @EnumName(name = "none", description = "does not apply to any variables")
+  NONE,
+  @EnumName(name = "synthetic", description = "only applies to synthetic variables")
+  SYNTHETIC,
+  @EnumName(name = "all", description = "applies to all variables")
+  ALL
 }

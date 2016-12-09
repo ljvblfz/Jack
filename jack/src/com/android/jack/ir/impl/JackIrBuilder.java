@@ -222,6 +222,7 @@ import org.eclipse.jdt.internal.compiler.ast.WhileStatement;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.BooleanConstant;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -235,7 +236,9 @@ import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.NestedTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.PolymorphicMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SyntheticArgumentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SyntheticMethodBinding;
@@ -248,12 +251,14 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Stack;
 
 import javax.annotation.CheckForNull;
@@ -1861,47 +1866,59 @@ public class JackIrBuilder {
       return false;
     }
 
+    private boolean isNestedLambdaIntoSameType(@Nonnull LambdaExpression lambdaExpression) {
+      Scope scope = lambdaExpression.enclosingScope;
+      while (scope != null) {
+        ReferenceContext context = scope.referenceContext();
+        if (context instanceof LambdaExpression) {
+          return true;
+        } else if (context instanceof TypeDeclaration) {
+          break;
+        }
+        scope = scope.parent;
+      }
+      return false;
+    }
+
     @Nonnull
     private List<JExpression> getCapturedVariables(@Nonnull LambdaExpression lambdaExpression,
         @Nonnull MethodInfo lambdaMethodInfo) {
       SourceInfo lambdaSourceInfo = makeSourceInfo(lambdaExpression);
-
       List<JExpression> capturedVars = new ArrayList<JExpression>();
-
-      List<SyntheticArgumentBinding> argAlreadyCaptured = new ArrayList<SyntheticArgumentBinding>();
-
-      // Check if captured variables (outerLocalVariables) are already move into a field of the
-      // current class due to an inner class.
-      SyntheticArgumentBinding[] curClassSyntheticOuterLocalVariables =
-          curClass.typeDecl.binding.syntheticOuterLocalVariables();
-      if (curClassSyntheticOuterLocalVariables != null) {
-        for (SyntheticArgumentBinding curClassSynthArg : curClassSyntheticOuterLocalVariables) {
-          for (SyntheticArgumentBinding lambdaSynthArg : lambdaExpression.outerLocalVariables) {
-            if (curClassSynthArg.actualOuterLocalVariable
-                == lambdaSynthArg.actualOuterLocalVariable) {
-              assert curClassSynthArg.matchingField != null;
-              JField field = typeMap.get(curClassSynthArg.matchingField);
-              assert field != null;
-              JFieldRef fieldRef = makeInstanceFieldRef(lambdaSourceInfo, field);
-              capturedVars.add(fieldRef);
-              argAlreadyCaptured.add(lambdaSynthArg);
-              break;
-            }
-          }
-        }
-      }
-
       Iterator<JParameter> it = lambdaMethodInfo.method.getParams().iterator();
-      // Add remaining captured variables that are not yet move into a field due to an inner class
+
+      nextCaptureVariable:
       for (SyntheticArgumentBinding synthArg : lambdaExpression.outerLocalVariables) {
         JParameter jparameter = it.next();
         jparameter.setCapturedVariable();
         lambdaMethodInfo.addVariableMapping(synthArg.actualOuterLocalVariable, jparameter);
         jparameter.setName(new String(synthArg.actualOuterLocalVariable.name));
-        if (synthArg.matchingField == null && !argAlreadyCaptured.contains(synthArg)) {
-          JVariable var = curMethod.getJVariable(synthArg.actualOuterLocalVariable);
-          capturedVars.add(var.makeRef(lambdaSourceInfo));
+
+        if (!isNestedLambdaIntoSameType(lambdaExpression)) {
+          // Check if captured variables (outerLocalVariables) are already move into a field of the
+          // current class due to an inner class. In this case, we must capture the field containing
+          // the captured value. This must be done only for not nested lambda, because in case of
+          // nested lambda inside the same type, the field value is already captured and can be
+          // access as parameter of the method implementing the lambda.
+          SyntheticArgumentBinding[] curClassSyntheticOuterLocalVariables =
+              curClass.typeDecl.binding.syntheticOuterLocalVariables();
+          if (curClassSyntheticOuterLocalVariables != null) {
+            for (SyntheticArgumentBinding curClassSynthArg : curClassSyntheticOuterLocalVariables) {
+              if (curClassSynthArg.actualOuterLocalVariable == synthArg.actualOuterLocalVariable) {
+                assert curClassSynthArg.matchingField != null;
+                JField field = typeMap.get(curClassSynthArg.matchingField);
+                assert field != null;
+                JFieldRef fieldRef = makeInstanceFieldRef(lambdaSourceInfo, field);
+                capturedVars.add(fieldRef);
+                continue nextCaptureVariable;
+              }
+            }
+          }
         }
+
+        assert synthArg.matchingField == null;
+        JVariable var = curMethod.getJVariable(synthArg.actualOuterLocalVariable);
+        capturedVars.add(var.makeRef(lambdaSourceInfo));
       }
 
       return capturedVars;
@@ -2030,7 +2047,19 @@ public class JackIrBuilder {
     public void endVisit(MessageSend x, BlockScope scope) {
       try {
         SourceInfo info = makeSourceInfo(x);
-        JMethod method = getTypeMap().get(x.binding);
+        JMethod method;
+        if (x.actualReceiverType.isArrayType() && new String(x.selector).equals("clone")) {
+          // ECJ has replaced the clone prototype "jlo clone()" by "int[] clone()", temporarily
+          // replace int[] by jlo to be able to lookup the method.
+          TypeBinding savedReturnType = x.binding.returnType;
+          assert savedReturnType.isArrayType();
+          x.binding.returnType = scope.getJavaLangObject();
+          method = getTypeMap().get(x.binding);
+          x.binding.returnType = savedReturnType;
+        } else {
+          method = getTypeMap().get(x.binding);
+        }
+
 
         List<JExpression> arguments = popCallArgs(info, x.arguments, x.binding);
         JExpression receiver = pop(x.receiver);
@@ -2074,8 +2103,13 @@ public class JackIrBuilder {
         JAbstractMethodCall call;
 
         if (x.binding.isPolymorphic()) {
-          call = new JPolymorphicMethodCall(info, receiver, receiverType,
-              method.getMethodId(), getTypeMap().get(x.binding.returnType));
+          TypeBinding[] parameterTypes = ((PolymorphicMethodBinding) x.binding).parameters;
+          List<JType> parameterJTypes = new ArrayList<>(parameterTypes.length);
+          for (TypeBinding type : parameterTypes) {
+            parameterJTypes.add(getTypeMap().get(type));
+          }
+          call = new JPolymorphicMethodCall(info, receiver, receiverType, method.getMethodId(),
+              getTypeMap().get(x.binding.returnType), parameterJTypes);
         } else {
           // On a super ref, make a super call. Oddly enough,
           // QualifiedSuperReference not derived from SuperReference!
@@ -3128,6 +3162,12 @@ public class JackIrBuilder {
       // bridge methods should not be flagged as VARARGS
       jdtBridgeMethod.modifiers &= ~JModifier.VARARGS;
       JMethod bridgeMethod = createSyntheticMethodFromBinding(info, jdtBridgeMethod, paramNames);
+
+      // We can't complete the bridge yet with annotations because target annotations may not be
+      // created yet, so lets delay their completion for the end the conversion from ecj model to
+      // JNode.
+      targetOfSynthesizedBridge.put(bridgeMethod, implMethod);
+
       JMethodBody body = (JMethodBody) bridgeMethod.getBody();
       assert body != null;
 
@@ -4103,7 +4143,7 @@ public class JackIrBuilder {
   }
 
   static String slashify(char[][] name) {
-    StringBuffer result = new StringBuffer();
+    StringBuilder result = new StringBuilder();
     for (int i = 0; i < name.length; ++i) {
       if (i > 0) {
         result.append('/');
@@ -4175,6 +4215,12 @@ public class JackIrBuilder {
 
   @Nonnull
   private final JSession session;
+
+  /**
+   * Keys are synthesized bridge, value are their target.
+   */
+  @Nonnull
+  private final Map<JMethod, JMethod> targetOfSynthesizedBridge = new HashMap<JMethod, JMethod>();
 
   public static boolean hasError(@Nonnull TypeDeclaration typeDeclaration) {
     return (typeDeclaration.hasErrors()
@@ -4352,17 +4398,18 @@ public class JackIrBuilder {
       case TypeIds.T_char:
       case TypeIds.T_float:
       case TypeIds.T_double:
-      case Constant.T_boolean:
-      case Constant.T_long:
-      case Constant.T_JavaLangString:
-      case Constant.T_null:
+      case TypeIds.T_boolean:
+      case TypeIds.T_long:
+      case TypeIds.T_JavaLangString:
+      case TypeIds.T_null:
         return true;
       default:
         return false;
     }
   }
 
-  private JLiteral getConstant(SourceInfo info, Constant constant, int typeId) {
+  @Nonnull
+  private JLiteral getConstant(@Nonnull SourceInfo info, @Nonnull Constant constant, int typeId) {
     switch (typeId) {
       case TypeIds.T_int:
         return new JIntLiteral(info, constant.intValue());
@@ -4376,13 +4423,13 @@ public class JackIrBuilder {
         return new JFloatLiteral(info, constant.floatValue());
       case TypeIds.T_double:
         return new JDoubleLiteral(info, constant.doubleValue());
-      case Constant.T_boolean:
+      case TypeIds.T_boolean:
         return new JBooleanLiteral(info, constant.booleanValue());
-      case Constant.T_long:
+      case TypeIds.T_long:
         return new JLongLiteral(info, constant.longValue());
-      case Constant.T_JavaLangString:
+      case TypeIds.T_JavaLangString:
         return getStringLiteral(info, constant.stringValue());
-      case Constant.T_null:
+      case TypeIds.T_null:
         return new JNullLiteral(info);
       default:
         throw new AssertionError("Unknown Constant type: value type " + constant.typeID()
@@ -4580,5 +4627,33 @@ public class JackIrBuilder {
         receiverType, targetMethod.getMethodIdWide(), targetMethod.getType(),
         false /* isVirtualDispatch */);
     return call;
+  }
+
+  public void finishCompilation() {
+    CloneExpressionVisitor cloner = new CloneExpressionVisitor();
+
+    for (Entry<JMethod, JMethod> bridgeAndTarget : targetOfSynthesizedBridge.entrySet()) {
+      JMethod bridge = bridgeAndTarget.getKey();
+      JMethod target = bridgeAndTarget.getValue();
+      assert targetOfSynthesizedBridge.get(target) == null;
+
+      for (JAnnotation annotation : target.getAnnotations()) {
+        JAnnotation clonedAnnotation = cloner.cloneExpression(annotation);
+        bridge.addAnnotation(clonedAnnotation);
+        clonedAnnotation.updateParents(bridge);
+      }
+
+      List<JParameter> targetParams = target.getParams();
+      for (int i = 0; i < bridge.getParams().size(); i++) {
+        JParameter bridgeParam = bridge.getParams().get(i);
+        JParameter param = targetParams.get(i);
+        for (JAnnotation annotation : param.getAnnotations()) {
+          JAnnotation clonedAnnotation = cloner.cloneExpression(annotation);
+          bridgeParam.addAnnotation(clonedAnnotation);
+          clonedAnnotation.updateParents(bridgeParam);
+       }
+      }
+
+    }
   }
 }

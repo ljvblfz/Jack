@@ -1,0 +1,4 @@
+Lcom/android/jack/multidex/test004/jack/MainActivity;:
+Lcom/android/jack/multidex/test004/jack/VersionInterface;:
+Lcom/android/jack/multidex/test004/jack/VersionStatic;:
+Lcom/android/jack/multidex/test004/jack/-$Lambda$0$WZ9mA2x2xjbJq_qOSf3H67rpsig;:

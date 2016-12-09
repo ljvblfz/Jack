@@ -1,0 +1,3 @@
+This tests contains a class and its superclass both containing a field that will
+be renamed. We modify the superclass field and check that the right field was
+updated.

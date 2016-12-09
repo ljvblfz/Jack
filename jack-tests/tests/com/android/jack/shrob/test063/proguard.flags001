@@ -1,0 +1,4 @@
+-dontshrink
+-keep class * {
+  int getValue();
+}

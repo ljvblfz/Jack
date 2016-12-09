@@ -75,7 +75,7 @@ public class ReadWriteZipFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS 
       workVFS = new CaseInsensitiveFS(cdFS,
           numGroups, groupSize, mdf, debug);
       cdFS.setInfoString("tmp-for-zip");
-    } catch (WrongVFSFormatException e) {
+    } catch (BadVFSFormatException e) {
       // Directory is empty, so this cannot happen
       throw new AssertionError(e);
     }

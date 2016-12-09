@@ -18,6 +18,7 @@ package com.android.jack.server;
 
 import com.android.sched.util.codec.CodecContext;
 import com.android.sched.util.codec.EnumCodec;
+import com.android.sched.util.codec.EnumName;
 import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.codec.VariableName;
 import com.android.sched.util.log.LogFormatter;
@@ -55,6 +56,7 @@ public class ServerLogConfiguration implements Cloneable {
 
   @VariableName("level")
   private static enum LogLevel  {
+    @EnumName(name = "error")
     ERROR {
       @Nonnull
       @Override
@@ -63,6 +65,7 @@ public class ServerLogConfiguration implements Cloneable {
             new PackageLevel("com.android.jack.server", Level.INFO));
       }
     },
+    @EnumName(name = "warning")
     WARNING {
       @Nonnull
       @Override
@@ -72,6 +75,7 @@ public class ServerLogConfiguration implements Cloneable {
             new PackageLevel("com.android.jack.server", Level.INFO));
       }
     },
+    @EnumName(name = "debug")
     DEBUG {
       @Nonnull
       @Override
@@ -82,6 +86,7 @@ public class ServerLogConfiguration implements Cloneable {
             new PackageLevel("com.android.sched", Level.WARNING));
       }
     },
+    @EnumName(name = "trace")
     TRACE {
       @Nonnull
       @Override
@@ -177,7 +182,7 @@ public class ServerLogConfiguration implements Cloneable {
 
   @Nonnull
   private LogLevel parseLevel(@Nonnull String stringLevel) throws ParsingException {
-    return new EnumCodec<>(LogLevel.class, LogLevel.values()).checkString(
+    return new EnumCodec<>(LogLevel.class).ignoreCase().checkString(
         new CodecContext(), stringLevel);
   }
 

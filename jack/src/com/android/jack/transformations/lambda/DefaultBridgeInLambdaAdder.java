@@ -22,7 +22,6 @@ import com.google.common.collect.Iterables;
 
 import com.android.jack.Jack;
 import com.android.jack.Options;
-import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
 import com.android.jack.ir.HasSourceInfo;
 import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.ast.JInterface;
@@ -39,6 +38,7 @@ import com.android.jack.reporting.Reportable;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.InvalidDefaultBridgeInInterfaceRemoved;
+import com.android.jack.util.AndroidApiLevel;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Access;
 import com.android.sched.schedulable.Constraint;
@@ -68,9 +68,9 @@ import javax.annotation.Nonnull;
 // Access implements.
 @Access(JSession.class)
 public class DefaultBridgeInLambdaAdder implements RunnableSchedulable<JMethod> {
-
-  private final long androidMinApiLevel =
-      ThreadConfig.get(Options.ANDROID_MIN_API_LEVEL).longValue();
+  @Nonnull
+  private final AndroidApiLevel androidMinApiLevel =
+      ThreadConfig.get(Options.ANDROID_MIN_API_LEVEL);
 
   /**
    * Indicates that an interface is unknown and does not belong to classpath.
@@ -190,8 +190,10 @@ public class DefaultBridgeInLambdaAdder implements RunnableSchedulable<JMethod> 
 
   @Override
   public void run(@Nonnull JMethod method) {
-    if (androidMinApiLevel >= AndroidCompatibilityChecker.N_API_LEVEL || method.isNative()
-        || method.isAbstract() || !filter.accept(this.getClass(), method)) {
+    if (androidMinApiLevel.getReleasedLevel() >= AndroidApiLevel.ReleasedLevel.N.getLevel()
+        || method.isNative()
+        || method.isAbstract()
+        || !filter.accept(this.getClass(), method)) {
       return;
     }
 

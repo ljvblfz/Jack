@@ -81,7 +81,7 @@ public interface Reporter {
               new PairListToMapCodecConverter<ProblemLevel, WriterFile>(
                   new ListCodec<Pair<ProblemLevel, WriterFile>>(
                       new PairCodec<ProblemLevel, WriterFile>(new EnumCodec<ProblemLevel>(
-                          ProblemLevel.class, ProblemLevel.values()).ignoreCase(),
+                          ProblemLevel.class).ignoreCase(),
                           new WriterFileCodec(Existence.MAY_EXIST).allowStandardOutputOrError()
                                                                   .allowCharset())
                           .on("=")).setMin(0)))

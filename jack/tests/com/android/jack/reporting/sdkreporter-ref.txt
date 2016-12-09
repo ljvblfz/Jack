@@ -1,8 +1,8 @@
-MESSAGE:{"kind":"WARNING","text":"message","sources":[{}]}
-MESSAGE:{"kind":"WARNING","text":"message","sources":[{"file":"\/my\/file","position":{}}]}
-MESSAGE:{"kind":"ERROR","text":"message","sources":[{"file":"\/my\/file","position":{"startLine":2,"startColumn":-1,"startOffset":-1,"endLine":2,"endColumn":-1,"endOffset":-1}}]}
-MESSAGE:{"kind":"ERROR","text":"message","sources":[{"file":"\/my\/file","position":{"startLine":2,"startColumn":-1,"startOffset":-1,"endLine":3,"endColumn":-1,"endOffset":-1}}]}
-MESSAGE:{"kind":"ERROR","text":"message","sources":[{"file":"\/my\/file","position":{"startLine":2,"startColumn":4,"startOffset":-1,"endLine":3,"endColumn":5,"endOffset":-1}}]}
-MESSAGE:{"kind":"ERROR","text":"message","sources":[{"file":"\/my\/file","position":{"startLine":2,"startColumn":4,"startOffset":-1,"endLine":2,"endColumn":5,"endOffset":-1}}]}
-MESSAGE:{"kind":"ERROR","text":"message","sources":[{"file":"\/my\/file","position":{"startLine":2,"startColumn":4,"startOffset":-1,"endLine":2,"endColumn":4,"endOffset":-1}}]}
-MESSAGE:{"kind":"ERROR","text":"message","sources":[{"file":"\/my\/file","position":{"startLine":2,"startColumn":4,"startOffset":-1,"endLine":3,"endColumn":4,"endOffset":-1}}]}
+AGPBI: {"kind":"WARNING","text":"message","sources":[{}]}
+AGPBI: {"kind":"WARNING","text":"message","sources":[{"file":"\/my\/file","position":{}}]}
+AGPBI: {"kind":"ERROR","text":"message","sources":[{"file":"\/my\/file","position":{"startLine":1,"startColumn":-1,"startOffset":-1,"endLine":1,"endColumn":-1,"endOffset":-1}}]}
+AGPBI: {"kind":"ERROR","text":"message","sources":[{"file":"\/my\/file","position":{"startLine":1,"startColumn":-1,"startOffset":-1,"endLine":2,"endColumn":-1,"endOffset":-1}}]}
+AGPBI: {"kind":"ERROR","text":"message","sources":[{"file":"\/my\/file","position":{"startLine":1,"startColumn":3,"startOffset":-1,"endLine":2,"endColumn":4,"endOffset":-1}}]}
+AGPBI: {"kind":"ERROR","text":"message","sources":[{"file":"\/my\/file","position":{"startLine":1,"startColumn":3,"startOffset":-1,"endLine":1,"endColumn":4,"endOffset":-1}}]}
+AGPBI: {"kind":"ERROR","text":"message","sources":[{"file":"\/my\/file","position":{"startLine":1,"startColumn":3,"startOffset":-1,"endLine":1,"endColumn":3,"endOffset":-1}}]}
+AGPBI: {"kind":"ERROR","text":"message","sources":[{"file":"\/my\/file","position":{"startLine":1,"startColumn":3,"startOffset":-1,"endLine":2,"endColumn":3,"endOffset":-1}}]}

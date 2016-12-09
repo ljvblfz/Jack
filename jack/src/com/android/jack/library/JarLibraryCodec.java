@@ -21,9 +21,6 @@ import com.android.sched.util.codec.FileOrDirCodec;
 import com.android.sched.util.codec.ParsingException;
 import com.android.sched.util.codec.StringCodec;
 import com.android.sched.util.config.ConfigurationError;
-import com.android.sched.util.file.CannotChangePermissionException;
-import com.android.sched.util.file.CannotCreateFileException;
-import com.android.sched.util.file.FileAlreadyExistsException;
 import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.InputZipFile;
@@ -63,21 +60,12 @@ public class JarLibraryCodec extends FileOrDirCodec<JarLibrary> {
       throws ParsingException {
     InputZipFile inputZipFile;
     try {
-      inputZipFile = new InputZipFile(context.getWorkingDirectory(), string,
-          context.getRunnableHooks(), existence, change);
+      inputZipFile = new InputZipFile(context.getWorkingDirectory(), string);
     } catch (NotFileException e) {
       throw new ParsingException(e.getMessage(), e);
     } catch (NoSuchFileException e) {
       throw new ParsingException(e.getMessage(), e);
     } catch (WrongPermissionException e) {
-      throw new ParsingException(e.getMessage(), e);
-    } catch (FileAlreadyExistsException e) {
-      // file must exist
-      throw new AssertionError(e);
-    } catch (CannotCreateFileException e) {
-      // file must exist
-      throw new AssertionError(e);
-    } catch (CannotChangePermissionException e) {
       throw new ParsingException(e.getMessage(), e);
     } catch (ZipException e) {
       throw new ParsingException(e.getMessage(), e);

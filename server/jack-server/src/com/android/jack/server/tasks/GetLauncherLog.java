@@ -18,6 +18,7 @@ package com.android.jack.server.tasks;
 
 import com.android.jack.server.JackHttpServer;
 import com.android.jack.server.type.TextPlain;
+import com.android.sched.util.log.LoggerFactory;
 
 import org.simpleframework.http.ContentType;
 import org.simpleframework.http.Request;
@@ -40,7 +41,7 @@ import javax.annotation.Nonnull;
 public class GetLauncherLog extends SynchronousServiceTask {
 
   @Nonnull
-  private static Logger logger = Logger.getLogger(GetLauncherLog.class.getName());
+  private static Logger logger = LoggerFactory.getLogger();
 
   public GetLauncherLog(@Nonnull JackHttpServer jackServer) {
     super(jackServer);

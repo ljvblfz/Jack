@@ -3,8 +3,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="tests"/>
 	<classpathentry kind="src" path="rsc"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Dx"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/dexcomparator"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Scheduler"/>
 	<classpathentry kind="src" path=".apt_generated">
 		<attributes>

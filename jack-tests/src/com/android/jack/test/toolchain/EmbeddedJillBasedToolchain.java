@@ -158,12 +158,7 @@ public class EmbeddedJillBasedToolchain extends JackCliToolchain implements Jill
     List<String> commandLine = new ArrayList<String>();
     libToCommon(commandLine,  getClasspathAsString(), in);
 
-    if (zipFiles) {
-      commandLine.add("--output-jack");
-    } else {
-      commandLine.add("--output-jack-dir");
-    }
-    commandLine.add(out.getAbsolutePath());
+    addOutputJack(commandLine, out, zipFiles);
 
     ExecuteFile exec = new ExecuteFile(commandLine.toArray(new String[commandLine.size()]));
     exec.inheritEnvironment();
