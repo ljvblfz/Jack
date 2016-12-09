@@ -518,15 +518,7 @@ public class DefaultMethodTest {
   @Test
   @Runtime(from=RuntimeVersion.N)
   public void testDefaultMethod018() throws Exception {
-    new RuntimeTestHelper(DEFAULTMETHOD018)
-    .addProperty(
-        Options.ANDROID_MIN_API_LEVEL.getName(),
-        String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .addIgnoredCandidateToolchain(JackApiV01.class)
-    // This test must be exclude from the Jill tool-chain because, there is a different behavior than with Jack
-    .addIgnoredCandidateToolchain(JillBasedToolchain.class)
-    .compileAndRunTest();
+    run(DEFAULTMETHOD018);
   }
 
   @Test

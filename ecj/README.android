@@ -1,5 +1,5 @@
-URL: http://download.eclipse.org/eclipse/downloads/drops4/S-4.6M4-201512092300/
-Tag: I20151209-2300, jdt 4.6M4, ecj version 3.12.0
+URL: http://download.eclipse.org/eclipse/downloads/drops4/S-4.7M3-201610270700/
+Tag: I20161027-0700, ecj version 3.13.0 (v20161020-2113)
 License: EPL 1
 Description: An incremental Java compiler.
 Local Modifications: None.
