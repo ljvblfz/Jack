@@ -27,8 +27,7 @@ import com.android.sched.schedulable.Transform;
 import javax.annotation.Nonnull;
 
 /**
- * A schedulable that removes {@link DexCodeMarker} from
- * a {@code JMethod}
+ * A schedulable that removes {@link DexCodeMarker} from a {@code JMethod}
  */
 @Description("Removes useless DexCodeMarker")
 @Name("DexCodeMarkerRemover")

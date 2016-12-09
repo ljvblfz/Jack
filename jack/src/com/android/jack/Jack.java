@@ -74,6 +74,7 @@ import com.android.jack.backend.dex.compatibility.CheckAndroidCompatibility;
 import com.android.jack.backend.dex.multidex.legacy.AnnotatedFinder;
 import com.android.jack.backend.dex.multidex.legacy.RuntimeAnnotationFinder;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
+import com.android.jack.backend.dex.rop.DexCodeMarkerRemover;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.backend.jayce.JayceInLibraryProduct;
 import com.android.jack.backend.jayce.JayceInLibraryWriterAll;
@@ -1729,6 +1730,7 @@ public abstract class Jack {
           methodPlan5.append(CodeItemBuilder.class);
           methodPlan5.append(CfgMarkerRemover.class);
           methodPlan5.append(EncodedMethodBuilder.class);
+          methodPlan5.append(DexCodeMarkerRemover.class);
           methodPlan5.append(ContainerAnnotationAdder.MethodContainerAnnotationAdder.class);
           methodPlan5.append(MethodAnnotationBuilder.class);
           if (features.contains(DropMethodBody.class)) {
