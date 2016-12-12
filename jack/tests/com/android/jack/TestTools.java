@@ -32,7 +32,6 @@ import com.android.jack.optimizations.tailrecursion.TailRecursionOptimization;
 import com.android.jack.scheduling.feature.DropMethodBody;
 import com.android.jack.scheduling.feature.SourceVersion7;
 import com.android.jack.scheduling.feature.SourceVersion8;
-import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.shrob.spec.Flags;
 import com.android.jack.test.TestsProperties;
@@ -436,7 +435,6 @@ public class TestTools {
 
       PlanBuilder<JSession> planBuilder = request.getPlanBuilder(JSession.class);
       Jack.fillDexPlan(planBuilder);
-      request.addTargetIncludeTagOrMarker(ClassDefItemMarker.Complete.class);
 
       planBuilder.getPlan().getScheduleInstance().process(session);
     }

@@ -46,6 +46,7 @@ import com.android.jack.api.v03.impl.Api03Feature;
 import com.android.jack.backend.ResourceWriter;
 import com.android.jack.backend.dex.ClassAnnotationBuilder;
 import com.android.jack.backend.dex.ClassDefItemBuilder;
+import com.android.jack.backend.dex.ClassDefItemMarkerRemover;
 import com.android.jack.backend.dex.DalvikProtectedInnerChecker;
 import com.android.jack.backend.dex.DalvikProtectedInnerChecker.DalvikProtectedInnerCheck;
 import com.android.jack.backend.dex.DexFileProduct;
@@ -1698,79 +1699,78 @@ public abstract class Jack {
           methodPlan4.append(UselessIfRemover.class);
           methodPlan4.append(CfgMarkerRemover.class);
           methodPlan4.append(CfgBuilder.class);
+          methodPlan4.append(ContainerAnnotationAdder.MethodContainerAnnotationAdder.class);
         }
       }
     }
+
     if (enableArgumentValuePropagation) {
-      planBuilder.append(
-          AvpComputeMethodArgumentsValues.class);
+      planBuilder.append(AvpComputeMethodArgumentsValues.class);
     }
+
+    SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+        planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+
+    if (enableFieldValuePropagation || enableArgumentValuePropagation
+        || enableWriteOnlyFieldRemoval) {
+      SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
+      if (enableFieldValuePropagation) {
+        methodPlan.append(FvpPropagateFieldValues.class);
+      }
+      if (enableArgumentValuePropagation) {
+        methodPlan.append(AvpPropagateArgumentValues.class);
+      }
+      if (enableWriteOnlyFieldRemoval) {
+        methodPlan.append(WofrRemoveFieldWrites.class);
+      }
+      methodPlan.append(CfgMarkerRemover.class);
+      methodPlan.append(CfgBuilder.class);
+    }
+
+    SubPlanBuilder<JField> fieldPlan = typePlan.appendSubPlan(JFieldAdapter.class);
+    fieldPlan.append(ContainerAnnotationAdder.FieldContainerAnnotationAdder.class);
+    if (enableWriteOnlyFieldRemoval) {
+      fieldPlan.append(WofrRemoveFields.class);
+    }
+
+    // The sub plan that write dex files representing type must not be split in order to remove dx
+    // IR from memory when dex file is written.
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan6 =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+
       {
-        {
-          SubPlanBuilder<JMethod> methodPlan5 =
-              typePlan6.appendSubPlan(JMethodAdapter.class);
-          if (enableFieldValuePropagation ||
-              enableArgumentValuePropagation ||
-              enableWriteOnlyFieldRemoval) {
-            if (enableFieldValuePropagation) {
-              methodPlan5.append(FvpPropagateFieldValues.class);
-            }
-            if (enableArgumentValuePropagation) {
-              methodPlan5.append(AvpPropagateArgumentValues.class);
-            }
-            if (enableWriteOnlyFieldRemoval) {
-              methodPlan5.append(WofrRemoveFieldWrites.class);
-            }
-            methodPlan5.append(CfgMarkerRemover.class);
-            methodPlan5.append(CfgBuilder.class);
-          }
-          methodPlan5.append(CodeItemBuilder.class);
-          methodPlan5.append(CfgMarkerRemover.class);
-          methodPlan5.append(EncodedMethodBuilder.class);
-          methodPlan5.append(DexCodeMarkerRemover.class);
-          methodPlan5.append(ContainerAnnotationAdder.MethodContainerAnnotationAdder.class);
-          methodPlan5.append(MethodAnnotationBuilder.class);
-          if (features.contains(DropMethodBody.class)) {
-            methodPlan5.append(MethodBodyRemover.class);
-          }
+        SubPlanBuilder<JMethod> methodPlan5 = typePlan6.appendSubPlan(JMethodAdapter.class);
+        methodPlan5.append(CodeItemBuilder.class);
+        methodPlan5.append(CfgMarkerRemover.class);
+        methodPlan5.append(EncodedMethodBuilder.class);
+        methodPlan5.append(DexCodeMarkerRemover.class);
+        methodPlan5.append(MethodAnnotationBuilder.class);
+        if (features.contains(DropMethodBody.class)) {
+          methodPlan5.append(MethodBodyRemover.class);
         }
       }
-    }
-    {
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan7 =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-
-      if (enableWriteOnlyFieldRemoval) {
-        typePlan7
-            .appendSubPlan(JFieldAdapter.class)
-            .append(WofrRemoveFields.class);
-      }
 
       {
-        SubPlanBuilder<JField> fieldPlan2 =
-            typePlan7.appendSubPlan(JFieldAdapter.class);
-        fieldPlan2.append(ContainerAnnotationAdder.FieldContainerAnnotationAdder.class);
+        SubPlanBuilder<JField> fieldPlan2 = typePlan6.appendSubPlan(JFieldAdapter.class);
         fieldPlan2.append(EncodedFieldBuilder.class);
         fieldPlan2.append(FieldAnnotationBuilder.class);
       }
-      if (hasSanityChecks) {
-        typePlan7.append(TypeAstChecker.class);
-      }
-    }
 
-    if (productions.contains(DexInLibraryProduct.class)) {
-      // Jayce files must be copied into output library in incremental library mode or in non
-      // incremental mode
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-      if (features.contains(GenerateLibraryFromIncrementalFolder.class)
-          || !features.contains(Incremental.class)) {
-        typePlan.append(DexInLibraryWriterAll.class);
-      } else {
-        typePlan.append(DexInLibraryWriterNoPrebuilt.class);
+      if (hasSanityChecks) {
+        typePlan6.append(TypeAstChecker.class);
+      }
+
+      if (productions.contains(DexInLibraryProduct.class)) {
+        // Jayce files must be copied into output library in incremental library mode or in non
+        // incremental mode
+        if (features.contains(GenerateLibraryFromIncrementalFolder.class)
+            || !features.contains(Incremental.class)) {
+          typePlan6.append(DexInLibraryWriterAll.class);
+        } else {
+          typePlan6.append(DexInLibraryWriterNoPrebuilt.class);
+        }
+        typePlan6.append(ClassDefItemMarkerRemover.class);
       }
     }
 

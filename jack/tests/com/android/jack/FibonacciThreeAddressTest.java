@@ -16,13 +16,8 @@
 
 package com.android.jack;
 
-import com.android.jack.dx.dex.DexOptions;
-import com.android.jack.dx.dex.file.ClassDefItem;
-import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JSession;
-import com.android.jack.scheduling.marker.ClassDefItemMarker;
-import com.android.jack.util.AndroidApiLevel;
 import com.android.sched.util.config.ThreadConfig;
 
 import junit.framework.Assert;
@@ -39,7 +34,6 @@ public class FibonacciThreeAddressTest {
 
   private static final String CLASS_BINARY_NAME = "com/android/jack/fibonacci/test001/jack/FibonacciThreeAddress";
   private static final String CLASS_SIGNATURE = "L" + CLASS_BINARY_NAME + ";";
-  private static final String JAVA_FILENAME = "FibonacciThreeAddress.java";
   private static final File JAVA_FILEPATH = TestTools.getJackTestFromBinaryName(CLASS_BINARY_NAME);
 
   @After
@@ -58,32 +52,4 @@ public class FibonacciThreeAddressTest {
     JDefinedClassOrInterface fibo = (JDefinedClassOrInterface) session.getLookup().getType(CLASS_SIGNATURE);
     Assert.assertNotNull(fibo);
   }
-
-  /**
-   * Verifies that FibonacciThreeAddress can be compiled into a {@code DexFile} containing
-   * {@code ClassDefItem}.
-   */
-  @Test
-  public void testBuildFiboDexFile() throws Exception {
-    Options fiboArgs = TestTools.buildCommandLineArgs(JAVA_FILEPATH);
-    fiboArgs.addProperty(Options.METHOD_FILTER.getName(), "reject-all-methods");
-    JSession session = TestTools.buildSession(fiboArgs);
-
-    JDefinedClassOrInterface fibo = (JDefinedClassOrInterface) session.getLookup().getType(CLASS_SIGNATURE);
-    Assert.assertNotNull(fibo);
-
-    ClassDefItemMarker marker = fibo.getMarker(ClassDefItemMarker.class);
-    Assert.assertNotNull(marker);
-
-    DexFile dexFile = new DexFile(new DexOptions(new AndroidApiLevel(AndroidApiLevel.ReleasedLevel.M),true));
-    ClassDefItem cdi = marker.getClassDefItem();
-    Assert.assertNotNull(cdi);
-    dexFile.add(cdi);
-    dexFile.prepare();
-
-    // Check source file
-    String sourceFilename = cdi.getSourceFile().getString();
-    Assert.assertEquals(JAVA_FILENAME, sourceFilename);
-  }
-
 }
