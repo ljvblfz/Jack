@@ -146,6 +146,8 @@ public class BridgeTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
+  @Category(RuntimeRegressionTest.class)
   public void test009() throws Exception {
     new RuntimeTestHelper(TEST009).compileAndRunTest();
   }
