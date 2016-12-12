@@ -17,7 +17,6 @@
 package com.android.jack.backend.dex;
 
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
-import com.android.jack.scheduling.marker.DexCodeMarker;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Produce;
@@ -26,7 +25,7 @@ import com.android.sched.schedulable.Produce;
  * A {@link DexInLibraryWriter} processing all types.
  */
 @Description("Write dex files in library")
-@Constraint(need = {DexCodeMarker.class, ClassDefItemMarker.Complete.class})
+@Constraint(need = {ClassDefItemMarker.Complete.class})
 @Produce(DexInLibraryProduct.class)
 public class DexInLibraryWriterAll extends DexInLibraryWriter {}
 
