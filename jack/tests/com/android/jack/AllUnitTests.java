@@ -45,7 +45,6 @@ import org.junit.runners.Suite.SuiteClasses;
     com.android.jack.cfg.AllTests.class,
     com.android.jack.frontend.AllTests.class,
     com.android.jack.gwt.AllTests.class,
-    com.android.jack.shrob.AllTests.class,
     com.android.jack.transformations.ast.AllTests.class,
     com.android.jack.util.AllTests.class,
     ConditionalTest.class,
