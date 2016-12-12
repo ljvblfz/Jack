@@ -1727,7 +1727,10 @@ public abstract class Jack {
       methodPlan.append(CfgBuilder.class);
     }
 
-    SubPlanBuilder<JField> fieldPlan = typePlan.appendSubPlan(JFieldAdapter.class);
+    SubPlanBuilder<JDefinedClassOrInterface> typePlan1 =
+        planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+
+    SubPlanBuilder<JField> fieldPlan = typePlan1.appendSubPlan(JFieldAdapter.class);
     fieldPlan.append(ContainerAnnotationAdder.FieldContainerAnnotationAdder.class);
     if (enableWriteOnlyFieldRemoval) {
       fieldPlan.append(WofrRemoveFields.class);
