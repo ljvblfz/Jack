@@ -59,6 +59,10 @@ public class BridgeTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.bridge.test007"),
     "com.android.jack.bridge.test007.dx.Tests");
 
+  private RuntimeTestInfo TEST009 = new RuntimeTestInfo(
+    AbstractTestTools.getTestRootDir("com.android.jack.bridge.test009"),
+    "com.android.jack.bridge.test009.dx.Tests");
+
   @Test
   @Runtime
   @Category(RuntimeRegressionTest.class)
@@ -143,12 +147,7 @@ public class BridgeTests extends RuntimeTest {
 
   @Test
   public void test009() throws Exception {
-    IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
-    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
-    .srcToExe(
-        AbstractTestTools.createTempDir(),
-        /* zipFile = */ false,
-        AbstractTestTools.getTestRootDir("com.android.jack.bridge.test009"));
+    new RuntimeTestHelper(TEST009).compileAndRunTest();
   }
 
   /**
@@ -173,5 +172,6 @@ public class BridgeTests extends RuntimeTest {
     rtTestInfos.add(TEST005);
     rtTestInfos.add(TEST006);
     rtTestInfos.add(TEST007);
+    rtTestInfos.add(TEST009);
   }
 }
