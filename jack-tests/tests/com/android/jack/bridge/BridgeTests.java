@@ -23,6 +23,7 @@ import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -147,9 +148,10 @@ public class BridgeTests extends RuntimeTest {
 
   @Test
   @Runtime
-  @Category(RuntimeRegressionTest.class)
   public void test009() throws Exception {
-    new RuntimeTestHelper(TEST009).compileAndRunTest();
+    new RuntimeTestHelper(TEST009)
+    .addIgnoredCandidateToolchain(JillBasedToolchain.class)
+    .compileAndRunTest();
   }
 
   /**
@@ -174,6 +176,5 @@ public class BridgeTests extends RuntimeTest {
     rtTestInfos.add(TEST005);
     rtTestInfos.add(TEST006);
     rtTestInfos.add(TEST007);
-    rtTestInfos.add(TEST009);
   }
 }
