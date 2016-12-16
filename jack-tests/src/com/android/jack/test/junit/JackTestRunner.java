@@ -99,7 +99,7 @@ public class JackTestRunner extends Categories {
         if (description.getMethodName() != null) {
           System.out.println(
               "  \"" + description.getClassName() + '#' + description.getMethodName() + "\": {");
-          System.out.println("    \"notApplicable\":" + notApplicable);
+          System.out.println("    \"notApplicable\":" + notApplicable + ',');
           System.out.print("    \"knownIssue\":" + knownIssue);
           if (runtimeAnnot != null) {
             System.out.println(",");
