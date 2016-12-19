@@ -438,7 +438,7 @@ public class CodeCoverageTransformer  extends SourceDigestAdder
       // Insert initialization statement as the first statement.
       JLocalRef localRef = local.makeRef(sourceInfo);
       JExpression expr = new JMethodCall(sourceInfo, null, coverageMethod.getEnclosingType(),
-          coverageMethod.getMethodIdWide(), booleanArrayType, false);
+          coverageMethod.getMethodId(), false);
       JAsgOperation assign = new JAsgOperation(sourceInfo, localRef, expr);
       transformationRequest.append(
           new PrependStatement(x.getBlock(), new JExpressionStatement(sourceInfo, assign)));
@@ -553,8 +553,8 @@ public class CodeCoverageTransformer  extends SourceDigestAdder
       transformationRequest.append(new AppendStatement(ifBlock, probeCountInit));
 
       // Add '<local> = org.jacoco...Offline.getProbes(<classId>, <className>, <probeCount>)'
-      JMethodCall methodCall = new JMethodCall(ifBlock.getSourceInfo(), null, jacocoClass,
-          jacocoMethodId.getMethodIdWide(), JPrimitiveTypeEnum.BOOLEAN.getType().getArray(), false);
+      JMethodCall methodCall =
+          new JMethodCall(ifBlock.getSourceInfo(), null, jacocoClass, jacocoMethodId, false);
       methodCall.addArg(classIdLocal.makeRef(ifBlock.getSourceInfo()));
       methodCall.addArg(classNameLocal.makeRef(ifBlock.getSourceInfo()));
       methodCall.addArg(probeCountLocal.makeRef(ifBlock.getSourceInfo()));
