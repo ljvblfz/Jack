@@ -34,7 +34,7 @@ import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
-import com.android.jack.ir.ast.JMethodIdWide;
+import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JStatement;
@@ -86,16 +86,15 @@ public class SwitchStringSupport implements RunnableSchedulable<JMethod> {
       ThreadConfig.get(Options.METHOD_FILTER);
 
   @Nonnull
-  private final JMethodIdWide equalsMethodId;
+  private final JMethodId equalsMethodId;
 
   {
     JSession session = Jack.getSession();
     JPhantomLookup lookup = session.getPhantomLookup();
     JClass jlo = lookup.getClass(CommonTypes.JAVA_LANG_OBJECT);
     JClass jls = lookup.getClass(CommonTypes.JAVA_LANG_STRING);
-    equalsMethodId =
-        jls.getMethodIdWide("equals", Collections.singletonList((JType) jlo),
-            MethodKind.INSTANCE_VIRTUAL);
+    equalsMethodId = jls.getMethodId("equals", Collections.singletonList((JType) jlo),
+        MethodKind.INSTANCE_VIRTUAL, JPrimitiveTypeEnum.BOOLEAN.getType());
 
   }
 
@@ -147,8 +146,7 @@ public class SwitchStringSupport implements RunnableSchedulable<JMethod> {
           tr.append(new Replace(caseStmt, labelStmt));
 
           JMethodCall equalsCall = new JMethodCall(dbgInfo, tempLocal.makeRef(dbgInfo),
-              (JClassOrInterface) switchStmt.getExpr().getType(), equalsMethodId,
-              JPrimitiveTypeEnum.BOOLEAN.getType(), true);
+              (JClassOrInterface) switchStmt.getExpr().getType(), equalsMethodId, true);
           equalsCall.addArg(caseExpr);
           JBlock thenBlock = new JBlock(dbgInfo);
           thenBlock.addStmt(new JGoto(dbgInfo, labelStmt));

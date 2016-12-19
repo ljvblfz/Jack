@@ -24,6 +24,7 @@ import com.android.jack.ir.ast.JExpressionStatement;
 import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JNewInstance;
 import com.android.jack.ir.ast.JNullLiteral;
+import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JThrowStatement;
@@ -40,6 +41,7 @@ import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
 
 import java.util.Collections;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
@@ -105,10 +107,11 @@ public final class JlsNullabilityChecker {
         getPhantomLookup
             .getClass(CommonTypes.JAVA_LANG_NULL_POINTER_EXCEPTION);
     JNewInstance newInstance = new JNewInstance(srcInfo, exceptionType,
-        exceptionType.getOrCreateMethodIdWide(
+        exceptionType.getOrCreateMethodId(
             NamingTools.INIT_NAME,
             Collections.<JType>emptyList(),
-            MethodKind.INSTANCE_NON_VIRTUAL));
+            MethodKind.INSTANCE_NON_VIRTUAL,
+            JPrimitiveTypeEnum.VOID.getType()));
     JExpression[] expressions = SplitNewInstance.NewExpressionSplitter
         .splitNewInstance(newInstance, request, varCreator);
 

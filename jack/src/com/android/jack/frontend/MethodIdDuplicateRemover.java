@@ -71,6 +71,20 @@ public class MethodIdDuplicateRemover implements RunnableSchedulable<JDefinedCla
     }
 
     @Nonnull
+    private JMethodId getResolvedMethodId(@Nonnull JClassOrInterface receiverType,
+        @Nonnull JMethodId id) {
+      Collection<JMethod> methods = id.getMethods();
+      if (!methods.isEmpty()) {
+        JMethod method = methods.iterator().next();
+        return method.getMethodId();
+      } else {
+        JMethodIdWide methodIdWide = id.getMethodIdWide();
+        return receiverType.getOrCreateMethodId(methodIdWide.getName(),
+            methodIdWide.getParamTypes(), methodIdWide.getKind(), id.getType());
+      }
+    }
+
+    @Nonnull
     private JMethodIdWide getResolvedMethodIdWide(
         @Nonnull JClassOrInterface receiverType, @Nonnull JMethodIdWide id) {
       Collection<JMethod> methods = id.getMethods();
@@ -100,7 +114,7 @@ public class MethodIdDuplicateRemover implements RunnableSchedulable<JDefinedCla
 
     @Override
     public boolean visit(@Nonnull JMethodCall call) {
-      JMethodIdWide id = getResolvedMethodIdWide(call.getReceiverType(), call.getMethodId());
+      JMethodId id = getResolvedMethodId(call.getReceiverType(), call.getMethodIdNotWide());
       call.resolveMethodId(id);
       return super.visit(call);
     }

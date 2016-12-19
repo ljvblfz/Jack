@@ -46,6 +46,7 @@ import com.android.jack.ir.ast.JNewInstance;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JParameterRef;
 import com.android.jack.ir.ast.JPrimitiveType;
+import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JReturnStatement;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JShortLiteral;
@@ -78,6 +79,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.TreeMap;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -426,11 +428,11 @@ public final class LambdaGroupClassFinalizer
       assert thisLocal != null;
 
       // super()
-      JMethodIdWide superConstructor = javaLangObject.getOrCreateMethodIdWide(
-          NamingTools.INIT_NAME, Collections.<JType>emptyList(), MethodKind.INSTANCE_NON_VIRTUAL);
+      JMethodId superConstructor =
+          javaLangObject.getOrCreateMethodId(NamingTools.INIT_NAME, Collections.<JType>emptyList(),
+              MethodKind.INSTANCE_NON_VIRTUAL, JPrimitiveType.JPrimitiveTypeEnum.VOID.getType());
       JMethodCall superCall = new JMethodCall(SourceInfo.UNKNOWN,
-          thisLocal.makeRef(SourceInfo.UNKNOWN), javaLangObject,
-          superConstructor, JPrimitiveType.JPrimitiveTypeEnum.VOID.getType(), false);
+          thisLocal.makeRef(SourceInfo.UNKNOWN), javaLangObject, superConstructor, false);
       request.append(new AppendStatement(block, superCall.makeStatement()));
 
       // Add $id assignment if needed
@@ -590,10 +592,9 @@ public final class LambdaGroupClassFinalizer
       JBlock bodyBlock = new JBlock(SourceInfo.UNKNOWN);
       JMethodBody body = new JMethodBody(SourceInfo.UNKNOWN, bodyBlock);
 
-      JMethodCall call = new JMethodCall(SourceInfo.UNKNOWN,
-          calleeThisRef, callee.getEnclosingType(),
-          callee.getMethodId().getMethodIdWide(), callee.getType(),
-          !callee.isStatic() && !callee.isPrivate());
+      JMethodCall call =
+          new JMethodCall(SourceInfo.UNKNOWN, calleeThisRef, callee.getEnclosingType(),
+              callee.getMethodId(), !callee.isStatic() && !callee.isPrivate());
 
       // Build call arguments, reshuffled captures first, then arguments
       List<JParameter> callerParams = caller.getParams();
@@ -777,11 +778,10 @@ public final class LambdaGroupClassFinalizer
       request.append(new AppendStatement(mainSwitchBlock, defaultCase));
       JBlock next = new JBlock(SourceInfo.UNKNOWN);
       request.append(new AppendStatement(mainSwitchBlock, next));
-      JNewInstance newAssertionError = new JNewInstance(
-          SourceInfo.UNKNOWN, javaLangAssertionError,
-          javaLangAssertionError.getOrCreateMethodIdWide(
-              NamingTools.INIT_NAME, Collections.<JType>emptyList(),
-              MethodKind.INSTANCE_NON_VIRTUAL));
+      JNewInstance newAssertionError = new JNewInstance(SourceInfo.UNKNOWN, javaLangAssertionError,
+          javaLangAssertionError.getOrCreateMethodId(NamingTools.INIT_NAME,
+              Collections.<JType>emptyList(), MethodKind.INSTANCE_NON_VIRTUAL,
+              JPrimitiveTypeEnum.VOID.getType()));
       JThrowStatement throwStmt =
           new JThrowStatement(SourceInfo.UNKNOWN, newAssertionError);
       request.append(new AppendStatement(next, throwStmt));
@@ -810,7 +810,7 @@ public final class LambdaGroupClassFinalizer
       JType returnType = method.getType();
       JMethodCall call = new JMethodCall(SourceInfo.UNKNOWN,
           self.makeRef(SourceInfo.UNKNOWN), this.group.getGroupClass(),
-          method.getMethodIdWide(), returnType, false /* method is private */);
+          method.getMethodId(), false /* method is private */);
 
       for (JParameter param : params) {
         call.addArg(param.makeRef(SourceInfo.UNKNOWN));

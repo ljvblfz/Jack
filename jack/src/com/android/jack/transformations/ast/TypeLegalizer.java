@@ -33,7 +33,7 @@ import com.android.jack.ir.ast.JForStatement;
 import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
-import com.android.jack.ir.ast.JMethodIdWide;
+import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JNewArray;
 import com.android.jack.ir.ast.JPolymorphicMethodCall;
 import com.android.jack.ir.ast.JPrimitiveType;
@@ -436,12 +436,10 @@ public class TypeLegalizer implements RunnableSchedulable<JMethod> {
     }
 
 
-    JMethodIdWide unboxMethod =
-        typeToUnbox.getOrCreateMethodIdWide(methodName, Lists.<JType>create(),
-    MethodKind.INSTANCE_VIRTUAL);
-    JMethodCall unboxMethodCall = new JMethodCall(
-        exprToUnbox.getSourceInfo(), exprToUnbox, typeToUnbox,
-        unboxMethod, returnType, unboxMethod.canBeVirtual());
+    JMethodId unboxMethod = typeToUnbox.getOrCreateMethodId(methodName, Lists.<JType>create(),
+        MethodKind.INSTANCE_VIRTUAL, returnType);
+    JMethodCall unboxMethodCall = new JMethodCall(exprToUnbox.getSourceInfo(), exprToUnbox,
+        typeToUnbox, unboxMethod, unboxMethod.getMethodIdWide().canBeVirtual());
 
     return unboxMethodCall;
   }
@@ -521,12 +519,12 @@ public class TypeLegalizer implements RunnableSchedulable<JMethod> {
     }
 
 
-    JMethodIdWide methodId = wrapperType.getOrCreateMethodIdWide("valueOf", Lists.create(argType),
-        MethodKind.STATIC);
+    JMethodId methodId = wrapperType.getOrCreateMethodId("valueOf", Lists.create(argType),
+        MethodKind.STATIC, wrapperType);
     JMethodCall boxMethodCall = new JMethodCall(
-        exprToBox.getSourceInfo(), null, wrapperType, methodId, wrapperType,
-        methodId.canBeVirtual());
-    List<JType> paramTypes = methodId.getParamTypes();
+        exprToBox.getSourceInfo(), null, wrapperType, methodId,
+        methodId.getMethodIdWide().canBeVirtual());
+    List<JType> paramTypes = methodId.getMethodIdWide().getParamTypes();
     assert paramTypes.size() == 1;
     JType paramType = paramTypes.get(0);
     JType exprToBoxType = exprToBox.getType();

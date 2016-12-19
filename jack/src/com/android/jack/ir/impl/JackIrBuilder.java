@@ -1503,7 +1503,7 @@ public class JackIrBuilder {
 
         JMethodCall methodCall =
             new JMethodCall(sourceInfo, instanceExpr, methodToCall.getEnclosingType(),
-                methodToCall.getMethodIdWide(), methodToCall.getType(), isVirtualDispatch);
+                methodToCall.getMethodId(), isVirtualDispatch);
 
         addArgToMethodCall(referenceExpression, argsOfLambdaMth, methodCall, firstParamIdx);
 
@@ -1559,7 +1559,7 @@ public class JackIrBuilder {
       assert constructor instanceof JConstructor;
 
       JNewInstance newInstance =
-          new JNewInstance(sourceInfo, (JClassOrInterface) type, constructor.getMethodIdWide());
+          new JNewInstance(sourceInfo, (JClassOrInterface) type, constructor.getMethodId());
 
       boolean isNestedType = referenceExpression.receiverType.isNestedType();
 
@@ -3598,7 +3598,7 @@ public class JackIrBuilder {
       MethodBinding b = x.binding;
       assert b.isConstructor();
       JConstructor ctor = (JConstructor) getTypeMap().get(b);
-      JMethodCall call = new JNewInstance(info, ctor.getEnclosingType(), ctor.getMethodIdWide());
+      JMethodCall call = new JNewInstance(info, ctor.getEnclosingType(), ctor.getMethodId());
       JExpression qualExpr = pop(qualifier);
 
       // Enums: hidden arguments for the name and id.
@@ -4593,8 +4593,8 @@ public class JackIrBuilder {
 
     JMethodIdWide methodId = targetMethod.getMethodIdWide();
     assert methodId.getKind() == MethodKind.STATIC || instance != null;
-    JMethodCall call = new JMethodCall(info, instance,
-        receiverType, methodId, targetMethod.getType(), methodId.canBeVirtual());
+    JMethodCall call = new JMethodCall(info, instance, receiverType, targetMethod.getMethodId(),
+        methodId.canBeVirtual());
     return call;
   }
 
@@ -4604,8 +4604,7 @@ public class JackIrBuilder {
       @Nonnull JDefinedClassOrInterface receiverType,
       @Nonnull JMethod targetMethod) {
 
-    JMethodCall call = new JMethodCall(info, instance,
-        receiverType, targetMethod.getMethodIdWide(), targetMethod.getType(),
+    JMethodCall call = new JMethodCall(info, instance, receiverType, targetMethod.getMethodId(),
         false /* isVirtualDispatch */);
     return call;
   }

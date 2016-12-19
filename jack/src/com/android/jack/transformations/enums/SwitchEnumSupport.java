@@ -199,18 +199,19 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
           JMethod getEnumSwitchValues = getSwitchValuesMethod(enumType);
 
           // Replace enum access by $SwitchesValues[x.ordinal()]
-          JMethodIdWide methodId = getEnumSwitchValues.getMethodIdWide();
-          JExpression callSwitchValues = new JMethodCall(
-              switchStmt.getSourceInfo(), null, getEnumSwitchValues.getEnclosingType(),
-              methodId, getEnumSwitchValues.getType(),
-              methodId.canBeVirtual());
+          JMethodId methodId = getEnumSwitchValues.getMethodId();
+        JExpression callSwitchValues = new JMethodCall(switchStmt.getSourceInfo(), null,
+            getEnumSwitchValues.getEnclosingType(), methodId,
+            methodId.getMethodIdWide().canBeVirtual());
 
-        JMethodIdWide ordinalMethodId = enumType.getOrCreateMethodIdWide(
-            ORDINAL, Collections.<JType>emptyList(), MethodKind.INSTANCE_VIRTUAL);
+        JMethodId ordinalMethodId =
+            enumType.getOrCreateMethodId(ORDINAL, Collections.<JType>emptyList(),
+                MethodKind.INSTANCE_VIRTUAL, JPrimitiveTypeEnum.INT.getType());
 
-          tr.append(new Replace(expr, new JArrayRef(SourceInfo.UNKNOWN, callSwitchValues,
-            new JMethodCall(SourceInfo.UNKNOWN, expr, enumType, ordinalMethodId,
-                JPrimitiveTypeEnum.INT.getType(), ordinalMethodId.canBeVirtual()))));
+        tr.append(new Replace(expr,
+            new JArrayRef(SourceInfo.UNKNOWN, callSwitchValues,
+                new JMethodCall(SourceInfo.UNKNOWN, expr, enumType, ordinalMethodId,
+                    ordinalMethodId.getMethodIdWide().canBeVirtual()))));
       }
       return super.visit(switchStmt);
     }
@@ -302,10 +303,9 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
         }
 
         // int[] array = new int[enum.values().length]
-        JMethodIdWide valuesId = valuesMethod.getMethodIdWide();
+        JMethodId valuesId = valuesMethod.getMethodId();
         JExpression valuesLength = new JArrayLength(dbgInfo, new JMethodCall(dbgInfo,
-            null /* instance */, enumType, valuesId, valuesMethod.getType(),
-            valuesId.canBeVirtual()));
+            null /* instance */, enumType, valuesId, valuesId.getMethodIdWide().canBeVirtual()));
         List<JExpression> dimensions = new ArrayList<JExpression>();
         dimensions.add(valuesLength);
         bodyBlock.addStmt(new JAsgOperation(dbgInfo, arrayVar.makeRef(dbgInfo),
@@ -353,12 +353,11 @@ public class SwitchEnumSupport implements RunnableSchedulable<JMethod> {
           JFieldId enumFieldId = enumField.getId();
           JExpression enumFieldAccess =
               new JFieldRef(dbgInfo, null /* instance */, enumFieldId, enumType);
-          JMethodIdWide ordinalMethodId = enumType.getOrCreateMethodIdWide(
-              ORDINAL, Collections.<JType>emptyList(), MethodKind.INSTANCE_VIRTUAL);
-          JExpression callOrdinal =
-              new JMethodCall(dbgInfo, enumFieldAccess, enumType, ordinalMethodId,
-                  JPrimitiveTypeEnum.INT.getType(),
-                  ordinalMethodId.canBeVirtual());
+          JMethodId ordinalMethodId =
+              enumType.getOrCreateMethodId(ORDINAL, Collections.<JType>emptyList(),
+                  MethodKind.INSTANCE_VIRTUAL, JPrimitiveTypeEnum.INT.getType());
+          JExpression callOrdinal = new JMethodCall(dbgInfo, enumFieldAccess, enumType,
+              ordinalMethodId, ordinalMethodId.getMethodIdWide().canBeVirtual());
 
           int constant;
           assert usedEnumFields != null;

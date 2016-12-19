@@ -153,9 +153,10 @@ public class DynamicAssertionTransformer implements RunnableSchedulable<JMethod>
       JFieldRef lhs = new JFieldRef(sourceInfo, null, assertionStatusId, type);
       JExpression rhs = new JPrefixNotOperation(sourceInfo,
           new JMethodCall(sourceInfo, thisClass, javaLangClass,
-              javaLangClass.getOrCreateMethodIdWide("desiredAssertionStatus",
-                  Collections.<JType>emptyList(), MethodKind.INSTANCE_VIRTUAL),
-              JPrimitiveTypeEnum.BOOLEAN.getType(), true /* isVirtualDispatch */));
+              javaLangClass.getOrCreateMethodId("desiredAssertionStatus",
+                  Collections.<JType>emptyList(), MethodKind.INSTANCE_VIRTUAL,
+                  JPrimitiveTypeEnum.BOOLEAN.getType()),
+              true /* isVirtualDispatch */));
       JAsgOperation asg = new JAsgOperation(SourceInfo.UNKNOWN, lhs, rhs);
 
       assertionStatus.addMarker(new InitializationExpression(asg.makeStatement()));
@@ -190,10 +191,9 @@ public class DynamicAssertionTransformer implements RunnableSchedulable<JMethod>
       JClass assertionError =
           Jack.getSession().getPhantomLookup()
               .getClass(CommonTypes.JAVA_LANG_ASSERTION_ERROR);
-      JNewInstance newAssertionError = new JNewInstance(assertSt.getSourceInfo(),
-          assertionError,
-          assertionError.getOrCreateMethodIdWide(NamingTools.INIT_NAME, ctorDescriptor,
-              MethodKind.INSTANCE_NON_VIRTUAL));
+      JNewInstance newAssertionError = new JNewInstance(assertSt.getSourceInfo(), assertionError,
+          assertionError.getOrCreateMethodId(NamingTools.INIT_NAME, ctorDescriptor,
+              MethodKind.INSTANCE_NON_VIRTUAL, JPrimitiveTypeEnum.VOID.getType()));
 
       if (arg != null) {
         newAssertionError.addArg(arg);

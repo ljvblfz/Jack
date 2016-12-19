@@ -187,7 +187,7 @@ public class OptimizedSwitchEnumSupport implements RunnableSchedulable<JMethod> 
         // create expression representing call to synthetic switch map initializer
         JExpression getSwitchMapInvocExpr =
             new JMethodCall(switchStmt.getSourceInfo(), null /*static method*/, switchMapClass,
-                syntheticInitializer.getMethodIdWide(), syntheticInitializer.getType(),
+                syntheticInitializer.getMethodId(),
                 syntheticInitializer.canBeVirtual());
 
         JMethod ordinalMethod =
@@ -197,7 +197,7 @@ public class OptimizedSwitchEnumSupport implements RunnableSchedulable<JMethod> 
         transformRequest.append(
             new Replace(switchExpr, new JArrayRef(switchStmt.getSourceInfo(), getSwitchMapInvocExpr,
                     new JMethodCall(switchStmt.getSourceInfo(), switchExpr, enumType,
-                        ordinalMethod.getMethodIdWide(), ordinalMethod.getType(),
+                        ordinalMethod.getMethodId(),
                         ordinalMethod.canBeVirtual()))));
       }
       // keep traversing because case statement needs transformation as well
