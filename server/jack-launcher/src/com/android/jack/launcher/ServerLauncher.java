@@ -510,10 +510,17 @@ public final class ServerLauncher {
         }
         tmpInstall = null;
 
-        File replacedServerJar = getServerJar(serverDir, currentServerInfo.id);
+        final File replacedServerJar = getServerJar(serverDir, currentServerInfo.id);
         assert currentServer != null;
-        finalizer.registerFinalizer(new Deleter(new File[]{replacedServerJar}),
-            currentServer.getClass().getClassLoader());
+        final ClassLoader serverClassLoader = currentServer.getClass().getClassLoader();
+        taskRunner.executeTask("Register deleter of '" + replacedServerJar.getPath() + "'",
+            new Runnable() {
+              @Override
+              public void run() {
+                finalizer.registerFinalizer(new Deleter(new File[]{replacedServerJar}),
+                    serverClassLoader);
+              }
+            });
         currentServerInfo = new ServerInfo(newServerId, candidateVersion);
       } finally {
         if (out != null) {
