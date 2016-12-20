@@ -17,6 +17,7 @@
 package com.android.jack.ir;
 
 import com.android.jack.backend.dex.annotations.AnnotationMethodDefaultValue;
+import com.android.jack.debug.DebugVariableInfoMarker;
 import com.android.jack.digest.OriginDigestMarker;
 import com.android.jack.ir.ast.JAbsentArrayDimension;
 import com.android.jack.ir.ast.JAddOperation;
@@ -139,6 +140,7 @@ import com.android.sched.item.Name;
 @Description("All JNodes, tags or markers that represent the Jack format.")
 @ComposedOf({AnnotationMethodDefaultValue.class,
     BooleanTestOutsideIf.class,
+    DebugVariableInfoMarker.class,
     DefaultBridgeIntoInterface.class,
     EmptyClinit.class,
     ImplicitBoxingAndUnboxing.class,

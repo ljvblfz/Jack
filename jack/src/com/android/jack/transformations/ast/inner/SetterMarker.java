@@ -117,13 +117,13 @@ public class SetterMarker implements Marker {
       if (!field.isStatic()) {
         JParameter thisParam =
             new JParameter(sourceInfo, InnerAccessorGenerator.THIS_PARAM_NAME, accessorClass,
-                JModifier.FINAL | JModifier.SYNTHETIC, setter);
+                JModifier.DEFAULT, setter);
         tr.append(new AppendMethodParam(setter, thisParam));
         instance = thisParam.makeRef(sourceInfo);
       }
 
       JParameter value = new JParameter(sourceInfo, VALUE_PARAM_NAME, fieldType,
-          JModifier.FINAL | JModifier.SYNTHETIC, setter);
+          JModifier.DEFAULT, setter);
       tr.append(new AppendMethodParam(setter, value));
       JFieldRef lhs = new JFieldRef(sourceInfo, instance, field.getId(), accessorClass);
 

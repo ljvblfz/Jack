@@ -240,6 +240,8 @@ public class EmbeddedJillBasedToolchain extends JackCliToolchain implements Jill
       commandLine.add("-g");
     }
 
+    commandLine.add("-parameters");
+
     commandLine.add("-d");
     commandLine.add(out.getAbsolutePath());
 

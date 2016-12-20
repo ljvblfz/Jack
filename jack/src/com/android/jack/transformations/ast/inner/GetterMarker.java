@@ -107,7 +107,7 @@ public class GetterMarker implements Marker {
       JExpression instance = null;
       if (!field.isStatic()) {
         JParameter thisParam = new JParameter(
-            sourceInfo, InnerAccessorGenerator.THIS_PARAM_NAME, accessorClass, JModifier.SYNTHETIC,
+            sourceInfo, InnerAccessorGenerator.THIS_PARAM_NAME, accessorClass, JModifier.DEFAULT,
             getter);
         tr.append(new AppendMethodParam(getter, thisParam));
         instance = thisParam.makeRef(sourceInfo);

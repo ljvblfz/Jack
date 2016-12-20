@@ -1025,7 +1025,7 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
   @Override
   public boolean visit(@Nonnull JParameter x) {
     printAnnotationLiterals(x.getAnnotations());
-    print(JModifier.getStringVariableModifier(x.getModifier()));
+    print(JModifier.getStringParameterModifier(x.getModifier()));
     printType(x);
     space();
     printName(x);
