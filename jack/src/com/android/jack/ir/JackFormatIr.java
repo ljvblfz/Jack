@@ -17,6 +17,7 @@
 package com.android.jack.ir;
 
 import com.android.jack.backend.dex.annotations.AnnotationMethodDefaultValue;
+import com.android.jack.debug.DebugVariableInfoMarker;
 import com.android.jack.digest.OriginDigestMarker;
 import com.android.jack.ir.ast.JAbsentArrayDimension;
 import com.android.jack.ir.ast.JAddOperation;
@@ -247,6 +248,7 @@ import com.android.sched.item.Name;
     MultiDimensionNewArray.class,
     NoImplicitBlock.class,
     GenericSignature.class,
+    DebugVariableInfoMarker.class,
     SimpleName.class,
     SourceCast.class,
     ThisRefTypeInfo.class,

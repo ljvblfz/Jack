@@ -17,6 +17,7 @@
 package com.android.jack.debug;
 
 import com.android.jack.ir.ast.JLocalRef;
+import com.android.jack.ir.ast.JParameterRef;
 import com.android.jack.ir.ast.JType;
 import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
@@ -29,20 +30,24 @@ import javax.annotation.Nonnull;
 /**
  * This {@link Marker} contains debug information related to variable.
  */
-@ValidOn({JLocalRef.class})
+@ValidOn({JLocalRef.class, JParameterRef.class})
 @Description("This marker contains debug information related to variable.")
 public class DebugVariableInfoMarker implements SerializableMarker {
 
   @Nonnull
+  public static final DebugVariableInfoMarker NO_DEBUG_INFO =
+      new DebugVariableInfoMarker(null, null, null);
+
+  @CheckForNull
   private final String name;
 
-  @Nonnull
+  @CheckForNull
   private final JType type;
 
   @CheckForNull
   private String genericSignature;
 
-  public DebugVariableInfoMarker(@Nonnull String name, @Nonnull JType type,
+  public DebugVariableInfoMarker(@CheckForNull String name, @CheckForNull JType type,
       @CheckForNull String genericSignature) {
     this.name = name;
     this.type = type;
@@ -51,11 +56,13 @@ public class DebugVariableInfoMarker implements SerializableMarker {
 
   @Nonnull
   public String getName() {
+    assert name != null;
     return name;
   }
 
   @Nonnull
   public JType getType() {
+    assert type != null;
     return type;
   }
 
