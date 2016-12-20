@@ -34,6 +34,9 @@ public class IfWithConstantSimplifierTests extends RuntimeTest {
   @Nonnull
   private final RuntimeTestInfo TEST001 = new IfWithConstantSimplifierTestRuntimeInfo("test001");
 
+  @Nonnull
+  private final RuntimeTestInfo TEST002 = new IfWithConstantSimplifierTestRuntimeInfo("test002");
+
   @Test
   @Runtime
   @Category(RuntimeRegressionTest.class)
@@ -41,9 +44,17 @@ public class IfWithConstantSimplifierTests extends RuntimeTest {
     new RuntimeTestHelper(TEST001).compileAndRunTest();
   }
 
+  @Test
+  @Runtime
+  @Category(RuntimeRegressionTest.class)
+  public void test002() throws Exception {
+    new RuntimeTestHelper(TEST002).compileAndRunTest();
+  }
+
   @Override
   protected void fillRtTestInfos() {
     rtTestInfos.add(TEST001);
+    rtTestInfos.add(TEST002);
   }
 
   /**
