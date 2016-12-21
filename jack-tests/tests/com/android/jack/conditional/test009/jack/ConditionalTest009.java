@@ -29,6 +29,14 @@ public class ConditionalTest009 {
   public void test002() {
     Assert.assertEquals(35312635, get2());
   }
+  @Test
+  public void test003() {
+    Assert.assertEquals(35312635, get3());
+  }
+  @Test
+  public void test004() {
+    Assert.assertEquals(35312635, get4());
+  }
 
   @SuppressWarnings("unused")
   public int get() {
@@ -42,6 +50,21 @@ public class ConditionalTest009 {
   public int get2() {
     int i = 35312635;
     i >>>= (int) (float) 702730947;
+    return i;
+  }
+
+  public int get3() {
+    int i = 35312635;
+    int s = 702730947;
+    Integer shift = (int) (true ? s : -1284717918.0f);
+    i >>>= shift;
+    return i;
+  }
+
+  public int get4() {
+    int i = 35312635;
+    Integer s = 702730947;
+    i >>>= (int) (true ? s : -1284717918.0f);
     return i;
   }
 }

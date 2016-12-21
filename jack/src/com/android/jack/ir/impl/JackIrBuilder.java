@@ -704,21 +704,31 @@ public class JackIrBuilder {
           // One branch of (condition ? valueIfTrue : valueIfFalse) is dead code,
           // drop the dead code by keeping only (condition, value).
           // The condition must be kept even if its value is unused because it may have side effect
-          JExpression value;
-          JExpression condition;
+          Expression ecjValue;
           if (optimizedTrue) {
             assert !optimizedFalse;
-            value = pop(x.valueIfTrue);
-            condition = pop(x.condition);
+            ecjValue = x.valueIfTrue;
           } else {
-            value = pop(x.valueIfFalse);
-            condition = pop(x.condition);
+            ecjValue = x.valueIfFalse;
           }
+          JExpression value = pop(ecjValue);
+          JExpression condition = pop(x.condition);
+
+          boolean isValueOptimizeConditional = ecjValue instanceof ConditionalExpression
+              && (isOptimizedTrue(((ConditionalExpression) ecjValue).condition)
+                  || isOptimizedFalse(((ConditionalExpression) ecjValue).condition));
+          // If value is a optimized conditional, it was already converted by the second call to
+          // generateImplicitConversion below. In this case, don't generate again the implicit
+          // conversion.
+          if (!isValueOptimizeConditional) {
+            value = generateImplicitConversion(ecjValue.implicitConversion, value);
+          }
+
+          value = generateImplicitConversion(x.implicitConversion, value);
           if (condition instanceof JBooleanLiteral) {
-            push(generateImplicitConversion(x.implicitConversion, value));
+            push(value);
           } else {
-            push(new JMultiExpression(info, condition,
-                generateImplicitConversion(x.implicitConversion, value)));
+            push(new JMultiExpression(info, condition, value));
           }
         } else {
           JExpression valueIfFalse = pop(x.valueIfFalse);
@@ -742,16 +752,25 @@ public class JackIrBuilder {
 
       JExpression convertedExpression = expr;
 
+      int typeIdTo = (implicitConversionCode & TypeIds.IMPLICIT_CONVERSION_MASK) >> 4;
       if ((implicitConversionCode & TypeIds.UNBOXING) != 0) {
-        final int typeId = implicitConversionCode & TypeIds.COMPILE_TYPE_MASK;
-        JPrimitiveType typeToUnbox = getJType(typeId);
+        int typeIdFrom = implicitConversionCode & TypeIds.COMPILE_TYPE_MASK;
+        JPrimitiveType typeToUnbox;
+        if (typeIdFrom == TypeIds.T_JavaLangObject) {
+          // Declared type is object, let's infer unboxed type from result type and cast to it
+          // before unboxing
+          typeToUnbox = getJType(typeIdTo);
+          convertedExpression = new JDynamicCastOperation(convertedExpression.getSourceInfo(),
+                convertedExpression, typeToUnbox.getWrapperType());
+        } else {
+          typeToUnbox = getJType(typeIdFrom);
+        }
         assert typeToUnbox != null;
         convertedExpression =
             TypeLegalizer.unbox(convertedExpression, typeToUnbox.getWrapperType());
       }
 
-      final int typeId = (implicitConversionCode & TypeIds.IMPLICIT_CONVERSION_MASK) >> 4;
-      JPrimitiveType primitiveType = getJType(typeId);
+      JPrimitiveType primitiveType = getJType(typeIdTo);
       if (primitiveType != null) {
         if (!primitiveType.isSameType(convertedExpression.getType())) {
           convertedExpression = new JDynamicCastOperation(convertedExpression.getSourceInfo(),

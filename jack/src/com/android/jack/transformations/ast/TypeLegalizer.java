@@ -35,6 +35,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JNewArray;
+import com.android.jack.ir.ast.JNullType;
 import com.android.jack.ir.ast.JPolymorphicMethodCall;
 import com.android.jack.ir.ast.JPrimitiveType;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
@@ -438,6 +439,8 @@ public class TypeLegalizer implements RunnableSchedulable<JMethod> {
 
     JMethodId unboxMethod = typeToUnbox.getOrCreateMethodId(methodName, Lists.<JType>create(),
         MethodKind.INSTANCE_VIRTUAL, returnType);
+    assert exprToUnbox.getType() == JNullType.INSTANCE
+        || exprToUnbox.getType().isSameType(typeToUnbox);
     JMethodCall unboxMethodCall = new JMethodCall(exprToUnbox.getSourceInfo(), exprToUnbox,
         typeToUnbox, unboxMethod, unboxMethod.getMethodIdWide().canBeVirtual());
 

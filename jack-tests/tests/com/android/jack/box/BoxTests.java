@@ -89,7 +89,6 @@ public class BoxTests extends RuntimeTest {
 
   @Test
   @Runtime
-  @KnownIssue
   public void test004() throws Exception {
     new RuntimeTestHelper(TEST004).setSourceLevel(SourceLevel.JAVA_7).compileAndRunTest();
   }

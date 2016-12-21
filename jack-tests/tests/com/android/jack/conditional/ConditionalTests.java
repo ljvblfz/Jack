@@ -124,7 +124,6 @@ public class ConditionalTests extends RuntimeTest {
   @Test
   @Runtime
   @Category(RuntimeRegressionTest.class)
-  @KnownIssue
   public void test009() throws Exception {
     new RuntimeTestHelper(TEST009).compileAndRunTest();
   }
@@ -139,6 +138,6 @@ public class ConditionalTests extends RuntimeTest {
     rtTestInfos.add(TEST006);
     rtTestInfos.add(TEST007);
     rtTestInfos.add(TEST008);
-//    rtTestInfos.add(TEST009);
+    rtTestInfos.add(TEST009);
   }
 }
