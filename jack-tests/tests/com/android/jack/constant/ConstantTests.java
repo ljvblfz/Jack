@@ -17,6 +17,7 @@
 package com.android.jack.constant;
 
 import com.android.jack.TestTools;
+import com.android.jack.optimizations.Optimizations;
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.FileChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
@@ -130,6 +131,7 @@ public class ConstantTests extends RuntimeTest {
   @Runtime
   public void test005() throws Exception {
     new RuntimeTestHelper(TEST005)
+    .addProperty(Optimizations.UseDefSimplifier.OPTIMIZE_CST_DEF.getName(), "false")
     .addIgnoredCandidateToolchain(JillBasedToolchain.class)
     .compileAndRunTest();
   }
