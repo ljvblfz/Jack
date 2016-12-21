@@ -749,8 +749,10 @@ public class JackIrBuilder {
       final int typeId = (implicitConversionCode & TypeIds.IMPLICIT_CONVERSION_MASK) >> 4;
       JPrimitiveType primitiveType = getJType(typeId);
       if (primitiveType != null) {
-        convertedExpression = new JDynamicCastOperation(convertedExpression.getSourceInfo(),
-            convertedExpression, primitiveType);
+        if (!primitiveType.isSameType(convertedExpression.getType())) {
+          convertedExpression = new JDynamicCastOperation(convertedExpression.getSourceInfo(),
+              convertedExpression, primitiveType);
+        }
 
         if ((implicitConversionCode & TypeIds.BOXING) != 0) {
           convertedExpression = TypeLegalizer.box(convertedExpression,
