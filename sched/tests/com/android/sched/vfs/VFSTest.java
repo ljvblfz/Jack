@@ -16,6 +16,7 @@
 
 package com.android.sched.vfs;
 
+import com.android.sched.test.TestTools;
 import com.android.sched.util.config.AsapConfigBuilder;
 import com.android.sched.util.config.ConfigurationException;
 import com.android.sched.util.config.MessageDigestFactory;
@@ -78,10 +79,9 @@ public class VFSTest {
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
     try {
-      file = File.createTempFile("vfs", "dir");
+      file = TestTools.createTempDir();
       String path = file.getAbsolutePath();
-      Assert.assertTrue(file.delete());
-      VFS vfs1 = new DirectFS(new Directory(path, null, Existence.NOT_EXIST,
+      VFS vfs1 = new DirectFS(new Directory(path, null, Existence.MUST_EXIST,
           Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ | Permission.WRITE);
 
       ioVFS1 = new GenericInputOutputVFS(vfs1);
@@ -103,9 +103,6 @@ public class VFSTest {
       if (ioVFS2 != null) {
         ioVFS2.close();
       }
-      if (file != null) {
-        FileUtils.deleteDir(file);
-      }
     }
   }
 
@@ -118,11 +115,10 @@ public class VFSTest {
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
     try {
-      file = File.createTempFile("vfs", "dir");
+      file = TestTools.createTempDir();
       String path = file.getAbsolutePath();
-      Assert.assertTrue(file.delete());
       VFS vfs1 = new CachedDirectFS(new Directory(path, null,
-          Existence.NOT_EXIST, Permission.WRITE, ChangePermission.NOCHANGE),
+          Existence.MUST_EXIST, Permission.WRITE, ChangePermission.NOCHANGE),
           Permission.READ | Permission.WRITE);
 
       ioVFS1 = new GenericInputOutputVFS(vfs1);
@@ -148,9 +144,6 @@ public class VFSTest {
       if (ioVFS2 != null) {
         ioVFS2.close();
       }
-      if (file != null) {
-        FileUtils.deleteDir(file);
-      }
     }
   }
 
@@ -163,13 +156,12 @@ public class VFSTest {
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
     try {
-      file = File.createTempFile("vfs", "dir");
+      file = TestTools.createTempDir();
       String path = file.getAbsolutePath();
-      Assert.assertTrue(file.delete());
 
       ioVFS1 =
           new GenericInputOutputVFS(new DeflateFS(new DirectFS(new Directory(path, null,
-              Existence.NOT_EXIST, Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ
+              Existence.MUST_EXIST, Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ
               | Permission.WRITE)));
 
       testOutputVFS(ioVFS1);
@@ -207,13 +199,12 @@ public class VFSTest {
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
     try {
-      file = File.createTempFile("vfs", "dir");
+      file = TestTools.createTempDir();
       String path = file.getAbsolutePath();
-      Assert.assertTrue(file.delete());
 
       ioVFS1 =
           new GenericInputOutputVFS(new CaseInsensitiveFS(new DirectFS(new Directory(path, null,
-              Existence.NOT_EXIST, Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ
+              Existence.MUST_EXIST, Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ
               | Permission.WRITE)));
 
       testOutputVFS(ioVFS1);
@@ -234,9 +225,6 @@ public class VFSTest {
       if (ioVFS2 != null) {
         ioVFS2.close();
       }
-      if (file != null) {
-        FileUtils.deleteDir(file);
-      }
     }
   }
 
@@ -249,14 +237,13 @@ public class VFSTest {
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
     try {
-      file = File.createTempFile("vfs", "dir");
+      file = TestTools.createTempDir();
       String path = file.getAbsolutePath();
-      Assert.assertTrue(file.delete());
 
       Provider.Service sha1 = getSha1Service();
 
       ioVFS1 = new GenericInputOutputVFS(new MessageDigestFS(new DirectFS(new Directory(path,
-          null, Existence.NOT_EXIST, Permission.WRITE, ChangePermission.NOCHANGE),
+          null, Existence.MUST_EXIST, Permission.WRITE, ChangePermission.NOCHANGE),
           Permission.READ | Permission.WRITE), new MessageDigestFactory(getSha1Service())));
 
       testOutputVFS(ioVFS1);
@@ -291,9 +278,6 @@ public class VFSTest {
       if (ioVFS2 != null) {
         ioVFS2.close();
       }
-      if (file != null) {
-        FileUtils.deleteDir(file);
-      }
     }
   }
 
@@ -306,9 +290,8 @@ public class VFSTest {
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
     try {
-      file = File.createTempFile("vfs", "dir");
+      file = TestTools.createTempDir();
       String path = file.getAbsolutePath();
-      Assert.assertTrue(file.delete());
 
       Provider.Service sha1 = null;
       for (Provider provider : Security.getProviders()) {
@@ -321,7 +304,7 @@ public class VFSTest {
       Assert.assertNotNull(sha1);
 
       ioVFS1 = new GenericInputOutputVFS(new MessageDigestFS(new CaseInsensitiveFS(
-          new DirectFS(new Directory(path, null, Existence.NOT_EXIST, Permission.WRITE,
+          new DirectFS(new Directory(path, null, Existence.MUST_EXIST, Permission.WRITE,
               ChangePermission.NOCHANGE), Permission.READ | Permission.WRITE)),
               new MessageDigestFactory(sha1)));
       testOutputVFS(ioVFS1);
@@ -355,9 +338,6 @@ public class VFSTest {
       if (ioVFS2 != null) {
         ioVFS2.close();
       }
-      if (file != null) {
-        FileUtils.deleteDir(file);
-      }
     }
   }
 
@@ -370,12 +350,11 @@ public class VFSTest {
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
     try {
-      file = File.createTempFile("vfs", "dir");
+      file = TestTools.createTempDir();
       String path = file.getAbsolutePath();
-      Assert.assertTrue(file.delete());
 
       CaseInsensitiveFS ciFS = new CaseInsensitiveFS(new DirectFS(new Directory(path, null,
-          Existence.NOT_EXIST, Permission.WRITE, ChangePermission.NOCHANGE),
+          Existence.MUST_EXIST, Permission.WRITE, ChangePermission.NOCHANGE),
           Permission.READ | Permission.WRITE));
 
       ioVFS1 =
@@ -403,9 +382,6 @@ public class VFSTest {
       if (ioVFS2 != null) {
         ioVFS2.close();
       }
-      if (file != null) {
-        FileUtils.deleteDir(file);
-      }
     }
   }
 
@@ -418,9 +394,8 @@ public class VFSTest {
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
     try {
-      file = File.createTempFile("vfs", "dir");
+      file = TestTools.createTempDir();
       String path = file.getAbsolutePath();
-      Assert.assertTrue(file.delete());
 
       Provider.Service sha1 = null;
       for (Provider provider : Security.getProviders()) {
@@ -433,7 +408,7 @@ public class VFSTest {
       Assert.assertNotNull(sha1);
 
       VFS vfs1 = new MessageDigestFS(new CachedDirectFS(
-          new Directory(path, null, Existence.NOT_EXIST, Permission.WRITE,
+          new Directory(path, null, Existence.MUST_EXIST, Permission.WRITE,
               ChangePermission.NOCHANGE), Permission.READ | Permission.WRITE),
               new MessageDigestFactory(sha1));
 
@@ -471,9 +446,6 @@ public class VFSTest {
       if (ioVFS2 != null) {
         ioVFS2.close();
       }
-      if (file != null) {
-        FileUtils.deleteDir(file);
-      }
     }
   }
 
@@ -486,13 +458,12 @@ public class VFSTest {
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
     try {
-      file = File.createTempFile("vfs", "dir");
+      file = TestTools.createTempDir();
       String path = file.getAbsolutePath();
-      Assert.assertTrue(file.delete());
 
       ioVFS1 =
           new GenericInputOutputVFS(new PrefixedFS(new DirectFS(new Directory(path, null,
-              Existence.NOT_EXIST, Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ
+              Existence.MUST_EXIST, Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ
               | Permission.WRITE), new VPath("stuff", '/')));
 
       testOutputVFS(ioVFS1);
@@ -515,9 +486,6 @@ public class VFSTest {
       if (ioVFS2 != null) {
         ioVFS2.close();
       }
-      if (file != null) {
-        FileUtils.deleteDir(file);
-      }
     }
   }
 
@@ -531,7 +499,7 @@ public class VFSTest {
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
     try {
-      file = File.createTempFile("vfs", ".zip");
+      file = TestTools.createTempFile("vfs", ".zip");
       String path = file.getAbsolutePath();
 
       WriteZipFS writeZipFS = new WriteZipFS(new OutputZipFile(path, null, Existence.MAY_EXIST,
@@ -558,9 +526,6 @@ public class VFSTest {
       if (ioVFS2 != null) {
         ioVFS2.close();
       }
-      if (file != null) {
-        Assert.assertTrue(file.delete());
-      }
     }
   }
 
@@ -573,12 +538,11 @@ public class VFSTest {
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
     try {
-      file = File.createTempFile("vfs", "dir");
+      file = TestTools.createTempDir();
       String path = file.getAbsolutePath();
-      Assert.assertTrue(file.delete());
 
       CaseInsensitiveFS ciFS = new CaseInsensitiveFS(new DirectFS(new Directory(path, null,
-          Existence.NOT_EXIST, Permission.WRITE, ChangePermission.NOCHANGE),
+          Existence.MUST_EXIST, Permission.WRITE, ChangePermission.NOCHANGE),
           Permission.READ | Permission.WRITE));
 
       ioVFS1 = new GenericInputOutputVFS(new PrefixedFS(ciFS, new VPath("stuff", '/')));
@@ -604,9 +568,6 @@ public class VFSTest {
       if (ioVFS2 != null) {
         ioVFS2.close();
       }
-      if (file != null) {
-        FileUtils.deleteDir(file);
-      }
     }
   }
 
@@ -619,9 +580,8 @@ public class VFSTest {
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
     try {
-      file = File.createTempFile("vfs", "dir");
+      file = TestTools.createTempDir();
       String path = file.getAbsolutePath();
-      Assert.assertTrue(file.delete());
 
       Provider.Service sha1 = null;
       for (Provider provider : Security.getProviders()) {
@@ -635,7 +595,7 @@ public class VFSTest {
 
       CaseInsensitiveFS ciFS =
           new CaseInsensitiveFS(new MessageDigestFS(new CachedDirectFS(new Directory(path, null,
-              Existence.NOT_EXIST, Permission.WRITE, ChangePermission.NOCHANGE),
+              Existence.MUST_EXIST, Permission.WRITE, ChangePermission.NOCHANGE),
               Permission.READ | Permission.WRITE), new MessageDigestFactory(sha1)));
 
       ioVFS1 = new GenericInputOutputVFS(new PrefixedFS(ciFS, new VPath("stuff", '/')));
@@ -662,9 +622,6 @@ public class VFSTest {
       if (ioVFS2 != null) {
         ioVFS2.close();
       }
-      if (file != null) {
-        FileUtils.deleteDir(file);
-      }
     }
   }
 
@@ -677,7 +634,7 @@ public class VFSTest {
     InputOutputVFS ioVFS1 = null;
     InputVFS iVFS2 = null;
     try {
-      file = File.createTempFile("vfs", ".zip");
+      file = TestTools.createTempFile("vfs", ".zip");
       String path = file.getAbsolutePath();
       ioVFS1 = new GenericInputOutputVFS(new WriteZipFS(new OutputZipFile(path, null,
           Existence.MAY_EXIST, ChangePermission.NOCHANGE, Compression.COMPRESSED)));
@@ -693,9 +650,6 @@ public class VFSTest {
       if (iVFS2 != null) {
         iVFS2.close();
       }
-      if (file != null) {
-        Assert.assertTrue(file.delete());
-      }
     }
   }
 
@@ -708,10 +662,9 @@ public class VFSTest {
     File zipFile = null;
     File dir = null;
     try {
-      zipFile = File.createTempFile("vfs", ".zip");
-      dir = File.createTempFile("vfs", "dir");
+      zipFile = TestTools.createTempFile("vfs", ".zip");
+      dir = TestTools.createTempDir();
       String dirPath = dir.getPath();
-      Assert.assertTrue(dir.delete());
 
       // fill up zip
       VFS writeZipVFS = new ReadWriteZipFS(
@@ -722,7 +675,7 @@ public class VFSTest {
       writeZipVFS.close();
 
       // create Dir
-      VFS dirVFS = new CachedDirectFS(new Directory(dirPath, null, Existence.NOT_EXIST,
+      VFS dirVFS = new CachedDirectFS(new Directory(dirPath, null, Existence.MUST_EXIST,
           Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ | Permission.WRITE);
 
       // create UnionVFS with dir and read-only zip
@@ -817,9 +770,6 @@ public class VFSTest {
       if (zipFile != null) {
         Assert.assertTrue(zipFile.delete());
       }
-      if (dir != null) {
-        FileUtils.deleteDir(dir);
-      }
     }
   }
 
@@ -834,11 +784,10 @@ public class VFSTest {
     File outputZipFile = null;
     File dir = null;
     try {
-      inputZipFile = File.createTempFile("input", ".zip");
-      dir = File.createTempFile("vfs", "dir");
-      outputZipFile = File.createTempFile("output", ".zip");
+      inputZipFile = TestTools.createTempFile("input", ".zip");
+      dir = TestTools.createTempDir();
+      outputZipFile = TestTools.createTempFile("output", ".zip");
       String dirPath = dir.getPath();
-      Assert.assertTrue(dir.delete());
 
       // fill up zip that will be used as input
       {
@@ -855,7 +804,7 @@ public class VFSTest {
 
       // create Dir
       VFS ciVFS = new CaseInsensitiveFS(
-          new CachedDirectFS(new Directory(dirPath, null, Existence.NOT_EXIST, Permission.WRITE,
+          new CachedDirectFS(new Directory(dirPath, null, Existence.MUST_EXIST, Permission.WRITE,
               ChangePermission.NOCHANGE), Permission.READ | Permission.WRITE));
       VFS prefixedFS1 = new PrefixedFS(ciVFS, prefix);
       prefixedFS1.close();
@@ -966,9 +915,6 @@ public class VFSTest {
       if (outputZipFile != null) {
         Assert.assertTrue(outputZipFile.delete());
       }
-      if (dir != null) {
-        FileUtils.deleteDir(dir);
-      }
     }
   }
 
@@ -1050,7 +996,7 @@ public class VFSTest {
     InputOutputVFS zipVFS = null;
     InputVFS inputZipVFS = null;
     try {
-      file = File.createTempFile("vfs", ".zip");
+      file = TestTools.createTempFile("vfs", ".zip");
       String path = file.getAbsolutePath();
       Provider.Service sha1 = getSha1Service();
       zipVFS = new GenericInputOutputVFS(new ReadWriteZipFS(
@@ -1073,9 +1019,6 @@ public class VFSTest {
       if (inputZipVFS != null) {
         inputZipVFS.close();
       }
-      if (file != null) {
-        Assert.assertTrue(file.delete());
-      }
     }
   }
 
@@ -1088,7 +1031,7 @@ public class VFSTest {
     InputOutputVFS ioVFS1 = null;
     InputVFS ioVFS2 = null;
     try {
-      file = File.createTempFile("vfs", ".zip");
+      file = TestTools.createTempFile("vfs", ".zip");
 
       Provider.Service sha1 = getSha1Service();
 
@@ -1128,9 +1071,6 @@ public class VFSTest {
       }
       if (ioVFS2 != null) {
         ioVFS2.close();
-      }
-      if (file != null) {
-        Assert.assertTrue(file.delete());
       }
     }
   }
