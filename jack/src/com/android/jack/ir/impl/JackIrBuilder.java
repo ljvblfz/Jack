@@ -182,6 +182,7 @@ import org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression;
 import org.eclipse.jdt.internal.compiler.ast.IntLiteral;
 import org.eclipse.jdt.internal.compiler.ast.LabeledStatement;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
+import org.eclipse.jdt.internal.compiler.ast.Literal;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.LongLiteral;
 import org.eclipse.jdt.internal.compiler.ast.MarkerAnnotation;
@@ -3792,10 +3793,48 @@ public class JackIrBuilder {
       return result;
     }
 
+    /**
+     * This class checks to make sure if the expression contains a unary plus. If so, we will
+     * signal simplify() to not use the constant that ECJ computed since it contains a bug. It will
+     * also assert that this bug exists. Should that assertion start failing, we know the bug is
+     * fixed and this extra check is not necessary.
+     *
+     * {@link "https://bugs.eclipse.org/bugs/show_bug.cgi?id=509590"}
+     */
+    private final class EcjBugChecker extends ASTVisitor {
+      private boolean hasEcjUnaryPosBug = false;
+      @Override
+      public void endVisit(UnaryExpression x, BlockScope b) {
+        int operator = ((x.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT);
+        // We don't take the constant result from ECJ if it involves a unary + and a non-literal.
+        if (operator == OperatorIds.PLUS && !(x.expression instanceof Literal)) {
+          hasEcjUnaryPosBug = true;
+          // We have an (+ (expression))
+          Constant outer = x.constant;
+          Constant inner = x.expression.constant;
+
+          // Since the + operator is no-op, the inner and the outer constant should be exactly the
+          // same. If not, the current version of ECJ has the mentioned bug.
+          boolean hasEcjUnaryPosBug = !outer.equals(inner);
+
+          // We are going to assume there is a bug in ECJ and work around it. If this fails,
+          // we know that the bug has been fixed.
+          assert hasEcjUnaryPosBug;
+        }
+      }
+    }
+
     private JExpression simplify(JExpression result, Expression x) {
       if (x.constant != null && x.constant != Constant.NotAConstant) {
-        // Prefer JDT-computed constant value to the actual written expression.
-        result = getConstant(result.getSourceInfo(), x.constant);
+        EcjBugChecker checker = new EcjBugChecker();
+        x.traverse(checker, (BlockScope) null);
+        if (checker.hasEcjUnaryPosBug) {
+          // Don't take the result from ECJ if there is a unary pos unless the bug has been fixed.
+          return result;
+        } else {
+          // Prefer JDT-computed constant value to the actual written expression.
+          result = getConstant(result.getSourceInfo(), x.constant);
+        }
       } else if (x instanceof FieldReference) {
         FieldBinding binding = ((FieldReference) x).binding;
         Constant constant = binding.constant();
