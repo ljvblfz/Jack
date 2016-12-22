@@ -21,6 +21,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses(value = {DurationFormatterTest.class, QuantityFormatterTest.class})
-public class AllTests {
-}
+@SuiteClasses(
+  value = {DurationFormatterTest.class, QuantityFormatterTest.class, WriterFileCodecTest.class}
+)
+public class AllTests {}
