@@ -107,38 +107,43 @@ public class IfWithConstantSimplifier implements RunnableSchedulable<JMethod> {
           JStatement elseStmt = ifStmt.getElseStmt();
 
           for (DefinitionMarker dm : udm.getDefs()) {
+            // Apply optimization if and only if the following is true:
+            // - the definition is 'true' or 'false' literals.
+            // - the definition is used only once.
+            // - the definition and its use (the if statement) are in different blocks.
             if (dm.hasValue() && dm.getValue() instanceof JBooleanLiteral
-                && dm.isUsedOnlyOnce()) {
-                if (((JBooleanLiteral) dm.getValue()).getValue() == true) {
-                  // Branch to then block
+                && dm.isUsedOnlyOnce()
+                && dm.getDefinition().getParent(JBlock.class) != ifStmt.getParent(JBlock.class)) {
+              if (((JBooleanLiteral) dm.getValue()).getValue() == true) {
+                // Branch to then block
 
-                  if (thenLabel == null) {
-                    thenLabel = new JLabeledStatement(
-                        si, new JLabel(si, "ifSimplierThen_" + count), new JBlock(si));
-                    tr.append(new PrependStatement((JBlock) ifStmt.getThenStmt(), thenLabel));
-                  }
-
-                  assert thenLabel != null;
-                  removeDefAndBranchToLabel(dm, si, thenLabel, tr);
-                } else {
-                  // Branch to else block
-                  if (elseStmt != null) {
-                    if (elseLabel == null) {
-                      elseLabel = new JLabeledStatement(
-                          si, new JLabel(si, "ifSimplierElse_" + count), new JBlock(si));
-                      tr.append(new PrependStatement((JBlock) elseStmt, elseLabel));
-                    }
-                  } else {
-                    if (elseLabel == null) {
-                      elseLabel = new JLabeledStatement(
-                          si, new JLabel(si, "ifSimplierEnd_" + count), new JBlock(si));
-
-                      tr.append(new PrependAfter(ifStmt, elseLabel));
-                    }
-                  }
-
-                  removeDefAndBranchToLabel(dm, si, elseLabel, tr);
+                if (thenLabel == null) {
+                  thenLabel = new JLabeledStatement(
+                      si, new JLabel(si, "ifSimplierThen_" + count), new JBlock(si));
+                  tr.append(new PrependStatement((JBlock) ifStmt.getThenStmt(), thenLabel));
                 }
+
+                assert thenLabel != null;
+                removeDefAndBranchToLabel(dm, si, thenLabel, tr);
+              } else {
+                // Branch to else block
+                if (elseStmt != null) {
+                  if (elseLabel == null) {
+                    elseLabel = new JLabeledStatement(
+                        si, new JLabel(si, "ifSimplierElse_" + count), new JBlock(si));
+                    tr.append(new PrependStatement((JBlock) elseStmt, elseLabel));
+                  }
+                } else {
+                  if (elseLabel == null) {
+                    elseLabel = new JLabeledStatement(
+                        si, new JLabel(si, "ifSimplierEnd_" + count), new JBlock(si));
+
+                    tr.append(new PrependAfter(ifStmt, elseLabel));
+                  }
+                }
+
+                removeDefAndBranchToLabel(dm, si, elseLabel, tr);
+              }
             } else {
               allDefsAreBooleanCstAndUseByIfStmt = false;
             }
