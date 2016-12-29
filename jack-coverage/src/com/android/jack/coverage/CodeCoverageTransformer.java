@@ -123,7 +123,8 @@ public class CodeCoverageTransformer  extends SourceDigestAdder
    * The modifiers of the added field.
    */
   private static final int COVERAGE_DATA_FIELD_MODIFIERS =
-      JModifier.PRIVATE | JModifier.STATIC | JModifier.FINAL | JModifier.TRANSIENT;
+      JModifier.PRIVATE | JModifier.STATIC | JModifier.FINAL | JModifier.TRANSIENT |
+      JModifier.SYNTHETIC;
 
   /**
    * The name of the method that registers (once) and returns the array of coverage probes.
@@ -135,7 +136,7 @@ public class CodeCoverageTransformer  extends SourceDigestAdder
    * The modifiers of the added method.
    */
   private static final int COVERAGE_DATA_INIT_METHOD_MODIFIERS =
-      JModifier.PRIVATE | JModifier.STATIC;
+      JModifier.PRIVATE | JModifier.STATIC | JModifier.SYNTHETIC;
 
   private static final String LOCAL_VAR_NAME_PREFIX = "cov";
 
@@ -319,8 +320,7 @@ public class CodeCoverageTransformer  extends SourceDigestAdder
   @Nonnull
   private JField createProbesArrayField(@Nonnull JDefinedClassOrInterface declaredType) {
     JType booleanArrayType = getCoverageDataType();
-    SourceInfo sourceInfo = declaredType.getSourceInfo();
-    return new JField(sourceInfo, COVERAGE_DATA_FIELD_NAME, declaredType, booleanArrayType,
+    return new JField(SourceInfo.UNKNOWN, COVERAGE_DATA_FIELD_NAME, declaredType, booleanArrayType,
         COVERAGE_DATA_FIELD_MODIFIERS);
   }
 
@@ -468,13 +468,12 @@ public class CodeCoverageTransformer  extends SourceDigestAdder
   private JMethod createProbesArrayInitMethod(@Nonnull JDefinedClassOrInterface declaredType,
       @Nonnegative int probeCount, @Nonnull TransformationRequest transformationRequest,
       @Nonnull JField coverageDataField, long classId) {
-    SourceInfo sourceInfo = declaredType.getSourceInfo();
     JType returnType = getCoverageDataType();
     JMethodId methodId = new JMethodId(
         new JMethodIdWide(COVERAGE_DATA_INIT_METHOD_NAME, MethodKind.STATIC),
         returnType);
     JMethod coverageInitMethod = new JMethod(
-        sourceInfo, methodId, declaredType, COVERAGE_DATA_INIT_METHOD_MODIFIERS);
+        SourceInfo.UNKNOWN, methodId, declaredType, COVERAGE_DATA_INIT_METHOD_MODIFIERS);
     fillCoverageInitMethodBody(coverageInitMethod, declaredType, probeCount, transformationRequest,
         coverageDataField, classId);
     return coverageInitMethod;
