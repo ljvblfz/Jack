@@ -26,6 +26,7 @@ import com.google.gson.JsonObject;
 import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.util.NamingTools;
 
 import junit.framework.Assert;
@@ -248,6 +249,7 @@ public class CoverageTests extends CoverageTest {
   }
 
   @Test
+  @KnownIssue(candidate = JillBasedToolchain.class)
   public void testScope_SourceOnly() throws Exception {
     String testPackageName = getTestPackageName("test004");
     JsonArray classes = runTestScope("source", testPackageName);
@@ -260,6 +262,7 @@ public class CoverageTests extends CoverageTest {
   }
 
   @Test
+  @KnownIssue(candidate = JillBasedToolchain.class)
   public void testScope_ImportsOnly() throws Exception {
     String testPackageName = getTestPackageName("test004");
     JsonArray classes = runTestScope("imports", testPackageName);
