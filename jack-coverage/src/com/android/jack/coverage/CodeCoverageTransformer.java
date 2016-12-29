@@ -39,6 +39,7 @@ import com.android.jack.ir.ast.JFieldRef;
 import com.android.jack.ir.ast.JGoto;
 import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JIntLiteral;
+import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JLongLiteral;
@@ -120,11 +121,18 @@ public class CodeCoverageTransformer  extends SourceDigestAdder
       NamingTools.getNonSourceConflictingName("jacocoData");
 
   /**
-   * The modifiers of the added field.
+   * The modifiers of the added field for a class.
    */
-  private static final int COVERAGE_DATA_FIELD_MODIFIERS =
-      JModifier.PRIVATE | JModifier.STATIC | JModifier.FINAL | JModifier.TRANSIENT |
-      JModifier.SYNTHETIC;
+  private static final int CLASS_COVERAGE_DATA_FIELD_MODIFIERS = JModifier.PRIVATE
+      | JModifier.STATIC | JModifier.FINAL | JModifier.TRANSIENT | JModifier.SYNTHETIC;
+
+  /**
+   * The modifiers of the added field for an interface.
+   *
+   * Note: the ART runtime rejects the {@code transient} modifier for interfaces.
+   */
+  private static final int INTERFACE_COVERAGE_DATA_FIELD_MODIFIERS =
+      JModifier.PUBLIC | JModifier.STATIC | JModifier.FINAL | JModifier.SYNTHETIC;
 
   /**
    * The name of the method that registers (once) and returns the array of coverage probes.
@@ -288,8 +296,8 @@ public class CodeCoverageTransformer  extends SourceDigestAdder
   @Override
   public void run(@Nonnull JDefinedClassOrInterface declaredType) {
     CodeCoverageMarker marker = declaredType.getMarker(CodeCoverageMarker.class);
-    if (marker == null) {
-      // This class is excluded from code coverage.
+    if (marker == null || marker.getProbes().isEmpty()) {
+      // No code coverage for this class.
       return;
     }
 
@@ -320,8 +328,11 @@ public class CodeCoverageTransformer  extends SourceDigestAdder
   @Nonnull
   private JField createProbesArrayField(@Nonnull JDefinedClassOrInterface declaredType) {
     JType booleanArrayType = getCoverageDataType();
+    int modifiers = (declaredType instanceof JInterface)
+        ? INTERFACE_COVERAGE_DATA_FIELD_MODIFIERS
+        : CLASS_COVERAGE_DATA_FIELD_MODIFIERS;
     return new JField(SourceInfo.UNKNOWN, COVERAGE_DATA_FIELD_NAME, declaredType, booleanArrayType,
-        COVERAGE_DATA_FIELD_MODIFIERS);
+        modifiers);
   }
 
   /**

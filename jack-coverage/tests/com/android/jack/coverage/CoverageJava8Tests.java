@@ -19,7 +19,6 @@ package com.android.jack.coverage;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
@@ -60,7 +59,6 @@ public class CoverageJava8Tests extends CoverageTest {
    * Tests that static and default methods from interfaces are instrumented.
    */
   @Test
-  @KnownIssue
   public void test002() throws Exception {
     String testPackageName = getTestPackageName("java8.test002");
     File srcDir = CoverageTest.getTestRootDir(testPackageName);

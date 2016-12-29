@@ -30,6 +30,7 @@ import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
+import com.android.jack.transformations.EmptyClinit;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Filter;
@@ -49,7 +50,8 @@ import javax.annotation.Nonnull;
  */
 @Description("Code coverage analyzer")
 @Support(CodeCoverageFeature.class)
-@Constraint(need = {CodeCoverageMarker.Initialized.class, ControlFlowGraph.class})
+@Constraint(need = {CodeCoverageMarker.Initialized.class, ControlFlowGraph.class},
+    no = EmptyClinit.class)
 @Transform(
     add = {CodeCoverageMarker.Analyzed.class, ProbeMarker.class}, modify = CodeCoverageMarker.class)
 @Filter(TypeWithoutPrebuiltFilter.class)
