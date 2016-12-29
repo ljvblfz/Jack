@@ -23,6 +23,7 @@ import com.android.sched.item.Feature;
 import com.android.sched.util.codec.WriterFileCodec;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.id.BooleanPropertyId;
+import com.android.sched.util.config.id.EnumPropertyId;
 import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.config.id.WriterFilePropertyId;
 import com.android.sched.util.file.FileOrDirectory.Existence;
@@ -85,5 +86,13 @@ public class CodeCoverageFeature implements Feature {
           .requiredIf(CODE_COVERAGE.getValue().isTrue())
           .addCategory(DumpInLibrary.class)
           .addCategory(PrebuiltCompatibility.class);
+
+  @Nonnull
+  public static final EnumPropertyId<CoverageScope> COVERAGE_SCOPE = EnumPropertyId
+      .create("jack.coverage.jacoco.scope", "Scope of code coverage", CoverageScope.class)
+      .addDefaultValue(CoverageScope.ALL)
+      .requiredIf(CODE_COVERAGE.getValue().isTrue())
+      .addCategory(DumpInLibrary.class)
+      .addCategory(PrebuiltCompatibility.class);
 }
 

@@ -19,6 +19,7 @@ package com.android.jack.coverage;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.formatter.SourceFormatter;
+import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
@@ -53,6 +54,9 @@ public class CodeCoverageSelector implements RunnableSchedulable<JDefinedClassOr
           ThreadConfig.get(CodeCoverageFeature.COVERAGE_JACOCO_INCLUDES),
           ThreadConfig.get(CodeCoverageFeature.COVERAGE_JACOCO_EXCLUDES));
 
+  @Nonnull
+  private final CoverageScope scope = ThreadConfig.get(CodeCoverageFeature.COVERAGE_SCOPE);
+
   @Override
   public void run(@Nonnull JDefinedClassOrInterface t) {
     if (needsCoverage(t)) {
@@ -69,8 +73,29 @@ public class CodeCoverageSelector implements RunnableSchedulable<JDefinedClassOr
       // Interface are not covered.
       return false;
     }
+    if (!isInScope(declaredType)) {
+      // Type is not in the scope.
+      return false;
+    }
     // Manage class filtering.
     String typeName = formatter.getName(declaredType);
     return filter.matches(typeName);
+  }
+
+  private boolean isInScope(@Nonnull JDefinedClassOrInterface declaredType) {
+    switch (scope) {
+      case SOURCE:
+        return isSourceType(declaredType);
+      case IMPORTS:
+        return !isSourceType(declaredType);
+      case ALL:
+        return true;
+      default:
+        throw new AssertionError();
+    }
+  }
+
+  private static boolean isSourceType(@Nonnull JDefinedClassOrInterface declaredType) {
+    return !(declaredType.getLocation() instanceof TypeInInputLibraryLocation);
   }
 }
