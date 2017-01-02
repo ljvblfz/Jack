@@ -714,8 +714,12 @@ public class JackIrBuilder {
             value = pop(x.valueIfFalse);
             condition = pop(x.condition);
           }
-          push(new JMultiExpression(info,
-             condition,  generateImplicitConversion(x.implicitConversion, value)));
+          if (condition instanceof JBooleanLiteral) {
+            push(generateImplicitConversion(x.implicitConversion, value));
+          } else {
+            push(new JMultiExpression(info, condition,
+                generateImplicitConversion(x.implicitConversion, value)));
+          }
         } else {
           JExpression valueIfFalse = pop(x.valueIfFalse);
           JExpression valueIfTrue = pop(x.valueIfTrue);
