@@ -37,7 +37,6 @@ public class InputLibraryCodec extends OrCodec<InputLibrary> {
   @CheckForNull
   private String infoString;
 
-  @SuppressWarnings("unchecked")
   public InputLibraryCodec() {
     super(new InputJackLibraryCodec(), new JarLibraryCodec());
   }

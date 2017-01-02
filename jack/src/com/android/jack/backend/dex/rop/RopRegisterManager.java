@@ -188,7 +188,8 @@ class RopRegisterManager {
     JType variableType = variable.getType();
     Type regType = RopHelper.convertTypeToDx(variableType);
 
-    if (emitDebugInfo && variable.getName() != null
+    String name = variable.getName();
+    if (emitDebugInfo && name != null
         && (emitSyntheticDebugInfo || !variable.isSynthetic())) {
       if (debugInfo != null) {
         // Debug info marker exists, uses debug information from it
@@ -206,7 +207,7 @@ class RopRegisterManager {
         if (infoMarker != null) {
           cstSignature = new CstString(infoMarker.getGenericSignature());
         }
-        LocalItem localItem = LocalItem.make(new CstString(variable.getName()),
+        LocalItem localItem = LocalItem.make(new CstString(name),
             CstType.intern(regType), cstSignature);
         reg = RegisterSpec.make(regNum, regType, localItem);
       }
