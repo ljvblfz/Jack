@@ -44,8 +44,8 @@ import com.android.sched.schedulable.Protect;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.file.FileUtils;
 
+import java.io.File;
 import java.util.List;
 
 import javax.annotation.CheckForNull;
@@ -145,8 +145,7 @@ public class ClassDefItemBuilder implements RunnableSchedulable<JDefinedClassOrI
     if (sourceInfo != SourceInfo.UNKNOWN) {
       // Only keep filename without the path
       String sourceFileName = sourceInfo.getFileName();
-      String fileSeparator = FileUtils.getFileSeparator();
-      int separatorPos = sourceFileName.lastIndexOf(fileSeparator);
+      int separatorPos = sourceFileName.lastIndexOf(File.separatorChar);
       if (separatorPos > 0) {
         sourceFileName = sourceFileName.substring(separatorPos + 1);
       }
