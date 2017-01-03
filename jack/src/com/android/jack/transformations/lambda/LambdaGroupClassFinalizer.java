@@ -61,6 +61,7 @@ import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.ir.types.JIntegralType32;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.request.AppendField;
 import com.android.jack.transformations.request.AppendMethod;
 import com.android.jack.transformations.request.AppendStatement;
@@ -69,6 +70,7 @@ import com.android.jack.util.NamingTools;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.ExclusiveAccess;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
@@ -95,6 +97,7 @@ import javax.annotation.Nonnull;
                    JThrowStatement.class, LambdaInfoMarker.class })
 @ExclusiveAccess(JSession.class)
 @Support(LambdaToAnonymousConverter.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 public final class LambdaGroupClassFinalizer
     implements RunnableSchedulable<JDefinedClassOrInterface> {
 
