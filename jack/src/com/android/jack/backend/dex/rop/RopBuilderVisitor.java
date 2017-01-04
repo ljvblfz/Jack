@@ -364,7 +364,7 @@ class RopBuilderVisitor extends JVisitor {
     private void buildArrayRead(@Nonnull RegisterSpec destReg, @Nonnull JArrayRef arrayRef,
         @Nonnull SourcePosition sourcePosition) {
       assert arrayRef.getInstance() instanceof JVariableRef
-          || arrayRef.getInstance() instanceof JNullLiteral;
+          || isNullOrReinterpretCastOfNull(arrayRef.getInstance());
       RegisterSpec instanceReg = getRegisterSpec(arrayRef.getInstance());
       RegisterSpec indexReg = getRegisterSpec(arrayRef.getIndexExpr());
       RegisterSpecList sources = RegisterSpecList.make(instanceReg, indexReg);
@@ -386,7 +386,7 @@ class RopBuilderVisitor extends JVisitor {
       } else {
         JExpression instance = fieldRef.getInstance();
         assert instance != null;
-        assert instance instanceof JVariableRef || instance instanceof JNullLiteral;
+        assert instance instanceof JVariableRef || isNullOrReinterpretCastOfNull(instance);
         RegisterSpec instanceReg = getRegisterSpec(instance);
         RegisterSpecList sources = RegisterSpecList.make(instanceReg);
 
@@ -746,7 +746,7 @@ class RopBuilderVisitor extends JVisitor {
   private void buildArrayWrite(JArrayRef arrayRef, JExpression value,
       SourcePosition sourcePosition) {
     assert arrayRef.getInstance() instanceof JVariableRef
-    || arrayRef.getInstance() instanceof JNullLiteral;
+    || isNullOrReinterpretCastOfNull(arrayRef.getInstance());
     RegisterSpec valueReg = getRegisterSpec(value);
     RegisterSpec instanceReg = getRegisterSpec(arrayRef.getInstance());
     RegisterSpec indexReg = getRegisterSpec(arrayRef.getIndexExpr());
@@ -800,7 +800,7 @@ class RopBuilderVisitor extends JVisitor {
     } else {
       JExpression instance = fieldRef.getInstance();
       assert instance != null;
-      assert instance instanceof JVariableRef || instance instanceof JNullLiteral;
+      assert instance instanceof JVariableRef || isNullOrReinterpretCastOfNull(instance);
       RegisterSpec instanceReg = getRegisterSpec(instance);
       RegisterSpecList sources = RegisterSpecList.make(valueReg, instanceReg);
 
@@ -1319,9 +1319,12 @@ class RopBuilderVisitor extends JVisitor {
     if (expr instanceof JVariableRef) {
       regSpec = ropReg.getOrCreateRegisterSpec((JVariableRef) expr);
     } else {
-      assert expr instanceof JValueLiteral;
+      assert (expr instanceof JValueLiteral || isNullOrReinterpretCastOfNull(expr));
       regSpec =
           ropReg.getOrCreateTmpRegister(RopHelper.convertTypeToDx(expr.getType()));
+      if (expr instanceof JReinterpretCastOperation) {
+        expr = ((JReinterpretCastOperation) expr).getExpr();
+      }
       buildConstant(regSpec, (JValueLiteral) expr);
     }
 
@@ -1381,5 +1384,12 @@ class RopBuilderVisitor extends JVisitor {
   @Override
   public void endVisit(@Nonnull JStatement x) {
     ropReg.resetFreeTmpRegister();
+  }
+
+  private static boolean isNullOrReinterpretCastOfNull(@Nonnull JExpression expr) {
+    if (expr instanceof JReinterpretCastOperation) {
+      return isNullOrReinterpretCastOfNull(((JReinterpretCastOperation) expr).getExpr());
+    }
+    return expr instanceof JNullLiteral;
   }
 }

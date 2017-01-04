@@ -28,6 +28,7 @@ import com.android.jack.ir.ast.JLock;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNullLiteral;
 import com.android.jack.ir.ast.JNumberValueLiteral;
+import com.android.jack.ir.ast.JReinterpretCastOperation;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JUnlock;
@@ -145,8 +146,12 @@ public class UseDefsChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
 
             if (isLiteralWithoutSideEffect(exprValueOfa)) {
               tracer.getStatistic(SIMPLIFIED_USE_DEF_WITH_CST).incValue();
-              tr.append(new Replace(varRefOfa,
-                  new CloneExpressionVisitor().cloneExpression(exprValueOfa)));
+              JExpression newExpr = new CloneExpressionVisitor().cloneExpression(exprValueOfa);
+              if (newExpr instanceof JNullLiteral) {
+                newExpr = new JReinterpretCastOperation(newExpr.getSourceInfo(),
+                    varRefOfa.getType(), newExpr);
+              }
+              tr.append(new Replace(varRefOfa, newExpr));
             } else {
               JVariableRef varRefb = (JVariableRef) exprValueOfa;
               JVariableRef newVarRefb = getNewVarRef(varRefb, varRefOfa.getSourceInfo());
