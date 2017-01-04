@@ -23,6 +23,7 @@ import com.android.jack.dx.io.FieldId;
 import com.android.jack.dx.io.MethodHandleId;
 import com.android.jack.dx.io.MethodId;
 import com.android.jack.dx.io.ProtoId;
+import com.android.jack.dx.io.TypeList;
 import com.android.jack.dx.rop.cst.CstFieldRef;
 import com.android.jack.dx.rop.cst.CstIndexMap;
 import com.android.jack.dx.rop.cst.CstMethodHandleRef;
@@ -33,6 +34,7 @@ import com.android.jack.dx.rop.cst.CstPrototypeRef;
 import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Prototype;
+import com.android.jack.dx.rop.type.StdTypeList;
 import com.android.jack.dx.rop.type.Type;
 
 import java.util.ArrayList;
@@ -153,13 +155,10 @@ public class ConstantManager extends MergerTools {
 
     idx = 0;
     List<ProtoId> protoIds = dexBuffer.protoIds();
-    String[] protoIdx2String = new String[protoIds.size()];
-
     for (ProtoId protoId : protoIds) {
-      String protoStr = dexBuffer.readTypeList(protoId.getParametersOffset()).toString();
-      protoStr += typeNames.get(protoId.getReturnTypeIndex());
-      protoIdx2String[idx] = protoStr;
-      Prototype prototype = Prototype.intern(protoStr);
+      Prototype prototype = Prototype.intern(
+          getStdTypeList(cstIndexMap, dexBuffer.readTypeList(protoId.getParametersOffset())),
+          cstIndexMap.getCstType(protoId.getReturnTypeIndex()).getClassType());
       CstPrototypeRef cstProtoRef = new CstPrototypeRef(prototype);
       if (cstPrototypeRefs.add(cstProtoRef)) {
         cstPrototypeRefsNewlyAdded.add(cstProtoRef);
@@ -171,9 +170,7 @@ public class ConstantManager extends MergerTools {
 
     for (MethodId methodId : dexBuffer.methodIds()) {
       int protoIdx = methodId.getProtoIndex();
-      String protoStr = protoIdx2String[protoIdx];
-      assert protoStr != null;
-
+      String protoStr = cstIndexMap.getCstPrototype(protoIdx).toHuman();
       CstString protoCstString = protoStr2CstString.get(protoStr);
       if (protoCstString == null) {
         protoCstString = new CstString(protoStr);
@@ -272,6 +269,18 @@ public class ConstantManager extends MergerTools {
     cstTypes.removeAll(cstTypesToRemove);
     cstPrototypeRefs.removeAll(cstPrototypeRefsToRemove);
     cstMethodHandleRefs.removeAll(cstMethodHandleRefsToRemove);
+  }
+
+  @Nonnull
+  private StdTypeList getStdTypeList(@Nonnull CstIndexMap cstIndexMap, @Nonnull TypeList typeList) {
+    short[] type = typeList.getTypes();
+    int typesLength = type.length;
+    StdTypeList stdTypeList = new StdTypeList(typesLength);
+    for (int i = 0; i < typesLength; i++) {
+      stdTypeList.set(i, cstIndexMap.getCstType(type[i]).getClassType());
+    }
+    stdTypeList.setImmutable();
+    return stdTypeList;
   }
 
   public boolean validate(@Nonnull DexFile dexFile) {
