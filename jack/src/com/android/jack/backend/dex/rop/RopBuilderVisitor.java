@@ -1188,9 +1188,9 @@ class RopBuilderVisitor extends JVisitor {
       @Nonnull JPolymorphicMethodCall methodCall) {
     CstType definingClass = RopHelper.getCstType(methodCall.getReceiverType());
     String signatureWithoutName = RopHelper.getMethodSignatureWithoutName(methodCall);
-    CstNat nat = new CstNat(new CstString(methodCall.getMethodName()),
-        new CstString(signatureWithoutName));
-    CstMethodRef methodRef = new CstMethodRef(definingClass, nat);
+    CstNat nat = new CstNat(new CstString(signatureWithoutName));
+    CstMethodRef methodRef =
+        new CstMethodRef(definingClass, new CstString(methodCall.getMethodName()), nat);
     SourcePosition methodCallSrcPos = RopHelper.getSourcePosition(methodCall);
     Prototype prototype =
         Prototype.intern(RopHelper.getPolymorphicCallSiteSymbolicDescriptor(methodCall));

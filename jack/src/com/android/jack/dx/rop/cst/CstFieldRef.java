@@ -25,19 +25,6 @@ import javax.annotation.Nonnull;
  * Constants of type {@code CONSTANT_Fieldref_info}.
  */
 public final class CstFieldRef extends CstMemberRef {
-  /**
-   * Returns an instance of this class that represents the static
-   * field which should hold the class corresponding to a given
-   * primitive type. For example, if given {@link Type#INT}, this
-   * method returns an instance corresponding to the field
-   * {@code java.lang.Integer.TYPE}.
-   *
-   * @param primitiveType {@code non-null;} the primitive type
-   * @return {@code non-null;} the corresponding static field
-   */
-  public static CstFieldRef forPrimitiveType(Type primitiveType) {
-    return new CstFieldRef(CstType.forBoxedPrimitiveType(primitiveType), CstNat.PRIMITIVE_TYPE_NAT);
-  }
 
   /**
    * Constructs an instance.
@@ -45,8 +32,8 @@ public final class CstFieldRef extends CstMemberRef {
    * @param definingClass {@code non-null;} the type of the defining class
    * @param nat {@code non-null;} the name-and-type
    */
-  public CstFieldRef(CstType definingClass, CstNat nat) {
-    super(definingClass, nat);
+  public CstFieldRef(CstType definingClass, CstString name, CstNat nat) {
+    super(definingClass, name, nat);
   }
 
   /** {@inheritDoc} */

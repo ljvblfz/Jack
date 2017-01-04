@@ -30,8 +30,8 @@ public final class CstMethodRef extends CstBaseMethodRef {
    * @param definingClass {@code non-null;} the type of the defining class
    * @param nat {@code non-null;} the name-and-type
    */
-  public CstMethodRef(CstType definingClass, CstNat nat) {
-    super(definingClass, nat);
+  public CstMethodRef(CstType definingClass, CstString name, CstNat nat) {
+    super(definingClass, name, nat);
   }
 
   /** {@inheritDoc} */

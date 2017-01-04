@@ -106,7 +106,7 @@ this.field = field;
   /** {@inheritDoc} */
   @Override
   public CstString getName() {
-    return field.getNat().getName();
+    return field.getName();
   }
 
   /** {@inheritDoc} */

@@ -26,13 +26,16 @@ public abstract class CstMemberRef extends TypedConstant {
   /** {@code non-null;} the name-and-type */
   private final CstNat nat;
 
+  /** {@code non-null;} the name */
+  private final CstString name;
+
   /**
    * Constructs an instance.
    *
    * @param definingClass {@code non-null;} the type of the defining class
    * @param nat {@code non-null;} the name-and-type
    */
-  /*package*/CstMemberRef(CstType definingClass, CstNat nat) {
+  /*package*/CstMemberRef(CstType definingClass, CstString name, CstNat nat) {
     if (definingClass == null) {
       throw new NullPointerException("definingClass == null");
     }
@@ -43,6 +46,7 @@ public abstract class CstMemberRef extends TypedConstant {
 
     this.definingClass = definingClass;
     this.nat = nat;
+    this.name = name;
   }
 
   /** {@inheritDoc} */
@@ -53,13 +57,14 @@ public abstract class CstMemberRef extends TypedConstant {
     }
 
     CstMemberRef otherRef = (CstMemberRef) other;
-    return definingClass.equals(otherRef.definingClass) && nat.equals(otherRef.nat);
+    return definingClass.equals(otherRef.definingClass) && name.equals(otherRef.name)
+        && nat.equals(otherRef.nat);
   }
 
   /** {@inheritDoc} */
   @Override
   public final int hashCode() {
-    return (definingClass.hashCode() * 31) ^ nat.hashCode();
+    return ((definingClass.hashCode() * 31) + name.hashCode() * 31) + nat.hashCode();
   }
 
   /**
@@ -78,10 +83,7 @@ public abstract class CstMemberRef extends TypedConstant {
       return cmp;
     }
 
-    CstString thisName = nat.getName();
-    CstString otherName = otherMember.nat.getName();
-
-    return thisName.compareTo(otherName);
+    return name.compareTo(otherMember.name);
   }
 
   /** {@inheritDoc} */
@@ -99,7 +101,7 @@ public abstract class CstMemberRef extends TypedConstant {
   /** {@inheritDoc} */
   @Override
   public final String toHuman() {
-    return definingClass.toHuman() + '.' + nat.toHuman();
+    return definingClass.toHuman() + '.' + name.toHuman() + ':' + nat.toHuman();
   }
 
   /**
@@ -118,5 +120,9 @@ public abstract class CstMemberRef extends TypedConstant {
    */
   public final CstNat getNat() {
     return nat;
+  }
+
+  public CstString getName() {
+    return name;
   }
 }

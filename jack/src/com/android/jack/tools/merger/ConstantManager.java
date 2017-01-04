@@ -143,10 +143,10 @@ public class ConstantManager extends MergerTools {
 
     idx = 0;
     for (FieldId fieldId : dexBuffer.fieldIds()) {
-      CstNat fieldNat = new CstNat(cstIndexMap.getCstString(fieldId.getNameIndex()),
-          cstIndexMap.getCstType(fieldId.getTypeIndex()).getDescriptor());
+      CstNat fieldNat = new CstNat(cstIndexMap.getCstType(fieldId.getTypeIndex()).getDescriptor());
       CstFieldRef cstFieldRef =
-          new CstFieldRef(cstIndexMap.getCstType(fieldId.getDeclaringClassIndex()), fieldNat);
+          new CstFieldRef(cstIndexMap.getCstType(fieldId.getDeclaringClassIndex()),
+              cstIndexMap.getCstString(fieldId.getNameIndex()), fieldNat);
       if (cstFieldRefs.add(cstFieldRef)) {
         cstFieldRefsNewlyAdded.add(cstFieldRef);
       }
@@ -177,10 +177,10 @@ public class ConstantManager extends MergerTools {
         protoStr2CstString.put(protoStr, protoCstString);
       }
 
-      CstNat methNat =
-          new CstNat(cstIndexMap.getCstString(methodId.getNameIndex()), protoCstString);
+      CstNat methNat = new CstNat(protoCstString);
       CstMethodRef cstMethodRef =
-          new CstMethodRef(cstIndexMap.getCstType(methodId.getDeclaringClassIndex()), methNat);
+          new CstMethodRef(cstIndexMap.getCstType(methodId.getDeclaringClassIndex()),
+              cstIndexMap.getCstString(methodId.getNameIndex()), methNat);
       if (cstMethodRefs.add(cstMethodRef)) {
         cstMethodRefsNewlyAdded.add(cstMethodRef);
       }

@@ -78,8 +78,9 @@ public class RopHelper {
   public static CstMethodRef createMethodRef(@Nonnull JReferenceType type,
       @Nonnull JMethod method) {
     CstType definingClass = RopHelper.getCstType(type);
+    CstString name = new CstString(method.getName());
     CstNat nat = createSignature(method);
-    CstMethodRef methodRef = new CstMethodRef(definingClass, nat);
+    CstMethodRef methodRef = new CstMethodRef(definingClass, name, nat);
     return methodRef;
   }
 
@@ -111,9 +112,9 @@ public class RopHelper {
   public static CstMethodRef createMethodRef(@Nonnull JMethodCall methodCall) {
     CstType definingClass = RopHelper.getCstType(methodCall.getReceiverType());
     String signatureWithoutName = getMethodSignatureWithoutName(methodCall);
-    CstNat nat =
-        new CstNat(new CstString(methodCall.getMethodName()), new CstString(signatureWithoutName));
-    CstMethodRef methodRef = new CstMethodRef(definingClass, nat);
+    CstNat nat = new CstNat(new CstString(signatureWithoutName));
+    CstMethodRef methodRef =
+        new CstMethodRef(definingClass, new CstString(methodCall.getMethodName()), nat);
     return methodRef;
   }
 
@@ -133,8 +134,9 @@ public class RopHelper {
   public static CstFieldRef createFieldRef(@Nonnull JFieldId field,
       @Nonnull JClassOrInterface receiverType) {
     CstType definingClass = getCstType(receiverType);
+    CstString name = new CstString(field.getName());
     CstNat nat = createSignature(field);
-    CstFieldRef fieldRef = new CstFieldRef(definingClass, nat);
+    CstFieldRef fieldRef = new CstFieldRef(definingClass, name, nat);
     return fieldRef;
   }
 
@@ -258,9 +260,8 @@ public class RopHelper {
    */
   @Nonnull
   private static CstNat createSignature(@Nonnull JMethod method) {
-    CstString name = new CstString(method.getName());
     CstString descriptor = new CstString(formatter.getName(method));
-    CstNat signature = new CstNat(name, descriptor);
+    CstNat signature = new CstNat(descriptor);
     return signature;
   }
 
@@ -277,11 +278,9 @@ public class RopHelper {
 
   @Nonnull
   public static CstNat createSignature(@Nonnull JFieldId field) {
-    String fieldName = field.getName();
     String fieldSignature = formatter.getName(field.getType());
-    CstString name = new CstString(fieldName);
     CstString descriptor = new CstString(fieldSignature);
-    CstNat signature = new CstNat(name, descriptor);
+    CstNat signature = new CstNat(descriptor);
     return signature;
   }
 

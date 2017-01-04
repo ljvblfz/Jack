@@ -25,16 +25,6 @@ import javax.annotation.Nonnull;
  * Constants of type {@code CONSTANT_NameAndType_info}.
  */
 public final class CstNat extends Constant {
-  /**
-   * {@code non-null;} the instance for name {@code TYPE} and descriptor
-   * {@code java.lang.Class}, which is useful when dealing with
-   * wrapped primitives
-   */
-  public static final CstNat PRIMITIVE_TYPE_NAT =
-      new CstNat(new CstString("TYPE"), new CstString("Ljava/lang/Class;"));
-
-  /** {@code non-null;} the name */
-  private final CstString name;
 
   /** {@code non-null;} the descriptor (type) */
   private final CstString descriptor;
@@ -42,19 +32,10 @@ public final class CstNat extends Constant {
   /**
    * Constructs an instance.
    *
-   * @param name {@code non-null;} the name
    * @param descriptor {@code non-null;} the descriptor
    */
-  public CstNat(CstString name, CstString descriptor) {
-    if (name == null) {
-      throw new NullPointerException("name == null");
-    }
-
-    if (descriptor == null) {
-      throw new NullPointerException("descriptor == null");
-    }
-
-    this.name = name;
+  public CstNat(CstString descriptor) {
+    assert descriptor != null;
     this.descriptor = descriptor;
   }
 
@@ -66,25 +47,19 @@ public final class CstNat extends Constant {
     }
 
     CstNat otherNat = (CstNat) other;
-    return name.equals(otherNat.name) && descriptor.equals(otherNat.descriptor);
+    return descriptor.equals(otherNat.descriptor);
   }
 
   /** {@inheritDoc} */
   @Override
   public int hashCode() {
-    return (name.hashCode() * 31) ^ descriptor.hashCode();
+    return descriptor.hashCode();
   }
 
   /** {@inheritDoc} */
   @Override
   protected int compareTo0(Constant other) {
     CstNat otherNat = (CstNat) other;
-    int cmp = name.compareTo(otherNat.name);
-
-    if (cmp != 0) {
-      return cmp;
-    }
-
     return descriptor.compareTo(otherNat.descriptor);
   }
 
@@ -107,15 +82,6 @@ public final class CstNat extends Constant {
   }
 
   /**
-   * Gets the name.
-   *
-   * @return {@code non-null;} the name
-   */
-  public CstString getName() {
-    return name;
-  }
-
-  /**
    * Gets the descriptor.
    *
    * @return {@code non-null;} the descriptor
@@ -132,7 +98,7 @@ public final class CstNat extends Constant {
    */
   @Override
   public String toHuman() {
-    return name.toHuman() + ':' + descriptor.toHuman();
+    return descriptor.toHuman();
   }
 
   /**

@@ -131,7 +131,7 @@ public final class EncodedMethod extends EncodedMember implements Comparable<Enc
   /** {@inheritDoc} */
   @Override
   public final CstString getName() {
-    return method.getNat().getName();
+    return method.getName();
   }
 
   /** {@inheritDoc} */

@@ -41,8 +41,8 @@ public abstract class CstBaseMethodRef extends CstMemberRef {
    * @param definingClass {@code non-null;} the type of the defining class
    * @param nat {@code non-null;} the name-and-type
    */
-  /*package*/CstBaseMethodRef(CstType definingClass, CstNat nat) {
-    super(definingClass, nat);
+  /*package*/CstBaseMethodRef(CstType definingClass, CstString name, CstNat nat) {
+    super(definingClass, name, nat);
 
     String descriptor = getNat().getDescriptor().getString();
     this.prototype = Prototype.intern(descriptor);

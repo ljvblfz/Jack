@@ -237,10 +237,10 @@ public class InvokeCustomHelper {
     assert type != null;
     BinarySignatureFormatter bsf = BinarySignatureFormatter.getFormatter();
 
-    CstNat nat =
-        new CstNat(new CstString(name.getValue()), new CstString(bsf.getName(type.getRefType())));
+    CstNat nat = new CstNat(new CstString(bsf.getName(type.getRefType())));
 
-    CstFieldRef fieldRef = new CstFieldRef(RopHelper.getCstType(owner.getRefType()), nat);
+    CstFieldRef fieldRef = new CstFieldRef(RopHelper.getCstType(owner.getRefType()),
+        new CstString(name.getValue()), nat);
 
     return new CstMethodHandleRef(kind, fieldRef);
   }
@@ -276,10 +276,10 @@ public class InvokeCustomHelper {
       argumentsTypes = (JArrayLiteral) argumentTypesValuePair.getValue();
     }
     assert argumentsTypes != null;
-    CstNat nat = new CstNat(new CstString(name.getValue()),
-        new CstString(buildSignature(argumentsTypes, returnType)));
+    CstNat nat = new CstNat(new CstString(buildSignature(argumentsTypes, returnType)));
 
-    CstMethodRef methodRef = new CstMethodRef(RopHelper.getCstType(owner.getRefType()), nat);
+    CstMethodRef methodRef = new CstMethodRef(RopHelper.getCstType(owner.getRefType()),
+        new CstString(name.getValue()), nat);
 
     return new CstMethodHandleRef(kind, methodRef);
   }

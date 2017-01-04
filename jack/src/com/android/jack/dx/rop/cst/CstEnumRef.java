@@ -35,8 +35,8 @@ public final class CstEnumRef extends CstMemberRef {
    * @param nat {@code non-null;} the name-and-type; the defining class is derived
    * from this
    */
-  public CstEnumRef(CstNat nat) {
-    super(new CstType(nat.getFieldType()), nat);
+  public CstEnumRef(CstString name, CstNat nat) {
+    super(new CstType(nat.getFieldType()), name, nat);
 
     fieldRef = null;
   }
@@ -64,7 +64,7 @@ public final class CstEnumRef extends CstMemberRef {
    */
   public CstFieldRef getFieldRef() {
     if (fieldRef == null) {
-      fieldRef = new CstFieldRef(getDefiningClass(), getNat());
+      fieldRef = new CstFieldRef(getDefiningClass(), getName(), getNat());
     }
 
     return fieldRef;

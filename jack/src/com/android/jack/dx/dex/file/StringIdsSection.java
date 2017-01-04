@@ -17,7 +17,6 @@
 package com.android.jack.dx.dex.file;
 
 import com.android.jack.dx.rop.cst.Constant;
-import com.android.jack.dx.rop.cst.CstNat;
 import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.util.AnnotatedOutput;
 import com.android.jack.dx.util.Hex;
@@ -147,16 +146,6 @@ public final class StringIdsSection extends UniformItemSection {
 
     strings.put(value, string);
     return string;
-  }
-
-  /**
-   * Interns the components of a name-and-type into this instance.
-   *
-   * @param nat {@code non-null;} the name-and-type
-   */
-  public void intern(CstNat nat) {
-    intern(nat.getName());
-    intern(nat.getDescriptor());
   }
 
   /**
