@@ -16,6 +16,8 @@
 
 package com.android.sched.vfs;
 
+import com.google.common.base.Splitter;
+
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.MessageDigestFactory;
 import com.android.sched.util.config.ThreadConfig;
@@ -47,6 +49,7 @@ import java.nio.file.attribute.FileTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import javax.annotation.CheckForNull;
@@ -84,6 +87,12 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
   public static final BooleanPropertyId DEBUG = BooleanPropertyId.create(
       "sched.vfs.case-insensitive.debug",
       "generate an index file '" + DEBUG_NAME + "' for debugging purpose").addDefaultValue(false);
+
+  @Nonnull
+  private static final char INDEX_SEPARATOR = '/';
+
+  @Nonnull
+  private static final Splitter splitter = Splitter.on(INDEX_SEPARATOR);
 
   @Nonnegative
   private final int numGroups;
@@ -257,10 +266,10 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
           char type = line.charAt(0);
           switch (type) {
             case 'd':
-              root.createVDir(new VPath(line.substring(2), '/'));
+              loadVDir(line.substring(2));
               break;
             case 'f':
-              root.createVFile(new VPath(line.substring(2), '/'));
+              loadVFile(line.substring(2));
               break;
             default:
               throw new BadVFSFormatException(this, vfs.getLocation(),
@@ -268,7 +277,7 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
                       reader.getLineNumber())));
           }
         }
-      } catch (CannotCreateFileException e) {
+      } catch (NotDirectoryException | NotFileException | NoSuchFileException e) {
         throw new BadVFSFormatException(this, vfs.getLocation(), e);
       } catch (IOException e) {
         throw new BadVFSFormatException(this, vfs.getLocation(), e);
@@ -284,6 +293,33 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
         }
       }
     }
+  }
+
+  private void loadVDir(@Nonnull String path) throws NotDirectoryException {
+    CaseInsensitiveVDir currentDir = getRootDir();
+    Iterator<String> pathElementIterator = splitter.split(path).iterator();
+    String pathElement = null;
+    while (pathElementIterator.hasNext()) {
+      pathElement = pathElementIterator.next();
+      assert !pathElement.isEmpty();
+      currentDir = loadVDir(currentDir, pathElement);
+    }
+  }
+
+  private void loadVFile(@Nonnull String path)
+      throws NotDirectoryException, NotFileException, NoSuchFileException {
+    CaseInsensitiveVDir currentDir = getRootDir();
+    Iterator<String> pathElementIterator = splitter.split(path).iterator();
+    String pathElement = null;
+    while (pathElementIterator.hasNext()) {
+      pathElement = pathElementIterator.next();
+      assert !pathElement.isEmpty();
+      if (pathElementIterator.hasNext()) {
+        // simpleName is a dir name
+        currentDir = loadVDir(currentDir, pathElement);
+      }
+    }
+    loadVFile(currentDir, pathElement);
   }
 
   @Override
@@ -347,13 +383,13 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
           CaseInsensitiveVFile file = (CaseInsensitiveVFile) element;
 
           printer.print("f:");
-          printer.print(file.getPath().getPathAsString('/'));
+          printer.print(file.getPath().getPathAsString(INDEX_SEPARATOR));
           printer.println();
         }
       }
     } else {
       printer.print("d:");
-      printer.print(dir.getPath().getPathAsString('/'));
+      printer.print(dir.getPath().getPathAsString(INDEX_SEPARATOR));
       printer.println();
     }
   }
@@ -415,13 +451,9 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
   @Nonnull
   CaseInsensitiveVDir getVDir(@Nonnull CaseInsensitiveVDir parent, @Nonnull String name)
       throws NotDirectoryException, NoSuchFileException {
-    BaseVElement element = parent.getFromCache(name);
-    if (element != null) {
-      if (element.isVDir()) {
-        return (CaseInsensitiveVDir) element;
-      } else {
-        throw new NotDirectoryException(getVDirLocation(parent, name));
-      }
+    CaseInsensitiveVDir vDir = getVDirFromCache(parent, name);
+    if (vDir != null) {
+      return vDir;
     } else {
       throw new NoSuchFileException(getVDirLocation(parent, name));
     }
@@ -431,31 +463,48 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
   @Nonnull
   CaseInsensitiveVFile getVFile(@Nonnull CaseInsensitiveVDir parent, @Nonnull String name)
       throws NotFileException, NoSuchFileException {
-    BaseVElement element = parent.getFromCache(name);
-    if (element != null) {
-      if (!element.isVDir()) {
-        return (CaseInsensitiveVFile) element;
-      } else {
-        throw new NotFileException(getVFileLocation(parent, name));
-      }
+    CaseInsensitiveVFile vFile = getVFileFromCache(parent, name);
+    if (vFile != null) {
+      return vFile;
     } else {
       throw new NoSuchFileException(getVFileLocation(parent, name));
     }
   }
 
+  @CheckForNull
+  CaseInsensitiveVFile getVFileFromCache(@Nonnull CaseInsensitiveVDir parent, @Nonnull String name)
+      throws NotFileException {
+    BaseVElement element = parent.getFromCache(name);
+    if (element == null) {
+      return null;
+    } else if (!element.isVDir()) {
+      return (CaseInsensitiveVFile) element;
+    } else {
+      throw new NotFileException(getVFileLocation(parent, name));
+    }
+  }
+
+  @CheckForNull
+  CaseInsensitiveVDir getVDirFromCache(@Nonnull CaseInsensitiveVDir parent, @Nonnull String name)
+      throws NotDirectoryException {
+    BaseVElement element = parent.getFromCache(name);
+    if (element == null) {
+      return null;
+    } else if (element.isVDir()) {
+      return (CaseInsensitiveVDir) element;
+    } else {
+      throw new NotDirectoryException(getVDirLocation(parent, name));
+    }
+  }
+
   @Override
   @Nonnull
-  synchronized CaseInsensitiveVDir createVDir(@Nonnull CaseInsensitiveVDir parent,
+  CaseInsensitiveVDir createVDir(@Nonnull CaseInsensitiveVDir parent,
       @Nonnull String name) throws CannotCreateFileException {
     assert !isClosed();
 
     try {
-      return getVDir(parent, name);
-
-    } catch (NoSuchFileException e) {
-      CaseInsensitiveVDir dir = new CaseInsensitiveVDir(this, parent, name);
-      parent.putInCache(name, dir);
-      return dir;
+      return loadVDir(parent, name);
     } catch (NotDirectoryException e) {
       throw new CannotCreateFileException(getVDirLocation(parent, name));
     }
@@ -463,23 +512,56 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
 
   @Override
   @Nonnull
-  synchronized CaseInsensitiveVFile createVFile(@Nonnull CaseInsensitiveVDir parent,
-      @Nonnull String name) throws CannotCreateFileException {
+  synchronized CaseInsensitiveVFile createVFile(
+      @Nonnull CaseInsensitiveVDir parent, @Nonnull String name) throws CannotCreateFileException {
+    assert !isClosed();
+    try {
+      CaseInsensitiveVFile vFile = getVFileFromCache(parent, name);
+      if (vFile != null) {
+        return vFile;
+      } else {
+        CaseInsensitiveVFile original = new CaseInsensitiveVFile(this, parent, name);
+        BaseVFile encoded = vfs.getRootDir().createVFile(encode(original.getPath()));
+        original.setEncodedFile(encoded);
+        parent.putInCache(name, original);
+
+        return original;
+      }
+    } catch (NotFileException e) {
+      throw new CannotCreateFileException(getVFileLocation(parent, name));
+    }
+  }
+
+  @Nonnull
+  synchronized CaseInsensitiveVDir loadVDir(
+      @Nonnull CaseInsensitiveVDir parent, @Nonnull String name) throws NotDirectoryException {
     assert !isClosed();
 
-    try {
-      return getVFile(parent, name);
+    CaseInsensitiveVDir vDir = getVDirFromCache(parent, name);
+    if (vDir != null) {
+      return vDir;
+    } else {
+      CaseInsensitiveVDir dir = new CaseInsensitiveVDir(this, parent, name);
+      parent.putInCache(name, dir);
+      return dir;
+    }
+  }
 
-    } catch (NoSuchFileException e) {
-
+  @Nonnull
+  synchronized CaseInsensitiveVFile loadVFile(
+      @Nonnull CaseInsensitiveVDir parent, @Nonnull String name)
+      throws NotFileException, NotDirectoryException, NoSuchFileException {
+    assert !isClosed();
+    CaseInsensitiveVFile vFile = getVFileFromCache(parent, name);
+    if (vFile != null) {
+      return vFile;
+    } else {
       CaseInsensitiveVFile original = new CaseInsensitiveVFile(this, parent, name);
-      BaseVFile encoded = vfs.getRootDir().createVFile(encode(original.getPath()));
+      BaseVFile encoded = vfs.getRootDir().getVFile(encode(original.getPath()));
       original.setEncodedFile(encoded);
       parent.putInCache(name, original);
 
       return original;
-    } catch (NotFileException e) {
-      throw new CannotCreateFileException(getVFileLocation(parent, name));
     }
   }
 
