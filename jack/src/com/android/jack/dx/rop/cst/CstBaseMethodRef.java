@@ -123,28 +123,4 @@ public abstract class CstBaseMethodRef extends CstMemberRef {
   public final int getParameterWordCount(boolean isStatic) {
     return getPrototype(isStatic).getParameterTypes().getWordCount();
   }
-
-  /**
-   * Gets whether this is a reference to an instance initialization
-   * method. This is just a convenient shorthand for
-   * {@code getNat().isInstanceInit()}.
-   *
-   * @return {@code true} iff this is a reference to an
-   * instance initialization method
-   */
-  public final boolean isInstanceInit() {
-    return getNat().isInstanceInit();
-  }
-
-  /**
-   * Gets whether this is a reference to a class initialization
-   * method. This is just a convenient shorthand for
-   * {@code getNat().isClassInit()}.
-   *
-   * @return {@code true} iff this is a reference to an
-   * instance initialization method
-   */
-  public final boolean isClassInit() {
-    return getNat().isClassInit();
-  }
 }

@@ -146,30 +146,6 @@ public final class CstNat extends Constant {
     return Type.intern(descriptor.getString());
   }
 
-  /**
-   * Gets whether this instance has the name of a standard instance
-   * initialization method. This is just a convenient shorthand for
-   * {@code getName().getString().equals("<init>")}.
-   *
-   * @return {@code true} iff this is a reference to an
-   * instance initialization method
-   */
-  public final boolean isInstanceInit() {
-    return name.getString().equals("<init>");
-  }
-
-  /**
-   * Gets whether this instance has the name of a standard class
-   * initialization method. This is just a convenient shorthand for
-   * {@code getName().getString().equals("<clinit>")}.
-   *
-   * @return {@code true} iff this is a reference to an
-   * instance initialization method
-   */
-  public final boolean isClassInit() {
-    return name.getString().equals("<clinit>");
-  }
-
   @Override
   @Nonnull
   public ValueType getEncodedValueType() {
