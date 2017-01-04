@@ -32,17 +32,18 @@ public final class CstEnumRef extends CstMemberRef {
   /**
    * Constructs an instance.
    *
-   * @param nat {@code non-null;} the name-and-type; the defining class is derived
-   * from this
+   * @param name {@code non-null;} the member reference name
+   * @param descriptor {@code non-null;} the member reference descriptor
    */
-  public CstEnumRef(CstString name, CstNat nat) {
-    super(new CstType(nat.getFieldType()), name, nat);
+  public CstEnumRef(@Nonnull CstString name, @Nonnull CstString descriptor) {
+    super(new CstType(Type.intern(descriptor.getString())), name, descriptor);
 
     fieldRef = null;
   }
 
   /** {@inheritDoc} */
   @Override
+  @Nonnull
   public String typeName() {
     return "enum";
   }
@@ -53,6 +54,7 @@ public final class CstEnumRef extends CstMemberRef {
    * <b>Note:</b> This returns the enumerated type.
    */
   @Override
+  @Nonnull
   public Type getType() {
     return getDefiningClass().getClassType();
   }
@@ -62,9 +64,10 @@ public final class CstEnumRef extends CstMemberRef {
    *
    * @return {@code non-null;} the corresponding field reference
    */
+  @Nonnull
   public CstFieldRef getFieldRef() {
     if (fieldRef == null) {
-      fieldRef = new CstFieldRef(getDefiningClass(), getName(), getNat());
+      fieldRef = new CstFieldRef(getDefiningClass(), getName(), getDescriptor());
     }
 
     return fieldRef;

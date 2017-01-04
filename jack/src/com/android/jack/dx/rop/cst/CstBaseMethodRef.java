@@ -19,6 +19,9 @@ package com.android.jack.dx.rop.cst;
 import com.android.jack.dx.rop.type.Prototype;
 import com.android.jack.dx.rop.type.Type;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+
 /**
  * Base class for constants of "methodish" type.
  *
@@ -27,25 +30,27 @@ import com.android.jack.dx.rop.type.Type;
  */
 public abstract class CstBaseMethodRef extends CstMemberRef {
   /** {@code non-null;} the raw prototype for this method */
+  @Nonnull
   private final Prototype prototype;
 
   /**
    * {@code null-ok;} the prototype for this method taken to be an instance
    * method, or {@code null} if not yet calculated
    */
+  @CheckForNull
   private Prototype instancePrototype;
 
   /**
    * Constructs an instance.
    *
    * @param definingClass {@code non-null;} the type of the defining class
-   * @param nat {@code non-null;} the name-and-type
+   * @param name {@code non-null;} the member reference name
+   * @param descriptor {@code non-null;} the member reference descriptor
    */
-  /*package*/CstBaseMethodRef(CstType definingClass, CstString name, CstNat nat) {
-    super(definingClass, name, nat);
-
-    String descriptor = getNat().getDescriptor().getString();
-    this.prototype = Prototype.intern(descriptor);
+  /* package */ CstBaseMethodRef(@Nonnull CstType definingClass, @Nonnull CstString name,
+      @Nonnull CstString descriptor) {
+    super(definingClass, name, descriptor);
+    this.prototype = Prototype.intern(descriptor.getString());
     this.instancePrototype = null;
   }
 
@@ -55,6 +60,7 @@ public abstract class CstBaseMethodRef extends CstMemberRef {
    *
    * @return {@code non-null;} the method prototype
    */
+  @Nonnull
   public final Prototype getPrototype() {
     return prototype;
   }
@@ -70,6 +76,7 @@ public abstract class CstBaseMethodRef extends CstMemberRef {
    * @param isStatic whether the method should be considered static
    * @return {@code non-null;} the method prototype
    */
+  @Nonnull
   public final Prototype getPrototype(boolean isStatic) {
     if (isStatic) {
       return prototype;
@@ -103,6 +110,7 @@ public abstract class CstBaseMethodRef extends CstMemberRef {
    * @return {@code non-null;} the method's return type
    */
   @Override
+  @Nonnull
   public final Type getType() {
     return prototype.getReturnType();
   }

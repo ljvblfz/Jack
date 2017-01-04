@@ -29,15 +29,17 @@ public final class CstFieldRef extends CstMemberRef {
   /**
    * Constructs an instance.
    *
-   * @param definingClass {@code non-null;} the type of the defining class
-   * @param nat {@code non-null;} the name-and-type
+   * @param name {@code non-null;} the member reference name
+   * @param descriptor {@code non-null;} the member reference descriptor
    */
-  public CstFieldRef(CstType definingClass, CstString name, CstNat nat) {
-    super(definingClass, name, nat);
+  public CstFieldRef(@Nonnull CstType definingClass, @Nonnull CstString name,
+      @Nonnull CstString descriptor) {
+    super(definingClass, name, descriptor);
   }
 
   /** {@inheritDoc} */
   @Override
+  @Nonnull
   public String typeName() {
     return "field";
   }
@@ -48,8 +50,9 @@ public final class CstFieldRef extends CstMemberRef {
    * @return {@code non-null;} the field's type
    */
   @Override
+  @Nonnull
   public Type getType() {
-    return getNat().getFieldType();
+    return Type.intern(getDescriptor().getString());
   }
 
   /** {@inheritDoc} */
@@ -62,8 +65,8 @@ public final class CstFieldRef extends CstMemberRef {
     }
 
     CstFieldRef otherField = (CstFieldRef) other;
-    CstString thisDescriptor = getNat().getDescriptor();
-    CstString otherDescriptor = otherField.getNat().getDescriptor();
+    CstString thisDescriptor = getDescriptor();
+    CstString otherDescriptor = otherField.getDescriptor();
     return thisDescriptor.compareTo(otherDescriptor);
   }
 

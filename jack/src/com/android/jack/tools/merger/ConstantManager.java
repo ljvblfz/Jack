@@ -29,7 +29,6 @@ import com.android.jack.dx.rop.cst.CstIndexMap;
 import com.android.jack.dx.rop.cst.CstMethodHandleRef;
 import com.android.jack.dx.rop.cst.CstMethodHandleRef.MethodHandleKind;
 import com.android.jack.dx.rop.cst.CstMethodRef;
-import com.android.jack.dx.rop.cst.CstNat;
 import com.android.jack.dx.rop.cst.CstPrototypeRef;
 import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.rop.cst.CstType;
@@ -143,10 +142,10 @@ public class ConstantManager extends MergerTools {
 
     idx = 0;
     for (FieldId fieldId : dexBuffer.fieldIds()) {
-      CstNat fieldNat = new CstNat(cstIndexMap.getCstType(fieldId.getTypeIndex()).getDescriptor());
       CstFieldRef cstFieldRef =
           new CstFieldRef(cstIndexMap.getCstType(fieldId.getDeclaringClassIndex()),
-              cstIndexMap.getCstString(fieldId.getNameIndex()), fieldNat);
+              cstIndexMap.getCstString(fieldId.getNameIndex()),
+              cstIndexMap.getCstType(fieldId.getTypeIndex()).getDescriptor());
       if (cstFieldRefs.add(cstFieldRef)) {
         cstFieldRefsNewlyAdded.add(cstFieldRef);
       }
@@ -177,10 +176,9 @@ public class ConstantManager extends MergerTools {
         protoStr2CstString.put(protoStr, protoCstString);
       }
 
-      CstNat methNat = new CstNat(protoCstString);
       CstMethodRef cstMethodRef =
           new CstMethodRef(cstIndexMap.getCstType(methodId.getDeclaringClassIndex()),
-              cstIndexMap.getCstString(methodId.getNameIndex()), methNat);
+              cstIndexMap.getCstString(methodId.getNameIndex()), protoCstString);
       if (cstMethodRefs.add(cstMethodRef)) {
         cstMethodRefsNewlyAdded.add(cstMethodRef);
       }

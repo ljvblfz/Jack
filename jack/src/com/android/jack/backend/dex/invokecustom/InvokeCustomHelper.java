@@ -29,7 +29,6 @@ import com.android.jack.dx.rop.cst.CstLong;
 import com.android.jack.dx.rop.cst.CstMethodHandleRef;
 import com.android.jack.dx.rop.cst.CstMethodHandleRef.MethodHandleKind;
 import com.android.jack.dx.rop.cst.CstMethodRef;
-import com.android.jack.dx.rop.cst.CstNat;
 import com.android.jack.dx.rop.cst.CstPrototypeRef;
 import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.rop.cst.TypedConstant;
@@ -237,10 +236,8 @@ public class InvokeCustomHelper {
     assert type != null;
     BinarySignatureFormatter bsf = BinarySignatureFormatter.getFormatter();
 
-    CstNat nat = new CstNat(new CstString(bsf.getName(type.getRefType())));
-
     CstFieldRef fieldRef = new CstFieldRef(RopHelper.getCstType(owner.getRefType()),
-        new CstString(name.getValue()), nat);
+        new CstString(name.getValue()), new CstString(bsf.getName(type.getRefType())));
 
     return new CstMethodHandleRef(kind, fieldRef);
   }
@@ -276,10 +273,9 @@ public class InvokeCustomHelper {
       argumentsTypes = (JArrayLiteral) argumentTypesValuePair.getValue();
     }
     assert argumentsTypes != null;
-    CstNat nat = new CstNat(new CstString(buildSignature(argumentsTypes, returnType)));
 
     CstMethodRef methodRef = new CstMethodRef(RopHelper.getCstType(owner.getRefType()),
-        new CstString(name.getValue()), nat);
+        new CstString(name.getValue()), new CstString(buildSignature(argumentsTypes, returnType)));
 
     return new CstMethodHandleRef(kind, methodRef);
   }

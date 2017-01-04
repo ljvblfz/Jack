@@ -16,36 +16,39 @@
 
 package com.android.jack.dx.rop.cst;
 
+import javax.annotation.Nonnull;
+
 /**
  * Constants of type {@code CONSTANT_*ref_info}.
  */
 public abstract class CstMemberRef extends TypedConstant {
   /** {@code non-null;} the type of the defining class */
+  @Nonnull
   private final CstType definingClass;
 
-  /** {@code non-null;} the name-and-type */
-  private final CstNat nat;
+  /** {@code non-null;} the descriptor (type) */
+  @Nonnull
+  private final CstString descriptor;
 
   /** {@code non-null;} the name */
+  @Nonnull
   private final CstString name;
 
   /**
    * Constructs an instance.
    *
    * @param definingClass {@code non-null;} the type of the defining class
-   * @param nat {@code non-null;} the name-and-type
+   * @param name {@code non-null;} the member reference name
+   * @param descriptor {@code non-null;} the member reference descriptor
    */
-  /*package*/CstMemberRef(CstType definingClass, CstString name, CstNat nat) {
-    if (definingClass == null) {
-      throw new NullPointerException("definingClass == null");
-    }
-
-    if (nat == null) {
-      throw new NullPointerException("nat == null");
-    }
+  /* package */ CstMemberRef(@Nonnull CstType definingClass, @Nonnull CstString name,
+      @Nonnull CstString descriptor) {
+    assert definingClass != null;
+    assert name != null;
+    assert descriptor != null;
 
     this.definingClass = definingClass;
-    this.nat = nat;
+    this.descriptor = descriptor;
     this.name = name;
   }
 
@@ -58,13 +61,13 @@ public abstract class CstMemberRef extends TypedConstant {
 
     CstMemberRef otherRef = (CstMemberRef) other;
     return definingClass.equals(otherRef.definingClass) && name.equals(otherRef.name)
-        && nat.equals(otherRef.nat);
+        && descriptor.equals(otherRef.descriptor);
   }
 
   /** {@inheritDoc} */
   @Override
   public final int hashCode() {
-    return ((definingClass.hashCode() * 31) + name.hashCode() * 31) + nat.hashCode();
+    return ((definingClass.hashCode() * 31) + name.hashCode() * 31) + descriptor.hashCode();
   }
 
   /**
@@ -88,6 +91,7 @@ public abstract class CstMemberRef extends TypedConstant {
 
   /** {@inheritDoc} */
   @Override
+  @Nonnull
   public final String toString() {
     return typeName() + '{' + toHuman() + '}';
   }
@@ -100,8 +104,9 @@ public abstract class CstMemberRef extends TypedConstant {
 
   /** {@inheritDoc} */
   @Override
+  @Nonnull
   public final String toHuman() {
-    return definingClass.toHuman() + '.' + name.toHuman() + ':' + nat.toHuman();
+    return definingClass.toHuman() + '.' + name.toHuman() + ':' + descriptor.toHuman();
   }
 
   /**
@@ -109,19 +114,17 @@ public abstract class CstMemberRef extends TypedConstant {
    *
    * @return {@code non-null;} the type of defining class
    */
+  @Nonnull
   public final CstType getDefiningClass() {
     return definingClass;
   }
 
-  /**
-   * Gets the defining name-and-type.
-   *
-   * @return {@code non-null;} the name-and-type
-   */
-  public final CstNat getNat() {
-    return nat;
+  @Nonnull
+  public CstString getDescriptor() {
+    return descriptor;
   }
 
+  @Nonnull
   public CstString getName() {
     return name;
   }

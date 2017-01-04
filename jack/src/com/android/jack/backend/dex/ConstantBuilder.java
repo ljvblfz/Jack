@@ -32,7 +32,6 @@ import com.android.jack.dx.rop.cst.CstFloat;
 import com.android.jack.dx.rop.cst.CstInteger;
 import com.android.jack.dx.rop.cst.CstKnownNull;
 import com.android.jack.dx.rop.cst.CstLong;
-import com.android.jack.dx.rop.cst.CstNat;
 import com.android.jack.dx.rop.cst.CstShort;
 import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
@@ -101,9 +100,8 @@ public class ConstantBuilder {
 
     @Override
     public boolean visit(@Nonnull JEnumLiteral literal) {
-      CstString name = new CstString(literal.getFieldId().getName());
-      CstNat nat = RopHelper.createSignature(literal.getFieldId());
-      result = new CstEnumRef(name, nat);
+      result = new CstEnumRef(new CstString(literal.getFieldId().getName()),
+          RopHelper.createSignature(literal.getFieldId()));
       return false;
     }
 

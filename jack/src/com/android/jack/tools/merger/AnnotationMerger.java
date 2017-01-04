@@ -37,7 +37,6 @@ import com.android.jack.dx.rop.cst.CstFieldRef;
 import com.android.jack.dx.rop.cst.CstIndexMap;
 import com.android.jack.dx.rop.cst.CstKnownNull;
 import com.android.jack.dx.rop.cst.CstMethodRef;
-import com.android.jack.dx.rop.cst.CstNat;
 import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.util.ByteInput;
@@ -243,9 +242,8 @@ public class AnnotationMerger extends MergerTools {
       } else {
         assert type == ValueType.VALUE_ENUM.getValue();
         FieldId fieldId = dexBuffer.fieldIds().get(index);
-        CstNat fieldNat =
-            new CstNat(new CstString(dexBuffer.typeNames().get(fieldId.getTypeIndex())));
-        constantValue = new CstEnumRef(cstIndexMap.getCstString(fieldId.getNameIndex()), fieldNat);
+        constantValue = new CstEnumRef(cstIndexMap.getCstString(fieldId.getNameIndex()),
+            new CstString(dexBuffer.typeNames().get(fieldId.getTypeIndex())));
       }
     }
 

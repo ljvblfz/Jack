@@ -19,7 +19,6 @@ package com.android.jack.backend.dex.rop;
 import com.android.jack.dx.rop.code.SourcePosition;
 import com.android.jack.dx.rop.cst.CstFieldRef;
 import com.android.jack.dx.rop.cst.CstMethodRef;
-import com.android.jack.dx.rop.cst.CstNat;
 import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.StdTypeList;
@@ -79,8 +78,8 @@ public class RopHelper {
       @Nonnull JMethod method) {
     CstType definingClass = RopHelper.getCstType(type);
     CstString name = new CstString(method.getName());
-    CstNat nat = createSignature(method);
-    CstMethodRef methodRef = new CstMethodRef(definingClass, name, nat);
+    CstMethodRef methodRef =
+        new CstMethodRef(definingClass, name, new CstString(formatter.getName(method)));
     return methodRef;
   }
 
@@ -112,9 +111,8 @@ public class RopHelper {
   public static CstMethodRef createMethodRef(@Nonnull JMethodCall methodCall) {
     CstType definingClass = RopHelper.getCstType(methodCall.getReceiverType());
     String signatureWithoutName = getMethodSignatureWithoutName(methodCall);
-    CstNat nat = new CstNat(new CstString(signatureWithoutName));
-    CstMethodRef methodRef =
-        new CstMethodRef(definingClass, new CstString(methodCall.getMethodName()), nat);
+    CstMethodRef methodRef = new CstMethodRef(definingClass,
+        new CstString(methodCall.getMethodName()), new CstString(signatureWithoutName));
     return methodRef;
   }
 
@@ -135,8 +133,8 @@ public class RopHelper {
       @Nonnull JClassOrInterface receiverType) {
     CstType definingClass = getCstType(receiverType);
     CstString name = new CstString(field.getName());
-    CstNat nat = createSignature(field);
-    CstFieldRef fieldRef = new CstFieldRef(definingClass, name, nat);
+    CstString descriptor = createSignature(field);
+    CstFieldRef fieldRef = new CstFieldRef(definingClass, name, descriptor);
     return fieldRef;
   }
 
@@ -252,36 +250,11 @@ public class RopHelper {
     }
   }
 
-  /**
-   * Builds a constant name and type ({@code CstNat}) from a {@code JMethod}
-   *
-   * @param method The {@code JMethod} used to build a {@code CstNat}.
-   * @return The built {@code CstNat}.
-   */
   @Nonnull
-  private static CstNat createSignature(@Nonnull JMethod method) {
-    CstString descriptor = new CstString(formatter.getName(method));
-    CstNat signature = new CstNat(descriptor);
-    return signature;
-  }
-
-  /**
-   * Builds a constant name and type ({@code CstNat}) from a {@code JField}
-   *
-   * @param field The {@code JField} used to build a {@code CstNat}.
-   * @return The built {@code CstNat}.
-   */
-  @Nonnull
-  public static CstNat createSignature(@Nonnull JField field) {
-    return createSignature(field.getId());
-  }
-
-  @Nonnull
-  public static CstNat createSignature(@Nonnull JFieldId field) {
+  public static CstString createSignature(@Nonnull JFieldId field) {
     String fieldSignature = formatter.getName(field.getType());
     CstString descriptor = new CstString(fieldSignature);
-    CstNat signature = new CstNat(descriptor);
-    return signature;
+    return descriptor;
   }
 
   /**

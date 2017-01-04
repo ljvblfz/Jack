@@ -46,7 +46,6 @@ import com.android.jack.dx.rop.cst.CstLiteral32;
 import com.android.jack.dx.rop.cst.CstLiteral64;
 import com.android.jack.dx.rop.cst.CstLong;
 import com.android.jack.dx.rop.cst.CstMethodRef;
-import com.android.jack.dx.rop.cst.CstNat;
 import com.android.jack.dx.rop.cst.CstPrototypeRef;
 import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.rop.cst.CstType;
@@ -1188,9 +1187,8 @@ class RopBuilderVisitor extends JVisitor {
       @Nonnull JPolymorphicMethodCall methodCall) {
     CstType definingClass = RopHelper.getCstType(methodCall.getReceiverType());
     String signatureWithoutName = RopHelper.getMethodSignatureWithoutName(methodCall);
-    CstNat nat = new CstNat(new CstString(signatureWithoutName));
-    CstMethodRef methodRef =
-        new CstMethodRef(definingClass, new CstString(methodCall.getMethodName()), nat);
+    CstMethodRef methodRef = new CstMethodRef(definingClass,
+        new CstString(methodCall.getMethodName()), new CstString(signatureWithoutName));
     SourcePosition methodCallSrcPos = RopHelper.getSourcePosition(methodCall);
     Prototype prototype =
         Prototype.intern(RopHelper.getPolymorphicCallSiteSymbolicDescriptor(methodCall));

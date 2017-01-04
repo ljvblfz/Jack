@@ -24,18 +24,22 @@ import javax.annotation.Nonnull;
  * Constants of type {@code CONSTANT_Methodref_info}.
  */
 public final class CstMethodRef extends CstBaseMethodRef {
+
   /**
    * Constructs an instance.
    *
    * @param definingClass {@code non-null;} the type of the defining class
-   * @param nat {@code non-null;} the name-and-type
+   * @param name {@code non-null;} the member reference name
+   * @param descriptor {@code non-null;} the member reference descriptor
    */
-  public CstMethodRef(CstType definingClass, CstString name, CstNat nat) {
-    super(definingClass, name, nat);
+  public CstMethodRef(@Nonnull CstType definingClass, @Nonnull CstString name,
+      @Nonnull CstString descriptor) {
+    super(definingClass, name, descriptor);
   }
 
   /** {@inheritDoc} */
   @Override
+  @Nonnull
   public String typeName() {
     return "method";
   }
