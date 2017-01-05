@@ -26,10 +26,6 @@ public abstract class CstMemberRef extends TypedConstant {
   @Nonnull
   private final CstType definingClass;
 
-  /** {@code non-null;} the descriptor (type) */
-  @Nonnull
-  private final CstString descriptor;
-
   /** {@code non-null;} the name */
   @Nonnull
   private final CstString name;
@@ -39,35 +35,13 @@ public abstract class CstMemberRef extends TypedConstant {
    *
    * @param definingClass {@code non-null;} the type of the defining class
    * @param name {@code non-null;} the member reference name
-   * @param descriptor {@code non-null;} the member reference descriptor
    */
-  /* package */ CstMemberRef(@Nonnull CstType definingClass, @Nonnull CstString name,
-      @Nonnull CstString descriptor) {
+  /* package */ CstMemberRef(@Nonnull CstType definingClass, @Nonnull CstString name) {
     assert definingClass != null;
     assert name != null;
-    assert descriptor != null;
 
     this.definingClass = definingClass;
-    this.descriptor = descriptor;
     this.name = name;
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public final boolean equals(Object other) {
-    if ((other == null) || (getClass() != other.getClass())) {
-      return false;
-    }
-
-    CstMemberRef otherRef = (CstMemberRef) other;
-    return definingClass.equals(otherRef.definingClass) && name.equals(otherRef.name)
-        && descriptor.equals(otherRef.descriptor);
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public final int hashCode() {
-    return ((definingClass.hashCode() * 31) + name.hashCode() * 31) + descriptor.hashCode();
   }
 
   /**
@@ -102,13 +76,6 @@ public abstract class CstMemberRef extends TypedConstant {
     return false;
   }
 
-  /** {@inheritDoc} */
-  @Override
-  @Nonnull
-  public final String toHuman() {
-    return definingClass.toHuman() + '.' + name.toHuman() + ':' + descriptor.toHuman();
-  }
-
   /**
    * Gets the type of the defining class.
    *
@@ -117,11 +84,6 @@ public abstract class CstMemberRef extends TypedConstant {
   @Nonnull
   public final CstType getDefiningClass() {
     return definingClass;
-  }
-
-  @Nonnull
-  public CstString getDescriptor() {
-    return descriptor;
   }
 
   @Nonnull

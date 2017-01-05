@@ -66,9 +66,6 @@ public class ConstantManager extends MergerTools {
   private final HashSet<CstType> cstTypes = new HashSet<CstType>();
 
   @Nonnull
-  private final Map<String, CstString> protoStr2CstString = new HashMap<String, CstString>();
-
-  @Nonnull
   private final HashSet<CstMethodHandleRef> cstMethodHandleRefs = new HashSet<CstMethodHandleRef>();
 
   @Nonnull
@@ -145,7 +142,7 @@ public class ConstantManager extends MergerTools {
       CstFieldRef cstFieldRef =
           new CstFieldRef(cstIndexMap.getCstType(fieldId.getDeclaringClassIndex()),
               cstIndexMap.getCstString(fieldId.getNameIndex()),
-              cstIndexMap.getCstType(fieldId.getTypeIndex()).getDescriptor());
+              cstIndexMap.getCstType(fieldId.getTypeIndex()));
       if (cstFieldRefs.add(cstFieldRef)) {
         cstFieldRefsNewlyAdded.add(cstFieldRef);
       }
@@ -169,16 +166,12 @@ public class ConstantManager extends MergerTools {
 
     for (MethodId methodId : dexBuffer.methodIds()) {
       int protoIdx = methodId.getProtoIndex();
-      String protoStr = cstIndexMap.getCstPrototype(protoIdx).toHuman();
-      CstString protoCstString = protoStr2CstString.get(protoStr);
-      if (protoCstString == null) {
-        protoCstString = new CstString(protoStr);
-        protoStr2CstString.put(protoStr, protoCstString);
-      }
 
       CstMethodRef cstMethodRef =
           new CstMethodRef(cstIndexMap.getCstType(methodId.getDeclaringClassIndex()),
-              cstIndexMap.getCstString(methodId.getNameIndex()), protoCstString);
+              cstIndexMap.getCstString(methodId.getNameIndex()),
+              cstIndexMap.getCstPrototype(protoIdx).getPrototype());
+
       if (cstMethodRefs.add(cstMethodRef)) {
         cstMethodRefsNewlyAdded.add(cstMethodRef);
       }

@@ -21,6 +21,7 @@ import com.android.jack.dx.rop.cst.CstFieldRef;
 import com.android.jack.dx.rop.cst.CstMethodRef;
 import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.rop.cst.CstType;
+import com.android.jack.dx.rop.type.Prototype;
 import com.android.jack.dx.rop.type.StdTypeList;
 import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.rop.type.TypeList;
@@ -30,6 +31,7 @@ import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JFieldId;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
+import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JNullType;
 import com.android.jack.ir.ast.JParameter;
@@ -76,10 +78,8 @@ public class RopHelper {
   @Nonnull
   public static CstMethodRef createMethodRef(@Nonnull JReferenceType type,
       @Nonnull JMethod method) {
-    CstType definingClass = RopHelper.getCstType(type);
-    CstString name = new CstString(method.getName());
-    CstMethodRef methodRef =
-        new CstMethodRef(definingClass, name, new CstString(formatter.getName(method)));
+    CstMethodRef methodRef = new CstMethodRef(RopHelper.getCstType(type),
+        new CstString(method.getName()), getPrototype(method.getMethodId()));
     return methodRef;
   }
 
@@ -110,9 +110,8 @@ public class RopHelper {
   @Nonnull
   public static CstMethodRef createMethodRef(@Nonnull JMethodCall methodCall) {
     CstType definingClass = RopHelper.getCstType(methodCall.getReceiverType());
-    String signatureWithoutName = getMethodSignatureWithoutName(methodCall);
     CstMethodRef methodRef = new CstMethodRef(definingClass,
-        new CstString(methodCall.getMethodName()), new CstString(signatureWithoutName));
+        new CstString(methodCall.getMethodName()), getPrototype(methodCall.getMethodId()));
     return methodRef;
   }
 
@@ -133,8 +132,7 @@ public class RopHelper {
       @Nonnull JClassOrInterface receiverType) {
     CstType definingClass = getCstType(receiverType);
     CstString name = new CstString(field.getName());
-    CstString descriptor = createSignature(field);
-    CstFieldRef fieldRef = new CstFieldRef(definingClass, name, descriptor);
+    CstFieldRef fieldRef = new CstFieldRef(definingClass, name, getCstType(field.getType()));
     return fieldRef;
   }
 
@@ -162,34 +160,31 @@ public class RopHelper {
     return res;
   }
 
-  @Nonnull
-  public static String getMethodSignatureWithoutName(@Nonnull JPolymorphicMethodCall call) {
-    StringBuilder sb = new StringBuilder();
-    sb.append('(');
 
-    for (JType p : call.getMethodIdWide().getParamTypes()) {
-      sb.append(formatter.getName(p));
+  @Nonnull
+  public static Prototype getPrototype(@Nonnull JMethodId method) {
+    List<JType> parameterTypes = method.getMethodIdWide().getParamTypes();
+    StdTypeList stdTypeList = new StdTypeList(parameterTypes.size());
+
+    int idx = 0;
+    for (JType parameterType : parameterTypes) {
+      stdTypeList.set(idx++, convertTypeToDx(parameterType));
     }
 
-    sb.append(')');
-    sb.append(formatter.getName(call.getReturnTypeOfPolymorphicMethod()));
-
-    return sb.toString();
+    return Prototype.intern(stdTypeList, convertTypeToDx(method.getType()));
   }
 
   @Nonnull
-  public static String getMethodSignatureWithoutName(@Nonnull JMethodCall call) {
-    StringBuilder sb = new StringBuilder();
-    sb.append('(');
+  public static Prototype getPrototypeFromPolymorphicCall(@Nonnull JPolymorphicMethodCall call) {
+    List<JType> parameterTypes = call.getMethodIdWide().getParamTypes();
+    StdTypeList stdTypeList = new StdTypeList(parameterTypes.size());
 
-    for (JType p : call.getMethodIdWide().getParamTypes()) {
-      sb.append(formatter.getName(p));
+    int idx = 0;
+    for (JType parameterType : parameterTypes) {
+      stdTypeList.set(idx++, convertTypeToDx(parameterType));
     }
 
-    sb.append(')');
-    sb.append(formatter.getName(call.getType()));
-
-    return sb.toString();
+    return Prototype.intern(stdTypeList, convertTypeToDx(call.getReturnTypeOfPolymorphicMethod()));
   }
 
   /**

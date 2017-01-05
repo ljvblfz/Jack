@@ -17,6 +17,7 @@
 package com.android.jack.dx.rop.cst;
 
 import com.android.jack.dx.dex.file.ValueEncoder.ValueType;
+import com.android.jack.dx.rop.type.Prototype;
 
 import javax.annotation.Nonnull;
 
@@ -30,11 +31,11 @@ public final class CstMethodRef extends CstBaseMethodRef {
    *
    * @param definingClass {@code non-null;} the type of the defining class
    * @param name {@code non-null;} the member reference name
-   * @param descriptor {@code non-null;} the member reference descriptor
+   * @param prototype {@code non-null;} the member reference prototype
    */
   public CstMethodRef(@Nonnull CstType definingClass, @Nonnull CstString name,
-      @Nonnull CstString descriptor) {
-    super(definingClass, name, descriptor);
+      @Nonnull Prototype prototype) {
+    super(definingClass, name, prototype);
   }
 
   /** {@inheritDoc} */

@@ -101,7 +101,7 @@ public class ConstantBuilder {
     @Override
     public boolean visit(@Nonnull JEnumLiteral literal) {
       result = new CstEnumRef(new CstString(literal.getFieldId().getName()),
-          RopHelper.createSignature(literal.getFieldId()));
+          RopHelper.getCstType(literal.getType()));
       return false;
     }
 

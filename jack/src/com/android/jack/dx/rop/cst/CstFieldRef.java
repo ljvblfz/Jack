@@ -26,15 +26,21 @@ import javax.annotation.Nonnull;
  */
 public final class CstFieldRef extends CstMemberRef {
 
+  /** {@code non-null;} the field type */
+  @Nonnull
+  private final CstType type;
+
   /**
    * Constructs an instance.
    *
+   * @param definingClass {@code non-null;} the type of the defining class
    * @param name {@code non-null;} the member reference name
-   * @param descriptor {@code non-null;} the member reference descriptor
+   * @param type {@code non-null;} the member reference type
    */
   public CstFieldRef(@Nonnull CstType definingClass, @Nonnull CstString name,
-      @Nonnull CstString descriptor) {
-    super(definingClass, name, descriptor);
+      @Nonnull CstType type) {
+    super(definingClass, name);
+    this.type = type;
   }
 
   /** {@inheritDoc} */
@@ -52,7 +58,7 @@ public final class CstFieldRef extends CstMemberRef {
   @Override
   @Nonnull
   public Type getType() {
-    return Type.intern(getDescriptor().getString());
+    return type.getClassType();
   }
 
   /** {@inheritDoc} */
@@ -65,14 +71,38 @@ public final class CstFieldRef extends CstMemberRef {
     }
 
     CstFieldRef otherField = (CstFieldRef) other;
-    CstString thisDescriptor = getDescriptor();
-    CstString otherDescriptor = otherField.getDescriptor();
-    return thisDescriptor.compareTo(otherDescriptor);
+    return type.compareTo(otherField.type);
   }
 
   @Override
   @Nonnull
   public ValueType getEncodedValueType() {
     return ValueType.VALUE_FIELD;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public final boolean equals(Object other) {
+    if ((other == null) || (getClass() != other.getClass())) {
+      return false;
+    }
+
+    CstFieldRef otherRef = (CstFieldRef) other;
+    return getDefiningClass().equals(otherRef.getDefiningClass())
+        && getName().equals(otherRef.getName()) && type.equals(otherRef.type);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public final int hashCode() {
+    return ((getDefiningClass().hashCode() * 31) + getName().hashCode() * 31)
+        + getType().hashCode();
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  @Nonnull
+  public final String toHuman() {
+    return getDefiningClass().toHuman() + '.' + getName().toHuman() + ':' + type.toHuman();
   }
 }

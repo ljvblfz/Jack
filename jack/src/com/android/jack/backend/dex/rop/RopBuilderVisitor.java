@@ -1186,9 +1186,9 @@ class RopBuilderVisitor extends JVisitor {
   private void buildInvokePolymorphic(@CheckForNull RegisterSpec result,
       @Nonnull JPolymorphicMethodCall methodCall) {
     CstType definingClass = RopHelper.getCstType(methodCall.getReceiverType());
-    String signatureWithoutName = RopHelper.getMethodSignatureWithoutName(methodCall);
-    CstMethodRef methodRef = new CstMethodRef(definingClass,
-        new CstString(methodCall.getMethodName()), new CstString(signatureWithoutName));
+    CstMethodRef methodRef =
+        new CstMethodRef(definingClass, new CstString(methodCall.getMethodName()),
+            RopHelper.getPrototypeFromPolymorphicCall(methodCall));
     SourcePosition methodCallSrcPos = RopHelper.getSourcePosition(methodCall);
     Prototype prototype =
         Prototype.intern(RopHelper.getPolymorphicCallSiteSymbolicDescriptor(methodCall));
@@ -1245,10 +1245,9 @@ class RopBuilderVisitor extends JVisitor {
       return;
     }
 
-    String signatureWithoutName = RopHelper.getMethodSignatureWithoutName(methodCall);
     SourcePosition methodCallSrcPos = RopHelper.getSourcePosition(methodCall);
 
-    Prototype prototype = Prototype.intern(signatureWithoutName);
+    Prototype prototype = RopHelper.getPrototype(methodCall.getMethodId());
 
     RegisterSpecList sources;
     int paramIndex = 0;

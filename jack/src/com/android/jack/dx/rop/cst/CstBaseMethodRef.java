@@ -45,12 +45,12 @@ public abstract class CstBaseMethodRef extends CstMemberRef {
    *
    * @param definingClass {@code non-null;} the type of the defining class
    * @param name {@code non-null;} the member reference name
-   * @param descriptor {@code non-null;} the member reference descriptor
+   * @param prototype {@code non-null;} the member reference prototype
    */
   /* package */ CstBaseMethodRef(@Nonnull CstType definingClass, @Nonnull CstString name,
-      @Nonnull CstString descriptor) {
-    super(definingClass, name, descriptor);
-    this.prototype = Prototype.intern(descriptor.getString());
+      @Nonnull Prototype prototype) {
+    super(definingClass, name);
+    this.prototype = prototype;
     this.instancePrototype = null;
   }
 
@@ -130,5 +130,31 @@ public abstract class CstBaseMethodRef extends CstMemberRef {
    */
   public final int getParameterWordCount(boolean isStatic) {
     return getPrototype(isStatic).getParameterTypes().getWordCount();
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public final boolean equals(Object other) {
+    if ((other == null) || (getClass() != other.getClass())) {
+      return false;
+    }
+
+    CstBaseMethodRef otherRef = (CstBaseMethodRef) other;
+    return getDefiningClass().equals(otherRef.getDefiningClass())
+        && getName().equals(otherRef.getName()) && prototype.equals(otherRef.prototype);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public final int hashCode() {
+    return ((getDefiningClass().hashCode() * 31) + getName().hashCode() * 31)
+        + getType().hashCode();
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  @Nonnull
+  public final String toHuman() {
+    return getDefiningClass().toHuman() + '.' + getName().toHuman() + ':' + prototype.toString();
   }
 }

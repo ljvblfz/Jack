@@ -243,7 +243,7 @@ public class AnnotationMerger extends MergerTools {
         assert type == ValueType.VALUE_ENUM.getValue();
         FieldId fieldId = dexBuffer.fieldIds().get(index);
         constantValue = new CstEnumRef(cstIndexMap.getCstString(fieldId.getNameIndex()),
-            new CstString(dexBuffer.typeNames().get(fieldId.getTypeIndex())));
+            cstIndexMap.getCstType(fieldId.getTypeIndex()));
       }
     }
 

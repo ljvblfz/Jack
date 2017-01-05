@@ -33,10 +33,10 @@ public final class CstEnumRef extends CstMemberRef {
    * Constructs an instance.
    *
    * @param name {@code non-null;} the member reference name
-   * @param descriptor {@code non-null;} the member reference descriptor
+   * @param type {@code non-null;} the member reference type
    */
-  public CstEnumRef(@Nonnull CstString name, @Nonnull CstString descriptor) {
-    super(new CstType(Type.intern(descriptor.getString())), name, descriptor);
+  public CstEnumRef(@Nonnull CstString name, @Nonnull CstType type) {
+    super(type, name);
 
     fieldRef = null;
   }
@@ -67,7 +67,7 @@ public final class CstEnumRef extends CstMemberRef {
   @Nonnull
   public CstFieldRef getFieldRef() {
     if (fieldRef == null) {
-      fieldRef = new CstFieldRef(getDefiningClass(), getName(), getDescriptor());
+      fieldRef = new CstFieldRef(getDefiningClass(), getName(), getDefiningClass());
     }
 
     return fieldRef;
@@ -77,5 +77,31 @@ public final class CstEnumRef extends CstMemberRef {
   @Nonnull
   public ValueType getEncodedValueType() {
     return ValueType.VALUE_ENUM;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public final boolean equals(Object other) {
+    if ((other == null) || (getClass() != other.getClass())) {
+      return false;
+    }
+
+    CstEnumRef otherRef = (CstEnumRef) other;
+    return getDefiningClass().equals(otherRef.getDefiningClass())
+        && getName().equals(otherRef.getName()) && getType().equals(otherRef.getType());
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public final int hashCode() {
+    return ((getDefiningClass().hashCode() * 31) + getName().hashCode() * 31)
+        + getType().hashCode();
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  @Nonnull
+  public final String toHuman() {
+    return getDefiningClass().toHuman() + '.' + getName().toHuman() + ':' + getType().toHuman();
   }
 }
