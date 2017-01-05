@@ -16,7 +16,10 @@
 
 package com.android.jack.optimizations.ssa;
 
+import com.android.jack.Options;
+import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.ir.ast.JExpression;
+import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JSsaVariableRef;
 import com.android.jack.ir.ast.cfg.JBasicBlock;
 import com.android.jack.ir.ast.cfg.JBasicBlockElement;
@@ -33,56 +36,120 @@ import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
+import com.android.sched.util.config.ThreadConfig;
+
+import javax.annotation.Nonnull;
 
 /**
- * Remove unnecessary Phi nodes.
+ * This is a pass that performs copy propagation based on SSA values. The final output should
+ * reminds SSA valid.
+ *
+ * Based somewhat around DX's SSA rename algorithm, which performs copy propagation during
+ * construction, this pass only a sparse analysis on the Phi nodes and SSA variable references.
  */
-@Description("CopyPropagation")
+@Description("Copy Propagation of Locals")
 @Name("CopyPropagation")
 @Constraint(need = {JPhiBlockElement.class, JSsaVariableRef.class})
 @Transform(modify = {JPhiBlockElement.class, JSsaVariableRef.class})
 @Filter(TypeWithoutPrebuiltFilter.class)
 public class CopyPropagation implements RunnableSchedulable<JControlFlowGraph> {
+
+  private final boolean emitSyntheticLocalDebugInfo =
+      ThreadConfig.get(CodeItemBuilder.EMIT_SYNTHETIC_LOCAL_DEBUG_INFO).booleanValue();
+  private final boolean emitLocalDebugInfo =
+      ThreadConfig.get(Options.EMIT_LOCAL_DEBUG_INFO).booleanValue();
+
+  @Nonnull
+  private final com.android.jack.util.filter.Filter<JMethod> filter =
+      ThreadConfig.get(Options.METHOD_FILTER);
+
   @Override
   public void run(JControlFlowGraph cfg) {
+    JMethod method = cfg.getMethod();
+    if (method.isNative() || method.isAbstract() || !filter.accept(this.getClass(), method)) {
+      return;
+    }
+
     boolean changed;
     do {
       changed = false;
-      TransformationRequest tr = new TransformationRequest(cfg);
       for (JBasicBlock bb : cfg.getAllBlocksUnordered()) {
         for (JBasicBlockElement e : bb.getElements(true)) {
           if (e instanceof JVariableAsgBlockElement) {
-            JVariableAsgBlockElement assign = (JVariableAsgBlockElement) e;
-            JExpression lhs = assign.getAssignment().getLhs();
-            JExpression rhs = assign.getAssignment().getRhs();
-            if (rhs instanceof JSsaVariableRef) {
-              JSsaVariableRef rhsVarRef = (JSsaVariableRef) rhs;
-              if (rhsVarRef.getVersion() > 0) {
-                propagateVarRef((JSsaVariableRef) lhs, rhsVarRef, tr);
-                ((JRegularBasicBlock) bb).removeElement(assign);
-                changed = true;
-              }
-            }
-          }
-
-          if (e instanceof JPhiBlockElement) {
-            JPhiBlockElement phi = (JPhiBlockElement) e;
-            JSsaVariableRef rhs = canPropagatePhi(phi);
-            if (rhs != null) {
-              propagateVarRef(phi.getLhs(), rhs, tr);
-              ((JRegularBasicBlock) bb).removeElement(phi);
-              changed = true;
-            }
+            changed = tryPropagateAssignment((JVariableAsgBlockElement) e, cfg);
+          } else if (e instanceof JPhiBlockElement) {
+            changed = tryPropagatePhi((JPhiBlockElement) e, cfg);
           }
         }
-      }
-      if (changed) {
-        tr.commit();
       }
     } while (changed);
   }
 
-  public void propagateVarRef(JSsaVariableRef lhs, JSsaVariableRef rhs, TransformationRequest tr) {
+  private boolean shouldKeepVariable(JSsaVariableRef varRef) {
+    if (varRef.getTarget().isSynthetic()) {
+      return emitSyntheticLocalDebugInfo;
+    } else {
+      return emitLocalDebugInfo;
+    }
+  }
+
+  /**
+   * If we have an assignment a = b, we try to replace all access of 'a' to 'b' when possible.
+   *
+   * @return true if an optimizations was performed.
+   */
+  private boolean tryPropagateAssignment(JVariableAsgBlockElement assign, JControlFlowGraph cfg) {
+    JExpression lhs = assign.getAssignment().getLhs();
+    JExpression rhs = assign.getAssignment().getRhs();
+    if (!(rhs instanceof JSsaVariableRef)) {
+      return false;
+    }
+
+    JSsaVariableRef rhsVarRef = (JSsaVariableRef) rhs;
+    JSsaVariableRef lhsVarRef = (JSsaVariableRef) lhs;
+
+    // Check for debug build. Make sure we are keeping locals if that's the case.
+    if (shouldKeepVariable(lhsVarRef)) {
+      return false;
+    }
+
+    // We don't propagate unreachable values.
+    if (rhsVarRef.getVersion() == 0) {
+      return false;
+    }
+
+    TransformationRequest tr = new TransformationRequest(cfg);
+    propagateVarRef(lhsVarRef, rhsVarRef, tr);
+    ((JRegularBasicBlock) assign.getBasicBlock()).removeElement(assign);
+    tr.commit();
+    return true;
+  }
+
+  private boolean tryPropagatePhi(JPhiBlockElement phi, JControlFlowGraph cfg) {
+    JSsaVariableRef rhsVarRef = canPropagatePhi(phi);
+    JSsaVariableRef lhsVarRef = phi.getLhs();
+
+    // Check for debug build. Make sure we are keeping locals if that's the case.
+    if (shouldKeepVariable(lhsVarRef)) {
+      return false;
+    }
+
+    // Not every path is the same variable.
+    if (rhsVarRef == null) {
+      return false;
+    }
+
+    TransformationRequest tr = new TransformationRequest(cfg);
+    propagateVarRef(phi.getLhs(), rhsVarRef, tr);
+    tr.commit();
+    ((JRegularBasicBlock) phi.getBasicBlock()).removeElement(phi);
+    return true;
+  }
+
+  /**
+   * Replace all the references to the lhs JSsaVariableRef with a new rhs JSsaVariableRef.
+   */
+  private void propagateVarRef(JSsaVariableRef lhs, JSsaVariableRef rhs, TransformationRequest tr) {
     JSsaVariableRef def = rhs.getDef();
     for (JSsaVariableRef oldUse : lhs.getUses()) {
       JSsaVariableRef newUse = def.makeRef(oldUse.getSourceInfo());
@@ -91,6 +158,12 @@ public class CopyPropagation implements RunnableSchedulable<JControlFlowGraph> {
     }
   }
 
+  /**
+   * If we have a = phi(b,b,b,b), it is ok with replace a with b.
+   *
+   * @return The right hand side values that the left hand side should be replaced with. Otherwise
+   *         null.
+   */
   public JSsaVariableRef canPropagatePhi(JPhiBlockElement e) {
     JSsaVariableRef first = e.getRhs(e.getBasicBlock().getPredecessors().get(0));
     assert first != null;
