@@ -27,7 +27,6 @@ import com.android.jack.dx.rop.cst.CstInteger;
 import com.android.jack.dx.rop.cst.CstKnownNull;
 import com.android.jack.dx.rop.cst.CstMethodRef;
 import com.android.jack.dx.rop.cst.CstString;
-import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.rop.type.TypeList;
 
@@ -36,28 +35,25 @@ import com.android.jack.dx.rop.type.TypeList;
  */
 public final class AnnotationUtils {
   /** {@code non-null;} type for {@code AnnotationDefault} annotations */
-  private static final CstType ANNOTATION_DEFAULT_TYPE =
-      CstType.intern(Type.intern("Ldalvik/annotation/AnnotationDefault;"));
+  private static final Type ANNOTATION_DEFAULT_TYPE =
+      Type.intern("Ldalvik/annotation/AnnotationDefault;");
 
   /** {@code non-null;} type for {@code EnclosingClass} annotations */
-  private static final CstType ENCLOSING_CLASS_TYPE =
-      CstType.intern(Type.intern("Ldalvik/annotation/EnclosingClass;"));
+  private static final Type ENCLOSING_CLASS_TYPE =
+      Type.intern("Ldalvik/annotation/EnclosingClass;");
 
   /** {@code non-null;} type for {@code EnclosingMethod} annotations */
-  private static final CstType ENCLOSING_METHOD_TYPE =
-      CstType.intern(Type.intern("Ldalvik/annotation/EnclosingMethod;"));
+  private static final Type ENCLOSING_METHOD_TYPE =
+      Type.intern("Ldalvik/annotation/EnclosingMethod;");
 
   /** {@code non-null;} type for {@code InnerClass} annotations */
-  private static final CstType INNER_CLASS_TYPE =
-      CstType.intern(Type.intern("Ldalvik/annotation/InnerClass;"));
+  private static final Type INNER_CLASS_TYPE = Type.intern("Ldalvik/annotation/InnerClass;");
 
   /** {@code non-null;} type for {@code MemberClasses} annotations */
-  private static final CstType MEMBER_CLASSES_TYPE =
-      CstType.intern(Type.intern("Ldalvik/annotation/MemberClasses;"));
+  private static final Type MEMBER_CLASSES_TYPE = Type.intern("Ldalvik/annotation/MemberClasses;");
 
   /** {@code non-null;} type for {@code Throws} annotations */
-  private static final CstType THROWS_TYPE =
-      CstType.intern(Type.intern("Ldalvik/annotation/Throws;"));
+  private static final Type THROWS_TYPE = Type.intern("Ldalvik/annotation/Throws;");
 
   /** {@code non-null;} the UTF-8 constant {@code "accessFlags"} */
   private static final CstString ACCESS_FLAGS_STRING = new CstString("accessFlags");
@@ -95,7 +91,7 @@ public final class AnnotationUtils {
    * @param clazz {@code non-null;} the enclosing class
    * @return {@code non-null;} the annotation
    */
-  public static Annotation makeEnclosingClass(CstType clazz) {
+  public static Annotation makeEnclosingClass(Type clazz) {
     Annotation result = new Annotation(ENCLOSING_CLASS_TYPE, SYSTEM);
 
     result.put(new NameValuePair(VALUE_STRING, clazz));
@@ -174,7 +170,7 @@ public final class AnnotationUtils {
     CstArray.List list = new CstArray.List(size);
 
     for (int i = 0; i < size; i++) {
-      list.set(i, CstType.intern(types.getType(i)));
+      list.set(i, types.getType(i));
     }
 
     list.setImmutable();

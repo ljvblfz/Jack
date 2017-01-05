@@ -17,7 +17,6 @@
 package com.android.jack.dx.dex.file;
 
 import com.android.jack.dx.rop.cst.Constant;
-import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.rop.type.TypeList;
 import com.android.jack.dx.util.AnnotatedOutput;
@@ -71,8 +70,7 @@ public final class ClassDefsSection extends UniformItemSection {
 
     throwIfNotPrepared();
 
-    Type type = ((CstType) cst).getClassType();
-    IndexedItem result = classDefs.get(type);
+    IndexedItem result = classDefs.get(cst);
 
     if (result == null) {
       throw new IllegalArgumentException("not found");
@@ -111,7 +109,7 @@ public final class ClassDefsSection extends UniformItemSection {
     Type type;
 
     try {
-      type = clazz.getThisClass().getClassType();
+      type = clazz.getThisClass();
     } catch (NullPointerException ex) {
       // Elucidate the exception.
       throw new NullPointerException("clazz == null");
@@ -168,9 +166,8 @@ public final class ClassDefsSection extends UniformItemSection {
 
     maxDepth--;
 
-    CstType superclassCst = c.getSuperclass();
-    if (superclassCst != null) {
-      Type superclass = superclassCst.getClassType();
+    Type superclass = c.getSuperclass();
+    if (superclass != null) {
       idx = orderItems0(superclass, idx, maxDepth);
     }
 

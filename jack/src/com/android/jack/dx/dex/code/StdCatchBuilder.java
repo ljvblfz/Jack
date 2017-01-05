@@ -19,7 +19,6 @@ package com.android.jack.dx.dex.code;
 import com.android.jack.dx.rop.code.BasicBlock;
 import com.android.jack.dx.rop.code.BasicBlockList;
 import com.android.jack.dx.rop.code.RopMethod;
-import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.rop.type.TypeList;
 import com.android.jack.dx.util.IntList;
@@ -246,9 +245,8 @@ public final class StdCatchBuilder implements CatchBuilder {
     CatchHandlerList result = new CatchHandlerList(catchSize);
 
     for (int i = 0; i < catchSize; i++) {
-      CstType oneType = new CstType(catches.getType(i));
       CodeAddress oneHandler = addresses.getStart(successors.get(i));
-      result.set(i, oneType, oneHandler.getAddress());
+      result.set(i, catches.getType(i), oneHandler.getAddress());
     }
 
     result.setImmutable();

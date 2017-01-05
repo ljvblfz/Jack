@@ -22,7 +22,7 @@ import com.android.jack.dx.rop.code.SourcePosition;
 import com.android.jack.dx.rop.cst.Constant;
 import com.android.jack.dx.rop.cst.CstLiteral32;
 import com.android.jack.dx.rop.cst.CstLiteral64;
-import com.android.jack.dx.rop.cst.CstType;
+import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.util.AnnotatedOutput;
 import com.android.jack.dx.util.Hex;
 
@@ -79,13 +79,13 @@ public final class ArrayData extends VariableSizeInsn {
 
     this.arrayType = arrayType;
 
-    if (arrayType == CstType.BYTE_ARRAY || arrayType == CstType.BOOLEAN_ARRAY) {
+    if (arrayType == Type.BYTE_ARRAY || arrayType == Type.BOOLEAN_ARRAY) {
       elemWidth = 1;
-    } else if (arrayType == CstType.SHORT_ARRAY || arrayType == CstType.CHAR_ARRAY) {
+    } else if (arrayType == Type.SHORT_ARRAY || arrayType == Type.CHAR_ARRAY) {
       elemWidth = 2;
-    } else if (arrayType == CstType.INT_ARRAY || arrayType == CstType.FLOAT_ARRAY) {
+    } else if (arrayType == Type.INT_ARRAY || arrayType == Type.FLOAT_ARRAY) {
       elemWidth = 4;
-    } else if (arrayType == CstType.LONG_ARRAY || arrayType == CstType.DOUBLE_ARRAY) {
+    } else if (arrayType == Type.LONG_ARRAY || arrayType == Type.DOUBLE_ARRAY) {
       elemWidth = 8;
     } else {
       throw new IllegalArgumentException("Unexpected constant type");

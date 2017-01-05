@@ -22,7 +22,7 @@ import com.android.jack.backend.dex.rop.RopHelper;
 import com.android.jack.dx.dex.file.ClassDefItem;
 import com.android.jack.dx.rop.code.AccessFlags;
 import com.android.jack.dx.rop.cst.CstString;
-import com.android.jack.dx.rop.cst.CstType;
+import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.rop.type.TypeList;
 import com.android.jack.ir.ast.JClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
@@ -100,35 +100,28 @@ public class ClassDefItemBuilder implements RunnableSchedulable<JDefinedClassOrI
   @Nonnull
   private ClassDefItem createClassDefItem(@Nonnull JDefinedClassOrInterface type)
       throws JTypeLookupException {
-    CstType thisClass = RopHelper.getCstType(type);
-    CstType superclassType = createSuperClass(type);
-    int accessFlags = getDxAccessFlagsForType(type);
-    TypeList interfaces = createInterfacesList(type);
     CstString sourceFile = null;
     if (emitSourceFileInfo) {
       sourceFile = createSourceFile(type);
     }
-    ClassDefItem classDefItem = new ClassDefItem(thisClass, accessFlags,
-        superclassType, interfaces, sourceFile);
-    return classDefItem;
+    return new ClassDefItem(RopHelper.convertTypeToDx(type), getDxAccessFlagsForType(type),
+        createSuperClass(type), createInterfacesList(type), sourceFile);
   }
 
   @CheckForNull
-  private static CstType createSuperClass(@Nonnull JDefinedClassOrInterface type)
+  private static Type createSuperClass(@Nonnull JDefinedClassOrInterface type)
       throws JTypeLookupException {
     JClass superClass = type.getSuperClass();
     if (superClass == null) {
       if (type instanceof JDefinedInterface) {
-        return RopHelper.getCstType(
-            Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT));
+        superClass = Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT);
       } else {
         assert type.isSameType(
             Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_OBJECT));
         return null;
       }
     }
-    CstType superclassType = RopHelper.getCstType(superClass);
-    return superclassType;
+    return RopHelper.convertTypeToDx(superClass);
   }
 
   @Nonnull

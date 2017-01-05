@@ -20,7 +20,6 @@ import com.android.jack.debug.DebugVariableInfoMarker;
 import com.android.jack.dx.rop.code.LocalItem;
 import com.android.jack.dx.rop.code.RegisterSpec;
 import com.android.jack.dx.rop.cst.CstString;
-import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Type;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JParameter;
@@ -99,7 +98,7 @@ class RopRegisterManager {
         cstSignature = new CstString(thisMarker.getGenericSignature());
       }
       LocalItem localItem =
-          LocalItem.make(new CstString(name), RopHelper.getCstType(type), cstSignature);
+          LocalItem.make(new CstString(name), RopHelper.convertTypeToDx(type), cstSignature);
       thisReg = RegisterSpec.make(nextFreeReg, dexRegType, localItem);
     } else {
       thisReg = RegisterSpec.make(nextFreeReg, dexRegType);
@@ -199,7 +198,7 @@ class RopRegisterManager {
           cstSignature = new CstString(genericSignature);
         }
         LocalItem localItem = LocalItem.make(new CstString(debugInfo.getName()),
-            CstType.intern(RopHelper.convertTypeToDx(debugInfo.getType())), cstSignature);
+            RopHelper.convertTypeToDx(debugInfo.getType()), cstSignature);
         reg = RegisterSpec.make(regNum, regType, localItem);
       } else {
         CstString cstSignature = null;
@@ -207,8 +206,7 @@ class RopRegisterManager {
         if (infoMarker != null) {
           cstSignature = new CstString(infoMarker.getGenericSignature());
         }
-        LocalItem localItem = LocalItem.make(new CstString(name),
-            CstType.intern(regType), cstSignature);
+        LocalItem localItem = LocalItem.make(new CstString(name), regType, cstSignature);
         reg = RegisterSpec.make(regNum, regType, localItem);
       }
     } else {

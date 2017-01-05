@@ -32,7 +32,7 @@ import com.android.jack.dx.rop.cst.CstMethodHandleRef;
 import com.android.jack.dx.rop.cst.CstMethodRef;
 import com.android.jack.dx.rop.cst.CstPrototypeRef;
 import com.android.jack.dx.rop.cst.CstString;
-import com.android.jack.dx.rop.cst.CstType;
+import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.util.AnnotatedOutput;
 import com.android.jack.dx.util.Hex;
 
@@ -214,7 +214,7 @@ public final class ValueEncoder {
         break;
       }
       case VALUE_TYPE: {
-        int index = file.getTypeIds().indexOf((CstType) cst);
+        int index = file.getTypeIds().indexOf((Type) cst);
         writeUnsignedIntegralValue(type, index);
         break;
       }
@@ -326,7 +326,7 @@ public final class ValueEncoder {
     StringIdsSection stringIds = file.getStringIds();
     TypeIdsSection typeIds = file.getTypeIds();
 
-    CstType type = annotation.getType();
+    Type type = annotation.getType();
     int typeIdx = typeIds.indexOf(type);
 
     if (annotates) {

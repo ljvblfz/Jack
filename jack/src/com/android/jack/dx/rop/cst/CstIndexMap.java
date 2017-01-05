@@ -18,6 +18,7 @@ package com.android.jack.dx.rop.cst;
 import com.android.jack.dx.dex.file.DexFile;
 import com.android.jack.dx.dex.file.IndexedItem;
 import com.android.jack.dx.io.DexBuffer;
+import com.android.jack.dx.rop.type.Type;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -31,9 +32,9 @@ public class CstIndexMap {
   @Nonnull
   private final CstString[] strings;
 
-  /** Mapping between index and {@link CstType} value of a dex file.*/
+  /** Mapping between index and {@link Type} value of a dex file.*/
   @Nonnull
-  private final CstType[] types;
+  private final Type[] types;
 
   /** Mapping between index and {@link CstMethodRef} value of a dex file.*/
   @Nonnull
@@ -56,7 +57,7 @@ public class CstIndexMap {
 
   public CstIndexMap(@Nonnull DexBuffer dexBuffer) {
     strings = new CstString[dexBuffer.strings().size()];
-    types = new CstType[dexBuffer.typeNames().size()];
+    types = new Type[dexBuffer.typeNames().size()];
     methods = new CstMethodRef[dexBuffer.methodIds().size()];
     fields = new CstFieldRef[dexBuffer.fieldIds().size()];
     prototypes = new CstPrototypeRef[dexBuffer.protoIds().size()];
@@ -79,13 +80,13 @@ public class CstIndexMap {
   /**
    * Keeps type mapping of a dex file.
    * @param index Type index.
-   * @param cstType The type.
+   * @param type The type.
    */
-  public void addTypeMapping(@Nonnegative int index, @Nonnull CstType cstType) {
-    assert types[index] == null || types[index].compareTo(cstType) == 0;
+  public void addTypeMapping(@Nonnegative int index, @Nonnull Type type) {
+    assert types[index] == null || types[index].compareTo(type) == 0;
 
     if (types[index] == null) {
-      types[index] = cstType;
+      types[index] = type;
     }
   }
 
@@ -249,8 +250,8 @@ public class CstIndexMap {
   }
 
   @Nonnull
-  public CstType getCstType(@Nonnegative int index) {
-    CstType cstType = types[index];
+  public Type getType(@Nonnegative int index) {
+    Type cstType = types[index];
     assert cstType != null;
     return cstType;
   }

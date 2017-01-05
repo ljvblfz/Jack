@@ -20,7 +20,6 @@ import com.android.jack.dx.rop.code.SourcePosition;
 import com.android.jack.dx.rop.cst.CstFieldRef;
 import com.android.jack.dx.rop.cst.CstMethodRef;
 import com.android.jack.dx.rop.cst.CstString;
-import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Prototype;
 import com.android.jack.dx.rop.type.StdTypeList;
 import com.android.jack.dx.rop.type.Type;
@@ -78,7 +77,7 @@ public class RopHelper {
   @Nonnull
   public static CstMethodRef createMethodRef(@Nonnull JReferenceType type,
       @Nonnull JMethod method) {
-    CstMethodRef methodRef = new CstMethodRef(RopHelper.getCstType(type),
+    CstMethodRef methodRef = new CstMethodRef(RopHelper.convertTypeToDx(type),
         new CstString(method.getName()), getPrototype(method.getMethodId()));
     return methodRef;
   }
@@ -109,7 +108,7 @@ public class RopHelper {
    */
   @Nonnull
   public static CstMethodRef createMethodRef(@Nonnull JMethodCall methodCall) {
-    CstType definingClass = RopHelper.getCstType(methodCall.getReceiverType());
+    Type definingClass = RopHelper.convertTypeToDx(methodCall.getReceiverType());
     CstMethodRef methodRef = new CstMethodRef(definingClass,
         new CstString(methodCall.getMethodName()), getPrototype(methodCall.getMethodId()));
     return methodRef;
@@ -130,9 +129,9 @@ public class RopHelper {
   @Nonnull
   public static CstFieldRef createFieldRef(@Nonnull JFieldId field,
       @Nonnull JClassOrInterface receiverType) {
-    CstType definingClass = getCstType(receiverType);
+    Type definingClass = convertTypeToDx(receiverType);
     CstString name = new CstString(field.getName());
-    CstFieldRef fieldRef = new CstFieldRef(definingClass, name, getCstType(field.getType()));
+    CstFieldRef fieldRef = new CstFieldRef(definingClass, name, convertTypeToDx(field.getType()));
     return fieldRef;
   }
 
@@ -279,19 +278,6 @@ public class RopHelper {
       }
     }
     return typesList;
-  }
-
-  /**
-   * Converts a {@code JType} to a {@code CstType}.
-   *
-   * @param type a non-null {@code JType}.
-   * @throws NullPointerException if given type is null.
-   */
-  @Nonnull
-  public static CstType getCstType(@Nonnull JType type) {
-    Type ropType = convertTypeToDx(type);
-    CstType cstType = CstType.intern(ropType);
-    return cstType;
   }
 
   private static class RopFormatter extends InternalFormatter {

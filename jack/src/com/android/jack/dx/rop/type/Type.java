@@ -16,11 +16,16 @@
 
 package com.android.jack.dx.rop.type;
 
+import com.android.jack.dx.dex.file.ValueEncoder.ValueType;
+import com.android.jack.dx.rop.cst.Constant;
+import com.android.jack.dx.rop.cst.CstString;
+import com.android.jack.dx.rop.cst.TypedConstant;
 import com.android.jack.dx.util.Hex;
 
 import java.util.HashMap;
 
 import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
 
 /**
  * Representation of a value type, such as may appear in a field, in a
@@ -28,7 +33,7 @@ import javax.annotation.Nonnegative;
  * class are generally interned and may be usefully compared with each
  * other using {@code ==}.
  */
-public final class Type implements TypeBearer, Comparable<Type> {
+public final class Type extends TypedConstant implements TypeBearer {
 
   /**
    * {@code non-null;} intern table mapping string descriptors to
@@ -239,7 +244,7 @@ public final class Type implements TypeBearer, Comparable<Type> {
   public static final Type SHORT_ARRAY = SHORT.getArrayType();
 
   /** {@code non-null;} field descriptor for the type */
-  private final String descriptor;
+  private final CstString descriptor;
 
   /**
    * basic type corresponding to this type; one of the
@@ -412,7 +417,7 @@ public final class Type implements TypeBearer, Comparable<Type> {
       throw new IllegalArgumentException("newAt < -1");
     }
 
-    this.descriptor = descriptor;
+    this.descriptor = new CstString(descriptor);
     this.basicType = basicType;
     this.newAt = newAt;
     this.arrayType = null;
@@ -459,14 +464,8 @@ public final class Type implements TypeBearer, Comparable<Type> {
 
   /** {@inheritDoc} */
   @Override
-  public int compareTo(Type other) {
-    return descriptor.compareTo(other.descriptor);
-  }
-
-  /** {@inheritDoc} */
-  @Override
   public String toString() {
-    return descriptor;
+    return descriptor.getString();
   }
 
   /** {@inheritDoc} */
@@ -494,7 +493,7 @@ public final class Type implements TypeBearer, Comparable<Type> {
       case BT_OBJECT:
         break;
       default:
-        return descriptor;
+        return descriptor.getString();
     }
 
     if (isArray()) {
@@ -511,9 +510,7 @@ public final class Type implements TypeBearer, Comparable<Type> {
     return this;
   }
 
-  /** {@inheritDoc} */
-  @Override
-  public Type getFrameType() {
+  public Type getFrameTypeImpl() {
     switch (basicType) {
       case BT_BOOLEAN:
       case BT_BYTE:
@@ -527,15 +524,11 @@ public final class Type implements TypeBearer, Comparable<Type> {
     return this;
   }
 
-  /** {@inheritDoc} */
-  @Override
-  public int getBasicType() {
+  public int getBasicTypeImpl() {
     return basicType;
   }
 
-  /** {@inheritDoc} */
-  @Override
-  public int getBasicFrameType() {
+  public int getBasicFrameTypeImpl() {
     switch (basicType) {
       case BT_BOOLEAN:
       case BT_BYTE:
@@ -549,18 +542,12 @@ public final class Type implements TypeBearer, Comparable<Type> {
     return basicType;
   }
 
-  /** {@inheritDoc} */
-  @Override
-  public boolean isConstant() {
-    return false;
-  }
-
   /**
    * Gets the descriptor.
    *
    * @return {@code non-null;} the descriptor
    */
-  public String getDescriptor() {
+  public CstString getDescriptor() {
     return descriptor;
   }
 
@@ -578,10 +565,11 @@ public final class Type implements TypeBearer, Comparable<Type> {
         throw new IllegalArgumentException("not an object type: " + descriptor);
       }
 
-      if (descriptor.charAt(0) == '[') {
-        className = descriptor;
+      String descriptorStr = descriptor.getString();
+      if (descriptorStr.charAt(0) == '[') {
+        className = descriptorStr;
       } else {
-        className = descriptor.substring(1, descriptor.length() - 1);
+        className = descriptorStr.substring(1, descriptorStr.length() - 1);
       }
     }
 
@@ -632,6 +620,7 @@ public final class Type implements TypeBearer, Comparable<Type> {
    * @see #isCategory1
    * @return whether or not this is a category 2 type
    */
+  @Override
   public boolean isCategory2() {
     switch (basicType) {
       case BT_LONG:
@@ -708,7 +697,7 @@ public final class Type implements TypeBearer, Comparable<Type> {
    * @return whether this type is an array type
    */
   public boolean isArray() {
-    return (descriptor.charAt(0) == '[');
+    return (descriptor.getString().charAt(0) == '[');
   }
 
   /**
@@ -767,7 +756,7 @@ public final class Type implements TypeBearer, Comparable<Type> {
    */
   public Type getArrayType() {
     if (arrayType == null) {
-      arrayType = putIntern(new Type('[' + descriptor, BT_OBJECT));
+      arrayType = putIntern(new Type('[' + descriptor.getString(), BT_OBJECT));
     }
 
     return arrayType;
@@ -781,10 +770,11 @@ public final class Type implements TypeBearer, Comparable<Type> {
    */
   public Type getComponentType() {
     if (componentType == null) {
-      if (descriptor.charAt(0) != '[') {
+      String descriptorStr = descriptor.getString();
+      if (descriptorStr.charAt(0) != '[') {
         throw new IllegalArgumentException("not an array type: " + descriptor);
       }
-      componentType = intern(descriptor.substring(1));
+      componentType = intern(descriptorStr.substring(1));
     }
 
     return componentType;
@@ -844,7 +834,7 @@ public final class Type implements TypeBearer, Comparable<Type> {
    */
   private static Type putIntern(Type type) {
     synchronized (internTable) {
-      String descriptor = type.getDescriptor();
+      String descriptor = type.getDescriptor().getString();
       Type already = internTable.get(descriptor);
       if (already != null) {
         return already;
@@ -852,5 +842,47 @@ public final class Type implements TypeBearer, Comparable<Type> {
       internTable.put(descriptor, type);
       return type;
     }
+  }
+
+  @Override
+  public String typeName() {
+    return "type";
+  }
+
+  @Override
+  protected int compareTo0(Constant other) {
+    assert other instanceof Type;
+    return descriptor.compareTo(((Type) other).descriptor);
+  }
+
+
+  @Override
+  @Nonnull
+  public ValueType getEncodedValueType() {
+    return ValueType.VALUE_TYPE;
+  }
+
+  /**
+   * Returns a human readable package name for this type, like "java.util".
+   * If this is an array type, this returns the package name of the array's
+   * component type. If this is a primitive type, this returns "default".
+   */
+  public String getPackageName() {
+    // descriptor is a string like "[[Ljava/util/String;"
+    String descriptor = getDescriptor().getString();
+    int lastSlash = descriptor.lastIndexOf('/');
+    int lastLeftSquare = descriptor.lastIndexOf('['); // -1 unless this is an array
+    if (lastSlash == -1) {
+      return "default";
+    } else {
+      // +2 to skip the '[' and the 'L' prefix
+      return descriptor.substring(lastLeftSquare + 2, lastSlash).replace('/', '.');
+    }
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public boolean isConstant() {
+    return false;
   }
 }

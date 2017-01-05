@@ -16,6 +16,8 @@
 
 package com.android.jack.dx.rop.cst;
 
+import com.android.jack.dx.rop.type.Type;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -23,8 +25,8 @@ import javax.annotation.Nonnull;
  */
 public abstract class CstMemberRef extends TypedConstant {
   /** {@code non-null;} the type of the defining class */
-  @Nonnull
-  private final CstType definingClass;
+
+  private final Type definingClass;
 
   /** {@code non-null;} the name */
   @Nonnull
@@ -36,7 +38,7 @@ public abstract class CstMemberRef extends TypedConstant {
    * @param definingClass {@code non-null;} the type of the defining class
    * @param name {@code non-null;} the member reference name
    */
-  /* package */ CstMemberRef(@Nonnull CstType definingClass, @Nonnull CstString name) {
+  /* package */ CstMemberRef(@Nonnull Type definingClass, @Nonnull CstString name) {
     assert definingClass != null;
     assert name != null;
 
@@ -82,7 +84,7 @@ public abstract class CstMemberRef extends TypedConstant {
    * @return {@code non-null;} the type of defining class
    */
   @Nonnull
-  public final CstType getDefiningClass() {
+  public final Type getDefiningClass() {
     return definingClass;
   }
 

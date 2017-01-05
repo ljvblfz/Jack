@@ -29,24 +29,24 @@ public abstract class TypedConstant extends Constant implements TypeBearer {
    */
   @Override
   public final TypeBearer getFrameType() {
-    return this;
+    return getType().getFrameTypeImpl();
   }
 
   /** {@inheritDoc} */
   @Override
   public final int getBasicType() {
-    return getType().getBasicType();
+    return getType().getBasicTypeImpl();
   }
 
   /** {@inheritDoc} */
   @Override
   public final int getBasicFrameType() {
-    return getType().getBasicFrameType();
+    return getType().getBasicFrameTypeImpl();
   }
 
   /** {@inheritDoc} */
   @Override
-  public final boolean isConstant() {
+  public boolean isConstant() {
     return true;
   }
 }

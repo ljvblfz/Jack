@@ -31,7 +31,6 @@ import com.android.jack.dx.rop.cst.CstMethodHandleRef.MethodHandleKind;
 import com.android.jack.dx.rop.cst.CstMethodRef;
 import com.android.jack.dx.rop.cst.CstPrototypeRef;
 import com.android.jack.dx.rop.cst.CstString;
-import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Prototype;
 import com.android.jack.dx.rop.type.StdTypeList;
 import com.android.jack.dx.rop.type.Type;
@@ -63,7 +62,7 @@ public class ConstantManager extends MergerTools {
   private final HashSet<CstMethodRef> cstMethodRefs = new HashSet<CstMethodRef>();
 
   @Nonnull
-  private final HashSet<CstType> cstTypes = new HashSet<CstType>();
+  private final HashSet<Type> types = new HashSet<Type>();
 
   @Nonnull
   private final HashSet<CstMethodHandleRef> cstMethodHandleRefs = new HashSet<CstMethodHandleRef>();
@@ -84,8 +83,8 @@ public class ConstantManager extends MergerTools {
   }
 
   @Nonnull
-  public Collection<CstType> getCstTypes() {
-    return Jack.getUnmodifiableCollections().getUnmodifiableCollection(cstTypes);
+  public Collection<Type> getTypes() {
+    return Jack.getUnmodifiableCollections().getUnmodifiableCollection(types);
   }
 
   @Nonnull
@@ -101,7 +100,7 @@ public class ConstantManager extends MergerTools {
     List<CstPrototypeRef> cstPrototypeRefsNewlyAdded = new ArrayList<>();
     List<CstFieldRef> cstFieldRefsNewlyAdded = new ArrayList<CstFieldRef>();
     List<CstMethodRef> cstMethodRefsNewlyAdded = new ArrayList<CstMethodRef>();
-    List<CstType> cstTypesNewlyAdded = new ArrayList<CstType>();
+    List<Type> typesNewlyAdded = new ArrayList<Type>();
     List<CstMethodHandleRef> cstMethodHandleRefsNewlyAdded = new ArrayList<CstMethodHandleRef>();
 
     int idx = 0;
@@ -122,27 +121,28 @@ public class ConstantManager extends MergerTools {
        * Note: VOID isn't put in the intern table of type, since it's special and shouldn't be found
        * by a normal call to intern() from Type.
        */
-      CstType cstType = null;
-      if (typeNameDesc.equals(Type.VOID.getDescriptor())) {
-        cstType = CstType.intern(Type.VOID);
+      Type type = null;
+      if (typeNameDesc.equals(Type.VOID.getDescriptor().getString())) {
+        type = Type.VOID;
       } else {
-        cstType = CstType.intern(Type.intern(typeNameDesc));
+        type = Type.intern(typeNameDesc);
       }
 
-      if (cstTypes.add(cstType)) {
-        cstTypesNewlyAdded.add(cstType);
+      if (types.add(type)) {
+        typesNewlyAdded.add(type);
       }
 
-      cstIndexMap.addTypeMapping(idx++, cstType);
+      cstIndexMap.addTypeMapping(idx++, type);
     }
 
 
     idx = 0;
     for (FieldId fieldId : dexBuffer.fieldIds()) {
       CstFieldRef cstFieldRef =
-          new CstFieldRef(cstIndexMap.getCstType(fieldId.getDeclaringClassIndex()),
+          new CstFieldRef(cstIndexMap.getType(fieldId.getDeclaringClassIndex()),
               cstIndexMap.getCstString(fieldId.getNameIndex()),
-              cstIndexMap.getCstType(fieldId.getTypeIndex()));
+              cstIndexMap.getType(fieldId.getTypeIndex()));
+
       if (cstFieldRefs.add(cstFieldRef)) {
         cstFieldRefsNewlyAdded.add(cstFieldRef);
       }
@@ -154,7 +154,7 @@ public class ConstantManager extends MergerTools {
     for (ProtoId protoId : protoIds) {
       Prototype prototype = Prototype.intern(
           getStdTypeList(cstIndexMap, dexBuffer.readTypeList(protoId.getParametersOffset())),
-          cstIndexMap.getCstType(protoId.getReturnTypeIndex()).getClassType());
+          cstIndexMap.getType(protoId.getReturnTypeIndex()));
       CstPrototypeRef cstProtoRef = new CstPrototypeRef(prototype);
       if (cstPrototypeRefs.add(cstProtoRef)) {
         cstPrototypeRefsNewlyAdded.add(cstProtoRef);
@@ -168,7 +168,7 @@ public class ConstantManager extends MergerTools {
       int protoIdx = methodId.getProtoIndex();
 
       CstMethodRef cstMethodRef =
-          new CstMethodRef(cstIndexMap.getCstType(methodId.getDeclaringClassIndex()),
+          new CstMethodRef(cstIndexMap.getType(methodId.getDeclaringClassIndex()),
               cstIndexMap.getCstString(methodId.getNameIndex()),
               cstIndexMap.getCstPrototype(protoIdx).getPrototype());
 
@@ -218,31 +218,31 @@ public class ConstantManager extends MergerTools {
 
     if ((cstMethodHandleRefs.size()) > DexFormat.MAX_MEMBER_IDX + 1) {
       removeItems(cstStringsNewlyAdded, cstFieldRefsNewlyAdded, cstMethodRefsNewlyAdded,
-          cstTypesNewlyAdded, cstPrototypeRefsNewlyAdded, cstMethodHandleRefsNewlyAdded);
+          typesNewlyAdded, cstPrototypeRefsNewlyAdded, cstMethodHandleRefsNewlyAdded);
       throw new MethodHandleIdOverflowException();
     }
 
     if ((cstFieldRefs.size()) > DexFormat.MAX_MEMBER_IDX + 1) {
       removeItems(cstStringsNewlyAdded, cstFieldRefsNewlyAdded, cstMethodRefsNewlyAdded,
-          cstTypesNewlyAdded, cstPrototypeRefsNewlyAdded, cstMethodHandleRefsNewlyAdded);
+          typesNewlyAdded, cstPrototypeRefsNewlyAdded, cstMethodHandleRefsNewlyAdded);
       throw new FieldIdOverflowException();
     }
 
     if ((cstMethodRefs.size()) > DexFormat.MAX_MEMBER_IDX + 1) {
       removeItems(cstStringsNewlyAdded, cstFieldRefsNewlyAdded, cstMethodRefsNewlyAdded,
-          cstTypesNewlyAdded, cstPrototypeRefsNewlyAdded, cstMethodHandleRefsNewlyAdded);
+          typesNewlyAdded, cstPrototypeRefsNewlyAdded, cstMethodHandleRefsNewlyAdded);
       throw new MethodIdOverflowException();
     }
 
-    if ((cstTypes.size()) > DexFormat.MAX_TYPE_IDX + 1) {
+    if ((types.size()) > DexFormat.MAX_TYPE_IDX + 1) {
       removeItems(cstStringsNewlyAdded, cstFieldRefsNewlyAdded, cstMethodRefsNewlyAdded,
-          cstTypesNewlyAdded, cstPrototypeRefsNewlyAdded, cstMethodHandleRefsNewlyAdded);
+          typesNewlyAdded, cstPrototypeRefsNewlyAdded, cstMethodHandleRefsNewlyAdded);
       throw new TypeIdOverflowException();
     }
 
     if ((cstPrototypeRefs.size()) > DexFormat.MAX_PROTOTYPE_IDX + 1) {
       removeItems(cstStringsNewlyAdded, cstFieldRefsNewlyAdded, cstMethodRefsNewlyAdded,
-          cstTypesNewlyAdded, cstPrototypeRefsNewlyAdded, cstMethodHandleRefsNewlyAdded);
+          typesNewlyAdded, cstPrototypeRefsNewlyAdded, cstMethodHandleRefsNewlyAdded);
       throw new PrototypedOverflowException();
     }
 
@@ -251,13 +251,13 @@ public class ConstantManager extends MergerTools {
 
   private void removeItems(@Nonnull List<String> cstStringsToRemove,
       @Nonnull List<CstFieldRef> cstFieldRefsToRemove,
-      @Nonnull List<CstMethodRef> cstMethodRefsToRemove, @Nonnull List<CstType> cstTypesToRemove,
+      @Nonnull List<CstMethodRef> cstMethodRefsToRemove, @Nonnull List<Type> cstTypesToRemove,
       @Nonnull List<CstPrototypeRef> cstPrototypeRefsToRemove,
       @Nonnull List<CstMethodHandleRef> cstMethodHandleRefsToRemove) {
     string2CstStrings.keySet().removeAll(cstStringsToRemove);
     cstFieldRefs.removeAll(cstFieldRefsToRemove);
     cstMethodRefs.removeAll(cstMethodRefsToRemove);
-    cstTypes.removeAll(cstTypesToRemove);
+    types.removeAll(cstTypesToRemove);
     cstPrototypeRefs.removeAll(cstPrototypeRefsToRemove);
     cstMethodHandleRefs.removeAll(cstMethodHandleRefsToRemove);
   }
@@ -268,7 +268,7 @@ public class ConstantManager extends MergerTools {
     int typesLength = type.length;
     StdTypeList stdTypeList = new StdTypeList(typesLength);
     for (int i = 0; i < typesLength; i++) {
-      stdTypeList.set(i, cstIndexMap.getCstType(type[i]).getClassType());
+      stdTypeList.set(i, cstIndexMap.getType(type[i]));
     }
     stdTypeList.setImmutable();
     return stdTypeList;
@@ -278,6 +278,6 @@ public class ConstantManager extends MergerTools {
     return ((dexFile.getStringIds().items().size() == string2CstStrings.size())
         && (dexFile.getFieldIds().items().size() == cstFieldRefs.size())
         && (dexFile.getMethodIds().items().size() == cstMethodRefs.size())
-        && (dexFile.getTypeIds().items().size() == cstTypes.size()));
+        && (dexFile.getTypeIds().items().size() == types.size()));
   }
 }

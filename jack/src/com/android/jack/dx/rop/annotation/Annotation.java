@@ -17,7 +17,7 @@
 package com.android.jack.dx.rop.annotation;
 
 import com.android.jack.dx.rop.cst.CstString;
-import com.android.jack.dx.rop.cst.CstType;
+import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.util.MutabilityControl;
 import com.android.jack.dx.util.ToHuman;
 
@@ -33,7 +33,7 @@ import java.util.TreeMap;
  */
 public final class Annotation extends MutabilityControl implements Comparable<Annotation>, ToHuman {
   /** {@code non-null;} type of the annotation */
-  private final CstType type;
+  private final Type type;
 
   /** {@code non-null;} the visibility of the annotation */
   private final AnnotationVisibility visibility;
@@ -47,7 +47,7 @@ public final class Annotation extends MutabilityControl implements Comparable<An
    * @param type {@code non-null;} type of the annotation
    * @param visibility {@code non-null;} the visibility of the annotation
    */
-  public Annotation(CstType type, AnnotationVisibility visibility) {
+  public Annotation(Type type, AnnotationVisibility visibility) {
     if (type == null) {
       throw new NullPointerException("type == null");
     }
@@ -160,7 +160,7 @@ public final class Annotation extends MutabilityControl implements Comparable<An
    *
    * @return {@code non-null;} the type
    */
-  public CstType getType() {
+  public Type getType() {
     return type;
   }
 

@@ -18,7 +18,6 @@ package com.android.jack.dx.dex.file;
 
 import com.android.jack.dx.dex.DexFormat;
 import com.android.jack.dx.rop.cst.Constant;
-import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.util.AnnotatedOutput;
 import com.android.jack.dx.util.DexIndexOverflowException;
@@ -62,8 +61,7 @@ public final class TypeIdsSection extends UniformItemSection {
 
     throwIfNotPrepared();
 
-    Type type = ((CstType) cst).getClassType();
-    IndexedItem result = typeIds.get(type);
+    IndexedItem result = typeIds.get(cst);
 
     if (result == null) {
       throw new IllegalArgumentException("not found: " + cst);
@@ -113,32 +111,8 @@ public final class TypeIdsSection extends UniformItemSection {
     TypeIdItem result = typeIds.get(type);
 
     if (result == null) {
-      result = new TypeIdItem(new CstType(type));
-      typeIds.put(type, result);
-    }
-
-    return result;
-  }
-
-  /**
-   * Interns an element into this instance.
-   *
-   * @param type {@code non-null;} the type to intern
-   * @return {@code non-null;} the interned reference
-   */
-  public TypeIdItem intern(CstType type) {
-    if (type == null) {
-      throw new NullPointerException("type == null");
-    }
-
-    throwIfPrepared();
-
-    Type typePerSe = type.getClassType();
-    TypeIdItem result = typeIds.get(typePerSe);
-
-    if (result == null) {
       result = new TypeIdItem(type);
-      typeIds.put(typePerSe, result);
+      typeIds.put(type, result);
     }
 
     return result;
@@ -165,21 +139,6 @@ public final class TypeIdsSection extends UniformItemSection {
     }
 
     return item.getIndex();
-  }
-
-  /**
-   * Gets the index of the given type, which must have
-   * been added to this instance.
-   *
-   * @param type {@code non-null;} the type to look up
-   * @return {@code >= 0;} the reference's index
-   */
-  public int indexOf(CstType type) {
-    if (type == null) {
-      throw new NullPointerException("type == null");
-    }
-
-    return indexOf(type.getClassType());
   }
 
   /** {@inheritDoc} */

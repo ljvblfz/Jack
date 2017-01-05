@@ -194,7 +194,7 @@ public class InvokeCustomHelper {
             break;
           }
           case "classValue" : {
-            cst = RopHelper.getCstType(((JClassLiteral) jLiteral).getRefType());
+            cst = RopHelper.convertTypeToDx(((JClassLiteral) jLiteral).getRefType());
             break;
           }
           default: {
@@ -232,8 +232,8 @@ public class InvokeCustomHelper {
     }
     assert type != null;
 
-    CstFieldRef fieldRef = new CstFieldRef(RopHelper.getCstType(owner.getRefType()),
-        new CstString(name.getValue()), RopHelper.getCstType(type.getRefType()));
+    CstFieldRef fieldRef = new CstFieldRef(RopHelper.convertTypeToDx(owner.getRefType()),
+        new CstString(name.getValue()), RopHelper.convertTypeToDx(type.getRefType()));
 
     return new CstMethodHandleRef(kind, fieldRef);
   }
@@ -270,7 +270,7 @@ public class InvokeCustomHelper {
     }
     assert argumentsTypes != null;
 
-    CstMethodRef methodRef = new CstMethodRef(RopHelper.getCstType(owner.getRefType()),
+    CstMethodRef methodRef = new CstMethodRef(RopHelper.convertTypeToDx(owner.getRefType()),
         new CstString(name.getValue()), buildPrototype(argumentsTypes, returnType));
 
     return new CstMethodHandleRef(kind, methodRef);

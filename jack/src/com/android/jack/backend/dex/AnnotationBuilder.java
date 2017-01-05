@@ -106,7 +106,7 @@ public class AnnotationBuilder {
   @Nonnull
   private Annotation createAnnotation(@Nonnull JAnnotation annotation)
       throws SourceAnnotationException, BuildAnnotationException {
-    Annotation ropAnnotation = new Annotation(RopHelper.getCstType(annotation.getType()),
+    Annotation ropAnnotation = new Annotation(RopHelper.convertTypeToDx(annotation.getType()),
         getVisibility(annotation.getRetentionPolicy()));
     constantBuilder.createAnnotationPairs(annotation, ropAnnotation);
     ropAnnotation.setImmutable();

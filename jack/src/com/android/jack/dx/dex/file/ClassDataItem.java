@@ -19,8 +19,8 @@ package com.android.jack.dx.dex.file;
 import com.android.jack.dx.rop.cst.Constant;
 import com.android.jack.dx.rop.cst.CstArray;
 import com.android.jack.dx.rop.cst.CstLiteralBits;
-import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.cst.Zeroes;
+import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.util.AnnotatedOutput;
 import com.android.jack.dx.util.ByteArrayAnnotatedOutput;
 import com.android.jack.dx.util.Writers;
@@ -39,7 +39,7 @@ import java.util.HashMap;
  */
 public final class ClassDataItem extends OffsettedItem {
   /** {@code non-null;} what class this data is for, just for listing generation */
-  private final CstType thisClass;
+  private final Type thisClass;
 
   /** {@code non-null;} list of static fields */
   private final ArrayList<EncodedField> staticFields;
@@ -72,7 +72,7 @@ public final class ClassDataItem extends OffsettedItem {
    * @param thisClass {@code non-null;} what class this data is for, just
    * for listing generation
    */
-  public ClassDataItem(CstType thisClass) {
+  public ClassDataItem(Type thisClass) {
     super(1, -1);
 
     if (thisClass == null) {

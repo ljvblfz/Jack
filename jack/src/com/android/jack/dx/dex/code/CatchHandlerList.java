@@ -16,7 +16,7 @@
 
 package com.android.jack.dx.dex.code;
 
-import com.android.jack.dx.rop.cst.CstType;
+import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.util.FixedSizeList;
 import com.android.jack.dx.util.Hex;
 
@@ -108,7 +108,7 @@ public final class CatchHandlerList extends FixedSizeList implements Comparable<
     }
 
     Entry last = get(size - 1);
-    return last.getExceptionType().equals(CstType.OBJECT);
+    return last.getExceptionType().equals(Type.OBJECT);
   }
 
   /**
@@ -118,7 +118,7 @@ public final class CatchHandlerList extends FixedSizeList implements Comparable<
    * @param exceptionType {@code non-null;} type of exception handled
    * @param handler {@code >= 0;} exception handler address
    */
-  public void set(int n, CstType exceptionType, int handler) {
+  public void set(int n, Type exceptionType, int handler) {
     set0(n, new Entry(exceptionType, handler));
   }
 
@@ -167,7 +167,7 @@ public final class CatchHandlerList extends FixedSizeList implements Comparable<
    */
   public static class Entry implements Comparable<Entry> {
     /** {@code non-null;} type of exception handled */
-    private final CstType exceptionType;
+    private final Type exceptionType;
 
     /** {@code >= 0;} exception handler address */
     private final int handler;
@@ -178,7 +178,7 @@ public final class CatchHandlerList extends FixedSizeList implements Comparable<
      * @param exceptionType {@code non-null;} type of exception handled
      * @param handler {@code >= 0;} exception handler address
      */
-    public Entry(CstType exceptionType, int handler) {
+    public Entry(Type exceptionType, int handler) {
       if (handler < 0) {
         throw new IllegalArgumentException("handler < 0");
       }
@@ -224,7 +224,7 @@ public final class CatchHandlerList extends FixedSizeList implements Comparable<
      *
      * @return {@code non-null;} the exception type
      */
-    public CstType getExceptionType() {
+    public Type getExceptionType() {
       return exceptionType;
     }
 

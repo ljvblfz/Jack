@@ -72,7 +72,7 @@ public class ConstantBuilder {
 
     @Override
     public boolean visit(@Nonnull JAnnotation annotation) {
-      Annotation ropAnnotation = new Annotation(RopHelper.getCstType(annotation.getType()),
+      Annotation ropAnnotation = new Annotation(RopHelper.convertTypeToDx(annotation.getType()),
           AnnotationVisibility.EMBEDDED);
       createAnnotationPairs(annotation, ropAnnotation);
       ropAnnotation.setImmutable();
@@ -101,13 +101,13 @@ public class ConstantBuilder {
     @Override
     public boolean visit(@Nonnull JEnumLiteral literal) {
       result = new CstEnumRef(new CstString(literal.getFieldId().getName()),
-          RopHelper.getCstType(literal.getType()));
+          RopHelper.convertTypeToDx(literal.getType()));
       return false;
     }
 
     @Override
     public boolean visit(@Nonnull JClassLiteral literal) {
-      result = RopHelper.getCstType(literal.getRefType());
+      result = RopHelper.convertTypeToDx(literal.getRefType());
       return false;
     }
 

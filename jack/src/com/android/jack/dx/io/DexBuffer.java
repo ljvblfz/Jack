@@ -512,7 +512,7 @@ public final class DexBuffer {
 
       @Override
       protected void visitType(int index) {
-        callSiteArrayList.set(idx++, cstIndexMap.getCstType(index));
+        callSiteArrayList.set(idx++, cstIndexMap.getType(index));
       }
     }
 

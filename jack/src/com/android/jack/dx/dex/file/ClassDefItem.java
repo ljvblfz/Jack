@@ -25,8 +25,8 @@ import com.android.jack.dx.rop.cst.CstArray;
 import com.android.jack.dx.rop.cst.CstFieldRef;
 import com.android.jack.dx.rop.cst.CstMethodRef;
 import com.android.jack.dx.rop.cst.CstString;
-import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.StdTypeList;
+import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.rop.type.TypeList;
 import com.android.jack.dx.util.AnnotatedOutput;
 import com.android.jack.dx.util.Hex;
@@ -44,7 +44,7 @@ import java.util.ArrayList;
 public final class ClassDefItem extends IndexedItem {
 
   /** {@code non-null;} type constant for this class */
-  private final CstType thisClass;
+  private final Type thisClass;
 
   /** access flags */
   private final int accessFlags;
@@ -53,7 +53,7 @@ public final class ClassDefItem extends IndexedItem {
    * {@code null-ok;} superclass or {@code null} if this class is a/the
    * root class
    */
-  private final CstType superclass;
+  private final Type superclass;
 
   /** {@code null-ok;} list of implemented interfaces */
   private TypeListItem interfaces;
@@ -85,7 +85,7 @@ public final class ClassDefItem extends IndexedItem {
    * @param sourceFile {@code null-ok;} source file name or
    * {@code null} if unknown
    */
-  public ClassDefItem(CstType thisClass, int accessFlags, CstType superclass, TypeList interfaces,
+  public ClassDefItem(Type thisClass, int accessFlags, Type superclass, TypeList interfaces,
       CstString sourceFile) {
     if (thisClass == null) {
       throw new NullPointerException("thisClass == null");
@@ -213,7 +213,7 @@ public final class ClassDefItem extends IndexedItem {
    *
    * @return {@code non-null;} the constant
    */
-  public CstType getThisClass() {
+  public Type getThisClass() {
     return thisClass;
   }
 
@@ -232,7 +232,7 @@ public final class ClassDefItem extends IndexedItem {
    * @return {@code null-ok;} the superclass or {@code null} if
    * this class is a/the root class
    */
-  public CstType getSuperclass() {
+  public Type getSuperclass() {
     return superclass;
   }
 

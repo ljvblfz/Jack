@@ -28,7 +28,7 @@ import com.android.jack.dx.rop.cst.CstMethodHandleRef;
 import com.android.jack.dx.rop.cst.CstMethodRef;
 import com.android.jack.dx.rop.cst.CstPrototypeRef;
 import com.android.jack.dx.rop.cst.CstString;
-import com.android.jack.dx.rop.cst.CstType;
+import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.util.ByteArrayAnnotatedOutput;
 import com.android.jack.dx.util.ExceptionWithContext;
 
@@ -494,8 +494,8 @@ public final class DexFile {
   /*package*/void internIfAppropriate(Constant cst) {
     if (cst instanceof CstString) {
       stringIds.intern((CstString) cst);
-    } else if (cst instanceof CstType) {
-      typeIds.intern((CstType) cst);
+    } else if (cst instanceof Type) {
+      typeIds.intern((Type) cst);
     } else if (cst instanceof CstBaseMethodRef) {
       methodIds.intern((CstBaseMethodRef) cst);
     } else if (cst instanceof CstFieldRef) {
@@ -533,7 +533,7 @@ public final class DexFile {
   public IndexedItem findItemOrNull(Constant cst) {
     if (cst instanceof CstString) {
       return stringIds.get(cst);
-    } else if (cst instanceof CstType) {
+    } else if (cst instanceof Type) {
       return typeIds.get(cst);
     } else if (cst instanceof CstBaseMethodRef) {
       return methodIds.get(cst);
@@ -557,7 +557,7 @@ public final class DexFile {
    */
   public void prepare() {
     prepare(Collections.<CstString>emptyList(), Collections.<CstFieldRef>emptyList(),
-        Collections.<CstMethodRef>emptyList(), Collections.<CstType>emptyList(),
+        Collections.<CstMethodRef>emptyList(), Collections.<Type>emptyList(),
         Collections.<CstPrototypeRef>emptyList());
   }
 
@@ -568,12 +568,12 @@ public final class DexFile {
    * @param cstStrings Collection of CstString to intern
    * @param cstFieldRefs Collection of CstFieldRef to intern
    * @param cstMethodRefs Collection of CstMethodRef to intern
-   * @param cstTypes Collection of CstType to intern
+   * @param types Collection of {@link Type} to intern
    * @param cstPrototypeRefs Collection of CstPrototypeRef to intern
    */
   public void prepare(@Nonnull Collection<CstString> cstStrings,
       @Nonnull Collection<CstFieldRef> cstFieldRefs,
-      @Nonnull Collection<CstMethodRef> cstMethodRefs, @Nonnull Collection<CstType> cstTypes,
+      @Nonnull Collection<CstMethodRef> cstMethodRefs, @Nonnull Collection<Type> types,
       @Nonnull Collection<CstPrototypeRef> cstPrototypeRefs) {
     for (CstString cst : cstStrings) {
       stringIds.intern(cst);
@@ -584,7 +584,7 @@ public final class DexFile {
     for (CstMethodRef cst : cstMethodRefs) {
       methodIds.intern(cst);
     }
-    for (CstType cst : cstTypes) {
+    for (Type cst : types) {
       typeIds.intern(cst);
     }
     for (CstPrototypeRef cts : cstPrototypeRefs) {

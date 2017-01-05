@@ -28,7 +28,7 @@ public final class CstFieldRef extends CstMemberRef {
 
   /** {@code non-null;} the field type */
   @Nonnull
-  private final CstType type;
+  private final Type type;
 
   /**
    * Constructs an instance.
@@ -37,10 +37,11 @@ public final class CstFieldRef extends CstMemberRef {
    * @param name {@code non-null;} the member reference name
    * @param type {@code non-null;} the member reference type
    */
-  public CstFieldRef(@Nonnull CstType definingClass, @Nonnull CstString name,
-      @Nonnull CstType type) {
+  public CstFieldRef(@Nonnull Type definingClass, @Nonnull CstString name,
+      @Nonnull Type type) {
     super(definingClass, name);
     this.type = type;
+
   }
 
   /** {@inheritDoc} */
@@ -58,7 +59,7 @@ public final class CstFieldRef extends CstMemberRef {
   @Override
   @Nonnull
   public Type getType() {
-    return type.getClassType();
+    return type;
   }
 
   /** {@inheritDoc} */

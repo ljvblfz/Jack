@@ -16,25 +16,23 @@
 
 package com.android.jack.dx.dex.file;
 
-import com.android.jack.dx.rop.cst.CstType;
+import com.android.jack.dx.rop.type.Type;
 
 /**
  * Representation of a reference to an item inside a Dalvik file.
  */
 public abstract class IdItem extends IndexedItem {
   /**
-   * {@code non-null;} the type constant for the defining class of
-   * the reference
+   * {@code non-null;} the type for the defining class of the reference
    */
-  private final CstType type;
+  private final Type type;
 
   /**
    * Constructs an instance.
    *
-   * @param type {@code non-null;} the type constant for the defining
-   * class of the reference
+   * @param type {@code non-null;} the type for the defining class of the reference
    */
-  public IdItem(CstType type) {
+  public IdItem(Type type) {
     if (type == null) {
       throw new NullPointerException("type == null");
     }
@@ -50,12 +48,11 @@ public abstract class IdItem extends IndexedItem {
   }
 
   /**
-   * Gets the type constant for the defining class of the
-   * reference.
+   * Gets the type for the defining class of the reference.
    *
    * @return {@code non-null;} the type constant
    */
-  public final CstType getDefiningClass() {
+  public final Type getDefiningClass() {
     return type;
   }
 }

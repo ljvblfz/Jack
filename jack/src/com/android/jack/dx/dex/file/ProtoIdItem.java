@@ -87,7 +87,7 @@ public final class ProtoIdItem extends IndexedItem implements ToHuman {
    * @return the corresponding short-form character
    */
   private static char shortFormCharFor(Type type) {
-    char descriptorChar = type.getDescriptor().charAt(0);
+    char descriptorChar = type.getDescriptor().getString().charAt(0);
 
     if (descriptorChar == '[') {
       return 'L';

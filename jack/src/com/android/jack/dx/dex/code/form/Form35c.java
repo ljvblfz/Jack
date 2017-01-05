@@ -24,7 +24,6 @@ import com.android.jack.dx.rop.code.RegisterSpecList;
 import com.android.jack.dx.rop.cst.Constant;
 import com.android.jack.dx.rop.cst.CstCallSiteRef;
 import com.android.jack.dx.rop.cst.CstMethodRef;
-import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.util.AnnotatedOutput;
 
@@ -87,7 +86,7 @@ public final class Form35c extends InsnFormat {
     }
 
     Constant cst = ci.getConstant();
-    if (!((cst instanceof CstMethodRef) || (cst instanceof CstType)
+    if (!((cst instanceof CstMethodRef) || (cst instanceof Type)
         || (cst instanceof CstCallSiteRef))) {
       return false;
     }

@@ -47,7 +47,7 @@ public abstract class CstBaseMethodRef extends CstMemberRef {
    * @param name {@code non-null;} the member reference name
    * @param prototype {@code non-null;} the member reference prototype
    */
-  /* package */ CstBaseMethodRef(@Nonnull CstType definingClass, @Nonnull CstString name,
+  /* package */ CstBaseMethodRef(@Nonnull Type definingClass, @Nonnull CstString name,
       @Nonnull Prototype prototype) {
     super(definingClass, name);
     this.prototype = prototype;
@@ -82,7 +82,7 @@ public abstract class CstBaseMethodRef extends CstMemberRef {
       return prototype;
     } else {
       if (instancePrototype == null) {
-        Type thisType = getDefiningClass().getClassType();
+        Type thisType = getDefiningClass();
         instancePrototype = prototype.withFirstParameter(thisType);
       }
       return instancePrototype;

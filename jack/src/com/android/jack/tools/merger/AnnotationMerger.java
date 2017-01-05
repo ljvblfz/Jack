@@ -38,7 +38,7 @@ import com.android.jack.dx.rop.cst.CstIndexMap;
 import com.android.jack.dx.rop.cst.CstKnownNull;
 import com.android.jack.dx.rop.cst.CstMethodRef;
 import com.android.jack.dx.rop.cst.CstString;
-import com.android.jack.dx.rop.cst.CstType;
+import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.util.ByteInput;
 import com.android.jack.dx.util.Leb128Utils;
 
@@ -124,7 +124,7 @@ public class AnnotationMerger extends MergerTools {
     Section annotationItemIn = dex.open(annotationItemOffset);
     Annotation ioAnnotation = annotationItemIn.readAnnotation();
     assert cstIndexMap != null;
-    CstType annotationType = cstIndexMap.getCstType(ioAnnotation.getTypeIndex());
+    Type annotationType = cstIndexMap.getType(ioAnnotation.getTypeIndex());
     com.android.jack.dx.rop.annotation.Annotation a =
         new com.android.jack.dx.rop.annotation.Annotation(annotationType,
             AnnotationItem.getAnnotationVisibility(ioAnnotation.getVisibility()));
@@ -180,7 +180,7 @@ public class AnnotationMerger extends MergerTools {
       assert cstIndexMap != null;
       com.android.jack.dx.rop.annotation.Annotation embeddedAnnotation =
           new com.android.jack.dx.rop.annotation.Annotation(
-              cstIndexMap.getCstType(typeIndex), AnnotationVisibility.EMBEDDED);
+              cstIndexMap.getType(typeIndex), AnnotationVisibility.EMBEDDED);
 
 
       for (int i = 0; i < size; i++) {
@@ -243,7 +243,7 @@ public class AnnotationMerger extends MergerTools {
         assert type == ValueType.VALUE_ENUM.getValue();
         FieldId fieldId = dexBuffer.fieldIds().get(index);
         constantValue = new CstEnumRef(cstIndexMap.getCstString(fieldId.getNameIndex()),
-            cstIndexMap.getCstType(fieldId.getTypeIndex()));
+            cstIndexMap.getType(fieldId.getTypeIndex()));
       }
     }
 
@@ -257,7 +257,7 @@ public class AnnotationMerger extends MergerTools {
     @Override
     protected void visitType(int index) {
       assert cstIndexMap != null;
-      constantValue = cstIndexMap.getCstType(index);
+      constantValue = cstIndexMap.getType(index);
     }
 
     @Override

@@ -19,7 +19,6 @@ package com.android.jack.dx.rop.code;
 import com.android.jack.dx.rop.cst.Constant;
 import com.android.jack.dx.rop.cst.CstBaseMethodRef;
 import com.android.jack.dx.rop.cst.CstMethodRef;
-import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Prototype;
 import com.android.jack.dx.rop.type.StdTypeList;
 import com.android.jack.dx.rop.type.Type;
@@ -1068,29 +1067,25 @@ public final class Rops {
       case RegOps.INVOKE_VIRTUAL: {
         CstBaseMethodRef cstMeth = (CstMethodRef) cst;
         Prototype meth = cstMeth.getPrototype();
-        CstType definer = cstMeth.getDefiningClass();
-        meth = meth.withFirstParameter(definer.getClassType());
+        meth = meth.withFirstParameter(cstMeth.getDefiningClass());
         return opInvokeVirtual(meth);
       }
       case RegOps.INVOKE_SUPER: {
         CstBaseMethodRef cstMeth = (CstMethodRef) cst;
         Prototype meth = cstMeth.getPrototype();
-        CstType definer = cstMeth.getDefiningClass();
-        meth = meth.withFirstParameter(definer.getClassType());
+        meth = meth.withFirstParameter(cstMeth.getDefiningClass());
         return opInvokeSuper(meth);
       }
       case RegOps.INVOKE_DIRECT: {
         CstBaseMethodRef cstMeth = (CstMethodRef) cst;
         Prototype meth = cstMeth.getPrototype();
-        CstType definer = cstMeth.getDefiningClass();
-        meth = meth.withFirstParameter(definer.getClassType());
+        meth = meth.withFirstParameter(cstMeth.getDefiningClass());
         return opInvokeDirect(meth);
       }
       case RegOps.INVOKE_INTERFACE: {
         CstBaseMethodRef cstMeth = (CstMethodRef) cst;
         Prototype meth = cstMeth.getPrototype();
-        CstType definer = cstMeth.getDefiningClass();
-        meth = meth.withFirstParameter(definer.getClassType());
+        meth = meth.withFirstParameter(cstMeth.getDefiningClass());
         return opInvokeInterface(meth);
       }
     }

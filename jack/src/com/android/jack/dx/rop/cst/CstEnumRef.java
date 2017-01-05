@@ -35,7 +35,7 @@ public final class CstEnumRef extends CstMemberRef {
    * @param name {@code non-null;} the member reference name
    * @param type {@code non-null;} the member reference type
    */
-  public CstEnumRef(@Nonnull CstString name, @Nonnull CstType type) {
+  public CstEnumRef(@Nonnull CstString name, @Nonnull Type type) {
     super(type, name);
 
     fieldRef = null;
@@ -56,7 +56,7 @@ public final class CstEnumRef extends CstMemberRef {
   @Override
   @Nonnull
   public Type getType() {
-    return getDefiningClass().getClassType();
+    return getDefiningClass();
   }
 
   /**
