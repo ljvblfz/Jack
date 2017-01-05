@@ -111,7 +111,7 @@
            debug="true"
            includeantruntime="false"
            includeDestClasses="false">
-      <exclude name="com/android/jack/coverage/test*/**" />
+      <exclude name="com/android/jack/coverage/**/test*/**" />
       <classpath>
         <filelist dir="${jack-coverage-libs.dir}">
           <file name="jsr305-lib.jar" />
