@@ -329,10 +329,6 @@
 
     <mkdir dir="${jack-top-dist.dir}"/>
 
-    <jar destfile="${jack-top-dist.dir}/${jill.execname}" filesetmanifest="merge">
-      <zipfileset src="${jill.dist.dir}/${jill.execname}"
-      excludes="jill-version.properties"/>
-    </jar>
     <jar destfile="${jack-top-dist.dir}/${jill-api.name}" filesetmanifest="merge">
       <zipfileset src="${jill-api.dist.dir}/${jill-api.name}"
       excludes="jill-api-version.properties"/>
@@ -341,6 +337,25 @@
     <tempfile property="jill-sign.tmp" prefix="ant-jill-sign" destdir="${java.io.tmpdir}" deleteonexit="true"/>
     <mkdir dir="${jill-sign.tmp}"/>
     <copy file="${dist.version.file}" tofile="${jill-sign.tmp}/version.properties"/>
+
+    <jarjar jarfile="${jill-sign.tmp}/${jill.execname}" filesetmanifest="merge">
+      <zipfileset src="${jill.dist.dir}/${jill.execname}"
+      excludes="jill-version.properties"/>
+      <rule pattern="org.objectweb.**" result="com.android.jill.objectweb.@1"/>
+      <rule pattern="org.kohsuke.**" result="com.android.jill.kohsuke.@1"/>
+      <rule pattern="javax.annotation.**" result="com.android.jill.javax.annotation.@1"/>
+      <rule pattern="com.google.**" result="com.android.jill.google.@1"/>
+    </jarjar>
+    <mkdir dir="${jill-sign.tmp}/with-empty-directories" />
+    <mkdir dir="${jill-sign.tmp}/without-empty-directories" />
+    <unzip src="${jill-sign.tmp}/${jill.execname}" dest="${jill-sign.tmp}/with-empty-directories"/>
+    <copy includeemptydirs="false" todir="${jill-sign.tmp}/without-empty-directories">
+      <fileset dir="${jill-sign.tmp}/with-empty-directories" />
+    </copy>
+    <jar  destfile="${jack-top-dist.dir}/${jill.execname}" manifest="${jill.dir}/etc/manifest.txt">
+      <fileset dir="${jill-sign.tmp}/without-empty-directories"/>
+    </jar>
+
 
     <propertyfile file="${jill-sign.tmp}/version.properties">
       <entry key="releaser" default="${sign.eng.releaser}"/>

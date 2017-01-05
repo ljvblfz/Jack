@@ -1,1 +1,4 @@
-rule org.objectweb.** com.android.jill.@0
+rule org.objectweb.** com.android.jill.objectweb.@1
+rule org.kohsuke.** com.android.jill.kohsuke.@1
+rule javax.annotation.** com.android.jill.javax.annotation.@1
+rule com.google.** com.android.jill.google.@1
