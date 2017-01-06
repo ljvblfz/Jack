@@ -17,6 +17,7 @@
 package com.android.jack.ir.ast.cfg.mutations;
 
 import com.android.jack.ir.ast.JClass;
+import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.cfg.JBasicBlock;
 import com.android.jack.ir.ast.cfg.JBasicBlockElement;
 import com.android.jack.ir.ast.cfg.JCaseBasicBlock;
@@ -111,8 +112,8 @@ public class BasicBlockBuilder {
 
   @Nonnull
   public JCatchBasicBlock createCatchBlock(
-      @Nonnull JBasicBlock primary, @Nonnull List<JClass> catchTypes) {
-    return commit(new JCatchBasicBlock(cfg, primary, catchTypes));
+      @Nonnull JBasicBlock primary, @Nonnull List<JClass> catchTypes, @Nonnull JLocal catchLocal) {
+    return commit(new JCatchBasicBlock(cfg, primary, catchTypes, catchLocal));
   }
 
   @Nonnull

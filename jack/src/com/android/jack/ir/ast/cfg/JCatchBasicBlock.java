@@ -19,13 +19,13 @@ package com.android.jack.ir.ast.cfg;
 import com.android.jack.Jack;
 import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JClass;
+import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.sched.item.Component;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 
 import java.util.List;
-
 import javax.annotation.Nonnull;
 
 /**
@@ -37,12 +37,17 @@ import javax.annotation.Nonnull;
 public final class JCatchBasicBlock extends JRegularBasicBlock {
   @Nonnull
   private final List<JClass> catchTypes;
+  @Nonnull
+  private final JLocal catchLocal;
 
-  public JCatchBasicBlock(@Nonnull JControlFlowGraph cfg,
-      @Nonnull JBasicBlock primary, @Nonnull List<JClass> catchTypes) {
+  public JCatchBasicBlock(@Nonnull JControlFlowGraph cfg, @Nonnull JBasicBlock primary,
+      @Nonnull List<JClass> catchTypes, @Nonnull JLocal catchLocal) {
     super(primary);
     this.catchTypes = catchTypes;
+    this.catchLocal = catchLocal;
     updateParents(cfg);
+    catchLocal.updateParents(this);
+    catchLocal.setEnclosingMethodBody(cfg.getMethodBody());
   }
 
   @Override
@@ -64,9 +69,15 @@ public final class JCatchBasicBlock extends JRegularBasicBlock {
     return Jack.getUnmodifiableCollections().getUnmodifiableList(catchTypes);
   }
 
+  @Nonnull
+  public JLocal getCatchLocal() {
+    return catchLocal;
+  }
+
   @Override
   public void traverse(@Nonnull JVisitor visitor) {
     if (visitor.visit(this)) {
+      visitor.accept(catchLocal);
       acceptElements(visitor);
     }
     visitor.endVisit(this);
@@ -75,6 +86,7 @@ public final class JCatchBasicBlock extends JRegularBasicBlock {
   @Override
   public void traverse(@Nonnull ScheduleInstance<? super Component> schedule) throws Exception {
     schedule.process(this);
+    catchLocal.traverse(schedule);
     traverseElements(schedule);
   }
 

@@ -16,6 +16,7 @@
 package com.android.jack.ir.ast;
 
 import com.android.jack.ir.JNodeInternalError;
+import com.android.jack.ir.ast.cfg.JCatchBasicBlock;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
@@ -53,7 +54,7 @@ public class JLocal extends JVariable implements HasEnclosingMethod {
     return null;
   }
 
-  public void setEnclosingMethodBody(@Nonnull JMethodBody enclosingMethodBody) {
+  public void setEnclosingMethodBody(@Nonnull JConcreteMethodBody enclosingMethodBody) {
     this.enclosingMethodBody = enclosingMethodBody;
   }
 
@@ -81,7 +82,8 @@ public class JLocal extends JVariable implements HasEnclosingMethod {
 
   @Override
   public void checkValidity() {
-    if (!(parent instanceof JConcreteMethodBody || parent instanceof JCatchBlock)) {
+    if (!(parent instanceof JConcreteMethodBody ||
+        parent instanceof JCatchBlock || parent instanceof JCatchBasicBlock)) {
       throw new JNodeInternalError(this, "Invalid parent");
     }
   }

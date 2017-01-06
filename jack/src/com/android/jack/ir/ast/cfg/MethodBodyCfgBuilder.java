@@ -47,6 +47,7 @@ import com.android.jack.ir.ast.JFieldInitializer;
 import com.android.jack.ir.ast.JFieldRef;
 import com.android.jack.ir.ast.JGoto;
 import com.android.jack.ir.ast.JIfStatement;
+import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JLock;
 import com.android.jack.ir.ast.JLoop;
 import com.android.jack.ir.ast.JMethod;
@@ -155,8 +156,8 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
     JAbstractMethodBody body = method.getBody();
     assert body instanceof JMethodBody;
 
-    JMethodBodyCfg cfgBody =
-        new JMethodBodyCfg(body.getSourceInfo(), ((JMethodBody) body).getLocals());
+    List<JLocal> locals = ((JMethodBody) body).getLocals();
+    JMethodBodyCfg cfgBody = new JMethodBodyCfg(body.getSourceInfo(), locals);
 
     new Builder(
         cfgMarker.getEntryNode(),
@@ -166,6 +167,12 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
     TransformationRequest request = new TransformationRequest(method);
     request.append(new Replace(body, cfgBody));
     request.commit();
+
+    // Update locals to reflect new parent
+    for (JLocal local : locals) {
+      local.updateParents(cfgBody);
+      local.setEnclosingMethodBody(cfgBody);
+    }
   }
 
   /** Cfg builder */
@@ -315,8 +322,8 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
         List<BasicBlock> successors = block.getSuccessors();
         assert successors.size() == 1;
         CatchBasicBlock catchBlock = (CatchBasicBlock) block;
-        newBlock = new JCatchBasicBlock(cfg,
-            getBlockOrEnqueue(successors.get(0)), catchBlock.getCatchTypes());
+        newBlock = new JCatchBasicBlock(cfg, getBlockOrEnqueue(successors.get(0)),
+            catchBlock.getCatchTypes(), catchBlock.getCatchVar());
 
       } else if (block instanceof ReturnBasicBlock) {
         List<BasicBlock> successors = block.getSuccessors();
