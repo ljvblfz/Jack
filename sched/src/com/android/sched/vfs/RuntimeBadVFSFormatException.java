@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,31 +16,34 @@
 
 package com.android.sched.vfs;
 
-import com.android.sched.util.file.SchedIOException;
+import com.android.sched.util.UnrecoverableException;
 import com.android.sched.util.location.Location;
 
 import javax.annotation.Nonnull;
 
 /**
- * {@link Exception} when a {@link VFS} has a bad format, i.e. it does not match the expected
+ * {@link RuntimeException} when a {@link VFS} has a bad format, i.e. it does not match the expected
  * format.
  */
-public class BadVFSFormatException extends SchedIOException {
+public class RuntimeBadVFSFormatException extends UnrecoverableException {
   private static final long serialVersionUID = 1L;
 
   @Nonnull
   private final VFS vfs;
+  @Nonnull
+  private final Location location;
 
-  public BadVFSFormatException(@Nonnull VFS vfs, @Nonnull Location location,
+  public RuntimeBadVFSFormatException(@Nonnull VFS vfs, @Nonnull Location location,
       @Nonnull Throwable cause) {
-    super(location, cause);
+    super(cause);
     this.vfs = vfs;
+    this.location = location;
   }
 
   @Override
   @Nonnull
-  protected String createMessage(@Nonnull String description) {
-    return "'" + vfs.getDescription() + "' VFS in " + description
-    + " has a bad format: " + getCause().getMessage();
+  public String getMessage() {
+    return "'" + vfs.getDescription() + "' VFS in " + location.getDescription()
+    + " has an unexpected bad format: " + getCause().getMessage();
   }
 }
