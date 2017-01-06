@@ -33,10 +33,7 @@ public abstract class IdItem extends IndexedItem {
    * @param type {@code non-null;} the type for the defining class of the reference
    */
   public IdItem(Type type) {
-    if (type == null) {
-      throw new NullPointerException("type == null");
-    }
-
+    assert type != null;
     this.type = type;
   }
 

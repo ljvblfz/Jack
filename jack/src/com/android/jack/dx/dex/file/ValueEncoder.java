@@ -163,14 +163,8 @@ public final class ValueEncoder {
    * @param out {@code non-null;} output stream to write to
    */
   public ValueEncoder(DexFile file, AnnotatedOutput out) {
-    if (file == null) {
-      throw new NullPointerException("file == null");
-    }
-
-    if (out == null) {
-      throw new NullPointerException("out == null");
-    }
-
+    assert file != null;
+    assert out != null;
     this.file = file;
     this.out = out;
   }

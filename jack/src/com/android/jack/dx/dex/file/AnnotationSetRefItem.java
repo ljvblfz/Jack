@@ -39,11 +39,7 @@ public final class AnnotationSetRefItem extends OffsettedItem {
    */
   public AnnotationSetRefItem(AnnotationSetItem annotations) {
     super(ALIGNMENT, WRITE_SIZE);
-
-    if (annotations == null) {
-      throw new NullPointerException("annotations == null");
-    }
-
+    assert annotations != null;
     this.annotations = annotations;
   }
 

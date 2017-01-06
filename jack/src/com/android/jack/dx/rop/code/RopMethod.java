@@ -48,9 +48,7 @@ public final class RopMethod {
    * @param firstLabel {@code >= 0;} the label of the first block to execute
    */
   public RopMethod(BasicBlockList blocks, int firstLabel) {
-    if (blocks == null) {
-      throw new NullPointerException("blocks == null");
-    }
+    assert blocks != null;
 
     if (firstLabel < 0) {
       throw new IllegalArgumentException("firstLabel < 0");

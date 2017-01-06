@@ -58,6 +58,8 @@ public final class Dop {
    * is always the first register
    */
   public Dop(int opcode, int family, int nextOpcode, InsnFormat format, boolean hasResult) {
+    assert format != null;
+
     if (!Opcodes.isValidShape(opcode)) {
       throw new IllegalArgumentException("bogus opcode");
     }
@@ -68,10 +70,6 @@ public final class Dop {
 
     if (!Opcodes.isValidShape(nextOpcode)) {
       throw new IllegalArgumentException("bogus nextOpcode");
-    }
-
-    if (format == null) {
-      throw new NullPointerException("format == null");
     }
 
     this.opcode = opcode;

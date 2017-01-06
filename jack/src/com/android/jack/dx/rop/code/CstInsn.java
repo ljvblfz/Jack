@@ -37,11 +37,7 @@ public abstract class CstInsn extends Insn {
   public CstInsn(Rop opcode, SourcePosition position, RegisterSpec result, RegisterSpecList sources,
       Constant cst) {
     super(opcode, position, result, sources);
-
-    if (cst == null) {
-      throw new NullPointerException("cst == null");
-    }
-
+    assert cst != null;
     this.cst = cst;
   }
 

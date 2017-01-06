@@ -80,13 +80,8 @@ public final class DalvCode {
    */
   public DalvCode(int positionInfo, OutputFinisher unprocessedInsns,
       CatchBuilder unprocessedCatches) {
-    if (unprocessedInsns == null) {
-      throw new NullPointerException("unprocessedInsns == null");
-    }
-
-    if (unprocessedCatches == null) {
-      throw new NullPointerException("unprocessedCatches == null");
-    }
+    assert unprocessedInsns != null;
+    assert unprocessedCatches != null;
 
     this.positionInfo = positionInfo;
     this.unprocessedInsns = unprocessedInsns;

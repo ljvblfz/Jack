@@ -54,9 +54,7 @@ public final class FieldIdsSection extends MemberIdsSection {
   /** {@inheritDoc} */
   @Override
   public IndexedItem get(Constant cst) {
-    if (cst == null) {
-      throw new NullPointerException("cst == null");
-    }
+    assert cst != null;
 
     throwIfNotPrepared();
 
@@ -96,9 +94,7 @@ public final class FieldIdsSection extends MemberIdsSection {
    * @return {@code non-null;} the interned reference
    */
   public FieldIdItem intern(CstFieldRef field) {
-    if (field == null) {
-      throw new NullPointerException("field == null");
-    }
+    assert field != null;
 
     throwIfPrepared();
 
@@ -120,9 +116,7 @@ public final class FieldIdsSection extends MemberIdsSection {
    * @return {@code >= 0;} the reference's index
    */
   public int indexOf(CstFieldRef ref) {
-    if (ref == null) {
-      throw new NullPointerException("ref == null");
-    }
+    assert ref != null;
 
     throwIfNotPrepared();
 

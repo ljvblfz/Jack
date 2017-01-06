@@ -52,11 +52,7 @@ public final class UniformListItem<T extends OffsettedItem> extends OffsettedIte
    */
   public UniformListItem(ItemType itemType, List<T> items) {
     super(getAlignment(items), writeSize(items));
-
-    if (itemType == null) {
-      throw new NullPointerException("itemType == null");
-    }
-
+    assert itemType != null;
     this.items = items;
     this.itemType = itemType;
   }
@@ -70,15 +66,13 @@ public final class UniformListItem<T extends OffsettedItem> extends OffsettedIte
    * @return {@code >= 4;} the alignment requirement
    */
   private static int getAlignment(List<? extends OffsettedItem> items) {
+    assert items != null;
     try {
       // Since they all must have the same alignment, any one will do.
       return Math.max(HEADER_SIZE, items.get(0).getAlignment());
     } catch (IndexOutOfBoundsException ex) {
       // Translate the exception.
       throw new IllegalArgumentException("items.size() == 0");
-    } catch (NullPointerException ex) {
-      // Translate the exception.
-      throw new NullPointerException("items == null");
     }
   }
 

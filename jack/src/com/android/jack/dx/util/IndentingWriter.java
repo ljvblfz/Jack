@@ -55,17 +55,11 @@ public final class IndentingWriter extends FilterWriter {
    */
   public IndentingWriter(Writer out, int width, String prefix) {
     super(out);
-
-    if (out == null) {
-      throw new NullPointerException("out == null");
-    }
+    assert out != null;
+    assert prefix != null;
 
     if (width < 0) {
       throw new IllegalArgumentException("width < 0");
-    }
-
-    if (prefix == null) {
-      throw new NullPointerException("prefix == null");
     }
 
     this.width = (width != 0) ? width : Integer.MAX_VALUE;

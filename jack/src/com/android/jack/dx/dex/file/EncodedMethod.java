@@ -48,15 +48,9 @@ public final class EncodedMethod extends EncodedMember implements Comparable<Enc
    */
   public EncodedMethod(CstMethodRef method, int accessFlags, OffsettedItem code) {
     super(accessFlags);
-
     assert code == null || code instanceof Code;
-
-    if (method == null) {
-      throw new NullPointerException("method == null");
-    }
-
+    assert method != null;
     this.method = method;
-
     this.code = code;
   }
 

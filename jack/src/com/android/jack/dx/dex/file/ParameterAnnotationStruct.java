@@ -46,14 +46,8 @@ public final class ParameterAnnotationStruct implements ToHuman,
    * @param annotationsList {@code non-null;} the associated annotations list
    */
   public ParameterAnnotationStruct(CstMethodRef method, AnnotationsList annotationsList) {
-    if (method == null) {
-      throw new NullPointerException("method == null");
-    }
-
-    if (annotationsList == null) {
-      throw new NullPointerException("annotationsList == null");
-    }
-
+    assert method != null;
+    assert annotationsList != null;
     this.method = method;
     this.annotationsList = annotationsList;
 

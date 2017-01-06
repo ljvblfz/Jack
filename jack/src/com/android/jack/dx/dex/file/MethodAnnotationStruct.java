@@ -39,14 +39,8 @@ public final class MethodAnnotationStruct implements ToHuman, Comparable<MethodA
    * @param annotations {@code non-null;} the associated annotations
    */
   public MethodAnnotationStruct(CstMethodRef method, AnnotationSetItem annotations) {
-    if (method == null) {
-      throw new NullPointerException("method == null");
-    }
-
-    if (annotations == null) {
-      throw new NullPointerException("annotations == null");
-    }
-
+    assert method != null;
+    assert annotations != null;
     this.method = method;
     this.annotations = annotations;
   }

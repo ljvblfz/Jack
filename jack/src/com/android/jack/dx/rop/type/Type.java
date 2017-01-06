@@ -306,15 +306,13 @@ public final class Type extends TypedConstant implements TypeBearer {
       return result;
     }
 
+    assert descriptor != null;
     char firstChar;
     try {
       firstChar = descriptor.charAt(0);
     } catch (IndexOutOfBoundsException ex) {
       // Translate the exception.
       throw new IllegalArgumentException("descriptor is empty");
-    } catch (NullPointerException ex) {
-      // Elucidate the exception.
-      throw new NullPointerException("descriptor == null");
     }
 
     if (firstChar == '[') {
@@ -381,14 +379,10 @@ public final class Type extends TypedConstant implements TypeBearer {
    * invalid syntax
    */
   public static Type internReturnType(String descriptor) {
-    try {
-      if (descriptor.equals("V")) {
-        // This is the one special case where void may be returned.
-        return VOID;
-      }
-    } catch (NullPointerException ex) {
-      // Elucidate the exception.
-      throw new NullPointerException("descriptor == null");
+    assert descriptor != null;
+    if (descriptor.equals("V")) {
+      // This is the one special case where void may be returned.
+      return VOID;
     }
 
     return intern(descriptor);
@@ -405,9 +399,7 @@ public final class Type extends TypedConstant implements TypeBearer {
    * @param newAt {@code >= -1;} allocation bytecode index
    */
   private Type(String descriptor, int basicType, int newAt) {
-    if (descriptor == null) {
-      throw new NullPointerException("descriptor == null");
-    }
+    assert descriptor != null;
 
     if ((basicType < 0) || (basicType >= BT_COUNT)) {
       throw new IllegalArgumentException("bad basicType");

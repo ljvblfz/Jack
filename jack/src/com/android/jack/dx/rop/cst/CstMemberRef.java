@@ -41,7 +41,6 @@ public abstract class CstMemberRef extends TypedConstant {
   /* package */ CstMemberRef(@Nonnull Type definingClass, @Nonnull CstString name) {
     assert definingClass != null;
     assert name != null;
-
     this.definingClass = definingClass;
     this.name = name;
   }

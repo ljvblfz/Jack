@@ -37,10 +37,7 @@ public final class StringIdItem extends IndexedItem implements Comparable<String
    * @param value {@code non-null;} the string value
    */
   public StringIdItem(CstString value) {
-    if (value == null) {
-      throw new NullPointerException("value == null");
-    }
-
+    assert value != null;
     this.value = value;
     this.data = null;
   }

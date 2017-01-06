@@ -49,7 +49,6 @@ public final class CstInsn extends FixedSizeInsn {
       Constant constant) {
     super(opcode, position, registers);
     assert constant != null;
-
     this.constant = constant;
     this.index = -1;
   }

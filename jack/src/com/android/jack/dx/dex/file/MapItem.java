@@ -59,9 +59,7 @@ public final class MapItem extends OffsettedItem {
    * should be added to; it should be empty on entry to this method
    */
   public static void addMap(Section[] sections, MixedItemSection mapSection) {
-    if (sections == null) {
-      throw new NullPointerException("sections == null");
-    }
+    assert sections != null;
 
     if (mapSection.items().size() != 0) {
       throw new IllegalArgumentException("mapSection.items().size() != 0");
@@ -109,23 +107,12 @@ public final class MapItem extends OffsettedItem {
    */
   private MapItem(ItemType type, Section section, Item firstItem, int itemCount) {
     super(ALIGNMENT, WRITE_SIZE);
-
-    if (type == null) {
-      throw new NullPointerException("type == null");
-    }
-
-    if (section == null) {
-      throw new NullPointerException("section == null");
-    }
-
-    if (firstItem == null) {
-      throw new NullPointerException("firstItem == null");
-    }
-
+    assert type != null;
+    assert section != null;
+    assert firstItem != null;
     if (itemCount <= 0) {
       throw new IllegalArgumentException("itemCount <= 0");
     }
-
     this.type = type;
     this.section = section;
     this.firstItem = firstItem;
@@ -140,11 +127,7 @@ public final class MapItem extends OffsettedItem {
    */
   private MapItem(Section section) {
     super(ALIGNMENT, WRITE_SIZE);
-
-    if (section == null) {
-      throw new NullPointerException("section == null");
-    }
-
+    assert section != null;
     this.type = ItemType.TYPE_MAP_LIST;
     this.section = section;
     this.firstItem = null;

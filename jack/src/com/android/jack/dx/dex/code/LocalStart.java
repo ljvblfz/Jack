@@ -55,11 +55,7 @@ public final class LocalStart extends ZeroSizeInsn {
    */
   public LocalStart(SourcePosition position, RegisterSpec local) {
     super(position);
-
-    if (local == null) {
-      throw new NullPointerException("local == null");
-    }
-
+    assert local != null;
     this.local = local;
   }
 

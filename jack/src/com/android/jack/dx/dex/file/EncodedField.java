@@ -40,17 +40,12 @@ public final class EncodedField extends EncodedMember implements Comparable<Enco
    */
   public EncodedField(CstFieldRef field, int accessFlags) {
     super(accessFlags);
-
-    if (field == null) {
-      throw new NullPointerException("field == null");
-    }
-
+    assert field != null;
     /*
      * TODO(dx team): Maybe check accessFlags, at least for
      * easily-checked stuff?
      */
-
-this.field = field;
+    this.field = field;
   }
 
   /** {@inheritDoc} */

@@ -66,10 +66,7 @@ public final class ThrowingInsn extends Insn {
       throw new IllegalArgumentException("bogus branchingness");
     }
 
-    if (catches == null) {
-      throw new NullPointerException("catches == null");
-    }
-
+    assert catches != null;
     this.catches = catches;
   }
 

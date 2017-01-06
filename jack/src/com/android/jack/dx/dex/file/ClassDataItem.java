@@ -74,11 +74,7 @@ public final class ClassDataItem extends OffsettedItem {
    */
   public ClassDataItem(Type thisClass) {
     super(1, -1);
-
-    if (thisClass == null) {
-      throw new NullPointerException("thisClass == null");
-    }
-
+    assert thisClass != null;
     this.thisClass = thisClass;
     this.staticFields = new ArrayList<EncodedField>(20);
     this.staticValues = new HashMap<EncodedField, Constant>(40);
@@ -118,9 +114,7 @@ public final class ClassDataItem extends OffsettedItem {
    * @param value {@code null-ok;} initial value for the field, if any
    */
   public void addStaticField(EncodedField field, Constant value) {
-    if (field == null) {
-      throw new NullPointerException("field == null");
-    }
+    assert field != null;
 
     if (staticValuesConstant != null) {
       throw new UnsupportedOperationException("static fields already sorted");
@@ -136,10 +130,7 @@ public final class ClassDataItem extends OffsettedItem {
    * @param field {@code non-null;} the field to add
    */
   public void addInstanceField(EncodedField field) {
-    if (field == null) {
-      throw new NullPointerException("field == null");
-    }
-
+    assert field != null;
     instanceFields.add(field);
   }
 
@@ -149,10 +140,7 @@ public final class ClassDataItem extends OffsettedItem {
    * @param method {@code non-null;} the method to add
    */
   public void addDirectMethod(EncodedMethod method) {
-    if (method == null) {
-      throw new NullPointerException("method == null");
-    }
-
+    assert method != null;
     directMethods.add(method);
   }
 
@@ -162,10 +150,7 @@ public final class ClassDataItem extends OffsettedItem {
    * @param method {@code non-null;} the method to add
    */
   public void addVirtualMethod(EncodedMethod method) {
-    if (method == null) {
-      throw new NullPointerException("method == null");
-    }
-
+    assert method != null;
     virtualMethods.add(method);
   }
 

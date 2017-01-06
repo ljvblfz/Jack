@@ -64,9 +64,7 @@ public final class ClassDefsSection extends UniformItemSection {
   /** {@inheritDoc} */
   @Override
   public IndexedItem get(Constant cst) {
-    if (cst == null) {
-      throw new NullPointerException("cst == null");
-    }
+    assert cst != null;
 
     throwIfNotPrepared();
 
@@ -106,14 +104,9 @@ public final class ClassDefsSection extends UniformItemSection {
    * @param clazz {@code non-null;} the class def to add
    */
   public void add(ClassDefItem clazz) {
-    Type type;
+    assert clazz != null;
+    Type type = clazz.getThisClass();
 
-    try {
-      type = clazz.getThisClass();
-    } catch (NullPointerException ex) {
-      // Elucidate the exception.
-      throw new NullPointerException("clazz == null");
-    }
 
     throwIfPrepared();
 

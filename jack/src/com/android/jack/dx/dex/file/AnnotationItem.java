@@ -107,11 +107,7 @@ public final class AnnotationItem extends OffsettedItem {
      * leb128 type is used to represent some things.
      */
     super(ALIGNMENT, -1);
-
-    if (annotation == null) {
-      throw new NullPointerException("annotation == null");
-    }
-
+    assert annotation != null;
     this.annotation = annotation;
     this.type = null;
     this.encodedForm = null;

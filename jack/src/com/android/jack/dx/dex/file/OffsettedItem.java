@@ -231,9 +231,7 @@ public abstract class OffsettedItem extends Item implements Comparable<Offsetted
    * in order to meet its alignment constraint
    */
   public final int place(Section addedTo, int offset) {
-    if (addedTo == null) {
-      throw new NullPointerException("addedTo == null");
-    }
+    assert addedTo != null;
 
     if (offset < 0) {
       throw new IllegalArgumentException("offset < 0");

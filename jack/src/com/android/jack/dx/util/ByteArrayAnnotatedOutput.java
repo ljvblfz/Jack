@@ -99,10 +99,7 @@ public final class ByteArrayAnnotatedOutput implements AnnotatedOutput, ByteOutp
    * @param stretchy whether the instance is to be stretchy
    */
   private ByteArrayAnnotatedOutput(byte[] data, boolean stretchy) {
-    if (data == null) {
-      throw new NullPointerException("data == null");
-    }
-
+    assert data != null;
     this.stretchy = stretchy;
     this.data = data;
     this.cursor = 0;

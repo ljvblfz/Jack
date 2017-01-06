@@ -48,14 +48,8 @@ public final class Annotation extends MutabilityControl implements Comparable<An
    * @param visibility {@code non-null;} the visibility of the annotation
    */
   public Annotation(Type type, AnnotationVisibility visibility) {
-    if (type == null) {
-      throw new NullPointerException("type == null");
-    }
-
-    if (visibility == null) {
-      throw new NullPointerException("visibility == null");
-    }
-
+    assert type != null;
+    assert visibility != null;
     this.type = type;
     this.visibility = visibility;
     this.elements = new TreeMap<CstString, NameValuePair>();
@@ -181,12 +175,8 @@ public final class Annotation extends MutabilityControl implements Comparable<An
    * @param pair {@code non-null;} the (name, value) pair to place into this instance
    */
   public void put(NameValuePair pair) {
+    assert pair != null;
     throwIfImmutable();
-
-    if (pair == null) {
-      throw new NullPointerException("pair == null");
-    }
-
     elements.put(pair.getName(), pair);
   }
 
@@ -198,12 +188,8 @@ public final class Annotation extends MutabilityControl implements Comparable<An
    * @param pair {@code non-null;} the (name, value) pair to add to this instance
    */
   public void add(NameValuePair pair) {
+    assert pair != null;
     throwIfImmutable();
-
-    if (pair == null) {
-      throw new NullPointerException("pair == null");
-    }
-
     CstString name = pair.getName();
 
     if (elements.get(name) != null) {

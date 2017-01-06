@@ -34,9 +34,7 @@ public final class CstArray extends Constant {
    * @param list {@code non-null;} the actual list of contents
    */
   public CstArray(List list) {
-    if (list == null) {
-      throw new NullPointerException("list == null");
-    }
+    assert list != null;
 
     list.throwIfMutable();
 

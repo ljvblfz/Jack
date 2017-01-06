@@ -55,9 +55,7 @@ public final class TypeIdsSection extends UniformItemSection {
   /** {@inheritDoc} */
   @Override
   public IndexedItem get(Constant cst) {
-    if (cst == null) {
-      throw new NullPointerException("cst == null");
-    }
+    assert cst != null;
 
     throwIfNotPrepared();
 
@@ -102,9 +100,7 @@ public final class TypeIdsSection extends UniformItemSection {
    * @return {@code non-null;} the interned reference
    */
   public TypeIdItem intern(Type type) {
-    if (type == null) {
-      throw new NullPointerException("type == null");
-    }
+    assert type != null;
 
     throwIfPrepared();
 
@@ -126,9 +122,7 @@ public final class TypeIdsSection extends UniformItemSection {
    * @return {@code >= 0;} the reference's index
    */
   public int indexOf(Type type) {
-    if (type == null) {
-      throw new NullPointerException("type == null");
-    }
+    assert type != null;
 
     throwIfNotPrepared();
 

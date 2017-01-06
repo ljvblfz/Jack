@@ -197,10 +197,7 @@ public final class CstString extends TypedConstant {
    * @param string {@code non-null;} the UTF-8 value as a string
    */
   public CstString(String string) {
-    if (string == null) {
-      throw new NullPointerException("string == null");
-    }
-
+    assert string != null;
     this.string = string.intern();
   }
 

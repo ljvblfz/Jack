@@ -179,12 +179,10 @@ public final class CatchHandlerList extends FixedSizeList implements Comparable<
      * @param handler {@code >= 0;} exception handler address
      */
     public Entry(Type exceptionType, int handler) {
+      assert exceptionType != null;
+
       if (handler < 0) {
         throw new IllegalArgumentException("handler < 0");
-      }
-
-      if (exceptionType == null) {
-        throw new NullPointerException("exceptionType == null");
       }
 
       this.handler = handler;

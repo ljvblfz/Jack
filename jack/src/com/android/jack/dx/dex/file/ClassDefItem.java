@@ -87,19 +87,12 @@ public final class ClassDefItem extends IndexedItem {
    */
   public ClassDefItem(Type thisClass, int accessFlags, Type superclass, TypeList interfaces,
       CstString sourceFile) {
-    if (thisClass == null) {
-      throw new NullPointerException("thisClass == null");
-    }
-
+    assert thisClass != null;
+    assert interfaces != null;
     /*
      * TODO(dx team): Maybe check accessFlags and superclass, at
      * least for easily-checked stuff?
      */
-
-    if (interfaces == null) {
-      throw new NullPointerException("interfaces == null");
-    }
-
     this.thisClass = thisClass;
     this.accessFlags = accessFlags;
     this.superclass = superclass;

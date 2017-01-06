@@ -97,9 +97,7 @@ public final class ProtoIdsSection extends UniformItemSection {
    * @return {@code non-null;} the interned reference
    */
   public ProtoIdItem intern(Prototype prototype) {
-    if (prototype == null) {
-      throw new NullPointerException("prototype == null");
-    }
+    assert prototype != null;
 
     throwIfPrepared();
 
@@ -121,9 +119,7 @@ public final class ProtoIdsSection extends UniformItemSection {
    * @return {@code >= 0;} the reference's index
    */
   public int indexOf(Prototype prototype) {
-    if (prototype == null) {
-      throw new NullPointerException("prototype == null");
-    }
+    assert prototype != null;
 
     throwIfNotPrepared();
 

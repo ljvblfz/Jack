@@ -47,11 +47,7 @@ public final class EncodedArrayItem extends OffsettedItem {
      * leb128 type is used to represent some things.
      */
     super(ALIGNMENT, -1);
-
-    if (array == null) {
-      throw new NullPointerException("array == null");
-    }
-
+    assert array != null;
     this.array = array;
     this.encodedForm = null;
   }

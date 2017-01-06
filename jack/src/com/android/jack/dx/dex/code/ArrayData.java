@@ -62,14 +62,8 @@ public final class ArrayData extends VariableSizeInsn {
   public ArrayData(SourcePosition position, CodeAddress user, ArrayList<Constant> values,
       Constant arrayType) {
     super(position, RegisterSpecList.EMPTY);
-
-    if (user == null) {
-      throw new NullPointerException("user == null");
-    }
-
-    if (values == null) {
-      throw new NullPointerException("values == null");
-    }
+    assert user != null;
+    assert values != null;
 
     int sz = values.size();
 

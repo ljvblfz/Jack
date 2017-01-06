@@ -67,13 +67,8 @@ public final class AnnotationSetItem extends OffsettedItem {
    */
   private static int writeSize(Annotations annotations) {
     // This includes an int size at the start of the list.
-
-    try {
-      return (annotations.size() * ENTRY_WRITE_SIZE) + 4;
-    } catch (NullPointerException ex) {
-      // Elucidate the exception.
-      throw new NullPointerException("list == null");
-    }
+    assert annotations != null;
+    return (annotations.size() * ENTRY_WRITE_SIZE) + 4;
   }
 
   /**

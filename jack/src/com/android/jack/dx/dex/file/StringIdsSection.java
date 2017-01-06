@@ -54,9 +54,7 @@ public final class StringIdsSection extends UniformItemSection {
   /** {@inheritDoc} */
   @Override
   public IndexedItem get(Constant cst) {
-    if (cst == null) {
-      throw new NullPointerException("cst == null");
-    }
+    assert cst != null;
 
     throwIfNotPrepared();
 
@@ -107,9 +105,7 @@ public final class StringIdsSection extends UniformItemSection {
    * @return {@code non-null;} the interned string
    */
   public StringIdItem intern(CstString string) {
-    if (string == null) {
-      throw new NullPointerException("string == null");
-    }
+    assert string != null;
 
     throwIfPrepared();
 
@@ -131,9 +127,7 @@ public final class StringIdsSection extends UniformItemSection {
    * @return {@code non-null;} the interned string
    */
   public StringIdItem intern(StringIdItem string) {
-    if (string == null) {
-      throw new NullPointerException("string == null");
-    }
+    assert string != null;
 
     throwIfPrepared();
 
@@ -156,9 +150,7 @@ public final class StringIdsSection extends UniformItemSection {
    * @return {@code >= 0;} the string's index
    */
   public int indexOf(CstString string) {
-    if (string == null) {
-      throw new NullPointerException("string == null");
-    }
+    assert string != null;
 
     throwIfNotPrepared();
 

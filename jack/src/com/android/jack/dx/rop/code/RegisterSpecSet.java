@@ -259,11 +259,9 @@ public final class RegisterSpecSet extends MutabilityControl {
    * @param spec {@code non-null;} the register spec to put in the instance
    */
   public void put(RegisterSpec spec) {
-    throwIfImmutable();
+    assert spec != null;
 
-    if (spec == null) {
-      throw new NullPointerException("spec == null");
-    }
+    throwIfImmutable();
 
     size = -1;
 

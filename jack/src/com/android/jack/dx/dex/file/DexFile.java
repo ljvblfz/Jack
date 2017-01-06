@@ -492,6 +492,7 @@ public final class DexFile {
    * @param cst {@code non-null;} constant to possibly intern
    */
   /*package*/void internIfAppropriate(Constant cst) {
+    assert cst != null;
     if (cst instanceof CstString) {
       stringIds.intern((CstString) cst);
     } else if (cst instanceof Type) {
@@ -506,16 +507,13 @@ public final class DexFile {
       protoIds.intern(((CstPrototypeRef) cst).getPrototype());
     } else if (cst instanceof CstMethodHandleRef) {
       methodHandleIds.intern((CstMethodHandleRef) cst);
-    } else if (cst == null) {
-      throw new NullPointerException("cst == null");
     }
   }
 
   public void appendIfAppropriate(Constant cst) {
+    assert cst != null;
     if (cst instanceof CstCallSiteRef) {
       callSiteIds.add((CstCallSiteRef) cst);
-    } else if (cst == null) {
-      throw new NullPointerException("cst == null");
     }
   }
 

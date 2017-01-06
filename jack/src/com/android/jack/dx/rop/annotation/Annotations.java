@@ -166,11 +166,9 @@ public final class Annotations extends MutabilityControl implements Comparable<A
    * @throws IllegalArgumentException thrown if there is a duplicate type
    */
   public void add(Annotation annotation) {
-    throwIfImmutable();
+    assert annotation != null;
 
-    if (annotation == null) {
-      throw new NullPointerException("annotation == null");
-    }
+    throwIfImmutable();
 
     Type type = annotation.getType();
 
@@ -189,11 +187,9 @@ public final class Annotations extends MutabilityControl implements Comparable<A
    * @throws IllegalArgumentException thrown if there is a duplicate type
    */
   public void addAll(Annotations toAdd) {
-    throwIfImmutable();
+    assert toAdd != null;
 
-    if (toAdd == null) {
-      throw new NullPointerException("toAdd == null");
-    }
+    throwIfImmutable();
 
     for (Annotation a : toAdd.annotations.values()) {
       add(a);

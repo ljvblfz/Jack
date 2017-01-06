@@ -138,21 +138,12 @@ public final class LocalList extends FixedSizeList {
      * the variable
      */
     public Entry(int address, Disposition disposition, RegisterSpec spec) {
+      assert disposition != null;
+      assert spec != null;
+      assert spec.getLocalItem() != null;
+
       if (address < 0) {
         throw new IllegalArgumentException("address < 0");
-      }
-
-      if (disposition == null) {
-        throw new NullPointerException("disposition == null");
-      }
-
-      try {
-        if (spec.getLocalItem() == null) {
-          throw new NullPointerException("spec.getLocalItem() == null");
-        }
-      } catch (NullPointerException ex) {
-        // Elucidate the exception.
-        throw new NullPointerException("spec == null");
       }
 
       this.address = address;

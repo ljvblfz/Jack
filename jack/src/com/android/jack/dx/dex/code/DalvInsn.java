@@ -89,17 +89,9 @@ public abstract class DalvInsn {
    * ins and outs)
    */
   public DalvInsn(Dop opcode, SourcePosition position, RegisterSpecList registers) {
-    if (opcode == null) {
-      throw new NullPointerException("opcode == null");
-    }
-
-    if (position == null) {
-      throw new NullPointerException("position == null");
-    }
-
-    if (registers == null) {
-      throw new NullPointerException("registers == null");
-    }
+    assert opcode != null;
+    assert position != null;
+    assert registers != null;
 
     this.address = -1;
     this.opcode = opcode;

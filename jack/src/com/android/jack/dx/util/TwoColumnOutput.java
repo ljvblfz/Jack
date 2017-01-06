@@ -84,9 +84,8 @@ public final class TwoColumnOutput {
    * @param spacer {@code non-null;} spacer string to sit between the two columns
    */
   public TwoColumnOutput(Writer out, int leftWidth, int rightWidth, String spacer) {
-    if (out == null) {
-      throw new NullPointerException("out == null");
-    }
+    assert out != null;
+    assert spacer != null;
 
     if (leftWidth < 1) {
       throw new IllegalArgumentException("leftWidth < 1");
@@ -94,10 +93,6 @@ public final class TwoColumnOutput {
 
     if (rightWidth < 1) {
       throw new IllegalArgumentException("rightWidth < 1");
-    }
-
-    if (spacer == null) {
-      throw new NullPointerException("spacer == null");
     }
 
     StringWriter leftWriter = new StringWriter(1000);

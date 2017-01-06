@@ -166,15 +166,12 @@ public final class MixedItemSection extends Section {
    * @param item {@code non-null;} the item to add
    */
   public void add(OffsettedItem item) {
+    assert item != null;
+
     throwIfPrepared();
 
-    try {
-      if (item.getAlignment() > getAlignment()) {
-        throw new IllegalArgumentException("incompatible item alignment");
-      }
-    } catch (NullPointerException ex) {
-      // Elucidate the exception.
-      throw new NullPointerException("item == null");
+    if (item.getAlignment() > getAlignment()) {
+      throw new IllegalArgumentException("incompatible item alignment");
     }
 
     items.add(item);

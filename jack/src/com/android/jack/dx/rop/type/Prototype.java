@@ -243,18 +243,9 @@ public final class Prototype implements Comparable<Prototype> {
    * @param descriptor {@code non-null;} the descriptor string
    */
   private Prototype(String descriptor, Type returnType, StdTypeList parameterTypes) {
-    if (descriptor == null) {
-      throw new NullPointerException("descriptor == null");
-    }
-
-    if (returnType == null) {
-      throw new NullPointerException("returnType == null");
-    }
-
-    if (parameterTypes == null) {
-      throw new NullPointerException("parameterTypes == null");
-    }
-
+    assert descriptor != null;
+    assert returnType != null;
+    assert parameterTypes != null;
     this.descriptor = descriptor;
     this.returnType = returnType;
     this.parameterTypes = parameterTypes;

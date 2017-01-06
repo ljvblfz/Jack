@@ -53,9 +53,7 @@ public final class LocalVariableExtractor {
    * @param method {@code non-null;} the method to extract from
    */
   private LocalVariableExtractor(RopMethod method) {
-    if (method == null) {
-      throw new NullPointerException("method == null");
-    }
+    assert method != null;
 
     BasicBlockList blocks = method.getBlocks();
     int maxLabel = blocks.getMaxLabel();
