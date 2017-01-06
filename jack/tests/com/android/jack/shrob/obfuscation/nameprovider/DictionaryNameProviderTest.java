@@ -16,12 +16,14 @@
 
 package com.android.jack.shrob.obfuscation.nameprovider;
 
+import com.android.jack.category.KnownBugs;
 import com.android.jack.shrob.obfuscation.key.TypeKey;
 import com.android.jack.test.TestsProperties;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.File;
 
@@ -32,6 +34,28 @@ public class DictionaryNameProviderTest {
     TypeKey oldKey = new TypeKey("old");
     File dictionaryFile = new File(TestsProperties.getJackRootDir(),
         "jack/tests/com/android/jack/shrob/obfuscation/nameprovider/dictionary.txt");
+    DictionaryNameProvider dnp =
+        new DictionaryNameProvider(dictionaryFile, new LowerCaseAlphabeticalNameProvider());
+    Assert.assertEquals("abc", dnp.getNewName(oldKey));
+    Assert.assertEquals("def", dnp.getNewName(oldKey));
+    Assert.assertEquals("ghi", dnp.getNewName(oldKey));
+    Assert.assertEquals("jkl", dnp.getNewName(oldKey));
+    Assert.assertEquals("mno", dnp.getNewName(oldKey));
+    Assert.assertEquals("pqr", dnp.getNewName(oldKey));
+    Assert.assertEquals("stu", dnp.getNewName(oldKey));
+    Assert.assertEquals("vw$", dnp.getNewName(oldKey));
+    Assert.assertEquals("xyz_", dnp.getNewName(oldKey));
+    Assert.assertEquals("ea", dnp.getNewName(oldKey));
+    Assert.assertEquals("abc", dnp.getNewName(oldKey));
+    Assert.assertEquals("a", dnp.getNewName(oldKey));
+  }
+
+  @Test
+  @Category(KnownBugs.class)
+  public void dictionaryNameProviderTestUTF8() throws Exception {
+    TypeKey oldKey = new TypeKey("old");
+    File dictionaryFile = new File(TestsProperties.getJackRootDir(),
+        "jack/tests/com/android/jack/shrob/obfuscation/nameprovider/dictionary-utf8.txt");
     DictionaryNameProvider dnp =
         new DictionaryNameProvider(dictionaryFile, new LowerCaseAlphabeticalNameProvider());
     Assert.assertEquals("abc", dnp.getNewName(oldKey));
