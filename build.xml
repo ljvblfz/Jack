@@ -196,7 +196,7 @@
       </javadoc>
       <!-- Jack API and Jill API -->
       <mkdir dir="${jack-external-doc.dir}/jack-api" />
-      <javadoc destdir="${jack-external-doc.dir}"
+      <javadoc destdir="${jack-external-doc.dir}/jack-api"
         author="true"
         version="true"
         use="true"
@@ -222,6 +222,17 @@
         <arg value="--sanity-checks"/>
         <arg value="on"/>
       </java>
+      <!-- Jack annotations -->
+      <mkdir dir="${jack-external-doc.dir}/jack-annotations" />
+      <javadoc destdir="${jack-external-doc.dir}/jack-annotations"
+        author="true"
+        version="true"
+        use="true"
+        windowtitle="Jack annotations"
+        classpath="${dist-doc.classpath.path}"
+        nodeprecated="true">
+        <fileset dir="${jack.dir}/src" includes="com/android/jack/annotations/**/*.java" />
+      </javadoc>
       <!-- Jack server -->
       <mkdir dir="${jack-server.doc.dir}" />
       <copy file="${jack-project.dir}/server/jack-server/README-jack-server.md"
