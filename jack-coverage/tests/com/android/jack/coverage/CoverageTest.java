@@ -35,6 +35,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -86,7 +87,7 @@ public abstract class CoverageTest {
     return classObject.get("id").getAsLong();
   }
 
-  @Nonnull
+  @CheckForNull
   protected static JsonObject getJsonClass(@Nonnull JsonArray jsonClasses,
       @Nonnull String className) {
     for (JsonElement jsonElement : jsonClasses) {
@@ -95,7 +96,7 @@ public abstract class CoverageTest {
         return jsonClass;
       }
     }
-    throw new AssertionError("No class " + className);
+    return null;
   }
 
   @Nonnull

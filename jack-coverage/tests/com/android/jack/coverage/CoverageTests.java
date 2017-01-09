@@ -17,6 +17,8 @@
 package com.android.jack.coverage;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
@@ -103,16 +105,19 @@ public class CoverageTests extends CoverageTest {
   }
 
   @Test
-  public void testSingleInterface() throws Exception {
+  public void testInterface() throws Exception {
+    String testPackageName = getTestPackageName("test002");
     JackBasedToolchain toolchain = createJackToolchain();
     File coverageMetadataFile = CoverageToolchainBuilder.create(toolchain).build();
-
-    toolchain.srcToExe(AbstractTestTools.createTempDir(), false,
-        getTestRootDir(getTestPackageName("test002")));
-
-    // Interface must be skipped
+    toolchain.srcToExe(AbstractTestTools.createTempDir(), false, getTestRootDir(testPackageName));
     JsonArray classes = loadJsonCoverageClasses(coverageMetadataFile);
-    Assert.assertEquals(0, classes.size());
+
+    // Interface without code must not be instrumented
+    assertNull(getJsonClass(classes, getClassNameForJson(testPackageName + ".EmptyInterface")));
+
+    // Interface with a static initializer must be instrumented
+    assertNotNull(
+        getJsonClass(classes, getClassNameForJson(testPackageName + ".InterfaceWithInit")));
   }
 
   @Test

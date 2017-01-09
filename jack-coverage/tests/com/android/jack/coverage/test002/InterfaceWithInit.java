@@ -16,5 +16,7 @@
 
 package com.android.jack.coverage.test002;
 
-public interface Interface {}
+public interface InterfaceWithInit {
+  public static final Object obj = new Object();
+}
 

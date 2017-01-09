@@ -280,7 +280,7 @@ public class CodeCoverageMetadataFileWriter implements RunnableSchedulable<JSess
     while (list.hasNext()) {
       JDefinedClassOrInterface c = list.next();
       CodeCoverageMarker marker = c.removeMarker(CodeCoverageMarker.class);
-      if (marker == null) {
+      if (marker == null || marker.getProbes().isEmpty()) {
         // No code coverage for this class.
         continue;
       }

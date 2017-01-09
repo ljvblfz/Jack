@@ -17,7 +17,6 @@
 package com.android.jack.coverage;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
-import com.android.jack.ir.ast.JDefinedInterface;
 import com.android.jack.ir.formatter.SourceFormatter;
 import com.android.jack.library.TypeInInputLibraryLocation;
 import com.android.jack.shrob.obfuscation.OriginalNames;
@@ -67,10 +66,6 @@ public class CodeCoverageSelector implements RunnableSchedulable<JDefinedClassOr
   private boolean needsCoverage(@Nonnull JDefinedClassOrInterface declaredType) {
     if (!declaredType.isToEmit()) {
       // Do not instrument classes that will no be part of the output.
-      return false;
-    }
-    if (declaredType instanceof JDefinedInterface) {
-      // Interface are not covered.
       return false;
     }
     if (!isInScope(declaredType)) {
