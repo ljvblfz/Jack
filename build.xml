@@ -134,7 +134,6 @@
   <property name="jack-internal-doc.dir" value="${jack.doc.dir}/jack-internal" />
   <property name="jack-external-doc.dir" value="${jack.doc.dir}/jack-external" />
   <property name="jack-server.doc.dir" value="${jack.dist-doc.dir}/server" />
-  <property name="jack.coverage.doc.dir" value="${jack.dist-doc.dir}/coverage" />
 
   <target name="dist-clean">
     <delete dir="${jack-top-dist.dir}"/>
@@ -244,13 +243,6 @@
                        encoding="UTF-8"/>
       <exec executable="pandoc" failifexecutionfails="false">
         <arg line="--from=markdown --to=plain --output=${jack-server.doc.dir}/README-jack-server.txt ${jack-server.doc.dir}/README-jack-server.md"/>
-      </exec>
-      <!-- Jack coverage -->
-      <mkdir dir="${jack.coverage.doc.dir}" />
-      <copy file="${jack-project.dir}/jacoco/README.md"
-            todir="${jack.coverage.doc.dir}" />
-      <exec executable="pandoc" failifexecutionfails="false">
-        <arg line="--from=markdown --to=plain --output=${jack.coverage.doc.dir}/README.txt ${jack.coverage.doc.dir}/README.md"/>
       </exec>
     </target>
 
