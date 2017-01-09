@@ -108,7 +108,8 @@ public class IdenticalBlockCombiner {
     newBlocks.shrinkToFit();
     newBlocks.setImmutable();
 
-    return new RopMethod(newBlocks, ropMethod.getFirstLabel());
+    return new RopMethod(newBlocks, ropMethod.getFirstLabel(),
+        ropMethod.withDexCallingConvention());
   }
 
   /**

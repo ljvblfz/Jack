@@ -388,9 +388,9 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
         }
       }
 
-      RopMethod ropMethod =
-          new RopMethod(ropBb.getBasicBlockList(),
-              ropBb.getSpecialLabel(RopBasicBlockManager.PARAM_ASSIGNMENT));
+      RopMethod ropMethod = new RopMethod(ropBb.getBasicBlockList(),
+          ropBb.getSpecialLabel(RopBasicBlockManager.PARAM_ASSIGNMENT),
+          /* withDexCallingConvention= */ false);
 
       if (runDxOptimizations) {
         try (Event optEvent = tracer.open(JackEventType.DX_OPTIMIZATION)) {

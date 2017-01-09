@@ -23,6 +23,12 @@ import com.android.jack.dx.util.IntList;
  * All of the parts that make up a method at the rop layer.
  */
 public final class RopMethod {
+
+  /**
+   *  Tells if parameters are compliant with the Dex calling convention.
+   */
+  private final boolean withDexCallingConvention;
+
   /** {@code non-null;} basic block list of the method */
   private final BasicBlockList blocks;
 
@@ -46,8 +52,10 @@ public final class RopMethod {
    *
    * @param blocks {@code non-null;} basic block list of the method
    * @param firstLabel {@code >= 0;} the label of the first block to execute
+   * @param withDexCallingConvention tells if parameters are compliant with the Dex calling
+   *        convention
    */
-  public RopMethod(BasicBlockList blocks, int firstLabel) {
+  public RopMethod(BasicBlockList blocks, int firstLabel, boolean withDexCallingConvention) {
     assert blocks != null;
 
     if (firstLabel < 0) {
@@ -59,6 +67,8 @@ public final class RopMethod {
 
     this.predecessors = null;
     this.exitPredecessors = null;
+
+    this.withDexCallingConvention = withDexCallingConvention;
   }
 
   /**
@@ -112,32 +122,6 @@ public final class RopMethod {
     }
 
     return exitPredecessors;
-  }
-
-
-  /**
-   * Returns an instance that is identical to this one, except that
-   * the registers in each instruction are offset by the given
-   * amount.
-   *
-   * @param delta the amount to offset register numbers by
-   * @return {@code non-null;} an appropriately-constructed instance
-   */
-  public RopMethod withRegisterOffset(int delta) {
-    RopMethod result = new RopMethod(blocks.withRegisterOffset(delta), firstLabel);
-
-    if (exitPredecessors != null) {
-      /*
-       * The predecessors have been calculated. It's safe to
-       * inject these into the new instance, since the
-       * transformation being applied doesn't affect the
-       * predecessors.
-       */
-      result.exitPredecessors = exitPredecessors;
-      result.predecessors = predecessors;
-    }
-
-    return result;
   }
 
   /**
@@ -199,5 +183,9 @@ public final class RopMethod {
 
     this.predecessors = predecessors;
     this.exitPredecessors = exitPredecessors;
+  }
+
+  public boolean withDexCallingConvention() {
+    return withDexCallingConvention;
   }
 }
