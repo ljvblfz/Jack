@@ -16,6 +16,7 @@
 
 package com.android.jack.debug;
 
+import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.optimizations.Optimizations;
 import com.android.jack.test.helper.CheckDexStructureTestHelper;
 import com.android.jack.test.helper.RuntimeTestHelper;
@@ -57,6 +58,7 @@ public class DebugTests {
         .setWithDebugInfos(true)
         .addProperty(Optimizations.REMOVE_UNUSED_NON_SYNTHETIC_DEFINITION.getName(),
             String.valueOf(false))
+        .addProperty(CodeItemBuilder.DEX_OPTIMIZE.getName(), "true")
         .compileAndRunTest(/* checkStructure = */ true);
   }
 

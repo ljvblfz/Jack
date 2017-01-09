@@ -17,6 +17,7 @@
 package com.android.jack.unary;
 
 import com.android.jack.TestTools;
+import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.FileChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
@@ -144,6 +145,7 @@ public class UnaryTests extends RuntimeTest {
   public void test005() throws Exception {
     new RuntimeTestHelper(TEST005)
         .addIgnoredCandidateToolchain(JillBasedToolchain.class)
+        .addProperty(CodeItemBuilder.DEX_OPTIMIZE.getName(), "true")
         .compileAndRunTest();
   }
 

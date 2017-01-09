@@ -18,6 +18,7 @@ package com.android.jack.dx;
 
 import com.android.jack.Options;
 import com.android.jack.TestTools;
+import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.FileChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
@@ -130,7 +131,7 @@ public class DxTests extends RuntimeTest {
   @Runtime
   public void deadcoderemover() throws Exception {
     new RuntimeTestHelper(DEADCODEREMOVER)
-    .compileAndRunTest();
+        .addProperty(CodeItemBuilder.DEX_OPTIMIZE.getName(), "true").compileAndRunTest();
   }
 
   @Test

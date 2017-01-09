@@ -20,6 +20,7 @@ import com.google.common.collect.Maps;
 
 import com.android.jack.TestTools;
 import com.android.jack.backend.dex.DexFileWriter;
+import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.FileChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
@@ -1052,7 +1053,8 @@ public class SwitchstatementTests extends RuntimeTest {
   @Test
   @Runtime
   public void testRun028() throws Exception {
-    runTestCase(TEST028);
+    new RuntimeTestHelper(TEST028).addProperty(CodeItemBuilder.DEX_OPTIMIZE.getName(), "true")
+        .compileAndRunTest();
   }
 
   private void compileCode(
