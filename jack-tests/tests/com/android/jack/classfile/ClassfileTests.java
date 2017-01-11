@@ -18,20 +18,28 @@ package com.android.jack.classfile;
 
 import com.android.jack.Options;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.List;
 
 public class ClassfileTests {
 
   @Test
   public void testClassFileIsCompiled() throws Exception {
+    // class file generation support is only for sources not imports.
+    List<Class<? extends IToolchain>> excludeList =
+        Collections.<Class<? extends IToolchain>>singletonList(JillBasedToolchain.class);
     JackBasedToolchain toolchain =
-        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class);
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class,
+            excludeList);
     File[] defaultClasspath = toolchain.getDefaultBootClasspath();
     File jackOut = AbstractTestTools.createTempFile("jackOut", toolchain.getLibraryExtension());
     File classOut = AbstractTestTools.createTempDir();
