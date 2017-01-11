@@ -38,9 +38,6 @@ public final class JCaseBlockElement extends JBasicBlockElement {
       @Nonnull ExceptionHandlingContext ehc, @CheckForNull JLiteral literal) {
     super(info, ehc);
     this.literal = literal;
-    if (this.literal != null) {
-      this.literal.updateParents(this);
-    }
   }
 
   @CheckForNull

@@ -61,7 +61,9 @@ import com.android.jack.ir.ast.JSsaVariableRef;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JThis;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.ir.ast.cfg.ExceptionHandlingContext;
 import com.android.jack.ir.ast.cfg.JBasicBlock;
+import com.android.jack.ir.ast.cfg.JBasicBlockElement;
 import com.android.jack.ir.ast.cfg.JCaseBasicBlock;
 import com.android.jack.ir.ast.cfg.JCatchBasicBlock;
 import com.android.jack.ir.ast.cfg.JConditionalBasicBlock;
@@ -78,6 +80,7 @@ import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.library.DumpInLibrary;
 import com.android.jack.library.PrebuiltCompatibility;
+import com.android.jack.optimizations.cfg.CfgBasicBlockUtils;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.scheduling.marker.DexCodeMarker;
 import com.android.jack.transformations.EmptyClinit;
@@ -234,6 +237,10 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
 
       final JEntryBasicBlock entryBasicBlock = cfg.getEntryBlock();
       final JExitBasicBlock exitBasicBlock = cfg.getExitBlock();
+
+      // Before building code item, we clean all exception handling
+      // context and all weakly referenced catch blocks.
+      removeExceptionHandlingContext(cfg);
 
       final Map<JBasicBlock, Integer> basicBlocks = new LinkedHashMap<>();
       int blockId = 1; // 0 is reserved for entry block
@@ -452,6 +459,15 @@ public class CodeItemBuilder implements RunnableSchedulable<JMethod> {
       method.addMarker(new DexCodeMarker(new CodeItem(RopHelper.createMethodRef(method), dalvCode,
           method.isStatic(), createThrows(method))));
     }
+  }
+
+  private void removeExceptionHandlingContext(@Nonnull JControlFlowGraph cfg) {
+    for (JBasicBlock block : cfg.getInternalBlocksUnordered()) {
+      for (JBasicBlockElement element : block.getElements(true)) {
+        element.resetEHContext(ExceptionHandlingContext.EMPTY);
+      }
+    }
+    new CfgBasicBlockUtils(cfg).removeUnreachableBlocks();
   }
 
   @Nonnull

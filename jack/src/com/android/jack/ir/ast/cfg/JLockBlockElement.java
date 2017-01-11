@@ -39,7 +39,6 @@ public final class JLockBlockElement extends JBasicBlockElement {
     assert !expr.canThrow();
     assert expr.getType() instanceof JReferenceType;
     this.expr = expr;
-    this.expr.updateParents(this);
   }
 
   @Nonnull

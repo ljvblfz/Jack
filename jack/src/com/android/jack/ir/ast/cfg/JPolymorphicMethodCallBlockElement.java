@@ -35,7 +35,6 @@ public final class JPolymorphicMethodCallBlockElement extends JBasicBlockElement
       @Nonnull ExceptionHandlingContext ehc, @Nonnull JPolymorphicMethodCall call) {
     super(info, ehc);
     this.call = call;
-    this.call.updateParents(this);
   }
 
   @Nonnull

@@ -26,8 +26,8 @@ import com.android.sched.item.Component;
 import com.android.sched.scheduler.ScheduleInstance;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -54,24 +54,18 @@ public abstract class JRegularBasicBlock extends JBasicBlock {
 
   @Override
   @Nonnull
-  public List<JBasicBlockElement> getElements(final boolean forward) {
-    ImmutableList<JBasicBlockElement> list = ImmutableList.copyOf(elements);
-    return forward ? list : list.reverse();
+  public List<JBasicBlockElement> getElements(boolean forward) {
+    return forward
+        ? Jack.getUnmodifiableCollections().getUnmodifiableList(elements)
+        : ImmutableList.copyOf(elements).reverse();
   }
 
   @Override
   @Nonnull
-  public final List<JBasicBlock> getSuccessors() {
-    ArrayList<JBasicBlock> result = new ArrayList<>();
-    collectSuccessors(result);
-    return Jack.getUnmodifiableCollections().getUnmodifiableList(result);
-  }
-
-  void collectSuccessors(@Nonnull ArrayList<JBasicBlock> successors) {
-    if (hasPrimarySuccessor()) {
-      assert primarySuccessor != null;
-      successors.add(primarySuccessor);
-    }
+  public List<JBasicBlock> getSuccessors() {
+    return hasPrimarySuccessor()
+        ? Collections.singletonList(primarySuccessor)
+        : Collections.<JBasicBlock>emptyList();
   }
 
   /** If the block has primary successor */

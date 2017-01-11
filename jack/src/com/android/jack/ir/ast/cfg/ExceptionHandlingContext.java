@@ -16,6 +16,7 @@
 
 package com.android.jack.ir.ast.cfg;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import com.android.jack.Jack;
@@ -36,8 +37,8 @@ public final class ExceptionHandlingContext {
   private final List<JCatchBasicBlock> catchBlocks;
 
   private ExceptionHandlingContext(@Nonnull List<JCatchBasicBlock> catchBlocks) {
-    this.catchBlocks = catchBlocks.isEmpty() ? Collections.<JCatchBasicBlock>emptyList()
-        : Jack.getUnmodifiableCollections().getUnmodifiableList(Lists.newArrayList(catchBlocks));
+    this.catchBlocks = catchBlocks.isEmpty()
+        ? Collections.<JCatchBasicBlock>emptyList() : ImmutableList.copyOf(catchBlocks);
   }
 
   @Nonnull
@@ -52,21 +53,6 @@ public final class ExceptionHandlingContext {
     return catchBlocks;
   }
 
-  @Override
-  public int hashCode() {
-    int hash = 0;
-    for (JCatchBasicBlock block : catchBlocks) {
-      hash = hash * 31 + block.hashCode();
-    }
-    return hash;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    return obj instanceof ExceptionHandlingContext &&
-        this.catchBlocks.equals(((ExceptionHandlingContext) obj).catchBlocks);
-  }
-
   /** Creates a pool of unique exception handler contexts */
   static class Pool {
     @Nonnull
@@ -77,7 +63,7 @@ public final class ExceptionHandlingContext {
       ExceptionHandlingContext ehc = pool.get(catchBlocks);
       if (ehc == null) {
         ehc = ExceptionHandlingContext.create(catchBlocks);
-        pool.put(catchBlocks, ehc);
+        pool.put(ehc.getCatchBlocks(), ehc);
       }
       return ehc;
     }

@@ -37,7 +37,6 @@ public final class JThrowBlockElement extends JBasicBlockElement {
     super(info, ehc);
     assert !expr.canThrow();
     this.expr = expr;
-    this.expr.updateParents(this);
   }
 
   @Nonnull

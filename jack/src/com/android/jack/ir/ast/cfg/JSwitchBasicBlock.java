@@ -43,10 +43,13 @@ public final class JSwitchBasicBlock extends JRegularBasicBlock {
     return true;
   }
 
+  @Nonnull
   @Override
-  void collectSuccessors(@Nonnull ArrayList<JBasicBlock> successors) {
-    super.collectSuccessors(successors);
+  public List<JBasicBlock> getSuccessors() {
+    ArrayList<JBasicBlock> successors = new ArrayList<>();
+    successors.add(getPrimarySuccessor());
     successors.addAll(cases);
+    return successors;
   }
 
   /** Add a new case block */

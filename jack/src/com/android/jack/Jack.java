@@ -106,9 +106,7 @@ import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.Resource;
-import com.android.jack.ir.ast.cfg.CfgBasicBlockTracker;
 import com.android.jack.ir.ast.cfg.CfgChecker;
-import com.android.jack.ir.ast.cfg.ControlFlowGraphSizeTracker;
 import com.android.jack.ir.ast.cfg.JControlFlowGraph;
 import com.android.jack.ir.ast.cfg.MethodBodyCfgBuilder;
 import com.android.jack.ir.formatter.InternalFormatter;
@@ -135,7 +133,6 @@ import com.android.jack.optimizations.Optimizations;
 import com.android.jack.optimizations.UnusedDefinitionRemover;
 import com.android.jack.optimizations.UseDefsChainsSimplifier;
 import com.android.jack.optimizations.blockmerger.CfgSimpleBasicBlockMerger;
-import com.android.jack.optimizations.cfg.ClearAllExceptionHandlingContexts;
 import com.android.jack.optimizations.cfg.OptimizeConditionalPrimarySuccessor;
 import com.android.jack.optimizations.cfg.RemoveEmptyBasicBlocks;
 import com.android.jack.optimizations.cfg.RemoveRedundantConditionalBlocks;
@@ -169,7 +166,6 @@ import com.android.jack.reporting.ReportableIOException;
 import com.android.jack.reporting.Reporter;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.resource.LibraryResourceWriter;
-import com.android.jack.scheduling.adapter.JAllBasicBlockAdapter;
 import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdapter;
 import com.android.jack.scheduling.adapter.JFieldAdapter;
 import com.android.jack.scheduling.adapter.JMethodAdapter;
@@ -1745,10 +1741,8 @@ public abstract class Jack {
       if (hasSanityChecks) {
         planBuilder.append(AstChecker.class);
       }
-    }
 
-    // Cfg-IR base transformations
-    {
+      // Cfg-IR base transformations
       SubPlanBuilder<JControlFlowGraph> cfgPlan = planBuilder
           .appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
           .appendSubPlan(JMethodControlFlowGraphAdapter.class);
@@ -1783,17 +1777,6 @@ public abstract class Jack {
       if (hasSanityChecks) {
         cfgPlan.append(CfgChecker.class);
       }
-
-      cfgPlan.append(ControlFlowGraphSizeTracker.class);
-      cfgPlan
-          .appendSubPlan(JAllBasicBlockAdapter.class)
-          .append(CfgBasicBlockTracker.class);
-
-      // As the last step before building code item, we clean
-      // all exception handling context and all weakly referenced
-      // catch blocks.
-      cfgPlan.append(ClearAllExceptionHandlingContexts.class);
-      cfgPlan.append(RemoveUnreachableBasicBlocks.class);
     }
 
     // SSA Construction.

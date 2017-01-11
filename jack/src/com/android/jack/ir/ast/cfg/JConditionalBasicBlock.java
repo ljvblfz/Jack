@@ -23,6 +23,7 @@ import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 
 import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.Nonnull;
 
 /** Represents blocks ending with conditional branching. */
@@ -86,10 +87,13 @@ public final class JConditionalBasicBlock extends JRegularBasicBlock {
     this.inverted = inverted;
   }
 
+  @Nonnull
   @Override
-  void collectSuccessors(@Nonnull ArrayList<JBasicBlock> successors) {
-    super.collectSuccessors(successors);
+  public List<JBasicBlock> getSuccessors() {
+    ArrayList<JBasicBlock> successors = new ArrayList<>();
+    successors.add(getIfTrue());
     successors.add(ifFalse);
+    return successors;
   }
 
   @Override

@@ -40,7 +40,6 @@ public final class JSwitchBlockElement extends JBasicBlockElement {
     assert !JPrimitiveType.JPrimitiveTypeEnum.VOID.getType().isSameType(expr.getType());
     assert expr.getType() instanceof JPrimitiveType;
     this.expr = expr;
-    this.expr.updateParents(this);
   }
 
   @Nonnull

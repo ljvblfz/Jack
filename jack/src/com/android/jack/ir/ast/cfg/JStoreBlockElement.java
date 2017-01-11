@@ -42,7 +42,6 @@ public final class JStoreBlockElement extends JBasicBlockElement {
     assert asg.getLhs().canThrow();
     assert asg.getLhs() instanceof JFieldRef || asg.getLhs() instanceof JArrayRef;
     this.asg = asg;
-    this.asg.updateParents(this);
   }
 
   @Nonnull

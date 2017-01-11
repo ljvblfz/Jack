@@ -38,7 +38,6 @@ public final class JConditionalBlockElement extends JBasicBlockElement {
     assert !cond.canThrow();
     assert JPrimitiveType.JPrimitiveTypeEnum.BOOLEAN.getType().isSameType(cond.getType());
     this.cond = cond;
-    this.cond.updateParents(this);
   }
 
   @Nonnull

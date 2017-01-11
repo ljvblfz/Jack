@@ -26,7 +26,6 @@ import com.android.sched.item.Description;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -56,6 +55,12 @@ public abstract class JBasicBlock extends JNode implements IGraphNode<JBasicBloc
   /** Immutable successors snapshot */
   @Nonnull
   public abstract List<JBasicBlock> getSuccessors();
+
+  /** Immutable list of all block elements */
+  @Nonnull
+  public final List<JBasicBlockElement> getElements() {
+    return getElements(true);
+  }
 
   /** Immutable list of all block elements, can be forward or backward */
   @Nonnull

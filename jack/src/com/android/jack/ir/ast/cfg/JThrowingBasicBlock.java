@@ -37,11 +37,16 @@ public abstract class JThrowingBasicBlock extends JRegularBasicBlock {
     this.unhandledBlock.addPredecessor(this);
   }
 
+  @Nonnull
   @Override
-  void collectSuccessors(@Nonnull ArrayList<JBasicBlock> successors) {
-    super.collectSuccessors(successors);
+  public List<JBasicBlock> getSuccessors() {
+    ArrayList<JBasicBlock> successors = new ArrayList<>();
+    if (hasPrimarySuccessor()) {
+      successors.add(getPrimarySuccessor());
+    }
     successors.add(unhandledBlock);
     successors.addAll(catchBlocks);
+    return successors;
   }
 
   /** Resets exception catch blocks from the EH context of the last element */

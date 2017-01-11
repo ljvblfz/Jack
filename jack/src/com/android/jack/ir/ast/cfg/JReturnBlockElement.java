@@ -36,9 +36,6 @@ public final class JReturnBlockElement extends JBasicBlockElement {
       @Nonnull ExceptionHandlingContext ehc, @CheckForNull JExpression expr) {
     super(info, ehc);
     this.expr = expr;
-    if (this.expr != null) {
-      this.expr.updateParents(this);
-    }
   }
 
   @CheckForNull

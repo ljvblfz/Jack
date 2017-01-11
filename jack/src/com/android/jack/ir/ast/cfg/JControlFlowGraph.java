@@ -31,10 +31,9 @@ import com.android.sched.transform.TransformRequest;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.Set;
+import java.util.Stack;
 import javax.annotation.Nonnull;
 
 /** Represents method control flow graph */
@@ -105,16 +104,7 @@ public final class JControlFlowGraph extends JNode implements IGraph<JBasicBlock
    */
   @Nonnull
   public List<JBasicBlock> getAllBlocksUnordered() {
-    ArrayList<JBasicBlock> result = new ArrayList<>();
-    result.add(this.getEntryBlock());
-    result.add(this.getExitBlock());
-
-    Set<JBasicBlock> internalBlocks = getInternalBasicBlocks();
-    assert !internalBlocks.contains(this.getEntryBlock());
-    assert !internalBlocks.contains(this.getExitBlock());
-    result.addAll(internalBlocks);
-
-    return result;
+    return Lists.newArrayList(getInternalBasicBlocks(false));
   }
 
   /**
@@ -127,55 +117,56 @@ public final class JControlFlowGraph extends JNode implements IGraph<JBasicBlock
    */
   @Nonnull
   public List<JBasicBlock> getInternalBlocksUnordered() {
-    return Lists.newArrayList(getInternalBasicBlocks());
+    return Lists.newArrayList(getInternalBasicBlocks(true));
   }
 
   @Nonnull
-  private Set<JBasicBlock> getInternalBasicBlocks() {
+  private Set<JBasicBlock> getInternalBasicBlocks(boolean internalOnly) {
     Set<JBasicBlock> blocks = new LinkedHashSet<>();
-    Set<ExceptionHandlingContext> processedEHContexts = new LinkedHashSet<>();
-    Queue<JBasicBlock> queue = new LinkedList<>(); // Contains duplicates
+    Stack<JBasicBlock> queue = new Stack<>();
 
     JEntryBasicBlock entry = this.getEntryBlock();
     JExitBasicBlock exit = this.getExitBlock();
 
-    queue.offer(entry);
-    queue.offer(exit);
+    blocks.add(entry);
+    queue.push(entry);
+    blocks.add(exit);
+    queue.push(exit);
 
     while (!queue.isEmpty()) {
-      JBasicBlock block = queue.remove();
-      if (!blocks.contains(block)) {
-        blocks.add(block);
+      JBasicBlock block = queue.pop();
 
-        // Successors, then predecessors
-        for (JBasicBlock successor : block.getSuccessors()) {
-          if (!blocks.contains(successor)) {
-            queue.offer(successor);
-          }
+      // Successors, then predecessors
+      for (JBasicBlock successor : block.getSuccessors()) {
+        if (!blocks.contains(successor)) {
+          blocks.add(successor);
+          queue.push(successor);
         }
-        for (JBasicBlock predecessor : block.getPredecessors()) {
-          if (!blocks.contains(predecessor)) {
-            queue.offer(predecessor);
-          }
+      }
+      for (JBasicBlock predecessor : block.getPredecessors()) {
+        if (!blocks.contains(predecessor)) {
+          blocks.add(predecessor);
+          queue.push(predecessor);
         }
+      }
 
-        // Catch blocks referenced from EH contexts
-        for (JBasicBlockElement element : block.getElements(true)) {
-          ExceptionHandlingContext context = element.getEHContext();
-          if (!processedEHContexts.contains(context)) {
-            processedEHContexts.add(context);
-            for (JCatchBasicBlock catchBlock : context.getCatchBlocks()) {
-              if (!blocks.contains(catchBlock)) {
-                queue.offer(catchBlock);
-              }
-            }
+      // Catch blocks referenced from EH contexts
+      for (JBasicBlockElement element : block.getElements(true)) {
+        ExceptionHandlingContext context = element.getEHContext();
+        for (JCatchBasicBlock catchBlock : context.getCatchBlocks()) {
+          if (!blocks.contains(catchBlock)) {
+            blocks.add(catchBlock);
+            queue.push(catchBlock);
           }
         }
       }
     }
 
-    blocks.remove(entry);
-    blocks.remove(exit);
+    if (internalOnly) {
+      blocks.remove(entry);
+      blocks.remove(exit);
+    }
+
     return blocks;
   }
 
@@ -207,9 +198,7 @@ public final class JControlFlowGraph extends JNode implements IGraph<JBasicBlock
 
   @Override
   public void checkValidity() {
-    for (JBasicBlock block : this.getAllBlocksUnordered()) {
-      block.checkValidity();
-    }
+    // NOTE: only check cfg-level validity, each basic blocks will be validated later
   }
 
   @Override

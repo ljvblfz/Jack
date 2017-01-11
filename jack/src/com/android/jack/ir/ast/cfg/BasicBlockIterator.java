@@ -16,6 +16,8 @@
 
 package com.android.jack.ir.ast.cfg;
 
+import com.google.common.collect.Sets;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -43,7 +45,7 @@ public abstract class BasicBlockIterator {
     Set<JBasicBlock> blocksEverStacked = new HashSet<>();
 
     Stack<ExceptionHandlingContext> ehcStack = new Stack<>();
-    Set<ExceptionHandlingContext> ehcEverStacked = new HashSet<>();
+    Set<ExceptionHandlingContext> ehcEverStacked = Sets.newIdentityHashSet();
 
     JBasicBlock start = cfg.getEntryBlock();
     blocksStack.push(start);

@@ -46,7 +46,6 @@ public final class JVariableAsgBlockElement extends JBasicBlockElement {
     assert !asg.getLhs().canThrow();
     assert asg.getLhs() instanceof JVariableRef;
     this.asg = asg;
-    this.asg.updateParents(this);
   }
 
   @Nonnull

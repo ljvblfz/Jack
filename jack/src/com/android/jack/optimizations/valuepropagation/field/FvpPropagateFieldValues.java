@@ -106,7 +106,7 @@ public class FvpPropagateFieldValues extends FvpSchedulable
         return false;
       }
 
-      private void handle(JVariableAsgBlockElement element) {
+      private void handle(@Nonnull JVariableAsgBlockElement element) {
         JFieldRef ref = (JFieldRef) element.getValue();
         if (OptimizerUtils.isAssigned(ref)) {
           return;

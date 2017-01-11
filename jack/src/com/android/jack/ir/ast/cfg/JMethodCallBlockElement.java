@@ -36,7 +36,6 @@ public final class JMethodCallBlockElement extends JBasicBlockElement {
       @Nonnull ExceptionHandlingContext ehc, @Nonnull JMethodCall call) {
     super(info, ehc);
     this.call = call;
-    this.call.updateParents(this);
   }
 
   @Nonnull
