@@ -260,19 +260,19 @@ class JAstBuilder extends JavaParser {
   }
 
   @Override
-  public void compile(ICompilationUnit[] sourceUnits) {
+  protected void backupAptProblems() {
+    resetJack = true;
+    super.backupAptProblems();
+  }
+
+  @Override
+  public void reset() {
+    super.reset();
     if (resetJack) {
       session.reset();
       astBuilder = new JackIrBuilder(lookupEnvironment, session);
       resetJack = false;
     }
-    super.compile(sourceUnits);
-  }
-
-  @Override
-  public void reset() {
-    resetJack = true;
-    super.reset();
   }
 
   public void finishCompilation() {
