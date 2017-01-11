@@ -162,12 +162,13 @@ public class UseDefsChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
               newVarRefb.addMarker(udmOfNewVarRefb);
 
               varsUsedBys1.add(newVarRefb);
-              varsUsedBys1.remove(varRefOfa);
-
-              defOfa.removeUse(varRefOfa);
-
               tr.append(new Replace(varRefOfa, newVarRefb));
             }
+
+            // Update use/def information.
+            varsUsedBys1.remove(varRefOfa);
+            defOfa.removeUse(varRefOfa);
+
             tr.commit();
           }
         }
