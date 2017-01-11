@@ -2054,7 +2054,19 @@ public class JackIrBuilder {
     public void endVisit(MessageSend x, BlockScope scope) {
       try {
         SourceInfo info = makeSourceInfo(x);
-        JMethod method = getTypeMap().get(x.binding);
+        JMethod method;
+        if (x.actualReceiverType.isArrayType() && new String(x.selector).equals("clone")) {
+          // ECJ has replaced the clone prototype "jlo clone()" by "int[] clone()", temporarily
+          // replace int[] by jlo to be able to lookup the method.
+          TypeBinding savedReturnType = x.binding.returnType;
+          assert savedReturnType.isArrayType();
+          x.binding.returnType = scope.getJavaLangObject();
+          method = getTypeMap().get(x.binding);
+          x.binding.returnType = savedReturnType;
+        } else {
+          method = getTypeMap().get(x.binding);
+        }
+
 
         List<JExpression> arguments = popCallArgs(info, x.arguments, x.binding);
         JExpression receiver = pop(x.receiver);
