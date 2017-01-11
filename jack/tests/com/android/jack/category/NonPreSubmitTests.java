@@ -17,7 +17,8 @@
 package com.android.jack.category;
 
 /**
- * Tests that we do not need to run before submitting a CL.
+ * This category is aimed at grouping functional non-pre-submit tests
+ * along with tests that fail due to non bugs.
  */
 public interface NonPreSubmitTests {
 

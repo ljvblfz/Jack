@@ -20,6 +20,6 @@ package com.android.jack.category;
  * Tests that are already covered by another test. They may be interesting on their own, but do not
  * need to be included in a pre-submit test suite.
  */
-public interface RedundantTests extends NonPreSubmitTests {
+public interface RedundantTests extends FunctionalNonPreSubmitTests {
 
 }

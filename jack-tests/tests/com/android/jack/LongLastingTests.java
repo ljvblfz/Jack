@@ -17,7 +17,7 @@
 package com.android.jack;
 
 
-import com.android.jack.test.category.SlowTests;
+import com.android.jack.test.category.NonPreSubmitTests;
 import com.android.jack.test.junit.JackTestRunner;
 
 import org.junit.experimental.categories.Categories.IncludeCategory;
@@ -31,7 +31,7 @@ import org.junit.runners.Suite.SuiteClasses;
  * CL.
  */
 @RunWith(JackTestRunner.class)
-@IncludeCategory(SlowTests.class)
+@IncludeCategory(NonPreSubmitTests.class)
 @SuiteClasses(value = {AllTests.class, LongLastingUnitTests.class})
 public class LongLastingTests {
 }
