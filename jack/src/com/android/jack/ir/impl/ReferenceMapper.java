@@ -111,12 +111,16 @@ public class ReferenceMapper {
   @Nonnull
   private final SourceInfoFactory sourceInfoFactory;
 
+  @Nonnull
+  private final ReferenceBinding ecjJlo;
+
   public ReferenceMapper(@Nonnull JNodeLookup lookup,
       @Nonnull LookupEnvironment lookupEnvironment, @Nonnull SourceInfoFactory sourceInfoFactory) {
     this.lookup = lookup;
     this.lookupEnvironment = lookupEnvironment;
     this.sourceInfoFactory = sourceInfoFactory;
     this.lookupFormater = Jack.getLookupFormatter();
+    ecjJlo = lookupEnvironment.getType(TypeConstants.JAVA_LANG_OBJECT);
   }
 
   @Nonnull
@@ -161,6 +165,17 @@ public class ReferenceMapper {
 
   @Nonnull
   public JMethod get(@Nonnull MethodBinding binding) throws JTypeLookupException {
+    TypeBinding savedReturnType = null;
+
+    if (binding.declaringClass.equals(ecjJlo)
+        && new String(binding.selector).equals("clone")
+        && binding.returnType.isArrayType()) {
+      // ECJ has replaced the clone prototype "jlo clone()" by "int[] clone()", temporarily
+      // replace int[] by jlo to be able to lookup the method.
+      savedReturnType = binding.returnType;
+      binding.returnType = ecjJlo;
+    }
+
     binding = binding.original();
     SignatureKey key = new SignatureKey(binding);
     JMethod method = methods.get(key);
@@ -180,6 +195,11 @@ public class ReferenceMapper {
       }
       cacheMethod(key, method);
     }
+
+    if (savedReturnType != null) {
+      binding.returnType = savedReturnType;
+    }
+
     return method;
   }
 
