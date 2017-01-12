@@ -42,6 +42,11 @@ public class WithServiceLoader {
    * @throws SecurityException indicate a security violation.
    */
   public static void main(String[] args) throws SecurityException {
+
+    for (String a : args) {
+      System.out.println(a);
+    }
+
     if (args.length != 3) {
       System.out.println(
           "Usage: <jack-core-library> <source-files-directory> <output-dex-files-directory>");

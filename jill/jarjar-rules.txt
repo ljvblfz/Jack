@@ -2,3 +2,6 @@ rule org.objectweb.** com.android.jill.objectweb.@1
 rule org.kohsuke.** com.android.jill.kohsuke.@1
 rule javax.annotation.** com.android.jill.javax.annotation.@1
 rule com.google.** com.android.jill.google.@1
+rule org.uncommons.** com.android.jill.uncommons.@1
+rule freemarker.** com.android.jill.freemarker.@1
+

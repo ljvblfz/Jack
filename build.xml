@@ -2851,11 +2851,10 @@
             classname="com.puppycrawl.tools.checkstyle.Main"
             fork="true"
             failonerror="true">
-        <jvmarg line="-Dconfig_loc=./jack"/>
         <arg value="-f"/>
         <arg value="plain"/>
         <arg value="-c"/>
-        <arg value="./jack/jackstyle.xml"/>
+        <arg value="./jack/config/checkstyle/checkstyle.xml"/>
         <arg value="jack/src"/>
         <arg value="jack-api/src"/>
         <arg value="jack-tests/src"/>
@@ -2867,5 +2866,3 @@
       </java>
     </target>
 </project>
-
-
