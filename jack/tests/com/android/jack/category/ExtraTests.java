@@ -19,6 +19,6 @@ package com.android.jack.category;
 /**
  * Tests that are not critical, so that we do not want to run them each time we submit a CL.
  */
-public interface ExtraTests extends NonPreSubmitTests {
+public interface ExtraTests extends FunctionalNonPreSubmitTests {
 
 }
