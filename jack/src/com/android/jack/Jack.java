@@ -1554,10 +1554,8 @@ public abstract class Jack {
         }
         methodPlan.append(FinallyRemover.class);
         methodPlan.append(ExceptionRuntimeValueAdder.class);
-        methodPlan.append(DefinitionMarkerAdder.class);
         methodPlan.append(ThreeAddressCodeBuilder.class);
         methodPlan.append(UselessCastRemover.class);
-        methodPlan.append(DefinitionMarkerRemover.class);
         methodPlan.append(TryCatchRemover.class);
         methodPlan.append(ExpressionStatementLegalizer.class);
         if (hasSanityChecks) {
