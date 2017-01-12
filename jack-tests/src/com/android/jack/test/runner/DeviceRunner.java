@@ -188,176 +188,186 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
     }
 
     int exitStatus = -1;
+    List<String> failingDevices = new ArrayList<>(0);
     for (IDevice device : connectedDevices) {
 
-      checkDeviceRuntime(device);
-
-      if (isVerbose) {
-        System.out.println("Running on device: " + device.getName());
-      }
-
-      ensureAdbRoot(device);
-
-      //Remove trailing '\n' returned by emulator
-      File testsRootDirFile =
-          new File(device.getMountPoint(IDevice.MNT_DATA).replace("\n", ""), "jack-tests");
-      String testsRootDir = convertToTargetPath(testsRootDirFile);
-
-      String testScriptPathOnTarget =
-          convertToTargetPath(new File(testsRootDirFile, "TEST_SCRIPT_NAME"));
-
-      String[] desFilePaths = new String[classpathFiles.length];
       try {
-        if (isVerbose) {
-          System.out.println("adb shell -s " + device.getSerialNumber() + " mkdir "
-              + testsRootDir);
-        }
-        device.executeShellCommand("mkdir " + testsRootDir, hostOutput);
+
+        checkDeviceRuntime(device);
 
         if (isVerbose) {
-          System.out.println("adb shell -s " + device.getSerialNumber() + " rm "
-              + testsRootDir + FileListingService.FILE_SEPARATOR + "*");
+          System.out.println("Running on device: " + device.getName());
         }
-        device.executeShellCommand("rm " + testsRootDir + FileListingService.FILE_SEPARATOR + "*",
-            hostOutput);
 
-        if (isVerbose) {
-          System.out.println("adb -s " + device.getSerialNumber() + " push  "
-              + TEST_SCRIPT_FILE.getAbsolutePath() + " "
-              + testScriptPathOnTarget);
-        }
-        device.pushFile(TEST_SCRIPT_FILE.getAbsolutePath(),
-            testScriptPathOnTarget);
+        ensureAdbRoot(device);
 
-        if (isVerbose) {
-          System.out.println("adb -s " + device.getSerialNumber() + " shell chmod 777 "
-              + testScriptPathOnTarget);
-        }
-        device.executeShellCommand(
-            "chmod 777 " + testScriptPathOnTarget, hostOutput);
+        //Remove trailing '\n' returned by emulator
+        File testsRootDirFile =
+            new File(device.getMountPoint(IDevice.MNT_DATA).replace("\n", ""), "jack-tests");
+        String testsRootDir = convertToTargetPath(testsRootDirFile);
 
-        int i = 0;
-        for (File f : classpathFiles) {
-          desFilePaths[i] =
-              convertToTargetPath(new File(testsRootDirFile,  "f" + i + "_" + f.getName()));
+        String testScriptPathOnTarget =
+            convertToTargetPath(new File(testsRootDirFile, "TEST_SCRIPT_NAME"));
+
+        String[] desFilePaths = new String[classpathFiles.length];
+        try {
+          if (isVerbose) {
+            System.out.println("adb shell -s " + device.getSerialNumber() + " mkdir "
+                + testsRootDir);
+          }
+          device.executeShellCommand("mkdir " + testsRootDir, hostOutput);
 
           if (isVerbose) {
-            System.out.println("adb -s " + device.getSerialNumber() + " push "
-                + f.getAbsolutePath() + " " + desFilePaths[i]);
+            System.out.println("adb shell -s " + device.getSerialNumber() + " rm "
+                + testsRootDir + FileListingService.FILE_SEPARATOR + "*");
           }
-          device.pushFile(f.getAbsolutePath(), desFilePaths[i]);
-          i++;
-        }
-      } catch (TimeoutException e) {
-        throw new RuntimeRunnerException(e);
-      } catch (AdbCommandRejectedException e) {
-        throw new RuntimeRunnerException(e);
-      } catch (ShellCommandUnresponsiveException e) {
-        throw new RuntimeRunnerException(e);
-      } catch (IOException e) {
-        throw new RuntimeRunnerException(e);
-      } catch (SyncException e) {
-        throw new RuntimeRunnerException(e);
-      }
+          device.executeShellCommand("rm " + testsRootDir + FileListingService.FILE_SEPARATOR + "*",
+              hostOutput);
 
-      // Split command line to have at most MAX_NB_CLASSES jUnit classes per invocation
-      List<List<String>> splittedMainClasses = new ArrayList<List<String>>();
-      int currentChunk = 0;
-      for (String classToRun : classes) {
-        if (splittedMainClasses.size() == currentChunk) {
-          splittedMainClasses.add(new ArrayList<String>(MAX_NB_CLASSES));
-          if (jUnitRunnerName != null) {
-            splittedMainClasses.get(currentChunk).add(jUnitRunnerName);
-          }
-        }
-
-        splittedMainClasses.get(currentChunk).add(classToRun);
-
-        if (splittedMainClasses.get(currentChunk).size() == MAX_NB_CLASSES) {
-          currentChunk++;
-        }
-      }
-      List<String> cmdLines = new ArrayList<String>(splittedMainClasses.size());
-      File rootDir = new File(device.getMountPoint(IDevice.MNT_ROOT).replace("\n", ""));
-      for (List<String> classList : splittedMainClasses) {
-        cmdLines.add(Joiner.on(' ').join(buildCommandLine(rootDir, options,
-            classList.toArray(new String[classList.size()]), desFilePaths)));
-      }
-
-      try {
-        // Bug : exit code return by adb shell is wrong (always 0)
-        // https://code.google.com/p/android/issues/detail?id=3254
-        // Use go team hack to work this around
-        // https://code.google.com/p/go/source/browse/misc/arm/a
-
-        for (String args : cmdLines) {
           if (isVerbose) {
-            System.out.println("adb -s " + device.getSerialNumber() + " shell "
-                + testScriptPathOnTarget + ' ' + args);
+            System.out.println("adb -s " + device.getSerialNumber() + " push  "
+                + TEST_SCRIPT_FILE.getAbsolutePath() + " "
+                + testScriptPathOnTarget);
+          }
+          device.pushFile(TEST_SCRIPT_FILE.getAbsolutePath(),
+              testScriptPathOnTarget);
+
+          if (isVerbose) {
+            System.out.println("adb -s " + device.getSerialNumber() + " shell chmod 777 "
+                + testScriptPathOnTarget);
           }
           device.executeShellCommand(
-              testScriptPathOnTarget + ' ' + args,
-              new MyShellOuputReceiver(outRedirectStream, errRedirectStream),
-              /* maxTimeToOutputResponse = */ 10000);
+              "chmod 777 " + testScriptPathOnTarget, hostOutput);
 
-          File exitStatusFile = AbstractTestTools.createTempFile("exitStatus", "");
-          if (isVerbose) {
-            System.out.println("adb -s " + device.getSerialNumber() + " pull "
-                + testsRootDir + "/exitStatus "
-                + exitStatusFile.getAbsolutePath());
-          }
-          device.pullFile(testsRootDir + "/exitStatus",
-              exitStatusFile.getAbsolutePath());
+          int i = 0;
+          for (File f : classpathFiles) {
+            desFilePaths[i] =
+                convertToTargetPath(new File(testsRootDirFile,  "f" + i + "_" + f.getName()));
 
-          BufferedReader br = new BufferedReader(new FileReader(exitStatusFile));
-          try {
-            String readLine = br.readLine();
-            if (readLine == null) {
-              throw new RuntimeRunnerException("Exit status not found");
-            }
-            exitStatus = Integer.parseInt(readLine);
-          } finally {
-            br.close();
-          }
-
-          if (isVerbose) {
-            System.out.println("Exit status: " + exitStatus);
-          }
-
-          if (exitStatus != 0) {
-            System.err.println("Execution failed on device '" + device.getName() + "'");
-            break;
-          }
-        }
-      } catch (TimeoutException e) {
-        throw new RuntimeRunnerException(e);
-      } catch (AdbCommandRejectedException e) {
-        throw new RuntimeRunnerException(e);
-      } catch (ShellCommandUnresponsiveException e) {
-        throw new RuntimeRunnerException(e);
-      } catch (CannotChangePermissionException | CannotCreateFileException | IOException e) {
-        throw new RuntimeRunnerException(e);
-      } catch (SyncException e) {
-        throw new RuntimeRunnerException(e);
-      } finally {
-        try {
-          for (String pushedFile : desFilePaths) {
             if (isVerbose) {
-              System.out.println(
-                  "adb -s " + device.getSerialNumber() + " rm " + pushedFile);
+              System.out.println("adb -s " + device.getSerialNumber() + " push "
+                  + f.getAbsolutePath() + " " + desFilePaths[i]);
             }
-            device.executeShellCommand("rm " + pushedFile, hostOutput);
+            device.pushFile(f.getAbsolutePath(), desFilePaths[i]);
+            i++;
           }
-        } catch (IOException e) {
-          throw new RuntimeRunnerException(e);
-        } catch (TimeoutException e) {
-          throw new RuntimeRunnerException(e);
-        } catch (AdbCommandRejectedException e) {
-          throw new RuntimeRunnerException(e);
-        } catch (ShellCommandUnresponsiveException e) {
+        } catch (TimeoutException
+            | AdbCommandRejectedException
+            | ShellCommandUnresponsiveException
+            | IOException
+            | SyncException e) {
           throw new RuntimeRunnerException(e);
         }
+
+        // Split command line to have at most MAX_NB_CLASSES jUnit classes per invocation
+        List<List<String>> splittedMainClasses = new ArrayList<List<String>>();
+        int currentChunk = 0;
+        for (String classToRun : classes) {
+          if (splittedMainClasses.size() == currentChunk) {
+            splittedMainClasses.add(new ArrayList<String>(MAX_NB_CLASSES));
+            if (jUnitRunnerName != null) {
+              splittedMainClasses.get(currentChunk).add(jUnitRunnerName);
+            }
+          }
+
+          splittedMainClasses.get(currentChunk).add(classToRun);
+
+          if (splittedMainClasses.get(currentChunk).size() == MAX_NB_CLASSES) {
+            currentChunk++;
+          }
+        }
+        List<String> cmdLines = new ArrayList<String>(splittedMainClasses.size());
+        File rootDir = new File(device.getMountPoint(IDevice.MNT_ROOT).replace("\n", ""));
+        for (List<String> classList : splittedMainClasses) {
+          cmdLines.add(Joiner.on(' ').join(buildCommandLine(rootDir, options,
+              classList.toArray(new String[classList.size()]), desFilePaths)));
+        }
+
+        try {
+          // Bug : exit code return by adb shell is wrong (always 0)
+          // https://code.google.com/p/android/issues/detail?id=3254
+          // Use go team hack to work this around
+          // https://code.google.com/p/go/source/browse/misc/arm/a
+
+          for (String args : cmdLines) {
+            if (isVerbose) {
+              System.out.println("adb -s " + device.getSerialNumber() + " shell "
+                  + testScriptPathOnTarget + ' ' + args);
+            }
+            device.executeShellCommand(
+                testScriptPathOnTarget + ' ' + args,
+                new MyShellOuputReceiver(outRedirectStream, errRedirectStream),
+                /* maxTimeToOutputResponse = */ 10000);
+
+            File exitStatusFile = AbstractTestTools.createTempFile("exitStatus", "");
+            if (isVerbose) {
+              System.out.println("adb -s " + device.getSerialNumber() + " pull "
+                  + testsRootDir + "/exitStatus "
+                  + exitStatusFile.getAbsolutePath());
+            }
+            device.pullFile(testsRootDir + "/exitStatus",
+                exitStatusFile.getAbsolutePath());
+
+            BufferedReader br = new BufferedReader(new FileReader(exitStatusFile));
+            try {
+              String readLine = br.readLine();
+              if (readLine == null) {
+                throw new RuntimeRunnerException("Exit status not found");
+              }
+              exitStatus = Integer.parseInt(readLine);
+            } finally {
+              br.close();
+            }
+
+            if (isVerbose) {
+              System.out.println("Exit status: " + exitStatus);
+            }
+
+            if (exitStatus != 0) {
+              System.err.println("Execution failed on device '" + device.getName() + "'");
+              break;
+            }
+          }
+        } catch (TimeoutException
+            | AdbCommandRejectedException
+            | ShellCommandUnresponsiveException
+            | CannotChangePermissionException
+            | CannotCreateFileException
+            | IOException
+            | SyncException e) {
+          throw new RuntimeRunnerException(e);
+        } finally {
+          try {
+            for (String pushedFile : desFilePaths) {
+              if (isVerbose) {
+                System.out.println(
+                    "adb -s " + device.getSerialNumber() + " rm " + pushedFile);
+              }
+              device.executeShellCommand("rm " + pushedFile, hostOutput);
+            }
+          } catch (IOException
+              | TimeoutException
+              | AdbCommandRejectedException
+              | ShellCommandUnresponsiveException e) {
+            throw new RuntimeRunnerException(e);
+          }
+        }
+
+      } catch (RuntimeRunnerException e) {
+        System.err.println("Error with device '" + device.getName() + "': " + e.getMessage());
+        failingDevices.add(device.getName());
       }
+
+    }
+
+    if (failingDevices.size() > 0) {
+      String device = failingDevices.size() == 1 ? "device" : "devices";
+      throw new RuntimeRunnerException(
+          "Error with "
+              + device
+              + ": "
+              + Joiner.on(',').join(failingDevices)
+              + ". See log for details");
     }
 
     return exitStatus;
