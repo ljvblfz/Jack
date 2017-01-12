@@ -111,6 +111,12 @@ public class ReferenceMapper {
   @Nonnull
   private final SourceInfoFactory sourceInfoFactory;
 
+  @CheckForNull
+  private ReferenceBinding ecjJlo = null;
+
+  @CheckForNull
+  private MethodBinding ecjJloCloneMth = null;
+
   public ReferenceMapper(@Nonnull JNodeLookup lookup,
       @Nonnull LookupEnvironment lookupEnvironment, @Nonnull SourceInfoFactory sourceInfoFactory) {
     this.lookup = lookup;
@@ -159,8 +165,28 @@ public class ReferenceMapper {
     return field;
   }
 
+  private boolean isCloneOfArray(@Nonnull MethodBinding binding) {
+    if (ecjJlo == null) {
+      ecjJlo = lookupEnvironment.getType(TypeConstants.JAVA_LANG_OBJECT);
+      assert ecjJlo != null;
+      MethodBinding[] methods = ecjJlo.getMethods("clone".toCharArray());
+      assert methods.length == 1;
+      ecjJloCloneMth = methods[0];
+    }
+
+    return binding.declaringClass.equals(ecjJlo) && new String(binding.selector).equals("clone")
+        && binding.returnType.isArrayType();
+  }
+
   @Nonnull
   public JMethod get(@Nonnull MethodBinding binding) throws JTypeLookupException {
+    if (isCloneOfArray(binding)) {
+      // ECJ has replaced the clone prototype "jlo clone()" by "int[] clone()", thus replace the
+      // binding by the binding of clone from jlo to be able to lookup the method.
+      binding = ecjJloCloneMth;
+      assert binding != null;
+    }
+
     binding = binding.original();
     SignatureKey key = new SignatureKey(binding);
     JMethod method = methods.get(key);
