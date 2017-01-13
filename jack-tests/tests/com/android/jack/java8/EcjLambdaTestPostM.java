@@ -17,7 +17,6 @@
 package com.android.jack.java8;
 
 import com.android.jack.Options;
-import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.util.AndroidApiLevel;

@@ -17,7 +17,6 @@
 package com.android.jack.java8;
 
 import com.android.jack.Options;
-import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.junit.Runtime;
