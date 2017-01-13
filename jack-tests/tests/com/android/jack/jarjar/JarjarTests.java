@@ -175,7 +175,7 @@ public class JarjarTests {
         /* zipFiles = */ true,
         new File(JARJAR004.directory, "lib"));
 
-    List<RuntimeRunner> runnerList = AbstractTestTools.listRuntimeTestRunners(null);
+    List<RuntimeRunner> runnerList = AbstractTestTools.listRuntimeTestRunners();
     String[] names = {"com.android.jack.jarjar.test004.dontcompile.TestWithRelocatedReference"};
     for (RuntimeRunner runner : runnerList) {
       Assert.assertEquals(

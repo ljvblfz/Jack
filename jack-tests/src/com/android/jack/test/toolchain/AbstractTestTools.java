@@ -839,6 +839,12 @@ public abstract class AbstractTestTools {
   }
 
   @Nonnull
+  public static List<RuntimeRunner> listRuntimeTestRunners()
+      throws SecurityException, IllegalArgumentException, RuntimeRunnerException {
+    return listRuntimeTestRunners(/*properties = */ null);
+  }
+
+  @Nonnull
   public static List<RuntimeRunner> listRuntimeTestRunners(@CheckForNull Properties properties)
       throws SecurityException, IllegalArgumentException, RuntimeRunnerException {
 

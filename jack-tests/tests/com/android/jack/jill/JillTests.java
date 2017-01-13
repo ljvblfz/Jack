@@ -77,7 +77,7 @@ public class JillTests {
     jackToolchain.addStaticLibs(jarInput);
     jackToolchain.srcToExe(dex, /* zipFile = */ true, testSourceDir);
 
-    List<RuntimeRunner> runnerList = AbstractTestTools.listRuntimeTestRunners(null);
+    List<RuntimeRunner> runnerList = AbstractTestTools.listRuntimeTestRunners();
     String[] names = { testClassName };
     for (RuntimeRunner runner : runnerList) {
       Assert.assertEquals(0,

@@ -199,7 +199,7 @@ public class EcjInterfaceMethodsTest extends InterfaceMethodsTest {
       File dexFile = new File(dexOutDir, "classes.dex");
 
       List<RuntimeRunner> runnerList =
-          AbstractTestTools.listRuntimeTestRunners(/* properties = */ null);
+          AbstractTestTools.listRuntimeTestRunners();
       for (RuntimeRunner runner : runnerList) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ((AbstractRuntimeRunner) runner).setOutputStream(out);

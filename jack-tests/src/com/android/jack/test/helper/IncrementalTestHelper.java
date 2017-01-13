@@ -244,7 +244,7 @@ public class IncrementalTestHelper {
 
   @Nonnull
   public void run(@Nonnull String mainClass, @Nonnull String expected) throws Exception {
-    List<RuntimeRunner> runnerList = AbstractTestTools.listRuntimeTestRunners(null);
+    List<RuntimeRunner> runnerList = AbstractTestTools.listRuntimeTestRunners();
     for (RuntimeRunner runner : runnerList) {
       ByteArrayOutputStream out = new ByteArrayOutputStream();
       ((AbstractRuntimeRunner) runner).setOutputStream(out);

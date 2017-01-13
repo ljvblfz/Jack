@@ -866,7 +866,7 @@ public class LambdaTest {
   }
 
   private void run(@Nonnull String mainClass, @Nonnull File[] dexFiles) throws Exception {
-    List<RuntimeRunner> runnerList = AbstractTestTools.listRuntimeTestRunners(null);
+    List<RuntimeRunner> runnerList = AbstractTestTools.listRuntimeTestRunners();
     for (RuntimeRunner runner : runnerList) {
       Assert.assertEquals(0, runner.runJUnit(new String[0], AbstractTestTools.JUNIT_RUNNER_NAME,
           new String[] {mainClass}, dexFiles));
