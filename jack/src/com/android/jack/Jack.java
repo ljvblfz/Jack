@@ -1466,13 +1466,11 @@ public abstract class Jack {
     boolean enableInlineAnnotatedMethods =
         features.contains(Optimizations.InlineAnnotatedMethods.class);
 
-    {
+    if (productions.contains(DependencyInLibraryProduct.class)) {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-      if (productions.contains(DependencyInLibraryProduct.class)) {
-        typePlan.append(TypeDependenciesCollector.class);
-        typePlan.append(FileDependenciesCollector.class);
-      }
+      typePlan.append(TypeDependenciesCollector.class);
+      typePlan.append(FileDependenciesCollector.class);
     }
 
     if (features.contains(SourceFileRenaming.class)) {
@@ -1716,11 +1714,10 @@ public abstract class Jack {
       planBuilder.append(AvpComputeMethodArgumentsValues.class);
     }
 
-    SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-        planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-
     if (enableFieldValuePropagation || enableArgumentValuePropagation
         || enableWriteOnlyFieldRemoval) {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
       if (enableFieldValuePropagation) {
         methodPlan.append(FvpPropagateFieldValues.class);
