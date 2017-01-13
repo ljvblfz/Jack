@@ -87,7 +87,8 @@ import javax.annotation.Nonnull;
  */
 @Description("Transform body of a JMethod to into a three address form.")
 @Name("ThreeAddressCodeBuilder")
-@Constraint(need = {NoImplicitBlock.class, SourceCast.class}, no = {BooleanTestOutsideIf.class,
+@Constraint(need = {NoImplicitBlock.class, SourceCast.class, DefinitionMarker.class},
+  no = {BooleanTestOutsideIf.class,
     InitInNewArray.class, JAssertStatement.class, JAsgOperation.class, JFieldInitializer.class,
     JConditionalOperation.class, JLoop.class, JCastOperation.WithIntersectionType.class})
 @Transform(add = {ThreeAddressCodeForm.class,
