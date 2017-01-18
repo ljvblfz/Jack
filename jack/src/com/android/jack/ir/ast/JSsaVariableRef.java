@@ -28,6 +28,7 @@ import com.android.sched.transform.TransformRequest;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -48,7 +49,7 @@ public class JSsaVariableRef extends JVariableRef {
   @Nonnegative
   private final int version;
 
-  @Nonnull
+  @CheckForNull
   private final JBasicBlockElement def;
 
   @Nonnull
@@ -61,7 +62,7 @@ public class JSsaVariableRef extends JVariableRef {
    * @Param version The version number of the variable if it is renamed.
    */
   public JSsaVariableRef(@Nonnull SourceInfo info, @Nonnull JVariable target,
-      @Nonnegative int version, @Nonnull JBasicBlockElement def, boolean isDef) {
+      @Nonnegative int version, JBasicBlockElement def, boolean isDef) {
     super(info, target);
     this.version = version;
     this.def = def;
@@ -122,14 +123,18 @@ public class JSsaVariableRef extends JVariableRef {
     return uses;
   }
 
-  @Nonnull
+  @CheckForNull
   public JSsaVariableRef getDef() {
     if (def instanceof JPhiBlockElement) {
       JPhiBlockElement phi = (JPhiBlockElement) def;
       return phi.getLhs();
     } else {
       JVariableAsgBlockElement assign = (JVariableAsgBlockElement) def;
-      return (JSsaVariableRef) assign.getAssignment().getLhs();
+      if (def == null) {
+        return null;
+      } else {
+        return (JSsaVariableRef) assign.getAssignment().getLhs();
+      }
     }
   }
 

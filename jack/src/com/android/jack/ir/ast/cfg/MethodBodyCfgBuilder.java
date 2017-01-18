@@ -98,6 +98,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+
 import javax.annotation.Nonnull;
 
 /** Builds a ControlFlowGraph body representation for all methods. */
@@ -322,15 +323,17 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
         List<BasicBlock> successors = block.getSuccessors();
         assert successors.size() == 1;
         CatchBasicBlock catchBlock = (CatchBasicBlock) block;
+        JLocal catchVar = catchBlock.getCatchVar();
         newBlock = new JCatchBasicBlock(cfg, getBlockOrEnqueue(successors.get(0)),
-            catchBlock.getCatchTypes(), catchBlock.getCatchVar());
+            catchBlock.getCatchTypes(), catchVar);
+        cfg.getMethodBody().addCatchLocal(catchVar);
 
       } else if (block instanceof ReturnBasicBlock) {
         List<BasicBlock> successors = block.getSuccessors();
         assert successors.size() == 1;
         newBlock = new JReturnBasicBlock(cfg);
 
-        // Must always point ot the exit block
+        // Must always point to the exit block
         JBasicBlock exitBlock = getBlockOrEnqueue(successors.get(0));
         assert exitBlock == cfg.getExitBlock();
 

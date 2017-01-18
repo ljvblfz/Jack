@@ -17,7 +17,6 @@
 package com.android.jack.transformations.ssa;
 
 import com.android.jack.dx.util.IntIterator;
-import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.ir.ast.cfg.JBasicBlock;
@@ -64,8 +63,7 @@ public class JPhiElementInsertion implements RunnableSchedulable<JControlFlowGra
    *
    */
   private void placePhiFunctions(JControlFlowGraph cfg) {
-    JMethod method = cfg.getMethod();
-    final int numLocals = SsaUtil.getTotalNumberOfLocals(method, cfg);
+    final int numLocals = SsaUtil.getTotalNumberOfLocals(cfg);
     int regCount;
     int blockCount;
 
@@ -95,7 +93,7 @@ public class JPhiElementInsertion implements RunnableSchedulable<JControlFlowGra
         if (dv != null) {
           JVariable rs = dv.getTarget();
           // We don't need to check for JThis because JThis will never be defined.
-          int index = SsaUtil.getLocalIndex(method, cfg, rs);
+          int index = SsaUtil.getLocalIndex(cfg, rs);
           defsites[index].set(NodeIdMarker.getId(b));
         }
       }
@@ -125,10 +123,10 @@ public class JPhiElementInsertion implements RunnableSchedulable<JControlFlowGra
           if (!phisites[reg].get(dfBlockIndex) && dfBlock != cfg.getExitBlock()) {
             phisites[reg].set(dfBlockIndex);
 
-            JVariable target = SsaUtil.getVariableByIndex(method, cfg, reg);
+            JVariable target = SsaUtil.getVariableByIndex(cfg, reg);
 
             JPhiBlockElement phi =
-                new JPhiBlockElement(target, dfBlock.getPredecessors(), method.getSourceInfo());
+                new JPhiBlockElement(target, dfBlock.getPredecessors(), dfBlock.getSourceInfo());
             dfBlock.insertElement(0, phi);
 
             if (!defsites[reg].get(dfBlockIndex)) {

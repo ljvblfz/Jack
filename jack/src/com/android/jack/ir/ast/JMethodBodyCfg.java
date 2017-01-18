@@ -16,6 +16,9 @@
 
 package com.android.jack.ir.ast;
 
+import com.google.common.collect.Lists;
+
+import com.android.jack.ir.ast.cfg.JCatchBasicBlock;
 import com.android.jack.ir.ast.cfg.JControlFlowGraph;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
@@ -24,6 +27,8 @@ import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 
 import java.util.List;
+
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -34,10 +39,14 @@ public class JMethodBodyCfg extends JConcreteMethodBody {
   @Nonnull
   private JControlFlowGraph cfg;
 
+  @Nonnull
+  private final List<JLocal> catchLocals;
+
   public JMethodBodyCfg(@Nonnull SourceInfo info, @Nonnull List<JLocal> locals) {
     super(info, locals);
     cfg = new JControlFlowGraph(this.getSourceInfo());
     cfg.updateParents(this);
+    catchLocals = Lists.newLinkedList();
   }
 
   @Nonnull
@@ -50,6 +59,21 @@ public class JMethodBodyCfg extends JConcreteMethodBody {
   @Nonnull
   public JControlFlowGraph getCfg() {
     return cfg;
+  }
+
+  public void addCatchLocal(@Nonnull JLocal catchLocal) {
+    assert catchLocal.getParent() instanceof JCatchBasicBlock;
+    catchLocals.add(catchLocal);
+  }
+
+  @Nonnegative
+  public int getNumCatchLocals() {
+    return catchLocals.size();
+  }
+
+  @Nonnull
+  public List<JLocal> getCatchLocals() {
+    return catchLocals;
   }
 
   @Override

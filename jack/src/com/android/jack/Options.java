@@ -392,7 +392,7 @@ public class Options {
     public static final BooleanPropertyId ENABLE = BooleanPropertyId
         .create("jack.optimization.use-jack-ssa-ir",
             "Apply method argument value propagation optimization")
-        .addDefaultValue(Boolean.FALSE)
+        .addDefaultValue(Boolean.TRUE)
         .addCategory(DumpInLibrary.class)
         .addCategory(PrebuiltCompatibility.class)
         .addCategory(Private.class);

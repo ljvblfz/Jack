@@ -16,6 +16,8 @@
 
 package com.android.jack.transformations.ssa;
 
+import com.google.common.collect.Lists;
+
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JSsaVariableRef;
 import com.android.jack.ir.ast.cfg.JBasicBlock;
@@ -45,7 +47,7 @@ public class OptimizeJPhiElements implements RunnableSchedulable<JControlFlowGra
   @Override
   public void run(JControlFlowGraph t) {
     for (JBasicBlock bb : t.getAllBlocksUnordered()) {
-      for (JBasicBlockElement e : bb.getElements(true)) {
+      for (JBasicBlockElement e : Lists.newArrayList(bb.getElements(true))) {
         if (e instanceof JPhiBlockElement) {
           JPhiBlockElement phi = (JPhiBlockElement) e;
           // First remove it if it is redundant.

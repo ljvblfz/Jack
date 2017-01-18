@@ -107,7 +107,7 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
       this.cfg = cfg;
       this.method = cfg.getMethod();
       bbMap = NodeListMarker.getNodeList(cfg);
-      ropRegCount = SsaUtil.getTotalNumberOfLocals(method, cfg);
+      ropRegCount = SsaUtil.getTotalNumberOfLocals(cfg);
 
       /*
        * Reserve the first N registers in the SSA register space for
@@ -130,7 +130,7 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
       // top entry for the version stack is version 0
       JSsaVariableRef[] initialRegMapping = new JSsaVariableRef[ropRegCount];
       for (int i = 0; i < ropRegCount; i++) {
-        JVariable target = SsaUtil.getVariableByIndex(method, cfg, i);
+        JVariable target = SsaUtil.getVariableByIndex(cfg, i);
         initialRegMapping[i] = new JSsaVariableRef(method.getSourceInfo(), target, 0, null, true);
       }
       // Initial state for entry block
@@ -307,7 +307,7 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
         if (target instanceof JThis) {
           return; // I don't think we ever run into this.
         }
-        index = SsaUtil.getLocalIndex(method, cfg, target);
+        index = SsaUtil.getLocalIndex(cfg, target);
         nextSsaReg[index]++;
         // It is probably ok to not have any debug marker here.
         JSsaVariableRef lhs =
@@ -332,7 +332,7 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
         }
 
         JVariable ropReg = dv.getTarget();
-        int index = SsaUtil.getLocalIndex(method, cfg, ropReg);
+        int index = SsaUtil.getLocalIndex(cfg, ropReg);
 
         nextSsaReg[index]++;
         JSsaVariableRef ref =
@@ -355,7 +355,7 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
           if (varRef instanceof JThisRef) {
             continue;
           }
-          int index = SsaUtil.getLocalIndex(method, cfg, varRef.getTarget());
+          int index = SsaUtil.getLocalIndex(cfg, varRef.getTarget());
           if (index == -1) {
             System.out.println("this is not good for business");
           }
@@ -380,7 +380,7 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
               if (target instanceof JThis) {
                 continue;
               }
-              ropReg = SsaUtil.getLocalIndex(method, cfg, target);
+              ropReg = SsaUtil.getLocalIndex(cfg, target);
               /*
                * Never add a version 0 register as a phi operand. Version 0 registers represent the
                * initial register state, and thus are never significant. Furthermore, the register
