@@ -16,14 +16,21 @@
 
 package com.android.jack.ir.ast.cfg;
 
+import com.google.common.collect.Lists;
+
 import com.android.jack.ir.JNodeInternalError;
+import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JNode;
+import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 
+import java.util.List;
+
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /** Represents an abstract CFG basic block element. */
@@ -57,16 +64,37 @@ public abstract class JBasicBlockElement extends JNode {
     this.ehc = ehc;
   }
 
+  @Nonnull
+  public List<JVariableRef> getUsedVariables() {
+    final List<JVariableRef> result = Lists.newArrayList();
+    (new JVisitor() {
+      @Override
+      public boolean visit(@Nonnull JVariableRef varRef) {
+        JNode parent = varRef.getParent();
+        if (!(parent instanceof JAsgOperation) || ((JAsgOperation) parent).getLhs() != varRef) {
+          result.add(varRef);
+        }
+        return super.visit(varRef);
+      }
+    }).accept(this);
+    return result;
+  }
+
+  @CheckForNull
+  public JVariableRef getDefinedVariable() {
+    return null;
+  }
+
   @Override
   public abstract void traverse(@Nonnull JVisitor visitor);
 
   @Override
-  public abstract void traverse(
-      @Nonnull ScheduleInstance<? super Component> schedule) throws Exception;
+  public abstract void traverse(@Nonnull ScheduleInstance<? super Component> schedule)
+      throws Exception;
 
   @Override
-  public abstract void visit(@Nonnull JVisitor visitor,
-      @Nonnull TransformRequest request) throws Exception;
+  public abstract void visit(@Nonnull JVisitor visitor, @Nonnull TransformRequest request)
+      throws Exception;
 
   @Override
   public void checkValidity() {

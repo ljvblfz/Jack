@@ -16,6 +16,8 @@
 
 package com.android.jack.optimizations.ssa;
 
+import com.google.common.collect.Lists;
+
 import com.android.jack.Options;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.ir.ast.JExpression;
@@ -74,7 +76,7 @@ public class CopyPropagation implements RunnableSchedulable<JControlFlowGraph> {
     do {
       changed = false;
       for (JBasicBlock bb : cfg.getAllBlocksUnordered()) {
-        for (JBasicBlockElement e : bb.getElements(true)) {
+        for (JBasicBlockElement e : Lists.newArrayList(bb.getElements(true))) {
           if (e instanceof JVariableAsgBlockElement) {
             changed = tryPropagateAssignment((JVariableAsgBlockElement) e, cfg);
           } else if (e instanceof JPhiBlockElement) {

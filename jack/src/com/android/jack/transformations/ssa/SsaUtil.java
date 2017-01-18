@@ -16,66 +16,28 @@
 
 package com.android.jack.transformations.ssa;
 
-import com.google.common.collect.Lists;
-
-import com.android.jack.ir.ast.JAsgOperation;
-import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JMethodBodyCfg;
-import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JVariable;
-import com.android.jack.ir.ast.JVariableRef;
-import com.android.jack.ir.ast.JVisitor;
-import com.android.jack.ir.ast.cfg.JBasicBlockElement;
 import com.android.jack.ir.ast.cfg.JControlFlowGraph;
-import com.android.jack.ir.ast.cfg.JVariableAsgBlockElement;
 
 import java.util.List;
 
 import javax.annotation.Nonnull;
 
 /**
- * Not exactly a util but more of a set of things that are missing in the current API and we have to
- * bruteforce it here.
+ * Not exactly a utilities but more of a set of things that are missing in the current API and we
+ * have to brute force it here.
  */
 public class SsaUtil {
-
-  public static List<JVariableRef> getUsedVariables(JBasicBlockElement stmt) {
-    final List<JVariableRef> result = Lists.newArrayList();
-    (new JVisitor() {
-      @Override
-      public boolean visit(@Nonnull JVariableRef varRef) {
-        JNode parent = varRef.getParent();
-        if (!(parent instanceof JAsgOperation) || ((JAsgOperation) parent).getLhs() != varRef) {
-          result.add(varRef);
-        }
-        return super.visit(varRef);
-      }
-    }).accept(stmt);
-    return result;
-  }
-
-  public static JVariableRef getDefinedVariable(JBasicBlockElement stmt) {
-    if (!(stmt instanceof JVariableAsgBlockElement)) {
-      return null;
-    }
-    JExpression lhs = ((JVariableAsgBlockElement) stmt).getAssignment().getLhs();
-    if (!(lhs instanceof JVariableRef)) {
-      return null;
-    } else {
-      return (JVariableRef) lhs;
-    }
-  }
 
   public static int getLocalIndex(@Nonnull JControlFlowGraph cfg, JVariable var) {
     JMethodBodyCfg body = cfg.getMethodBody();
     int numParam = body.getMethod().getParams().size();
     if (var instanceof JParameter) {
       int paramIdx = body.getMethod().getParams().indexOf(var);
-      if (paramIdx == -1) {
-        throw new RuntimeException();
-      }
+      assert paramIdx != -1;
       return paramIdx;
     }
 
@@ -88,9 +50,7 @@ public class SsaUtil {
         return numLocal + numParam + index;
       } else {
         int localIdx = body.getLocals().indexOf(var);
-        if (localIdx == -1) {
-          throw new RuntimeException("variable not found ");
-        }
+        assert localIdx != -1;
         return numParam + localIdx;
       }
     }
@@ -101,8 +61,7 @@ public class SsaUtil {
   /**
    * TODO(acleung): Investigate if it is worth caching this.
    */
-  public static JVariable getVariableByIndex(@Nonnull JControlFlowGraph cfg,
-      int index) {
+  public static JVariable getVariableByIndex(@Nonnull JControlFlowGraph cfg, int index) {
     JMethodBodyCfg body = cfg.getMethodBody();
     assert body != null;
     int numLocal = body.getLocals().size();

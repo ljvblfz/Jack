@@ -23,7 +23,26 @@ import org.junit.Test;
 
 public class Tests {
   @Test
-  public void intNeg() {
-    Assert.assertEquals("message".length(),  Ssa.doubleNestedCatch());
+  public void testNestedCatch() {
+    Assert.assertEquals("message".length(), Ssa.doubleNestedCatch());
+  }
+
+  @Test
+  public void testMultipleUses() {
+    int x = 11;
+    int y = 51;
+    int z = 91;
+
+    int a = x + y;
+    int b = y + z;
+    int c = x + z;
+
+    int x_1 = x + 1;
+    int y_1 = y + 1;
+    int z_1 = z + 1;
+
+    int result = a + b + c + x_1 + y_1 + z_1;
+
+    Assert.assertEquals(result, Ssa.multipleUses(x, y, z));
   }
 }

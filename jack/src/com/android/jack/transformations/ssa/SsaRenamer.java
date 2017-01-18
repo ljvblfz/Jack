@@ -326,7 +326,7 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
        * @param insn insn to process.
        */
       void processResultReg(JBasicBlockElement insn) {
-        JVariableRef dv = SsaUtil.getDefinedVariable(insn);
+        JVariableRef dv = insn.getDefinedVariable();
         if (dv == null) {
           return;
         }
@@ -345,7 +345,7 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
       }
 
       void processSourceReg(JBasicBlockElement insn) {
-        List<JVariableRef> uv = SsaUtil.getUsedVariables(insn);
+        List<JVariableRef> uv = insn.getUsedVariables();
         if (uv.isEmpty()) {
           return;
         }

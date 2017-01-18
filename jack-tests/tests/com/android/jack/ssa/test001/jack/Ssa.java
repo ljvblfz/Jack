@@ -40,4 +40,17 @@ public class Ssa {
     }
     return -1;
   }
+
+  public static int multipleUses(int x, int y, int z) {
+    int a = x + y;
+    int b = y + z;
+    int c = x + z;
+
+    x = x + 1;
+    y = y + 1;
+    z = z + 1;
+
+    int result = a + b + c + x + y + z;
+    return result;
+  }
 }

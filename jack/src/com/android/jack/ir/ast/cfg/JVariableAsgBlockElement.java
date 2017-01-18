@@ -33,6 +33,7 @@ import com.android.sched.item.Component;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /** Represents a variable (local, this, parameter) assignment basic block element */
@@ -87,6 +88,17 @@ public final class JVariableAsgBlockElement extends JBasicBlockElement {
 
   public boolean isPolymorphicMethodCall() {
     return asg.getRhs() instanceof JPolymorphicMethodCall;
+  }
+
+  @Override
+  @CheckForNull
+  public JVariableRef getDefinedVariable() {
+    JExpression lhs = getAssignment().getLhs();
+    if (!(lhs instanceof JVariableRef)) {
+      return null;
+    } else {
+      return (JVariableRef) lhs;
+    }
   }
 
   @Override

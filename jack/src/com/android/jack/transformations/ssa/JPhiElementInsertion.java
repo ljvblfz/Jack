@@ -89,7 +89,7 @@ public class JPhiElementInsertion implements RunnableSchedulable<JControlFlowGra
      */
     for (JBasicBlock b : bbMap) {
       for (JBasicBlockElement stmt : b.getElements(true)) {
-        JVariableRef dv = SsaUtil.getDefinedVariable(stmt);
+        JVariableRef dv = stmt.getDefinedVariable();
         if (dv != null) {
           JVariable rs = dv.getTarget();
           // We don't need to check for JThis because JThis will never be defined.

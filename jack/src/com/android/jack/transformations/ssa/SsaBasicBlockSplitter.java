@@ -155,8 +155,8 @@ public class SsaBasicBlockSplitter implements RunnableSchedulable<JControlFlowGr
       return false;
     }
     JBasicBlockElement lastInsn = block.getLastElement();
-    int uvCount = SsaUtil.getUsedVariables(lastInsn).size();
-    int dvCount = SsaUtil.getDefinedVariable(lastInsn) == null ? 0 : 1;
+    int uvCount = lastInsn.getUsedVariables().size();
+    int dvCount = lastInsn.getDefinedVariable() == null ? 0 : 1;
     return (uvCount + dvCount > 0) && succ.getPredecessorCount() > 1;
   }
 
