@@ -67,6 +67,10 @@ public class NAlloc extends NExpression {
     instanceType = in.readId();
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipId();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

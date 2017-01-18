@@ -81,6 +81,12 @@ public class NDebugVariableInfo extends NMarker {
     genericSignature = in.readString();
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipString();
+    in.skipId();
+    in.skipString();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

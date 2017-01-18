@@ -72,13 +72,27 @@ class Tokenizer {
     return in.readInt();
   }
 
+  public void skipInt() throws IOException {
+    currentTokenId = Token.NUMBER_VALUE;
+    in.skipInt();
+  }
+
   public byte readByte() throws IOException {
     currentTokenId = Token.NUMBER_VALUE;
     return in.readByte();
   }
 
+  public void skipByte() throws IOException {
+    currentTokenId = Token.NUMBER_VALUE;
+    in.skipByte();
+  }
+
   public boolean readBoolean() throws IOException {
     return in.readBoolean();
+  }
+
+  public void skipBoolean() throws IOException {
+    in.skipBoolean();
   }
 
   public long readLong() throws IOException {
@@ -86,9 +100,19 @@ class Tokenizer {
     return in.readLong();
   }
 
+  public void skipLong() throws IOException {
+    currentTokenId = Token.NUMBER_VALUE;
+    in.skipLong();
+  }
+
   public short readShort() throws IOException {
     currentTokenId = Token.NUMBER_VALUE;
     return in.readShort();
+  }
+
+  public void skipShort() throws IOException {
+    currentTokenId = Token.NUMBER_VALUE;
+    in.skipShort();
   }
 
   public char readChar() throws IOException {
@@ -96,9 +120,19 @@ class Tokenizer {
     return in.readChar();
   }
 
+  public void skipChar() throws IOException {
+    currentTokenId = Token.NUMBER_VALUE;
+    in.skipChar();
+  }
+
   public float readFloat() throws IOException {
     currentTokenId = Token.NUMBER_VALUE;
     return Float.intBitsToFloat(readInt());
+  }
+
+  public void skipFloat() throws IOException {
+    currentTokenId = Token.NUMBER_VALUE;
+    in.skipInt();
   }
 
   public double readDouble() throws IOException {
@@ -106,14 +140,27 @@ class Tokenizer {
     return Double.longBitsToDouble(readLong());
   }
 
+  public void skipDouble() throws IOException {
+    currentTokenId = Token.NUMBER_VALUE;
+    in.skipLong();
+  }
+
   @CheckForNull
   public String readString() throws IOException {
     return in.readUTF();
   }
 
+  public void skipString() throws IOException {
+    in.skipUTF();
+  }
+
   @CheckForNull
   public byte[] readBuffer() throws IOException {
     return in.readBuffer();
+  }
+
+  public void skipBuffer() throws IOException {
+    in.skipBuffer();
   }
 
   private void readToken(@Nonnull Token expected) throws IOException {

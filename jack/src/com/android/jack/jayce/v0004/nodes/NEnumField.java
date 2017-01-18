@@ -114,6 +114,16 @@ public class NEnumField extends NField {
 
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipInt();
+    in.skipId();
+    in.skipId();
+    in.skipNode();
+    in.skipInt();
+    in.skipNodes();
+    in.skipNodes();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

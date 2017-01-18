@@ -16,6 +16,8 @@
 
 package com.android.jack.jayce.v0004.io;
 
+import com.google.common.io.ByteStreams;
+
 import com.android.jack.util.StringUtils;
 
 import java.io.DataInput;
@@ -57,9 +59,17 @@ class JayceInputStream implements DataInput {
     return in.readBoolean();
   }
 
+  public void skipBoolean() throws IOException {
+    ByteStreams.skipFully(in, 1);
+  }
+
   @Override
   public byte readByte() throws IOException {
     return in.readByte();
+  }
+
+  public void skipByte() throws IOException {
+    ByteStreams.skipFully(in, 1);
   }
 
   @Override
@@ -67,9 +77,17 @@ class JayceInputStream implements DataInput {
     return in.readUnsignedByte();
   }
 
+  public void skipUnsignedByte() throws IOException {
+    ByteStreams.skipFully(in, 1);
+  }
+
   @Override
   public short readShort() throws IOException {
     return in.readShort();
+  }
+
+  public void skipShort() throws IOException {
+    ByteStreams.skipFully(in, 2);
   }
 
   @Override
@@ -77,9 +95,17 @@ class JayceInputStream implements DataInput {
     return in.readUnsignedShort();
   }
 
+  public void skipUnsignedShort() throws IOException {
+    ByteStreams.skipFully(in, 2);
+  }
+
   @Override
   public char readChar() throws IOException {
     return in.readChar();
+  }
+
+  public void skipChar() throws IOException {
+    ByteStreams.skipFully(in, 2);
   }
 
   @Override
@@ -108,6 +134,10 @@ class JayceInputStream implements DataInput {
     return result;
   }
 
+  public void skipInt() throws IOException {
+    readInt();
+  }
+
   @Override
   public long readLong() throws IOException {
     long result = 0;
@@ -134,14 +164,26 @@ class JayceInputStream implements DataInput {
     return result;
   }
 
+  public void skipLong() throws IOException {
+    readLong();
+  }
+
   @Override
   public float readFloat() throws IOException {
     return in.readFloat();
   }
 
+  public void skipFloat() throws IOException {
+    ByteStreams.skipFully(in, 4);
+  }
+
   @Override
   public double readDouble() throws IOException {
     return in.readDouble();
+  }
+
+  public void skipDouble() throws IOException {
+    ByteStreams.skipFully(in, 8);
   }
 
   @Deprecated
@@ -166,6 +208,14 @@ class JayceInputStream implements DataInput {
     }
   }
 
+  public void skipUTF() throws IOException {
+    int length = readInt();
+
+    if (length > 0) {
+      ByteStreams.skipFully(in, length);
+    }
+  }
+
   public byte[] readBuffer() throws IOException {
     int length = readInt();
 
@@ -176,5 +226,13 @@ class JayceInputStream implements DataInput {
     in.readFully(b);
 
     return b;
+  }
+
+  public void skipBuffer() throws IOException {
+    int length = readInt();
+
+    if (length > 0) {
+      ByteStreams.skipFully(in, length);
+    }
   }
 }

@@ -72,6 +72,11 @@ public class NContainerAnnotation extends NMarker {
     annotationTypeSig = in.readId();
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipRetentionPolicyEnum();
+    in.skipId();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

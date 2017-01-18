@@ -63,6 +63,10 @@ public class NLongLiteral extends NLiteral {
 
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipLong();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

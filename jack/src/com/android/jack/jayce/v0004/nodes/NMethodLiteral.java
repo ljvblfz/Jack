@@ -81,6 +81,11 @@ public class NMethodLiteral extends NLiteral {
     methodEnclosingType = in.readId();
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipId();
+    in.skipId();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

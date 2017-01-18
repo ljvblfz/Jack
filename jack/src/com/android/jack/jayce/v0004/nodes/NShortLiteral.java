@@ -63,6 +63,10 @@ public class NShortLiteral extends NLiteral {
 
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipShort();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

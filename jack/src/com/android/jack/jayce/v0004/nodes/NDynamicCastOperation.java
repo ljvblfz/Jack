@@ -85,6 +85,11 @@ public class NDynamicCastOperation extends NExpression {
     expr = in.readNode(NExpression.class);
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipIds();
+    in.skipNode();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

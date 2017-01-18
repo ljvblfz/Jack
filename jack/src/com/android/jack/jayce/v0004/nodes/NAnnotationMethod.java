@@ -123,6 +123,15 @@ public class NAnnotationMethod extends NMethod {
     markers = in.readNodes(NMarker.class);
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipId();
+    in.skipId();
+    in.skipInt();
+    in.skipNodes();
+    in.skipNode();
+    in.skipNodes();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

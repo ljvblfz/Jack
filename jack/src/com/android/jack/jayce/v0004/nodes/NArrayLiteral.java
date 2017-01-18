@@ -74,6 +74,10 @@ public class NArrayLiteral extends NLiteral {
     values = in.readNodes(NLiteral.class);
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipNodes();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

@@ -79,6 +79,11 @@ public class NParameterRef extends NExpression {
     markers = in.readNodes(NMarker.class);
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipId();
+    in.skipNodes();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

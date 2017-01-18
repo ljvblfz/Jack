@@ -114,6 +114,13 @@ public class NCatchBlock extends NStatement {
     statements = in.readNodes(NStatement.class);
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipId();
+    in.skipIds();
+    in.skipNode();
+    in.skipNodes();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {
