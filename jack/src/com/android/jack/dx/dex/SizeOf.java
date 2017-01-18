@@ -62,16 +62,6 @@ public final class SizeOf {
      */
     int headerSize = (8 * UBYTE) + UINT + SIGNATURE + (20 * UINT); // 0x70;
 
-    if (dexVersion == DexFormat.O_BETA2_DEX_VERSION) {
-      /*
-       * call_site_ids_size uint
-       * call_site_ids_off uint
-       * method_handle_ids_size uint
-       * method_handle_ids_off uint
-       */
-      headerSize += 4 * UINT; // 0x80
-    }
-
     return headerSize;
   }
 
