@@ -215,4 +215,9 @@ public final class VPath implements Cloneable {
   public String getLastName() {
     return Iterators.getLast(split().iterator(), "");
   }
+
+  @Override
+  public String toString() {
+    return "_" + getInternalPath() + "_";
+  }
 }

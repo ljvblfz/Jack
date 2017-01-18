@@ -47,4 +47,9 @@ public class FileLocation extends FileOrDirLocation {
   public String getDescription() {
     return "file '" + getPath() + "'";
   }
+
+  @Override
+  public String toString() {
+    return "_" + getDescription() + "_";
+  }
 }
