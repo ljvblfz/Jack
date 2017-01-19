@@ -447,6 +447,8 @@ public class SsaCodeItemBuilder implements RunnableSchedulable<JMethod> {
               .getMaxOptimalRegisterCount()) {
               // Try to see if we can squeeze it under the register count bar
             buildSsaCodeItem(method, true);
+            // Abort the current SSA-ROP code generation, otherwise we end up with duplicates.
+            return;
           }
         } else {
           EnumSet<OptionalStep> steps = EnumSet.allOf(OptionalStep.class);
