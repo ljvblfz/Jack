@@ -18,8 +18,6 @@ package com.android.jack.dx.dex.file;
 
 import com.android.jack.dx.rop.cst.Constant;
 import com.android.jack.dx.rop.cst.CstMethodHandleRef;
-import com.android.jack.dx.util.AnnotatedOutput;
-import com.android.jack.dx.util.Hex;
 
 import java.util.Collection;
 import java.util.TreeMap;
@@ -59,30 +57,6 @@ public final class MethodHandleIdsSection extends UniformItemSection {
     assert result != null;
 
     return result;
-  }
-
-  /**
-   * Writes the portion of the file header that refers to this instance.
-   *
-   * @param out {@code non-null;} where to write
-   */
-  public void writeHeaderPart(@Nonnull AnnotatedOutput out) {
-    throwIfNotPrepared();
-
-    int sz = methodHandleIds.size();
-    int offset = (sz == 0) ? 0 : getFileOffset();
-
-    if (sz > 65536) {
-      throw new UnsupportedOperationException("too many method handle ids");
-    }
-
-    if (out.annotates()) {
-      out.annotate(4, "method_handle_ids_size:  " + Hex.u4(sz));
-      out.annotate(4, "method_handle_ids_off:   " + Hex.u4(offset));
-    }
-
-    out.writeInt(sz);
-    out.writeInt(offset);
   }
 
   /**

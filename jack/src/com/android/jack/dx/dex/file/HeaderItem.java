@@ -109,11 +109,6 @@ public final class HeaderItem extends IndexedItem {
     file.getMethodIds().writeHeaderPart(out);
     file.getClassDefs().writeHeaderPart(out);
 
-    if (dexVersion == DexFormat.O_BETA2_DEX_VERSION) {
-      file.getCallSiteIds().writeHeaderPart(out);
-      file.getMethodHandleIds().writeHeaderPart(out);
-    }
-
     if (out.annotates()) {
       out.annotate(4, "data_size:       " + Hex.u4(dataSize));
       out.annotate(4, "data_off:        " + Hex.u4(dataOff));

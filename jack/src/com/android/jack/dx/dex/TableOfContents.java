@@ -122,12 +122,6 @@ public final class TableOfContents {
     methodIds.off = headerIn.readInt();
     classDefs.size = headerIn.readInt();
     classDefs.off = headerIn.readInt();
-    if (dexVersion == DexFormat.O_BETA2_DEX_VERSION) {
-      callSiteIds.size = headerIn.readInt();
-      callSiteIds.off = headerIn.readInt();
-      methodHandleIds.size = headerIn.readInt();
-      methodHandleIds.off = headerIn.readInt();
-    }
     dataSize = headerIn.readInt();
     dataOff = headerIn.readInt();
   }
