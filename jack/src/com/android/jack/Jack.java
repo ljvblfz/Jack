@@ -1473,10 +1473,6 @@ public abstract class Jack {
       typePlan.append(FileDependenciesCollector.class);
     }
 
-    if (features.contains(SourceFileRenaming.class)) {
-      planBuilder.append(SourceFileRenamer.class);
-    }
-
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
@@ -1800,9 +1796,13 @@ public abstract class Jack {
       planBuilder.append(ResourceContentRefiner.class);
     }
     planBuilder.append(Renamer.class);
+
     if (features.contains(RemoveSourceFile.class)) {
       planBuilder.append(SourceFileRemover.class);
+    } else if (features.contains(SourceFileRenaming.class)) {
+      planBuilder.append(SourceFileRenamer.class);
     }
+
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
