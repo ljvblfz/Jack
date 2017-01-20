@@ -24,6 +24,7 @@ import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Type;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JParameter;
+import com.android.jack.ir.ast.JSsaVariableDefRef;
 import com.android.jack.ir.ast.JSsaVariableRef;
 import com.android.jack.ir.ast.JThis;
 import com.android.jack.ir.ast.JType;
@@ -164,7 +165,7 @@ class SsaRopRegisterManager {
   @Nonnull
   RegisterSpec getOrCreateRegisterSpec(@Nonnull JParameter param) {
     return getOrCreateRegisterSpec(
-        new JSsaVariableRef(param.getSourceInfo(), param, 0, null, true));
+        new JSsaVariableDefRef(param.getSourceInfo(), param, 0));
   }
 
   /**

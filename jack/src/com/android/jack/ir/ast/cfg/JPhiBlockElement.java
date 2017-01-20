@@ -19,7 +19,9 @@ package com.android.jack.ir.ast.cfg;
 import com.google.common.collect.Maps;
 
 import com.android.jack.ir.ast.JNode;
+import com.android.jack.ir.ast.JSsaVariableDefRef;
 import com.android.jack.ir.ast.JSsaVariableRef;
+import com.android.jack.ir.ast.JSsaVariableUseRef;
 import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
@@ -42,10 +44,10 @@ public class JPhiBlockElement extends JBasicBlockElement {
   private final JVariable var;
 
   @Nonnull
-  private JSsaVariableRef lhs;
+  private JSsaVariableDefRef lhs;
 
   @Nonnull
-  private final Map<JBasicBlock, JSsaVariableRef> rhs;
+  private final Map<JBasicBlock, JSsaVariableUseRef> rhs;
 
   /**
    * Creates a new Phi statement.
@@ -57,12 +59,12 @@ public class JPhiBlockElement extends JBasicBlockElement {
     // Phi instructions are not real instructions and should not throw any exception.
     super(info, ExceptionHandlingContext.EMPTY);
     rhs = Maps.newHashMap();
+    lhs = new JSsaVariableDefRef(info, var, 0);
     for (JBasicBlock pred : preds) {
       // We are going to insert a place holder first. The SSA renamer will replace the var ref
       // with a proper version.
-      rhs.put(pred, new JSsaVariableRef(info, var, 0, this, true));
+      rhs.put(pred, lhs.makeRef(info));
     }
-    lhs = new JSsaVariableRef(info, var, 0, this, false);
     this.var = var;
   }
 
@@ -100,13 +102,13 @@ public class JPhiBlockElement extends JBasicBlockElement {
   protected void replaceImpl(@Nonnull JNode existingNode, @Nonnull JNode newNode)
       throws UnsupportedOperationException {
     if (lhs == existingNode) {
-      lhs = (JSsaVariableRef) newNode;
+      lhs = (JSsaVariableDefRef) newNode;
       return;
     }
 
     for (JBasicBlock pred : rhs.keySet()) {
       if (rhs.get(pred) == existingNode) {
-        rhs.put(pred, (JSsaVariableRef) newNode);
+        rhs.put(pred, (JSsaVariableUseRef) newNode);
         return;
       }
     }
@@ -119,18 +121,18 @@ public class JPhiBlockElement extends JBasicBlockElement {
   }
 
   @Nonnull
-  public JSsaVariableRef getLhs() {
+  public JSsaVariableDefRef getLhs() {
     return lhs;
   }
 
   @Nonnull
-  public Iterable<JSsaVariableRef> getRhs() {
+  public Iterable<JSsaVariableUseRef> getRhs() {
     return rhs.values();
   }
 
   @Nonnull
-  public JSsaVariableRef getRhs(@Nonnull JBasicBlock pred) {
-    JSsaVariableRef ref = rhs.get(pred);
+  public JSsaVariableUseRef getRhs(@Nonnull JBasicBlock pred) {
+    JSsaVariableUseRef ref = rhs.get(pred);
     assert ref != null;
     return ref;
   }

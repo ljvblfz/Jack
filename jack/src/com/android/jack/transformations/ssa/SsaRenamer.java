@@ -19,7 +19,9 @@ package com.android.jack.transformations.ssa;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JSsaVariableDefRef;
 import com.android.jack.ir.ast.JSsaVariableRef;
+import com.android.jack.ir.ast.JSsaVariableUseRef;
 import com.android.jack.ir.ast.JThis;
 import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JVariable;
@@ -101,7 +103,7 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
      * sub-arrays that exist at any one time are the start states for blocks
      * yet to be processed by a {@code BlockRenamer} instance.
      */
-    private final JSsaVariableRef[][] startsForBlocks;
+    private final JSsaVariableDefRef[][] startsForBlocks;
 
     private GraphRenamer(JControlFlowGraph cfg) {
       this.cfg = cfg;
@@ -114,7 +116,7 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
        * "version 0" registers.
        */
       nextSsaReg = new int[ropRegCount];
-      startsForBlocks = new JSsaVariableRef[bbMap.size()][];
+      startsForBlocks = new JSsaVariableDefRef[bbMap.size()][];
 
       /*
        * Appel 19.7
@@ -128,10 +130,10 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
        */
 
       // top entry for the version stack is version 0
-      JSsaVariableRef[] initialRegMapping = new JSsaVariableRef[ropRegCount];
+      JSsaVariableDefRef[] initialRegMapping = new JSsaVariableDefRef[ropRegCount];
       for (int i = 0; i < ropRegCount; i++) {
         JVariable target = SsaUtil.getVariableByIndex(cfg, i);
-        initialRegMapping[i] = new JSsaVariableRef(method.getSourceInfo(), target, 0, null, true);
+        initialRegMapping[i] = new JSsaVariableDefRef(method.getSourceInfo(), target, 0);
       }
       // Initial state for entry block
       int entryId = NodeIdMarker.getId(cfg.getEntryBlock());
@@ -185,7 +187,7 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
        * updated as the block's instructions are processed, and then
        * copied to each one of its dom children.
        */
-      private final JSsaVariableRef[] currentMapping;
+      private final JSsaVariableDefRef[] currentMapping;
 
       /**
        * contains the set of moves we need to keep to preserve local
@@ -261,7 +263,7 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
         for (JBasicBlock child : domChildren) {
           if (child != block) {
             // Don't bother duplicating the array for the first child.
-            JSsaVariableRef[] childStart = first ? currentMapping : dupArray(currentMapping);
+            JSsaVariableDefRef[] childStart = first ? currentMapping : dupArray(currentMapping);
             startsForBlocks[NodeIdMarker.getId(child)] = childStart;
             first = false;
           }
@@ -292,7 +294,7 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
        * @param ssaReg {@code non-null;} an SSA register that has just
        * been added to {@code currentMapping}
        */
-      private void addMapping(int ropReg, JSsaVariableRef ssaReg) {
+      private void addMapping(int ropReg, JSsaVariableDefRef ssaReg) {
           currentMapping[ropReg] = ssaReg;
       }
 
@@ -310,8 +312,8 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
         index = SsaUtil.getLocalIndex(cfg, target);
         nextSsaReg[index]++;
         // It is probably ok to not have any debug marker here.
-        JSsaVariableRef lhs =
-            new JSsaVariableRef(phi.getSourceInfo(), target, nextSsaReg[index], phi, true);
+        JSsaVariableDefRef lhs =
+            new JSsaVariableDefRef(phi.getSourceInfo(), target, nextSsaReg[index]);
         TransformationRequest tr = new TransformationRequest(phi);
         tr.append(new Replace(phi.getLhs(), lhs));
         addMapping(index, lhs);
@@ -335,8 +337,8 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
         int index = SsaUtil.getLocalIndex(cfg, ropReg);
 
         nextSsaReg[index]++;
-        JSsaVariableRef ref =
-            new JSsaVariableRef(dv.getSourceInfo(), ropReg, nextSsaReg[index], insn, true);
+        JSsaVariableDefRef ref =
+            new JSsaVariableDefRef(dv.getSourceInfo(), ropReg, nextSsaReg[index]);
         ref.addAllMarkers(dv.getAllMarkers());
         TransformationRequest tr = new TransformationRequest(method);
         tr.append(new Replace(dv, ref));
@@ -388,10 +390,10 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
                * method.
                */
 
-              JSsaVariableRef stackTop = currentMapping[ropReg];
+              JSsaVariableDefRef stackTop = currentMapping[ropReg];
               if (!isVersionZeroRegister(stackTop)) {
                 TransformationRequest tr = new TransformationRequest(phi);
-                JSsaVariableRef rhs = stackTop.makeRef(phi.getSourceInfo());
+                JSsaVariableUseRef rhs = stackTop.makeRef(phi.getSourceInfo());
                 rhs.addAllMarkers(phi.getRhs(block).getAllMarkers());
                 tr.append(new Replace(phi.getRhs(block), rhs));
                 tr.commit();
@@ -420,8 +422,8 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
     new GraphRenamer(cfg).performRename();
   }
 
-  private static JSsaVariableRef[] dupArray(JSsaVariableRef[] orig) {
-    JSsaVariableRef[] copy = new JSsaVariableRef[orig.length];
+  private static JSsaVariableDefRef[] dupArray(JSsaVariableDefRef[] orig) {
+    JSsaVariableDefRef[] copy = new JSsaVariableDefRef[orig.length];
     System.arraycopy(orig, 0, copy, 0, orig.length);
     return copy;
   }

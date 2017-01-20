@@ -22,7 +22,9 @@ import com.android.jack.Options;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JSsaVariableDefRef;
 import com.android.jack.ir.ast.JSsaVariableRef;
+import com.android.jack.ir.ast.JSsaVariableUseRef;
 import com.android.jack.ir.ast.cfg.JBasicBlock;
 import com.android.jack.ir.ast.cfg.JBasicBlockElement;
 import com.android.jack.ir.ast.cfg.JControlFlowGraph;
@@ -107,8 +109,8 @@ public class CopyPropagation implements RunnableSchedulable<JControlFlowGraph> {
       return false;
     }
 
-    JSsaVariableRef rhsVarRef = (JSsaVariableRef) rhs;
-    JSsaVariableRef lhsVarRef = (JSsaVariableRef) lhs;
+    JSsaVariableUseRef rhsVarRef = (JSsaVariableUseRef) rhs;
+    JSsaVariableDefRef lhsVarRef = (JSsaVariableDefRef) lhs;
 
     // Check for debug build. Make sure we are keeping locals if that's the case.
     if (shouldKeepVariable(lhsVarRef)) {
@@ -128,8 +130,8 @@ public class CopyPropagation implements RunnableSchedulable<JControlFlowGraph> {
   }
 
   private boolean tryPropagatePhi(JPhiBlockElement phi, JControlFlowGraph cfg) {
-    JSsaVariableRef rhsVarRef = canPropagatePhi(phi);
-    JSsaVariableRef lhsVarRef = phi.getLhs();
+    JSsaVariableUseRef rhsVarRef = canPropagatePhi(phi);
+    JSsaVariableDefRef lhsVarRef = phi.getLhs();
 
     // Check for debug build. Make sure we are keeping locals if that's the case.
     if (shouldKeepVariable(lhsVarRef)) {
@@ -151,8 +153,9 @@ public class CopyPropagation implements RunnableSchedulable<JControlFlowGraph> {
   /**
    * Replace all the references to the lhs JSsaVariableRef with a new rhs JSsaVariableRef.
    */
-  private void propagateVarRef(JSsaVariableRef lhs, JSsaVariableRef rhs, TransformationRequest tr) {
-    JSsaVariableRef def = rhs.getDef();
+  private void propagateVarRef(JSsaVariableDefRef lhs, JSsaVariableUseRef rhs,
+      TransformationRequest tr) {
+    JSsaVariableDefRef def = rhs.getDef();
     for (JSsaVariableRef oldUse : lhs.getUses()) {
       JSsaVariableRef newUse = def.makeRef(oldUse.getSourceInfo());
       newUse.addAllMarkers(oldUse.getAllMarkers());
@@ -166,10 +169,11 @@ public class CopyPropagation implements RunnableSchedulable<JControlFlowGraph> {
    * @return The right hand side values that the left hand side should be replaced with. Otherwise
    *         null.
    */
-  public JSsaVariableRef canPropagatePhi(JPhiBlockElement e) {
-    JSsaVariableRef first = e.getRhs(e.getBasicBlock().getPredecessors().get(0));
+  public JSsaVariableUseRef canPropagatePhi(JPhiBlockElement e) {
+    JSsaVariableUseRef first =
+        e.getRhs(e.getBasicBlock().getPredecessors().get(0));
     assert first != null;
-    for (JSsaVariableRef operand : e.getRhs()) {
+    for (JSsaVariableUseRef operand : e.getRhs()) {
       if (first.getDef() != operand.getDef()) {
         return null;
       }

@@ -20,6 +20,7 @@ import com.google.common.collect.Lists;
 
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JSsaVariableRef;
+import com.android.jack.ir.ast.JSsaVariableUseRef;
 import com.android.jack.ir.ast.cfg.JBasicBlock;
 import com.android.jack.ir.ast.cfg.JBasicBlockElement;
 import com.android.jack.ir.ast.cfg.JControlFlowGraph;
@@ -66,7 +67,7 @@ public class OptimizeJPhiElements implements RunnableSchedulable<JControlFlowGra
       return;
     }
     TransformRequest tr = new TransformRequest();
-    for (JSsaVariableRef rhs : phi.getRhs()) {
+    for (JSsaVariableUseRef rhs : phi.getRhs()) {
       if (rhs.getVersion() == 0) {
         tr.append(new Replace(rhs, phi.getLhs().makeRef(rhs.getSourceInfo())));
       }

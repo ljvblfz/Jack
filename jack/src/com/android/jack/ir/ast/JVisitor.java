@@ -600,6 +600,14 @@ public class JVisitor {
     endVisit((JVariableRef) ref);
   }
 
+  public void endVisit(@Nonnull JSsaVariableDefRef ref) {
+    endVisit((JSsaVariableRef) ref);
+  }
+
+  public void endVisit(@Nonnull JSsaVariableUseRef ref) {
+    endVisit((JSsaVariableRef) ref);
+  }
+
   public void endVisit(@Nonnull JStatement statement) {
     endVisit((JNode) statement);
   }
@@ -1128,6 +1136,14 @@ public class JVisitor {
 
   public boolean visit(@Nonnull JSsaVariableRef ref) {
     return visit((JVariableRef) ref);
+  }
+
+  public boolean visit(@Nonnull JSsaVariableDefRef ref) {
+    return visit((JSsaVariableRef) ref);
+  }
+
+  public boolean visit(@Nonnull JSsaVariableUseRef ref) {
+    return visit((JSsaVariableRef) ref);
   }
 
   public boolean visit(@Nonnull JStringLiteral stringLiteral) {
@@ -1761,6 +1777,16 @@ public class JVisitor {
   public void visit(@Nonnull JSsaVariableRef ref,
       @Nonnull TransformRequest transformRequest) throws Exception {
     visit((JVariableRef) ref, transformRequest);
+  }
+
+  public void visit(@Nonnull JSsaVariableDefRef ref,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JSsaVariableRef) ref, transformRequest);
+  }
+
+  public void visit(@Nonnull JSsaVariableUseRef ref,
+      @Nonnull TransformRequest transformRequest) throws Exception {
+    visit((JSsaVariableRef) ref, transformRequest);
   }
 
   public void visit(@Nonnull JStringLiteral stringLiteral,

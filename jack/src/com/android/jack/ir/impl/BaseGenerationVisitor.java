@@ -103,7 +103,9 @@ import com.android.jack.ir.ast.JReinterpretCastOperation;
 import com.android.jack.ir.ast.JReturnStatement;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JShortLiteral;
+import com.android.jack.ir.ast.JSsaVariableDefRef;
 import com.android.jack.ir.ast.JSsaVariableRef;
+import com.android.jack.ir.ast.JSsaVariableUseRef;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JSynchronizedBlock;
@@ -1032,16 +1034,11 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
 
   @Override
   public boolean visit(@Nonnull JPhiBlockElement x) {
-    JSsaVariableRef lhs = x.getLhs();
-    if (lhs == null) {
-      printName(x.getTarget());
-      print(" = phi (");
-    } else {
-      visit(lhs);
-      print(" = phi (");
+    JSsaVariableDefRef lhs = x.getLhs();
+    visit(lhs);
+    print(" = phi (");
 
-    }
-    for (JSsaVariableRef rhs : x.getRhs()) {
+    for (JSsaVariableUseRef rhs : x.getRhs()) {
       if (rhs == null) {
         print("?");
       } else {

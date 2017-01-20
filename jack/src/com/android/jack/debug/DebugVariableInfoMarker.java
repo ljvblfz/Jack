@@ -17,7 +17,8 @@
 package com.android.jack.debug;
 
 import com.android.jack.ir.ast.JLocalRef;
-import com.android.jack.ir.ast.JSsaVariableRef;
+import com.android.jack.ir.ast.JSsaVariableDefRef;
+import com.android.jack.ir.ast.JSsaVariableUseRef;
 import com.android.jack.ir.ast.JType;
 import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
@@ -30,7 +31,7 @@ import javax.annotation.Nonnull;
 /**
  * This {@link Marker} contains debug information related to variable.
  */
-@ValidOn({JLocalRef.class, JSsaVariableRef.class})
+@ValidOn({JLocalRef.class, JSsaVariableDefRef.class, JSsaVariableUseRef.class})
 @Description("This marker contains debug information related to variable.")
 public class DebugVariableInfoMarker implements SerializableMarker {
 
