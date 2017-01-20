@@ -1709,7 +1709,6 @@ public abstract class Jack {
             }
             methodPlan4.append(UselessIfRemover.class);
             methodPlan4.append(CfgMarkerRemover.class);
-            methodPlan4.append(CfgBuilder.class);
             methodPlan4.append(ContainerAnnotationAdder.MethodContainerAnnotationAdder.class);
           }
         }
@@ -1724,6 +1723,7 @@ public abstract class Jack {
         SubPlanBuilder<JDefinedClassOrInterface> typePlan =
             planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
         SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
+        methodPlan.append(CfgBuilder.class);
         if (enableFieldValuePropagation) {
           methodPlan.append(FvpPropagateFieldValues.class);
         }
@@ -1734,7 +1734,6 @@ public abstract class Jack {
           methodPlan.append(WofrRemoveFieldWrites.class);
         }
         methodPlan.append(CfgMarkerRemover.class);
-        methodPlan.append(CfgBuilder.class);
       }
 
       SubPlanBuilder<JDefinedClassOrInterface> typePlan1 =
@@ -1754,6 +1753,7 @@ public abstract class Jack {
 
         {
           SubPlanBuilder<JMethod> methodPlan5 = typePlan6.appendSubPlan(JMethodAdapter.class);
+          methodPlan5.append(CfgBuilder.class);
           methodPlan5.append(CodeItemBuilder.class);
           methodPlan5.append(CfgMarkerRemover.class);
           methodPlan5.append(EncodedMethodBuilder.class);
