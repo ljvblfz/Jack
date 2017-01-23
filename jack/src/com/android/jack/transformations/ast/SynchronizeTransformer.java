@@ -74,6 +74,7 @@ import javax.annotation.Nonnull;
 @Constraint(need = {NoImplicitBlock.class})
 @Transform(remove = {JSynchronizedBlock.class, ThreeAddressCodeForm.class}, add = {JBlock.class,
     JTryStatement.class,
+    JTryStatement.FinallyBlock.class,
     JLock.class,
     JUnlock.class,
     JLocalRef.class,
