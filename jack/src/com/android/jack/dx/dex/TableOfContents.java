@@ -97,7 +97,7 @@ public final class TableOfContents {
     signature = headerIn.readByteArray(20);
     fileSize = headerIn.readInt();
     int headerSize = headerIn.readInt();
-    if (headerSize != SizeOf.getHeaderSize(dexVersion)) {
+    if (headerSize != SizeOf.getHeaderSize()) {
       throw new DexException("Unexpected header: 0x" + Integer.toHexString(headerSize));
     }
     int endianTag = headerIn.readInt();

@@ -29,14 +29,10 @@ import javax.annotation.Nonnegative;
  */
 public final class HeaderItem extends IndexedItem {
 
-  @Nonnegative
-  private final int dexVersion;
-
   /**
    * Constructs an instance.
    */
-  public HeaderItem(@Nonnegative int dexVersion) {
-    this.dexVersion = dexVersion;
+  public HeaderItem() {
   }
 
   /** {@inheritDoc} */
@@ -49,7 +45,7 @@ public final class HeaderItem extends IndexedItem {
   @Override
   @Nonnegative
   public int writeSize() {
-    return SizeOf.getHeaderSize(dexVersion);
+    return SizeOf.getHeaderSize();
   }
 
   /** {@inheritDoc} */
@@ -74,7 +70,7 @@ public final class HeaderItem extends IndexedItem {
       out.annotate(4, "checksum");
       out.annotate(20, "signature");
       out.annotate(4, "file_size:       " + Hex.u4(file.getFileSize()));
-      out.annotate(4, "header_size:     " + Hex.u4(SizeOf.getHeaderSize(dexVersion)));
+      out.annotate(4, "header_size:     " + Hex.u4(SizeOf.getHeaderSize()));
       out.annotate(4, "endian_tag:      " + Hex.u4(DexFormat.ENDIAN_TAG));
       out.annotate(4, "link_size:       0");
       out.annotate(4, "link_off:        0");
@@ -90,7 +86,7 @@ public final class HeaderItem extends IndexedItem {
     out.writeZeroes(24);
 
     out.writeInt(file.getFileSize());
-    out.writeInt(SizeOf.getHeaderSize(dexVersion));
+    out.writeInt(SizeOf.getHeaderSize());
     out.writeInt(DexFormat.ENDIAN_TAG);
 
     /*

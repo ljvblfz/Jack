@@ -34,7 +34,7 @@ public final class SizeOf {
   public static final int SIGNATURE = UBYTE * 20;
 
   @Nonnegative
-  public static final int getHeaderSize(@Nonnegative int dexVersion) {
+  public static int getHeaderSize() {
     /*
      * magic ubyte[8]
      * checksum uint
