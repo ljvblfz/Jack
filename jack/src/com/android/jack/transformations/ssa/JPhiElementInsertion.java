@@ -68,6 +68,7 @@ public class JPhiElementInsertion implements RunnableSchedulable<JControlFlowGra
     int blockCount;
 
     final List<JBasicBlock> bbMap = NodeListMarker.getNodeList(cfg);
+
     blockCount = bbMap.size();
     regCount = numLocals;
 

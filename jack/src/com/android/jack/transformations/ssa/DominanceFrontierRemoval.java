@@ -18,7 +18,8 @@ package com.android.jack.transformations.ssa;
 
 import com.android.jack.ir.ast.cfg.JControlFlowGraph;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
-import com.android.jack.util.graph.NodeIdMarker;
+import com.android.jack.util.graph.DominanceFrontierInfoMarker;
+import com.android.jack.util.graph.DominatorTreeMarker;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
@@ -27,16 +28,17 @@ import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 
 /**
- * Assign Node ID from the control flow graph.
+ * Removes dominance frontier related marker from control flow graph.
  */
-@Description("Insert Node ID to the CFG for SSA conversion")
-@Name("CfgNodeIdAssignment")
-@Constraint(need = {SsaBasicBlockSplitterMarker.class})
-@Transform(add = {NodeIdMarker.class})
+@Description("Removes dominance frontier related marker from control flow graph")
+@Name("DominanceFrontierRemoval")
+@Constraint(need = {DominanceFrontierInfoMarker.class})
+@Transform(remove = {DominanceFrontierInfoMarker.class})
 @Filter(TypeWithoutPrebuiltFilter.class)
-public class CfgNodeIdAssignment implements RunnableSchedulable<JControlFlowGraph> {
+public class DominanceFrontierRemoval implements RunnableSchedulable<JControlFlowGraph> {
   @Override
-  public void run(JControlFlowGraph t) {
-    NodeIdMarker.assignIds(t);
+  public void run(JControlFlowGraph graph) {
+    DominanceFrontierInfoMarker.clearMarkers(graph);
+    DominatorTreeMarker.clearMarkers(graph);
   }
 }

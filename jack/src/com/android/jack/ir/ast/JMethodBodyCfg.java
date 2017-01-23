@@ -26,6 +26,7 @@ import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nonnegative;
@@ -40,15 +41,18 @@ public class JMethodBodyCfg extends JConcreteMethodBody {
   private JControlFlowGraph cfg;
 
   @Nonnull
-  private final List<JLocal> catchLocals;
+  private final List<JLocal> catchLocals = Lists.newLinkedList();
+
+  @Nonnull
+  private final List<JSsaVariableDefRef> params = new ArrayList<>();
 
   public JMethodBodyCfg(@Nonnull SourceInfo info, @Nonnull List<JLocal> locals) {
     super(info, locals);
     cfg = new JControlFlowGraph(this.getSourceInfo());
     cfg.updateParents(this);
-    catchLocals = Lists.newLinkedList();
   }
 
+  @Override
   @Nonnull
   public JMethod getMethod() {
     JNode parent = getParent();
@@ -74,6 +78,15 @@ public class JMethodBodyCfg extends JConcreteMethodBody {
   @Nonnull
   public List<JLocal> getCatchLocals() {
     return catchLocals;
+  }
+
+  public void addSsaParamDef(@Nonnull JSsaVariableDefRef param) {
+    params.add(param);
+  }
+
+  @Nonnull
+  public List<JSsaVariableDefRef> getSsaParamsDefs() {
+    return params;
   }
 
   @Override

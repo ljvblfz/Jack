@@ -19,9 +19,12 @@ package com.android.jack.transformations.ssa;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JSsaVariableDefRef;
+import com.android.jack.ir.ast.JSsaVariableDefRefPlaceHolder;
 import com.android.jack.ir.ast.JSsaVariableRef;
 import com.android.jack.ir.ast.JSsaVariableUseRef;
+import com.android.jack.ir.ast.JSsaVariableUseRefPlaceHolder;
 import com.android.jack.ir.ast.JThis;
 import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JVariable;
@@ -51,33 +54,34 @@ import java.util.List;
 import java.util.Stack;
 
 /**
- * Complete transformation to SSA form by renaming all registers accessed.<p>
+ * Complete transformation to SSA form by renaming all registers accessed.
+ * <p>
  *
- * See Appel algorithm 19.7<p>
+ * See Appel algorithm 19.7
+ * <p>
  *
- * Unlike the original algorithm presented in Appel, this renamer converts
- * to a new flat (versionless) register space. The "version 0" registers,
- * which represent the initial state of the Rop registers and should never
- * actually be meaningfully accessed in a legal program, are represented
- * as the first N registers in the SSA namespace. Subsequent assignments
- * are assigned new unique names. Note that the incoming Rop representation
- * has a concept of register widths, where 64-bit values are stored into
- * two adjoining Rop registers. This adjoining register representation is
- * ignored in SSA form conversion and while in SSA form, each register can be e
- * either 32 or 64 bits wide depending on use. The adjoining-register
- * represention is re-created later when converting back to Rop form. <p>
+ * Unlike the original algorithm presented in Appel, this renamer converts to a new flat
+ * (versionless) register space. The "version 0" registers, which represent the initial state of the
+ * Rop registers and should never actually be meaningfully accessed in a legal program, are
+ * represented as the first N registers in the SSA namespace. Subsequent assignments are assigned
+ * new unique names. Note that the incoming Rop representation has a concept of register widths,
+ * where 64-bit values are stored into two adjoining Rop registers. This adjoining register
+ * representation is ignored in SSA form conversion and while in SSA form, each register can be e
+ * either 32 or 64 bits wide depending on use. The adjoining-register represention is re-created
+ * later when converting back to Rop form.
+ * <p>
  *
- * But, please note, the SSA Renamer's ignoring of the adjoining-register ROP
- * representation means that unaligned accesses to 64-bit registers are not
- * supported. For example, you cannot do a 32-bit operation on a portion of
- * a 64-bit register. This will never be observed to happen when coming
- * from Java code, of course.<p>
+ * But, please note, the SSA Renamer's ignoring of the adjoining-register ROP representation means
+ * that unaligned accesses to 64-bit registers are not supported. For example, you cannot do a
+ * 32-bit operation on a portion of a 64-bit register. This will never be observed to happen when
+ * coming from Java code, of course.
+ * <p>
  *
- * The implementation here, rather than keeping a single register version
- * stack for the entire method as the dom tree is walked, instead keeps
- * a mapping table for the current block being processed. Once the
- * current block has been processed, this mapping table is then copied
- * and used as the initial state for child blocks.<p>
+ * The implementation here, rather than keeping a single register version stack for the entire
+ * method as the dom tree is walked, instead keeps a mapping table for the current block being
+ * processed. Once the current block has been processed, this mapping table is then copied and used
+ * as the initial state for child blocks.
+ * <p>
  */
 @Description("Rename variables in the CFG for SSA properties.")
 @Name("SsaRenamer")
@@ -98,10 +102,9 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
     private final List<JBasicBlock> bbMap;
 
     /**
-     * indexed by block index; register version state for each block start.
-     * This list is updated by each dom parent for its children. The only
-     * sub-arrays that exist at any one time are the start states for blocks
-     * yet to be processed by a {@code BlockRenamer} instance.
+     * indexed by block index; register version state for each block start. This list is updated by
+     * each dom parent for its children. The only sub-arrays that exist at any one time are the
+     * start states for blocks yet to be processed by a {@code BlockRenamer} instance.
      */
     private final JSsaVariableDefRef[][] startsForBlocks;
 
@@ -112,8 +115,7 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
       ropRegCount = SsaUtil.getTotalNumberOfLocals(cfg);
 
       /*
-       * Reserve the first N registers in the SSA register space for
-       * "version 0" registers.
+       * Reserve the first N registers in the SSA register space for "version 0" registers.
        */
       nextSsaReg = new int[ropRegCount];
       startsForBlocks = new JSsaVariableDefRef[bbMap.size()][];
@@ -121,11 +123,8 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
       /*
        * Appel 19.7
        *
-       * Initialization:
-       *   for each variable a        // register i
-       *      Count[a] <- 0           // nextSsaReg, flattened
-       *      Stack[a] <- 0           // versionStack
-       *      push 0 onto Stack[a]
+       * Initialization: for each variable a // register i Count[a] <- 0 // nextSsaReg, flattened
+       * Stack[a] <- 0 // versionStack push 0 onto Stack[a]
        *
        */
 
@@ -134,6 +133,9 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
       for (int i = 0; i < ropRegCount; i++) {
         JVariable target = SsaUtil.getVariableByIndex(cfg, i);
         initialRegMapping[i] = new JSsaVariableDefRef(method.getSourceInfo(), target, 0);
+        if (target instanceof JParameter) {
+          cfg.getMethodBody().addSsaParamDef(initialRegMapping[i]);
+        }
       }
       // Initial state for entry block
       int entryId = NodeIdMarker.getId(cfg.getEntryBlock());
@@ -173,39 +175,34 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
     }
 
     /**
-     * Processes all insns in a block and renames their registers
-     * as appropriate.
+     * Processes all insns in a block and renames their registers as appropriate.
      */
     private class BlockRenamer {
       /** {@code non-null;} block we're processing. */
       private final JBasicBlock block;
 
       /**
-       * {@code non-null;} indexed by old register name. The current
-       * top of the version stack as seen by this block. It's
-       * initialized from the ending state of its dom parent,
-       * updated as the block's instructions are processed, and then
-       * copied to each one of its dom children.
+       * {@code non-null;} indexed by old register name. The current top of the version stack as
+       * seen by this block. It's initialized from the ending state of its dom parent, updated as
+       * the block's instructions are processed, and then copied to each one of its dom children.
        */
       private final JSsaVariableDefRef[] currentMapping;
 
       /**
-       * contains the set of moves we need to keep to preserve local
-       * var info. All other moves will be deleted.
+       * contains the set of moves we need to keep to preserve local var info. All other moves will
+       * be deleted.
        */
       private final HashSet<JVariableAsgBlockElement> movesToKeep;
 
       /**
-       * maps the set of insns to replace after renaming is finished
-       * on the block.
+       * maps the set of insns to replace after renaming is finished on the block.
        */
       private final HashMap<JBasicBlockElement, JBasicBlockElement> insnsToReplace;
 
       // private final RenamingMapper mapper;
 
       /**
-       * Constructs a block renamer instance. Call {@code process}
-       * to process.
+       * Constructs a block renamer instance. Call {@code process} to process.
        *
        * @param block {@code non-null;} block to process
        */
@@ -219,15 +216,13 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
       }
 
       /**
-       * Renames all the variables in this block and inserts appriopriate
-       * phis in successor blocks.
+       * Renames all the variables in this block and inserts appriopriate phis in successor blocks.
        */
       public void process() {
         /*
          * From Appel:
          *
-         * Rename(n) =
-         *   for each statement S in block n   // 'statement' in 'block'
+         * Rename(n) = for each statement S in block n // 'statement' in 'block'
          */
         for (JBasicBlockElement stmt : block.getElements(true)) {
           if (stmt instanceof JPhiBlockElement) {
@@ -276,26 +271,23 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
        * Enforces a few contraints when a register mapping is added.
        *
        * <ol>
-       * <li> Ensures that all new SSA registers specs in the mapping
-       * table with the same register number are identical. In effect, once
-       * an SSA register spec has received or lost a local variable name,
-       * then every old-namespace register that maps to it should gain or
-       * lose its local variable name as well.
-       * <li> Records the local name associated with the
-       * register so that a register is never associated with more than one
-       * local.
-       * <li> ensures that only one SSA register
-       * at a time is considered to be associated with a local variable. When
-       * {@code currentMapping} is updated and the newly added element
-       * is named, strip that name from any other SSA registers.
+       * <li>Ensures that all new SSA registers specs in the mapping table with the same register
+       * number are identical. In effect, once an SSA register spec has received or lost a local
+       * variable name, then every old-namespace register that maps to it should gain or lose its
+       * local variable name as well.
+       * <li>Records the local name associated with the register so that a register is never
+       * associated with more than one local.
+       * <li>ensures that only one SSA register at a time is considered to be associated with a
+       * local variable. When {@code currentMapping} is updated and the newly added element is
+       * named, strip that name from any other SSA registers.
        * </ol>
        *
        * @param ropReg {@code >= 0;} rop register number
-       * @param ssaReg {@code non-null;} an SSA register that has just
-       * been added to {@code currentMapping}
+       * @param ssaReg {@code non-null;} an SSA register that has just been added to
+       *        {@code currentMapping}
        */
       private void addMapping(int ropReg, JSsaVariableDefRef ssaReg) {
-          currentMapping[ropReg] = ssaReg;
+        currentMapping[ropReg] = ssaReg;
       }
 
       /**
@@ -303,13 +295,23 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
        * Phi insns have their result registers renamed.
        */
       public void processPhiStmt(JPhiBlockElement phi) {
-        /* don't process sources for phi's */
         JVariable target = phi.getTarget();
-        int index = -1;
         if (target instanceof JThis) {
           return; // I don't think we ever run into this.
         }
-        index = SsaUtil.getLocalIndex(cfg, target);
+        int index = SsaUtil.getLocalIndex(cfg, target);
+
+        /* don't process sources for phi's except to replace place holders. */
+        for (JSsaVariableUseRef use : phi.getRhs()) {
+          if (isVersionZeroRegister(use)) {
+            TransformationRequest tr2 = new TransformationRequest(phi);
+            JSsaVariableUseRef ref = currentMapping[index].makeRef(use.getSourceInfo());
+            ref.addAllMarkers(use.getAllMarkers());
+            tr2.append(new Replace(use, ref));
+            tr2.commit();
+          }
+        }
+
         nextSsaReg[index]++;
         // It is probably ok to not have any debug marker here.
         JSsaVariableDefRef lhs =
@@ -321,9 +323,8 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
       }
 
       /**
-       * Renames the result register of this insn and updates the
-       * current register mapping. Does nothing if this insn has no result.
-       * Applied to all non-move insns.
+       * Renames the result register of this insn and updates the current register mapping. Does
+       * nothing if this insn has no result. Applied to all non-move insns.
        *
        * @param insn insn to process.
        */
@@ -358,10 +359,8 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
             continue;
           }
           int index = SsaUtil.getLocalIndex(cfg, varRef.getTarget());
-          if (index == -1) {
-            System.out.println("this is not good for business");
-          }
-          JSsaVariableRef ref = currentMapping[index].makeRef(varRef.getSourceInfo());
+          assert index != -1;
+          JSsaVariableUseRef ref = currentMapping[index].makeRef(varRef.getSourceInfo());
           ref.addAllMarkers(varRef.getAllMarkers());
           tr.append(new Replace(varRef, ref));
         }
@@ -369,8 +368,8 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
       }
 
       /**
-       * Updates the phi insns in successor blocks with operands based
-       * on the current mapping of the rop register the phis represent.
+       * Updates the phi insns in successor blocks with operands based on the current mapping of the
+       * rop register the phis represent.
        */
       private void updateSuccessorPhis() {
         for (JBasicBlock successor : block.getSuccessors()) {
@@ -389,13 +388,16 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
                * liveness algorithm doesn't properly count them as "live in" at the beginning of the
                * method.
                */
-
               JSsaVariableDefRef stackTop = currentMapping[ropReg];
               if (!isVersionZeroRegister(stackTop)) {
                 TransformationRequest tr = new TransformationRequest(phi);
                 JSsaVariableUseRef rhs = stackTop.makeRef(phi.getSourceInfo());
                 rhs.addAllMarkers(phi.getRhs(block).getAllMarkers());
-                tr.append(new Replace(phi.getRhs(block), rhs));
+                JSsaVariableUseRef oldRhs = phi.getRhs(block);
+                tr.append(new Replace(oldRhs, rhs));
+                if (!(oldRhs instanceof JSsaVariableUseRefPlaceHolder)) {
+                  oldRhs.deleteUseFromDef();
+                }
                 tr.commit();
               }
             }
@@ -405,15 +407,18 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
     }
 
     /**
-     * Returns true if this SSA register is a "version 0"
-     * register. All version 0 registers are assigned the first N register
-     * numbers, where N is the count of original rop registers.
+     * Returns true if this SSA register is a "version 0" register. All version 0 registers are
+     * assigned the first N register numbers, where N is the count of original rop registers.
      *
      * @param ssaReg the SSA register in question
      * @return true if it is a version 0 register.
      */
-    private static boolean isVersionZeroRegister(JSsaVariableRef ssaReg) {
-      return ssaReg.getVersion() == 0;
+    private static boolean isVersionZeroRegister(JSsaVariableDefRef ssaReg) {
+      return ssaReg.getVersion() == 0 && ssaReg instanceof JSsaVariableDefRefPlaceHolder;
+    }
+
+    private static boolean isVersionZeroRegister(JSsaVariableUseRef ssaReg) {
+      return ssaReg.getVersion() == 0 && ssaReg instanceof JSsaVariableUseRefPlaceHolder;
     }
   }
 
@@ -431,7 +436,7 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
   private static boolean isNormalMoveInsn(JBasicBlockElement stmt) {
     if (stmt instanceof JVariableAsgBlockElement) {
       JAsgOperation exp = ((JVariableAsgBlockElement) stmt).getAssignment();
-        return exp.getRhs() instanceof JLocalRef;
+      return exp.getRhs() instanceof JLocalRef;
     }
     return false;
   }

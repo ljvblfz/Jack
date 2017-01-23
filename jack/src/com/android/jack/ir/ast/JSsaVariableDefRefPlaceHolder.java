@@ -16,46 +16,50 @@
 
 package com.android.jack.ir.ast;
 
-import com.android.jack.ir.ast.cfg.JPhiBlockElement;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 
-import javax.annotation.Nonnegative;
+import java.util.List;
+
 import javax.annotation.Nonnull;
 
 /**
- * This version of the SSA variable reference only appears on the right hand side of any
- * assignments.
+ * This version of the SSA variable reference only appears on the left hand side of an assignment
+ * except for a few exceptions.
+ *
  */
-public class JSsaVariableUseRef extends JSsaVariableRef {
+public class JSsaVariableDefRefPlaceHolder extends JSsaVariableDefRef {
 
+  public JSsaVariableDefRefPlaceHolder(@Nonnull SourceInfo info, @Nonnull JVariable target) {
+    super(info, target, 0);
+  }
+
+  @Override
+  public JSsaVariableUseRef makeRef(@Nonnull SourceInfo info) {
+    return new JSsaVariableUseRefPlaceHolder(info, this.getTarget(), this);
+  }
+
+  @Override
   @Nonnull
-  private final JSsaVariableDefRef def;
-
-  /* package */ JSsaVariableUseRef(@Nonnull SourceInfo info, @Nonnull JVariable target,
-      @Nonnegative int version, JSsaVariableDefRef def) {
-    super(info, target, version);
-    this.def = def;
+  public List<JSsaVariableUseRef> getUses() {
+    throw new UnsupportedOperationException("Should not be called on place holder variables");
   }
 
-  /**
-   * @return true if it is used in a Phi element.
-   */
-  public boolean isPhiUse() {
-    JNode parent = getParent();
-    return parent instanceof JPhiBlockElement;
+  @Override
+  public boolean removeUse(JSsaVariableUseRef use) {
+    throw new UnsupportedOperationException("Should not be called on place holder variables");
   }
 
-  @Nonnull
-  public JSsaVariableDefRef getDef() {
-    return def;
+  @Override
+  public boolean hasUses() {
+    throw new UnsupportedOperationException("Should not be called on place holder variables");
   }
 
-  public void deleteUseFromDef() {
-    boolean result = def.removeUse(this);
-    assert result;
+  @Override
+  public boolean hasUsesOutsideOfPhis() {
+    throw new UnsupportedOperationException("Should not be called on place holder variables");
   }
 
   @Override

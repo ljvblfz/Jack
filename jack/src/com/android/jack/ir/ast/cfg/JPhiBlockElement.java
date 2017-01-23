@@ -20,6 +20,7 @@ import com.google.common.collect.Maps;
 
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JSsaVariableDefRef;
+import com.android.jack.ir.ast.JSsaVariableDefRefPlaceHolder;
 import com.android.jack.ir.ast.JSsaVariableRef;
 import com.android.jack.ir.ast.JSsaVariableUseRef;
 import com.android.jack.ir.ast.JVariable;
@@ -32,6 +33,7 @@ import com.android.sched.transform.TransformRequest;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.annotation.Nonnull;
 
@@ -52,22 +54,25 @@ public class JPhiBlockElement extends JBasicBlockElement {
   /**
    * Creates a new Phi statement.
    *
-   * @param var The original variable.
-   * @param numPred Number of predecesssors of this Phi statement.
+   * @param target Non-ssa variable this phi node is to denote to.
+   * @param preds Predecessors block list of this phi node.
+   * @param info SourceInfo
    */
-  public JPhiBlockElement(JVariable var, List<JBasicBlock> preds, SourceInfo info) {
+  public JPhiBlockElement(JVariable target, List<JBasicBlock> preds, SourceInfo info) {
     // Phi instructions are not real instructions and should not throw any exception.
     super(info, ExceptionHandlingContext.EMPTY);
+    this.lhs = new JSsaVariableDefRefPlaceHolder(info, target);
+    lhs.updateParents(this);
     rhs = Maps.newHashMap();
-    lhs = new JSsaVariableDefRef(info, var, 0);
     for (JBasicBlock pred : preds) {
       // We are going to insert a place holder first. The SSA renamer will replace the var ref
       // with a proper version.
-      rhs.put(pred, lhs.makeRef(info));
+      JSsaVariableUseRef use = lhs.makeRef(info);
+      rhs.put(pred, use);
+      use.updateParents(this);
     }
-    this.var = var;
+    this.var = lhs.getTarget();
   }
-
 
   @Override
   public void traverse(@Nonnull JVisitor visitor) {
@@ -106,9 +111,9 @@ public class JPhiBlockElement extends JBasicBlockElement {
       return;
     }
 
-    for (JBasicBlock pred : rhs.keySet()) {
-      if (rhs.get(pred) == existingNode) {
-        rhs.put(pred, (JSsaVariableUseRef) newNode);
+    for (Entry<JBasicBlock, JSsaVariableUseRef> pred : rhs.entrySet()) {
+      if (pred.getValue() == existingNode) {
+        rhs.put(pred.getKey(), (JSsaVariableUseRef) newNode);
         return;
       }
     }

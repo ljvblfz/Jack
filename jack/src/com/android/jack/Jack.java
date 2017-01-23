@@ -314,8 +314,11 @@ import com.android.jack.transformations.parent.TypeAstChecker;
 import com.android.jack.transformations.renamepackage.PackageRenamer;
 import com.android.jack.transformations.rop.cast.RopCastLegalizer;
 import com.android.jack.transformations.ssa.CfgNodeIdAssignment;
+import com.android.jack.transformations.ssa.CfgNodeIdRemoval;
 import com.android.jack.transformations.ssa.CfgNodeListAssignment;
+import com.android.jack.transformations.ssa.CfgNodeListRemoval;
 import com.android.jack.transformations.ssa.DominanceFrontierAssignment;
+import com.android.jack.transformations.ssa.DominanceFrontierRemoval;
 import com.android.jack.transformations.ssa.JPhiElementInsertion;
 import com.android.jack.transformations.ssa.OptimizeJPhiElements;
 import com.android.jack.transformations.ssa.SsaBasicBlockSplitter;
@@ -1792,6 +1795,9 @@ public abstract class Jack {
       cfgPlan.append(SsaRenamer.class);
       cfgPlan.append(OptimizeJPhiElements.class);
       cfgPlan.append(CopyPropagation.class);
+      cfgPlan.append(CfgNodeIdRemoval.class);
+      cfgPlan.append(CfgNodeListRemoval.class);
+      cfgPlan.append(DominanceFrontierRemoval.class);
     }
 
     {

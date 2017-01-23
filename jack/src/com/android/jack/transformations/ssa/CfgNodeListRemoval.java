@@ -18,7 +18,7 @@ package com.android.jack.transformations.ssa;
 
 import com.android.jack.ir.ast.cfg.JControlFlowGraph;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
-import com.android.jack.util.graph.NodeIdMarker;
+import com.android.jack.util.graph.NodeListMarker;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
@@ -27,16 +27,16 @@ import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 
 /**
- * Assign Node ID from the control flow graph.
+ * Removes Node List from the CFG for SSA conversion.
  */
-@Description("Insert Node ID to the CFG for SSA conversion")
-@Name("CfgNodeIdAssignment")
-@Constraint(need = {SsaBasicBlockSplitterMarker.class})
-@Transform(add = {NodeIdMarker.class})
+@Description("Removes Node List from the CFG for SSA conversion")
+@Name("CfgNodeListRemoval")
+@Constraint(need = {NodeListMarker.class})
+@Transform(remove = {NodeListMarker.class})
 @Filter(TypeWithoutPrebuiltFilter.class)
-public class CfgNodeIdAssignment implements RunnableSchedulable<JControlFlowGraph> {
+public class CfgNodeListRemoval implements RunnableSchedulable<JControlFlowGraph> {
   @Override
-  public void run(JControlFlowGraph t) {
-    NodeIdMarker.assignIds(t);
+  public void run(JControlFlowGraph graph) {
+    NodeListMarker.removeNodeList(graph);
   }
 }

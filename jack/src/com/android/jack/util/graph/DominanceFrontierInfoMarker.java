@@ -98,4 +98,13 @@ public class DominanceFrontierInfoMarker implements Marker {
   public Marker cloneIfNeeded() {
     throw new AssertionError("It is not valid to use cloneIfNeeded, create a new marker.");
   }
+
+  /**
+   * Removes all dominance frontier info marker from a graph.
+   */
+  public static void clearMarkers(@Nonnull IGraph<?> graph) {
+    for (IGraphNode<?> n : graph.getNodes()) {
+      n.removeMarker(DominanceFrontierInfoMarker.class);
+    }
+  }
 }

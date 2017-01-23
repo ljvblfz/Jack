@@ -17,12 +17,23 @@
 package com.android.jack.transformations.ssa;
 
 import com.android.jack.ir.ast.cfg.JControlFlowGraph;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.util.graph.NodeIdMarker;
+import com.android.sched.item.Description;
+import com.android.sched.item.Name;
+import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
+import com.android.sched.schedulable.Transform;
 
 /**
- * Assign Node ID to the control flow graph.
+ * Removes Node ID to the control flow graph.
  */
+@Description("Removes Node ID to the CFG for SSA conversion")
+@Name("CfgNodeIdRemoval")
+@Constraint(need = {NodeIdMarker.class})
+@Transform(remove = {NodeIdMarker.class})
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class CfgNodeIdRemoval implements RunnableSchedulable<JControlFlowGraph> {
   @Override
   public void run(JControlFlowGraph graph) {

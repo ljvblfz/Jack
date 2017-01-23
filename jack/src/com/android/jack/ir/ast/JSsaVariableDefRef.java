@@ -19,6 +19,9 @@ package com.android.jack.ir.ast;
 import com.google.common.collect.Lists;
 
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.sched.item.Component;
+import com.android.sched.scheduler.ScheduleInstance;
+import com.android.sched.transform.TransformRequest;
 
 import java.util.List;
 
@@ -35,10 +38,12 @@ public class JSsaVariableDefRef extends JSsaVariableRef {
   @Nonnull
   private final List<JSsaVariableUseRef> uses;
 
+  private int regNum = -1;
+
   public JSsaVariableDefRef(@Nonnull SourceInfo info, @Nonnull JVariable target,
       @Nonnegative int version) {
     super(info, target, version);
-    this.uses = Lists.newArrayList();
+    this.uses = Lists.newLinkedList();
   }
 
   public JSsaVariableUseRef makeRef(@Nonnull SourceInfo info) {
@@ -52,6 +57,15 @@ public class JSsaVariableDefRef extends JSsaVariableRef {
     return uses;
   }
 
+  public boolean removeUse(JSsaVariableUseRef use) {
+    int index = uses.indexOf(use);
+    if (index == -1) {
+      return false;
+    }
+    uses.remove(index);
+    return true;
+  }
+
   public boolean hasUses() {
     return !uses.isEmpty();
   }
@@ -63,5 +77,31 @@ public class JSsaVariableDefRef extends JSsaVariableRef {
       }
     }
     return false;
+  }
+
+  public void setRopRegister(@Nonnegative int reg) {
+    assert this.regNum == -1;
+    this.regNum = reg;
+  }
+
+  public int getRopRegister() {
+    return this.regNum;
+  }
+
+  @Override
+  public void traverse(@Nonnull JVisitor visitor) {
+    visitor.visit(this);
+    visitor.endVisit(this);
+  }
+
+  @Override
+  public void traverse(@Nonnull ScheduleInstance<? super Component> schedule) throws Exception {
+    schedule.process(this);
+  }
+
+  @Override
+  public void visit(@Nonnull JVisitor visitor, @Nonnull TransformRequest transformRequest)
+      throws Exception {
+    visitor.visit(this, transformRequest);
   }
 }

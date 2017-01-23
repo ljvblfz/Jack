@@ -1414,6 +1414,26 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
   }
 
   @Override
+  public boolean visit(@Nonnull JSsaVariableDefRef x) {
+    print(x.getTarget().getName());
+    print("{");
+    print("" + x.getVersion());
+    int reg = x.getRopRegister();
+    if (reg != -1) {
+      print("(v");
+      print("" + reg);
+      print(")");
+    }
+    print("}");
+    return false;
+  }
+
+  @Override
+  public boolean visit(@Nonnull JSsaVariableUseRef x) {
+    return visit(x.getDef());
+  }
+
+  @Override
   public boolean visit(@Nonnull JSwitchStatement x) {
     print(CHARS_SWITCH);
     lparen();

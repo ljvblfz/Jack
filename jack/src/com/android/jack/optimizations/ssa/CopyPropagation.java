@@ -156,7 +156,7 @@ public class CopyPropagation implements RunnableSchedulable<JControlFlowGraph> {
   private void propagateVarRef(JSsaVariableDefRef lhs, JSsaVariableUseRef rhs,
       TransformationRequest tr) {
     JSsaVariableDefRef def = rhs.getDef();
-    for (JSsaVariableRef oldUse : lhs.getUses()) {
+    for (JSsaVariableRef oldUse : Lists.newArrayList(lhs.getUses())) {
       JSsaVariableRef newUse = def.makeRef(oldUse.getSourceInfo());
       newUse.addAllMarkers(oldUse.getAllMarkers());
       tr.append(new Replace(oldUse, newUse));

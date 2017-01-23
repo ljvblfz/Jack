@@ -16,46 +16,26 @@
 
 package com.android.jack.ir.ast;
 
-import com.android.jack.ir.ast.cfg.JPhiBlockElement;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.sched.item.Component;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
  * This version of the SSA variable reference only appears on the right hand side of any
  * assignments.
  */
-public class JSsaVariableUseRef extends JSsaVariableRef {
+public class JSsaVariableUseRefPlaceHolder extends JSsaVariableUseRef {
 
   @Nonnull
   private final JSsaVariableDefRef def;
 
-  /* package */ JSsaVariableUseRef(@Nonnull SourceInfo info, @Nonnull JVariable target,
-      @Nonnegative int version, JSsaVariableDefRef def) {
-    super(info, target, version);
+  /* package */ JSsaVariableUseRefPlaceHolder(@Nonnull SourceInfo info, @Nonnull JVariable target,
+      JSsaVariableDefRef def) {
+    super(info, target, 0, def);
     this.def = def;
-  }
-
-  /**
-   * @return true if it is used in a Phi element.
-   */
-  public boolean isPhiUse() {
-    JNode parent = getParent();
-    return parent instanceof JPhiBlockElement;
-  }
-
-  @Nonnull
-  public JSsaVariableDefRef getDef() {
-    return def;
-  }
-
-  public void deleteUseFromDef() {
-    boolean result = def.removeUse(this);
-    assert result;
   }
 
   @Override

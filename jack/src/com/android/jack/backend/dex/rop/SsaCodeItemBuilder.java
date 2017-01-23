@@ -63,6 +63,7 @@ import com.android.jack.ir.ast.JMethodBodyCfg;
 import com.android.jack.ir.ast.JMultiExpression;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
+import com.android.jack.ir.ast.JSsaVariableDefRef;
 import com.android.jack.ir.ast.JSsaVariableRef;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JThis;
@@ -115,7 +116,6 @@ import com.android.sched.util.log.TracerFactory;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -129,42 +129,17 @@ import javax.annotation.Nonnull;
  */
 @Description("Builds CodeItem from JMethod in SSA form")
 @Name("SsaCodeItemBuilder")
-@Constraint(
-  need = {
-    JSsaVariableRef.class,
-    JMethodBodyCfg.class,
-    JExceptionRuntimeValue.class,
-    NewInstanceRemoved.class,
-    ThreeAddressCodeForm.class,
-    RopLegalCast.class,
-    InnerAccessor.class,
-    InvalidDefaultBridgeInInterfaceRemoved.class
-  },
-  no = {
-    BooleanTestOutsideIf.class,
-    InitInNewArray.class,
-    JAsgOperation.class,
-    JPrimitiveClassLiteral.class,
-    JMultiExpression.class,
-    JConditionalExpression.class,
-    JFieldInitializer.class,
-    JConcatOperation.class,
-    JLoop.class,
-    SideEffectOperation.class,
-    UnassignedValues.class,
-    RefAsStatement.class,
-    MultiDimensionNewArray.class,
-    JSwitchStatement.SwitchWithEnum.class,
-    ImplicitBoxingAndUnboxing.class,
-    ImplicitCast.class,
-    JAssertStatement.class,
-    JConditionalOperation.class,
-    EmptyClinit.class,
-    UselessSwitches.class,
-    SourceCast.class,
-    JCastOperation.WithIntersectionType.class
-  }
-)
+@Constraint(need = {JSsaVariableRef.class, JMethodBodyCfg.class, JExceptionRuntimeValue.class,
+                    NewInstanceRemoved.class, ThreeAddressCodeForm.class, RopLegalCast.class,
+                    InnerAccessor.class, InvalidDefaultBridgeInInterfaceRemoved.class},
+    no = {BooleanTestOutsideIf.class, InitInNewArray.class, JAsgOperation.class,
+          JPrimitiveClassLiteral.class, JMultiExpression.class, JConditionalExpression.class,
+          JFieldInitializer.class, JConcatOperation.class, JLoop.class, SideEffectOperation.class,
+          UnassignedValues.class, RefAsStatement.class, MultiDimensionNewArray.class,
+          JSwitchStatement.SwitchWithEnum.class, ImplicitBoxingAndUnboxing.class,
+          ImplicitCast.class, JAssertStatement.class, JConditionalOperation.class,
+          EmptyClinit.class, UselessSwitches.class, SourceCast.class,
+          JCastOperation.WithIntersectionType.class})
 @Transform(add = DexCodeMarker.class)
 @Use(RopHelper.class)
 @Filter(TypeWithoutPrebuiltFilter.class)
@@ -190,9 +165,7 @@ public class SsaCodeItemBuilder implements RunnableSchedulable<JMethod> {
 
   @Override
   public void run(@Nonnull JMethod method) {
-    if (method.isNative()
-        || method.isAbstract()
-        || !filter.accept(this.getClass(), method)) {
+    if (method.isNative() || method.isAbstract() || !filter.accept(this.getClass(), method)) {
       return;
     }
     buildSsaCodeItem(method, false);
@@ -265,16 +238,15 @@ public class SsaCodeItemBuilder implements RunnableSchedulable<JMethod> {
         JVisitor visitor = new JVisitor() {
           @Override
           public boolean visit(@Nonnull JRegularBasicBlock bb) {
-            assert bb instanceof JSimpleBasicBlock
-                || bb instanceof JCatchBasicBlock
+            assert bb instanceof JSimpleBasicBlock || bb instanceof JCatchBasicBlock
                 || bb instanceof JCaseBasicBlock;
             assert bb.hasPrimarySuccessor();
 
             JBasicBlock primarySuccessor = bb.getPrimarySuccessor();
             IntList successors = IntList.makeImmutable(getBlockId(primarySuccessor));
             List<SsaInsn> il = createInsnList(instructions, 1);
-            Insn gotoInstruction = new PlainInsn(
-                Rops.GOTO, getLastElementPosition(bb), null, RegisterSpecList.EMPTY);
+            Insn gotoInstruction =
+                new PlainInsn(Rops.GOTO, getLastElementPosition(bb), null, RegisterSpecList.EMPTY);
             il.add(new NormalSsaInsn(gotoInstruction, ssaBb));
             ssaBb.setRopLabel(getBlockId(bb));
             ssaBb.setInsns(il);
@@ -339,9 +311,8 @@ public class SsaCodeItemBuilder implements RunnableSchedulable<JMethod> {
               il = new ArrayList<SsaInsn>(1);
             } else {
               Insn extraInsn = extraInstructions.get(0);
-              needsGoto =
-                  extraInstructions.get(extraInstructions.size() - 1)
-                      .getOpcode().getBranchingness() == Rop.BRANCH_NONE;
+              needsGoto = extraInstructions.get(extraInstructions.size() - 1).getOpcode()
+                  .getBranchingness() == Rop.BRANCH_NONE;
               il = new ArrayList<SsaInsn>(extraInstructions.size() + (needsGoto ? 1 : 0));
               for (Insn inst : extraInstructions) {
                 il.add(new NormalSsaInsn(inst, extraSsaBb));
@@ -403,12 +374,11 @@ public class SsaCodeItemBuilder implements RunnableSchedulable<JMethod> {
           }
 
           private SourcePosition getLastElementPosition(@Nonnull JBasicBlock bb) {
-            return RopHelper.getSourcePosition(bb.hasElements() ?
-                bb.getLastElement().getSourceInfo() : SourceInfo.UNKNOWN);
+            return RopHelper.getSourcePosition(
+                bb.hasElements() ? bb.getLastElement().getSourceInfo() : SourceInfo.UNKNOWN);
           }
 
-          private void addCatchBlockSuccessors(
-              @Nonnull List<JBasicBlock> catchBlocks,
+          private void addCatchBlockSuccessors(@Nonnull List<JBasicBlock> catchBlocks,
               @Nonnull IntList successors) {
             for (JBasicBlock catchBlock : catchBlocks) {
               if (!(catchBlock instanceof JCatchBasicBlock)) {
@@ -440,12 +410,12 @@ public class SsaCodeItemBuilder implements RunnableSchedulable<JMethod> {
       RopMethod ropMethod = null;
       if (runDxOptimizations) {
         if (!minimizeRegister) {
-            ropMethod = Optimizer.optimize(ssaMethod, getParameterWordCount(method),
-                method.isStatic(), true /* inPreserveLocals */, removeRedundantConditionalBranch,
-                DexTranslationAdvice.THE_ONE);
+          ropMethod = Optimizer.optimize(ssaMethod, getParameterWordCount(method),
+              method.isStatic(), true /* inPreserveLocals */, removeRedundantConditionalBranch,
+              DexTranslationAdvice.THE_ONE);
           if (ropMethod.getBlocks().getRegCount() > DexTranslationAdvice.THE_ONE
               .getMaxOptimalRegisterCount()) {
-              // Try to see if we can squeeze it under the register count bar
+            // Try to see if we can squeeze it under the register count bar
             buildSsaCodeItem(method, true);
             // Abort the current SSA-ROP code generation, otherwise we end up with duplicates.
             return;
@@ -458,8 +428,8 @@ public class SsaCodeItemBuilder implements RunnableSchedulable<JMethod> {
               DexTranslationAdvice.THE_ONE);
         }
       } else {
-        ropMethod = Optimizer.optimize(ssaMethod, getParameterWordCount(method),
-            method.isStatic(), true /* inPreserveLocals */, removeRedundantConditionalBranch,
+        ropMethod = Optimizer.optimize(ssaMethod, getParameterWordCount(method), method.isStatic(),
+            true /* inPreserveLocals */, removeRedundantConditionalBranch,
             DexTranslationAdvice.THE_ONE, EnumSet.noneOf(OptionalStep.class));
       }
 
@@ -505,7 +475,6 @@ public class SsaCodeItemBuilder implements RunnableSchedulable<JMethod> {
     SourcePosition pos = SourcePosition.NO_INFO;
 
     List<JParameter> parameters = method.getParams();
-    int indexParam = 0;
     int sz = parameters.size();
     List<SsaInsn> insns;
 
@@ -518,18 +487,17 @@ public class SsaCodeItemBuilder implements RunnableSchedulable<JMethod> {
       JThis jThis = method.getThis();
       assert jThis != null;
       RegisterSpec thisReg = ropReg.createThisReg(jThis);
-      Insn insn =
-          new PlainCstInsn(Rops.opMoveParam(thisReg.getType()), pos, thisReg,
-              RegisterSpecList.EMPTY, CstInteger.make(thisReg.getReg()));
+      Insn insn = new PlainCstInsn(Rops.opMoveParam(thisReg.getType()), pos, thisReg,
+          RegisterSpecList.EMPTY, CstInteger.make(thisReg.getReg()));
       insns.add(new NormalSsaInsn(insn, ssaBb));
     }
 
-    for (Iterator<JParameter> paramIt = parameters.iterator(); paramIt.hasNext(); indexParam++) {
-      JParameter param = paramIt.next();
-      RegisterSpec paramReg = ropReg.getOrCreateRegisterSpec(param);
-      Insn insn =
-          new PlainCstInsn(Rops.opMoveParam(paramReg.getType()), pos, paramReg,
-              RegisterSpecList.EMPTY, CstInteger.make(paramReg.getReg()));
+    JMethodBodyCfg body = (JMethodBodyCfg) method.getBody();
+    assert body != null;
+    for (JSsaVariableDefRef def : body.getSsaParamsDefs()) {
+      RegisterSpec paramReg = ropReg.getOrCreateRegisterSpec(def);
+      Insn insn = new PlainCstInsn(Rops.opMoveParam(paramReg.getType()), pos, paramReg,
+          RegisterSpecList.EMPTY, CstInteger.make(paramReg.getReg()));
       insns.add(new NormalSsaInsn(insn, ssaBb));
     }
 

@@ -25,20 +25,22 @@ import com.android.sched.marker.ValidOn;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 /**
  * A marker that represent a dominator tree in a graph.
  */
 @Description("Marks the dominator parent / child relation of a CFG.")
 @ValidOn(IGraphNode.class)
-public class DominatorTreeMarker implements Marker {
-  @SuppressWarnings("rawtypes")
-  private final List<IGraphNode> domChildren = new ArrayList<>();
+public class DominatorTreeMarker<N extends IGraphNode<N>> implements Marker {
+  private final List<N> domChildren = new ArrayList<>();
 
-  @SuppressWarnings("rawtypes")
-  public static void addDomChild(IGraphNode node, IGraphNode domChild) {
-    DominatorTreeMarker marker = node.getMarker(DominatorTreeMarker.class);
+  public static <N extends IGraphNode<N>> void addDomChild(N node, N domChild) {
+    @SuppressWarnings({"cast", "unchecked"})
+    DominatorTreeMarker<N> marker =
+        (DominatorTreeMarker<N>) node.getMarker(DominatorTreeMarker.class);
     if (marker == null) {
-      marker = new DominatorTreeMarker();
+      marker = new DominatorTreeMarker<N>();
       node.addMarker(marker);
     }
     marker.domChildren.add(domChild);
@@ -50,16 +52,21 @@ public class DominatorTreeMarker implements Marker {
     if (marker == null) {
       return Lists.newArrayListWithCapacity(0);
     } else {
-      List<N> result = Lists.newArrayListWithCapacity(marker.domChildren.size());
-      for (IGraphNode n : marker.domChildren) {
-        result.add((N) n);
-      }
-      return result;
+      return marker.domChildren;
     }
   }
 
   @Override
   public Marker cloneIfNeeded() {
     throw new AssertionError("It is not valid to use cloneIfNeeded, create a new marker.");
+  }
+
+  /**
+   * Removes all dominance tree marker from a graph.
+   */
+  public static <N extends IGraphNode<N>> void clearMarkers(@Nonnull IGraph<N> graph) {
+    for (IGraphNode<?> n : graph.getNodes()) {
+      n.removeMarker(DominatorTreeMarker.class);
+    }
   }
 }
