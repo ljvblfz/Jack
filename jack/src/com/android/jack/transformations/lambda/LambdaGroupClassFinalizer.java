@@ -62,6 +62,7 @@ import com.android.jack.ir.types.JIntegralType32;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
+import com.android.jack.transformations.ast.NewInstanceRemoved;
 import com.android.jack.transformations.request.AppendField;
 import com.android.jack.transformations.request.AppendMethod;
 import com.android.jack.transformations.request.AppendStatement;
@@ -89,12 +90,13 @@ import javax.annotation.Nonnull;
 /** Finishing lambda group classes construction */
 @Description("Lambdas optimization, finishing lambda group classes construction")
 @Constraint(need = LambdaGroupMarker.class)
-@Transform(add = { JAsgOperation.class, JBlock.class, JByteLiteral.class, JConstructor.class,
-                   JDynamicCastOperation.class, JField.class, JFieldRef.class, JIntLiteral.class,
-                   JMethod.class, JMethodBody.class, JMethodCall.class, JNewInstance.class,
-                   JParameter.class, JParameterRef.class, JReturnStatement.class,
-                   JShortLiteral.class, JSwitchStatement.class, JThisRef.class,
-                   JThrowStatement.class, LambdaInfoMarker.class })
+@Transform(
+    add = {JAsgOperation.class, JBlock.class, JByteLiteral.class, JConstructor.class,
+           JDynamicCastOperation.class, JField.class, JFieldRef.class, JIntLiteral.class,
+           JMethod.class, JMethodBody.class, JMethodCall.class, JNewInstance.class,
+           JParameter.class, JParameterRef.class, JReturnStatement.class, JShortLiteral.class,
+           JSwitchStatement.class, JThisRef.class, JThrowStatement.class, LambdaInfoMarker.class},
+    remove = {NewInstanceRemoved.class})
 @ExclusiveAccess(JSession.class)
 @Support(LambdaToAnonymousConverter.class)
 @Filter(TypeWithoutPrebuiltFilter.class)
