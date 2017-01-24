@@ -83,7 +83,7 @@ abstract class JReferenceTypeCommon extends JNode implements JReferenceType, Can
 
   @Override
   @Nonnull
-  public JArrayType getArray() {
+  public synchronized JArrayType getArray() {
     if (array == null) {
       array = new JArrayType(this);
     }
