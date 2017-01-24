@@ -23,6 +23,8 @@ import com.android.sched.util.codec.VFSCodec;
 import com.android.sched.util.config.category.Category;
 import com.android.sched.util.config.expression.BooleanExpression;
 import com.android.sched.util.config.id.PropertyId;
+import com.android.sched.util.file.Statusful;
+import com.android.sched.util.file.StreamFileStatus;
 
 import javax.annotation.Nonnull;
 
@@ -90,7 +92,14 @@ public class VFSPropertyId extends PropertyId<VFS> implements HasDescription {
         new ShutdownRunnable<VFS>() {
           @Override
           public void run(@Nonnull VFS vfs) {
-            if (!vfs.isClosed()) {
+            boolean open;
+            if (vfs instanceof Statusful) {
+              open = ((Statusful) vfs).getStatus() == StreamFileStatus.OPEN;
+            } else {
+              open = !vfs.isClosed();
+            }
+
+            if (open) {
               throw new AssertionError(
                   "VFS '"
                       + vfs.getDescription()

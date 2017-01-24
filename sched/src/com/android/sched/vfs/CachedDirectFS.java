@@ -26,6 +26,8 @@ import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
+import com.android.sched.util.file.Statusful;
+import com.android.sched.util.file.StreamFileStatus;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.DirectoryLocation;
 import com.android.sched.util.location.FileLocation;
@@ -63,7 +65,8 @@ import javax.annotation.Nonnull;
  * A {@link VFS} implementation backed by a real file system, but where directories are cached in
  * memory.
  */
-public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile> implements VFS {
+public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
+    implements VFS, Statusful {
 
   static class CachedParentVDir extends InMemoryVDir {
 
@@ -160,6 +163,8 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
   @CheckForNull
   private String infoString;
 
+  private boolean used = false;
+
 
   public CachedDirectFS(@Nonnull Directory dir, int permissions) {
     this.dir = dir;
@@ -253,6 +258,9 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
 
   @Override
   public CachedParentVDir getRootDir() {
+
+    used = true;
+
     return root;
   }
 
@@ -563,6 +571,18 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
   @Nonnull
   public VPath getPathFromRoot(@Nonnull CachedParentVFile file) {
     return getPathFromDir(root, file);
+  }
+
+  @Override
+  @Nonnull
+  public StreamFileStatus getStatus() {
+    if (!used) {
+      return StreamFileStatus.NOT_USED;
+    } else if (closed) {
+      return StreamFileStatus.CLOSED;
+    } else {
+      return StreamFileStatus.OPEN;
+    }
   }
 
   @Override

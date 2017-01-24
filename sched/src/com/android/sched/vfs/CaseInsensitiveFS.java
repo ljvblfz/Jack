@@ -32,6 +32,8 @@ import com.android.sched.util.file.CannotGetModificationTimeException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
+import com.android.sched.util.file.Statusful;
+import com.android.sched.util.file.StreamFileStatus;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.ColumnAndLineLocation;
 import com.android.sched.util.location.Location;
@@ -64,7 +66,7 @@ import javax.annotation.Nonnull;
  */
 @HasKeyId
 public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensitiveVFile> implements
-    VFS {
+    VFS, Statusful {
   static final String INDEX_NAME = "index";
   static final String DEBUG_NAME = "index.dbg";
 
@@ -205,6 +207,8 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
   @Nonnull
   private final BaseVFS<BaseVDir, BaseVFile> vfs;
 
+  private boolean used = false;
+
   public CaseInsensitiveFS(@Nonnull VFS vfs) throws BadVFSFormatException {
     this(vfs, ThreadConfig.get(NB_GROUP).intValue(), ThreadConfig.get(SZ_GROUP).intValue(),
         ThreadConfig.get(ALGO), ThreadConfig.get(DEBUG).booleanValue());
@@ -341,6 +345,8 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
   @Override
   @Nonnull
   public CaseInsensitiveVDir getRootDir() {
+    used = true;
+
     return root;
   }
 
@@ -731,6 +737,18 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
   @Nonnull
   VPath getPathFromRoot(@Nonnull CaseInsensitiveVFile file) {
     return getPathFromDir(root, file);
+  }
+
+  @Override
+  @Nonnull
+  public StreamFileStatus getStatus() {
+    if (!used) {
+      return StreamFileStatus.NOT_USED;
+    } else if (closed) {
+      return StreamFileStatus.CLOSED;
+    } else {
+      return StreamFileStatus.OPEN;
+    }
   }
 
   @Override

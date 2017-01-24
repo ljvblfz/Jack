@@ -33,7 +33,7 @@ import javax.annotation.Nonnull;
 /**
  * Abstract class representing a stream from a file path or a standard input/output.
  */
-public abstract class AbstractStreamFile extends FileOrDirectory {
+public abstract class AbstractStreamFile extends FileOrDirectory implements Statusful {
   @Nonnull
   private static final Logger  logger = LoggerFactory.getLogger();
   @CheckForNull
@@ -141,6 +141,7 @@ public abstract class AbstractStreamFile extends FileOrDirectory {
   }
 
   @Nonnull
+  @Override
   public final synchronized StreamFileStatus getStatus() {
     if (!wasUsed) {
       return StreamFileStatus.NOT_USED;
