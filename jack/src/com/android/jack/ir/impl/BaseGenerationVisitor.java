@@ -673,11 +673,9 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
     accept(x.getIfExpr());
     rparen();
 
-    if (x.getThenStmt() != null) {
-      nestedStatementPush(x.getThenStmt());
-      accept(x.getThenStmt());
-      nestedStatementPop(x.getThenStmt());
-    }
+    nestedStatementPush(x.getThenStmt());
+    accept(x.getThenStmt());
+    nestedStatementPop(x.getThenStmt());
 
     if (x.getElseStmt() != null) {
       if (needSemi) {

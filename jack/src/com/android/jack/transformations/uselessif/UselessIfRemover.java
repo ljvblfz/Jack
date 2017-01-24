@@ -75,13 +75,8 @@ public class UselessIfRemover implements RunnableSchedulable<JMethod> {
         tracer.getStatistic(REMOVED_IF).incValue();
         if (cond.getValue()) {
           JStatement thenStmt = ifStmt.getThenStmt();
-          if (thenStmt != null) {
-            // if (true) A else B => A
-            request.append(new Replace(ifStmt, thenStmt));
-          } else {
-            // if (true) else B => []
-            request.append(new Remove(ifStmt));
-          }
+          // if (true) A else B => A
+          request.append(new Replace(ifStmt, thenStmt));
         } else {
           JStatement elseStmt = ifStmt.getElseStmt();
           if (elseStmt != null) {
