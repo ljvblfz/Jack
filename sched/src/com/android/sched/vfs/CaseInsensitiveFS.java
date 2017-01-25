@@ -601,7 +601,7 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
 
   @Override
   boolean isEmpty(@Nonnull CaseInsensitiveVDir dir) {
-    return list(dir).isEmpty();
+    return dir.isEmpty();
   }
 
   @Override
