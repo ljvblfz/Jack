@@ -159,14 +159,19 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     @Nonnegative
     int opcode;
     @Nonnull
-    Variable lhs;
+    Frame<BasicValue> lhsFrame;
+    int lhsStackIdx;
     @Nonnull
-    Variable rhs;
+    Frame<BasicValue> rhsFrame;
+    int rhsStackIdx;
 
-    public CmpOperands(@Nonnegative int opcode, @Nonnull Variable lhs, @Nonnull Variable rhs) {
+    public CmpOperands(@Nonnegative int opcode, @Nonnull Frame<BasicValue> lhsFrame,
+        int lhsStackIdx, @Nonnull Frame<BasicValue> rhsFrame, int rhsStackIdx) {
       this.opcode = opcode;
-      this.lhs = lhs;
-      this.rhs = rhs;
+      this.lhsFrame = lhsFrame;
+      this.lhsStackIdx = lhsStackIdx;
+      this.rhsFrame = rhsFrame;
+      this.rhsStackIdx = rhsStackIdx;
     }
   }
 
@@ -608,7 +613,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     writeDebugBegin(currentClass, currentLine);
     writer.writeKeyword(Token.ASG_OPERATION);
     writer.writeOpen();
-    writeStackAccess(nextFrame, TOP_OF_STACK);
+    writeStack(nextFrame, TOP_OF_STACK);
 
     writeDebugBegin(currentClass, currentLine);
     writer.writeKeyword(Token.LAMBDA);
@@ -990,7 +995,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
           writeDebugBegin(currentClass, currentLine);
           writer.writeKeyword(Token.ASG_OPERATION);
           writer.writeOpen();
-          writeStackAccess(frames[labelIdx], TOP_OF_STACK);
+          writeStack(frames[labelIdx], TOP_OF_STACK);
           writeLocalRef(declaringCatchVariable);
           writeDebugEnd(currentClass, currentLine);
           writer.writeClose();
@@ -1085,7 +1090,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     writeDebugBegin(currentClass, currentLine);
     writer.writeKeyword(Token.ASG_OPERATION);
     writer.writeOpen();
-    writeStackAccess(nextFrame, TOP_OF_STACK);
+    writeStack(nextFrame, TOP_OF_STACK);
 
     switch (intInsn.getOpcode()) {
       case BIPUSH: {
@@ -1157,7 +1162,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     writeDebugBegin(currentClass, currentLine);
     writer.writeKeyword(Token.ASG_OPERATION);
     writer.writeOpen();
-    writeStackAccess(nextFrame, TOP_OF_STACK);
+    writeStack(nextFrame, TOP_OF_STACK);
     writeNewArray(frame, manaIns.desc, manaIns.dims);
     writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
@@ -1174,7 +1179,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     writer.writeId(typeDesc);
     writer.writeOpenNodeList();
     for (int i = (dims - 1); i >= 0; i--) {
-      writeStackAccess(frame, TOP_OF_STACK - i);
+      readStack(frame, TOP_OF_STACK - i);
     }
     writer.writeCloseNodeList();
     writer.writeOpenNodeList(); // Empty initializers list.
@@ -1247,11 +1252,11 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         throw new JillException("Not yet supported " + Printer.OPCODES[opcode]);
       }
     }
-    writeStackAccess(frame, startIdx);
+    readStack(frame, startIdx);
     writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
 
-    writeStackAccess(frame, startIdx + 1);
+    readStack(frame, startIdx + 1);
     writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
   }
@@ -1295,7 +1300,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     writer.writeCatchBlockIds(currentCatchList);
     writer.writeKeyword(Token.SWITCH_STATEMENT);
     writer.writeOpen();
-    writeStackAccess(frame, TOP_OF_STACK);
+    readStack(frame, TOP_OF_STACK);
     writer.writeIds(cases);
     writeDebugBegin(currentClass, currentLine);
     writer.writeCatchBlockIds(currentCatchList);
@@ -1330,7 +1335,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     writeDebugBegin(currentClass, currentLine);
     writer.writeKeyword(Token.ASG_OPERATION);
     writer.writeOpen();
-    writeStackAccess(nextFrame, TOP_OF_STACK);
+    writeStack(nextFrame, TOP_OF_STACK);
 
     String descriptor = Type.getObjectType(typeInsn.desc).getDescriptor();
 
@@ -1356,7 +1361,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.INSTANCE_OF);
         writer.writeOpen();
-        writeStackAccess(frame, TOP_OF_STACK);
+        readStack(frame, TOP_OF_STACK);
         writer.writeId(descriptor);
         writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
@@ -1396,7 +1401,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
           writeCastOperation(Token.REINTERPRETCAST_OPERATION, frame,
               Type.BOOLEAN_TYPE.getDescriptor(), TOP_OF_STACK);
         } else {
-          writeStackAccess(frame, TOP_OF_STACK);
+          readStack(frame, TOP_OF_STACK);
         }
         break;
       }
@@ -1406,12 +1411,12 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
           writeCastOperation(Token.REINTERPRETCAST_OPERATION, frame,
               Type.BOOLEAN_TYPE.getDescriptor(), TOP_OF_STACK);
         } else {
-          writeStackAccess(frame, TOP_OF_STACK);
+          readStack(frame, TOP_OF_STACK);
         }
         break;
       }
       case GETFIELD: {
-        writeStackAccess(nextFrame, TOP_OF_STACK);
+        writeStack(nextFrame, TOP_OF_STACK);
         if (Type.getType(fldInsn.desc) == Type.BOOLEAN_TYPE) {
           writeDebugBegin(currentClass, currentLine);
           writer.writeKeyword(Token.REINTERPRETCAST_OPERATION);
@@ -1426,7 +1431,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         break;
       }
       case GETSTATIC: {
-        writeStackAccess(nextFrame, TOP_OF_STACK);
+        writeStack(nextFrame, TOP_OF_STACK);
         if (Type.getType(fldInsn.desc) == Type.BOOLEAN_TYPE) {
           writeDebugBegin(currentClass, currentLine);
           writer.writeKeyword(Token.REINTERPRETCAST_OPERATION);
@@ -1473,7 +1478,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
           writeDebugBegin(currentClass, currentLine);
           writer.writeKeyword(Token.ASG_OPERATION);
           writer.writeOpen();
-          writeStackAccess(nextFrame, TOP_OF_STACK);
+          writeStack(nextFrame, TOP_OF_STACK);
           if (returnType == Type.BOOLEAN_TYPE) {
             writeDebugBegin(currentClass, currentLine);
             writer.writeKeyword(Token.REINTERPRETCAST_OPERATION);
@@ -1539,7 +1544,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
           if ((receiverType.equals(frame.getStack(frame.getStackSize() - stackArgIndex).getType())
               && !isCallToPolymorphicMethod) || mthInsn.name.equals("<init>")) {
             // It is not possible to add cast on object before call to init
-            writeStackAccess(frame, -stackArgIndex);
+            readStack(frame, -stackArgIndex);
           } else {
             writeCastOperation(Token.REINTERPRETCAST_OPERATION, frame, receiverType.getDescriptor(),
                 -stackArgIndex);
@@ -1588,7 +1593,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
             writeCastOperation(Token.REINTERPRETCAST_OPERATION, frame, argType.getDescriptor(),
                 -stackArgIndex);
           } else {
-            writeStackAccess(frame, -stackArgIndex);
+            readStack(frame, -stackArgIndex);
           }
           stackArgIndex--;
         }
@@ -1638,7 +1643,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.ASG_OPERATION);
         writer.writeOpen();
-        writeStackAccess(nextFrame, TOP_OF_STACK);
+        writeStack(nextFrame, TOP_OF_STACK);
         if (getLocalVariable(frame, varInsn.var).getType() == Type.BOOLEAN_TYPE) {
           writeCastOperation(Token.REINTERPRETCAST_OPERATION, getLocalVariable(frame, varInsn.var),
               Type.INT_TYPE.getDescriptor());
@@ -1674,7 +1679,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
             writeCastOperation(Token.REINTERPRETCAST_OPERATION, frame, destType.getDescriptor(),
                 TOP_OF_STACK);
           } else {
-            writeStackAccess(frame, TOP_OF_STACK);
+            readStack(frame, TOP_OF_STACK);
           }
           writeDebugEnd(currentClass, currentLine);
           writer.writeClose();
@@ -1707,7 +1712,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.ASG_OPERATION);
         writer.writeOpen();
-        writeStackAccess(nextFrame, TOP_OF_STACK);
+        writeStack(nextFrame, TOP_OF_STACK);
         writeValue(insn.getOpcode() - ICONST_0, currentClass, currentLine);
         writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
@@ -1724,7 +1729,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.ASG_OPERATION);
         writer.writeOpen();
-        writeStackAccess(nextFrame, TOP_OF_STACK);
+        writeStack(nextFrame, TOP_OF_STACK);
         writeValue(currentClass, currentLine);
         writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
@@ -1742,7 +1747,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.ASG_OPERATION);
         writer.writeOpen();
-        writeStackAccess(nextFrame, TOP_OF_STACK);
+        writeStack(nextFrame, TOP_OF_STACK);
         writeValue((long) (insn.getOpcode() - LCONST_0), currentClass, currentLine);
         writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
@@ -1761,7 +1766,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.ASG_OPERATION);
         writer.writeOpen();
-        writeStackAccess(nextFrame, TOP_OF_STACK);
+        writeStack(nextFrame, TOP_OF_STACK);
         writeValue((float) (insn.getOpcode() - FCONST_0), currentClass, currentLine);
         writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
@@ -1779,7 +1784,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.ASG_OPERATION);
         writer.writeOpen();
-        writeStackAccess(nextFrame, TOP_OF_STACK);
+        writeStack(nextFrame, TOP_OF_STACK);
         writeValue((double) (insn.getOpcode() - DCONST_0), currentClass, currentLine);
         writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
@@ -1867,10 +1872,9 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
       case DCMPL:
       case DCMPG: {
         assert nextFrame != null;
-        Variable lhs = getStackVariable(frame, TOP_OF_STACK - 1);
-        Variable rhs = getStackVariable(frame, TOP_OF_STACK);
         Variable result = getStackVariable(nextFrame, TOP_OF_STACK);
-        cmpOperands.put(result, new CmpOperands(insn.getOpcode(), lhs, rhs));
+        cmpOperands.put(result,
+            new CmpOperands(insn.getOpcode(), frame, TOP_OF_STACK - 1, frame, TOP_OF_STACK));
         break;
       }
       case DSUB:
@@ -1917,11 +1921,11 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.ASG_OPERATION);
         writer.writeOpen();
-        writeStackAccess(nextFrame, TOP_OF_STACK);
+        writeStack(nextFrame, TOP_OF_STACK);
         writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.PREFIX_NEG_OPERATION);
         writer.writeOpen();
-        writeStackAccess(frame, TOP_OF_STACK);
+        readStack(frame, TOP_OF_STACK);
         writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
         writeDebugEnd(currentClass, currentLine);
@@ -1975,11 +1979,11 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.ASG_OPERATION);
         writer.writeOpen();
-        writeStackAccess(nextFrame, TOP_OF_STACK);
+        writeStack(nextFrame, TOP_OF_STACK);
         writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.ARRAY_LENGTH);
         writer.writeOpen();
-        writeStackAccess(frame, TOP_OF_STACK);
+        readStack(frame, TOP_OF_STACK);
         writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
         writeDebugEnd(currentClass, currentLine);
@@ -2005,7 +2009,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(Token.ASG_OPERATION);
         writer.writeOpen();
-        writeStackAccess(nextFrame, TOP_OF_STACK);
+        writeStack(nextFrame, TOP_OF_STACK);
         writeArrayRef(frame, TOP_OF_STACK - 1, insn.getOpcode());
         writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
@@ -2029,7 +2033,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         writer.writeKeyword(Token.ASG_OPERATION);
         writer.writeOpen();
         writeArrayRef(frame, TOP_OF_STACK - 2, insn.getOpcode());
-        writeStackAccess(frame, TOP_OF_STACK);
+        readStack(frame, TOP_OF_STACK);
         writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
         writeDebugEnd(currentClass, currentLine);
@@ -2041,7 +2045,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         writer.writeCatchBlockIds(currentCatchList);
         writer.writeKeyword(Token.LOCK);
         writer.writeOpen();
-        writeStackAccess(frame, TOP_OF_STACK);
+        readStack(frame, TOP_OF_STACK);
         writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
         break;
@@ -2051,7 +2055,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         writer.writeCatchBlockIds(currentCatchList);
         writer.writeKeyword(Token.UNLOCK);
         writer.writeOpen();
-        writeStackAccess(frame, TOP_OF_STACK);
+        readStack(frame, TOP_OF_STACK);
         writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
         break;
@@ -2081,7 +2085,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
           writer.writeKeyword(Token.ASG_OPERATION);
           writer.writeOpen();
           writeLocalRef(tmpVar);
-          writeStackAccess(frame, TOP_OF_STACK - 1);
+          readStack(frame, TOP_OF_STACK - 1);
           writeDebugEnd(currentClass, currentLine);
           writer.writeClose();
           writeDebugEnd(currentClass, currentLine);
@@ -2111,7 +2115,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
           writeDebugBegin(currentClass, currentLine);
           writer.writeKeyword(Token.ASG_OPERATION);
           writer.writeOpen();
-          writeStackAccess(nextFrame, TOP_OF_STACK);
+          writeStack(nextFrame, TOP_OF_STACK);
           writeLocalRef(tmpVar);
           writeDebugEnd(currentClass, currentLine);
           writer.writeClose();
@@ -2222,7 +2226,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         writer.writeCatchBlockIds(currentCatchList);
         writer.writeKeyword(Token.THROW_STATEMENT);
         writer.writeOpen();
-        writeStackAccess(frame, TOP_OF_STACK);
+        readStack(frame, TOP_OF_STACK);
         writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
         break;
@@ -2247,7 +2251,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     writeDebugBegin(currentClass, currentLine);
     writer.writeKeyword(Token.ASG_OPERATION);
     writer.writeOpen();
-    writeStackAccess(nextFrame, TOP_OF_STACK);
+    writeStack(nextFrame, TOP_OF_STACK);
     writeValue(ldcInsn.cst, currentClass, currentLine);
     writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
@@ -2294,8 +2298,8 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
           writeDebugBegin(currentClass, currentLine);
           writer.writeKeyword(comparisonToken);
           writer.writeOpen();
-          writeLocalRef(cmpOps.lhs);
-          writeLocalRef(cmpOps.rhs);
+          readStack(cmpOps.lhsFrame, cmpOps.lhsStackIdx);
+          readStack(cmpOps.rhsFrame, cmpOps.rhsStackIdx);
           writeDebugEnd(currentClass, currentLine);
           writer.writeClose();
 
@@ -2336,7 +2340,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
           writeDebugBegin(currentClass, currentLine);
           writer.writeKeyword(conditionalToken);
           writer.writeOpen();
-          writeStackAccess(frame, TOP_OF_STACK);
+          readStack(frame, TOP_OF_STACK);
           Variable v = getStackVariable(frame, TOP_OF_STACK);
           if (v.getType().equals(Type.BOOLEAN_TYPE)) {
             writeValue(false, currentClass, currentLine);
@@ -2381,8 +2385,8 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         writeDebugBegin(currentClass, currentLine);
         writer.writeKeyword(conditionalToken);
         writer.writeOpen();
-        writeStackAccess(frame, TOP_OF_STACK - 1);
-        writeStackAccess(frame, TOP_OF_STACK);
+        readStack(frame, TOP_OF_STACK - 1);
+        readStack(frame, TOP_OF_STACK);
         writeDebugEnd(currentClass, currentLine);
         writer.writeClose();
         // Then block
@@ -2524,13 +2528,18 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     if (stackIdx == 0) {
       writer.writeNull();
     } else {
-      writeStackAccess(frame, stackIdx);
+      readStack(frame, stackIdx);
     }
     writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
   }
 
-  private void writeStackAccess(@Nonnull Frame<BasicValue> frame, int stackIdx)
+  private void writeStack(@Nonnull Frame<BasicValue> frame, int stackIdx)
+      throws IndexOutOfBoundsException, IOException {
+    writeLocalRef(getStackVariable(frame, stackIdx));
+  }
+
+  private void readStack(@Nonnull Frame<BasicValue> frame, int stackIdx)
       throws IndexOutOfBoundsException, IOException {
     writeLocalRef(getStackVariable(frame, stackIdx));
   }
@@ -2601,7 +2610,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     writer.writeId(fldInsn.desc);
     writer.writeId(Type.getObjectType(fldInsn.owner).getDescriptor());
     writer.writeFieldRefKindEnum(FieldRefKind.INSTANCE);
-    writeStackAccess(frame, offset);
+    readStack(frame, offset);
     writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
   }
@@ -2686,7 +2695,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     writeDebugBegin(currentClass, currentLine);
     writer.writeKeyword(Token.ASG_OPERATION);
     writer.writeOpen();
-    writeStackAccess(nextFrame, TOP_OF_STACK);
+    writeStack(nextFrame, TOP_OF_STACK);
     writeCastOperation(Token.DYNAMIC_CAST_OPERATION, frame, Type.getDescriptor(targetType),
         TOP_OF_STACK);
     writeDebugEnd(currentClass, currentLine);
@@ -2715,7 +2724,20 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
 
   private void writeCastOperation(@Nonnull Token cast, @Nonnull Frame<BasicValue> frame,
       @Nonnull String typeDesc, int stackIdx) throws IOException {
-    writeCastOperation(cast, getStackVariable(frame, stackIdx), typeDesc);
+    assert cast == Token.DYNAMIC_CAST_OPERATION || cast == Token.REINTERPRETCAST_OPERATION;
+    writeDebugBegin(currentClass, currentLine);
+    writer.writeKeyword(cast);
+    writer.writeOpen();
+    if (cast == Token.DYNAMIC_CAST_OPERATION) {
+      ArrayList<String> types = new ArrayList<String>(1);
+      types.add(typeDesc);
+      writer.writeIds(types);
+    } else {
+      writer.writeId(typeDesc);
+    }
+    readStack(frame, stackIdx);
+    writeDebugEnd(currentClass, currentLine);
+    writer.writeClose();
   }
 
   private void writeDup(@Nonnull Frame<BasicValue> frame, @Nonnull Frame<BasicValue> nextFrame)
@@ -2807,8 +2829,8 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     writeDebugBegin(currentClass, currentLine);
     writer.writeKeyword(Token.ASG_OPERATION);
     writer.writeOpen();
-    writeStackAccess(frame2, offset2);
-    writeStackAccess(frame1, offset1);
+    writeStack(frame2, offset2);
+    readStack(frame1, offset1);
     writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
     writeDebugEnd(currentClass, currentLine);
@@ -2828,12 +2850,12 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     writeDebugBegin(currentClass, currentLine);
     writer.writeKeyword(Token.ASG_OPERATION);
     writer.writeOpen();
-    writeStackAccess(nextFrame, TOP_OF_STACK);
+    writeStack(nextFrame, TOP_OF_STACK);
     writeDebugBegin(currentClass, currentLine);
     writer.writeKeyword(op);
     writer.writeOpen();
-    writeStackAccess(frame, TOP_OF_STACK - 1);
-    writeStackAccess(frame, TOP_OF_STACK);
+    readStack(frame, TOP_OF_STACK - 1);
+    readStack(frame, TOP_OF_STACK);
     writeDebugEnd(currentClass, currentLine);
     writer.writeClose();
     writeDebugEnd(currentClass, currentLine);
@@ -2861,6 +2883,9 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
           }
         }
         for (int stackIdx = 0; stackIdx < frame.getStackSize(); stackIdx++) {
+          // Useless local variables can be created by Jill, indeed all stack variables are created
+          // but some of them will be never used, for instance constant will be put directly on
+          // their usage and will not used stack variable.
           Variable v = getStackVariable(frame, -stackIdx - 1);
           locals.add(v);
         }
