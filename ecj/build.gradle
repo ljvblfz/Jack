@@ -17,5 +17,5 @@
 apply plugin: 'java'
 
 jar {
-    from zipTree("ecj-4.7M3.jar")
+    from zipTree("ecj-4.7M5.jar")
 }

@@ -74,11 +74,6 @@ public class EcjLogger extends Logger {
     return numErrors;
   }
 
-  @Override
-  public void logProblemsSummary(int globalProblemsCount, int globalErrorsCount,
-      int globalWarningsCount, int globalTasksCount) {
-    // Do nothing
-  }
 
   @Override
   public void loggingExtraProblems(@Nonnull Main currentMain) {
