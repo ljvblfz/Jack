@@ -14,5 +14,6 @@
 	<classpathentry kind="lib" path="libs/args4j-lib.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Jack"/>
+	<classpathentry kind="src" path="/Scheduler"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

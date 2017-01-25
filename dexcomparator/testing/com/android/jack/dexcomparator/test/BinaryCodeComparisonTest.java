@@ -18,6 +18,8 @@ package com.android.jack.dexcomparator.test;
 
 import com.android.jack.comparator.DexComparator;
 import com.android.jack.comparator.DifferenceFoundException;
+import com.android.sched.util.file.CannotCloseException;
+import com.android.sched.util.file.CannotReadException;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -36,7 +38,8 @@ public class BinaryCodeComparisonTest {
   private static final File testSource2 = new File("testsource2");
 
   @Test
-  public void testDifferentBinaryCodeComparison() throws IOException {
+  public void testDifferentBinaryCodeComparison()
+      throws IOException, CannotReadException, CannotCloseException {
     String sourcePath = "com/android/jack/dexcomparator/test/A.java";
     File a1 = new File(testSource1, sourcePath);
     File a2 = new File(testSource2, sourcePath);
@@ -61,7 +64,8 @@ public class BinaryCodeComparisonTest {
   }
 
   @Test
-  public void testIdenticalBinaryCodeComparison() throws IOException {
+  public void testIdenticalBinaryCodeComparison()
+      throws IOException, CannotReadException, CannotCloseException {
     String sourcePath = "com/android/jack/dexcomparator/test/A.java";
     File a1 = new File(testSource1, sourcePath);
     File dex1 = File.createTempFile("dex1", ".dex");

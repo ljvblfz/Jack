@@ -17,9 +17,10 @@
 package com.android.jack.dx.io;
 
 import com.android.jack.dx.dex.TableOfContents;
+import com.android.sched.util.file.CannotCloseException;
+import com.android.sched.util.file.CannotReadException;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * Executable that prints all indices of a dex file.
@@ -28,7 +29,7 @@ public final class DexIndexPrinter {
   private final DexBuffer dexBuffer;
   private final TableOfContents tableOfContents;
 
-  public DexIndexPrinter(File file) throws IOException {
+  public DexIndexPrinter(File file) throws CannotReadException, CannotCloseException {
     this.dexBuffer = new DexBuffer(file);
     this.tableOfContents = dexBuffer.getTableOfContents();
   }
@@ -110,7 +111,7 @@ public final class DexIndexPrinter {
     }
   }
 
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) throws CannotReadException, CannotCloseException {
     DexIndexPrinter indexPrinter = new DexIndexPrinter(new File(args[0]));
     indexPrinter.printMap();
     indexPrinter.printStrings();

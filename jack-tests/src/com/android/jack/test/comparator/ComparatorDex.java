@@ -18,9 +18,10 @@ package com.android.jack.test.comparator;
 
 import com.android.jack.comparator.DexComparator;
 import com.android.jack.comparator.DifferenceFoundException;
+import com.android.sched.util.file.CannotCloseException;
+import com.android.sched.util.file.CannotReadException;
 
 import java.io.File;
-import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
@@ -74,7 +75,7 @@ public class ComparatorDex extends ComparatorFile {
     try {
       new DexComparator(withDebugInfo, strict, compareDebugInfoBinary, compareInstructionNumber,
           instructionNumberTolerance).compare(reference, candidate);
-    } catch (IOException e) {
+    } catch (CannotReadException | CannotCloseException e) {
       throw new ComparatorException(e);
     }
   }

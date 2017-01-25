@@ -20,13 +20,14 @@ import com.android.jack.backend.dex.DexWriter;
 import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.sched.util.file.CannotCloseException;
+import com.android.sched.util.file.CannotReadException;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Iterator;
 
 import javax.annotation.Nonnull;
@@ -49,7 +50,7 @@ public class DexTagTests {
     Assert.assertTrue(hasTag(classesDex));
   }
 
-  private boolean hasTag(@Nonnull File dexFile) throws IOException {
+  private boolean hasTag(@Nonnull File dexFile) throws CannotReadException, CannotCloseException {
     Iterator<String> stringsIt = new DexBuffer(dexFile).strings().iterator();
 
     while (stringsIt.hasNext()) {

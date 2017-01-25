@@ -19,6 +19,7 @@ package com.android.jack.experimental.incremental;
 import com.android.jack.dx.io.DexBuffer;
 import com.android.jack.test.helper.IncrementalTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.sched.util.location.FileLocation;
 
 import junit.framework.Assert;
 
@@ -56,7 +57,7 @@ public class DependenciesTest014 {
     ite.deleteJavaFile(f);
     ite.incrementalBuildFromFolder();
     try (InputStream is = new FileInputStream(ite.getDexFile())) {
-      DexBuffer db = new DexBuffer(is);
+      DexBuffer db = new DexBuffer(is, new FileLocation(ite.getDexFile()));
       for (String typeName : db.typeNames()) {
         if (typeName.equals("Ljack/incremental/B;")) {
           Assert.fail();
@@ -91,7 +92,7 @@ public class DependenciesTest014 {
     ite.incrementalBuildFromFolder();
     DexBuffer db;
     try (InputStream is = new FileInputStream(ite.getDexFile())) {
-      db = new DexBuffer(is);
+      db = new DexBuffer(is, new FileLocation(ite.getDexFile()));
     }
     for (String typeName : db.typeNames()) {
       if (typeName.equals("Ljack/incremental/B;") ||

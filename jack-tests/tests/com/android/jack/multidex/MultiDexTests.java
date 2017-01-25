@@ -41,6 +41,8 @@ import com.android.jack.test.toolchain.JillApiToolchainBase;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 import com.android.sched.util.TextUtils;
+import com.android.sched.util.file.CannotCloseException;
+import com.android.sched.util.file.CannotReadException;
 
 import junit.framework.Assert;
 
@@ -72,7 +74,7 @@ public class MultiDexTests {
     public void compare() throws DifferenceFoundException, ComparatorException {
       try {
         ListingComparator.compare(reference, getListingOfDex(candidate));
-      } catch (IOException e) {
+      } catch (IOException | CannotCloseException | CannotReadException e) {
         throw new ComparatorException(e);
       }
     }
@@ -252,7 +254,8 @@ public class MultiDexTests {
     toolchain.addProperty(PreProcessor.FILE.getName(), configFile.getAbsolutePath());
   }
 
-  private String getListingOfDex(@Nonnull File dex) throws IOException {
+  private String getListingOfDex(@Nonnull File dex)
+      throws CannotCloseException, CannotReadException {
     assert dex.isFile();
     StringBuilder sb = new StringBuilder();
     for (ClassDef def : new DexBuffer(dex).classDefs()) {

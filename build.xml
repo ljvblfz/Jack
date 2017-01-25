@@ -2086,7 +2086,7 @@
     <delete dir="${dexcomparator.dist.dir}" />
   </target>
 
-  <target name="dexcomparator-compile" depends="jack-lib, dex-lib,jsr305-lib,guava-lib,args4j-lib">
+  <target name="dexcomparator-compile" depends="jack-lib, dex-lib,jsr305-lib,guava-lib,args4j-lib,sched-lib">
     <!-- project layout -->
     <mkdir dir="${dexcomparator.build.outdir}"/>
     <mkdir dir="${dexcomparator.libs.dir}"/>
@@ -2099,6 +2099,7 @@
         <file name="${guava.dist.dir}/${guava.libname}" />
         <file name="${args4j.dist.dir}/${args4j.libname}" />
         <file name="${jack.dist.dir}/${jack.libname}" />
+	<file name="${schedlib.dist.dir}/${schedlib.libname}" />
       </filelist>
     </copy>
     <!-- compile -->

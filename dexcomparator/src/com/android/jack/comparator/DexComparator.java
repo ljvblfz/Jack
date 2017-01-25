@@ -29,6 +29,8 @@ import com.android.jack.dx.io.ProtoId;
 import com.android.jack.dx.rop.code.AccessFlags;
 import com.android.jack.dx.rop.type.Prototype;
 import com.android.jack.dx.util.ByteInput;
+import com.android.sched.util.file.CannotCloseException;
+import com.android.sched.util.file.CannotReadException;
 
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -137,8 +139,8 @@ public class DexComparator {
     enableDebugInfoComparison = compareDebugInfo;
   }
 
-  public void compare(@Nonnull File referenceFile, @Nonnull File candidateFile) throws IOException,
-      DifferenceFoundException {
+  public void compare(@Nonnull File referenceFile, @Nonnull File candidateFile)
+      throws DifferenceFoundException, CannotReadException, CannotCloseException {
 
     if (enableBinaryDebugInfoComparison && !enableDebugInfoComparison) {
       throw new IllegalArgumentException(
@@ -1050,6 +1052,12 @@ public class DexComparator {
       parser.printUsage(System.err);
       System.exit(PROBLEM);
     } catch (IOException e) {
+      System.err.println(e.getMessage());
+      System.exit(PROBLEM);
+    } catch (CannotReadException e) {
+      System.err.println(e.getMessage());
+      System.exit(PROBLEM);
+    } catch (CannotCloseException e) {
       System.err.println(e.getMessage());
       System.exit(PROBLEM);
     } catch (DifferenceFoundException e) {

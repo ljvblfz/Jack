@@ -32,6 +32,11 @@ import com.android.jack.dx.util.FileUtils;
 import com.android.jack.dx.util.Leb128Utils;
 import com.android.jack.dx.util.Mutf8;
 import com.android.jack.tools.merger.MergerTools;
+import com.android.sched.util.file.CannotCloseException;
+import com.android.sched.util.file.CannotReadException;
+import com.android.sched.util.location.FileLocation;
+import com.android.sched.util.location.Location;
+import com.android.sched.util.location.ZipLocation;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -129,8 +134,8 @@ public final class DexBuffer {
   /**
    * Creates a new dex buffer of the dex in {@code in}.
    */
-  public DexBuffer(InputStream in) throws IOException {
-    loadFrom(in);
+  public DexBuffer(@Nonnull InputStream in, @Nonnull Location location) throws CannotReadException {
+    loadFrom(in, location);
     this.internalSection = new Section(0);
     this.strings = readStrings();
     this.typeIds = readTypeIds();
@@ -144,21 +149,28 @@ public final class DexBuffer {
   /**
    * Creates a new dex buffer from the dex file {@code file}.
    */
-  public DexBuffer(File file) throws IOException {
+  public DexBuffer(File file) throws CannotReadException, CannotCloseException {
+    FileLocation fileLocation = new FileLocation(file);
     if (FileUtils.hasArchiveSuffix(file.getName())) {
       try (ZipFile zipFile = new ZipFile(file)) {
         ZipEntry entry = zipFile.getEntry(DexFormat.DEX_IN_JAR_NAME);
         if (entry != null) {
           try (InputStream is = zipFile.getInputStream(entry)) {
-            loadFrom(is);
+            loadFrom(is, new ZipLocation(fileLocation, entry));
+          } catch (IOException e) {
+            throw new CannotCloseException(new ZipLocation(fileLocation, entry), e);
           }
         } else {
           throw new DexException("Expected " + DexFormat.DEX_IN_JAR_NAME + " in " + file);
         }
+      } catch (IOException e) {
+        throw new CannotCloseException(fileLocation, e);
       }
     } else if (file.getName().endsWith(".dex")) {
       try (InputStream is = new FileInputStream(file)) {
-        loadFrom(is);
+        loadFrom(is, fileLocation);
+      } catch (IOException e) {
+        throw new CannotCloseException(fileLocation, e);
       }
     } else {
       throw new DexException("unknown output extension: " + file);
@@ -255,13 +267,18 @@ public final class DexBuffer {
     return Arrays.asList(result);
   }
 
-  private void loadFrom(InputStream in) throws IOException {
+  private void loadFrom(@Nonnull InputStream in, @Nonnull Location location)
+      throws CannotReadException {
     ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
     byte[] buffer = new byte[8192];
 
-    int count;
-    while ((count = in.read(buffer)) != -1) {
-      bytesOut.write(buffer, 0, count);
+    try {
+      int count;
+      while ((count = in.read(buffer)) != -1) {
+        bytesOut.write(buffer, 0, count);
+      }
+    } catch (IOException e) {
+      throw new CannotReadException(location, e);
     }
 
     this.data = bytesOut.toByteArray();
