@@ -17,7 +17,6 @@ package com.android.jack.ir.ast;
 
 
 import com.android.jack.Jack;
-import com.android.jack.debug.DebugVariableInfoMarker;
 import com.android.jack.ir.StringInterner;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.sourceinfo.SourceInfo;
@@ -39,11 +38,6 @@ import javax.annotation.Nonnull;
 public abstract class JVariable extends JNode implements HasName, CanBeSetFinal,
     CanBeRenamed, HasType, Annotable {
 
-  /**
-   * Name of JParameter is either the name coming from the source code, either the name coming from
-   * Jill through the parameter name information. It is not the name from debug informations. Debug
-   * informations when coming from Jill are put into {@link DebugVariableInfoMarker}.
-   */
   @CheckForNull
   private String name;
   @Nonnull
@@ -114,10 +108,6 @@ public abstract class JVariable extends JNode implements HasName, CanBeSetFinal,
 
   public void setCapturedVariable() {
     modifier |= JModifier.CAPTURED_VARIABLE;
-  }
-
-  public void setModifier(int modifier) {
-    this.modifier = modifier;
   }
 
   @Override

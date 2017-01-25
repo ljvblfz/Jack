@@ -197,7 +197,7 @@ public class WrapperMarker implements Marker {
       } else if (!method.isStatic()){
         JParameter thisParam =
             new JParameter(sourceInfo, InnerAccessorGenerator.THIS_PARAM_NAME, accessorClass,
-                JModifier.DEFAULT, wrapper);
+                JModifier.FINAL | JModifier.SYNTHETIC, wrapper);
         wrapper.addParam(thisParam);
         id.addParam(accessorClass);
         instance = thisParam.makeRef(sourceInfo);
@@ -209,9 +209,8 @@ public class WrapperMarker implements Marker {
               calledMethodId.getMethodIdWide().canBeVirtual() && !isSuper /* isVirtualDispatch */);
       for (JParameter param : method.getParams()) {
         JType paramType = param.getType();
-        // Do not propagate modifier from called method to the wrapper method
         JParameter newParam = new JParameter(sourceInfo, param.getName(), paramType,
-            JModifier.DEFAULT, wrapper);
+            param.getModifier(), wrapper);
         wrapper.addParam(newParam);
         id.addParam(paramType);
         methodCall.addArg(newParam.makeRef(sourceInfo));
@@ -221,7 +220,7 @@ public class WrapperMarker implements Marker {
         while (constructorExists((JConstructor) wrapper, accessorClass)) {
           JParameter newParam = new JParameter(
               sourceInfo, InnerAccessorGenerator.THIS_PARAM_NAME + wrapper.getParams().size(),
-              accessorClass, JModifier.DEFAULT, wrapper);
+              accessorClass, JModifier.SYNTHETIC, wrapper);
           wrapper.addParam(newParam);
           id.addParam(accessorClass);
         }

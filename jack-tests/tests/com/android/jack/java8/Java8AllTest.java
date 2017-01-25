@@ -46,10 +46,7 @@ import org.junit.runners.Suite.SuiteClasses;
     LambdaTest.class,
     MethodRefTest.class,
     TypeInferenceTest.class,
-    VariableTest.class,
-
-    // O test
-    ParameterNameTest.class
+    VariableTest.class
   }
 )
 public class Java8AllTest {}

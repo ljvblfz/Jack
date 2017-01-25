@@ -16,7 +16,6 @@
 
 package com.android.jack.jayce.v0004.nodes;
 
-import com.android.jack.debug.DebugVariableInfoMarker;
 import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JLocalUnresolved;
 import com.android.jack.jayce.linker.VariableRefLinker;
@@ -25,7 +24,6 @@ import com.android.jack.jayce.v0004.io.ImportHelper;
 import com.android.jack.jayce.v0004.io.JayceInternalReaderImpl;
 import com.android.jack.jayce.v0004.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0004.io.Token;
-import com.android.sched.marker.Marker;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -64,11 +62,8 @@ public class NLocalRef extends NExpression {
     JLocalRef jLocalRef = JLocalUnresolved.INSTANCE.makeRef(sourceInfo);
     exportSession.getVariableResolver().addLink(localId, new VariableRefLinker(jLocalRef));
 
-    for (NMarker nmarker : markers) {
-      Marker marker = nmarker.exportAsJast(exportSession);
-      assert !(marker instanceof DebugVariableInfoMarker)
-          || marker != DebugVariableInfoMarker.NO_DEBUG_INFO;
-      jLocalRef.addMarker(marker);
+    for (NMarker marker : markers) {
+      jLocalRef.addMarker(marker.exportAsJast(exportSession));
     }
 
     return jLocalRef;

@@ -90,6 +90,7 @@ public class NParameter extends NVariable implements ParameterNode {
       @Nonnull JayceMethodLoader enclosingMethodLoader) throws JTypeLookupException {
     assert sourceInfo != null;
     assert type != null;
+    assert name != null;
     JParameter jParameter = new JParameter(
         sourceInfo,
         name,

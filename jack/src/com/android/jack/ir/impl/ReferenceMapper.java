@@ -279,16 +279,14 @@ public class ReferenceMapper {
         // Enums have hidden arguments for name and value
         createParameter(info, method, "enum$name",
             lookupEnvironment.getType(TypeConstants.JAVA_LANG_STRING),
-            JModifier.SYNTHETIC | JModifier.NAME_PRESENT);
+            JModifier.FINAL | JModifier.SYNTHETIC);
         createParameter(info, method, "enum$ordinal", TypeBinding.INT,
-            JModifier.SYNTHETIC | JModifier.NAME_PRESENT);
+            JModifier.FINAL | JModifier.SYNTHETIC);
       }
       // add synthetic args for outer this
       if (isNested) {
         NestedTypeBinding nestedBinding = (NestedTypeBinding) declaringClass;
-        createParameters(nestedBinding.enclosingInstances, info, method, alreadyNamedVariables,
-            /* forceToImplicit= */ !nestedBinding.isAnonymousType()
-                || !nestedBinding.superclass().isLocalType());
+        createParameters(nestedBinding.enclosingInstances, info, method, alreadyNamedVariables);
       }
     } else {
       JType returnType = get(b.returnType);
@@ -320,8 +318,7 @@ public class ReferenceMapper {
         // add synthetic args for locals
         NestedTypeBinding nestedBinding = (NestedTypeBinding) declaringClass;
         // add synthetic args for outer this and locals
-        createParameters(nestedBinding.outerLocalVariables, info, method, alreadyNamedVariables,
-            /* forceToImplicit= */ false);
+        createParameters(nestedBinding.outerLocalVariables, info, method, alreadyNamedVariables);
       }
     }
 
@@ -367,8 +364,7 @@ public class ReferenceMapper {
 
   private void createParameters(@CheckForNull SyntheticArgumentBinding[] sab,
       @Nonnull SourceInfo info, @Nonnull JMethod method,
-      @Nonnull Set<String> alreadyNamedVariables,
-      boolean forceToImplicit) {
+      @Nonnull Set<String> alreadyNamedVariables) {
     if (sab != null) {
       for (int i = 0; i < sab.length; ++i) {
         SyntheticArgumentBinding arg = sab[i];
@@ -376,9 +372,7 @@ public class ReferenceMapper {
         if (alreadyNamedVariables.contains(argName)) {
           argName += "_" + i;
         }
-        createParameter(info, method, argName, arg.type,
-            getFinalModifier(arg) | (forceToImplicit ? JModifier.IMPLICIT : JModifier.SYNTHETIC)
-                | JModifier.NAME_PRESENT);
+        createParameter(info, method, argName, arg.type, getModifier(arg));
         alreadyNamedVariables.add(argName);
       }
     }
@@ -390,13 +384,12 @@ public class ReferenceMapper {
       for (Argument argument : x.arguments) {
         SourceInfo info = makeSourceInfo(cuInfo, argument, sourceInfoFactory);
         LocalVariableBinding binding = argument.binding;
-        createParameter(info, method, intern(binding.name), binding.type,
-            getFinalModifier(binding) | JModifier.NAME_PRESENT);
+        createParameter(info, method, intern(binding.name), binding.type, getModifier(binding));
       }
     }
   }
 
-  private int getFinalModifier(@Nonnull LocalVariableBinding lvBinding) {
+  private int getModifier(@Nonnull LocalVariableBinding lvBinding) {
     return lvBinding.isFinal() ? JModifier.FINAL : JModifier.DEFAULT;
   }
 

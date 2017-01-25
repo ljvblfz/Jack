@@ -450,7 +450,7 @@ public enum Token {
       return new NContinueStatement();
     }
   },
-  DEBUG_VARIABLE_INFORMATION("debug-var", NodeLevel.STRUCTURE) {
+  DEBUG_VARIABLE_INFORMATION("debug-var") {
     @Nonnull
     @Override
     public NNode newNode() {

@@ -116,7 +116,7 @@ public class VisibilityBridgeAdder implements RunnableSchedulable<JDefinedClassO
     CloneExpressionVisitor cloner = new CloneExpressionVisitor();
     for (JParameter param : method.getParams()) {
       JParameter bridgeParam = new JParameter(sourceInfo, param.getName(), param.getType(),
-          param.getModifier() | JModifier.SYNTHETIC, bridge);
+          param.getModifier(), bridge);
       for (JAnnotation annotation : param.getAnnotations()) {
         bridgeParam.addAnnotation(cloner.cloneExpression(annotation));
       }

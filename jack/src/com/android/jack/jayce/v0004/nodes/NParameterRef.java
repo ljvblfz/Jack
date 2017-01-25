@@ -26,8 +26,6 @@ import com.android.jack.jayce.v0004.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0004.io.Token;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -43,15 +41,11 @@ public class NParameterRef extends NExpression {
   @CheckForNull
   public String localId;
 
-  @Nonnull
-  public List<NMarker> markers = Collections.emptyList();
-
   @Override
   public void importFromJast(@Nonnull ImportHelper loader, @Nonnull Object node) {
     JParameterRef jRef = (JParameterRef) node;
     localId = loader.getVariableSymbols().getId(jRef.getParameter());
     sourceInfo = jRef.getSourceInfo();
-    markers = loader.load(NMarker.class, jRef.getAllMarkers());
   }
 
   @Override
@@ -61,22 +55,17 @@ public class NParameterRef extends NExpression {
     assert localId != null;
     JParameterRef jRef = JParameterUnresolved.INSTANCE.makeRef(sourceInfo);
     exportSession.getVariableResolver().addLink(localId, new VariableRefLinker(jRef));
-    for (NMarker marker : markers) {
-      jRef.addMarker(marker.exportAsJast(exportSession));
-    }
     return jRef;
   }
 
   @Override
   public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
     out.writeId(localId);
-    out.writeNodes(markers);
   }
 
   @Override
   public void readContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
     localId = in.readId();
-    markers = in.readNodes(NMarker.class);
   }
 
   @Override
