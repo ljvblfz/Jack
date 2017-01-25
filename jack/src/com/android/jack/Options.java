@@ -783,6 +783,12 @@ public class Options {
           .setSeparator(",")
           .ensureUnicity();
 
+  @Nonnull
+  public static final BooleanPropertyId FORCE_PLAN_AMENDER = BooleanPropertyId
+      .create("jack.plan-amender.force", "Force plan amender")
+      .addDefaultValue(false)
+      .addCategory(Private.class);
+
   public void ensurePluginManager()
       throws IllegalOptionsException {
     if (pluginManager == null) {

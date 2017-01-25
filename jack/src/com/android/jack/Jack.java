@@ -834,7 +834,8 @@ public abstract class Jack {
             }
           } catch (UnsupportedOperationException e) {
             // ... but use a manual one if not supported
-            if (pluginManager.hasPlugins()) {
+            if (pluginManager.hasPlugins() ||
+                config.get(Options.FORCE_PLAN_AMENDER).booleanValue()) {
               // If there are some plugins, amend the handcrafted plan
 
               // Add features and productions according to plugins
