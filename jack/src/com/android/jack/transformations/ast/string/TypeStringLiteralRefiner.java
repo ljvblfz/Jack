@@ -40,7 +40,7 @@ public class TypeStringLiteralRefiner implements RunnableSchedulable<JDefinedCla
   public void run(@Nonnull JDefinedClassOrInterface type) {
     TransformationRequest tr = new TransformationRequest(type);
     StringLiteralRefinerVisitor visitor = new StringLiteralRefinerVisitor(tr);
-    visitor.accept(type);
+    visitor.accept(type.getAnnotations());
     tr.commit();
   }
 
