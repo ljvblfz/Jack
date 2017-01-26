@@ -28,8 +28,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.zip.Deflater;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipOutputStream;
 
 import javax.annotation.CheckForNull;
@@ -121,13 +119,12 @@ public class OutputZipFile extends OutputStreamFile {
   }
 
   /**
-   * A {@link ZipOutputStream} that is not directly closed to avoid getting a {@link ZipException}
-   * when the zip has no entry (with a JRE 6) and implements {@link QueryableStream}.
+   * A {@link ZipOutputStream} that is created with a {@link Compression} and implements
+   * {@link QueryableStream}.
    */
   private static class CustomZipOutputStream extends ZipOutputStream implements QueryableStream {
 
-    private boolean hasEntries = false;
-    private boolean isClosed = false;
+    private boolean closed = false;
 
     public CustomZipOutputStream(@Nonnull OutputStream out, @Nonnull Compression compression) {
       super(out);
@@ -145,24 +142,14 @@ public class OutputZipFile extends OutputStreamFile {
     }
 
     @Override
-    public void putNextEntry(@Nonnull ZipEntry e) throws IOException {
-      hasEntries = true;
-      super.putNextEntry(e);
-    }
-
-    @Override
     public synchronized void close() throws IOException {
-      if (hasEntries) {
-        super.close();
-      } else {
-        out.close();
-      }
-      isClosed = true;
+      super.close();
+      closed = true;
     }
 
     @Override
     public synchronized boolean isClosed() {
-      return isClosed;
+      return closed;
     }
   }
 }
