@@ -74,7 +74,9 @@ import com.android.jack.backend.dex.MultiDexLegacy;
 import com.android.jack.backend.dex.MultiDexWritingTool;
 import com.android.jack.backend.dex.OrphanDexFileWriter;
 import com.android.jack.backend.dex.annotations.DefaultValueAnnotationAdder;
+import com.android.jack.backend.dex.annotations.ParameterMetadataAnnotationsAdder;
 import com.android.jack.backend.dex.annotations.ReflectAnnotationsAdder;
+import com.android.jack.backend.dex.annotations.tag.ParameterMetadataFeature;
 import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
 import com.android.jack.backend.dex.compatibility.CheckAndroidCompatibility;
 import com.android.jack.backend.dex.multidex.legacy.AnnotatedFinder;
@@ -756,6 +758,10 @@ public abstract class Jack {
 
           if (config.get(TypeDefRemover.REMOVE_TYPEDEF).booleanValue()) {
             request.addFeature(TypeDefRemover.RemoveTypeDef.class);
+          }
+
+          if (config.get(ParameterMetadataAnnotationsAdder.PARAMETER_ANNOTATION).booleanValue()) {
+            request.addFeature(ParameterMetadataFeature.class);
           }
 
           List<InputLibrary> importedLibraries = session.getImportedLibraries();
@@ -1756,6 +1762,9 @@ public abstract class Jack {
         methodPlan5.append(CfgMarkerRemover.class);
         methodPlan5.append(EncodedMethodBuilder.class);
         methodPlan5.append(DexCodeMarkerRemover.class);
+        if (features.contains(ParameterMetadataFeature.class)) {
+          methodPlan5.append(ParameterMetadataAnnotationsAdder.class);
+        }
         methodPlan5.append(MethodAnnotationBuilder.class);
         if (features.contains(DropMethodBody.class)) {
           methodPlan5.append(MethodBodyRemover.class);

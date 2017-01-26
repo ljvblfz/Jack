@@ -16,6 +16,7 @@
 
 package com.android.jill.frontend.java;
 
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import javax.annotation.CheckForNull;
@@ -38,25 +39,25 @@ public class Variable {
   @CheckForNull
   private final String signature;
 
-  @Nonnull
+  @CheckForNull
   private String name;
 
   private boolean isThis;
 
   private boolean isParameter;
 
-  private final boolean isSynthetic;
+  private final int modifier;
 
   /* Index of local variable, -1 means the variable does not represent a local variable. */
   private final int localIdx;
 
-  public Variable(@Nonnull String id, @Nonnull String name, @Nonnull Type type,
+  public Variable(@Nonnull String id, @CheckForNull String name, @Nonnull Type type,
       @CheckForNull String signature) {
-    this(id, name, type, signature, NO_LOCAL_IDX, true);
+    this(id, name, type, signature, NO_LOCAL_IDX, Opcodes.ACC_SYNTHETIC);
   }
 
-  public Variable(@Nonnull String id, @Nonnull String name, @Nonnull Type type,
-      @CheckForNull String signature, int localIdx, boolean isSynthetic) {
+  public Variable(@Nonnull String id, @CheckForNull String name, @Nonnull Type type,
+      @CheckForNull String signature, int localIdx, int modifier) {
     this.id = id;
     this.name = name;
     this.type = type;
@@ -64,7 +65,7 @@ public class Variable {
     this.localIdx = localIdx;
     isThis = false;
     isParameter = false;
-    this.isSynthetic = isSynthetic;
+    this.modifier = modifier;
   }
 
   public boolean hasLocalIndex() {
@@ -96,7 +97,7 @@ public class Variable {
     return signature;
   }
 
-  @Nonnull
+  @CheckForNull
   public String getName() {
     return name;
   }
@@ -122,7 +123,7 @@ public class Variable {
     this.isParameter = true;
   }
 
-  public boolean isSynthetic() {
-    return isSynthetic;
+  public int getModifier() {
+    return modifier;
   }
 }

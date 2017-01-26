@@ -68,6 +68,7 @@ project(':jack-tests') {
               exclude "com/android/jack/java8/annotation/**"
               exclude "com/android/jack/java8/variable/**"
               exclude "com/android/jack/java8/bridges/**"
+              exclude "com/android/jack/java8/parameter/**"
               exclude "com/android/jack/jarjar/test003/dontcompile/**"
               exclude "com/android/jack/jarjar/test004/dontcompile/**"
               exclude "com/android/jack/jarjar/test006/dontcompile/**"

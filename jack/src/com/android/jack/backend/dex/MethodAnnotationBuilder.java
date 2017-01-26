@@ -17,6 +17,8 @@
 package com.android.jack.backend.dex;
 
 import com.android.jack.Options;
+import com.android.jack.backend.dex.annotations.tag.ParameterMetadataAnnotation;
+import com.android.jack.backend.dex.annotations.tag.ParameterMetadataFeature;
 import com.android.jack.backend.dex.rop.RopHelper;
 import com.android.jack.dx.dex.file.ClassDefItem;
 import com.android.jack.dx.rop.annotation.Annotations;
@@ -51,8 +53,10 @@ import javax.annotation.Nonnull;
 @Constraint(need = {ClassDefItemMarker.class, ClassDefItemMarker.Method.class})
 @Transform(add = ClassDefItemMarker.MethodAnnotation.class, modify = ClassDefItemMarker.class)
 @Use(AnnotationBuilder.class)
-@Optional(@ToSupport(feature = SourceVersion8.class,
-    add = @Constraint(no = JAnnotation.RepeatedAnnotation.class)))
+@Optional({@ToSupport(feature = SourceVersion8.class,
+               add = @Constraint(no = JAnnotation.RepeatedAnnotation.class)),
+           @ToSupport(feature = ParameterMetadataFeature.class,
+               add = @Constraint(need = ParameterMetadataAnnotation.class))})
 @Filter(TypeWithoutValidTypePrebuilt.class)
 public class MethodAnnotationBuilder implements RunnableSchedulable<JMethod> {
 

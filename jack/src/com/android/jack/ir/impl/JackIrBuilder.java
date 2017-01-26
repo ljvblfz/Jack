@@ -3145,18 +3145,22 @@ public class JackIrBuilder {
       JMethod implMethod = getTypeMap().get(jdtBridgeMethod.targetMethod);
       SourceInfo info = implMethod.getSourceInfo();
       String[] paramNames = null;
+      int [] modifiers = null;
       List<JParameter> implParams = implMethod.getParams();
       if (jdtBridgeMethod.parameters != null) {
         int paramCount = implParams.size();
         assert paramCount == jdtBridgeMethod.parameters.length;
         paramNames = new String[paramCount];
+        modifiers = new int[paramCount];
         for (int i = 0; i < paramCount; ++i) {
           paramNames[i] = implParams.get(i).getName();
+          modifiers[i] = JModifier.SYNTHETIC | JModifier.NAME_PRESENT;
         }
       }
       // bridge methods should not be flagged as VARARGS
       jdtBridgeMethod.modifiers &= ~JModifier.VARARGS;
-      JMethod bridgeMethod = createSyntheticMethodFromBinding(info, jdtBridgeMethod, paramNames);
+      JMethod bridgeMethod =
+          createSyntheticMethodFromBinding(info, jdtBridgeMethod, paramNames, modifiers);
 
       // We can't complete the bridge yet with annotations because target annotations may not be
       // created yet, so lets delay their completion for the end the conversion from ecj model to
@@ -4507,12 +4511,15 @@ public class JackIrBuilder {
               binding.getExactMethod(VALUE_OF, new TypeBinding[]{x.scope.getJavaLangString()},
                   curCud.scope);
           assert valueOfBinding != null;
-          createSyntheticMethodFromBinding(info, valueOfBinding, new String[]{"name"});
+          // valueOf method of an enum is implicitly declared, consequently, their parameters are
+          // implicitly declared.
+          createSyntheticMethodFromBinding(info, valueOfBinding, new String[] {"name"},
+              new int[] {JModifier.IMPLICIT | JModifier.NAME_PRESENT});
         }
         {
           MethodBinding valuesBinding = binding.getExactMethod(VALUES, NO_TYPES, curCud.scope);
           assert valuesBinding != null;
-          createSyntheticMethodFromBinding(info, valuesBinding, null);
+          createSyntheticMethodFromBinding(info, valuesBinding, null, null);
         }
       }
 
@@ -4584,8 +4591,9 @@ public class JackIrBuilder {
 
   @Nonnull
   private JMethod createSyntheticMethodFromBinding(@Nonnull SourceInfo info,
-      @Nonnull MethodBinding binding, @CheckForNull String[] paramNames)
-      throws JTypeLookupException {
+      @Nonnull MethodBinding binding, @CheckForNull String[] paramNames,
+      @CheckForNull int[] paramModifier) throws JTypeLookupException {
+    assert paramNames == null || paramModifier == null || paramModifier.length == paramNames.length;
     JMethod method = getTypeMap().get(binding);
     method.setSourceInfo(info);
     int i = 0;
@@ -4593,8 +4601,11 @@ public class JackIrBuilder {
       param.setSourceInfo(info);
       if (paramNames != null) {
         param.setName(paramNames[i]);
-        i++;
       }
+      if (paramModifier != null) {
+        param.setModifier(paramModifier[i]);
+      }
+      i++;
     }
     method.setBody(new JMethodBody(info, new JBlock(info)));
     return method;

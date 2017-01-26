@@ -57,17 +57,18 @@ public class NDebugVariableInfo extends NMarker {
   @Override
   @Nonnull
   public DebugVariableInfoMarker exportAsJast(@Nonnull ExportSession exportSession) {
+    if (name == null && type == null) {
+      return DebugVariableInfoMarker.NO_DEBUG_INFO;
+    }
+
     assert name != null;
     assert type != null;
-
     return new DebugVariableInfoMarker(name, exportSession.getLookup().getType(type),
         genericSignature);
   }
 
   @Override
   public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    assert name != null;
-    assert type != null;
     out.writeString(name);
     out.writeId(type);
     out.writeString(genericSignature);
