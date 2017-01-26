@@ -34,7 +34,7 @@ public class GenericOutputVFS extends AbstractVFS implements OutputVFS {
 
   @Override
   @Nonnull
-  public OutputVDir getRootOutputVDir() {
+  public OutputVDir getRootDir() {
     return new GenericOutputVDir(vfs.getRootDir());
   }
 

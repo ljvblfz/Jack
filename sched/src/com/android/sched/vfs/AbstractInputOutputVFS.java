@@ -32,23 +32,7 @@ public abstract class AbstractInputOutputVFS extends AbstractVFS implements Inpu
 
   @Override
   @Nonnull
-  public InputOutputVDir getRootInputOutputVDir() {
-    assert root != null;
-
-    return root;
-  }
-
-  @Override
-  @Nonnull
-  public InputVDir getRootInputVDir() {
-    assert root != null;
-
-    return root;
-  }
-
-  @Override
-  @Nonnull
-  public OutputVDir getRootOutputVDir() {
+  public InputOutputVDir getRootDir() {
     assert root != null;
 
     return root;

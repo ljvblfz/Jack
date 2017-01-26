@@ -212,7 +212,7 @@ public class JavaTransformer {
       @SuppressWarnings("resource")
       OutputVFS goVFS = new GenericOutputVFS(baseVFS);
       OutputVFile libraryPropertiesOut =
-          goVFS.getRootOutputVDir().createOutputVFile(new VPath(JACK_LIBRARY_PROPERTIES, '/'));
+          goVFS.getRootDir().createOutputVFile(new VPath(JACK_LIBRARY_PROPERTIES, '/'));
       try (OutputStream os = libraryPropertiesOut.getOutputStream()) {
         jackLibraryProperties.store(os, "Library Properties");
       } catch (IOException e) {
@@ -244,7 +244,7 @@ public class JavaTransformer {
     ClassNode cn = getClassNode(is);
     VPath outputPath = getVPath(cn.name);
     try {
-      OutputVFile vFile = outputVFS.getRootOutputVDir().createOutputVFile(outputPath);
+      OutputVFile vFile = outputVFS.getRootDir().createOutputVFile(outputPath);
       try (OutputStream os = vFile.getOutputStream()) {
         transform(cn, os, vFile.getLocation());
       } catch (IOException e) {

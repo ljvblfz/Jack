@@ -251,7 +251,7 @@ public class VFSTest {
       checkFileLocations(ioVFS1);
       testInputVFS(ioVFS1);
       InputVFile fileAAB1 =
-          ioVFS1.getRootInputVDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
+          ioVFS1.getRootDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
       String fileAAB1digest = ((GenericInputVFile) fileAAB1).getDigest();
       Assert.assertNotNull(fileAAB1digest);
       String vfsDigest = ioVFS1.getDigest();
@@ -265,7 +265,7 @@ public class VFSTest {
       checkFileLocations(ioVFS2);
 
       InputVFile fileAAB1b =
-          ioVFS2.getRootInputVDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
+          ioVFS2.getRootDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
       String fileAAB1digest2 = ((GenericInputVFile) fileAAB1b).getDigest();
       Assert.assertEquals(fileAAB1digest, fileAAB1digest2);
       String vfsDigest2 = ioVFS2.getDigest();
@@ -311,7 +311,7 @@ public class VFSTest {
       testDelete(ioVFS1);
       testInputVFS(ioVFS1);
       InputVFile fileAAB1 =
-          ioVFS1.getRootInputVDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
+          ioVFS1.getRootDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
       String fileAAB1digest = ((GenericInputVFile) fileAAB1).getDigest();
       Assert.assertNotNull(fileAAB1digest);
       String vfsDigest = ioVFS1.getDigest();
@@ -325,7 +325,7 @@ public class VFSTest {
       testInputVFS(ioVFS2);
 
       InputVFile fileAAB1b =
-          ioVFS2.getRootInputVDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
+          ioVFS2.getRootDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
       String fileAAB1digest2 = ((GenericInputVFile) fileAAB1b).getDigest();
       Assert.assertEquals(fileAAB1digest, fileAAB1digest2);
       String vfsDigest2 = ioVFS2.getDigest();
@@ -418,7 +418,7 @@ public class VFSTest {
       checkFileLocations(ioVFS1);
       testInputVFS(ioVFS1);
       InputVFile fileAAB1 =
-          ioVFS1.getRootInputVDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
+          ioVFS1.getRootDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
       String fileAAB1digest = ((GenericInputVFile) fileAAB1).getDigest();
       Assert.assertNotNull(fileAAB1digest);
       String vfsDigest = ioVFS1.getDigest();
@@ -433,7 +433,7 @@ public class VFSTest {
       checkFileLocations(ioVFS2);
 
       InputVFile fileAAB1b =
-          ioVFS2.getRootInputVDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
+          ioVFS2.getRootDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
       String fileAAB1digest2 = ((GenericInputVFile) fileAAB1b).getDigest();
       Assert.assertEquals(fileAAB1digest, fileAAB1digest2);
       String vfsDigest2 = ioVFS2.getDigest();
@@ -687,24 +687,24 @@ public class VFSTest {
 
       // write new stuff to UnionVFS
       InputOutputVFS outputUnionVFS = new GenericInputOutputVFS(unionVFS);
-      OutputVFile fileBA2 = outputUnionVFS.getRootOutputVDir().createOutputVFile(
+      OutputVFile fileBA2 = outputUnionVFS.getRootDir().createOutputVFile(
           new VPath("dirB/dirBA/fileBA2", '/'));
       writeToFile(fileBA2, "dirB/dirBA/fileBA2");
       InputOutputVDir dirA =
-          outputUnionVFS.getRootInputOutputVDir().getInputVDir(new VPath("dirA", '/'));
+          outputUnionVFS.getRootDir().getInputVDir(new VPath("dirA", '/'));
       InputOutputVDir dirAA = dirA.getInputVDir(new VPath("dirAA", '/'));
       InputOutputVDir dirAAB = (InputOutputVDir) dirAA.createOutputVDir(new VPath("dirAAB", '/'));
       OutputVFile fileAAB2 = dirAAB.createOutputVFile(new VPath("fileAAB2", '/'));
       writeToFile(fileAAB2, "dirA/dirAA/dirAAB/fileAAB2");
       InputOutputVDir dirC =
-          outputUnionVFS.getRootInputOutputVDir().getInputVDir(new VPath("dirC", '/'));
+          outputUnionVFS.getRootDir().getInputVDir(new VPath("dirC", '/'));
       // write on top of an already existing file
       OutputVFile fileC1 = dirC.getInputVFile(new VPath("fileC1", '/'));
       writeToFile(fileC1, "dirC/fileC1v2");
 
       // try deleting some old stuff from zip (which is not yet supported)
       try {
-        outputUnionVFS.getRootInputOutputVDir().getInputVFile(new VPath("dirB/dirBB/fileBB1", '/'))
+        outputUnionVFS.getRootDir().getInputVFile(new VPath("dirB/dirBB/fileBB1", '/'))
             .delete();
         Assert.fail();
       } catch (UnionVFSReadOnlyException e) {
@@ -713,12 +713,12 @@ public class VFSTest {
 
       // read new stuff
       InputVFS inputUnionVFS = new GenericInputVFS(unionVFS);
-      InputVFile readFileC1 = inputUnionVFS.getRootInputVDir().getInputVFile(
+      InputVFile readFileC1 = inputUnionVFS.getRootDir().getInputVFile(
           new VPath("dirC/fileC1", '/'));
       Assert.assertEquals("dirC/fileC1v2", readFromFile(readFileC1));
       Assert.assertTrue(
           readFileC1.getPathFromRoot().equals(new VPath("dirC/fileC1", '/')));
-      InputVDir readDirA = inputUnionVFS.getRootInputVDir().getInputVDir(new VPath("dirA", '/'));
+      InputVDir readDirA = inputUnionVFS.getRootDir().getInputVDir(new VPath("dirA", '/'));
       InputVDir readDirAA = readDirA.getInputVDir(new VPath("dirAA", '/'));
       InputVDir readDirAAB = readDirAA.getInputVDir(new VPath("dirAAB", '/'));
       InputVFile readFileAAB2 = readDirAAB.getInputVFile(new VPath("fileAAB2", '/'));
@@ -737,12 +737,12 @@ public class VFSTest {
 
       // try to delete a file that is in the dir and the zip, then check that the one from the zip
       // remains
-      inputUnionVFS.getRootInputVDir().getInputVFile(new VPath("dirC/fileC1", '/')).delete();
+      inputUnionVFS.getRootDir().getInputVFile(new VPath("dirC/fileC1", '/')).delete();
       Assert.assertEquals("dirC/fileC1", readFromFile(
-          inputUnionVFS.getRootInputVDir().getInputVFile(new VPath("dirC/fileC1", '/'))));
+          inputUnionVFS.getRootDir().getInputVFile(new VPath("dirC/fileC1", '/'))));
 
       // list contents of "dirB/dirBA", which has files in the dir and in the zip
-      InputVDir dirBA = inputUnionVFS.getRootInputVDir().getInputVDir(new VPath("dirB/dirBA", '/'));
+      InputVDir dirBA = inputUnionVFS.getRootDir().getInputVDir(new VPath("dirB/dirBA", '/'));
       Collection<? extends InputVElement> dirBAList = dirBA.list();
       Assert.assertEquals(2, dirBAList.size());
       for (InputVElement subElement : dirBAList) {
@@ -828,24 +828,24 @@ public class VFSTest {
 
       // write new stuff to R/W output zip
       InputOutputVFS ioVFS = new GenericInputOutputVFS(prefixedFS);
-      OutputVFile fileBA2 = ioVFS.getRootOutputVDir().createOutputVFile(
+      OutputVFile fileBA2 = ioVFS.getRootDir().createOutputVFile(
           new VPath("dirB/dirBA/fileBA2", '/'));
       writeToFile(fileBA2, "dirB/dirBA/fileBA2");
       InputOutputVDir dirA =
-          ioVFS.getRootInputOutputVDir().getInputVDir(new VPath("dirA", '/'));
+          ioVFS.getRootDir().getInputVDir(new VPath("dirA", '/'));
       InputOutputVDir dirAA = dirA.getInputVDir(new VPath("dirAA", '/'));
       InputOutputVDir dirAAB = (InputOutputVDir) dirAA.createOutputVDir(new VPath("dirAAB", '/'));
       OutputVFile fileAAB2 = dirAAB.createOutputVFile(new VPath("fileAAB2", '/'));
       writeToFile(fileAAB2, "dirA/dirAA/dirAAB/fileAAB2");
       InputOutputVDir dirC =
-          ioVFS.getRootInputOutputVDir().getInputVDir(new VPath("dirC", '/'));
+          ioVFS.getRootDir().getInputVDir(new VPath("dirC", '/'));
       // write on top of an already existing file
       OutputVFile fileC1 = dirC.getInputVFile(new VPath("fileC1", '/'));
       writeToFile(fileC1, "dirC/fileC1v2");
 
       // try deleting some old stuff from zip (which is not yet supported)
       try {
-        ioVFS.getRootInputOutputVDir().getInputVFile(new VPath("dirB/dirBB/fileBB1", '/'))
+        ioVFS.getRootDir().getInputVFile(new VPath("dirB/dirBB/fileBB1", '/'))
             .delete();
         Assert.fail();
       } catch (UnionVFSReadOnlyException e) {
@@ -854,12 +854,12 @@ public class VFSTest {
 
       // read new stuff
       InputVFS inputVFS = new GenericInputVFS(prefixedFS);
-      InputVFile readFileC1 = inputVFS.getRootInputVDir().getInputVFile(
+      InputVFile readFileC1 = inputVFS.getRootDir().getInputVFile(
           new VPath("dirC/fileC1", '/'));
       Assert.assertEquals("dirC/fileC1v2", readFromFile(readFileC1));
       Assert.assertTrue(
           readFileC1.getPathFromRoot().equals(new VPath("dirC/fileC1", '/')));
-      InputVDir readDirA = inputVFS.getRootInputVDir().getInputVDir(new VPath("dirA", '/'));
+      InputVDir readDirA = inputVFS.getRootDir().getInputVDir(new VPath("dirA", '/'));
       InputVDir readDirAA = readDirA.getInputVDir(new VPath("dirAA", '/'));
       InputVDir readDirAAB = readDirAA.getInputVDir(new VPath("dirAAB", '/'));
       InputVFile readFileAAB2 = readDirAAB.getInputVFile(new VPath("fileAAB2", '/'));
@@ -878,12 +878,12 @@ public class VFSTest {
 
       // try to delete a file that is in the dir and the zip, then check that the one from the zip
       // remains
-      inputVFS.getRootInputVDir().getInputVFile(new VPath("dirC/fileC1", '/')).delete();
+      inputVFS.getRootDir().getInputVFile(new VPath("dirC/fileC1", '/')).delete();
       Assert.assertEquals("dirC/fileC1", readFromFile(
-          inputVFS.getRootInputVDir().getInputVFile(new VPath("dirC/fileC1", '/'))));
+          inputVFS.getRootDir().getInputVFile(new VPath("dirC/fileC1", '/'))));
 
       // list contents of "dirB/dirBA", which has files in the dir and in the zip
-      InputVDir dirBA = inputVFS.getRootInputVDir().getInputVDir(new VPath("dirB/dirBA", '/'));
+      InputVDir dirBA = inputVFS.getRootDir().getInputVDir(new VPath("dirB/dirBA", '/'));
       Collection<? extends InputVElement> dirBAList = dirBA.list();
       Assert.assertEquals(2, dirBAList.size());
       for (InputVElement subElement : dirBAList) {
@@ -922,27 +922,27 @@ public class VFSTest {
       CannotCreateFileException, IOException, WrongPermissionException {
 
     // create stuff from root dir
-    InputOutputVDir dirA = (InputOutputVDir) outputVFS.getRootInputOutputVDir().createOutputVDir(
+    InputOutputVDir dirA = (InputOutputVDir) outputVFS.getRootDir().createOutputVDir(
         new VPath("dirA", '/'));
-    outputVFS.getRootInputOutputVDir().createOutputVDir(
+    outputVFS.getRootDir().createOutputVDir(
         new VPath("dirB/dirBA", '/'));
     OutputVFile file1 =
-        outputVFS.getRootInputOutputVDir().createOutputVFile(new VPath("file1", '/'));
+        outputVFS.getRootDir().createOutputVFile(new VPath("file1", '/'));
     writeToFile(file1, "file1");
     OutputVFile fileA1 =
-        outputVFS.getRootInputOutputVDir().createOutputVFile(new VPath("dirA/fileA1", '/'));
+        outputVFS.getRootDir().createOutputVFile(new VPath("dirA/fileA1", '/'));
     writeToFile(fileA1, "dirA/fileA1");
     OutputVFile fileB1 =
-        outputVFS.getRootInputOutputVDir().createOutputVFile(new VPath("dirB/fileB1", '/'));
+        outputVFS.getRootDir().createOutputVFile(new VPath("dirB/fileB1", '/'));
     writeToFile(fileB1, "dirB/fileB1");
     OutputVFile fileBA1 =
-        outputVFS.getRootInputOutputVDir().createOutputVFile(new VPath("dirB/dirBA/fileBA1", '/'));
+        outputVFS.getRootDir().createOutputVFile(new VPath("dirB/dirBA/fileBA1", '/'));
     writeToFile(fileBA1, "dirB/dirBA/fileBA1");
     OutputVFile fileBB1 =
-        outputVFS.getRootInputOutputVDir().createOutputVFile(new VPath("dirB/dirBB/fileBB1", '/'));
+        outputVFS.getRootDir().createOutputVFile(new VPath("dirB/dirBB/fileBB1", '/'));
     writeToFile(fileBB1, "dirB/dirBB/fileBB1");
     OutputVFile fileC1 =
-        outputVFS.getRootInputOutputVDir().createOutputVFile(new VPath("dirC/fileC1", '/'));
+        outputVFS.getRootDir().createOutputVFile(new VPath("dirC/fileC1", '/'));
     writeToFile(fileC1, "dirC/fileC1");
 
     // create stuff from dirA
@@ -958,11 +958,11 @@ public class VFSTest {
 
   private void testInputVFS(@Nonnull InputVFS inputVFS) throws NoSuchFileException, IOException,
       NotFileOrDirectoryException, WrongPermissionException {
-    InputVFile file1 = inputVFS.getRootInputVDir().getInputVFile(new VPath("file1", '/'));
+    InputVFile file1 = inputVFS.getRootDir().getInputVFile(new VPath("file1", '/'));
     Assert.assertEquals("file1", readFromFile(file1));
     Assert.assertTrue(file1.getPathFromRoot().equals(new VPath("file1", '/')));
 
-    InputVDir dirA = inputVFS.getRootInputVDir().getInputVDir(new VPath("dirA", '/'));
+    InputVDir dirA = inputVFS.getRootDir().getInputVDir(new VPath("dirA", '/'));
     Collection<? extends InputVElement> dirAElements = dirA.list();
     Assert.assertEquals(3, dirAElements.size());
     Assert.assertTrue(containsFile(dirAElements, "fileA1", "dirA/fileA1"));
@@ -970,18 +970,18 @@ public class VFSTest {
     Assert.assertTrue(containsDir(dirAElements, "dirAA"));
 
     InputVFile fileAAB1 =
-        inputVFS.getRootInputVDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
+        inputVFS.getRootDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
     Assert.assertEquals("dirA/dirAA/dirAAB/fileAAB1", readFromFile(fileAAB1));
     Assert.assertTrue(
         fileAAB1.getPathFromRoot().equals(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/')));
 
-    InputVDir dirB = inputVFS.getRootInputVDir().getInputVDir(new VPath("dirB", '/'));
+    InputVDir dirB = inputVFS.getRootDir().getInputVDir(new VPath("dirB", '/'));
     InputVDir dirBA = dirB.getInputVDir(new VPath("dirBA", '/'));
     InputVFile fileBA1 = dirBA.getInputVFile(new VPath("fileBA1", '/'));
     Assert.assertEquals("dirB/dirBA/fileBA1", readFromFile(fileBA1));
     Assert.assertTrue(fileBA1.getPathFromRoot().equals(new VPath("dirB/dirBA/fileBA1", '/')));
 
-    InputVDir dirBB = inputVFS.getRootInputVDir().getInputVDir(new VPath("dirB/dirBB", '/'));
+    InputVDir dirBB = inputVFS.getRootDir().getInputVDir(new VPath("dirB/dirBB", '/'));
     InputVFile fileBB1 = dirBB.getInputVFile(new VPath("fileBB1", '/'));
     Assert.assertEquals("dirB/dirBB/fileBB1", readFromFile(fileBB1));
     Assert.assertTrue(fileBB1.getPathFromRoot().equals(new VPath("dirB/dirBB/fileBB1", '/')));
@@ -1046,7 +1046,7 @@ public class VFSTest {
       testDelete(ioVFS1);
       testInputVFS(ioVFS1);
       InputVFile fileAAB1 =
-          ioVFS1.getRootInputVDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
+          ioVFS1.getRootDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
       String fileAAB1digest = ((GenericInputVFile) fileAAB1).getDigest();
       Assert.assertNotNull(fileAAB1digest);
       String vfsDigest = ioVFS1.getDigest();
@@ -1059,7 +1059,7 @@ public class VFSTest {
       testInputVFS(ioVFS2);
 
       InputVFile fileAAB1b =
-          ioVFS2.getRootInputVDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
+          ioVFS2.getRootDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
       String fileAAB1digest2 = ((GenericInputVFile) fileAAB1b).getDigest();
       Assert.assertEquals(fileAAB1digest, fileAAB1digest2);
       String vfsDigest2 = ioVFS2.getDigest();
@@ -1080,12 +1080,12 @@ public class VFSTest {
       CannotCreateFileException, IOException, WrongPermissionException {
 
     // let's delete "dirA/dirAA/dirAAB/fileAAB1"
-    InputOutputVDir dirA = ioVFS.getRootInputOutputVDir().getInputVDir(new VPath("dirA", '/'));
+    InputOutputVDir dirA = ioVFS.getRootDir().getInputVDir(new VPath("dirA", '/'));
     {
       InputOutputVFile fileAAB1 = dirA.getInputVFile(new VPath("dirAA/dirAAB/fileAAB1", '/'));
       fileAAB1.delete();
       try {
-        ioVFS.getRootInputVDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
+        ioVFS.getRootDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
         Assert.fail();
       } catch (NoSuchFileException e) {
         // expected
@@ -1094,12 +1094,12 @@ public class VFSTest {
 
     // let's delete "dirB/dirBB/fileBB1"
     InputOutputVDir dirBB =
-        ioVFS.getRootInputOutputVDir().getInputVDir(new VPath("dirB/dirBB", '/'));
+        ioVFS.getRootDir().getInputVDir(new VPath("dirB/dirBB", '/'));
     {
       InputOutputVFile fileBB1 = dirBB.getInputVFile(new VPath("fileBB1", '/'));
       fileBB1.delete();
       try {
-        ioVFS.getRootInputVDir().getInputVFile(new VPath("dirB/dirBB/fileBB1", '/'));
+        ioVFS.getRootDir().getInputVFile(new VPath("dirB/dirBB/fileBB1", '/'));
         Assert.fail();
       } catch (NoSuchFileException e) {
         // expected
@@ -1108,11 +1108,11 @@ public class VFSTest {
 
     // let's delete "dirC/fileC1"
     {
-      InputOutputVFile fileC1 = ioVFS.getRootInputOutputVDir().getInputVFile(
+      InputOutputVFile fileC1 = ioVFS.getRootDir().getInputVFile(
           new VPath("dirC/fileC1", '/'));
       fileC1.delete();
       try {
-        ioVFS.getRootInputVDir().getInputVFile(new VPath("dirC/fileC1", '/'));
+        ioVFS.getRootDir().getInputVFile(new VPath("dirC/fileC1", '/'));
         Assert.fail();
       } catch (NoSuchFileException e) {
         // expected
@@ -1126,7 +1126,7 @@ public class VFSTest {
       OutputVFile fileBB1 = dirBB.createOutputVFile(new VPath("fileBB1", '/'));
       writeToFile(fileBB1, "dirB/dirBB/fileBB1");
       OutputVFile fileC1 =
-          ioVFS.getRootInputOutputVDir().createOutputVFile(new VPath("dirC/fileC1", '/'));
+          ioVFS.getRootDir().createOutputVFile(new VPath("dirC/fileC1", '/'));
       writeToFile(fileC1, "dirC/fileC1");
     }
   }
@@ -1135,14 +1135,14 @@ public class VFSTest {
   private void checkFileLocations(@Nonnull InputVFS inputVFS) throws NotFileOrDirectoryException,
       NoSuchFileException {
     VPath fileAAB1Path = new VPath("dirA/dirAA/dirAAB/fileAAB1", '/');
-    InputVFile fileAAB1 = inputVFS.getRootInputVDir().getInputVFile(fileAAB1Path);
+    InputVFile fileAAB1 = inputVFS.getRootDir().getInputVFile(fileAAB1Path);
     FileLocation fileAAB1Location = (FileLocation) fileAAB1.getLocation();
     Assert.assertTrue(fileAAB1Location.getDescription().contains("file"));
     Assert.assertTrue(fileAAB1Location.getDescription().contains(
         fileAAB1Path.getPathAsString(File.separatorChar)));
 
     VPath dirBBPath = new VPath("dirB/dirBB", '/');
-    InputVDir dirBB = inputVFS.getRootInputVDir().getInputVDir(dirBBPath);
+    InputVDir dirBB = inputVFS.getRootDir().getInputVDir(dirBBPath);
     DirectoryLocation dirBBLocation = (DirectoryLocation) dirBB.getLocation();
     Assert.assertTrue(dirBBLocation.getDescription().contains("directory"));
     Assert.assertTrue(dirBBLocation.getDescription().contains(
@@ -1152,14 +1152,14 @@ public class VFSTest {
   private void checkZipLocations(@Nonnull InputVFS inputVFS, @CheckForNull String prefix)
       throws NotFileOrDirectoryException, NoSuchFileException {
     VPath fileAAB1Path = new VPath("dirA/dirAA/dirAAB/fileAAB1", '/');
-    InputVFile fileAAB1 = inputVFS.getRootInputVDir().getInputVFile(fileAAB1Path);
+    InputVFile fileAAB1 = inputVFS.getRootDir().getInputVFile(fileAAB1Path);
     ZipLocation fileAAB1Location = (ZipLocation) fileAAB1.getLocation();
     Assert.assertTrue(fileAAB1Location.getDescription().contains(".zip"));
     String fileAAB1EntryName = getEntryName(fileAAB1Path, prefix, false);
     Assert.assertTrue(fileAAB1Location.getDescription().contains(fileAAB1EntryName));
 
     VPath dirBBPath = new VPath("dirB/dirBB", '/');
-    InputVDir dirBB = inputVFS.getRootInputVDir().getInputVDir(dirBBPath);
+    InputVDir dirBB = inputVFS.getRootDir().getInputVDir(dirBBPath);
     ZipLocation dirBBLocation = (ZipLocation) dirBB.getLocation();
     Assert.assertTrue(dirBBLocation.getDescription().contains(".zip"));
     String dirBBEntryName = getEntryName(dirBBPath, prefix, true);

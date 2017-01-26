@@ -70,7 +70,7 @@ public class VFSClassLoader extends ClassLoader {
     VPath path = new VPath(name, '/');
     InputVFile vFile;
     try {
-      vFile = vfs.getRootInputVDir().getInputVFile(path);
+      vFile = vfs.getRootDir().getInputVFile(path);
       return vFile.getInputStream();
     } catch (WrongPermissionException e) {
       logger.log(Level.INFO, "Failed to open resource '" + name + "' from "
@@ -88,7 +88,7 @@ public class VFSClassLoader extends ClassLoader {
     path.addSuffix(".class");
     InputVFile vFile;
     try {
-      vFile = vfs.getRootInputVDir().getInputVFile(path);
+      vFile = vfs.getRootDir().getInputVFile(path);
     } catch (NotFileOrDirectoryException | NoSuchFileException e) {
       throw new ClassNotFoundException(name, e);
     }
@@ -124,7 +124,7 @@ public class VFSClassLoader extends ClassLoader {
     VPath path = new VPath(name, '/');
     final InputVFile vFile;
     try {
-      vFile = vfs.getRootInputVDir().getInputVFile(path);
+      vFile = vfs.getRootDir().getInputVFile(path);
       try {
         return new URL("jack-vfs", "", -1,
             vfs.getPath().replace(File.separatorChar, '/') + "/"

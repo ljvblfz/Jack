@@ -73,7 +73,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
     // V0 libraries can have resources added by Jill but without the boolean resource property set
     // to true, thus we add the resource file type if resources exist (files others than
     // jack.properties and jayce files)
-    fillResources(inputVFS.getRootInputVDir(), resources);
+    fillResources(inputVFS.getRootDir(), resources);
     if (!resources.isEmpty()) {
       fileTypes.add(FileType.RSC);
     }
@@ -105,7 +105,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
     try {
       VPath clonedPath = typePath.clone();
       clonedPath.addSuffix(getExtension(fileType));
-      return inputVFS.getRootInputVDir().getInputVFile(clonedPath);
+      return inputVFS.getRootDir().getInputVFile(clonedPath);
     } catch (NotFileOrDirectoryException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
     } catch (NoSuchFileException e) {
@@ -118,7 +118,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
   public InputVDir getDir(@Nonnull FileType fileType, @Nonnull VPath typePath)
       throws FileTypeDoesNotExistException {
     try {
-      return inputVFS.getRootInputVDir().getInputVDir(typePath);
+      return inputVFS.getRootDir().getInputVDir(typePath);
     } catch (NotDirectoryException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
     } catch (NoSuchFileException e) {
@@ -139,7 +139,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
     }
 
     List<InputVFile> inputVFiles = new ArrayList<InputVFile>();
-    fillFiles(inputVFS.getRootInputVDir(), getExtension(fileType), inputVFiles);
+    fillFiles(inputVFS.getRootDir(), getExtension(fileType), inputVFiles);
     return inputVFiles.iterator();
   }
 

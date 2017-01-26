@@ -29,7 +29,7 @@ public interface InputVFS extends HasLocation, AutoCloseable {
   @Nonnull
   String getPath();
   @Nonnull
-  InputVDir getRootInputVDir();
+  InputVDir getRootDir();
   @CheckForNull
   String getDigest();
   @Override

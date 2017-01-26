@@ -35,7 +35,7 @@ public class GenericInputVFS extends AbstractVFS implements InputVFS {
 
   @Override
   @Nonnull
-  public InputVDir getRootInputVDir() {
+  public InputVDir getRootDir() {
     return new GenericInputVDir(vfs.getRootDir());
   }
 

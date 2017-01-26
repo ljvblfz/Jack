@@ -73,7 +73,7 @@ public class ResourceWriter implements RunnableSchedulable<JSession> {
       InputVFile inputFile = resource.getVFile();
       VPath path = resource.getPath();
       try {
-        OutputVFile outputFile = outputVDir.getRootOutputVDir().createOutputVFile(path);
+        OutputVFile outputFile = outputVDir.getRootDir().createOutputVFile(path);
         outputFile.copy(inputFile);
       } catch (CannotCreateFileException | WrongPermissionException | CannotCloseException
           | CannotReadException | CannotWriteException e) {
