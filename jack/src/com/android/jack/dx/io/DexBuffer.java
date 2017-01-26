@@ -127,7 +127,7 @@ public final class DexBuffer {
   }
 
   /**
-   * Creates a new dex buffer of the dex in {@code in}, and closes {@code in}.
+   * Creates a new dex buffer of the dex in {@code in}.
    */
   public DexBuffer(InputStream in) throws IOException {
     loadFrom(in);
@@ -146,17 +146,20 @@ public final class DexBuffer {
    */
   public DexBuffer(File file) throws IOException {
     if (FileUtils.hasArchiveSuffix(file.getName())) {
-      ZipFile zipFile = new ZipFile(file);
-      ZipEntry entry = zipFile.getEntry(DexFormat.DEX_IN_JAR_NAME);
-      if (entry != null) {
-        loadFrom(zipFile.getInputStream(entry));
-        zipFile.close();
-      } else {
-        zipFile.close();
-        throw new DexException("Expected " + DexFormat.DEX_IN_JAR_NAME + " in " + file);
+      try (ZipFile zipFile = new ZipFile(file)) {
+        ZipEntry entry = zipFile.getEntry(DexFormat.DEX_IN_JAR_NAME);
+        if (entry != null) {
+          try (InputStream is = zipFile.getInputStream(entry)) {
+            loadFrom(is);
+          }
+        } else {
+          throw new DexException("Expected " + DexFormat.DEX_IN_JAR_NAME + " in " + file);
+        }
       }
     } else if (file.getName().endsWith(".dex")) {
-      loadFrom(new FileInputStream(file));
+      try (InputStream is = new FileInputStream(file)) {
+        loadFrom(is);
+      }
     } else {
       throw new DexException("unknown output extension: " + file);
     }
@@ -260,7 +263,6 @@ public final class DexBuffer {
     while ((count = in.read(buffer)) != -1) {
       bytesOut.write(buffer, 0, count);
     }
-    in.close();
 
     this.data = bytesOut.toByteArray();
     this.length = data.length;
