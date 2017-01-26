@@ -37,6 +37,7 @@ import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
+import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
@@ -49,6 +50,7 @@ import com.android.sched.vfs.MessageDigestFS;
 import com.android.sched.vfs.PrefixedFS;
 import com.android.sched.vfs.VFS;
 import com.android.sched.vfs.VPath;
+import com.android.sched.vfs.WrongVFSTypeException;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -155,12 +157,15 @@ public class InputJackLibraryImpl extends InputJackLibrary {
     } else {
       VFS prefixedInputVFS = null;
       try {
-        prefixedInputVFS = new PrefixedFS(vfs, getSectionPath(fileType));
+        prefixedInputVFS = new PrefixedFS(vfs, getSectionPath(fileType), Existence.MUST_EXIST);
+      } catch (WrongVFSTypeException e) {
+        // If library is well formed this exception cannot be triggered
+        throw new AssertionError(e);
       } catch (CannotCreateFileException e) {
-        // If library is well formed this exception can not be triggered
+        // If library is well formed this exception cannot be triggered
         throw new AssertionError(e);
       } catch (NotDirectoryException e) {
-        // If library is well formed this exception can not be triggered
+        // If library is well formed this exception cannot be triggered
         throw new AssertionError(e);
       }
       if (fileType == FileType.PREBUILT) {
@@ -168,7 +173,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
           currentSectionVFS = new GenericInputVFS(new MessageDigestFS(prefixedInputVFS,
               ThreadConfig.get(JackLibraryFactory.MESSAGE_DIGEST_ALGO)));
         } catch (BadVFSFormatException e) {
-          // If library is well formed this exception can not be triggered
+          // If library is well formed this exception cannot be triggered
           throw new AssertionError(e);
         }
       } else {
