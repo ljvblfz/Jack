@@ -91,7 +91,9 @@ public class JClassLiteral extends JLiteral {
         || parent instanceof JAnnotationMethod
         || parent instanceof JFieldInitializer
         || parent instanceof JReturnStatement
-        || parent instanceof JSynchronizedBlock)) {
+        || parent instanceof JSynchronizedBlock
+        || parent instanceof JLock
+        || parent instanceof JUnlock)) {
       throw new JNodeInternalError(this, "Invalid parent");
     }
   }
