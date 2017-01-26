@@ -130,7 +130,7 @@ public class GetMethodParameterRefiner extends CommonStringParameterRefiner impl
 
     if (parameters instanceof JNewArray) {
       StringBuilder sb = new StringBuilder(methodName);
-      sb.append("(");
+      sb.append('(');
       for (JExpression param : ((JNewArray) parameters).getInitializers()) {
         if (param instanceof JClassLiteral) {
           sb.append(Jack.getLookupFormatter().getName(((JClassLiteral) param).getRefType()));
@@ -139,7 +139,7 @@ public class GetMethodParameterRefiner extends CommonStringParameterRefiner impl
         }
       }
 
-      sb.append(")");
+      sb.append(')');
       return sb.toString();
     }
 

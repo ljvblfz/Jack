@@ -118,29 +118,30 @@ public class GrammarActions {
   @Nonnull
   public static String getSignature(@Nonnull String name) {
     assert name != null;
-    if (name.contains("[")) {
-      String nameWithoutArray = name.substring(0, name.lastIndexOf('['));
+    int lastOpeningBracketPos = name.lastIndexOf('[');
+    if (lastOpeningBracketPos != -1) {
+      String nameWithoutArray = name.substring(0, lastOpeningBracketPos);
       return '[' + getSignature(nameWithoutArray);
     }
     StringBuilder sig = new StringBuilder();
     if (name.equals("boolean")) {
-      sig.append("Z");
+      sig.append('Z');
     } else if (name.equals("byte")) {
-      sig.append("B");
+      sig.append('B');
     } else if (name.equals("char")) {
-      sig.append("C");
+      sig.append('C');
     } else if (name.equals("short")) {
-      sig.append("S");
+      sig.append('S');
     } else if (name.equals("int")) {
-      sig.append("I");
+      sig.append('I');
     } else if (name.equals("float")) {
-      sig.append("F");
+      sig.append('F');
     } else if (name.equals("double")) {
-      sig.append("D");
+      sig.append('D');
     } else if (name.equals("long")) {
-      sig.append("J");
+      sig.append('J');
     } else if (name.equals("void")) {
-      sig.append("V");
+      sig.append('V');
     } else {
       sig.append(NamingTools.getTypeSignatureName(name));
     }
@@ -168,23 +169,23 @@ public class GrammarActions {
     } else if (name.equals("%")) {
       sig.append("(B|C|D|F|I|J|S|Z)");
     } else if (name.equals("boolean")) {
-      sig.append("Z");
+      sig.append('Z');
     } else if (name.equals("byte")) {
-      sig.append("B");
+      sig.append('B');
     } else if (name.equals("char")) {
-      sig.append("C");
+      sig.append('C');
     } else if (name.equals("short")) {
-      sig.append("S");
+      sig.append('S');
     } else if (name.equals("int")) {
-      sig.append("I");
+      sig.append('I');
     } else if (name.equals("float")) {
-      sig.append("F");
+      sig.append('F');
     } else if (name.equals("double")) {
-      sig.append("D");
+      sig.append('D');
     } else if (name.equals("long")) {
-      sig.append("J");
+      sig.append('J');
     } else if (name.equals("void")) {
-      sig.append("V");
+      sig.append('V');
     } else {
       sig.append(
           convertNameToPattern(NamingTools.getTypeSignatureName(name), FilterSeparator.CLASS));

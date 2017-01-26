@@ -79,11 +79,11 @@ public class ForNameParameterRefiner extends CommonStringParameterRefiner implem
     JType type;
     JTypeStringLiteral strTypeLiteral = null;
 
-    if (typeName.contains("/")) {
+    if (typeName.indexOf('/') != -1) {
       return null;
     }
 
-    if (typeName.startsWith("[")) {
+    if (typeName.charAt(0) == '[') {
       typeSignature = NamingTools.getBinaryName(typeName);
     } else {
       typeSignature = NamingTools.getTypeSignatureName(typeName);

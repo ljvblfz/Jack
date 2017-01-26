@@ -107,7 +107,7 @@ public class BinarySignatureFormatter extends CharSeparatedPackageFormatter
       sb.append(getNameInternal(enclosingPackage));
       sb.append(getPackageSeparator());
     }
-    sb.append(classOrInterfaceSimpleName).append(";");
+    sb.append(classOrInterfaceSimpleName).append(';');
     return sb.toString();
   }
 
