@@ -252,7 +252,7 @@ public class VFSTest {
       testInputVFS(ioVFS1);
       InputVFile fileAAB1 =
           ioVFS1.getRootDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
-      String fileAAB1digest = ((GenericInputVFile) fileAAB1).getDigest();
+      String fileAAB1digest = fileAAB1.getDigest();
       Assert.assertNotNull(fileAAB1digest);
       String vfsDigest = ioVFS1.getDigest();
       Assert.assertNotNull(vfsDigest);
@@ -266,7 +266,7 @@ public class VFSTest {
 
       InputVFile fileAAB1b =
           ioVFS2.getRootDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
-      String fileAAB1digest2 = ((GenericInputVFile) fileAAB1b).getDigest();
+      String fileAAB1digest2 = fileAAB1b.getDigest();
       Assert.assertEquals(fileAAB1digest, fileAAB1digest2);
       String vfsDigest2 = ioVFS2.getDigest();
       Assert.assertEquals(vfsDigest, vfsDigest2);
@@ -312,7 +312,7 @@ public class VFSTest {
       testInputVFS(ioVFS1);
       InputVFile fileAAB1 =
           ioVFS1.getRootDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
-      String fileAAB1digest = ((GenericInputVFile) fileAAB1).getDigest();
+      String fileAAB1digest = fileAAB1.getDigest();
       Assert.assertNotNull(fileAAB1digest);
       String vfsDigest = ioVFS1.getDigest();
       Assert.assertNotNull(vfsDigest);
@@ -326,7 +326,7 @@ public class VFSTest {
 
       InputVFile fileAAB1b =
           ioVFS2.getRootDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
-      String fileAAB1digest2 = ((GenericInputVFile) fileAAB1b).getDigest();
+      String fileAAB1digest2 = fileAAB1b.getDigest();
       Assert.assertEquals(fileAAB1digest, fileAAB1digest2);
       String vfsDigest2 = ioVFS2.getDigest();
       Assert.assertEquals(vfsDigest, vfsDigest2);
@@ -419,7 +419,7 @@ public class VFSTest {
       testInputVFS(ioVFS1);
       InputVFile fileAAB1 =
           ioVFS1.getRootDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
-      String fileAAB1digest = ((GenericInputVFile) fileAAB1).getDigest();
+      String fileAAB1digest = fileAAB1.getDigest();
       Assert.assertNotNull(fileAAB1digest);
       String vfsDigest = ioVFS1.getDigest();
       Assert.assertNotNull(vfsDigest);
@@ -434,7 +434,7 @@ public class VFSTest {
 
       InputVFile fileAAB1b =
           ioVFS2.getRootDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
-      String fileAAB1digest2 = ((GenericInputVFile) fileAAB1b).getDigest();
+      String fileAAB1digest2 = fileAAB1b.getDigest();
       Assert.assertEquals(fileAAB1digest, fileAAB1digest2);
       String vfsDigest2 = ioVFS2.getDigest();
       Assert.assertEquals(vfsDigest, vfsDigest2);
@@ -1047,7 +1047,7 @@ public class VFSTest {
       testInputVFS(ioVFS1);
       InputVFile fileAAB1 =
           ioVFS1.getRootDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
-      String fileAAB1digest = ((GenericInputVFile) fileAAB1).getDigest();
+      String fileAAB1digest = fileAAB1.getDigest();
       Assert.assertNotNull(fileAAB1digest);
       String vfsDigest = ioVFS1.getDigest();
       Assert.assertNotNull(vfsDigest);
@@ -1060,7 +1060,7 @@ public class VFSTest {
 
       InputVFile fileAAB1b =
           ioVFS2.getRootDir().getInputVFile(new VPath("dirA/dirAA/dirAAB/fileAAB1", '/'));
-      String fileAAB1digest2 = ((GenericInputVFile) fileAAB1b).getDigest();
+      String fileAAB1digest2 = fileAAB1b.getDigest();
       Assert.assertEquals(fileAAB1digest, fileAAB1digest2);
       String vfsDigest2 = ioVFS2.getDigest();
       Assert.assertEquals(vfsDigest, vfsDigest2);

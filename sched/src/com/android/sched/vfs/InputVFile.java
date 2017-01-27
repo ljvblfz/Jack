@@ -21,6 +21,7 @@ import com.android.sched.util.file.CannotGetModificationTimeException;
 
 import java.nio.file.attribute.FileTime;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -38,4 +39,7 @@ public interface InputVFile extends InputVElement, InputStreamProvider  {
 
   @Nonnull
   VFile getVFile();
+
+  @CheckForNull
+  String getDigest();
 }
