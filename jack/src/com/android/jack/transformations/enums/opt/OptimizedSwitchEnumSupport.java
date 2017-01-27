@@ -50,6 +50,8 @@ import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JTryStatement;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
+import com.android.jack.library.DumpInLibrary;
+import com.android.jack.library.PrebuiltCompatibility;
 import com.android.jack.scheduling.filter.SourceTypeFilter;
 import com.android.jack.shrob.obfuscation.OriginalNames;
 import com.android.jack.transformations.LocalVarCreator;
@@ -67,6 +69,8 @@ import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
+import com.android.sched.util.config.HasKeyId;
+import com.android.sched.util.config.id.EnumPropertyId;
 
 import java.util.Map;
 
@@ -98,7 +102,22 @@ import javax.annotation.Nonnull;
 @Filter(SourceTypeFilter.class)
 // This schedulable modifies a class (that it added in a previous run) that it is not visiting.
 @ExclusiveAccess(JSession.class)
+@HasKeyId
 public class OptimizedSwitchEnumSupport implements RunnableSchedulable<JMethod> {
+
+  /**
+   * property used to specify the kind of switch enum optimization that is enabled. See(@link
+   * SwitchEnumOptStrategy)
+   */
+  @Nonnull
+  public static final EnumPropertyId<SwitchEnumOptStrategy> OPTIMIZED_ENUM_SWITCH =
+      EnumPropertyId.create(
+              "jack.optimization.enum.switch", "Optimize enum switch", SwitchEnumOptStrategy.class)
+          .addDefaultValue(SwitchEnumOptStrategy.NEVER)
+          .ignoreCase()
+          .addCategory(DumpInLibrary.class)
+          .addCategory(PrebuiltCompatibility.class);
+
   // switch map filler which will fills synthetic switch map field and initializer
   @Nonnull
   private final SwitchMapClassFiller classFiller = new SwitchMapClassFiller();

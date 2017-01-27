@@ -21,8 +21,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import com.android.jack.Jack;
-import com.android.jack.Options;
-import com.android.jack.Options.SwitchEnumOptStrategy;
 import com.android.jack.ir.ast.JDefinedClass;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JDefinedEnum;
@@ -79,7 +77,7 @@ public class SyntheticClassManager {
 
   @Nonnull
   private final SwitchEnumOptStrategy optimizationStrategy =
-    ThreadConfig.get(Options.OPTIMIZED_ENUM_SWITCH);
+    ThreadConfig.get(OptimizedSwitchEnumSupport.OPTIMIZED_ENUM_SWITCH);
 
   // this map represents relationship from the package to synthetic class. There should only be
   // one synthetic class at most per package. Synthetic class cannot be located anywhere because

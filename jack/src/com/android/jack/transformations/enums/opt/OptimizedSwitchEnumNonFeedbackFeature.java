@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.android.jack.transformations;
+package com.android.jack.transformations.enums.opt;
 
-import com.android.jack.transformations.enums.opt.OptimizedSwitchEnumSupport;
 import com.android.sched.item.Description;
 import com.android.sched.item.Feature;
 import com.android.sched.item.Name;
@@ -27,5 +26,5 @@ import com.android.sched.item.Name;
  */
 @Name("OptimizedSwitchEnumFeature")
 @Description("Feature turning on OptimizedSwitchEnumSupport")
-public class OptimizedSwitchEnumFeedbackFeature implements Feature {
+public class OptimizedSwitchEnumNonFeedbackFeature implements Feature {
 }

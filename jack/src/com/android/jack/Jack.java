@@ -22,7 +22,6 @@ import com.google.common.collect.Iterators;
 import com.google.common.eventbus.EventBus;
 
 import com.android.jack.Options.AssertionPolicy;
-import com.android.jack.Options.SwitchEnumOptStrategy;
 import com.android.jack.abort.Aborter;
 import com.android.jack.analysis.DefinitionMarkerAdder;
 import com.android.jack.analysis.DefinitionMarkerRemover;
@@ -229,8 +228,6 @@ import com.android.jack.transformations.BridgeInInterfaceRemover;
 import com.android.jack.transformations.EmptyClinitRemover;
 import com.android.jack.transformations.FieldInitializer;
 import com.android.jack.transformations.Jarjar;
-import com.android.jack.transformations.OptimizedSwitchEnumFeedbackFeature;
-import com.android.jack.transformations.OptimizedSwitchEnumNonFeedbackFeature;
 import com.android.jack.transformations.SanityChecks;
 import com.android.jack.transformations.UnusedLocalRemover;
 import com.android.jack.transformations.VisibilityBridgeAdder;
@@ -289,7 +286,10 @@ import com.android.jack.transformations.enums.EnumMappingMarkerRemover;
 import com.android.jack.transformations.enums.SwitchEnumSupport;
 import com.android.jack.transformations.enums.UsedEnumFieldCollector;
 import com.android.jack.transformations.enums.UsedEnumFieldMarkerRemover;
+import com.android.jack.transformations.enums.opt.OptimizedSwitchEnumFeedbackFeature;
+import com.android.jack.transformations.enums.opt.OptimizedSwitchEnumNonFeedbackFeature;
 import com.android.jack.transformations.enums.opt.OptimizedSwitchEnumSupport;
+import com.android.jack.transformations.enums.opt.SwitchEnumOptStrategy;
 import com.android.jack.transformations.enums.opt.SwitchEnumUsageCollector;
 import com.android.jack.transformations.exceptions.ExceptionRuntimeValueAdder;
 import com.android.jack.transformations.exceptions.TryCatchRemover;
@@ -691,9 +691,11 @@ public abstract class Jack {
             request.addFeature(CheckAndroidCompatibility.class);
           }
 
-          if (config.get(Options.OPTIMIZED_ENUM_SWITCH) == SwitchEnumOptStrategy.FEEDBACK) {
+          if (config.get(OptimizedSwitchEnumSupport.OPTIMIZED_ENUM_SWITCH)
+              == SwitchEnumOptStrategy.FEEDBACK) {
             request.addFeature(OptimizedSwitchEnumFeedbackFeature.class);
-          } else if (config.get(Options.OPTIMIZED_ENUM_SWITCH) == SwitchEnumOptStrategy.ALWAYS) {
+          } else if (config.get(OptimizedSwitchEnumSupport.OPTIMIZED_ENUM_SWITCH)
+              == SwitchEnumOptStrategy.ALWAYS) {
             request.addFeature(OptimizedSwitchEnumNonFeedbackFeature.class);
           }
 

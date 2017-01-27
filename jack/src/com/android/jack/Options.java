@@ -49,6 +49,8 @@ import com.android.jack.shrob.obfuscation.annotation.AnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.ParameterAnnotationRemover;
 import com.android.jack.shrob.seed.SeedPrinter;
 import com.android.jack.shrob.spec.Flags;
+import com.android.jack.transformations.enums.opt.OptimizedSwitchEnumSupport;
+import com.android.jack.transformations.enums.opt.SwitchEnumOptStrategy;
 import com.android.jack.transformations.lambda.LambdaGroupingScope;
 import com.android.jack.transformations.renamepackage.PackageRenamer;
 import com.android.jack.util.AndroidApiLevel;
@@ -268,19 +270,6 @@ public class Options {
       BooleanPropertyId.create("jack.dex", "Generate dex file").addDefaultValue(Boolean.FALSE)
           .addCategory(DumpInLibrary.class);
 
-  /**
-   * property used to specify the kind of switch enum optimization that is enabled. See(@link
-   * SwitchEnumOptStrategy)
-   */
-  @Nonnull
-  public static final EnumPropertyId<SwitchEnumOptStrategy> OPTIMIZED_ENUM_SWITCH =
-      EnumPropertyId.create(
-              "jack.optimization.enum.switch", "Optimize enum switch", SwitchEnumOptStrategy.class)
-          .addDefaultValue(SwitchEnumOptStrategy.NEVER)
-          .ignoreCase()
-          .addCategory(DumpInLibrary.class)
-          .addCategory(PrebuiltCompatibility.class);
-
   @Nonnull
   public static final BooleanPropertyId GENERATE_DEX_IN_LIBRARY = BooleanPropertyId
       .create("jack.library.dex", "Generate dex files in library").addDefaultValue(Boolean.TRUE)
@@ -442,33 +431,6 @@ public class Options {
     public String getId() {
       return id;
     }
-  }
-
-  /**
-   * Types of switch enum optimization strategies.
-   * 1. feedback (set on by default)
-   * 2. always
-   * 3. never
-   */
-  @VariableName("strategy")
-  public enum SwitchEnumOptStrategy {
-    // feedback-based optimization: this strategy will be enabled/disabled based on the
-    // compile time information collected, e.g., if it is detected that an enum is only
-    // used in one/few switch statements, it is useless to optimize it. Potentially enable
-    // this strategy will cost more compilation time, but save more dex code
-    @EnumName(name = "feedback")
-    FEEDBACK(),
-    // different from feedback-based optimization, always strategy doesn't collect compile-
-    // time information to guide switch enum optimization. It will always enable switch enum
-    // optimization no matter the enum is rarely/frequently used. Ideally this strategy will
-    // compile code quicker than feedback-based strategy does, but the generated dex may be
-    // larger than feedback strategy
-    @EnumName(name = "always")
-    ALWAYS(),
-    // this actually is not real strategy, but we still need it because switch enum
-    // optimization is disabled when incremental compilation is triggered
-    @EnumName(name = "never")
-    NEVER();
   }
 
   @Nonnull
@@ -1326,7 +1288,8 @@ public class Options {
       // if the incremental compilation is enabled, the switch enum optimization cannot
       // be enabled because it will generates non-deterministic code. This has to be done after
       // -D options are set
-      configBuilder.set(OPTIMIZED_ENUM_SWITCH.getName(), SwitchEnumOptStrategy.NEVER);
+      configBuilder.set(
+          OptimizedSwitchEnumSupport.OPTIMIZED_ENUM_SWITCH.getName(), SwitchEnumOptStrategy.NEVER);
     }
 
     configBuilder.processEnvironmentVariables("JACK_CONFIG_");
