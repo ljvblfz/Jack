@@ -49,7 +49,7 @@ public abstract class ResourceOrMetaImporter {
     List<ResourceOrMeta> resultList = new ArrayList<ResourceOrMeta>();
     try {
       for (InputVFS resourceDir : resourceDirs) {
-        importResourceDirElement(resourceDir.getRootInputVDir().list(), "",
+        importResourceDirElement(resourceDir.getRootDir().list(), "",
             resourceDir.getLocation(), resultList);
       }
     } catch (ResourceImportConflictException e) {

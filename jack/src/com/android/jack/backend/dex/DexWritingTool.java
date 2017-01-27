@@ -185,7 +185,7 @@ public abstract class DexWritingTool {
       dexName = DexFileWriter.DEX_PREFIX + dexCount + DexFileWriter.DEX_FILE_EXTENSION;
     }
     try {
-      return outputVfs.getRootOutputVDir().createOutputVFile(new VPath(dexName, '/'));
+      return outputVfs.getRootDir().createOutputVFile(new VPath(dexName, '/'));
     } catch (CannotCreateFileException e) {
       throw new DexWritingException(e);
     }

@@ -118,7 +118,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
       throws CannotCreateFileException {
     assert !isClosed();
     addFileType(fileType);
-    return getSectionVFS(fileType).getRootOutputVDir()
+    return getSectionVFS(fileType).getRootDir()
         .createOutputVFile(buildFileVPath(fileType, typePath));
   }
 
@@ -203,7 +203,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
     try {
       goVFS = new GenericOutputVFS(vfs);
       OutputVFile libraryPropertiesOut =
-          goVFS.getRootOutputVDir().createOutputVFile(LIBRARY_PROPERTIES_VPATH);
+          goVFS.getRootDir().createOutputVFile(LIBRARY_PROPERTIES_VPATH);
 
       OutputStream propertiesOS = null;
       try {
@@ -253,7 +253,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
 
     List<InputVFile> inputVFiles = new ArrayList<InputVFile>();
     try {
-      fillFiles(getSectionVFS(fileType).getRootInputVDir(), inputVFiles);
+      fillFiles(getSectionVFS(fileType).getRootDir(), inputVFiles);
     } catch (CannotCreateFileException e) {
       // we already checked that the library contained the file type
       throw new AssertionError(e);
@@ -266,7 +266,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
   public InputOutputVFile getFile(@Nonnull FileType fileType, @Nonnull VPath typePath)
       throws FileTypeDoesNotExistException {
     try {
-      return getSectionVFS(fileType).getRootInputOutputVDir()
+      return getSectionVFS(fileType).getRootDir()
           .getInputVFile(buildFileVPath(fileType, typePath));
     } catch (CannotCreateFileException | NoSuchFileException | NotFileOrDirectoryException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
@@ -279,7 +279,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
       throws CannotDeleteFileException, FileTypeDoesNotExistException {
     assert !isClosed();
     try {
-      getSectionVFS(fileType).getRootInputOutputVDir()
+      getSectionVFS(fileType).getRootDir()
           .getInputVFile(buildFileVPath(fileType, typePath)).delete();
     } catch (CannotCreateFileException | NoSuchFileException | NotFileOrDirectoryException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
@@ -314,7 +314,7 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
       throws NoSuchFileException {
     InputVFile libProp;
     try {
-      libProp = vfs.getRootInputVDir().getInputVFile(JackLibrary.LIBRARY_PROPERTIES_VPATH);
+      libProp = vfs.getRootDir().getInputVFile(JackLibrary.LIBRARY_PROPERTIES_VPATH);
     } catch (NotFileOrDirectoryException e) {
       throw new AssertionError(e);
     }

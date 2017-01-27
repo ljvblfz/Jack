@@ -35,7 +35,7 @@ public class GenericInputOutputVFS extends AbstractVFS implements InputOutputVFS
 
   @Override
   @Nonnull
-  public InputOutputVDir getRootInputOutputVDir() {
+  public InputOutputVDir getRootDir() {
     return new GenericInputOutputVDir(vfs.getRootDir());
   }
 
@@ -54,18 +54,6 @@ public class GenericInputOutputVFS extends AbstractVFS implements InputOutputVFS
   @Override
   public void close() throws CannotCloseException {
     vfs.close();
-  }
-
-  @Override
-  @Nonnull
-  public InputVDir getRootInputVDir() {
-    return new GenericInputVDir(vfs.getRootDir());
-  }
-
-  @Override
-  @Nonnull
-  public OutputVDir getRootOutputVDir() {
-    return new GenericOutputVDir(vfs.getRootDir());
   }
 
   @Override

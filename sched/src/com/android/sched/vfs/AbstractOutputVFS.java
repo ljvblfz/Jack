@@ -32,7 +32,7 @@ public abstract class AbstractOutputVFS extends AbstractVFS implements OutputVFS
 
   @Override
   @Nonnull
-  public OutputVDir getRootOutputVDir() {
+  public OutputVDir getRootDir() {
     assert root != null;
 
     return root;
