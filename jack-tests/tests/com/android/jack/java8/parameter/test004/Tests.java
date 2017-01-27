@@ -16,6 +16,7 @@
 
 package com.android.jack.java8.parameter.test004;
 
+import com.android.jack.java8.parameter.common.ParameterTestModifier;
 
 import junit.framework.Assert;
 
@@ -25,12 +26,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
 
 public class Tests {
-
-  public static final int MODIFIER_NONE = 0;
-  public static final int MODIFIER_FINAL = 16;
-  public static final int MODIFIER_SYNTHETIC = 4096;
-  public static final int MODIFIER_IMPLICIT = 32768;
-
 
   abstract class InstanceAnonymous {
     public InstanceAnonymous(int value) {
@@ -43,19 +38,22 @@ public class Tests {
     };
 
     // Could be a constructor with Test.class, int.class
-    Constructor<?> constructor = ia.getClass().getDeclaredConstructor(Tests.class, Tests.class, int.class);
+    Constructor<?> constructor =
+        ia.getClass().getDeclaredConstructor(Tests.class, Tests.class, int.class);
     Assert.assertEquals(3, constructor.getParameters().length);
 
-    check(constructor.getParameters()[0], "this$0", /* isNamePresent= */ true, /* isImplicit= */ true,
-      /* isSynthetic= */ false, MODIFIER_FINAL | MODIFIER_IMPLICIT);
+    check(constructor.getParameters()[0], "this$0", /* isNamePresent= */ true,
+        /* isImplicit= */ true, /* isSynthetic= */ false,
+        ParameterTestModifier.MODIFIER_FINAL | ParameterTestModifier.MODIFIER_IMPLICIT);
 
     // Could be this$1 rather than this$0_1
-    check(constructor.getParameters()[1], "this$0_1", /* isNamePresent= */ true, /* isImplicit= */ true,
-        /* isSynthetic= */ false, MODIFIER_FINAL | MODIFIER_IMPLICIT);
+    check(constructor.getParameters()[1], "this$0_1", /* isNamePresent= */ true,
+        /* isImplicit= */ true, /* isSynthetic= */ false,
+        ParameterTestModifier.MODIFIER_FINAL | ParameterTestModifier.MODIFIER_IMPLICIT);
 
     // Could be value rather than $anonymous0
-    check(constructor.getParameters()[2], "$anonymous0", /* isNamePresent= */ true, /* isImplicit= */ false,
-        /* isSynthetic= */ false, MODIFIER_NONE);
+    check(constructor.getParameters()[2], "$anonymous0", /* isNamePresent= */ true,
+        /* isImplicit= */ false, /* isSynthetic= */ false, ParameterTestModifier.MODIFIER_NONE);
   }
 
   @Test
@@ -69,19 +67,22 @@ public class Tests {
     };
 
     // Could be a constructor with Test.class, int.class
-    Constructor<?> constructor = ia.getClass().getDeclaredConstructor(Tests.class, Tests.class, int.class);
+    Constructor<?> constructor =
+        ia.getClass().getDeclaredConstructor(Tests.class, Tests.class, int.class);
     Assert.assertEquals(3, constructor.getParameters().length);
 
-    check(constructor.getParameters()[0], "this$0", /* isNamePresent= */ true, /* isImplicit= */ false,
-      /* isSynthetic= */ true, MODIFIER_FINAL | MODIFIER_SYNTHETIC);
+    check(constructor.getParameters()[0], "this$0", /* isNamePresent= */ true,
+        /* isImplicit= */ false, /* isSynthetic= */ true,
+        ParameterTestModifier.MODIFIER_FINAL | ParameterTestModifier.MODIFIER_SYNTHETIC);
 
     // Could be this$1 rather than this$0_1
-    check(constructor.getParameters()[1], "this$0_1", /* isNamePresent= */ true, /* isImplicit= */ false,
-        /* isSynthetic= */ true, MODIFIER_FINAL | MODIFIER_SYNTHETIC);
+    check(constructor.getParameters()[1], "this$0_1", /* isNamePresent= */ true,
+        /* isImplicit= */ false, /* isSynthetic= */ true,
+        ParameterTestModifier.MODIFIER_FINAL | ParameterTestModifier.MODIFIER_SYNTHETIC);
 
     // Could be value rather than $anonymous0
-    check(constructor.getParameters()[2], "$anonymous0", /* isNamePresent= */ true, /* isImplicit= */ false,
-        /* isSynthetic= */ false, MODIFIER_NONE);
+    check(constructor.getParameters()[2], "$anonymous0", /* isNamePresent= */ true,
+        /* isImplicit= */ false, /* isSynthetic= */ false, ParameterTestModifier.MODIFIER_NONE);
   }
 
   private void check(Parameter parameter, String name, boolean isNamePresent, boolean isImplicit,

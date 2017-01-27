@@ -16,6 +16,8 @@
 
 package com.android.jack.java8.parameter.test002;
 
+import com.android.jack.java8.parameter.common.ParameterTestModifier;
+
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -25,11 +27,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 public class Tests {
-
-  public static final int MODIFIER_NONE = 0;
-  public static final int MODIFIER_FINAL = 16;
-  public static final int MODIFIER_SYNTHETIC = 4096;
-  public static final int MODIFIER_IMPLICIT = 32768;
 
   enum Number {
     ONE, TWO;
@@ -41,7 +38,7 @@ public class Tests {
     Assert.assertEquals(1, method.getParameters().length);
 
     check(method.getParameters()[0], "name", /* isNamePresent= */ true, /* isImplicit= */ true,
-        /* isSynthetic= */ false, MODIFIER_IMPLICIT);
+        /* isSynthetic= */ false, ParameterTestModifier.MODIFIER_IMPLICIT);
   }
 
   @Test
@@ -50,10 +47,10 @@ public class Tests {
     Assert.assertEquals(2, constructor.getParameters().length);
 
     check(constructor.getParameters()[0], "enum$name", /* isNamePresent= */ true,
-        /* isImplicit= */ false, /* isSynthetic= */ true, MODIFIER_SYNTHETIC);
+        /* isImplicit= */ false, /* isSynthetic= */ true, ParameterTestModifier.MODIFIER_SYNTHETIC);
 
     check(constructor.getParameters()[1], "enum$ordinal", /* isNamePresent= */ true,
-        /* isImplicit= */ false, /* isSynthetic= */ true, MODIFIER_SYNTHETIC);
+        /* isImplicit= */ false, /* isSynthetic= */ true, ParameterTestModifier.MODIFIER_SYNTHETIC);
   }
 
   private void check(Parameter parameter, String name, boolean isNamePresent, boolean isImplicit,

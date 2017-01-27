@@ -16,8 +16,8 @@
 
 package com.android.jack.java8.parameter.test001;
 
+import com.android.jack.java8.parameter.common.ParameterTestModifier;
 import com.android.jack.java8.parameter.test001.Tests.Context.InnerWithParam;
-
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -27,11 +27,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 public class Tests {
-
-  public static final int MODIFIER_NONE = 0;
-  public static final int MODIFIER_FINAL = 16;
-  public static final int MODIFIER_SYNTHETIC = 4096;
-  public static final int MODIFIER_IMPLICIT = 32768;
 
   public static void m1(final int p1, int b2, Object... a) {}
 
@@ -48,13 +43,13 @@ public class Tests {
     Assert.assertEquals(3, method.getParameters().length);
 
     check(method.getParameters()[0], "p1", /* isNamePresent= */ true, /* isImplicit= */ false,
-        /* isSynthetic= */ false, MODIFIER_FINAL);
+        /* isSynthetic= */ false, ParameterTestModifier.MODIFIER_FINAL);
 
     check(method.getParameters()[1], "b2", /* isNamePresent= */ true, /* isImplicit= */ false,
-        /* isSynthetic= */ false, MODIFIER_NONE);
+        /* isSynthetic= */ false, ParameterTestModifier.MODIFIER_NONE);
 
     check(method.getParameters()[2], "a", /* isNamePresent= */ true, /* isImplicit= */ false,
-        /* isSynthetic= */ false, MODIFIER_NONE);
+        /* isSynthetic= */ false, ParameterTestModifier.MODIFIER_NONE);
   }
 
   @Test
@@ -62,8 +57,9 @@ public class Tests {
     Constructor<?> constructor = InnerClass.class.getDeclaredConstructor(Tests.class);
     Assert.assertEquals(1, constructor.getParameters().length);
 
-    check(constructor.getParameters()[0], "this$0", /* isNamePresent= */ true, /* isImplicit= */ true,
-        /* isSynthetic= */ false, MODIFIER_FINAL | MODIFIER_IMPLICIT);
+    check(constructor.getParameters()[0], "this$0", /* isNamePresent= */ true,
+        /* isImplicit= */ true, /* isSynthetic= */ false,
+        ParameterTestModifier.MODIFIER_FINAL | ParameterTestModifier.MODIFIER_IMPLICIT);
   }
 
   @Test
@@ -72,11 +68,12 @@ public class Tests {
         InnerClass.InnerInnerClass.class.getDeclaredConstructor(InnerClass.class, float.class);
     Assert.assertEquals(2, constructor.getParameters().length);
 
-    check(constructor.getParameters()[0], "this$1", /* isNamePresent= */ true, /* isImplicit= */ true,
-        /* isSynthetic= */ false, MODIFIER_FINAL | MODIFIER_IMPLICIT);
+    check(constructor.getParameters()[0], "this$1", /* isNamePresent= */ true,
+        /* isImplicit= */ true, /* isSynthetic= */ false,
+        ParameterTestModifier.MODIFIER_FINAL | ParameterTestModifier.MODIFIER_IMPLICIT);
 
     check(constructor.getParameters()[1], "f", /* isNamePresent= */ true, /* isImplicit= */ false,
-        /* isSynthetic= */ false, MODIFIER_NONE);
+        /* isSynthetic= */ false, ParameterTestModifier.MODIFIER_NONE);
   }
 
   @Test
@@ -86,8 +83,9 @@ public class Tests {
     Constructor<?> constructor = Local.class.getDeclaredConstructor(Tests.class);
     Assert.assertEquals(1, constructor.getParameters().length);
 
-    check(constructor.getParameters()[0], "this$0", /* isNamePresent= */ true, /* isImplicit= */ true,
-        /* isSynthetic= */ false, MODIFIER_FINAL | MODIFIER_IMPLICIT);
+    check(constructor.getParameters()[0], "this$0", /* isNamePresent= */ true,
+        /* isImplicit= */ true, /* isSynthetic= */ false,
+        ParameterTestModifier.MODIFIER_FINAL | ParameterTestModifier.MODIFIER_IMPLICIT);
   }
 
   @Test
@@ -104,14 +102,16 @@ public class Tests {
     Constructor<?> constructor = Local.class.getDeclaredConstructor(Tests.class, int.class, Object.class);
     Assert.assertEquals(3, constructor.getParameters().length);
 
-    check(constructor.getParameters()[0], "this$0", /* isNamePresent= */ true, /* isImplicit= */ true,
-        /* isSynthetic= */ false, MODIFIER_FINAL | MODIFIER_IMPLICIT);
+    check(constructor.getParameters()[0], "this$0", /* isNamePresent= */ true,
+        /* isImplicit= */ true, /* isSynthetic= */ false,
+        ParameterTestModifier.MODIFIER_FINAL | ParameterTestModifier.MODIFIER_IMPLICIT);
 
     check(constructor.getParameters()[1], "i", /* isNamePresent= */ true, /* isImplicit= */ false,
-        /* isSynthetic= */ false, MODIFIER_NONE);
+        /* isSynthetic= */ false, ParameterTestModifier.MODIFIER_NONE);
 
-    check(constructor.getParameters()[2], "val$o", /* isNamePresent= */ true, /* isImplicit= */ false,
-        /* isSynthetic= */ true, MODIFIER_FINAL |  MODIFIER_SYNTHETIC);
+    check(constructor.getParameters()[2], "val$o", /* isNamePresent= */ true,
+        /* isImplicit= */ false, /* isSynthetic= */ true,
+        ParameterTestModifier.MODIFIER_FINAL | ParameterTestModifier.MODIFIER_SYNTHETIC);
   }
 
     abstract static class StaticAnonymous {
@@ -122,8 +122,9 @@ public class Tests {
       StaticAnonymous a = new StaticAnonymous() {};
       Constructor<?> constructor = a.getClass().getDeclaredConstructor(Tests.class);
       Assert.assertEquals(1, constructor.getParameters().length);
-      check(constructor.getParameters()[0], "this$0", /* isNamePresent= */ true, /* isImplicit= */ true,
-        /* isSynthetic= */ false, MODIFIER_FINAL | MODIFIER_IMPLICIT);
+    check(constructor.getParameters()[0], "this$0", /* isNamePresent= */ true,
+        /* isImplicit= */ true, /* isSynthetic= */ false,
+        ParameterTestModifier.MODIFIER_FINAL | ParameterTestModifier.MODIFIER_IMPLICIT);
     }
 
 
@@ -142,10 +143,11 @@ public class Tests {
     Assert.assertEquals(2, constructor.getParameters().length);
 
     check(constructor.getParameters()[0], "this$1", /* isNamePresent= */ true,
-        /* isImplicit= */ true, /* isSynthetic= */ false, MODIFIER_FINAL | MODIFIER_IMPLICIT);
+        /* isImplicit= */ true, /* isSynthetic= */ false,
+        ParameterTestModifier.MODIFIER_FINAL | ParameterTestModifier.MODIFIER_IMPLICIT);
 
     check(constructor.getParameters()[1], "i1", /* isNamePresent= */ true,
-        /* isImplicit= */ false, /* isSynthetic= */ false, MODIFIER_NONE);
+        /* isImplicit= */ false, /* isSynthetic= */ false, ParameterTestModifier.MODIFIER_NONE);
   }
 
   private void check(Parameter parameter, String name, boolean isNamePresent, boolean isImplicit,

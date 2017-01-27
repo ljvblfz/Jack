@@ -16,6 +16,8 @@
 
 package com.android.jack.java8.parameter.test003;
 
+import com.android.jack.java8.parameter.common.ParameterTestModifier;
+
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -35,17 +37,12 @@ class A implements I<Integer> {
 }
 public class Tests {
 
-  public static final int MODIFIER_NONE = 0;
-  public static final int MODIFIER_FINAL = 16;
-  public static final int MODIFIER_SYNTHETIC = 4096;
-  public static final int MODIFIER_IMPLICIT = 32768;
-
   @Test
   public void testBridge() throws NoSuchMethodException, SecurityException {
     Method method = A.class.getDeclaredMethod("get", Object.class);
 
     check(method.getParameters()[0], "t", /* isNamePresent= */ true, /* isImplicit= */ false,
-        /* isSynthetic= */ true, MODIFIER_SYNTHETIC);
+        /* isSynthetic= */ true, ParameterTestModifier.MODIFIER_SYNTHETIC);
   }
 
   @Test
@@ -53,7 +50,7 @@ public class Tests {
     Method method = A.class.getDeclaredMethod("get", Integer.class);
 
     check(method.getParameters()[0], "t", /* isNamePresent= */ true, /* isImplicit= */ false,
-        /* isSynthetic= */ false, MODIFIER_NONE);
+        /* isSynthetic= */ false, ParameterTestModifier.MODIFIER_NONE);
   }
 
   private void check(Parameter parameter, String name, boolean isNamePresent, boolean isImplicit,

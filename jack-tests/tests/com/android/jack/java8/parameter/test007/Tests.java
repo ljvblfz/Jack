@@ -16,6 +16,8 @@
 
 package com.android.jack.java8.parameter.test007;
 
+import com.android.jack.java8.parameter.common.ParameterTestModifier;
+
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -26,14 +28,9 @@ import java.lang.reflect.Parameter;
 
 public class Tests {
 
-  public static final int MODIFIER_NONE = 0;
-  public static final int MODIFIER_FINAL = 16;
-  public static final int MODIFIER_SYNTHETIC = 4096;
-  public static final int MODIFIER_IMPLICIT = 32768;
-
   private int field = 0;
 
-  public class InnerClass { 
+  public class InnerClass {
       public void setValue() {
           field = 10;
       }
@@ -43,14 +40,14 @@ public class Tests {
   public void testStaticMethod() throws NoSuchMethodException, SecurityException {
     Method[] methods = Tests.class.getDeclaredMethods();
     for (Method method : methods) {
-        if (method.isSynthetic()) {
-            Parameter[] parameters = method.getParameters();
-            Assert.assertEquals(2, parameters.length);
-            check(parameters[0], "arg0", /* isNamePresent= */ false, /* isImplicit= */ false,
-                    /* isSynthetic= */ false, MODIFIER_NONE);
-            check(parameters[1], "arg1", /* isNamePresent= */ false, /* isImplicit= */ false,
-                /* isSynthetic= */ false, MODIFIER_NONE);
-        }
+      if (method.isSynthetic()) {
+        Parameter[] parameters = method.getParameters();
+        Assert.assertEquals(2, parameters.length);
+        check(parameters[0], "arg0", /* isNamePresent= */ false, /* isImplicit= */ false,
+            /* isSynthetic= */ false, ParameterTestModifier.MODIFIER_NONE);
+        check(parameters[1], "arg1", /* isNamePresent= */ false, /* isImplicit= */ false,
+            /* isSynthetic= */ false, ParameterTestModifier.MODIFIER_NONE);
+      }
     }
   }
 

@@ -16,6 +16,8 @@
 
 package com.android.jack.java8.parameter.test009;
 
+import com.android.jack.java8.parameter.common.ParameterTestModifier;
+
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -32,21 +34,16 @@ class MyBaseClass {
 }
 public class Tests extends MyBaseClass {
 
-  public static final int MODIFIER_NONE = 0;
-  public static final int MODIFIER_FINAL = 16;
-  public static final int MODIFIER_SYNTHETIC = 4096;
-  public static final int MODIFIER_IMPLICIT = 32768;
-
   @Test
   public void testStaticMethod() throws NoSuchMethodException, SecurityException {
     Method[] methods = Tests.class.getDeclaredMethods();
     for (Method method : methods) {
-        if (method.isSynthetic()) {
-            Parameter[] parameters = method.getParameters();
-            Assert.assertEquals(1, parameters.length);
-            check(parameters[0], "param1", /* isNamePresent= */ true, /* isImplicit= */ false,
-                    /* isSynthetic= */ true, MODIFIER_SYNTHETIC);
-        }
+      if (method.isSynthetic()) {
+        Parameter[] parameters = method.getParameters();
+        Assert.assertEquals(1, parameters.length);
+        check(parameters[0], "param1", /* isNamePresent= */ true, /* isImplicit= */ false,
+            /* isSynthetic= */ true, ParameterTestModifier.MODIFIER_SYNTHETIC);
+      }
     }
   }
 

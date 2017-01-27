@@ -16,6 +16,8 @@
 
 package com.android.jack.java8.parameter.test010;
 
+import com.android.jack.java8.parameter.common.ParameterTestModifier;
+
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -26,11 +28,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 public class Tests {
-
-  public static final int MODIFIER_NONE = 0;
-  public static final int MODIFIER_FINAL = 16;
-  public static final int MODIFIER_SYNTHETIC = 4096;
-  public static final int MODIFIER_IMPLICIT = 32768;
 
   public static void m1(int a, double d, final float f, final long l) {
   }
@@ -47,16 +44,16 @@ public class Tests {
     Assert.assertEquals(4, parameters.length);
 
     check(parameters[0], "a", /* isNamePresent= */ true, /* isImplicit= */ false,
-        /* isSynthetic= */ false, MODIFIER_NONE);
+        /* isSynthetic= */ false, ParameterTestModifier.MODIFIER_NONE);
 
     check(parameters[1], "d", /* isNamePresent= */ true, /* isImplicit= */ false,
-        /* isSynthetic= */ false, MODIFIER_NONE);
+        /* isSynthetic= */ false, ParameterTestModifier.MODIFIER_NONE);
 
     check(parameters[2], "f", /* isNamePresent= */ true, /* isImplicit= */ false,
-        /* isSynthetic= */ false, MODIFIER_FINAL);
+        /* isSynthetic= */ false, ParameterTestModifier.MODIFIER_FINAL);
 
     check(parameters[3], "l", /* isNamePresent= */ true, /* isImplicit= */ false,
-        /* isSynthetic= */ false, MODIFIER_FINAL);
+        /* isSynthetic= */ false, ParameterTestModifier.MODIFIER_FINAL);
   }
 
   @Test
@@ -68,16 +65,16 @@ public class Tests {
     Assert.assertEquals(4, parameters.length);
 
     check(parameters[0], "a", /* isNamePresent= */ true, /* isImplicit= */ false,
-        /* isSynthetic= */ false, MODIFIER_FINAL);
+        /* isSynthetic= */ false, ParameterTestModifier.MODIFIER_FINAL);
 
     check(parameters[1], "d", /* isNamePresent= */ true, /* isImplicit= */ false,
-        /* isSynthetic= */ false, MODIFIER_NONE);
+        /* isSynthetic= */ false, ParameterTestModifier.MODIFIER_NONE);
 
     check(parameters[2], "f", /* isNamePresent= */ true, /* isImplicit= */ false,
-        /* isSynthetic= */ false, MODIFIER_FINAL);
+        /* isSynthetic= */ false, ParameterTestModifier.MODIFIER_FINAL);
 
     check(parameters[3], "l", /* isNamePresent= */ true, /* isImplicit= */ false,
-        /* isSynthetic= */ false, MODIFIER_NONE);
+        /* isSynthetic= */ false, ParameterTestModifier.MODIFIER_NONE);
   }
 
   private void check(Parameter parameter, String name, boolean isNamePresent, boolean isImplicit,
