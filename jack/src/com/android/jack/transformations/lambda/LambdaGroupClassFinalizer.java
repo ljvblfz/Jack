@@ -61,7 +61,7 @@ import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.ir.types.JIntegralType32;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JPhantomLookup;
-import com.android.jack.scheduling.filter.TypeWithoutValidTypePrebuilt;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.ast.NewInstanceRemoved;
 import com.android.jack.transformations.request.AppendField;
 import com.android.jack.transformations.request.AppendMethod;
@@ -99,7 +99,7 @@ import javax.annotation.Nonnull;
     remove = {NewInstanceRemoved.class})
 @ExclusiveAccess(JSession.class)
 @Support(LambdaToAnonymousConverter.class)
-@Filter(TypeWithoutValidTypePrebuilt.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 public final class LambdaGroupClassFinalizer
     implements RunnableSchedulable<JDefinedClassOrInterface> {
 
