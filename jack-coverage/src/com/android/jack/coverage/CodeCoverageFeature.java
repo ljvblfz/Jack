@@ -95,4 +95,3 @@ public class CodeCoverageFeature implements Feature {
       .addCategory(DumpInLibrary.class)
       .addCategory(PrebuiltCompatibility.class);
 }
-

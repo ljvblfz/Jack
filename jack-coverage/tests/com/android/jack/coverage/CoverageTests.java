@@ -65,34 +65,6 @@ public class CoverageTests extends CoverageTest {
     // Check its methods.
     JsonArray methods = testClass.get("methods").getAsJsonArray();
     Assert.assertEquals(3, methods.size()); // abstract and native methods are excluded.
-
-    class NameAndDesc {
-      @Nonnull
-      public final String name;
-      @Nonnull
-      public final String desc;
-
-      public NameAndDesc(@Nonnull String name, @Nonnull String desc) {
-        this.name = name;
-        this.desc = desc;
-      }
-
-      @Override
-      public boolean equals(Object obj) {
-        if (obj instanceof NameAndDesc) {
-          NameAndDesc other = (NameAndDesc) obj;
-          return name.equals(other.name) && desc.equals(other.desc);
-        } else {
-          return false;
-        }
-      }
-
-      @Override
-      public int hashCode() {
-        String concat = name + desc;
-        return concat.hashCode();
-      }
-    }
     Set<NameAndDesc> expectedMethods = new HashSet<NameAndDesc>();
     expectedMethods.add(new NameAndDesc(NamingTools.INIT_NAME, "()V"));
     expectedMethods.add(new NameAndDesc("staticMethod", "()V"));
@@ -453,5 +425,65 @@ public class CoverageTests extends CoverageTest {
     assertNotEquals("Expected different class IDs", classIdV1, classIdV2);
 
     assertEquals("Expected different class IDs", classIdV2, classIdV2_2);
+  }
+
+  @Test
+  public void testThrowClass_007() throws Exception {
+    final String testPackageName = getTestPackageName("test007");
+    JackBasedToolchain toolchain = createJackToolchain();
+    File coverageMetadataFile = CoverageToolchainBuilder.create(toolchain).build();
+
+    toolchain.srcToExe(AbstractTestTools.createTempDir(), false, getTestRootDir(testPackageName));
+    JsonArray classes = loadJsonCoverageClasses(coverageMetadataFile);
+
+    // We expect only one class
+    Assert.assertNotNull(classes);
+    Assert.assertEquals(1, classes.size());
+    JsonObject testClass = classes.get(0).getAsJsonObject();
+    Assert.assertNotNull(testClass);
+    Assert.assertEquals(
+        getClassNameForJson(testPackageName + ".ThrowClass"),
+        getClassName(testClass));
+
+    // Check its methods.
+    JsonArray methods = testClass.get("methods").getAsJsonArray();
+    Assert.assertEquals(4, methods.size());
+
+    Set<NameAndDesc> expectedMethods = new HashSet<NameAndDesc>();
+    expectedMethods.add(new NameAndDesc(NamingTools.INIT_NAME, "()V"));
+    expectedMethods.add(new NameAndDesc("throwNPE", "(Z)V"));
+    expectedMethods.add(new NameAndDesc("tryCatchNPE", "()V"));
+    expectedMethods.add(new NameAndDesc("emptyMethod", "()V"));
+    for (JsonElement methodElt : methods) {
+      String name = methodElt.getAsJsonObject().get("name").getAsString();
+      String desc = methodElt.getAsJsonObject().get("desc").getAsString();
+      Assert.assertTrue(expectedMethods.contains(new NameAndDesc(name, desc)));
+    }
+  }
+
+  static class NameAndDesc {
+    @Nonnull public final String name;
+    @Nonnull public final String desc;
+
+    public NameAndDesc(@Nonnull String name, @Nonnull String desc) {
+      this.name = name;
+      this.desc = desc;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (obj instanceof NameAndDesc) {
+        NameAndDesc other = (NameAndDesc) obj;
+        return name.equals(other.name) && desc.equals(other.desc);
+      } else {
+        return false;
+      }
+    }
+
+    @Override
+    public int hashCode() {
+      String concat = name + desc;
+      return concat.hashCode();
+    }
   }
 }
