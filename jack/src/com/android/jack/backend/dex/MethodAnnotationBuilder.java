@@ -28,7 +28,7 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.scheduling.feature.SourceVersion8;
-import com.android.jack.scheduling.filter.TypeWithoutValidTypePrebuilt;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.sched.item.Description;
 import com.android.sched.item.Synchronized;
@@ -57,7 +57,7 @@ import javax.annotation.Nonnull;
                add = @Constraint(no = JAnnotation.RepeatedAnnotation.class)),
            @ToSupport(feature = ParameterMetadataFeature.class,
                add = @Constraint(need = ParameterMetadataAnnotation.class))})
-@Filter(TypeWithoutValidTypePrebuilt.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class MethodAnnotationBuilder implements RunnableSchedulable<JMethod> {
 
   @Nonnull

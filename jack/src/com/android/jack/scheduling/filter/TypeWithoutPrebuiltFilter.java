@@ -27,26 +27,22 @@ import com.android.sched.util.location.Location;
 import javax.annotation.Nonnull;
 
 /**
- * A filter that only accepts types without corresponding prebuilt code. These are either types
- * from the source code or types from libraries without valid prebuilt for this type.
+ * A filter that only accepts types without no corresponding prebuilt code. These are either types
+ * from the source code or types from libraries without prebuilt for this type.
  */
 @Description("Filter accepting types without prebuilt")
 public class TypeWithoutPrebuiltFilter implements ComponentFilter<JDefinedClassOrInterface> {
 
   @Override
   public boolean accept(@Nonnull JDefinedClassOrInterface clOrI) {
-    return !TypeWithoutPrebuiltFilter.hasPrebuilt(clOrI);
-  }
-
-  static boolean hasPrebuilt(@Nonnull JDefinedClassOrInterface clOrI) {
     Location location = clOrI.getLocation();
     if (location instanceof TypeInInputLibraryLocation) {
       InputLibrary inputLibrary = ((TypeInInputLibraryLocation) location).getInputLibrary();
       if (inputLibrary.containsFileType(FileType.PREBUILT)) {
-        return true;
+        return false;
       }
     }
-    return false;
+    return true;
   }
 
 }

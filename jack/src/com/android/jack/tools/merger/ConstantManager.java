@@ -23,13 +23,16 @@ import com.android.jack.dx.io.FieldId;
 import com.android.jack.dx.io.MethodHandleId;
 import com.android.jack.dx.io.MethodId;
 import com.android.jack.dx.io.ProtoId;
+import com.android.jack.dx.io.TypeList;
 import com.android.jack.dx.rop.cst.CstFieldRef;
 import com.android.jack.dx.rop.cst.CstIndexMap;
 import com.android.jack.dx.rop.cst.CstMethodHandleRef;
+import com.android.jack.dx.rop.cst.CstMethodHandleRef.MethodHandleKind;
 import com.android.jack.dx.rop.cst.CstMethodRef;
 import com.android.jack.dx.rop.cst.CstPrototypeRef;
 import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.rop.type.Prototype;
+import com.android.jack.dx.rop.type.StdTypeList;
 import com.android.jack.dx.rop.type.Type;
 
 import java.util.ArrayList;
@@ -150,7 +153,7 @@ public class ConstantManager extends MergerTools {
     List<ProtoId> protoIds = dexBuffer.protoIds();
     for (ProtoId protoId : protoIds) {
       Prototype prototype = Prototype.intern(
-          cstIndexMap.getStdTypeList(dexBuffer.readTypeList(protoId.getParametersOffset())),
+          getStdTypeList(cstIndexMap, dexBuffer.readTypeList(protoId.getParametersOffset())),
           cstIndexMap.getType(protoId.getReturnTypeIndex()));
       CstPrototypeRef cstProtoRef = new CstPrototypeRef(prototype);
       if (cstPrototypeRefs.add(cstProtoRef)) {
@@ -177,7 +180,28 @@ public class ConstantManager extends MergerTools {
 
     idx = 0;
     for (MethodHandleId methodHandleId : dexBuffer.methodHandleIds()) {
-      CstMethodHandleRef cstMethodHandleRef = cstIndexMap.getCstMethodHandleRef(methodHandleId);
+      MethodHandleKind kind = methodHandleId.getKind();
+      CstMethodHandleRef cstMethodHandleRef;
+
+      switch (kind) {
+        case PUT_INSTANCE:
+        case PUT_STATIC:
+        case GET_INSTANCE:
+        case GET_STATIC: {
+          cstMethodHandleRef = new CstMethodHandleRef(kind,
+              cstIndexMap.getCstFieldRef(methodHandleId.getMemberIndex()));
+          break;
+        }
+        case INVOKE_CONSTRUCTOR:
+        case INVOKE_INSTANCE:
+        case INVOKE_STATIC: {
+          cstMethodHandleRef = new CstMethodHandleRef(kind,
+              cstIndexMap.getCstMethodRef(methodHandleId.getMemberIndex()));
+          break;
+        }
+        default:
+          throw new AssertionError();
+      }
 
       if (cstMethodHandleRefs.add(cstMethodHandleRef)) {
         cstMethodHandleRefsNewlyAdded.add(cstMethodHandleRef);
@@ -236,6 +260,18 @@ public class ConstantManager extends MergerTools {
     types.removeAll(cstTypesToRemove);
     cstPrototypeRefs.removeAll(cstPrototypeRefsToRemove);
     cstMethodHandleRefs.removeAll(cstMethodHandleRefsToRemove);
+  }
+
+  @Nonnull
+  private StdTypeList getStdTypeList(@Nonnull CstIndexMap cstIndexMap, @Nonnull TypeList typeList) {
+    short[] type = typeList.getTypes();
+    int typesLength = type.length;
+    StdTypeList stdTypeList = new StdTypeList(typesLength);
+    for (int i = 0; i < typesLength; i++) {
+      stdTypeList.set(i, cstIndexMap.getType(type[i]));
+    }
+    stdTypeList.setImmutable();
+    return stdTypeList;
   }
 
   public boolean validate(@Nonnull DexFile dexFile) {

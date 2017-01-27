@@ -27,7 +27,7 @@ import com.android.jack.ir.ast.JConstructor;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JModifier;
-import com.android.jack.scheduling.filter.TypeWithoutValidTypePrebuilt;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.jack.scheduling.marker.DexCodeMarker;
 import com.android.jack.transformations.EmptyClinit;
@@ -56,7 +56,7 @@ import javax.annotation.Nonnull;
 @Transform(add = ClassDefItemMarker.Method.class,
     modify = ClassDefItemMarker.class)
 @Protect(add = JMethod.class, modify = JMethod.class, remove = JMethod.class)
-@Filter(TypeWithoutValidTypePrebuilt.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class EncodedMethodBuilder implements RunnableSchedulable<JMethod> {
 
   @Nonnull

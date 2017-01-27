@@ -121,8 +121,8 @@ public abstract class DexWritingTool {
   @Nonnull
   private final AndroidApiLevel apiLevel = ThreadConfig.get(Options.ANDROID_MIN_API_LEVEL);
 
-  protected final boolean useWholeDexPrebuilts =
-      ThreadConfig.get(Options.USE_WHOLE_DEX_PREBUILT).booleanValue();
+  protected final boolean usePrebuilts =
+            ThreadConfig.get(Options.USE_PREBUILT_FROM_LIBRARY).booleanValue();
 
 
   @Nonnull
@@ -216,7 +216,7 @@ public abstract class DexWritingTool {
       anyDexList.add(new MatchableInputVFile(getDexInputVFileOfType(jackOutputLibrary, type)));
     }
 
-    if (useWholeDexPrebuilts) {
+    if (usePrebuilts) {
       DexWritingTool.addOrphanDexFiles(/*outputLibrary = */ null, mainDexList,
           new HashSet<MatchableInputVFile>(anyDexList));
     }
@@ -226,16 +226,13 @@ public abstract class DexWritingTool {
   protected InputVFile getDexInputVFileOfType(@Nonnull OutputJackLibrary jackOutputLibrary,
       @Nonnull JDefinedClassOrInterface type) {
     InputVFile inputVFile = null;
-
+    Location location = type.getLocation();
     try {
-      if (useWholeDexPrebuilts) {
-        Location location = type.getLocation();
-        if (location instanceof TypeInInputLibraryLocation) {
-          InputLibrary inputLibrary = ((TypeInInputLibraryLocation) location).getInputLibrary();
-          if (inputLibrary.containsFileType(FileType.PREBUILT)) {
-            inputVFile = inputLibrary.getFile(FileType.PREBUILT,
-                new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
-          }
+      if (location instanceof TypeInInputLibraryLocation) {
+        InputLibrary inputLibrary = ((TypeInInputLibraryLocation) location).getInputLibrary();
+        if (inputLibrary.containsFileType(FileType.PREBUILT)) {
+          inputVFile = inputLibrary.getFile(FileType.PREBUILT,
+              new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
         }
       }
 

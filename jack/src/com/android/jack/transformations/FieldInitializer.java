@@ -22,7 +22,7 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JStatement;
-import com.android.jack.scheduling.filter.TypeWithoutValidTypePrebuilt;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.assertion.DynamicAssertionFeature;
 import com.android.jack.transformations.request.PrependStatement;
 import com.android.jack.transformations.request.TransformationRequest;
@@ -46,7 +46,7 @@ import javax.annotation.Nonnull;
 @Constraint(need = {InitializationExpression.class, EmptyClinit.class})
 @Transform(remove = {InitializationExpression.class, ThreeAddressCodeForm.class})
 @Support(DynamicAssertionFeature.class)
-@Filter(TypeWithoutValidTypePrebuilt.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
  // Modifies <clinit>
 @ExclusiveAccess(JDefinedClassOrInterface.class)
 public class FieldInitializer implements RunnableSchedulable<JField> {

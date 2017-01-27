@@ -244,16 +244,6 @@ public final class ImportedCodeItem extends OffsettedItem implements
     return out.toByteArray();
   }
 
-  private void loadCatchHandlerTypes() {
-    for (CatchHandler catchHandler : code.getCatchHandlers()) {
-      int[] typeIndexes = catchHandler.getTypeIndexes();
-      int typeIndexesLength = typeIndexes.length;
-      for (int i = 0; i < typeIndexesLength; i++) {
-        cstIndexMap.getType(typeIndexes[i]);
-      }
-    }
-  }
-
   /**
    * Encode and remap code.
    * @param file {@link DexFile} which will contains remapped code.
@@ -285,51 +275,6 @@ public final class ImportedCodeItem extends OffsettedItem implements
 
     return outputCode.getArray();
   }
-
-  private void loadCodeConstants() {
-    CodeReader codeReader = new CodeReader();
-
-    codeReader.setStringVisitor(new CodeReader.Visitor() {
-      @Override
-      public void visit(DecodedInstruction[] all, DecodedInstruction decodedInst) {
-        cstIndexMap.getCstString(decodedInst.getFirstIndex());
-      }
-    });
-    codeReader.setFieldVisitor(new CodeReader.Visitor() {
-      @Override
-      public void visit(DecodedInstruction[] all, DecodedInstruction decodedInst) {
-        cstIndexMap.getCstFieldRef(decodedInst.getFirstIndex());
-      }
-    });
-    codeReader.setTypeVisitor(new CodeReader.Visitor() {
-      @Override
-      public void visit(DecodedInstruction[] all, DecodedInstruction decodedInst) {
-        cstIndexMap.getType(decodedInst.getFirstIndex());
-      }
-    });
-    codeReader.setMethodVisitor(new CodeReader.Visitor() {
-      @Override
-      public void visit(DecodedInstruction[] all, DecodedInstruction decodedInst) {
-        cstIndexMap.getCstMethodRef(decodedInst.getFirstIndex());
-      }
-    });
-    codeReader.setDualConstantVisitor(new CodeReader.Visitor() {
-      @Override
-      public void visit(DecodedInstruction[] all, DecodedInstruction decodedInst) {
-        cstIndexMap.getCstMethodRef(decodedInst.getFirstIndex());
-        cstIndexMap.getCstPrototype(decodedInst.getSecondIndex());
-      }
-    });
-    codeReader.setCallSiteVisitor(new CodeReader.Visitor() {
-      @Override
-      public void visit(DecodedInstruction[] all, DecodedInstruction decodedInst) {
-        cstIndexMap.getCstCallSite(decodedInst.getFirstIndex());
-      }
-    });
-
-    codeReader.visitAll(DecodedInstruction.decodeAll(code.getInstructions()));
-  }
-
 
   /**
    * Get the in registers count.
@@ -368,15 +313,6 @@ public final class ImportedCodeItem extends OffsettedItem implements
 
   public CstIndexMap getCstIndexMap() {
     return cstIndexMap;
-  }
-
-  public void loadLazyIndexMap() {
-    assert cstIndexMap instanceof LazyCstIndexMap;
-    loadCatchHandlerTypes();
-    loadCodeConstants();
-    if (debugInfoItem != null) {
-      debugInfoItem.loadDebugInfoItemConstants();
-    }
   }
 
   private class GenericVisitor implements CodeReader.Visitor {

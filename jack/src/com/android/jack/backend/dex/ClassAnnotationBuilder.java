@@ -22,7 +22,7 @@ import com.android.jack.dx.rop.annotation.Annotations;
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.scheduling.feature.SourceVersion8;
-import com.android.jack.scheduling.filter.TypeWithoutValidTypePrebuilt;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
@@ -46,7 +46,7 @@ import javax.annotation.Nonnull;
 @Use(AnnotationBuilder.class)
 @Optional(@ToSupport(feature = SourceVersion8.class,
     add = @Constraint(no = JAnnotation.RepeatedAnnotation.class)))
-@Filter(TypeWithoutValidTypePrebuilt.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class ClassAnnotationBuilder implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Override

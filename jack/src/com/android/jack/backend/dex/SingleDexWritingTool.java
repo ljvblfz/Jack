@@ -47,7 +47,7 @@ public class SingleDexWritingTool extends DexWritingTool {
     for (JDefinedClassOrInterface type : Jack.getSession().getTypesToEmit()) {
       dexToMerge.add(new MatchableInputVFile(getDexInputVFileOfType(jackOutputLibrary, type)));
     }
-    if (useWholeDexPrebuilts) {
+    if (usePrebuilts) {
       DexWritingTool.addOrphanDexFiles(/*outputLibrary = */ null, dexToMerge);
     }
 

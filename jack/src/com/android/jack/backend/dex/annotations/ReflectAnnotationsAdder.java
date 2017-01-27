@@ -54,7 +54,7 @@ import com.android.jack.ir.formatter.TypeFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.JPhantomLookup;
 import com.android.jack.scheduling.feature.SourceVersion8;
-import com.android.jack.scheduling.filter.TypeWithoutValidTypePrebuilt;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.shrob.obfuscation.FinalNames;
 import com.android.jack.transformations.request.AddAnnotation;
 import com.android.jack.transformations.request.PutNameValuePair;
@@ -92,7 +92,7 @@ import javax.annotation.Nonnull;
     unprotect = @With(remove = ReflectAnnotations.class))
 @Optional(@ToSupport(feature = SourceVersion8.class,
     add = @Constraint(no = JAnnotation.RepeatedAnnotation.class)))
-@Filter(TypeWithoutValidTypePrebuilt.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 // Access getSimpleName which may depend on TypeName that is accessing enclosing type name.
 @Access(JSession.class)
 public class ReflectAnnotationsAdder implements RunnableSchedulable<JDefinedClassOrInterface> {

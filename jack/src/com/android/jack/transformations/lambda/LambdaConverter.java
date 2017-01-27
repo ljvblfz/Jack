@@ -8,7 +8,7 @@ import com.android.jack.ir.ast.JLambda;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
-import com.android.jack.scheduling.filter.TypeWithoutValidTypePrebuilt;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
 import com.android.sched.item.Description;
@@ -31,7 +31,7 @@ import javax.annotation.Nonnull;
 @Use(LambdaInfoMarker.class)
 @Support(LambdaToAnonymousConverter.class)
 @Access(JDefinedClassOrInterface.class)
-@Filter(TypeWithoutValidTypePrebuilt.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class LambdaConverter implements RunnableSchedulable<JMethod> {
   @Override
   public void run(@Nonnull JMethod method) {

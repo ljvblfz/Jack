@@ -24,7 +24,7 @@ import com.android.jack.backend.dex.EnsureAndroidCompatibility;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JMethod;
-import com.android.jack.scheduling.filter.TypeWithoutValidTypePrebuilt;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.lambda.DefaultBridgeIntoInterface;
 import com.android.jack.transformations.request.Remove;
 import com.android.jack.transformations.request.TransformationRequest;
@@ -60,7 +60,7 @@ import javax.annotation.Nonnull;
 // where default bridge methods are not supported, these methods have been removed from the code.
 // However, note that these methods are NOT removed from the jayce, thus they do exist in the
 // IR.
-@Filter(value = TypeWithoutValidTypePrebuilt.class,
+@Filter(value = TypeWithoutPrebuiltFilter.class,
     unlessOne = {Api01Feature.class, Api02Feature.class, Api03Feature.class})
 public class BridgeInInterfaceRemover implements RunnableSchedulable<JMethod> {
 

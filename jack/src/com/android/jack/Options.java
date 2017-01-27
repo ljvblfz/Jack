@@ -380,13 +380,6 @@ public class Options {
         "jack.annotation-processor", "Enable annotation processors")
         .addDefaultValue(true).addCategory(DumpInLibrary.class);
 
-  @Nonnull
-  public static final BooleanPropertyId USE_WHOLE_DEX_PREBUILT =
-      BooleanPropertyId.create(
-        "jack.library.prebuilt.whole", "When using prebuilt, use each dex prebuilt as a whole")
-        .addCategory(Private.class)
-        .addDefaultValue(true);
-
   @Option(name = "--version", usage = "display version")
   private boolean version;
 
@@ -1109,7 +1102,7 @@ public class Options {
 
     if (flags != null) {
       if (flags.obfuscate() || flags.shrink()) {
-        configBuilder.set(Options.USE_WHOLE_DEX_PREBUILT, false);
+        configBuilder.set(Options.USE_PREBUILT_FROM_LIBRARY, false);
         logger
             .log(
                 Level.WARNING,
@@ -1117,7 +1110,6 @@ public class Options {
       }
 
       if (flags.obfuscate()) { // keepAttribute only makes sense when obfuscating
-        configBuilder.set(Options.USE_PREBUILT_FROM_LIBRARY, false);
         boolean emitRuntimeInvisibleAnnotation = flags.keepAttribute("RuntimeInvisibleAnnotations");
         configBuilder.set(
             AnnotationRemover.EMIT_SOURCE_RETENTION_ANNOTATION, emitRuntimeInvisibleAnnotation);

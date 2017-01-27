@@ -53,17 +53,13 @@ import com.android.jack.backend.dex.DexFileProduct;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.backend.dex.DexInLibraryProduct;
 import com.android.jack.backend.dex.DexInLibraryWriterAll;
-import com.android.jack.backend.dex.DexInLibraryWriterNoTypePrebuilt;
+import com.android.jack.backend.dex.DexInLibraryWriterNoPrebuilt;
 import com.android.jack.backend.dex.DexWritingTool;
 import com.android.jack.backend.dex.EncodedFieldBuilder;
 import com.android.jack.backend.dex.EncodedMethodBuilder;
 import com.android.jack.backend.dex.EnsureAndroidCompatibility;
 import com.android.jack.backend.dex.FieldAnnotationBuilder;
 import com.android.jack.backend.dex.FieldInitializerRemover;
-import com.android.jack.backend.dex.ImportedCodeItemBuilder;
-import com.android.jack.backend.dex.ImportedDexClassMarkerRemover;
-import com.android.jack.backend.dex.ImportedDexMarkerBuilder;
-import com.android.jack.backend.dex.ImportedDexMethodMarkerRemover;
 import com.android.jack.backend.dex.MainDexCollector;
 import com.android.jack.backend.dex.MainDexTracer;
 import com.android.jack.backend.dex.MethodAnnotationBuilder;
@@ -1752,13 +1748,10 @@ public abstract class Jack {
       {
         SubPlanBuilder<JDefinedClassOrInterface> typePlan6 =
             planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-        typePlan6.append(ImportedDexMarkerBuilder.class);
 
         {
           SubPlanBuilder<JMethod> methodPlan5 = typePlan6.appendSubPlan(JMethodAdapter.class);
           methodPlan5.append(CodeItemBuilder.class);
-          methodPlan5.append(ImportedCodeItemBuilder.class);
-          methodPlan5.append(ImportedDexMethodMarkerRemover.class);
           methodPlan5.append(CfgMarkerRemover.class);
           methodPlan5.append(EncodedMethodBuilder.class);
           methodPlan5.append(DexCodeMarkerRemover.class);
@@ -1787,10 +1780,9 @@ public abstract class Jack {
             || !features.contains(Incremental.class)) {
           typePlan6.append(DexInLibraryWriterAll.class);
         } else {
-          typePlan6.append(DexInLibraryWriterNoTypePrebuilt.class);
+          typePlan6.append(DexInLibraryWriterNoPrebuilt.class);
         }
         typePlan6.append(ClassDefItemMarkerRemover.class);
-        typePlan6.append(ImportedDexClassMarkerRemover.class);
       }
 
     }

@@ -44,7 +44,7 @@ import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
 import com.android.jack.lookup.JLookupException;
-import com.android.jack.scheduling.filter.TypeWithoutValidTypePrebuilt;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.InitializationExpression;
 import com.android.jack.transformations.ast.BooleanTestOutsideIf;
 import com.android.jack.transformations.ast.NewInstanceRemoved;
@@ -92,7 +92,7 @@ import javax.annotation.Nonnull;
     JExpressionStatement.class},
     remove = {JAssertStatement.class, ThreeAddressCodeForm.class, NewInstanceRemoved.class})
 @Support(DynamicAssertionFeature.class)
-@Filter(TypeWithoutValidTypePrebuilt.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 // Adds field to enclosing class.
 @ExclusiveAccess(JDefinedClassOrInterface.class)
 public class DynamicAssertionTransformer implements RunnableSchedulable<JMethod> {

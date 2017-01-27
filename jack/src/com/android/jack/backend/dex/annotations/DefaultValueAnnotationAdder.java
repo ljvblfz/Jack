@@ -33,7 +33,7 @@ import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.scheduling.feature.SourceVersion8;
-import com.android.jack.scheduling.filter.TypeWithoutValidTypePrebuilt;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.request.AddAnnotation;
 import com.android.jack.transformations.request.AddNameValuePair;
 import com.android.jack.transformations.request.Remove;
@@ -85,7 +85,7 @@ import javax.annotation.Nonnull;
     add = {JAnnotation.class, JNameValuePair.class})
 @Optional(@ToSupport(feature = SourceVersion8.class,
     add = @Constraint(no = JAnnotation.RepeatedAnnotation.class)))
-@Filter(TypeWithoutValidTypePrebuilt.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 // Method default values are transformed in class annotations, while the schedulable runs on methods
 @ExclusiveAccess(JDefinedClassOrInterface.class)
 public class DefaultValueAnnotationAdder implements RunnableSchedulable<JMethod> {
