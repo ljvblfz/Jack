@@ -16,12 +16,7 @@
 
 package com.android.jack.java8;
 
-import org.junit.Test;
-
-import javax.annotation.Nonnull;
-
 import com.android.jack.Options;
-import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.junit.RuntimeVersion;
@@ -30,6 +25,10 @@ import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackApiV01;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 import com.android.jack.util.AndroidApiLevel;
+
+import org.junit.Test;
+
+import javax.annotation.Nonnull;
 
 
 

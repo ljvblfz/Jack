@@ -31,8 +31,6 @@ import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.config.ThreadConfig;
-import com.android.sched.util.file.FileOrDirectory.ChangePermission;
-import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.InputZipFile;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.ReadZipFS;
