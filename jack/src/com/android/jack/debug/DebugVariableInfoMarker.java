@@ -39,7 +39,7 @@ public class DebugVariableInfoMarker implements SerializableMarker {
       new DebugVariableInfoMarker(null, null, null);
 
   @CheckForNull
-  private final String name;
+  private String name;
 
   @CheckForNull
   private final JType type;
@@ -57,6 +57,10 @@ public class DebugVariableInfoMarker implements SerializableMarker {
   @CheckForNull
   public String getName() {
     return name;
+  }
+
+  public void setName(@CheckForNull String name) {
+    this.name = name;
   }
 
   @CheckForNull
