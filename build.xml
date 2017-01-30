@@ -532,7 +532,7 @@
     </dependset>
     <javac encoding="UTF-8" srcdir="${jack.dir}/src"
       destdir="${jack.build.outdir}"
-      source="1.7" target="1.7"
+      source="1.8" target="1.8"
       debug="true" includeantruntime="false" includeDestClasses="false">
       <classpath>
         <filelist refid="jack.link.libs.fileset" />
@@ -666,7 +666,7 @@
       </targets>
     </dependset>
      <javac encoding="UTF-8" srcdir="${jack-api.dir}/src" destdir="${jack-api.lib.build.outdir}"
-          source="1.6" target="1.6" debug="true"
+          source="1.8" target="1.8" debug="true"
           includeantruntime="false"  includeDestClasses="false" nowarn="true">
           <classpath>
             <filelist dir="/" files="${jsr305.dist.dir}/${jsr305.libname}" />
@@ -741,7 +741,7 @@
      <javac encoding="UTF-8" srcdir="${jack-tests.dir}/src"
           includes="com/android/jack/annotations/**/*.java"
           destdir="${jack-test-annotations.build.outdir}"
-          source="1.6" target="1.6" debug="true"
+          source="1.8" target="1.8" debug="true"
           includeantruntime="false"  includeDestClasses="false" nowarn="true" />
 
      <copy file="${jack-project.dir}/version.properties"
@@ -797,7 +797,7 @@
      <javac encoding="UTF-8" srcdir="${jack.dir}/src"
           includes="com/android/jack/annotations/**/*.java"
           destdir="${jack-annotations.build.outdir}"
-          source="1.6" target="1.6" debug="true"
+          source="1.8" target="1.8" debug="true"
           includeantruntime="false"  includeDestClasses="false" nowarn="true" />
 
      <copy file="${jack-project.dir}/version.properties"
@@ -861,7 +861,7 @@
     <copy file="${sched-build.dist.dir}/${sched-build.execname}" todir="${jackunittests.tools.dir}" />
     <!-- compile -->
     <javac encoding="UTF-8" srcdir="${jack.dir}/tests" destdir="${jackunittests.build.outdir}"
-      source="1.7" target="1.7" debug="true"
+      source="1.8" target="1.8" debug="true"
       includeantruntime="false"  includeDestClasses="false" nowarn="true">
       <classpath>
         <filelist refid="jackunittests.link.libs.fileset"/>
@@ -971,12 +971,12 @@
     <javac
       encoding="UTF-8"
       destdir="${jack-tests.build.outdir}"
-      source="1.7" target="1.7"
+      source="1.8" target="1.8"
       debug="true" includeantruntime="false" nowarn="true">
       <src path="${jack-tests.dir}/src"/>
       <src path="${jack-tests.dir}/tests"/>
-      <exclude name="com/android/jack/annotation/processor/sample2/src/**"/>
-      <exclude name="com/android/jack/annotation/test019/jack/**"/>
+      <exclude name="com/android/jack/annotation/processor/sample2/src/"/>
+      <exclude name="com/android/jack/annotation/processor/sample2/src/"/>
       <exclude name="com/android/jack/classpath/test002/lib1override/**"/>
       <exclude name="com/android/jack/encoding/tests/**"/>
       <exclude name="com/android/jack/enums/test003/link/Other.java"/>
@@ -984,6 +984,9 @@
       <exclude name="com/android/jack/error/test001/jack/A.java"/>
       <exclude name="com/android/jack/error/test002/jack/A.java"/>
       <exclude name="com/android/jack/frontend/test002/jack/PackageName/ClassInConflictingPackage.java"/>
+      <exclude name="com/android/jack/frontend/test005/jack/**"/>
+      <exclude name="com/android/jack/frontend/test006/jack/**"/>
+      <exclude name="com/android/jack/frontend/test007/jackduplicate/"/>
       <exclude name="com/android/jack/frontend/test008/jack/NoOuterContext.java"/>
       <exclude name="com/android/jack/frontend/test010/jack/UnusedLocalVar.java"/>
       <exclude name="com/android/jack/frontend/test013/jack/ExtendingInnerOnly.java"/>
@@ -992,46 +995,21 @@
       <exclude name="com/android/jack/frontend/test016/jack/WithDuplicated.java"/>
       <exclude name="com/android/jack/frontend/test017/jack/InvalidQualification.java"/>
       <exclude name="com/android/jack/frontend/test019/jack/TooBig.java"/>
-      <exclude name="com/android/jack/frontend/generic/test002/jack/**"/>
-      <exclude name="com/android/jack/frontend/generic/test003/jack/**"/>
-      <exclude name="com/android/jack/nopackage/jack/**"/>
-      <exclude name="com/android/jack/multidex/test004/jack/**"/>
-      <exclude name="com/android/jack/java8/lambda/**"/>
-      <exclude name="com/android/jack/java8/defaultmethod/**"/>
-      <exclude name="com/android/jack/java8/staticmethod/**"/>
-      <exclude name="com/android/jack/java8/methodref/**"/>
-      <exclude name="com/android/jack/java8/inference/**"/>
-      <exclude name="com/android/jack/java8/gwt/**"/>
-      <exclude name="com/android/jack/java8/retrolambda/**"/>
-      <exclude name="com/android/jack/java8/intersectiontype/**"/>
-      <exclude name="com/android/jack/java8/annotation/**"/>
-      <exclude name="com/android/jack/java8/variable/**"/>
-      <exclude name="com/android/jack/java8/bridges/**"/>
-      <exclude name="com/android/jack/java8/parameter/**"/>
-      <exclude name="com/android/jack/jarjar/test003/dontcompile/**"/>
-      <exclude name="com/android/jack/jarjar/test004/dontcompile/**"/>
-      <exclude name="com/android/jack/jarjar/test006/dontcompile/**"/>
-      <exclude name="com/android/jack/lookup/test001/liboverride/**"/>
-      <exclude name="com/android/jack/frontend/test005/jack/**"/>
-      <exclude name="com/android/jack/frontend/test006/jack/**"/>
-      <exclude name="com/android/jack/frontend/test007/**"/>
+      <exclude name="com/android/jack/jarjar/test003/dontcompile/"/>
+      <exclude name="com/android/jack/jarjar/test006/dontcompile/"/>
+      <exclude name="com/android/jack/jarjar/test006/dontcompile/"/>
+      <exclude name="com/android/jack/java8/gwt/test019/jack/Java8Test.java"/>
+      <exclude name="com/android/jack/java8/intersectiontype/"/>
+      <exclude name="com/android/jack/java8/lambda/test019/"/>
+      <exclude name="com/android/jack/java8/methodref/test014/jack/Tests.java"/>
+      <exclude name="com/android/jack/java8/variable/test001/"/>
+      <exclude name="com/android/jack/java8/variable/test003/"/>
       <exclude name="com/android/jack/jill/test001/**"/>
       <exclude name="com/android/jack/jill/test002/**"/>
       <exclude name="com/android/jack/jill/test003/**"/>
       <exclude name="com/android/jack/jill/test004/**"/>
-      <exclude name="com/android/jack/optimizations/lambdas/test001/**"/>
-      <exclude name="com/android/jack/optimizations/lambdas/test002/**"/>
-      <exclude name="com/android/jack/optimizations/lambdas/test003/**"/>
-      <exclude name="com/android/jack/optimizations/lambdas/test004/**"/>
-      <exclude name="com/android/jack/optimizations/lambdas/test005/**"/>
-      <exclude name="com/android/jack/optimizations/lambdas/test006/**"/>
-      <exclude name="com/android/jack/optimizations/lambdas/test007/**"/>
-      <exclude name="com/android/jack/optimizations/lambdas/test008/**"/>
+      <exclude name="com/android/jack/lookup/test001/liboverride/"/>
       <exclude name="com/android/jack/sourcepath/test002/jack/Sourcepath002.java"/>
-      <exclude name="com/android/jack/shrob/test062/jack/**"/>
-      <exclude name="com/android/jack/shrob/test066/jack/**"/>
-      <exclude name="com/android/jack/shrob/test067/jack/**"/>
-      <exclude name="com/android/jack/shrob/test068/jack/**"/>
       <classpath>
         <filelist dir="/">
           <file name="${jill-api.dist.dir}/${jill-api.lib.name}" />
@@ -1143,7 +1121,7 @@
     <!-- compile -->
     <javac  encoding="UTF-8" srcdir="${jill.dir}/src"
           destdir="${jill.build.outdir}"
-          source="1.7" target="1.7"
+          source="1.8" target="1.8"
           debug="true" includeantruntime="false">
       <classpath>
         <filelist refid="jill.libs.filelist" />
@@ -1235,7 +1213,7 @@
     <delete dir="${jill-api.lib.build.outdir}"/>
     <mkdir dir="${jill-api.lib.build.outdir}"/>
     <javac  encoding="UTF-8" srcdir="${jill-api.dir}/src" destdir="${jill-api.lib.build.outdir}"
-          source="1.6" target="1.6" debug="true"
+          source="1.8" target="1.8" debug="true"
           includeantruntime="false"  includeDestClasses="false" nowarn="true">
       <classpath>
         <filelist dir="/" files="${jsr305.dist.dir}/${jsr305.libname}" />
@@ -1609,7 +1587,7 @@
       </targets>
     </dependset>
     <javac encoding="UTF-8" srcdir="${sched.dir}/src" destdir="${schedlib.build.outdir}"
-      source="1.7" target="1.7" debug="true" includeantruntime="false"  includeDestClasses="false">
+      source="1.8" target="1.8" debug="true" includeantruntime="false"  includeDestClasses="false">
       <classpath>
         <filelist refid="schedlib.link.libs.fileset"/>
       </classpath>
@@ -1662,7 +1640,7 @@
        encoding="UTF-8"
        srcdir="${sched.dir}/src"
        destdir="${sched-build.build.outdir}"
-       source="1.6" target="1.6"
+       source="1.8" target="1.8"
        debug="true" includeantruntime="false" includeDestClasses="false">
       <compilerarg line="-Xlint:-options"/>
       <classpath>
@@ -1751,7 +1729,7 @@
     <javac encoding="UTF-8"
       srcdir="${sched.dir}/tests"
       destdir="${schedtests.build.outdir}"
-      source="1.7" target="1.7"
+      source="1.8" target="1.8"
       debug="true" includeantruntime="false"  includeDestClasses="false">
       <compilerarg line="-Xlint:-options"/>
       <classpath>
@@ -2118,7 +2096,7 @@
     <javac encoding="UTF-8"
             srcdir="${dexcomparator.dir}/src"
             destdir="${dexcomparator.build.outdir}"
-            source="1.6" target="1.6"
+            source="1.8" target="1.8"
             debug="true" includeantruntime="false"  includeDestClasses="false">
       <compilerarg line="-Xlint:-options"/>
       <classpath>
@@ -2653,7 +2631,7 @@
     <delete dir="${jack-jar-tools.build.outdir}"/>
     <mkdir dir="${jack-jar-tools.build.outdir}"/>
     <javac encoding="UTF-8" srcdir="${jack-jar-tools.dir}/src" destdir="${jack-jar-tools.build.outdir}"
-         source="1.6" target="1.6" debug="true"
+         source="1.8" target="1.8" debug="true"
          includeantruntime="false"  includeDestClasses="false" nowarn="true">
       <classpath>
         <filelist refid="jack-jar-tools.static.libs.fileset"/>

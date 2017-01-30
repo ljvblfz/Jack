@@ -16,7 +16,7 @@
 	<classpathentry kind="lib" path="libs/guava-lib.jar"/>
 	<classpathentry kind="lib" path="libs/jsr305-lib.jar"/>
 	<classpathentry kind="lib" path="libs/junit4.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jack-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jill"/>
 	<classpathentry kind="output" path="bin"/>
