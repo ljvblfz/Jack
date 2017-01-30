@@ -16,7 +16,7 @@
 
 package com.android.jack.reporting;
 
-import com.android.jack.Options.VerbosityLevel;
+import com.android.jack.VerbosityLevel;
 import com.android.sched.util.codec.EnumName;
 import com.android.sched.util.codec.VariableName;
 

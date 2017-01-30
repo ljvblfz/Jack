@@ -79,18 +79,18 @@ public class Api02ConfigImpl extends Api01ConfigImpl implements Api02Config {
   @Override
   public void setVerbosityLevel(@Nonnull VerbosityLevel verbosityLevel)
       throws ConfigurationException {
-    com.android.jack.Options.VerbosityLevel jackVerbosityLevel;
+    com.android.jack.VerbosityLevel jackVerbosityLevel;
     switch (verbosityLevel) {
       case ERROR: {
-        jackVerbosityLevel = com.android.jack.Options.VerbosityLevel.ERROR;
+        jackVerbosityLevel = com.android.jack.VerbosityLevel.ERROR;
         break;
       }
       case INFO: {
-        jackVerbosityLevel = com.android.jack.Options.VerbosityLevel.INFO;
+        jackVerbosityLevel = com.android.jack.VerbosityLevel.INFO;
         break;
       }
       case WARNING: {
-        jackVerbosityLevel = com.android.jack.Options.VerbosityLevel.WARNING;
+        jackVerbosityLevel = com.android.jack.VerbosityLevel.WARNING;
         break;
       }
       default: {

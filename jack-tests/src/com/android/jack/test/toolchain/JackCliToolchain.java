@@ -19,7 +19,7 @@ package com.android.jack.test.toolchain;
 import com.google.common.base.Joiner;
 
 import com.android.jack.Options;
-import com.android.jack.Options.VerbosityLevel;
+import com.android.jack.VerbosityLevel;
 import com.android.jack.test.util.ExecFileException;
 import com.android.jack.test.util.ExecuteFile;
 
@@ -50,7 +50,7 @@ public class JackCliToolchain extends JackBasedToolchain {
   @CheckForNull
   protected File incrementalFolder;
   @Nonnull
-  protected Options.VerbosityLevel verbosityLevel = VerbosityLevel.WARNING;
+  protected VerbosityLevel verbosityLevel = VerbosityLevel.WARNING;
   @Nonnull
   protected final Map<String, String> properties = new HashMap<String, String>();
 
