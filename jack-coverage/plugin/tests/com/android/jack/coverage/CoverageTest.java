@@ -54,10 +54,11 @@ public abstract class CoverageTest {
    */
   @Nonnull
   protected static final File getTestRootDir(@Nonnull String testPackageName) {
-    File jackRootDir = TestsProperties.getJackRootDir();
-    File jackCoverageDir = new File(jackRootDir, "jack-coverage");
-    File jackCoverageTestsDir = new File(jackCoverageDir, "tests");
-    return new File(jackCoverageTestsDir, testPackageName.replace('.', File.separatorChar));
+    File rootDir = TestsProperties.getJackRootDir();
+    rootDir = new File(rootDir, "jack-coverage");
+    rootDir = new File(rootDir, "plugin");
+    rootDir = new File(rootDir, "tests");
+    return new File(rootDir, testPackageName.replace('.', File.separatorChar));
   }
 
   @Nonnull

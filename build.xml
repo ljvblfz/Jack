@@ -36,8 +36,7 @@
     schedtests-lib,
     jill,
     jill-api,
-    jack-jar-tools,
-    jack-jacoco-reporter"/>
+    jack-jar-tools"/>
 
   <target name="clean" depends="jack-clean,
     jack-api-lib-clean,
@@ -79,10 +78,7 @@
     jill-api-lib-clean,
     jill-api-src-clean,
     jack-jar-tools-clean,
-    jack-jacoco-reporter-clean,
-    jacoco-clean,
     asm4-clean,
-    gson-clean,
     dist-clean" />
 
   <dirname property="jack-project.dir" file="${ant.file.jack}"/>
@@ -112,13 +108,10 @@
   <property name="dx-ref.dir" value="${jack-project.dir}/dx-ref"/>
   <property name="core-stubs-mini.dir" value="${jack-project.dir}/core-stubs-mini"/>
   <property name="jack-jar-tools.dir" value="${jack-project.dir}/jack-jar-tools"/>
-  <property name="jack-jacoco-reporter.dir" value="${jack-project.dir}/jack-jacoco-reporter"/>
-  <property name="jacoco.dir" value="${jack-project.dir}/jacoco"/>
 
   <property name="jill.dir" value="${jack-project.dir}/jill" />
   <property name="jill-api.dir" value="${jack-project.dir}/jill-api" />
   <property name="asm4.dir" value="${jack-project.dir}/asm4" />
-  <property name="gson.dir" value="${jack-project.dir}/gson"/>
 
   <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask"
       classpath="${jack-project.dir}/jarjar/jarjar.jar"/>
@@ -380,7 +373,6 @@
     description="package a tools distribution"
     depends="dist-check-version-files,
              jack-jar-tools,
-             jack-jacoco-reporter,
              generate-eng-signature">
 
     <mkdir dir="${jack-top-dist.dir}"/>
@@ -402,10 +394,6 @@
     <jar destfile="${jack-top-dist.dir}/${jack-jar-tools.name}" update="true"
         basedir="${tools-sign.tmp}"
         includes="jack-jar-tools-version.properties"/>
-
-    <jar destfile="${jack-top-dist.dir}/${jack-jacoco-reporter.name}" filesetmanifest="merge">
-      <zipfileset src="${jack-jacoco-reporter.dist.dir}/${jack-jacoco-reporter.name}"/>
-    </jar>
 
     <delete dir="${tools-sign.tmp}"/>
 
@@ -2253,59 +2241,6 @@
   </target>
 
   <!-- ******************* -->
-  <!-- gson                -->
-  <!-- ******************* -->
-  <property name="gson.build.dir" value="${gson.dir}/build" />
-  <property name="gson.build.outdir" value="${gson.build.dir}/classes" />
-  <property name="gson.dist.dir" value="${gson.dir}/dist" />
-  <property name="gson.libname" value="gson.jar"/>
-
-  <target name="gson-clean">
-    <delete dir="${gson.build.dir}" />
-    <delete dir="${gson.dist.dir}" />
-  </target>
-
-  <target name="gson-lib">
-    <!-- project layout -->
-    <mkdir dir="${gson.build.outdir}"/>
-    <mkdir dir="${gson.dist.dir}"/>
-    <!-- compile -->
-    <dependset>
-      <sources>
-        <fileset dir="${gson.dir}/gson/src/main/java" />
-      </sources>
-      <targets>
-        <fileset file="${gson.dist.dir}/${gson.libname}"/>
-      </targets>
-    </dependset>
-    <javac encoding="UTF-8" srcdir="${gson.dir}/gson/src/main/java"
-          destdir="${gson.build.outdir}"
-          source="1.5" target="1.5"
-          debug="true" includeantruntime="false"/>
-    <!-- package -->
-    <jar destfile="${gson.dist.dir}/${gson.libname}"
-          basedir="${gson.build.outdir}"
-          includes="**"/>
-  </target>
-
-  <!-- ******************* -->
-  <!-- jacoco              -->
-  <!-- ******************* -->
-  <property name="jacoco.dist.dir" value="${jacoco.dir}/dist" />
-  <property name="jacoco.core.libname" value="org.jacoco.core.jar"/>
-  <property name="jacoco.report.libname" value="org.jacoco.report.jar"/>
-
-  <target name="jacoco-clean">
-    <delete dir="${jacoco.dist.dir}"/>
-  </target>
-
-  <target name="jacoco-libs">
-    <mkdir dir="${jacoco.dist.dir}"/>
-    <copy file="${jacoco.dir}/org.jacoco.core-0.7.5.201505241946.jar" tofile="${jacoco.dist.dir}/${jacoco.core.libname}"/>
-    <copy file="${jacoco.dir}/org.jacoco.report-0.7.5.201505241946.jar" tofile="${jacoco.dist.dir}/${jacoco.report.libname}"/>
-  </target>
-
-  <!-- ******************* -->
   <!-- jack-default-lib    -->
   <!-- ******************* -->
   <property name="jack-default-lib.build.jack" value="${jack.dir}/build/default-lib.jack"/>
@@ -2730,81 +2665,6 @@
           tofile="${jack-jar-tools.build.outdir}/jack-jar-tools-version.properties"/>
     <jar destfile="${jack-jar-tools.dist.dir}/${jack-jar-tools.name}" manifest="${jack-jar-tools.dir}/etc/manifest.txt">
       <fileset dir="${jack-jar-tools.build.outdir}"/>
-    </jar>
-  </target>
-
-
-  <!-- ************************* -->
-  <!-- jack-jacoco-reporter   -->
-  <!-- ************************* -->
-  <property name="jack-jacoco-reporter.build.dir" value="${jack-jacoco-reporter.dir}/build" />
-  <property name="jack-jacoco-reporter.dist.dir" value="${jack-jacoco-reporter.dir}/dist" />
-  <property name="jack-jacoco-reporter.libs.dir" value="${jack-jacoco-reporter.dir}/libs" />
-  <property name="jack-jacoco-reporter.build.outdir" value="${jack-jacoco-reporter.build.dir}/classes" />
-  <property name="jack-jacoco-reporter.name" value="jack-jacoco-reporter.jar" />
-
-  <target name="jack-jacoco-reporter-clean">
-    <delete dir="${jack-jacoco-reporter.build.dir}" />
-    <delete dir="${jack-jacoco-reporter.dist.dir}" />
-    <delete dir="${jack-jacoco-reporter.libs.dir}" />
-  </target>
-
-  <target name="jack-jacoco-reporter-copy-libs"
-    depends="jsr305-lib,args4j-lib,asm4-lib,gson-lib,junit4,jacoco-libs">
-    <copy todir="${jack-jacoco-reporter.libs.dir}" flatten="true">
-      <filelist dir="/" >
-        <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
-        <file name="${schedlib.dist.dir}/${schedlib.libname}" />
-        <file name="${args4j.dist.dir}/${args4j.libname}"/>
-        <file name="${asm4.dist.dir}/${asm4.libname}"/>
-        <file name="${gson.dist.dir}/${gson.libname}"/>
-        <file name="${jacoco.dist.dir}/${jacoco.core.libname}"/>
-        <file name="${jacoco.dist.dir}/${jacoco.report.libname}"/>
-        <file name="${junit4.dist.dir}/${junit4.execname}"/>
-      </filelist>
-    </copy>
-  </target>
-
-  <target name="jack-jacoco-reporter-check">
-    <union id="jack-jacoco-reporter.uptodate.files">
-      <fileset dir="${jack-jacoco-reporter.dir}/src" />
-      <fileset dir="${jack-jacoco-reporter.dir}/etc" />
-      <filelist id="jack-jacoco-reporter.static.libs.fileset" dir="/">
-        <file name="${jack-jacoco-reporter.libs.dir}/${jsr305.libname}"/>
-        <file name="${jack-jacoco-reporter.libs.dir}/${schedlib.libname}"/>
-        <file name="${jack-jacoco-reporter.libs.dir}/${args4j.libname}"/>
-        <file name="${jack-jacoco-reporter.libs.dir}/${asm4.libname}"/>
-        <file name="${jack-jacoco-reporter.libs.dir}/${gson.libname}"/>
-        <file name="${jack-jacoco-reporter.libs.dir}/${jacoco.core.libname}"/>
-        <file name="${jack-jacoco-reporter.libs.dir}/${jacoco.report.libname}"/>
-      </filelist>
-    </union>
-
-    <uptodate property="jack-jacoco-reporter.uptodate"
-      targetfile="${jack-jacoco-reporter.dist.dir}/${jack-jacoco-reporter.name}">
-      <srcresources refid="jack-jacoco-reporter.uptodate.files" />
-    </uptodate>
-  </target>
-
-  <target name="jack-jacoco-reporter"
-      depends="jack-jacoco-reporter-copy-libs,jack-jacoco-reporter-check"
-      unless="${jack-jacoco-reporter.uptodate}">
-    <delete dir="${jack-jacoco-reporter.build.outdir}"/>
-    <mkdir dir="${jack-jacoco-reporter.build.outdir}"/>
-    <javac encoding="UTF-8" srcdir="${jack-jacoco-reporter.dir}/src" destdir="${jack-jacoco-reporter.build.outdir}"
-         source="1.6" target="1.6" debug="true"
-         includeantruntime="false"  includeDestClasses="false" nowarn="true">
-      <classpath>
-        <filelist refid="jack-jacoco-reporter.static.libs.fileset"/>
-      </classpath>
-    </javac>
-    <unzip dest="${jack-jacoco-reporter.build.outdir}">
-      <filelist refid="jack-jacoco-reporter.static.libs.fileset"/>
-    </unzip>
-    <copy file="${jack-project.dir}/version.properties"
-          tofile="${jack-jacoco-reporter.build.outdir}/jack-jacoco-reporter-version.properties"/>
-    <jar destfile="${jack-jacoco-reporter.dist.dir}/${jack-jacoco-reporter.name}" manifest="${jack-jacoco-reporter.dir}/etc/manifest.txt">
-      <fileset dir="${jack-jacoco-reporter.build.outdir}"/>
     </jar>
   </target>
 
