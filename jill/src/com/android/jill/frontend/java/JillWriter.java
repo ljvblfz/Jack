@@ -51,7 +51,7 @@ public abstract class JillWriter {
   protected void writeValue(Object value, @CheckForNull ClassNode classNode,
       @Nonnegative int currentLine)  throws IOException{
     if (value == null) {
-      writer.writeNull();
+      writeValue(classNode, currentLine);
     } else if (value instanceof Boolean) {
       writeValue(((Boolean) value).booleanValue(), classNode, currentLine);
     } else if (value instanceof Integer) {
