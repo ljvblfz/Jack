@@ -49,7 +49,7 @@ public class LambdaNoGroupingShrinkTests {
 
   @Test
   @Runtime
-  public void testLamba040_whole() throws Exception {
+  public void testLamba044_whole() throws Exception {
 
     File lib = makeLibrary(new File[]{}, TEST001.directory);
 
@@ -58,7 +58,7 @@ public class LambdaNoGroupingShrinkTests {
 
   @Test
   @Runtime
-  public void testLamba040_ByLib() throws Exception {
+  public void testLamba044_ByLib() throws Exception {
 
     File lib2 = makeLibrary(new File[]{}, new File(TEST001.directory, "lib2"));
     File lib1 = makeLibrary(new File[]{lib2}, new File(TEST001.directory, "lib1"));
@@ -70,13 +70,45 @@ public class LambdaNoGroupingShrinkTests {
 
   @Test
   @Runtime
-  public void ltestLamba040_ByTestClass() throws Exception {
+  public void testLamba044_ByTestClass() throws Exception {
 
     File libs = makeLibrary(new File[]{},
             new File(TEST001.directory, "lib1"), new File(TEST001.directory, "lib2"));
     File b2 = makeLibrary(new File[]{libs}, new File(TEST001.directory, "jack/B2.java"));
     File b3 = makeLibrary(new File[]{libs}, new File(TEST001.directory, "jack/B3.java"));
     File test = makeLibrary(new File[]{libs, b2, b3},
+        new File(TEST001.directory, "jack/Tests.java"));
+
+    test(TEST001.jUnit, libs, b2, b3, test);
+
+  }
+
+  @Test
+  @Runtime
+  public void testLamba044_ClassConflict() throws Exception {
+
+    File libs = makeLibrary(new File[]{},
+        new File(TEST001.directory, "lib1"), new File(TEST001.directory, "lib2"));
+    File lib2A3 = makeLibrary(new File[]{libs}, new File(TEST001.directory, "lib2/A3.java"));
+    File b2 = makeLibrary(new File[]{libs}, new File(TEST001.directory, "jack/B2.java"));
+    File b3 = makeLibrary(new File[]{libs}, new File(TEST001.directory, "jack/B3.java"));
+    File test = makeLibrary(new File[]{libs, lib2A3, b2, b3},
+        new File(TEST001.directory, "jack/Tests.java"));
+
+    test(TEST001.jUnit, libs, b2, b3, test);
+
+  }
+
+  @Test
+  @Runtime
+  public void testLamba044_PackageConflict() throws Exception {
+
+    File libs = makeLibrary(new File[]{},
+        new File(TEST001.directory, "lib1"), new File(TEST001.directory, "lib2"));
+    File lib2 = makeLibrary(new File[]{}, new File(TEST001.directory, "lib2/"));
+    File b2 = makeLibrary(new File[]{libs}, new File(TEST001.directory, "jack/B2.java"));
+    File b3 = makeLibrary(new File[]{libs}, new File(TEST001.directory, "jack/B3.java"));
+    File test = makeLibrary(new File[]{libs, lib2, b2, b3},
         new File(TEST001.directory, "jack/Tests.java"));
 
     test(TEST001.jUnit, libs, b2, b3, test);
