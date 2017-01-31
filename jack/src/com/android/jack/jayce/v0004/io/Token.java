@@ -16,7 +16,6 @@
 
 package com.android.jack.jayce.v0004.io;
 
-import com.android.jack.jayce.JayceFormatException;
 import com.android.jack.jayce.NodeLevel;
 import com.android.jack.jayce.v0004.NNode;
 import com.android.jack.jayce.v0004.nodes.HasSourceInfo;
@@ -1968,24 +1967,7 @@ public enum Token {
       NPrefixNotOperation.skipContent(reader);
     }
   },
-  RESERVED("reserved") {
-    @Nonnull
-    @Override
-    public NNode newNode() {
-      throw new JayceFormatException("Unexpected node '" + toString() + "'");
-    }
-
-    @Override
-    @Nonnull
-    public Class<? extends NNode> getNNodeClass()  {
-      throw new JayceFormatException("Unexpected node '" + toString() + "'");
-    }
-
-    @Override
-    public void skip(@Nonnull JayceInternalReaderImpl reader) {
-      throw new JayceFormatException("Unexpected node '" + toString() + "'");
-    }
-  },
+  RESERVED("reserved"),
   REINTERPRETCAST_OPERATION("reinterpret-cast") {
     @Override
     @Nonnull
