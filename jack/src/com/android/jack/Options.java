@@ -36,8 +36,6 @@ import com.android.jack.plugin.JackPluginJarCodec;
 import com.android.jack.plugin.NotJackPluginException;
 import com.android.jack.plugin.PluginManager;
 import com.android.jack.plugin.PluginNotFoundException;
-import com.android.jack.reporting.Reportable;
-import com.android.jack.reporting.Reportable.ProblemLevel;
 import com.android.jack.reporting.Reporter;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.resource.ResourceImporter;
@@ -154,28 +152,6 @@ public class Options {
 
   @Nonnull
   private static final Logger logger = LoggerFactory.getLogger();
-
-  private static class DeprecatedVerbosity implements Reportable {
-    @Nonnull
-    private final VerbosityLevel verbosity;
-
-    private DeprecatedVerbosity(@Nonnull VerbosityLevel verbosity) {
-      this.verbosity = verbosity;
-    }
-
-    @Override
-    @Nonnull
-    public String getMessage() {
-      return "Verbosity level '" + verbosity.name().toLowerCase() + "' is deprecated";
-    }
-
-    @Override
-    @Nonnull
-    public ProblemLevel getDefaultProblemLevel() {
-      return ProblemLevel.WARNING;
-    }
-
-  }
 
   /**
    * Assertion policies
@@ -402,36 +378,6 @@ public class Options {
           Collections.<String, String>emptyMap());
 
   private final File propertiesFile = null;
-
-  /**
-   * Jack verbosity level.
-   * Note: The implementation of {@link ProblemLevel} assumes that the ordinal values of
-   * {@link VerbosityLevel} are ordered from the highest severity to the lowest.
-   */
-  @VariableName("level")
-  public enum VerbosityLevel {
-    @EnumName(name = "error")
-    ERROR("error"),
-    @EnumName(name = "warning")
-    WARNING("warning"),
-    @EnumName(name = "info")
-    INFO("info"),
-    @EnumName(name = "debug", hide = true)
-    @Deprecated DEBUG("debug"),
-    @EnumName(name = "trace", hide = true)
-    @Deprecated TRACE("trace");
-
-    @Nonnull
-    private final String id;
-
-    VerbosityLevel(@Nonnull String id) {
-      this.id = id;
-    }
-
-    public String getId() {
-      return id;
-    }
-  }
 
   @Nonnull
   public static final EnumPropertyId<VerbosityLevel> VERBOSITY_LEVEL = EnumPropertyId.create(
@@ -1337,7 +1283,9 @@ public class Options {
     }
 
     if (verbose == VerbosityLevel.DEBUG || verbose == VerbosityLevel.TRACE) {
-      config.get(Reporter.REPORTER).report(Severity.NON_FATAL, new DeprecatedVerbosity(verbose));
+      config
+          .get(Reporter.REPORTER)
+          .report(Severity.NON_FATAL, new VerbosityLevel.DeprecatedVerbosity(verbose));
     }
   }
 
