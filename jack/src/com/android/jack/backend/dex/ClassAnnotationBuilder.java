@@ -38,7 +38,7 @@ import java.util.Collection;
 import javax.annotation.Nonnull;
 
 /**
- * Builds the {@link com.android.dx.rop.annotation.Annotations Annotations} of a class or interface.
+ * Builds the {@link Annotations} of a class or interface.
  */
 @Description("Builds the rop annotations of a JDeclaredType.")
 @Constraint(need = ClassDefItemMarker.class, no = AnnotationMethodDefaultValue.class)
