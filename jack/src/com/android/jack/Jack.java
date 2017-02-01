@@ -320,7 +320,6 @@ import com.android.jack.transformations.ssa.CfgNodeListRemoval;
 import com.android.jack.transformations.ssa.DominanceFrontierAssignment;
 import com.android.jack.transformations.ssa.DominanceFrontierRemoval;
 import com.android.jack.transformations.ssa.JPhiElementInsertion;
-import com.android.jack.transformations.ssa.OptimizeJPhiElements;
 import com.android.jack.transformations.ssa.SsaBasicBlockSplitter;
 import com.android.jack.transformations.ssa.SsaRenamer;
 import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeBuilder;
@@ -1793,7 +1792,6 @@ public abstract class Jack {
       cfgPlan.append(DominanceFrontierAssignment.class);
       cfgPlan.append(JPhiElementInsertion.class);
       cfgPlan.append(SsaRenamer.class);
-      cfgPlan.append(OptimizeJPhiElements.class);
       cfgPlan.append(CopyPropagation.class);
       cfgPlan.append(CfgNodeIdRemoval.class);
       cfgPlan.append(CfgNodeListRemoval.class);

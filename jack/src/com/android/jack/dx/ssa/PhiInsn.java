@@ -28,7 +28,6 @@ import com.android.jack.dx.util.Hex;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A Phi instruction (magical post-control-flow-merge) instruction
@@ -146,14 +145,13 @@ public final class PhiInsn extends SsaInsn {
   }
 
   /**
-   * Switches the operand ID from ROP block label to SSA block index. 
+   * Switches the operand ID from ROP block label to SSA block index.
    *
    * @param labelToIndex A map that proves ROP block label to SSA block index.
    */
-  public void resolveOperandBlockIndex(Map<Integer, Integer> labelToIndex) {
+  public void resolveOperandBlockIndex(int[] labelToIndex) {
     for (Operand o : operands) {
-      Integer index = labelToIndex.get(Integer.valueOf(o.ropLabel));
-      o.blockIndex = index.intValue();
+      o.blockIndex = labelToIndex[o.ropLabel];
     }
   }
 

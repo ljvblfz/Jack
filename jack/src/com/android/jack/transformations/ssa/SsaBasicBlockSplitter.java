@@ -18,6 +18,7 @@ package com.android.jack.transformations.ssa;
 
 import com.google.common.collect.Lists;
 
+import com.android.jack.ir.ast.cfg.ExceptionHandlingContext;
 import com.android.jack.ir.ast.cfg.JBasicBlock;
 import com.android.jack.ir.ast.cfg.JBasicBlockElement;
 import com.android.jack.ir.ast.cfg.JCaseBasicBlock;
@@ -26,6 +27,7 @@ import com.android.jack.ir.ast.cfg.JControlFlowGraph;
 import com.android.jack.ir.ast.cfg.JEntryBasicBlock;
 import com.android.jack.ir.ast.cfg.JExitBasicBlock;
 import com.android.jack.ir.ast.cfg.JSimpleBasicBlock;
+import com.android.jack.optimizations.cfg.CfgBasicBlockUtils;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
@@ -45,9 +47,12 @@ import javax.annotation.Nonnull;
 @Filter(TypeWithoutPrebuiltFilter.class)
 public class SsaBasicBlockSplitter implements RunnableSchedulable<JControlFlowGraph> {
 
+  public static final boolean NEED_EDGE_SPLIT_PREDECESSOR = false;
+
   @Override
   public void run(@Nonnull JControlFlowGraph cfg) {
     assert cfg.getMarker(SsaBasicBlockSplitterMarker.class) == null;
+    removeExceptionHandlingContext(cfg);
     edgeSplit(cfg);
     cfg.addMarker(SsaBasicBlockSplitterMarker.INSTANCE);
   }
@@ -56,7 +61,9 @@ public class SsaBasicBlockSplitter implements RunnableSchedulable<JControlFlowGr
    * Extracts control flow graph from method and perform edge split in neccessary.
    */
   private void edgeSplit(@Nonnull JControlFlowGraph cfg) {
-    edgeSplitPredecessors(cfg);
+    if (NEED_EDGE_SPLIT_PREDECESSOR) {
+      edgeSplitPredecessors(cfg);
+    }
     edgeSplitMoveExceptionsAndResults(cfg);
     edgeSplitSuccessors(cfg);
   }
@@ -66,7 +73,7 @@ public class SsaBasicBlockSplitter implements RunnableSchedulable<JControlFlowGr
    * predecessors.
    */
   private void edgeSplitPredecessors(JControlFlowGraph cfg) {
-    for (JBasicBlock block : cfg.getInternalBlocksUnordered()) {
+    for (JBasicBlock block : cfg.getReachableBlocksDepthFirst()) {
       if (nodeNeedsUniquePredecessor(block)) {
         block.split(0);
       }
@@ -79,7 +86,7 @@ public class SsaBasicBlockSplitter implements RunnableSchedulable<JControlFlowGr
    */
   private static boolean nodeNeedsUniquePredecessor(JBasicBlock block) {
     if (block instanceof JExitBasicBlock) {
-      throw new RuntimeException("exit bblock doesn't need unique pred");
+      return false;
     }
     /*
      * Any block with that has both multiple successors and multiple predecessors needs a new
@@ -97,7 +104,7 @@ public class SsaBasicBlockSplitter implements RunnableSchedulable<JControlFlowGr
     /*
      * New blocks are added to the end of the block list during this iteration.
      */
-    for (JBasicBlock block : cfg.getInternalBlocksUnordered()) {
+    for (JBasicBlock block : cfg.getReachableBlocksDepthFirst()) {
       /*
        * Any block that starts with a move-exception and has more than one predecessor...
        */
@@ -118,7 +125,7 @@ public class SsaBasicBlockSplitter implements RunnableSchedulable<JControlFlowGr
     /*
      * New blocks are added to the end of the block list during this iteration.
      */
-    for (JBasicBlock block : cfg.getInternalBlocksUnordered()) {
+    for (JBasicBlock block : cfg.getReachableBlocksDepthFirst()) {
       // Successors list is modified in loop below.
       for (JBasicBlock succ : block.getSuccessors()) {
         if (needsNewSuccessor(block, succ)) {
@@ -166,5 +173,14 @@ public class SsaBasicBlockSplitter implements RunnableSchedulable<JControlFlowGr
   private static void insertNewSimpleSuccessor(JBasicBlock block, JBasicBlock other) {
     JSimpleBasicBlock newSucc = new JSimpleBasicBlock(block.getCfg(), other);
     block.replaceAllSuccessors(other, newSucc);
+  }
+
+  private void removeExceptionHandlingContext(@Nonnull JControlFlowGraph cfg) {
+    for (JBasicBlock block : cfg.getInternalBlocksUnordered()) {
+      for (JBasicBlockElement element : block.getElements(true)) {
+        element.resetEHContext(ExceptionHandlingContext.EMPTY);
+      }
+    }
+    new CfgBasicBlockUtils(cfg).removeUnreachableBlocks();
   }
 }

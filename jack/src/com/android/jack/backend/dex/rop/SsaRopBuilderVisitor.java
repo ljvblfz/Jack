@@ -92,6 +92,7 @@ import com.android.jack.ir.ast.JMethodCall.DispatchKind;
 import com.android.jack.ir.ast.JNewArray;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JNullLiteral;
+import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JPolymorphicMethodCall;
 import com.android.jack.ir.ast.JPrefixNotOperation;
 import com.android.jack.ir.ast.JPrimitiveType;
@@ -100,6 +101,7 @@ import com.android.jack.ir.ast.JReferenceType;
 import com.android.jack.ir.ast.JReinterpretCastOperation;
 import com.android.jack.ir.ast.JShortLiteral;
 import com.android.jack.ir.ast.JSsaVariableRef;
+import com.android.jack.ir.ast.JSsaVariableUseRef;
 import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JUnaryOperation;
@@ -132,9 +134,9 @@ import com.android.jack.util.AndroidApiLevel;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
@@ -459,12 +461,10 @@ class SsaRopBuilderVisitor extends JVisitor {
   }
 
   public void processBasicBlockElements() {
-    instructions = new LinkedList<>();
-    extraInstructions = new LinkedList<>();
+    List<JBasicBlockElement> elements = this.currentBasicBlock.getElements(true);
+    instructions = Lists.newArrayListWithExpectedSize((int) (elements.size() * 1.5));
+    extraInstructions = Lists.newArrayListWithExpectedSize((int) (elements.size() * 0.5));
     noMoreInstruction = false;
-
-    ArrayList<JBasicBlockElement> elements =
-        Lists.newArrayList(this.currentBasicBlock.getElements(true));
     super.accept(elements);
   }
 
@@ -477,9 +477,16 @@ class SsaRopBuilderVisitor extends JVisitor {
       Integer predLabel = labelMap.get(pred);
       assert predLabel != null;
 
+      JSsaVariableUseRef rhs = phi.getRhs(pred);
+      if (!(rhs.getTarget() instanceof JParameter)) {
+        if (rhs.getVersion() == 0) {
+          continue;
+        }
+      }
+
       // Because we don't know the predIndex until the whole CFG is traversed, we are going to
       // set the predIndex at the very end instead.
-      phiInsn.addPhiOperand(ropReg.getOrCreateRegisterSpec(phi.getRhs(pred)),
+      phiInsn.addPhiOperand(ropReg.getOrCreateRegisterSpec(rhs),
           predLabel.intValue(), predLabel.intValue());
     }
     addInstruction(phiInsn);
@@ -1447,10 +1454,5 @@ class SsaRopBuilderVisitor extends JVisitor {
     } else {
       return (RopHelper.createTypeList(catchTypes));
     }
-  }
-
-  @Override
-  public void endVisit(@Nonnull JBasicBlock x) {
-    ropReg.resetFreeTmpRegister();
   }
 }

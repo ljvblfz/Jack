@@ -50,10 +50,10 @@ public class JPhiElementInsertion implements RunnableSchedulable<JControlFlowGra
 
   @Override
   public void run(JControlFlowGraph cfg) {
+    // Invalidates the block split marker.
     SsaBasicBlockSplitterMarker marker = cfg.removeMarker(SsaBasicBlockSplitterMarker.class);
     assert marker != null;
     placePhiFunctions(cfg);
-    // Invalidates the block split marker.
   }
 
   /**

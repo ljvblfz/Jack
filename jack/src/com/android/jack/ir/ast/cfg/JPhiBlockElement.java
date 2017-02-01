@@ -16,8 +16,6 @@
 
 package com.android.jack.ir.ast.cfg;
 
-import com.google.common.collect.Maps;
-
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JSsaVariableDefRef;
 import com.android.jack.ir.ast.JSsaVariableDefRefPlaceHolder;
@@ -31,9 +29,8 @@ import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.annotation.Nonnull;
 
@@ -49,27 +46,33 @@ public class JPhiBlockElement extends JBasicBlockElement {
   private JSsaVariableDefRef lhs;
 
   @Nonnull
-  private final Map<JBasicBlock, JSsaVariableUseRef> rhs;
+  private final JBasicBlock[] preds;
 
+  @Nonnull
+  private final JSsaVariableUseRef[] rhs;
   /**
    * Creates a new Phi statement.
    *
    * @param target Non-ssa variable this phi node is to denote to.
-   * @param preds Predecessors block list of this phi node.
+   * @param predsList Predecessors block list of this phi node.
    * @param info SourceInfo
    */
-  public JPhiBlockElement(JVariable target, List<JBasicBlock> preds, SourceInfo info) {
+  public JPhiBlockElement(JVariable target, List<JBasicBlock> predsList, SourceInfo info) {
     // Phi instructions are not real instructions and should not throw any exception.
     super(info, ExceptionHandlingContext.EMPTY);
     this.lhs = new JSsaVariableDefRefPlaceHolder(info, target);
     lhs.updateParents(this);
-    rhs = Maps.newHashMap();
-    for (JBasicBlock pred : preds) {
+    rhs = new JSsaVariableUseRef[predsList.size()];
+    preds = new JBasicBlock[predsList.size()];
+    int index = 0;
+    for (JBasicBlock pred : predsList) {
       // We are going to insert a place holder first. The SSA renamer will replace the var ref
       // with a proper version.
       JSsaVariableUseRef use = lhs.makeRef(info);
-      rhs.put(pred, use);
+      rhs[index] = use;
+      preds[index] = pred;
       use.updateParents(this);
+      index++;
     }
     this.var = lhs.getTarget();
   }
@@ -78,11 +81,8 @@ public class JPhiBlockElement extends JBasicBlockElement {
   public void traverse(@Nonnull JVisitor visitor) {
     if (visitor.visit(this)) {
       visitor.accept(lhs);
-      for (JSsaVariableRef rhsVar : rhs.values()) {
-        if (rhsVar == null) {
-          throw new RuntimeException("this can't be that good for business");
-        }
-        visitor.accept(rhsVar);
+      for (int i = 0; i < rhs.length; i++) {
+        visitor.accept(rhs[i]);
       }
     }
     visitor.endVisit(this);
@@ -92,7 +92,7 @@ public class JPhiBlockElement extends JBasicBlockElement {
   public void traverse(@Nonnull ScheduleInstance<? super Component> schedule) throws Exception {
     schedule.process(this);
     lhs.traverse(schedule);
-    for (JSsaVariableRef var : rhs.values()) {
+    for (JSsaVariableRef var : rhs) {
       var.traverse(schedule);
     }
   }
@@ -111,9 +111,9 @@ public class JPhiBlockElement extends JBasicBlockElement {
       return;
     }
 
-    for (Entry<JBasicBlock, JSsaVariableUseRef> pred : rhs.entrySet()) {
-      if (pred.getValue() == existingNode) {
-        rhs.put(pred.getKey(), (JSsaVariableUseRef) newNode);
+    for (int i = 0; i < rhs.length; i++) {
+      if (rhs[i] == existingNode) {
+        rhs[i] = (JSsaVariableUseRef) newNode;
         return;
       }
     }
@@ -131,15 +131,18 @@ public class JPhiBlockElement extends JBasicBlockElement {
   }
 
   @Nonnull
-  public Iterable<JSsaVariableUseRef> getRhs() {
-    return rhs.values();
+  public JSsaVariableUseRef[] getRhs() {
+    return Arrays.copyOf(rhs, rhs.length);
   }
 
   @Nonnull
   public JSsaVariableUseRef getRhs(@Nonnull JBasicBlock pred) {
-    JSsaVariableUseRef ref = rhs.get(pred);
-    assert ref != null;
-    return ref;
+    for (int i = 0; i < preds.length; i++) {
+      if (preds[i] == pred) {
+        return rhs[i];
+      }
+    }
+    throw new RuntimeException();
   }
 
   @Override

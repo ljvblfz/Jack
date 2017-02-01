@@ -33,10 +33,6 @@ import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.marker.GenericSignature;
 import com.android.jack.ir.ast.marker.ThisRefTypeInfo;
 
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -44,19 +40,6 @@ import javax.annotation.Nonnull;
 class SsaRopRegisterManager {
 
   private int nextFreeReg = 0;
-
-  /**
-   * Keep a list of temporary register for each dex type.
-   */
-  @Nonnull
-  private final Map<Type, List<RegisterSpec>> typeToTmpRegister =
-      new Hashtable<Type, List<RegisterSpec>>();
-
-  /**
-   * Keep position of the next free register into {@code typeToTmpRegister}.
-   */
-  @Nonnull
-  private final Map<Type, Integer> typeToNextPosFreeRegister = new Hashtable<Type, Integer>();
 
   @CheckForNull
   private RegisterSpec returnReg = null;
@@ -273,12 +256,6 @@ class SsaRopRegisterManager {
     RegisterSpec regSpec = RegisterSpec.make(nextFreeReg, dexRegType);
     nextFreeReg += dexRegType.getCategory();
     return regSpec;
-  }
-
-  void resetFreeTmpRegister() {
-    for (Type type : typeToNextPosFreeRegister.keySet()) {
-      typeToNextPosFreeRegister.put(type, Integer.valueOf(0));
-    }
   }
 
   @Nonnull

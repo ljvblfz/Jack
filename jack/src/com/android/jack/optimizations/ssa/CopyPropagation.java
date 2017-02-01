@@ -82,7 +82,11 @@ public class CopyPropagation implements RunnableSchedulable<JControlFlowGraph> {
           if (e instanceof JVariableAsgBlockElement) {
             changed = tryPropagateAssignment((JVariableAsgBlockElement) e, cfg);
           } else if (e instanceof JPhiBlockElement) {
-            changed = tryPropagatePhi((JPhiBlockElement) e, cfg);
+            JPhiBlockElement phi = (JPhiBlockElement) e;
+            changed = tryRemoveUselessPhi(phi);
+            if (!changed) {
+              changed = tryPropagatePhi(phi, cfg);
+            }
           }
         }
       }
@@ -144,10 +148,19 @@ public class CopyPropagation implements RunnableSchedulable<JControlFlowGraph> {
     }
 
     TransformationRequest tr = new TransformationRequest(cfg);
-    propagateVarRef(phi.getLhs(), rhsVarRef, tr);
+    propagateVarRef(lhsVarRef, rhsVarRef, tr);
     tr.commit();
     ((JRegularBasicBlock) phi.getBasicBlock()).removeElement(phi);
     return true;
+  }
+
+  private boolean tryRemoveUselessPhi(JPhiBlockElement phi) {
+    if (!phi.getLhs().hasUses()) {
+      ((JRegularBasicBlock) phi.getBasicBlock()).removeElement(phi);
+      return true;
+    } else {
+      return false;
+    }
   }
 
   /**
@@ -161,6 +174,7 @@ public class CopyPropagation implements RunnableSchedulable<JControlFlowGraph> {
       newUse.addAllMarkers(oldUse.getAllMarkers());
       tr.append(new Replace(oldUse, newUse));
     }
+    lhs.removeUses();
   }
 
   /**
@@ -170,8 +184,7 @@ public class CopyPropagation implements RunnableSchedulable<JControlFlowGraph> {
    *         null.
    */
   public JSsaVariableUseRef canPropagatePhi(JPhiBlockElement e) {
-    JSsaVariableUseRef first =
-        e.getRhs(e.getBasicBlock().getPredecessors().get(0));
+    JSsaVariableUseRef first = e.getRhs(e.getBasicBlock().getPredecessors().get(0));
     assert first != null;
     for (JSsaVariableUseRef operand : e.getRhs()) {
       if (first.getDef() != operand.getDef()) {

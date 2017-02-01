@@ -66,6 +66,13 @@ public class JSsaVariableDefRef extends JSsaVariableRef {
     return true;
   }
 
+  /**
+   * Removes all referenced {@link JSsaVariableUseRef} objects.
+   */
+  public void removeUses() {
+    uses.clear();
+  }
+
   public boolean hasUses() {
     return !uses.isEmpty();
   }

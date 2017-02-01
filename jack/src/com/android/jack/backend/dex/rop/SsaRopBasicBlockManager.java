@@ -16,8 +16,6 @@
 
 package com.android.jack.backend.dex.rop;
 
-import com.google.common.collect.Maps;
-
 import com.android.jack.dx.ssa.PhiInsn;
 import com.android.jack.dx.ssa.PhiInsn.Visitor;
 import com.android.jack.dx.ssa.SsaBasicBlock;
@@ -25,7 +23,6 @@ import com.android.jack.dx.ssa.SsaMethod;
 import com.android.jack.dx.util.IntList;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -50,8 +47,6 @@ class SsaRopBasicBlockManager {
   @Nonnull
   private final SsaMethod ssaMethod;
 
-  private final Map<Integer, Integer> labelToIndex = Maps.newHashMap();
-
   private boolean resolved = false;
 
   SsaRopBasicBlockManager(SsaMethod ssaMethod, @Nonnegative int maxLabel) {
@@ -66,7 +61,6 @@ class SsaRopBasicBlockManager {
     basicBlocks = new ArrayList<SsaBasicBlock>(maxLabel * 2 + 10);
   }
 
-  @SuppressWarnings("boxing")
   @Nonnull
   SsaBasicBlock createBasicBlock() {
     assert !resolved;
@@ -77,19 +71,22 @@ class SsaRopBasicBlockManager {
 
   @Nonnull
   ArrayList<SsaBasicBlock> computeSsaBasicBlockList() {
-    resolveBlockIndex();
-    resolvePhiIndex();
+    /*
+     * We start allocating index at maxlabel * 2 so, again, we can be believe that we only need
+     * maxLabel number of extra index.
+     */
+    int[] labelToIndex = new int[maxLabel * 3 + 10];
+    resolveBlockIndex(labelToIndex);
+    resolvePhiIndex(labelToIndex);
     resolved = true;
     return basicBlocks;
   }
 
-  @SuppressWarnings("boxing")
-  private void resolveBlockIndex() {
+  private void resolveBlockIndex(int[] labelToIndex) {
     assert !resolved;
 
-    labelToIndex.put(0, 0);
     for (SsaBasicBlock bb : basicBlocks) {
-      labelToIndex.put(bb.getRopLabel(), bb.getIndex());
+      labelToIndex[bb.getRopLabel()] = bb.getIndex();
     }
 
     for (SsaBasicBlock bb : basicBlocks) {
@@ -98,10 +95,7 @@ class SsaRopBasicBlockManager {
 
       for (int i = 0, size = oldSuccessors.size(); i < size; i++) {
         int oldSuccessor = oldSuccessors.get(i);
-        if (labelToIndex.get(oldSuccessor) == null) {
-          System.out.println("not good");
-        }
-        int successorIdx = labelToIndex.get(oldSuccessor);
+        int successorIdx = labelToIndex[oldSuccessor];
         SsaBasicBlock successor = basicBlocks.get(successorIdx);
         successor.addPredeccessors(bb.getIndex());
         newSuccessorsList.add(successorIdx);
@@ -109,12 +103,12 @@ class SsaRopBasicBlockManager {
       if (bb.getPrimarySuccessorIndex() == -1) {
         bb.setSuccessors(newSuccessorsList, -1);
       } else {
-        bb.setSuccessors(newSuccessorsList, labelToIndex.get(bb.getPrimarySuccessorIndex()));
+        bb.setSuccessors(newSuccessorsList, labelToIndex[bb.getPrimarySuccessorIndex()]);
       }
     }
   }
 
-  private void resolvePhiIndex() {
+  private void resolvePhiIndex(final int[] labelToIndex) {
     assert !resolved;
     for (final SsaBasicBlock bb : basicBlocks) {
       bb.forEachPhiInsn(new Visitor() {
@@ -132,8 +126,7 @@ class SsaRopBasicBlockManager {
    * @return the minimum label
    */
   @Nonnegative
-  int getMinimumUnreservedLabel() {
-
+  private int getMinimumUnreservedLabel() {
     /*
      * The labels below ((maxLabel * 2) + SPECIAL_LABEL_COUNT) are reserved for particular uses.
      */

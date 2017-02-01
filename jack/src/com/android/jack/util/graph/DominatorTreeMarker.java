@@ -16,13 +16,12 @@
 
 package com.android.jack.util.graph;
 
-import com.google.common.collect.Lists;
-
 import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -50,7 +49,7 @@ public class DominatorTreeMarker<N extends IGraphNode<N>> implements Marker {
   public static <N extends IGraphNode<N>> List<N> getDomChild(IGraphNode node) {
     DominatorTreeMarker marker = node.getMarker(DominatorTreeMarker.class);
     if (marker == null) {
-      return Lists.newArrayListWithCapacity(0);
+      return Collections.EMPTY_LIST;
     } else {
       return marker.domChildren;
     }

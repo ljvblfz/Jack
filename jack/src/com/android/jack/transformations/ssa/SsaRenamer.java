@@ -16,8 +16,6 @@
 
 package com.android.jack.transformations.ssa;
 
-import com.android.jack.ir.ast.JAsgOperation;
-import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JSsaVariableDefRef;
@@ -33,7 +31,6 @@ import com.android.jack.ir.ast.cfg.JBasicBlock;
 import com.android.jack.ir.ast.cfg.JBasicBlockElement;
 import com.android.jack.ir.ast.cfg.JControlFlowGraph;
 import com.android.jack.ir.ast.cfg.JPhiBlockElement;
-import com.android.jack.ir.ast.cfg.JVariableAsgBlockElement;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.transformations.request.Replace;
 import com.android.jack.transformations.request.TransformationRequest;
@@ -48,8 +45,6 @@ import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 
 import java.util.BitSet;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Stack;
 
@@ -189,19 +184,6 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
       private final JSsaVariableDefRef[] currentMapping;
 
       /**
-       * contains the set of moves we need to keep to preserve local var info. All other moves will
-       * be deleted.
-       */
-      private final HashSet<JVariableAsgBlockElement> movesToKeep;
-
-      /**
-       * maps the set of insns to replace after renaming is finished on the block.
-       */
-      private final HashMap<JBasicBlockElement, JBasicBlockElement> insnsToReplace;
-
-      // private final RenamingMapper mapper;
-
-      /**
        * Constructs a block renamer instance. Call {@code process} to process.
        *
        * @param block {@code non-null;} block to process
@@ -209,8 +191,6 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
       BlockRenamer(final JBasicBlock block) {
         this.block = block;
         currentMapping = startsForBlocks[NodeIdMarker.getId(block)];
-        movesToKeep = new HashSet<JVariableAsgBlockElement>();
-        insnsToReplace = new HashMap<JBasicBlockElement, JBasicBlockElement>();
         // We don't need our own start state anymore
         startsForBlocks[NodeIdMarker.getId(block)] = null;
       }
@@ -234,23 +214,6 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
         }
 
         updateSuccessorPhis();
-
-        // Delete all move insns in this block.
-        List<JBasicBlockElement> insns = block.getElements(true);
-        int szInsns = insns.size();
-
-        for (int i = szInsns - 1; i >= 0; i--) {
-          JBasicBlockElement insn = insns.get(i);
-          JBasicBlockElement replaceInsn;
-
-          replaceInsn = insnsToReplace.get(insn);
-
-          if (replaceInsn != null) {
-            insns.set(i, replaceInsn);
-          } else if (isNormalMoveInsn(insn) && !movesToKeep.contains(insn)) {
-            insns.remove(i);
-          }
-        }
 
         // Store the start states for our dom children.
         boolean first = true;
@@ -431,14 +394,6 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
     JSsaVariableDefRef[] copy = new JSsaVariableDefRef[orig.length];
     System.arraycopy(orig, 0, copy, 0, orig.length);
     return copy;
-  }
-
-  private static boolean isNormalMoveInsn(JBasicBlockElement stmt) {
-    if (stmt instanceof JVariableAsgBlockElement) {
-      JAsgOperation exp = ((JVariableAsgBlockElement) stmt).getAssignment();
-      return exp.getRhs() instanceof JLocalRef;
-    }
-    return false;
   }
 
   /**
