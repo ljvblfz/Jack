@@ -999,7 +999,9 @@
       <exclude name="com/android/jack/jarjar/test006/dontcompile/"/>
       <exclude name="com/android/jack/jarjar/test006/dontcompile/"/>
       <exclude name="com/android/jack/java8/gwt/test019/jack/Java8Test.java"/>
-      <exclude name="com/android/jack/java8/intersectiontype/"/>
+      <exclude name="com/android/jack/java8/intersectiontype/test004/"/>
+      <exclude name="com/android/jack/java8/intersectiontype/test005/"/>
+      <exclude name="com/android/jack/java8/intersectiontype/test006/"/>
       <exclude name="com/android/jack/java8/lambda/test019/"/>
       <exclude name="com/android/jack/java8/methodref/test014/jack/Tests.java"/>
       <exclude name="com/android/jack/java8/variable/test001/"/>
