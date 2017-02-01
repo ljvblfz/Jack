@@ -79,6 +79,11 @@ public class NInstanceOf extends NExpression {
 
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipNode();
+    in.skipId();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

@@ -75,6 +75,10 @@ public class NMultiExpression extends NExpression {
 
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipNodes();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

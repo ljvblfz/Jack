@@ -213,6 +213,22 @@ public class NLambda extends NExpression {
     markers = in.readNodes(NMarker.class);
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipNodes();
+    in.skipReceiverKindEnum();
+    in.skipId();
+    in.skipId();
+    in.skipIds();
+    in.skipMethodKindEnum();
+    in.skipId();
+    in.skipId();
+    in.skipIds();
+    in.skipNode();
+    in.skipNode();
+    in.skipNodes();
+    in.skipNodes();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

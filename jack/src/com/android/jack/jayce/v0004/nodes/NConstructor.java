@@ -107,6 +107,14 @@ public class NConstructor extends NMethod {
     markers = in.readNodes(NMarker.class);
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipNodes();
+    in.skipInt();
+    in.skipNodes();
+    in.skipNode();
+    in.skipNodes();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

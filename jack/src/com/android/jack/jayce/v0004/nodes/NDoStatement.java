@@ -87,6 +87,11 @@ public class NDoStatement extends NStatement {
     body = in.readNode(NStatement.class);
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipNode();
+    in.skipNode();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

@@ -164,6 +164,18 @@ public class NMethodCall extends NExpression {
     dispatchKind = in.readDispatchKindEnum();
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipNode();
+    in.skipId();
+    in.skipReceiverKindEnum();
+    in.skipId();
+    in.skipIds();
+    in.skipMethodKindEnum();
+    in.skipId();
+    in.skipNodes();
+    in.skipDispatchKindEnum();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

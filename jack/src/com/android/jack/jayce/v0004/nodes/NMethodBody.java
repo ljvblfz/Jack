@@ -81,6 +81,11 @@ public class NMethodBody extends NAbstractMethodBody {
     block = in.readNode(NBlock.class);
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipNodes();
+    in.skipNode();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

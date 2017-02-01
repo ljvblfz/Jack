@@ -80,6 +80,10 @@ public class NBlock extends NStatement {
 
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipNodes();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

@@ -108,6 +108,12 @@ public class NSwitchStatement extends NStatement {
     body = in.readNode(NBlock.class);
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipNode();
+    in.skipIds();
+    in.skipNode();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

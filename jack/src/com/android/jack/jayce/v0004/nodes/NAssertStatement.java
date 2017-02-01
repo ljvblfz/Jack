@@ -92,6 +92,11 @@ public class NAssertStatement extends NStatement {
     arg = in.readNode(NExpression.class);
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.readNode(NExpression.class);
+    in.readNode(NExpression.class);
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

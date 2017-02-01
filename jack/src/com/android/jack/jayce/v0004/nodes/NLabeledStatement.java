@@ -97,6 +97,12 @@ public class NLabeledStatement extends NStatement {
     body = in.readNode(NStatement.class);
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipString();
+    in.skipId();
+    in.skipNode();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

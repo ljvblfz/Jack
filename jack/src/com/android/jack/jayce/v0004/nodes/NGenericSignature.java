@@ -62,6 +62,10 @@ public class NGenericSignature extends NMarker {
     genericSignature = in.readString();
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipString();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

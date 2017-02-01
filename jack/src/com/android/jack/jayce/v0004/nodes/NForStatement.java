@@ -116,6 +116,13 @@ public class NForStatement extends NStatement {
     body = in.readNode(NStatement.class);
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipNodes();
+    in.skipNode();
+    in.skipNodes();
+    in.skipNode();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

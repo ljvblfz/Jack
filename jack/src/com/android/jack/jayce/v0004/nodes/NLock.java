@@ -80,6 +80,10 @@ public class NLock extends NStatement {
     lockExpr = in.readNode(NExpression.class);
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipNode();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

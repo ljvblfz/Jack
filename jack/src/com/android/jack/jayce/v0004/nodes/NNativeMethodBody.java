@@ -23,8 +23,6 @@ import com.android.jack.jayce.v0004.io.JayceInternalReaderImpl;
 import com.android.jack.jayce.v0004.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0004.io.Token;
 
-import java.io.IOException;
-
 import javax.annotation.Nonnull;
 
 /**
@@ -49,15 +47,18 @@ public class NNativeMethodBody extends NAbstractMethodBody {
     return jNativeMethodBody;
   }
 
-  @SuppressWarnings("unused")
   @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
+  public void writeContent(@Nonnull JayceInternalWriterImpl out) {
+
+  }
+
+  @Override
+  public void readContent(@Nonnull JayceInternalReaderImpl in) {
 
   }
 
   @SuppressWarnings("unused")
-  @Override
-  public void readContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) {
 
   }
 

@@ -93,6 +93,12 @@ public class NNewInstance extends NMethodCall {
     args = in.readNodes(NExpression.class);
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipId();
+    in.skipIds();
+    in.skipNodes();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

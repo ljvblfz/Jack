@@ -91,6 +91,15 @@ public class NOriginDigest extends NMarker {
     minor = in.readInt();
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipInt();
+    in.skipString();
+    in.skipBuffer();
+    in.skipString();
+    in.skipInt();
+    in.skipInt();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

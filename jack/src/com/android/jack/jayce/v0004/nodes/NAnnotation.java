@@ -101,6 +101,13 @@ public class NAnnotation extends NLiteral {
     markers = in.readNodes(NMarker.class);
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipRetentionPolicyEnum();
+    in.skipId();
+    in.skipNodes();
+    in.skipNodes();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

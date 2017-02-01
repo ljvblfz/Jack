@@ -58,6 +58,10 @@ public class NAbsentArrayDimension extends NLiteral {
   public void readContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
   }
 
+  @SuppressWarnings("unused")
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

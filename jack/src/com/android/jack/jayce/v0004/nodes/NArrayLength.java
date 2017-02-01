@@ -70,6 +70,10 @@ public class NArrayLength extends NExpression {
     instance = in.readNode(NExpression.class);
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipNode();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

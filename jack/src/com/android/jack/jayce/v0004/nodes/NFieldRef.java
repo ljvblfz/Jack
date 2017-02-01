@@ -105,6 +105,14 @@ public class NFieldRef extends NExpression {
     instance = in.readNode(NExpression.class);
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipId();
+    in.skipId();
+    in.readId();
+    in.skipFieldRefKindEnum();
+    in.skipNode();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

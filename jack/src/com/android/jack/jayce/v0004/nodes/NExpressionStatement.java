@@ -81,6 +81,10 @@ public class NExpressionStatement extends NStatement {
     expression = in.readNode(NExpression.class);
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipNode();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

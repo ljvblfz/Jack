@@ -67,6 +67,10 @@ public class NStringLiteral extends NLiteral {
 
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipString();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {
