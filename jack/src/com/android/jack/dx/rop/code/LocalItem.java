@@ -16,6 +16,7 @@
 
 package com.android.jack.dx.rop.code;
 
+import com.android.jack.dx.rop.cst.Constant;
 import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.rop.type.Type;
 

@@ -809,7 +809,7 @@ public enum Token {
     }
 
     @Override
-    public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
+    public void skip(@Nonnull JayceInternalReaderImpl reader) {
       NFieldInitializer.skipContent(reader);
     }
   },
@@ -977,7 +977,7 @@ public enum Token {
     }
 
     @Override
-    public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
+    public void skip(@Nonnull JayceInternalReaderImpl reader) {
       NLambdaFromJill.skipContent(reader);
     }
   },
@@ -1181,7 +1181,7 @@ public enum Token {
     }
 
     @Override
-    public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
+    public void skip(@Nonnull JayceInternalReaderImpl reader) {
       NNativeMethodBody.skipContent(reader);
     }
   },
@@ -1217,7 +1217,7 @@ public enum Token {
     }
 
     @Override
-    public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
+    public void skip(@Nonnull JayceInternalReaderImpl reader) {
       NNullLiteral.skipContent(reader);
     }
   },
