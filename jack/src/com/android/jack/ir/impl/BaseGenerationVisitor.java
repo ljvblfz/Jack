@@ -677,7 +677,8 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
     accept(x.getThenStmt());
     nestedStatementPop(x.getThenStmt());
 
-    if (x.getElseStmt() != null) {
+    JStatement elseStmt = x.getElseStmt();
+    if (elseStmt != null) {
       if (needSemi) {
         semi();
         newline();
@@ -686,15 +687,15 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
         needSemi = true;
       }
       print(CHARS_ELSE);
-      boolean elseIf = x.getElseStmt() instanceof JIfStatement;
+      boolean elseIf = elseStmt instanceof JIfStatement;
       if (!elseIf) {
-        nestedStatementPush(x.getElseStmt());
+        nestedStatementPush(elseStmt);
       } else {
         space();
       }
-      accept(x.getElseStmt());
+      accept(elseStmt);
       if (!elseIf) {
-        nestedStatementPop(x.getElseStmt());
+        nestedStatementPop(elseStmt);
       }
     }
 
