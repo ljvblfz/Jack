@@ -20,7 +20,6 @@ import com.android.jack.ir.ast.marker.GenericSignature;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
 
 import java.io.IOException;
@@ -50,11 +49,6 @@ public class NGenericSignature extends NMarker {
   public GenericSignature exportAsJast(@Nonnull ExportSession exportSession) {
     assert genericSignature != null;
     return new GenericSignature(genericSignature);
-  }
-
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    out.writeString(genericSignature);
   }
 
   @Override

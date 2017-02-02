@@ -21,7 +21,6 @@ import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
 import com.android.jack.lookup.JMethodLookupException;
 
@@ -65,12 +64,6 @@ public class NBitXorOperation extends NExpression {
     return new JBitXorOperation(sourceInfo.exportAsJast(exportSession),
         lhs.exportAsJast(exportSession),
         rhs.exportAsJast(exportSession));
-  }
-
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    out.writeNode(lhs);
-    out.writeNode(rhs);
   }
 
   @Override

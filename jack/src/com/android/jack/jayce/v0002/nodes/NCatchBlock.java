@@ -24,7 +24,6 @@ import com.android.jack.jayce.linker.CatchBlockLinker;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
 import com.android.jack.lookup.JMethodLookupException;
 
@@ -100,14 +99,6 @@ public class NCatchBlock extends NStatement {
       exportSession.getCatchBlockResolver().addLink(catchId, new CatchBlockLinker(jCatchBlock));
     }
     return jCatchBlock;
-  }
-
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    out.writeId(id);
-    out.writeIds(catchTypes);
-    out.writeNode(catchVar);
-    out.writeNodes(statements);
   }
 
   @Override

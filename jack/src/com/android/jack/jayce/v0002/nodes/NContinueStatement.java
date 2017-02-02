@@ -23,7 +23,6 @@ import com.android.jack.jayce.linker.CatchBlockLinker;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
 
 import java.io.IOException;
@@ -70,11 +69,6 @@ public class NContinueStatement extends NStatement {
           .addLink(catchId, new CatchBlockLinker(jContinueStatement));
     }
     return jContinueStatement;
-  }
-
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    out.writeString(label);
   }
 
   @Override

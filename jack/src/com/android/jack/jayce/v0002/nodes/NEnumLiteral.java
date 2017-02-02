@@ -25,7 +25,6 @@ import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
 import com.android.jack.lookup.JLookup;
 
@@ -73,12 +72,6 @@ public class NEnumLiteral extends NLiteral {
     JFieldId field = exportSession.getFieldId(enumType, enumFieldName, enumType, FieldKind.STATIC);
     JEnumLiteral jEnumLiteral = new JEnumLiteral(jSourceInfo, field);
     return jEnumLiteral;
-  }
-
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    out.writeId(enumFieldDeclaringType);
-    out.writeId(enumFieldName);
   }
 
   @Override

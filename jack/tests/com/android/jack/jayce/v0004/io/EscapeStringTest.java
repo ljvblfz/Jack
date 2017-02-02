@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.jack.jayce.v0002.io;
+package com.android.jack.jayce.v0004.io;
 
 import com.android.jack.IllegalOptionsException;
 import com.android.jack.Options;

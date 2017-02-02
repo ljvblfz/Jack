@@ -21,7 +21,6 @@ import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
 
 import java.io.IOException;
@@ -61,11 +60,6 @@ public class NClassLiteral extends NLiteral {
     assert refType != null;
     return new JClassLiteral(sourceInfo.exportAsJast(exportSession),
         exportSession.getLookup().getType(refType));
-  }
-
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    out.writeId(refType);
   }
 
   @Override
