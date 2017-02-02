@@ -41,6 +41,7 @@ import org.junit.runners.Suite.SuiteClasses;
     AnnotationTest.class,
     BridgeTestPreN.class,
     EcjLambdaTest.class,
+    ExplicitReceiverTest.class,
     GwtTest.class,
     IntersectionTypeTest.class,
     LambdaTest.class,
