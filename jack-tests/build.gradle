@@ -71,6 +71,7 @@ project(':jack-tests') {
               exclude "com/android/jack/jill/test002/**"
               exclude "com/android/jack/jill/test003/**"
               exclude "com/android/jack/jill/test004/**"
+              exclude "com/android/jack/jill/test005/**"
               exclude "com/android/jack/lookup/test001/liboverride/"
               exclude "com/android/jack/sourcepath/test002/jack/Sourcepath002.java"
           }

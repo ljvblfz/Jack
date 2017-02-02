@@ -1010,6 +1010,7 @@
       <exclude name="com/android/jack/jill/test002/**"/>
       <exclude name="com/android/jack/jill/test003/**"/>
       <exclude name="com/android/jack/jill/test004/**"/>
+      <exclude name="com/android/jack/jill/test005/**"/>
       <exclude name="com/android/jack/lookup/test001/liboverride/"/>
       <exclude name="com/android/jack/sourcepath/test002/jack/Sourcepath002.java"/>
       <classpath>

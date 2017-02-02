@@ -2182,6 +2182,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
           // Result of comparison must be pop
           cmpOperands.remove(getStackVariable(frame, TOP_OF_STACK));
         }
+        removeStackVariableConstant(frame, TOP_OF_STACK);
         break;
       }
       case NOP:
@@ -2197,6 +2198,10 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
             // Result of comparison must be pop
             cmpOperands.remove(getStackVariable(frame, TOP_OF_STACK - 1));
           }
+          removeStackVariableConstant(frame, TOP_OF_STACK);
+          removeStackVariableConstant(frame, TOP_OF_STACK - 1);
+        } else {
+          removeStackVariableConstant(frame, TOP_OF_STACK);
         }
         break;
       }
@@ -2728,15 +2733,26 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
   private void writeDupX1(@Nonnull Frame<BasicValue> frame, @Nonnull Frame<BasicValue> nextFrame)
       throws IOException {
     writeAssign(frame, TOP_OF_STACK, nextFrame, TOP_OF_STACK);
+    removeStackVariableConstant(frame, TOP_OF_STACK);
     writeAssign(frame, TOP_OF_STACK - 1, nextFrame, TOP_OF_STACK - 1);
+    removeStackVariableConstant(frame, TOP_OF_STACK - 1);
     writeAssign(nextFrame, TOP_OF_STACK, nextFrame, TOP_OF_STACK - 2);
+  }
+
+  private void removeStackVariableConstant(@Nonnull Frame<BasicValue> frame, int stackIdx) {
+    // Stack level will be erased by an assignment thus it is no longer a constant, it could become
+    // one again if the stack variable read is a constant
+    varWithCstValue.remove(getStackVariable(frame, stackIdx));
   }
 
   private void writeDupX2(@Nonnull Frame<BasicValue> frame, @Nonnull Frame<BasicValue> nextFrame)
       throws IOException {
     writeAssign(frame, TOP_OF_STACK, nextFrame, TOP_OF_STACK);
+    removeStackVariableConstant(frame, TOP_OF_STACK);
     writeAssign(frame, TOP_OF_STACK - 1, nextFrame, TOP_OF_STACK - 1);
+    removeStackVariableConstant(frame, TOP_OF_STACK - 1);
     writeAssign(frame, TOP_OF_STACK - 2, nextFrame, TOP_OF_STACK - 2);
+    removeStackVariableConstant(frame, TOP_OF_STACK - 2);
     writeAssign(nextFrame, TOP_OF_STACK, nextFrame, TOP_OF_STACK - 3);
   }
 
@@ -2767,8 +2783,11 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
   private void writeDup2X1(@Nonnull Frame<BasicValue> frame, @Nonnull Frame<BasicValue> nextFrame)
       throws IOException {
     writeAssign(frame, TOP_OF_STACK, nextFrame, TOP_OF_STACK);
+    removeStackVariableConstant(frame, TOP_OF_STACK);
     writeAssign(frame, TOP_OF_STACK - 1, nextFrame, TOP_OF_STACK - 1);
+    removeStackVariableConstant(frame, TOP_OF_STACK - 1);
     writeAssign(frame, TOP_OF_STACK - 2, nextFrame, TOP_OF_STACK - 2);
+    removeStackVariableConstant(frame, TOP_OF_STACK - 2);
     writeAssign(nextFrame, TOP_OF_STACK, nextFrame, TOP_OF_STACK - 3);
     writeAssign(nextFrame, TOP_OF_STACK - 1, nextFrame, TOP_OF_STACK - 4);
   }
@@ -2776,9 +2795,13 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
   private void writeDup2X2(@Nonnull Frame<BasicValue> frame, @Nonnull Frame<BasicValue> nextFrame)
       throws IOException {
     writeAssign(frame, TOP_OF_STACK, nextFrame, TOP_OF_STACK);
+    removeStackVariableConstant(frame, TOP_OF_STACK);
     writeAssign(frame, TOP_OF_STACK - 1, nextFrame, TOP_OF_STACK - 1);
+    removeStackVariableConstant(frame, TOP_OF_STACK - 1);
     writeAssign(frame, TOP_OF_STACK - 2, nextFrame, TOP_OF_STACK - 2);
+    removeStackVariableConstant(frame, TOP_OF_STACK - 2);
     writeAssign(frame, TOP_OF_STACK - 3, nextFrame, TOP_OF_STACK - 3);
+    removeStackVariableConstant(frame, TOP_OF_STACK - 3);
     writeAssign(nextFrame, TOP_OF_STACK, nextFrame, TOP_OF_STACK - 4);
     writeAssign(nextFrame, TOP_OF_STACK - 1, nextFrame, TOP_OF_STACK - 5);
   }
