@@ -38,8 +38,10 @@ import com.android.jack.tools.merger.MergingOverflowException;
 import com.android.jack.util.AndroidApiLevel;
 import com.android.sched.util.codec.VariableName;
 import com.android.sched.util.config.ThreadConfig;
+import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotReadException;
+import com.android.sched.util.file.CannotWriteException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
 import com.android.sched.util.log.Event;
@@ -63,7 +65,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.CheckForNull;
@@ -136,17 +137,13 @@ public abstract class DexWritingTool {
   protected void finishMerge(@Nonnull JackMerger merger, @Nonnull OutputVFile out)
       throws DexWritingException {
     try (Event event = tracer.open(JackEventType.DEX_MERGER_FINISH)) {
-      OutputStream os = null;
       try {
-        try {
-          os = new BufferedOutputStream(out.getOutputStream());
-          merger.finish(os);
-        } finally {
-          if (os != null) {
-            os.close();
-          }
+        try (OutputStream os = new BufferedOutputStream(out.getOutputStream())) {
+          merger.finish(os, out);
+        } catch (IOException e) {
+          throw new CannotCloseException(out, e);
         }
-      } catch (IOException | WrongPermissionException e) {
+      } catch (CannotWriteException | CannotCloseException | WrongPermissionException e) {
         throw new DexWritingException(e);
       }
     }
@@ -154,21 +151,15 @@ public abstract class DexWritingTool {
 
   protected void mergeDex(@Nonnull JackMerger merger, InputVFile inputDex)
       throws MergingOverflowException, DexWritingException {
-    InputStream inputStream = null;
+
     try {
-      inputStream = inputDex.getInputStream();
-      merger.addDexFile(new DexBuffer(inputStream, inputDex.getLocation()));
-    } catch (CannotReadException | WrongPermissionException e) {
-      throw new DexWritingException(e);
-    } finally {
-      if (inputStream != null) {
-        try {
-          inputStream.close();
-        } catch (IOException e) {
-          logger.log(
-              Level.WARNING, "Failed to close ''{0}''", inputDex.getLocation().getDescription());
-        }
+      try (InputStream inputStream = inputDex.getInputStream()) {
+        merger.addDexFile(new DexBuffer(inputStream, inputDex.getLocation()));
+      } catch (IOException e) {
+        throw new CannotCloseException(inputDex, e);
       }
+    } catch (CannotCloseException | CannotReadException | WrongPermissionException e) {
+      throw new DexWritingException(e);
     }
   }
 
