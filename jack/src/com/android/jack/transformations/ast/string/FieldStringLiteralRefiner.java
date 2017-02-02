@@ -33,7 +33,7 @@ import javax.annotation.Nonnull;
 @Description("Refine JStringLiteral in fields into more specific string literals.")
 @Use(StringLiteralRefinerVisitor.class)
 @Transform(add = StringLiteralRefined.Field.class)
-// Uses StringLiteralRefinerVisitor which lookup types.
+// Uses StringLiteralRefinerVisitor which looks up types.
 @Access(JSession.class)
 public class FieldStringLiteralRefiner implements RunnableSchedulable<JField> {
 

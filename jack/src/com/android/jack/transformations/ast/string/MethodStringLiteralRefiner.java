@@ -32,6 +32,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Refine JStringLiteral in methods into more specific string literals.")
 @Use(StringLiteralRefinerVisitor.class)
+// Uses StringLiteralRefinerVisitor which looks up types.
 @Access(JSession.class)
 @Transform(add = StringLiteralRefined.Method.class)
 public class MethodStringLiteralRefiner implements RunnableSchedulable<JMethod> {
