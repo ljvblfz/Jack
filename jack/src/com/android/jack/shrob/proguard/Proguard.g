@@ -202,11 +202,11 @@ private member [ClassSpecification classSpec]
     annotation? modifiers
     (
       (typeSig=type)? name=(NAME|'<init>') (signature=arguments {GrammarActions.method(classSpec, $annotation.annotSpec, typeSig, $name.text, signature, $modifiers.modifiers);}
-                  | {GrammarActions.fieldOrAnyMember(classSpec, $annotation.annotSpec, typeSig, $name.text, $modifiers.modifiers);})
+                  | {assert $name != null; GrammarActions.fieldOrAnyMember(classSpec, $annotation.annotSpec, typeSig, $name.text, $modifiers.modifiers, $name.getInputStream());})
       | '<methods>' {GrammarActions.method(classSpec, $annotation.annotSpec,
           GrammarActions.getSignature("***", 0), "*", "\\("+ GrammarActions.getSignature("...", 0) + "\\)",
           $modifiers.modifiers);}
-      | '<fields>' {GrammarActions.field(classSpec, $annotation.annotSpec, null, "*", $modifiers.modifiers);}
+      | fields='<fields>' {GrammarActions.field(classSpec, $annotation.annotSpec, null, "*", $modifiers.modifiers, $fields.getInputStream());}
     ) ';'
   ;
 

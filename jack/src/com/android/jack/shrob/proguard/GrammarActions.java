@@ -315,10 +315,13 @@ public class GrammarActions {
 
   static void fieldOrAnyMember(@Nonnull ClassSpecification classSpec,
       @CheckForNull AnnotationSpecification annotationType, @CheckForNull String typeSig,
-      /*@Nonnull*/ String name, @Nonnull ModifierSpecification modifier) {
+      /* @Nonnull */ String name, @Nonnull ModifierSpecification modifier,
+      @Nonnull CharStream inputStream) throws RecognitionException {
     assert name != null;
     if (typeSig == null) {
-      assert name.equals("*");
+      if (!name.equals("*")) {
+        throw new RecognitionException(inputStream);
+      }
       // This is the "any member" case, we have to handle methods as well.
       method(classSpec,
           annotationType,
@@ -327,18 +330,21 @@ public class GrammarActions {
           "\\(" + getSignature("...", 0) + "\\)",
           modifier);
     }
-    field(classSpec, annotationType, typeSig, name, modifier);
+    field(classSpec, annotationType, typeSig, name, modifier, inputStream);
   }
 
   static void field(@Nonnull ClassSpecification classSpec,
       @CheckForNull AnnotationSpecification annotationType, @CheckForNull String typeSig,
-      /*@Nonnull*/ String name, @Nonnull ModifierSpecification modifier) {
+      /* @Nonnull */ String name, @Nonnull ModifierSpecification modifier,
+      @Nonnull CharStream inputStream) throws RecognitionException {
     assert name != null;
     NameSpecification typeSignature = null;
     if (typeSig != null) {
       typeSignature = name(typeSig, FilterSeparator.CLASS);
     } else {
-      assert name.equals("*");
+      if (!name.equals("*")) {
+        throw new RecognitionException(inputStream);
+      }
     }
     classSpec.add(
         new FieldSpecification(

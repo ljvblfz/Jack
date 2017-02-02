@@ -21,7 +21,7 @@ import com.android.sched.util.config.ConfigurationException;
 import javax.annotation.Nonnull;
 
 /**
- * This exception is thrown if a problem occured when attempting to parse
+ * This exception is thrown if a problem occurred when attempting to parse
  * a proguard flags file.
  */
 public class ProguardFileParsingException extends ConfigurationException {
