@@ -106,7 +106,7 @@ public class EcjMethodHandleTest extends MethodHandleTest {
 
       File dexFile = new File(dexOutDir, "classes.dex");
 
-      List<RuntimeRunner> runnerList = AbstractTestTools.listRuntimeTestRunners(null);
+      List<RuntimeRunner> runnerList = AbstractTestTools.listRuntimeTestRunners();
       for (RuntimeRunner runner : runnerList) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ((AbstractRuntimeRunner) runner).setOutputStream(out);
