@@ -191,9 +191,30 @@ public abstract class JAbstractMethodCall extends JExpression {
 
     return receiverType != null
         && formatter.getName(methodId.getType()).equals("java.lang.Object")
-        && formatter.getName(receiverType).equals("java.lang.invoke.MethodHandle")
+        && isSubtypeOfOrMethodHandle(formatter, receiverType)
         && (calledMethodName.equals("invoke") || calledMethodName.equals("invokeExact"))
         && paramTypes.size() == 1
         && formatter.getName(paramTypes.get(0)).equals("java.lang.Object[]");
+  }
+
+  private static boolean isSubtypeOfOrMethodHandle(@Nonnull UserFriendlyFormatter formatter,
+      @Nonnull JClassOrInterface type) {
+    if (type instanceof JPhantomClass) {
+      return isSubtypeOfOrMethodHandle(formatter, (JPhantomClass) type);
+    } else if (type instanceof JDefinedClass) {
+      return isSubtypeOfOrMethodHandle(formatter, (JDefinedClass) type);
+    }
+    return false;
+  }
+
+  private static boolean isSubtypeOfOrMethodHandle(@Nonnull UserFriendlyFormatter formatter,
+      @Nonnull JPhantomClass type) {
+    return formatter.getName(type).equals("java.lang.invoke.MethodHandle");
+  }
+
+  private static boolean isSubtypeOfOrMethodHandle(@Nonnull UserFriendlyFormatter formatter,
+      @Nonnull JDefinedClass type) {
+    return formatter.getName(type).equals("java.lang.invoke.MethodHandle")
+        || isSubtypeOfOrMethodHandle(formatter, type.getSuperClass());
   }
 }
