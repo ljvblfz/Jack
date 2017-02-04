@@ -48,6 +48,7 @@ import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
 
 import java.util.Collections;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -123,11 +124,11 @@ public final class CfgJlsNullabilityChecker {
             new JMethodCall(SourceInfo.UNKNOWN,
                 tmp.makeRef(SourceInfo.UNKNOWN),
                 exceptionType,
-                exceptionType.getOrCreateMethodIdWide(
+                exceptionType.getOrCreateMethodId(
                     NamingTools.INIT_NAME,
                     Collections.<JType>emptyList(),
-                    MethodKind.INSTANCE_NON_VIRTUAL),
-                JPrimitiveType.JPrimitiveTypeEnum.VOID.getType(),
+                    MethodKind.INSTANCE_NON_VIRTUAL,
+                    JPrimitiveType.JPrimitiveTypeEnum.VOID.getType()),
                 false));
 
     JThrowingExpressionBasicBlock bbT2 =

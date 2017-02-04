@@ -55,10 +55,7 @@ public class LocalVariableInfo extends MutabilityControl {
    * @param method {@code non-null;} the method being represented by this instance
    */
   public LocalVariableInfo(SsaMethod method) {
-    if (method == null) {
-      throw new NullPointerException("method == null");
-    }
-
+    assert method != null;
     List<SsaBasicBlock> blocks = method.getBlocks();
 
     this.regCount = method.getRegCount();
@@ -77,11 +74,9 @@ public class LocalVariableInfo extends MutabilityControl {
    * @param specs {@code non-null;} the register set to associate with the block
    */
   public void setStarts(int index, RegisterSpecSet specs) {
-    throwIfImmutable();
+    assert specs != null;
 
-    if (specs == null) {
-      throw new NullPointerException("specs == null");
-    }
+    throwIfImmutable();
 
     try {
       blockStarts[index] = specs;
@@ -182,15 +177,10 @@ public class LocalVariableInfo extends MutabilityControl {
    * @param spec {@code non-null;} the associated register spec
    */
   public void addAssignment(SsaInsn insn, RegisterSpec spec) {
+    assert insn != null;
+    assert spec != null;
+
     throwIfImmutable();
-
-    if (insn == null) {
-      throw new NullPointerException("insn == null");
-    }
-
-    if (spec == null) {
-      throw new NullPointerException("spec == null");
-    }
 
     insnAssignments.put(insn, spec);
   }

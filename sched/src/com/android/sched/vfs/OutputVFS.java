@@ -28,7 +28,7 @@ public interface OutputVFS extends HasLocation, AutoCloseable {
   @Nonnull
   String getPath();
   @Nonnull
-  OutputVDir getRootOutputVDir();
+  OutputVDir getRootDir();
 
   boolean needsSequentialWriting();
   @Override

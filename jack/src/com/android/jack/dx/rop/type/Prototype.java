@@ -18,6 +18,8 @@ package com.android.jack.dx.rop.type;
 
 import java.util.HashMap;
 
+import javax.annotation.Nonnull;
+
 /**
  * Representation of a method descriptor. Instances of this class are
  * generally interned and may be usefully compared with each other
@@ -44,15 +46,45 @@ public final class Prototype implements Comparable<Prototype> {
    * given method descriptor. See vmspec-2 sec4.3.3 for details on the
    * field descriptor syntax.
    *
+   * @param parameterTypes {@code non-null;} the list of parameter types
+   * @param returnType {@code non-null;} the return type
+   * @return {@code non-null;} the corresponding instance
+   */
+  public static Prototype intern(@Nonnull StdTypeList parameterTypes, @Nonnull Type returnType) {
+    StringBuilder descriptorBuff = new StringBuilder();
+    descriptorBuff.append('(');
+    for (int i = 0, length = parameterTypes.size(); i < length; i++) {
+      descriptorBuff.append(parameterTypes.get(i).getDescriptor());
+    }
+    descriptorBuff.append(')');
+    descriptorBuff.append(returnType.getDescriptor());
+
+    String descriptor = descriptorBuff.toString();
+
+    Prototype result;
+    synchronized (internTable) {
+      result = internTable.get(descriptor);
+    }
+    if (result != null) {
+      return result;
+    }
+
+    result = new Prototype(descriptor, returnType, parameterTypes);
+    return putIntern(result);
+  }
+
+  /**
+   * Returns the unique instance corresponding to the
+   * given method descriptor. See vmspec-2 sec4.3.3 for details on the
+   * field descriptor syntax.
+   *
    * @param descriptor {@code non-null;} the descriptor
    * @return {@code non-null;} the corresponding instance
    * @throws IllegalArgumentException thrown if the descriptor has
    * invalid syntax
    */
-  public static Prototype intern(String descriptor) {
-    if (descriptor == null) {
-      throw new NullPointerException("descriptor == null");
-    }
+  public static Prototype intern(@Nonnull String descriptor) {
+    assert descriptor != null;
 
     Prototype result;
     synchronized (internTable) {
@@ -211,18 +243,9 @@ public final class Prototype implements Comparable<Prototype> {
    * @param descriptor {@code non-null;} the descriptor string
    */
   private Prototype(String descriptor, Type returnType, StdTypeList parameterTypes) {
-    if (descriptor == null) {
-      throw new NullPointerException("descriptor == null");
-    }
-
-    if (returnType == null) {
-      throw new NullPointerException("returnType == null");
-    }
-
-    if (parameterTypes == null) {
-      throw new NullPointerException("parameterTypes == null");
-    }
-
+    assert descriptor != null;
+    assert returnType != null;
+    assert parameterTypes != null;
     this.descriptor = descriptor;
     this.returnType = returnType;
     this.parameterTypes = parameterTypes;

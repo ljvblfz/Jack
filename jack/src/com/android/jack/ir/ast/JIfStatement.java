@@ -21,6 +21,7 @@ import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -29,26 +30,34 @@ import javax.annotation.Nonnull;
 @Description("Java if statement")
 public class JIfStatement extends JStatement {
 
+  @CheckForNull
   private JStatement elseStmt;
+  @Nonnull
   private JExpression ifExpr;
+  @Nonnull
   private JStatement thenStmt;
 
-  public JIfStatement(
-      SourceInfo info, JExpression ifExpr, JStatement thenStmt, JStatement elseStmt) {
+  public JIfStatement(@Nonnull SourceInfo info, @Nonnull JExpression ifExpr,
+      @Nonnull JStatement thenStmt, @CheckForNull JStatement elseStmt) {
     super(info);
+    assert ifExpr != null;
+    assert thenStmt != null;
     this.ifExpr = ifExpr;
     this.thenStmt = thenStmt;
     this.elseStmt = elseStmt;
   }
 
+  @CheckForNull
   public JStatement getElseStmt() {
     return elseStmt;
   }
 
+  @Nonnull
   public JExpression getIfExpr() {
     return ifExpr;
   }
 
+  @Nonnull
   public JStatement getThenStmt() {
     return thenStmt;
   }
@@ -57,9 +66,7 @@ public class JIfStatement extends JStatement {
   public void traverse(@Nonnull JVisitor visitor) {
     if (visitor.visit(this)) {
       visitor.accept(ifExpr);
-      if (thenStmt != null) {
-        visitor.accept(thenStmt);
-      }
+      visitor.accept(thenStmt);
       if (elseStmt != null) {
         visitor.accept(elseStmt);
       }
@@ -71,9 +78,7 @@ public class JIfStatement extends JStatement {
   public void traverse(@Nonnull ScheduleInstance<? super Component> schedule) throws Exception {
     schedule.process(this);
     ifExpr.traverse(schedule);
-    if (thenStmt != null) {
-      thenStmt.traverse(schedule);
-    }
+    thenStmt.traverse(schedule);
     if (elseStmt != null) {
       elseStmt.traverse(schedule);
     }
@@ -97,9 +102,8 @@ public class JIfStatement extends JStatement {
 
   @Override
   protected void removeImpl(@Nonnull JNode existingNode) throws UnsupportedOperationException {
-    if (thenStmt == existingNode) {
-      thenStmt = null;
-    } else if (elseStmt == existingNode) {
+    assert existingNode != thenStmt;
+    if (elseStmt == existingNode) {
       elseStmt = null;
     } else {
       super.removeImpl(existingNode);

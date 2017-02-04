@@ -39,50 +39,78 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
  * Code coverage report analyzer.
  */
 public class JackCoverageAnalyzer {
-  @Nonnull private static final String CURRENT_VERSION = "1.0";
+  @Nonnull
+  public static final String CURRENT_VERSION = "1.0";
 
-  @Nonnull private static final String JSON_VERSION_ATTRIBUTE = "version";
+  @Nonnull
+  public static final String JSON_VERSION_ATTRIBUTE = "version";
 
-  @Nonnull private static final String JSON_DATA_ATTRIBUTE = "data";
+  @Nonnull
+  public static final String JSON_DATA_ATTRIBUTE = "data";
 
-  @Nonnull private final ExecutionDataStore executionDataStore;
+  @Nonnull
+  private final ExecutionDataStore executionDataStore;
 
-  @Nonnull private final ICoverageVisitor coverageVisitor;
+  @Nonnull
+  private final ICoverageVisitor coverageVisitor;
 
-  public JackCoverageAnalyzer(
-      @Nonnull ExecutionDataStore executionDataStore, @Nonnull ICoverageVisitor coverageVisitor) {
+  @CheckForNull
+  private final MappingFileLoader mappingFileLoader;
+
+  @CheckForNull
+  private MappingFileLoader.ClassMapping currentClassMapping = null;
+
+  /**
+   * Count the real number of probes in the code, taking shrinking into account.
+   */
+  @Nonnegative
+  private int currentClassProbesCount;
+
+  /**
+   * Constructs a {@link JackCoverageAnalyzer}.
+   *
+   * @param executionDataStore a {@link ExecutionDataStore} containing runtime coverage information.
+   * @param coverageVisitor a {@link ICoverageVisitor} notified of each coverage element created
+   *        during the analysis.
+   */
+  public JackCoverageAnalyzer(@Nonnull ExecutionDataStore executionDataStore,
+      @Nonnull ICoverageVisitor coverageVisitor,
+      @CheckForNull MappingFileLoader mappingFileLoader) {
     this.executionDataStore = executionDataStore;
     this.coverageVisitor = coverageVisitor;
+    this.mappingFileLoader = mappingFileLoader;
   }
 
   /**
-   * Reads the coverage description file and report each class to the {@link ICoverageVisitor}.
+   * Analyzes a coverage description file.
    *
-   * @param jackCoverageDescriptionFile
-   * @throws IOException
+   * @param coverageDescriptionFile a coverage description file to be analyzed
+   * @throws IOException in case of file error
    */
-  public void analyze(@Nonnull File jackCoverageDescriptionFile) throws IOException {
-    if (!jackCoverageDescriptionFile.exists()) {
-      throw new IllegalArgumentException(
-          "File " + jackCoverageDescriptionFile + " does not exist.");
-    }
-
-    InputStream is = new FileInputStream(jackCoverageDescriptionFile);
+  public void analyze(@Nonnull File coverageDescriptionFile) throws IOException {
+    InputStream inputStream = new FileInputStream(coverageDescriptionFile);
     try {
-      analyze(is);
+      analyze(inputStream);
     } finally {
-      is.close();
+      inputStream.close();
     }
   }
 
-  private void analyze(@Nonnull InputStream coverageDescriptionInputStream) throws IOException {
-    JsonReader jsonReader = new JsonReader(new InputStreamReader(coverageDescriptionInputStream));
+  /**
+   * Analyzes a coverage description input stream.
+   *
+   * @param inputStream a coverage description input stream
+   * @throws IOException in case of read error
+   */
+  public void analyze(@Nonnull InputStream inputStream) throws IOException {
+    JsonReader jsonReader = new JsonReader(new InputStreamReader(inputStream));
     readMetadata(jsonReader);
   }
 
@@ -123,12 +151,22 @@ public class JackCoverageAnalyzer {
     jsonReader.beginArray();
     while (jsonReader.hasNext()) {
       IClassCoverage classCoverage = readClass(jsonReader);
-      coverageVisitor.visitCoverage(classCoverage);
+      if (classCoverage != null) {
+        coverageVisitor.visitCoverage(classCoverage);
+      }
     }
     jsonReader.endArray();
   }
 
-  @Nonnull
+  /**
+   * Returns {@link IClassCoverage} object parsed from class information, or null if the class
+   * was shrunk (according to the mapping file).
+   *
+   * @param jsonReader a reader
+   * @return {@link IClassCoverage} instance or null
+   * @throws IOException if an error occurred during file parsing
+   */
+  @CheckForNull
   private IClassCoverage readClass(@Nonnull JsonReader jsonReader) throws IOException {
     long id = 0;
     String className = null;
@@ -138,6 +176,8 @@ public class JackCoverageAnalyzer {
     List<ProbeDescription> probes = new ArrayList<ProbeDescription>();
     List<String> interfaces = new ArrayList<String>();
 
+    currentClassProbesCount = 0;
+
     jsonReader.beginObject();
     while (jsonReader.hasNext()) {
       String attributeName = jsonReader.nextName();
@@ -145,6 +185,9 @@ public class JackCoverageAnalyzer {
         id = jsonReader.nextLong();
       } else if ("name".equals(attributeName)) {
         className = jsonReader.nextString();
+        if (mappingFileLoader != null) {
+          currentClassMapping = mappingFileLoader.getClassMapping(className);
+        }
       } else if ("sourceFile".equals(attributeName)) {
         sourceFile = jsonReader.nextString();
       } else if ("superClassName".equals(attributeName)) {
@@ -161,21 +204,40 @@ public class JackCoverageAnalyzer {
     }
     jsonReader.endObject();
 
+    // Check mandatory attributes.
+    if (id == 0) {
+      throw new JsonParseException("Missing 'id' attribute");
+    }
+    if (className == null) {
+      throw new JsonParseException("Missing 'name' attribute");
+    }
+    if (superClassName == null) {
+      throw new JsonParseException("Missing 'superClassName' attribute");
+    }
+
     final ExecutionData executionData = executionDataStore.get(id);
     boolean noMatch;
     if (executionData != null) {
       noMatch = false;
       // Check there is no id collision.
-      executionData.assertCompatibility(id, className, probes.size());
+      executionData.assertCompatibility(id, className, currentClassProbesCount);
     } else {
       noMatch = executionDataStore.contains(className);
     }
 
+    // Support shrinking and obfuscation.
+    if (currentClassMapping != null) {
+      className = currentClassMapping.getOriginalClassName();
+      assert className != null;
+    } else if (mappingFileLoader != null) {
+      // We did not find the class in the mapping file: it must have been shrunk so ignore it.
+      return null;
+    }
+
     // Build the class coverage.
     String[] interfacesArray = interfaces.toArray(new String[0]);
-    ClassCoverageImpl c =
-        new ClassCoverageImpl(
-            className, id, noMatch, "L" + className + ";", superClassName, interfacesArray);
+    ClassCoverageImpl c = new ClassCoverageImpl(className, id, noMatch,
+        NamingUtils.binaryNameToSignature(className), superClassName, interfacesArray);
     c.setSourceFileName(sourceFile);
 
     // Update methods with probes.
@@ -215,23 +277,32 @@ public class JackCoverageAnalyzer {
     jsonReader.endArray();
   }
 
-  // Parses probes.
-  private static void readProbes(
-      @Nonnull JsonReader jsonReader,
-      @Nonnull List<ProbeDescription> probes,
-      @Nonnull List<? extends IMethodCoverage> methods)
+  private void readProbes(@Nonnull JsonReader jsonReader,
+      @Nonnull List<ProbeDescription> probes, @Nonnull List<? extends IMethodCoverage> methods)
       throws IOException {
     jsonReader.beginArray();
     while (jsonReader.hasNext()) {
-      probes.add(readProbe(jsonReader, methods));
+      ProbeDescription probe = readProbe(jsonReader, methods);
+      if (probe != null) {
+        probes.add(probe);
+      }
     }
     jsonReader.endArray();
   }
 
-  // Parses one probe.
-  private static ProbeDescription readProbe(
-      @Nonnull JsonReader jsonReader, @Nonnull List<? extends IMethodCoverage> methods)
-      throws IOException {
+  /**
+   * Returns a {@link ProbeDescription} object representing the probe being parsed, or null if the
+   * method associated with the probe was shrunk.
+   *
+   * @param jsonReader a reader
+   * @param methods the list of methods in the current class
+   * @return a {@link ProbeDescription} instance or null
+   * @throws IOException if an error occurred during file parsing
+   */
+  @CheckForNull
+  private ProbeDescription readProbe(@Nonnull JsonReader jsonReader,
+      @Nonnull List<? extends IMethodCoverage> methods) throws IOException {
+    ++currentClassProbesCount;
     ProbeDescription probe = new ProbeDescription();
     jsonReader.beginObject();
     while (jsonReader.hasNext()) {
@@ -240,7 +311,12 @@ public class JackCoverageAnalyzer {
         probe.setId(jsonReader.nextInt());
       } else if ("method".equals(attributeName)) {
         int methodId = jsonReader.nextInt();
-        probe.setMethod((MethodCoverageImpl) methods.get(methodId));
+        for (IMethodCoverage mc : methods) {
+          if (((JackMethodCoverage) mc).getId() == methodId) {
+            probe.setMethod((MethodCoverageImpl) mc);
+            break;
+          }
+        }
       } else if ("lines".equals(attributeName)) {
         readLines(jsonReader, probe);
       } else {
@@ -248,7 +324,13 @@ public class JackCoverageAnalyzer {
       }
     }
     jsonReader.endObject();
-    return probe;
+
+    if (probe.method != null) {
+      return probe;
+    } else {
+      // Ignore shrob if there is no matching method (due to shrinking)
+      return null;
+    }
   }
 
   private static void readLines(@Nonnull JsonReader jsonReader, @Nonnull ProbeDescription probe)
@@ -277,17 +359,28 @@ public class JackCoverageAnalyzer {
     jsonReader.endArray();
   }
 
-  private static void readMethods(
-      @Nonnull JsonReader jsonReader, @Nonnull List<IMethodCoverage> methods) throws IOException {
+  private void readMethods(@Nonnull JsonReader jsonReader,
+      @Nonnull List<IMethodCoverage> methods) throws IOException {
     jsonReader.beginArray();
     while (jsonReader.hasNext()) {
-      methods.add(readMethod(jsonReader));
+      IMethodCoverage methodCoverage = readMethod(jsonReader);
+      if (methodCoverage != null) {
+        methods.add(methodCoverage);
+      }
     }
     jsonReader.endArray();
   }
 
-  @Nonnull
-  private static IMethodCoverage readMethod(@Nonnull JsonReader jsonReader) throws IOException {
+  /**
+   * Returns a {@link IMethodCoverage} object representing the method being parsed, or null if this
+   * method was shrunk.
+   *
+   * @param jsonReader a reader
+   * @return a {@link IMethodCoverage} instance or null
+   * @throws IOException if an error occurred during file parsing
+   */
+  @CheckForNull
+  private IMethodCoverage readMethod(@Nonnull JsonReader jsonReader) throws IOException {
     int id = -1;
     String name = null;
     String desc = null;
@@ -310,6 +403,23 @@ public class JackCoverageAnalyzer {
     }
     jsonReader.endObject();
 
+    if (currentClassMapping != null) {
+      assert mappingFileLoader != null;
+      // We have a mapping file and the class has not been shrunk. Let's see if this method was
+      // shrunk or obfuscated.
+      String methodSignature = name + desc;
+      String oldMethodSignature = currentClassMapping.getOriginalMethodSignature(methodSignature);
+      if (oldMethodSignature == null) {
+        // No corresponding method: method was shrunk
+        return null;
+      } else {
+        // Method may have been obfuscated.
+        int methodNameEndPos = oldMethodSignature.indexOf('(');
+        assert methodNameEndPos > 0;
+        name = oldMethodSignature.substring(0, methodNameEndPos);
+        desc = oldMethodSignature.substring(methodNameEndPos);
+      }
+    }
     return new JackMethodCoverage(id, name, desc, signature);
   }
 }

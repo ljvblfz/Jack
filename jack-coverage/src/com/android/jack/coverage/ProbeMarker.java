@@ -21,25 +21,18 @@ import com.android.sched.item.Description;
 import com.android.sched.marker.Marker;
 import com.android.sched.marker.ValidOn;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * A marker representing a unique code coverage probe on a {@link BasicBlock}.
+ * A marker representing a unique code coverage probe on a {@link BasicBlock} that must be
+ * instrumented to activate this probe at execution time.
  */
-@Description("A probe assigned to a basic block.")
+@Description("A code coverage probe assigned to a basic block that must be instrumented.")
 @ValidOn(BasicBlock.class)
 public class ProbeMarker implements Marker {
 
   @Nonnull
   private final ProbeDescription probe;
-
-  /**
-   * Indicates whether the corresponding {@link BasicBlock} contains instrumentation code for
-   * this probe.
-   */
-  @CheckForNull
-  private BasicBlock insertionBlock = null;
 
   public ProbeMarker(@Nonnull ProbeDescription probe) {
     this.probe = probe;
@@ -48,16 +41,6 @@ public class ProbeMarker implements Marker {
   @Nonnull
   public ProbeDescription getProbe() {
     return probe;
-  }
-
-  @CheckForNull
-  public BasicBlock getInsertionBlock() {
-    return insertionBlock;
-  }
-
-  public void setInsertionBlock(@Nonnull BasicBlock insertionBlock) {
-    assert this.insertionBlock == null;
-    this.insertionBlock = insertionBlock;
   }
 
   @Override

@@ -18,6 +18,7 @@ package com.android.jack.conditional;
 
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
@@ -59,6 +60,10 @@ public class ConditionalTests extends RuntimeTest {
   private RuntimeTestInfo TEST008 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.conditional.test008"),
       "com.android.jack.conditional.test008.dx.Tests");
+
+  private RuntimeTestInfo TEST009 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.conditional.test009"),
+      "com.android.jack.conditional.test009.jack.ConditionalTest009");
 
   @Test
   @Runtime
@@ -116,6 +121,14 @@ public class ConditionalTests extends RuntimeTest {
     new RuntimeTestHelper(TEST008).compileAndRunTest();
   }
 
+  @Test
+  @Runtime
+  @Category(RuntimeRegressionTest.class)
+  @KnownIssue
+  public void test009() throws Exception {
+    new RuntimeTestHelper(TEST009).compileAndRunTest();
+  }
+
   @Override
   protected void fillRtTestInfos() {
     rtTestInfos.add(TEST001);
@@ -126,5 +139,6 @@ public class ConditionalTests extends RuntimeTest {
     rtTestInfos.add(TEST006);
     rtTestInfos.add(TEST007);
     rtTestInfos.add(TEST008);
+//    rtTestInfos.add(TEST009);
   }
 }

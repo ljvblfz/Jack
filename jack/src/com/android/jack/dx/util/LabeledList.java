@@ -130,9 +130,7 @@ public class LabeledList extends FixedSizeList {
 
     for (int i = 0; i < sz; i++) {
       LabeledItem li = (LabeledItem) get0(i);
-      if (li == null) {
-        throw new NullPointerException("null at index " + i);
-      }
+      assert li != null;
       result[i] = li.getLabel();
     }
 

@@ -32,8 +32,8 @@ import com.android.jack.dx.rop.cst.CstFloat;
 import com.android.jack.dx.rop.cst.CstInteger;
 import com.android.jack.dx.rop.cst.CstKnownNull;
 import com.android.jack.dx.rop.cst.CstLong;
-import com.android.jack.dx.rop.cst.CstNat;
 import com.android.jack.dx.rop.cst.CstShort;
+import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.ir.ast.JAbstractStringLiteral;
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JArrayLiteral;
@@ -72,7 +72,7 @@ public class ConstantBuilder {
 
     @Override
     public boolean visit(@Nonnull JAnnotation annotation) {
-      Annotation ropAnnotation = new Annotation(RopHelper.getCstType(annotation.getType()),
+      Annotation ropAnnotation = new Annotation(RopHelper.convertTypeToDx(annotation.getType()),
           AnnotationVisibility.EMBEDDED);
       createAnnotationPairs(annotation, ropAnnotation);
       ropAnnotation.setImmutable();
@@ -100,14 +100,14 @@ public class ConstantBuilder {
 
     @Override
     public boolean visit(@Nonnull JEnumLiteral literal) {
-      CstNat nat = RopHelper.createSignature(literal.getFieldId());
-      result = new CstEnumRef(nat);
+      result = new CstEnumRef(new CstString(literal.getFieldId().getName()),
+          RopHelper.convertTypeToDx(literal.getType()));
       return false;
     }
 
     @Override
     public boolean visit(@Nonnull JClassLiteral literal) {
-      result = RopHelper.getCstType(literal.getRefType());
+      result = RopHelper.convertTypeToDx(literal.getRefType());
       return false;
     }
 

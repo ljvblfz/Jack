@@ -20,7 +20,6 @@ import com.android.jack.debug.DebugVariableInfoMarker;
 import com.android.jack.dx.rop.code.LocalItem;
 import com.android.jack.dx.rop.code.RegisterSpec;
 import com.android.jack.dx.rop.cst.CstString;
-import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Type;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JParameter;
@@ -99,7 +98,7 @@ class RopRegisterManager {
         cstSignature = new CstString(thisMarker.getGenericSignature());
       }
       LocalItem localItem =
-          LocalItem.make(new CstString(name), RopHelper.getCstType(type), cstSignature);
+          LocalItem.make(new CstString(name), RopHelper.convertTypeToDx(type), cstSignature);
       thisReg = RegisterSpec.make(nextFreeReg, dexRegType, localItem);
     } else {
       thisReg = RegisterSpec.make(nextFreeReg, dexRegType);
@@ -177,7 +176,6 @@ class RopRegisterManager {
    */
   @Nonnull
   RegisterSpec getOrCreateRegisterSpec(@Nonnull JParameter parameter) {
-    assert parameter.getMarker(DebugVariableInfoMarker.class) == null;
     return getRegisterSpec(getRegisterNumber(parameter), parameter, /* debugInfo= */ null);
   }
 
@@ -188,26 +186,35 @@ class RopRegisterManager {
     JType variableType = variable.getType();
     Type regType = RopHelper.convertTypeToDx(variableType);
 
-    if (emitDebugInfo && variable.getName() != null
+    String name = variable.getName();
+    if (emitDebugInfo && name != null
         && (emitSyntheticDebugInfo || !variable.isSynthetic())) {
       if (debugInfo != null) {
         // Debug info marker exists, uses debug information from it
-        CstString cstSignature = null;
-        String genericSignature = debugInfo.getGenericSignature();
-        if (genericSignature != null) {
-          cstSignature = new CstString(genericSignature);
+        if (debugInfo == DebugVariableInfoMarker.NO_DEBUG_INFO) {
+          // There is no debug information when coming from Jill, do not get name from JVariable
+          reg = RegisterSpec.make(regNum, regType);
+        } else {
+          CstString cstSignature = null;
+          String genericSignature = debugInfo.getGenericSignature();
+          if (genericSignature != null) {
+            cstSignature = new CstString(genericSignature);
+          }
+          String debugName = debugInfo.getName();
+          assert debugName != null;
+          JType debugType = debugInfo.getType();
+          assert debugType != null;
+          LocalItem localItem = LocalItem.make(new CstString(debugName),
+              RopHelper.convertTypeToDx(debugType), cstSignature);
+          reg = RegisterSpec.make(regNum, regType, localItem);
         }
-        LocalItem localItem = LocalItem.make(new CstString(debugInfo.getName()),
-            CstType.intern(RopHelper.convertTypeToDx(debugInfo.getType())), cstSignature);
-        reg = RegisterSpec.make(regNum, regType, localItem);
       } else {
         CstString cstSignature = null;
         GenericSignature infoMarker = variable.getMarker(GenericSignature.class);
         if (infoMarker != null) {
           cstSignature = new CstString(infoMarker.getGenericSignature());
         }
-        LocalItem localItem = LocalItem.make(new CstString(variable.getName()),
-            CstType.intern(regType), cstSignature);
+        LocalItem localItem = LocalItem.make(new CstString(name), regType, cstSignature);
         reg = RegisterSpec.make(regNum, regType, localItem);
       }
     } else {
@@ -280,11 +287,5 @@ class RopRegisterManager {
     for (Type type : typeToNextPosFreeRegister.keySet()) {
       typeToNextPosFreeRegister.put(type, Integer.valueOf(0));
     }
-  }
-
-  @Nonnull
-  RegisterSpec getThisReg() {
-    assert thisReg != null;
-    return thisReg;
   }
 }

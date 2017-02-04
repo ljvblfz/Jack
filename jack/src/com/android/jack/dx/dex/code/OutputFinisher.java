@@ -26,7 +26,6 @@ import com.android.jack.dx.rop.code.RegisterSpecSet;
 import com.android.jack.dx.rop.code.SourcePosition;
 import com.android.jack.dx.rop.cst.Constant;
 import com.android.jack.dx.rop.cst.CstString;
-import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.ssa.BasicRegisterMapper;
 import com.android.jack.dx.util.DexException;
@@ -212,10 +211,10 @@ public final class OutputFinisher {
     CstString name = local.getName();
     CstString signature = local.getSignature();
     Type type = spec.getType();
-    CstType localType = local.getType();
+    Type localType = local.getType();
 
     if (type != Type.KNOWN_NULL) {
-      result.add(CstType.intern(type));
+      result.add(type);
     }
 
     if (localType != null) {

@@ -19,6 +19,7 @@ package com.android.jack.frontend.java;
 
 import com.android.jack.JackEventType;
 import com.android.jack.JackUserException;
+import com.android.jack.Options;
 import com.android.jack.frontend.java.JackBatchCompiler.TransportJUEAroundEcjError;
 import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
@@ -28,6 +29,8 @@ import com.android.jack.ir.impl.EcjSourceTypeLoader;
 import com.android.jack.ir.impl.JackIrBuilder;
 import com.android.jack.ir.impl.ReferenceMapper;
 import com.android.jack.ir.impl.SourceCompilationException;
+import com.android.sched.util.config.Config;
+import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.location.FileLocation;
 import com.android.sched.util.log.Event;
 import com.android.sched.util.log.Tracer;
@@ -61,6 +64,9 @@ import javax.annotation.Nonnull;
  * The jack {@code JAstBuilder} is inserted in ecj build chain to build a J-AST.
  */
 class JAstBuilder extends JavaParser {
+
+  @Nonnull
+  private final Config config = ThreadConfig.getConfig();
 
   @Nonnull
   private final Tracer tracer = TracerFactory.getTracer();
@@ -152,6 +158,10 @@ class JAstBuilder extends JavaParser {
 
         for (JDefinedClassOrInterface type : types) {
           session.addTypeToEmit(type);
+        }
+
+        if (config.get(Options.EMIT_CLASS_FILES).booleanValue()) {
+          unit.generateCode();
         }
       }
     } catch (IllegalArgumentException e) {

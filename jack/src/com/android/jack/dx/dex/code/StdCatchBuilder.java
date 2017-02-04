@@ -19,7 +19,6 @@ package com.android.jack.dx.dex.code;
 import com.android.jack.dx.rop.code.BasicBlock;
 import com.android.jack.dx.rop.code.BasicBlockList;
 import com.android.jack.dx.rop.code.RopMethod;
-import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.rop.type.TypeList;
 import com.android.jack.dx.util.IntList;
@@ -53,18 +52,9 @@ public final class StdCatchBuilder implements CatchBuilder {
    * @param addresses {@code non-null;} address objects for each block
    */
   public StdCatchBuilder(RopMethod method, int[] order, BlockAddresses addresses) {
-    if (method == null) {
-      throw new NullPointerException("method == null");
-    }
-
-    if (order == null) {
-      throw new NullPointerException("order == null");
-    }
-
-    if (addresses == null) {
-      throw new NullPointerException("addresses == null");
-    }
-
+    assert method != null;
+    assert order != null;
+    assert addresses != null;
     this.method = method;
     this.order = order;
     this.addresses = addresses;
@@ -246,9 +236,8 @@ public final class StdCatchBuilder implements CatchBuilder {
     CatchHandlerList result = new CatchHandlerList(catchSize);
 
     for (int i = 0; i < catchSize; i++) {
-      CstType oneType = new CstType(catches.getType(i));
       CodeAddress oneHandler = addresses.getStart(successors.get(i));
-      result.set(i, oneType, oneHandler.getAddress());
+      result.set(i, catches.getType(i), oneHandler.getAddress());
     }
 
     result.setImmutable();
@@ -289,18 +278,11 @@ public final class StdCatchBuilder implements CatchBuilder {
    * @return {@code true} if the range is valid as a catch range
    */
   private static boolean rangeIsValid(BasicBlock start, BasicBlock end, BlockAddresses addresses) {
-    if (start == null) {
-      throw new NullPointerException("start == null");
-    }
-
-    if (end == null) {
-      throw new NullPointerException("end == null");
-    }
-
+    assert start != null;
+    assert end != null;
     // See above about selection of instructions.
     int startAddress = addresses.getLast(start).getAddress();
     int endAddress = addresses.getEnd(end).getAddress();
-
     return (endAddress - startAddress) <= MAX_CATCH_RANGE;
   }
 }

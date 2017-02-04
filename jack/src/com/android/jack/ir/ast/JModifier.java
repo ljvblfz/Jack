@@ -43,6 +43,7 @@ public class JModifier {
   public static final int SYNTHETIC    = 0x1000;
   public static final int ANNOTATION   = 0x2000;
   public static final int ENUM         = 0x4000;
+  public static final int IMPLICIT     = 0x8000;
   public static final int STATIC_INIT  = 0x10000;
   public static final int DEPRECATED   = 0x100000;
 
@@ -53,6 +54,7 @@ public class JModifier {
   public static final int ANONYMOUS_TYPE          = 0x40000;
   public static final int CAPTURED_VARIABLE       = 0x80000;
   public static final int LAMBDA_METHOD           = 0x200000;
+  public static final int NAME_PRESENT            = 0x400000;
 
   private static final int TYPE_MODIFIER_MASK = PUBLIC | PROTECTED | PRIVATE | STATIC | FINAL
       | ENUM | SYNTHETIC | ABSTRACT | INTERFACE | ANNOTATION | SUPER | STRICTFP | DEPRECATED;
@@ -65,6 +67,9 @@ public class JModifier {
       | DEPRECATED | LAMBDA_METHOD;
 
   private static final int LOCAL_MODIFIER_MASK = FINAL | SYNTHETIC | CAPTURED_VARIABLE;
+
+  private static final int PARAMETER_MODIFIER_MASK =
+      FINAL | SYNTHETIC | CAPTURED_VARIABLE | IMPLICIT | NAME_PRESENT;
 
   public static boolean isPublic(int modifier) {
     return ((modifier & PUBLIC) == PUBLIC);
@@ -153,6 +158,15 @@ public class JModifier {
   public static boolean isDeprecated(int modifier) {
     return ((modifier & DEPRECATED) == DEPRECATED);
   }
+
+  public static boolean isImplicit(int modifier) {
+    return ((modifier & IMPLICIT) == IMPLICIT);
+  }
+
+  public static boolean isNamePresent(int modifier) {
+    return ((modifier & NAME_PRESENT) == NAME_PRESENT);
+  }
+
 
   /**
    * Check that this modifier only has flags meant for types
@@ -291,7 +305,7 @@ public class JModifier {
    * @return true if the modifier is conform, false otherwise
    */
   public static boolean isParameterModifier(int modifier) {
-    return ((modifier & LOCAL_MODIFIER_MASK) == modifier);
+    return ((modifier & PARAMETER_MODIFIER_MASK) == modifier);
   }
 
   private static void getStringModifierCommon(int modifier, StringBuilder modifierStrBuilder) {
@@ -376,8 +390,8 @@ public class JModifier {
   }
 
   @Nonnull
-  public static String getStringVariableModifier(int modifier) {
-    assert isLocalModifier(modifier);
+  public static String getStringParameterModifier(int modifier) {
+    assert isParameterModifier(modifier);
 
     StringBuilder modifierStrBuilder = new StringBuilder();
     getStringModifierCommon(modifier, modifierStrBuilder);

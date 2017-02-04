@@ -32,17 +32,18 @@ public final class CstEnumRef extends CstMemberRef {
   /**
    * Constructs an instance.
    *
-   * @param nat {@code non-null;} the name-and-type; the defining class is derived
-   * from this
+   * @param name {@code non-null;} the member reference name
+   * @param type {@code non-null;} the member reference type
    */
-  public CstEnumRef(CstNat nat) {
-    super(new CstType(nat.getFieldType()), nat);
+  public CstEnumRef(@Nonnull CstString name, @Nonnull Type type) {
+    super(type, name);
 
     fieldRef = null;
   }
 
   /** {@inheritDoc} */
   @Override
+  @Nonnull
   public String typeName() {
     return "enum";
   }
@@ -53,8 +54,9 @@ public final class CstEnumRef extends CstMemberRef {
    * <b>Note:</b> This returns the enumerated type.
    */
   @Override
+  @Nonnull
   public Type getType() {
-    return getDefiningClass().getClassType();
+    return getDefiningClass();
   }
 
   /**
@@ -62,9 +64,10 @@ public final class CstEnumRef extends CstMemberRef {
    *
    * @return {@code non-null;} the corresponding field reference
    */
+  @Nonnull
   public CstFieldRef getFieldRef() {
     if (fieldRef == null) {
-      fieldRef = new CstFieldRef(getDefiningClass(), getNat());
+      fieldRef = new CstFieldRef(getDefiningClass(), getName(), getDefiningClass());
     }
 
     return fieldRef;
@@ -74,5 +77,31 @@ public final class CstEnumRef extends CstMemberRef {
   @Nonnull
   public ValueType getEncodedValueType() {
     return ValueType.VALUE_ENUM;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public final boolean equals(Object other) {
+    if ((other == null) || (getClass() != other.getClass())) {
+      return false;
+    }
+
+    CstEnumRef otherRef = (CstEnumRef) other;
+    return getDefiningClass().equals(otherRef.getDefiningClass())
+        && getName().equals(otherRef.getName()) && getType().equals(otherRef.getType());
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public final int hashCode() {
+    return ((getDefiningClass().hashCode() * 31) + getName().hashCode() * 31)
+        + getType().hashCode();
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  @Nonnull
+  public final String toHuman() {
+    return getDefiningClass().toHuman() + '.' + getName().toHuman() + ':' + getType().toHuman();
   }
 }

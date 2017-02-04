@@ -16,50 +16,33 @@
 
 package com.android.jack.dx.rop.cst;
 
+import com.android.jack.dx.rop.type.Type;
+
+import javax.annotation.Nonnull;
+
 /**
  * Constants of type {@code CONSTANT_*ref_info}.
  */
 public abstract class CstMemberRef extends TypedConstant {
   /** {@code non-null;} the type of the defining class */
-  private final CstType definingClass;
 
-  /** {@code non-null;} the name-and-type */
-  private final CstNat nat;
+  private final Type definingClass;
+
+  /** {@code non-null;} the name */
+  @Nonnull
+  private final CstString name;
 
   /**
    * Constructs an instance.
    *
    * @param definingClass {@code non-null;} the type of the defining class
-   * @param nat {@code non-null;} the name-and-type
+   * @param name {@code non-null;} the member reference name
    */
-  /*package*/CstMemberRef(CstType definingClass, CstNat nat) {
-    if (definingClass == null) {
-      throw new NullPointerException("definingClass == null");
-    }
-
-    if (nat == null) {
-      throw new NullPointerException("nat == null");
-    }
-
+  /* package */ CstMemberRef(@Nonnull Type definingClass, @Nonnull CstString name) {
+    assert definingClass != null;
+    assert name != null;
     this.definingClass = definingClass;
-    this.nat = nat;
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public final boolean equals(Object other) {
-    if ((other == null) || (getClass() != other.getClass())) {
-      return false;
-    }
-
-    CstMemberRef otherRef = (CstMemberRef) other;
-    return definingClass.equals(otherRef.definingClass) && nat.equals(otherRef.nat);
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public final int hashCode() {
-    return (definingClass.hashCode() * 31) ^ nat.hashCode();
+    this.name = name;
   }
 
   /**
@@ -78,14 +61,12 @@ public abstract class CstMemberRef extends TypedConstant {
       return cmp;
     }
 
-    CstString thisName = nat.getName();
-    CstString otherName = otherMember.nat.getName();
-
-    return thisName.compareTo(otherName);
+    return name.compareTo(otherMember.name);
   }
 
   /** {@inheritDoc} */
   @Override
+  @Nonnull
   public final String toString() {
     return typeName() + '{' + toHuman() + '}';
   }
@@ -96,27 +77,18 @@ public abstract class CstMemberRef extends TypedConstant {
     return false;
   }
 
-  /** {@inheritDoc} */
-  @Override
-  public final String toHuman() {
-    return definingClass.toHuman() + '.' + nat.toHuman();
-  }
-
   /**
    * Gets the type of the defining class.
    *
    * @return {@code non-null;} the type of defining class
    */
-  public final CstType getDefiningClass() {
+  @Nonnull
+  public final Type getDefiningClass() {
     return definingClass;
   }
 
-  /**
-   * Gets the defining name-and-type.
-   *
-   * @return {@code non-null;} the name-and-type
-   */
-  public final CstNat getNat() {
-    return nat;
+  @Nonnull
+  public CstString getName() {
+    return name;
   }
 }

@@ -20,7 +20,6 @@ import com.android.jack.cfg.BasicBlock;
 import com.android.jack.cfg.ConditionalBasicBlock;
 import com.android.jack.cfg.ControlFlowGraph;
 import com.android.jack.cfg.SwitchBasicBlock;
-import com.android.jack.cfg.ThrowBasicBlock;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JIfStatement;
@@ -30,6 +29,7 @@ import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
+import com.android.jack.transformations.EmptyClinit;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Filter;
@@ -37,9 +37,11 @@ import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
 
-import java.util.LinkedList;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Queue;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -49,7 +51,8 @@ import javax.annotation.Nonnull;
  */
 @Description("Code coverage analyzer")
 @Support(CodeCoverageFeature.class)
-@Constraint(need = {CodeCoverageMarker.Initialized.class, ControlFlowGraph.class})
+@Constraint(need = {CodeCoverageMarker.Initialized.class, ControlFlowGraph.class},
+    no = EmptyClinit.class)
 @Transform(
     add = {CodeCoverageMarker.Analyzed.class, ProbeMarker.class}, modify = CodeCoverageMarker.class)
 @Filter(TypeWithoutPrebuiltFilter.class)
@@ -69,10 +72,9 @@ public class CodeCoverageAnalyzer implements RunnableSchedulable<JMethod> {
     }
 
     ControlFlowGraph controlFlowGraph = m.getMarker(ControlFlowGraph.class);
-    assert controlFlowGraph != null : "No control flow graph";
+    assert controlFlowGraph != null;
 
     analyzeCFG(m, controlFlowGraph, coverageMarker);
-    findProbeLocations(controlFlowGraph);
   }
 
   /**
@@ -84,131 +86,113 @@ public class CodeCoverageAnalyzer implements RunnableSchedulable<JMethod> {
    */
   private static void analyzeCFG(@Nonnull JMethod method,
       @Nonnull ControlFlowGraph controlFlowGraph, @Nonnull CodeCoverageMarker coverageMarker) {
-    // Analyze the CFG to identify probes.
-    Queue<BasicBlock> blocks = new LinkedList<BasicBlock>();
-    blocks.add(controlFlowGraph.getEntryNode());
-    for (BasicBlock bb = blocks.poll(); bb != null; bb = blocks.poll()) {
-      if (bb.containsMarker(ProbeMarker.class)) {
-        // The block has already been processed.
-        continue;
-      }
-      List<BasicBlock> predecessors = bb.getPredecessors();
-      int predecessorsCount = predecessors.size();
-      ProbeDescription probe = null;
-      if (predecessorsCount == 0) {
-        // This is the start of a new probe.
-        probe = assignNewProbe(method, coverageMarker, bb);
-      } else if (predecessorsCount > 1) {
-        // There are different paths to reach this block: use a new probe.
-        probe = assignNewProbe(method, coverageMarker, bb);
-      } else { // predecessorsCount == 1
-        // The block has only one predecessor.
-        BasicBlock pred = predecessors.get(0);
-        int successorsOfPredecessorCount = pred.getSuccessors().size();
-        if (successorsOfPredecessorCount > 1) {
-          // TODO(shertz) Jacoco does not seem to split probe on throwing instructions. If we want
-          // to do the same thing, we could test whether the predecessor is a Pei block, in which
-          // case we continue with the same probe instead of creating a new one.
-          probe = assignNewProbe(method, coverageMarker, bb);
-        } else {
-          // There is an unconditional path from the predecessor to this block: use the same
-          // probe.
-          ProbeMarker probeMarker = pred.getMarker(ProbeMarker.class);
-          assert probeMarker != null;
-          bb.addMarker(probeMarker);
-          probe = probeMarker.getProbe();
+    // We use a LIFO work queue to follow a depth-first traversal of the CFG.
+    final Deque<BasicBlock> workQueue = new ArrayDeque<BasicBlock>();
+
+    // Remember which blocks has been visited.
+    final Set<BasicBlock> visitedBlocks = new HashSet<BasicBlock>();
+
+    final BasicBlock entryBlock = controlFlowGraph.getEntryNode();
+    final BasicBlock exitBlock = controlFlowGraph.getExitNode();
+
+    // We process each node using a depth-first traversal and stop when all nodes have been
+    // visited. We push the successors of the entry block because we do not need to process it.
+    workQueue.addAll(entryBlock.getSuccessors());
+
+    // The current probe. When it is null, it means that a new probe must be created for the next
+    // visited block.
+    assert !workQueue.isEmpty();
+    ProbeDescription currentProbe = coverageMarker.createProbe(method);
+
+    while (!workQueue.isEmpty()) {
+      final BasicBlock bb = workQueue.removeFirst();
+      assert bb != entryBlock;
+      assert bb != exitBlock;
+      assert !visitedBlocks.contains(bb);
+      assert !bb.containsMarker(ProbeMarker.class);
+      assert currentProbe != null;
+
+      // Remember that this block has been visited.
+      visitedBlocks.add(bb);
+
+      // Add successors to the queue.
+      for (BasicBlock succ : bb.getSuccessors()) {
+        if (succ == exitBlock) {
+          // We don't want to process the exit block.
+          continue;
         }
+        if (visitedBlocks.contains(succ)) {
+          // This successor has been visited already.
+          continue;
+        }
+        if (workQueue.contains(succ)) {
+          // This successor is already in the work queue.
+          continue;
+        }
+        // Add it to the head of the queue to visit in depth-first mode.
+        workQueue.addFirst(succ);
       }
 
       // Update probe with source information of each statement it covers.
-      assert probe != null;
       for (JStatement st : bb.getStatements()) {
-        ProbeUpdater visitor = new ProbeUpdater(probe);
+        ProbeUpdater visitor = new ProbeUpdater(currentProbe);
         visitor.accept(st);
       }
 
-      // Visit all its successors
-      blocks.addAll(bb.getSuccessors());
-    }
+      // Mark branch lines when coming from an 'if' (including conditional) or 'switch' statement.
+      // This is required to generate the coverage report.
+      for (BasicBlock pred : bb.getPredecessors()) {
+        if (pred instanceof ConditionalBasicBlock || pred instanceof SwitchBasicBlock) {
+          // Get last statement of predecessor.
+          List<JStatement> predStatements = pred.getStatements();
+          JStatement branchStatement = predStatements.get(predStatements.size() - 1);
+          assert branchStatement instanceof JIfStatement ||
+            branchStatement instanceof JSwitchStatement;
+          SourceInfo branchSourceInfo = branchStatement.getSourceInfo();
+          currentProbe.incrementLine(branchSourceInfo.getStartLine(), 1, true);
+        }
+      }
 
-    // Mark branch lines. We need that all blocks have been processed once so the ProbeMarker is
-    // installed.
-    for (BasicBlock bb : controlFlowGraph.getNodes()) {
-      if (bb instanceof ConditionalBasicBlock || bb instanceof SwitchBasicBlock) {
-        // For Jacoco, we need to remember these are branching instructions and how many
-        // possible branches exist.
-        JStatement branchStatement = bb.getStatements().get(0);
-        SourceInfo branchSourceInfo = branchStatement.getSourceInfo();
-        for (BasicBlock succ : bb.getSuccessors()) {
-          ProbeMarker marker = succ.getMarker(ProbeMarker.class);
-          assert marker != null;
-          marker.getProbe().incrementLine(branchSourceInfo.getStartLine(), 1, true);
+      // Is the block terminating a probe?
+      if (isLastBlockForProbe(bb, exitBlock)) {
+        // This basic blocks ends the current probe. The instrumentation will add extra statements
+        // at its end to enable the probe at runtime.
+        bb.addMarker(new ProbeMarker(currentProbe));
+
+        // We need to start a new probe for the next block being visited, if there is at least one.
+        if (!workQueue.isEmpty()) {
+          currentProbe = coverageMarker.createProbe(method);
         }
       }
     }
+
+    // We must have visited all the nodes of the cfg.
+    assert visitedBlocks.size() == controlFlowGraph.getNodes().size();
   }
 
-  /**
-   * Iterates over basic block to identify which ones are terminating their respective probes.
-   * @param controlFlowGraph
-   */
-  private static void findProbeLocations(@Nonnull ControlFlowGraph controlFlowGraph) {
-    BasicBlock entryBlock = controlFlowGraph.getEntryNode();
-    BasicBlock exitBlock = controlFlowGraph.getExitNode();
-    for (BasicBlock bb : controlFlowGraph.getNodes()) {
-      if (bb == entryBlock || bb == exitBlock) {
-        // we do not process these special blocks.
-        continue;
-      }
-
-      ProbeMarker probeMarker = bb.getMarker(ProbeMarker.class);
-      assert probeMarker != null;
-      List<BasicBlock> successors = bb.getSuccessors();
-      if (successors.size() > 1) {
-        // There is more than one path from this block so its probe ends.
-        assert doSuccessorsHaveDifferentProbes(probeMarker, successors);
-        probeMarker.setInsertionBlock(bb);
-      } else if (successors.size() == 1) {
-        BasicBlock successor = successors.get(0);
-        if (successor == exitBlock) {
-          // We're going to leave the method (return or throw) so we must terminate the probe.
-          probeMarker.setInsertionBlock(bb);
-        } else {
-          // Is it successor covered by a different probe?
-          ProbeMarker successorProbeMarker = successor.getMarker(ProbeMarker.class);
-          assert successorProbeMarker != null;
-          if (successorProbeMarker.getProbe() != probeMarker.getProbe()) {
-            // The successor starts a different probe so we must terminate ours.
-            probeMarker.setInsertionBlock(bb);
-          }
-        }
-      } else { // no successor
-        assert bb instanceof ThrowBasicBlock;
-        probeMarker.setInsertionBlock(bb);
+  // TODO(shertz) Jacoco does not seem to split probe on throwing instructions. If we want
+  // to do the same thing, we could test whether the predecessor is a Pei block, in which
+  // case we continue with the same probe instead of creating a new one.
+  private static boolean isLastBlockForProbe(@Nonnull BasicBlock bb,
+      @Nonnull BasicBlock exitBlock) {
+    assert bb != exitBlock;
+    List<BasicBlock> successors = bb.getSuccessors();
+    int successorsCount = successors.size();
+    if (successorsCount > 1) {
+      // There are multiple paths from this block so the probe ends.
+      return true;
+    } else {
+      assert successorsCount == 1;
+      BasicBlock succ = successors.get(0);
+      if (succ.getPredecessors().size() > 1) {
+        // There are multiple paths to the successor so the probe ends.
+        return true;
+      } else if (succ == exitBlock) {
+        // The block exits the method (return or throw) so the probe ends
+        return true;
       }
     }
-  }
-
-  /**
-   * Only used for assertion.
-   */
-  private static boolean doSuccessorsHaveDifferentProbes(
-      @Nonnull ProbeMarker marker, @Nonnull List<BasicBlock> successors) {
-    for (BasicBlock bb : successors) {
-      ProbeMarker probeMarker = bb.getMarker(ProbeMarker.class);
-      assert probeMarker != null;
-      if (probeMarker == marker) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private static ProbeDescription assignNewProbe(
-      @Nonnull JMethod method, @Nonnull CodeCoverageMarker coverageMarker, @Nonnull BasicBlock bb) {
-    ProbeDescription p = coverageMarker.createProbe(method);
-    bb.addMarker(new ProbeMarker(p));
-    return p;
+    return false;
   }
 
   /**

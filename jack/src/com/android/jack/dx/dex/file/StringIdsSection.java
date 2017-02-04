@@ -17,7 +17,6 @@
 package com.android.jack.dx.dex.file;
 
 import com.android.jack.dx.rop.cst.Constant;
-import com.android.jack.dx.rop.cst.CstNat;
 import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.util.AnnotatedOutput;
 import com.android.jack.dx.util.Hex;
@@ -55,9 +54,7 @@ public final class StringIdsSection extends UniformItemSection {
   /** {@inheritDoc} */
   @Override
   public IndexedItem get(Constant cst) {
-    if (cst == null) {
-      throw new NullPointerException("cst == null");
-    }
+    assert cst != null;
 
     throwIfNotPrepared();
 
@@ -108,9 +105,7 @@ public final class StringIdsSection extends UniformItemSection {
    * @return {@code non-null;} the interned string
    */
   public StringIdItem intern(CstString string) {
-    if (string == null) {
-      throw new NullPointerException("string == null");
-    }
+    assert string != null;
 
     throwIfPrepared();
 
@@ -132,9 +127,7 @@ public final class StringIdsSection extends UniformItemSection {
    * @return {@code non-null;} the interned string
    */
   public StringIdItem intern(StringIdItem string) {
-    if (string == null) {
-      throw new NullPointerException("string == null");
-    }
+    assert string != null;
 
     throwIfPrepared();
 
@@ -150,16 +143,6 @@ public final class StringIdsSection extends UniformItemSection {
   }
 
   /**
-   * Interns the components of a name-and-type into this instance.
-   *
-   * @param nat {@code non-null;} the name-and-type
-   */
-  public void intern(CstNat nat) {
-    intern(nat.getName());
-    intern(nat.getDescriptor());
-  }
-
-  /**
    * Gets the index of the given string, which must have been added
    * to this instance.
    *
@@ -167,9 +150,7 @@ public final class StringIdsSection extends UniformItemSection {
    * @return {@code >= 0;} the string's index
    */
   public int indexOf(CstString string) {
-    if (string == null) {
-      throw new NullPointerException("string == null");
-    }
+    assert string != null;
 
     throwIfNotPrepared();
 

@@ -45,10 +45,7 @@ public final class SwitchInsn extends Insn {
       throw new IllegalArgumentException("bogus branchingness");
     }
 
-    if (cases == null) {
-      throw new NullPointerException("cases == null");
-    }
-
+    assert cases != null;
     this.cases = cases;
   }
 

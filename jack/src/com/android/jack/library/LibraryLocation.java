@@ -51,4 +51,9 @@ public class LibraryLocation implements Location {
   public final int hashCode() {
     return sourceLocation.hashCode();
   }
+
+  @Override
+  public String toString() {
+    return sourceLocation.toString();
+  }
 }

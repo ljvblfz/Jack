@@ -1,0 +1,232 @@
+/*
+ * Copyright (C) 2016 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+project(':jack-tests') {
+  apply plugin: 'java'
+  apply plugin: 'org.anarres.jarjar'
+
+  sourceCompatibility = 1.7
+  targetCompatibility = 1.7
+
+  apply from: "$rootDir/gradle-script/checkstyle.gradle"
+  apply from: "$rootDir/gradle-script/findbugs.gradle"
+
+  checkstyleMain {
+    source = 'src'
+  }
+
+  findbugs {
+      includeFilter = file("config/findbugs/findbugs-include.xml")
+  }
+
+  sourceSets {
+      main {
+          java {
+              srcDirs = ['src', 'tests']
+              exclude "com/android/jack/annotation/processor/sample2/src/**"
+              exclude "com/android/jack/annotation/test015/jack/**"
+              exclude "com/android/jack/annotation/test017/jack/**"
+              exclude "com/android/jack/annotation/test019/jack/**"
+              exclude "com/android/jack/classpath/test002/lib1override/**"
+              exclude "com/android/jack/encoding/tests/**"
+              exclude "com/android/jack/enums/test003/link/Other.java"
+              exclude "com/android/jack/enums/test003/link/Values.java"
+              exclude "com/android/jack/error/test001/jack/A.java"
+              exclude "com/android/jack/error/test002/jack/A.java"
+              exclude "com/android/jack/frontend/test002/jack/PackageName/ClassInConflictingPackage.java"
+              exclude "com/android/jack/frontend/test008/jack/NoOuterContext.java"
+              exclude "com/android/jack/frontend/test010/jack/UnusedLocalVar.java"
+              exclude "com/android/jack/frontend/test013/jack/ExtendingInnerOnly.java"
+              exclude "com/android/jack/frontend/test014/jack/ExtendingInnerInStaticContext.java"
+              exclude "com/android/jack/frontend/test015/jack/WithOuterContextButStatic.java"
+              exclude "com/android/jack/frontend/test016/jack/WithDuplicated.java"
+              exclude "com/android/jack/frontend/test017/jack/InvalidQualification.java"
+              exclude "com/android/jack/frontend/test019/jack/TooBig.java"
+              exclude "com/android/jack/frontend/test018/jack/**"
+              exclude "com/android/jack/nopackage/jack/**"
+              exclude "com/android/jack/java8/lambda/**"
+              exclude "com/android/jack/java8/defaultmethod/**"
+              exclude "com/android/jack/java8/staticmethod/**"
+              exclude "com/android/jack/java8/methodref/**"
+              exclude "com/android/jack/java8/inference/**"
+              exclude "com/android/jack/java8/gwt/**"
+              exclude "com/android/jack/java8/retrolambda/**"
+              exclude "com/android/jack/java8/intersectiontype/**"
+              exclude "com/android/jack/java8/annotation/**"
+              exclude "com/android/jack/java8/variable/**"
+              exclude "com/android/jack/java8/bridges/**"
+              exclude "com/android/jack/java8/parameter/**"
+              exclude "com/android/jack/jarjar/test003/dontcompile/**"
+              exclude "com/android/jack/jarjar/test004/dontcompile/**"
+              exclude "com/android/jack/jarjar/test006/dontcompile/**"
+              exclude "com/android/jack/lookup/test001/liboverride/**"
+              exclude "com/android/jack/frontend/generic/test002/jack/**"
+              exclude "com/android/jack/frontend/generic/test003/jack/**"
+              exclude "com/android/jack/frontend/test005/jack/**"
+              exclude "com/android/jack/frontend/test006/jack/**"
+              exclude "com/android/jack/frontend/test007/**"
+              exclude "com/android/jack/jill/test001/**"
+              exclude "com/android/jack/jill/test002/**"
+              exclude "com/android/jack/jill/test003/**"
+              exclude "com/android/jack/jill/test004/**"
+              exclude "com/android/jack/multidex/test004/**"
+              exclude "com/android/jack/nopackage/test*/**"
+              exclude "com/android/jack/optimizations/lambdas/test001/**"
+              exclude "com/android/jack/optimizations/lambdas/test002/**"
+              exclude "com/android/jack/optimizations/lambdas/test003/**"
+              exclude "com/android/jack/optimizations/lambdas/test004/**"
+              exclude "com/android/jack/optimizations/lambdas/test005/**"
+              exclude "com/android/jack/optimizations/lambdas/test006/**"
+              exclude "com/android/jack/optimizations/lambdas/test007/**"
+              exclude "com/android/jack/optimizations/lambdas/test008/**"
+              exclude "com/android/jack/sourcepath/test002/jack/Sourcepath002.java"
+              exclude "com/android/jack/shrob/test062/jack/**"
+              exclude "com/android/jack/shrob/test066/jack/**"
+              exclude "com/android/jack/shrob/test067/jack/**"
+              exclude "com/android/jack/shrob/test068/jack/**"
+          }
+      }
+
+      // HACK: this way, test library can be built (e.g. for dump) and test can be passed
+      //with gradle command line as well.
+      test {
+        java {
+          srcDirs = sourceSets.main.java.srcDirs
+          excludes = sourceSets.main.java.excludes
+        }
+      }
+  }
+
+  gradle.taskGraph.whenReady { graph ->
+      if (graph.hasTask(check)) {
+        // test needs to specify right test suite to use Jack test runner
+        // this prevents from running tests bound to fail during ' check'
+        test.enabled = false
+      }
+  }
+
+  dependencies {
+
+    compile project(':jill-api')
+    compile project(':jack:jackunittests')
+    compile project(':dx-ref').configurations.archives.artifacts.files
+    compile project(':ddmlib').configurations.archives.artifacts.files
+    compile project(':jack-api')
+    compile project(':sched:schedtests')
+    compile jarjar.repackage ("ecj-tests-lib-jarjar") {
+        from files(project(':ecj-tests-lib').configurations.archives.artifacts.file.path) {
+          builtBy ':ecj-tests-lib:jar'
+        }
+        classRename "org.eclipse.**", "com.android.jack.test.eclipse.@1"
+    }
+    compileOnly libs.jsr305
+    testCompileOnly libs.jsr305
+  }
+}
+
+javadoc.enabled false
+
+project(':jack-tests:test-lib') {
+  apply plugin: 'java'
+
+  configurations {
+      schedBuildDep
+  }
+
+  dependencies {
+    compile project(':jack-tests')
+    compile project(':jack:jackunittests')
+    compile project(':ddmlib').configurations.archives.artifacts.files
+    schedBuildDep project(':sched:sched-ap')
+  }
+
+  task schedBuildJackIntermediate (type: Exec) {
+
+    List<String> inputJars = new ArrayList<String>()
+    inputJars.add(configurations.schedBuildDep.singleFile.getAbsolutePath())
+    configurations.runtime.files.each {
+          File file ->
+              inputJars.add(file.getAbsolutePath())
+    }
+
+    def cmdLine = ['java', '-jar', configurations.schedBuildDep.singleFile]
+    configurations.compile.files.each {
+      File file ->
+              cmdLine << file.getAbsolutePath()
+    }
+    doFirst {
+      file("${project.buildDir}").mkdirs()
+    }
+    cmdLine << new File(project.buildDir, "test-lib-intermediate.jar").toString()
+
+    commandLine cmdLine
+
+    inputs.files(inputJars)
+    outputs.files(file("${project.buildDir}/test-lib-intermediate.jar"))
+  }
+
+  jar {
+    dependsOn schedBuildJackIntermediate
+
+    manifest {
+      from '../etc/manifest.txt'
+    }
+    from ("${rootDir}/jack/rsc") {
+      include 'META-INF/services/**'
+    }
+    from ("${rootDir}/jill/rsc") {
+      include 'META-INF/services/**'
+    }
+    from zipTree("${project.buildDir}/test-lib-intermediate.jar")
+  }
+}
+
+test {
+  systemProperty "tests.config", System.getProperty("tests.config")
+  systemProperty "tests.runtime.tolerant", System.getProperty("tests.runtime.tolerant")
+  systemProperty "file.encoding", System.getProperty("file.encoding")
+  systemProperty "runtime.version", System.getProperty("runtime.version")
+  reports {
+        junitXml.enabled = false
+        html.enabled = true
+  }
+}
+
+def generateTestDumpTasks(taskName, dumpFileName, testSuiteName, classPathFiles) {
+  return tasks.create(name: taskName, type: JavaExec) {
+
+    doFirst {
+      file("gradle-dump").mkdirs()
+      standardOutput new FileOutputStream(file('gradle-dump/' + dumpFileName + '.js'))
+    }
+    def vmArgs = ['-Dfile.encoding=utf-8', '-Dtests.dump=true']
+    if (!System.getProperty("runtime.version", "").equals("")) {
+      vmArgs << "-Druntime.version=" + System.getProperty("runtime.version")
+    }
+    if (!System.getProperty("tests.config", "").equals("")) {
+      vmArgs << "-Dtests.config=" + System.getProperty("tests.config")
+    }
+    main 'com.android.jack.test.junit.JackJUnitLauncher'
+    classpath classPathFiles
+    jvmArgs vmArgs
+    args testSuiteName
+
+    }
+}
+
+generateTestDumpTasks('testJackDump', 'PreSubmitTests', 'com.android.jack.PreSubmitTests', [project(':jack-tests:test-lib').jar.archivePath])
+generateTestDumpTasks('testJackLongDump', 'LongLastingTests', 'com.android.jack.LongLastingTests', [project(':jack-tests:test-lib').jar.archivePath])
+generateTestDumpTasks('testSchedDump', 'SchedAllTests', 'com.android.sched.SchedAllTests', [project(':sched:schedtests').jar.archivePath, project(':jack-tests:test-lib').jar.archivePath])

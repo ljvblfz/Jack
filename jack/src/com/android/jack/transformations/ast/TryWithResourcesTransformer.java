@@ -35,7 +35,7 @@ import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JMethodCall;
-import com.android.jack.ir.ast.JMethodIdWide;
+import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JNeqOperation;
 import com.android.jack.ir.ast.JNullLiteral;
@@ -249,18 +249,20 @@ public class TryWithResourcesTransformer implements RunnableSchedulable<JMethod>
             Collections.singletonList(catchBlock),
             finallyBlock);
 
-        JMethodIdWide closeMethodId;
-        JMethodIdWide addSuppressedMethodId;
+        JMethodId closeMethodId;
+        JMethodId addSuppressedMethodId;
         try {
           // Lookup AutoCloseable.close() method
           JInterface autoCloseableInterface =
               Jack.getSession().getPhantomLookup().getInterface(AUTO_CLOSEABLE_SIGNATURE);
-          closeMethodId = autoCloseableInterface.getMethodIdWide(
-              CLOSE_METHOD_NAME, Collections.<JType>emptyList(), MethodKind.INSTANCE_VIRTUAL);
+          closeMethodId =
+              autoCloseableInterface.getMethodId(CLOSE_METHOD_NAME, Collections.<JType>emptyList(),
+                  MethodKind.INSTANCE_VIRTUAL, JPrimitiveTypeEnum.VOID.getType());
 
           // Lookup Throwable.addSuppressed(Throwable t) method
-          addSuppressedMethodId = throwableClass.getMethodIdWide(ADD_SUPPRESSED_METHOD_NAME,
-              Collections.singletonList(throwableClass), MethodKind.INSTANCE_VIRTUAL);
+          addSuppressedMethodId = throwableClass.getMethodId(ADD_SUPPRESSED_METHOD_NAME,
+              Collections.singletonList(throwableClass), MethodKind.INSTANCE_VIRTUAL,
+              JPrimitiveTypeEnum.VOID.getType());
         } catch (JMethodLookupException e) {
           TransformationException transformationException =
               new TransformationException(new MissingJavaSupportException(JavaVersion.JAVA_7, e));
@@ -284,7 +286,6 @@ public class TryWithResourcesTransformer implements RunnableSchedulable<JMethod>
               resourceLocal.makeRef(endOfTrySourceInfos),
               (JClassOrInterface) resourceLocal.getType(),
               closeMethodId,
-              JPrimitiveTypeEnum.VOID.getType(),
               true);
 
           JBlock thenBlock = new JBlock(endOfTrySourceInfos);
@@ -331,8 +332,7 @@ public class TryWithResourcesTransformer implements RunnableSchedulable<JMethod>
               exceptionToThrow.makeRef(endOfTrySourceInfos),
               throwableClass,
               addSuppressedMethodId,
-              JPrimitiveTypeEnum.VOID.getType(),
-              closeMethodId.canBeVirtual());
+              closeMethodId.getMethodIdWide().canBeVirtual());
           addSuppressCall.addArg(exceptionThrownByClose.makeRef(endOfTrySourceInfos));
           callSuppressBlock.addStmt(new JExpressionStatement(endOfTrySourceInfos, addSuppressCall));
 

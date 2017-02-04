@@ -17,6 +17,7 @@
 package com.android.jack.inner;
 
 import com.android.jack.TestTools;
+import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.test.category.RedundantTests;
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.comparator.ComparatorDex;
@@ -371,7 +372,7 @@ public class InnerTests extends RuntimeTest {
   @Runtime
   public void test026() throws Exception {
     new RuntimeTestHelper(TEST026).addIgnoredCandidateToolchain(JillBasedToolchain.class)
-        .compileAndRunTest();
+        .addProperty(CodeItemBuilder.DEX_OPTIMIZE.getName(), "true").compileAndRunTest();
   }
 
   @Test

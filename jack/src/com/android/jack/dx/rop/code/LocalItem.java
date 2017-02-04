@@ -17,7 +17,7 @@
 package com.android.jack.dx.rop.code;
 
 import com.android.jack.dx.rop.cst.CstString;
-import com.android.jack.dx.rop.cst.CstType;
+import com.android.jack.dx.rop.type.Type;
 
 /**
  * A local variable item: either a name or a signature or both.
@@ -27,7 +27,7 @@ public class LocalItem implements Comparable<LocalItem> {
   private final CstString name;
 
   /** {@code null-ok;} local variable type */
-  private final CstType type;
+  private final Type type;
 
   /** {@code null-ok;} local variable signature */
   private final CstString signature;
@@ -44,7 +44,7 @@ public class LocalItem implements Comparable<LocalItem> {
   *        discussion under {@code dalvik.annotation.Signature} in "dex-format.html")
   * @return {@code null-ok;} appropriate instance.
   */
-  public static LocalItem make(CstString name, CstType type, CstString signature) {
+  public static LocalItem make(CstString name, Type type, CstString signature) {
     if (name == null && type == null) {
       return null;
     }
@@ -59,7 +59,7 @@ public class LocalItem implements Comparable<LocalItem> {
    * @param type {@code null-ok;} local variable type
    * @param signature {@code null-ok;} local variable signature
    */
-  private LocalItem(CstString name, CstType type, CstString signature) {
+  private LocalItem(CstString name, Type type, CstString signature) {
     this.name = name;
     this.type = type;
     this.signature = signature;
@@ -97,13 +97,13 @@ public class LocalItem implements Comparable<LocalItem> {
   }
 
   /**
-   * Compares two CstType like CstType.compareTo(), excepts treats a null
+   * Compares two {@link Type} like {@link Type#compareTo(Constant)}, excepts treats a null
    * as the least-possible string value.
    *
    * @return negative integer, zero, or positive integer in accordance
    * with Comparable.compareTo()
    */
-  private static int compareHandlesNulls(CstType a, CstType b) {
+  private static int compareHandlesNulls(Type a, Type b) {
     if (a == b) {
       return 0;
     } else if (a == null) {
@@ -183,7 +183,7 @@ public class LocalItem implements Comparable<LocalItem> {
    *
    * @return {@code null-ok;} type.
    */
-  public CstType getType() {
+  public Type getType() {
     return type;
   }
 }

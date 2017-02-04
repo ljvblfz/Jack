@@ -61,6 +61,14 @@ public class Optimizations {
             .addDefaultValue(Boolean.TRUE)
             .addCategory(DumpInLibrary.class)
             .addCategory(PrebuiltCompatibility.class);
+
+    @Nonnull
+    public static final BooleanPropertyId OPTIMIZE_CST_DEF = BooleanPropertyId
+        .create("jack.optimization.use-def-cst-simplifier",
+            "Optimize use/def chain with constant definition")
+        .addDefaultValue(Boolean.FALSE)
+        .addCategory(DumpInLibrary.class)
+        .addCategory(PrebuiltCompatibility.class);
   }
 
   /**

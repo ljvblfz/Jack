@@ -1,0 +1,286 @@
+/*
+ * Copyright (C) 2016 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+apply plugin: 'java'
+apply plugin: "org.inferred.processors"
+
+apply from: "$rootDir/gradle-script/checkstyle.gradle"
+apply from: "$rootDir/gradle-script/findbugs.gradle"
+
+findbugs {
+    excludeFilter = file("config/findbugs/findbugs-exclude.xml")
+}
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+        }
+        resources {
+            srcDirs = ['rsc']
+            exclude "jack-version.properties"
+        }
+    }
+}
+
+configurations {
+    antlrComplete
+    schedBuildDep
+    jackFullArtifact
+    jackFullNoJarjarArtifact
+    jarjar
+}
+
+dependencies {
+  compile libs.antlr_runtime
+  compile project(':args4j')
+  compile project(':ecj').configurations.archives.artifacts.files
+  compile libs.guava
+  compile project(':jack-api')
+  compile project(':jill')
+  runtime project(':jill-api')
+  compileOnly libs.jsr305
+  compile project(':sched')
+
+  processor project(':sched:sched-ap')
+
+  // tools
+  schedBuildDep project(':sched:sched-ap')
+  antlrComplete(group: 'org.antlr', name: 'antlr-complete', version: '3.5.2', ext: 'jar', classifier: '')
+  jarjar project(':jarjar').configurations.archives.artifacts.files
+
+  testCompile libs.junit
+  testCompile project(':dexlib')
+  testCompile project(':dexcomparator')
+
+}
+
+jar {
+    classifier = 'lib'
+    manifest {
+        from 'etc/manifest.txt'
+    }
+    from ("${project.buildDir}") {
+      include "jack-version.properties"
+    }
+    into "/"
+}
+
+task preprocessorParserTask (type: Exec) {
+    String preProcessorDir = project.projectDir.toString() + "/src/com/android/jack/preprocessor"
+    commandLine 'java', '-jar', configurations.antlrComplete.singleFile, '-fo', preProcessorDir, preProcessorDir + '/PreProcessor.g'
+
+    inputs.file("${preProcessorDir}/PreProcessor.g")
+    outputs.files(fileTree(dir: preProcessorDir))
+}
+
+task proguardParserTask (type: Exec) {
+    String proguardDir = project.projectDir.toString() + "/src/com/android/jack/shrob/proguard"
+    commandLine 'java', '-jar', configurations.antlrComplete.singleFile, '-fo', proguardDir, proguardDir + '/Proguard.g'
+
+    inputs.file("${proguardDir}/Proguard.g")
+    outputs.files(fileTree(dir: proguardDir))
+}
+
+task schedBuildJackIntermediate (type: Exec, dependsOn: jar) {
+
+  List<String> inputJars = new ArrayList<String>()
+  inputJars.add(configurations.schedBuildDep.singleFile.getAbsolutePath())
+  inputJars.add(jar.archivePath)
+  configurations.runtime.files.each {
+        File file ->
+            inputJars.add(file.getAbsolutePath())
+  }
+
+  def cmdLine = ['java', '-jar', configurations.schedBuildDep.singleFile, jar.archivePath]
+  configurations.runtime.files.each {
+        File file ->
+            cmdLine << file.getAbsolutePath()
+  }
+  cmdLine << new File(project.buildDir, "jack-intermediate.jar").toString()
+  commandLine cmdLine
+
+  inputs.files(inputJars)
+  outputs.files(file("${project.buildDir}/jack-intermediate.jar"))
+}
+
+task defaultLibTask (type:Exec, dependsOn: schedBuildJackIntermediate) {
+    List<String> inputJars = new ArrayList<String>()
+    inputJars.add(new File(project.buildDir, "jack-intermediate.jar").getAbsolutePath())
+
+    def cmdLine = ['java', '-jar', new File(project.buildDir, "jack-intermediate.jar").toString(), '--verbose', 'error', '-D', 'jack.classpath.default-libraries=false', '--classpath', 'prebuilts/core-stubs-mini.jack', '--output-jack', new File(project.buildDir, "default-lib.jack").toString()]
+    fileTree(dir: 'src').matching{ include 'com/android/jack/annotations/**/*.java' }.visit {
+    FileVisitDetails details ->
+        if (!details.file.isDirectory()) {
+            cmdLine << details.file.absolutePath
+            inputJars.add(details.file.absolutePath)
+        }
+    }
+    commandLine cmdLine
+
+    inputs.files(inputJars)
+    outputs.files(new File(project.buildDir, "default-lib.jack"))
+}
+
+apply from: "$rootDir/gradle-script/versionfile.gradle"
+
+def addDefaultLib = copySpec {
+  from zipTree(new File(project.buildDir, "default-lib.jack").toString())
+  into '/jack-default-lib'
+}
+
+task fullJackJar(type: Jar, dependsOn: defaultLibTask) {
+  classifier = 'full'
+  from zipTree("${project.buildDir}/jack-intermediate.jar")
+  with addDefaultLib
+  manifest {
+      from 'etc/manifest.txt'
+  }
+}
+
+task jarjar(type:Exec, dependsOn: [':jarjar:jar', fullJackJar]) {
+  inputs.files 'jarjar-rules.txt', 'fullJackJar.archivePath'
+  outputs.file "${buildDir}/libs/jack.jar"
+  commandLine 'java', '-jar', configurations.jarjar.singleFile, 'process', "jarjar-rules.txt", fullJackJar.archivePath, file("${buildDir}/libs/jack.jar")
+}
+
+compileJava.dependsOn preprocessorParserTask
+compileJava.dependsOn proguardParserTask
+jar.dependsOn createJackVersionFile
+assemble.dependsOn jarjar
+
+task dist (type: Copy, dependsOn: assemble) {
+  from file("${buildDir}/libs/jack.jar")
+  into file("${rootDir}/gradle-dist/")
+}
+
+artifacts {
+  jackFullArtifact file("${buildDir}/libs/jack.jar")
+  jackFullNoJarjarArtifact file("${buildDir}/libs/jack-full.jar")
+}
+
+task createJackDistDocDirectory {
+  doLast {
+    file("${rootDir}/gradle-dist/doc/jack").mkdirs()
+  }
+}
+
+task dumpCliUsage(type: Exec, dependsOn: ['createJackDistDocDirectory', 'fullJackJar']) {
+  commandLine 'java', '-jar', fullJackJar.archivePath, '--help'
+  doFirst {
+    standardOutput = new FileOutputStream("${rootDir}/gradle-dist/doc/jack/cli-usage.txt")
+  }
+}
+
+task dumpProperties(type: Exec, dependsOn: ['createJackDistDocDirectory', 'fullJackJar']) {
+  commandLine 'java', '-jar', fullJackJar.archivePath, '--help-properties', '--sanity-checks', 'off'
+  doFirst {
+    standardOutput = new FileOutputStream("${rootDir}/gradle-dist/doc/jack/properties.txt")
+  }
+}
+
+task dumpPropertiesDev(type: Exec, dependsOn: ['createJackDistDocDirectory', 'fullJackJar']) {
+  commandLine 'java', '-jar', fullJackJar.archivePath, '--help-properties', '--sanity-checks', 'on'
+  doFirst {
+    standardOutput = new FileOutputStream("${rootDir}/gradle-dist/doc/jack/properties-dev.txt")
+  }
+}
+
+javadoc {
+  dependsOn 'dumpCliUsage', 'dumpProperties', 'dumpPropertiesDev'
+  failOnError false
+  destinationDir = file("${rootDir}/gradle-dist/doc/jack/jack-internal/jack")
+}
+
+project(':jack:jackunittests') {
+  apply plugin: 'java'
+  apply plugin: "org.inferred.processors"
+  apply plugin: 'com.github.johnrengelman.shadow'
+
+  sourceSets {
+      main {
+          java {
+              srcDirs = [project(':jack').file('tests')]
+          }
+      }
+  }
+
+  dependencies {
+
+    compile project(':jack')
+    compile libs.junit
+    compile project(':dexlib')
+    compile project(':dexcomparator')
+    compileOnly libs.jsr305
+    processor project(':sched:sched-ap')
+
+  }
+
+  assemble.dependsOn shadowJar
+
+}
+
+project(':jack:jack-annotations') {
+  apply plugin: 'java'
+  apply plugin: 'com.github.johnrengelman.shadow'
+
+  sourceCompatibility = 1.6
+  targetCompatibility = 1.6
+
+  compileJava.options.encoding = 'UTF-8'
+
+  sourceSets {
+    main {
+      java {
+        srcDirs = [project(':jack').file('src')]
+        include 'com/android/jack/annotations/**/*.java'
+      }
+    }
+  }
+
+  apply from: "$rootDir/gradle-script/versionfile.gradle"
+
+  jar {
+    classifier 'lib'
+    dependsOn createJackVersionFile
+    from ("${project.buildDir}") {
+      include "jack-annotations-version.properties"
+    }
+  }
+  shadowJar {
+    classifier ''
+    dependsOn createJackVersionFile
+    from ("${project.buildDir}") {
+      include "jack-annotations-version.properties"
+    }
+  }
+
+  javadoc {
+    failOnError false
+    destinationDir = file("${rootDir}/gradle-dist/doc/jack/jack-external/jack-annotations")
+  }
+
+  task dist (type: Copy) {
+    from shadowJar.archivePath
+    into file("${rootDir}/gradle-dist/")
+  }
+
+  dist.dependsOn shadowJar
+
+}

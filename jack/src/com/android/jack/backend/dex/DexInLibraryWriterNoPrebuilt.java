@@ -18,7 +18,6 @@ package com.android.jack.backend.dex;
 
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
-import com.android.jack.scheduling.marker.DexCodeMarker;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Filter;
@@ -28,7 +27,7 @@ import com.android.sched.schedulable.Produce;
  * A {@link DexInLibraryWriter} only processing types without prebuilt.
  */
 @Description("Write dex files in library")
-@Constraint(need = {DexCodeMarker.class, ClassDefItemMarker.Complete.class})
+@Constraint(need = {ClassDefItemMarker.Complete.class})
 @Produce(DexInLibraryProduct.class)
 @Filter(TypeWithoutPrebuiltFilter.class)
 public class DexInLibraryWriterNoPrebuilt extends DexInLibraryWriter {}

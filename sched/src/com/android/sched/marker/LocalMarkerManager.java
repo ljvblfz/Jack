@@ -20,7 +20,7 @@ import com.android.sched.item.Items;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -34,7 +34,7 @@ public class LocalMarkerManager extends AbstractMarkerManager {
   private static final Collection<Marker> EMPTY_MARKER = Collections.emptyList();
 
   @CheckForNull
-  private ConcurrentHashMap<Class<? extends Marker>, Marker> markers;
+  private HashMap<Class<? extends Marker>, Marker> markers;
 
   @Nonnull
   private final Object lock = new Object();
@@ -43,25 +43,29 @@ public class LocalMarkerManager extends AbstractMarkerManager {
   @Override
   @CheckForNull
   public <T extends Marker> T addMarker(@Nonnull T marker) {
-    assert isValidMarker(marker) : "Marker '" + Items.getName(marker.getClass())
-        + "' is not supported for class '" + this.getClass().getName() + "'";
+    synchronized (lock) {
+      assert isValidMarker(marker) : "Marker '" + Items.getName(marker.getClass())
+          + "' is not supported for class '" + this.getClass().getName() + "'";
 
-    ensureMap();
-    assert markers != null;
+      ensureMap();
+      assert markers != null;
 
-    return (T) markers.put(marker.getClass(), marker);
+      return (T) markers.put(marker.getClass(), marker);
+    }
   }
 
   @Override
   public void addAllMarkers(@Nonnull Collection<Marker> collection) {
-    ensureMap();
+    synchronized (lock) {
+      ensureMap();
 
-    for (Marker marker : collection) {
-      assert isValidMarker(marker) : "Marker '" + Items.getName(marker.getClass())
-          + "' is not supported for class '" + this.getClass().getName() + "'";
-      assert markers != null;
+      for (Marker marker : collection) {
+        assert isValidMarker(marker) : "Marker '" + Items.getName(marker.getClass())
+            + "' is not supported for class '" + this.getClass().getName() + "'";
+        assert markers != null;
 
-      markers.put(marker.getClass(), marker);
+        markers.put(marker.getClass(), marker);
+      }
     }
   }
 
@@ -72,14 +76,14 @@ public class LocalMarkerManager extends AbstractMarkerManager {
       if (markers == null) {
         return EMPTY_MARKER;
       }
-    }
 
-    for (Marker marker : markers.values()) {
-      assert checkGetAccess(marker.getClass());
-    }
+      for (Marker marker : markers.values()) {
+        assert checkGetAccess(marker.getClass());
+      }
 
-    assert markers != null;
-    return markers.values();
+      assert markers != null;
+      return markers.values();
+    }
   }
 
   @Override
@@ -90,44 +94,43 @@ public class LocalMarkerManager extends AbstractMarkerManager {
       if (markers == null) {
         return null;
       }
-    }
 
-    return (T) markers.get(cls);
+      return (T) markers.get(cls);
+    }
   }
 
   @Override
   public <T extends Marker> boolean containsMarker(@Nonnull Class<T> cls) {
-    assert isValidMarker(cls) : "Marker '" + Items.getName(cls) + "' is not supported for class '"
-        + this.getClass().getName() + "'";
-
     synchronized (lock) {
+      assert isValidMarker(cls) : "Marker '" + Items.getName(cls) + "' is not supported for class '"
+          + this.getClass().getName() + "'";
+
       if (markers == null) {
         return false;
       }
-    }
 
-    return markers.containsKey(cls);
+      return markers.containsKey(cls);
+    }
   }
 
   @Override
   @Nonnull
   public <T extends Marker> T getMarkerOrDefault(@Nonnull T defaultMarker) {
-    assert isValidMarker(defaultMarker) : "Marker '"
-        + Items.getName(defaultMarker.getClass()) + "' is not supported for class '"
-        + this.getClass().getName() + "'";
-
     synchronized (lock) {
+      assert isValidMarker(defaultMarker) : "Marker '" + Items.getName(defaultMarker.getClass())
+          + "' is not supported for class '" + this.getClass().getName() + "'";
+
       if (markers == null) {
         return defaultMarker;
       }
-    }
 
-    @SuppressWarnings("unchecked")
-    T marker = (T) markers.get(defaultMarker.getClass());
-    if (marker == null) {
-      return defaultMarker;
-    } else {
-      return marker;
+      @SuppressWarnings("unchecked")
+      T marker = (T) markers.get(defaultMarker.getClass());
+      if (marker == null) {
+        return defaultMarker;
+      } else {
+        return marker;
+      }
     }
   }
 
@@ -135,13 +138,20 @@ public class LocalMarkerManager extends AbstractMarkerManager {
   @Override
   @CheckForNull
   public <T extends Marker> T addMarkerIfAbsent(@Nonnull T newMarker) {
-    assert isValidMarker(newMarker) : "Marker '" + Items.getName(newMarker.getClass())
-        + "' is not supported for class '" + this.getClass().getName() + "'";
+    synchronized (lock) {
+      assert isValidMarker(newMarker) : "Marker '" + Items.getName(newMarker.getClass())
+          + "' is not supported for class '" + this.getClass().getName() + "'";
 
-    ensureMap();
-    assert markers != null;
+      ensureMap();
+      assert markers != null;
 
-    return (T) markers.putIfAbsent(newMarker.getClass(), newMarker);
+      T existingMarker = (T) markers.get(newMarker.getClass());
+      if (existingMarker != null) {
+        return existingMarker;
+      }
+
+      return (T) markers.put(newMarker.getClass(), newMarker);
+    }
   }
 
   @Override
@@ -152,16 +162,20 @@ public class LocalMarkerManager extends AbstractMarkerManager {
       if (markers == null) {
         return null;
       }
-    }
 
-    return (T) markers.remove(cls);
+      T result = (T) markers.remove(cls);
+
+      if (markers.isEmpty()) {
+        markers = null;
+      }
+
+      return result;
+    }
   }
 
   private void ensureMap() {
-    synchronized (lock) {
-      if (markers == null) {
-        markers = new ConcurrentHashMap<Class<? extends Marker>, Marker>();
-      }
+    if (markers == null) {
+      markers = new HashMap<Class<? extends Marker>, Marker>();
     }
   }
 }

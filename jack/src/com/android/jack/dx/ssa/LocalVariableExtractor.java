@@ -62,12 +62,8 @@ public class LocalVariableExtractor {
    * @param method {@code non-null;} the method to extract from
    */
   private LocalVariableExtractor(SsaMethod method) {
-    if (method == null) {
-      throw new NullPointerException("method == null");
-    }
-
+    assert method != null;
     ArrayList<SsaBasicBlock> blocks = method.getBlocks();
-
     this.method = method;
     this.blocks = blocks;
     this.resultInfo = new LocalVariableInfo(method);

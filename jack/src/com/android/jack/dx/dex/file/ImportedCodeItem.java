@@ -77,22 +77,12 @@ public final class ImportedCodeItem extends OffsettedItem implements
   public ImportedCodeItem(CstMethodRef ref, Code code, ImportedDebugInfoItem debugInfoItem,
       CstIndexMap cstIndexMap) {
     super(ALIGNMENT, -1);
-
-    if (ref == null) {
-      throw new NullPointerException("ref == null");
-    }
+    assert ref != null;
+    assert code != null;
+    assert cstIndexMap != null;
     this.ref = ref;
-
-    if (code == null) {
-      throw new NullPointerException("code == null");
-    }
     this.code = code;
-
     this.debugInfoItem = debugInfoItem;
-
-    if (cstIndexMap == null) {
-      throw new NullPointerException("cstIndexMap == null");
-    }
     this.cstIndexMap = cstIndexMap;
   }
 

@@ -16,7 +16,7 @@
 
 package com.android.jack.dx.rop.annotation;
 
-import com.android.jack.dx.rop.cst.CstType;
+import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.util.MutabilityControl;
 
 import java.util.Collection;
@@ -36,7 +36,7 @@ public final class Annotations extends MutabilityControl implements Comparable<A
   }
 
   /** {@code non-null;} map from types to annotations */
-  private final TreeMap<CstType, Annotation> annotations;
+  private final TreeMap<Type, Annotation> annotations;
 
   /**
    * Constructs an immutable instance which is the combination of the
@@ -82,7 +82,7 @@ public final class Annotations extends MutabilityControl implements Comparable<A
    * Constructs an empty instance.
    */
   public Annotations() {
-    annotations = new TreeMap<CstType, Annotation>();
+    annotations = new TreeMap<Type, Annotation>();
   }
 
   /** {@inheritDoc} */
@@ -166,13 +166,11 @@ public final class Annotations extends MutabilityControl implements Comparable<A
    * @throws IllegalArgumentException thrown if there is a duplicate type
    */
   public void add(Annotation annotation) {
+    assert annotation != null;
+
     throwIfImmutable();
 
-    if (annotation == null) {
-      throw new NullPointerException("annotation == null");
-    }
-
-    CstType type = annotation.getType();
+    Type type = annotation.getType();
 
     if (annotations.containsKey(type)) {
       throw new IllegalArgumentException("duplicate type: " + type.toHuman());
@@ -189,11 +187,9 @@ public final class Annotations extends MutabilityControl implements Comparable<A
    * @throws IllegalArgumentException thrown if there is a duplicate type
    */
   public void addAll(Annotations toAdd) {
-    throwIfImmutable();
+    assert toAdd != null;
 
-    if (toAdd == null) {
-      throw new NullPointerException("toAdd == null");
-    }
+    throwIfImmutable();
 
     for (Annotation a : toAdd.annotations.values()) {
       add(a);

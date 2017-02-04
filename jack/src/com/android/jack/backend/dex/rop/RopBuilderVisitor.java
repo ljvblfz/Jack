@@ -44,10 +44,8 @@ import com.android.jack.dx.rop.cst.CstLiteral32;
 import com.android.jack.dx.rop.cst.CstLiteral64;
 import com.android.jack.dx.rop.cst.CstLong;
 import com.android.jack.dx.rop.cst.CstMethodRef;
-import com.android.jack.dx.rop.cst.CstNat;
 import com.android.jack.dx.rop.cst.CstPrototypeRef;
 import com.android.jack.dx.rop.cst.CstString;
-import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Prototype;
 import com.android.jack.dx.rop.type.StdTypeList;
 import com.android.jack.dx.rop.type.Type;
@@ -61,7 +59,6 @@ import com.android.jack.ir.ast.JAlloc;
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JArrayLength;
 import com.android.jack.ir.ast.JArrayRef;
-import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JBinaryOperation;
 import com.android.jack.ir.ast.JBinaryOperator;
@@ -127,6 +124,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
@@ -264,14 +262,10 @@ class RopBuilderVisitor extends JVisitor {
 
     @Override
     public boolean visit(@Nonnull JClassLiteral literal) {
-      Constant cst = RopHelper.getCstType(literal.getRefType());
-
-      JType type = literal.getType();
-
-      Rop constOp = Rops.opConst(RopHelper.convertTypeToDx(type));
+      Rop constOp = Rops.opConst(RopHelper.convertTypeToDx(literal.getType()));
       SourcePosition literalSrcPos = RopHelper.getSourcePosition(literal);
       Insn constInst = new ThrowingCstInsn(constOp, literalSrcPos,
-          RegisterSpecList.EMPTY, getCatchTypes(), cst);
+          RegisterSpecList.EMPTY, getCatchTypes(), RopHelper.convertTypeToDx(literal.getRefType()));
       addInstruction(constInst);
       addMoveResultPseudoAsExtraInstruction(destReg, literalSrcPos);
       return false;
@@ -289,8 +283,7 @@ class RopBuilderVisitor extends JVisitor {
 
     @Override
     public boolean visit(@Nonnull JNewArray newArray) {
-      JArrayType type = newArray.getType();
-      CstType cstType = RopHelper.getCstType(type);
+      Type dxType = RopHelper.convertTypeToDx(newArray.getType());
       SourcePosition newArraySourcePosition = RopHelper.getSourcePosition(newArray);
       List<JExpression> valuesSize = newArray.getInitializers();
 
@@ -306,7 +299,7 @@ class RopBuilderVisitor extends JVisitor {
         Rop op = Rops.opFilledNewArray(arrayType, valuesSize.size());
 
         Insn insn =
-            new ThrowingCstInsn(op, newArraySourcePosition, sources, getCatchTypes(), cstType);
+            new ThrowingCstInsn(op, newArraySourcePosition, sources, getCatchTypes(), dxType);
         addInstruction(insn);
         addMoveResultAsExtraInstruction(arrayType, destReg, newArraySourcePosition);
       } else {
@@ -318,10 +311,10 @@ class RopBuilderVisitor extends JVisitor {
         RegisterSpecList sources =
             RegisterSpecList.make(getRegisterSpec(dims.get(0)));
 
-        Rop op = Rops.opNewArray(cstType.getClassType());
+        Rop op = Rops.opNewArray(dxType);
 
         Insn insn =
-            new ThrowingCstInsn(op, newArraySourcePosition, sources, getCatchTypes(), cstType);
+            new ThrowingCstInsn(op, newArraySourcePosition, sources, getCatchTypes(), dxType);
         addInstruction(insn);
         addMoveResultPseudoAsExtraInstruction(destReg, newArraySourcePosition);
 
@@ -333,7 +326,7 @@ class RopBuilderVisitor extends JVisitor {
           }
           insn = new FillArrayDataInsn(
               Rops.FILL_ARRAY_DATA, newArraySourcePosition, RegisterSpecList.make(destReg),
-              initValues, cstType);
+              initValues, dxType);
           addExtraInstruction(insn);
         }
       }
@@ -366,7 +359,7 @@ class RopBuilderVisitor extends JVisitor {
     private void buildArrayRead(@Nonnull RegisterSpec destReg, @Nonnull JArrayRef arrayRef,
         @Nonnull SourcePosition sourcePosition) {
       assert arrayRef.getInstance() instanceof JVariableRef
-          || arrayRef.getInstance() instanceof JNullLiteral;
+          || isNullOrReinterpretCastOfNull(arrayRef.getInstance());
       RegisterSpec instanceReg = getRegisterSpec(arrayRef.getInstance());
       RegisterSpec indexReg = getRegisterSpec(arrayRef.getIndexExpr());
       RegisterSpecList sources = RegisterSpecList.make(instanceReg, indexReg);
@@ -388,7 +381,7 @@ class RopBuilderVisitor extends JVisitor {
       } else {
         JExpression instance = fieldRef.getInstance();
         assert instance != null;
-        assert instance instanceof JVariableRef || instance instanceof JNullLiteral;
+        assert instance instanceof JVariableRef || isNullOrReinterpretCastOfNull(instance);
         RegisterSpec instanceReg = getRegisterSpec(instance);
         RegisterSpecList sources = RegisterSpecList.make(instanceReg);
 
@@ -724,10 +717,8 @@ class RopBuilderVisitor extends JVisitor {
 
   private void buildAlloc(@Nonnull RegisterSpec destReg, @Nonnull JAlloc alloc,
       @Nonnull SourcePosition sourcePosition) {
-    CstType type = RopHelper.getCstType(alloc.getInstanceType());
-    Rop rop = Rops.NEW_INSTANCE;
-    addInstruction(
-        new ThrowingCstInsn(rop, sourcePosition, RegisterSpecList.EMPTY, getCatchTypes(), type));
+    addInstruction(new ThrowingCstInsn(Rops.NEW_INSTANCE, sourcePosition, RegisterSpecList.EMPTY,
+        getCatchTypes(), RopHelper.convertTypeToDx(alloc.getInstanceType())));
     addMoveResultPseudoAsExtraInstruction(destReg, sourcePosition);
   }
 
@@ -746,10 +737,9 @@ class RopBuilderVisitor extends JVisitor {
 
   private void buildInstanceOf(RegisterSpec destReg, JInstanceOf instanceOf) {
     SourcePosition srcPos = RopHelper.getSourcePosition(instanceOf);
-    RegisterSpec regExpr = getRegisterSpec(instanceOf.getExpr());
-    CstType type = RopHelper.getCstType(instanceOf.getTestType());
-    addInstruction(new ThrowingCstInsn(Rops.INSTANCE_OF, srcPos, RegisterSpecList.make(regExpr),
-        getCatchTypes(), type));
+    addInstruction(new ThrowingCstInsn(Rops.INSTANCE_OF, srcPos,
+        RegisterSpecList.make(getRegisterSpec(instanceOf.getExpr())), getCatchTypes(),
+        RopHelper.convertTypeToDx(instanceOf.getTestType())));
     addMoveResultPseudoAsExtraInstruction(destReg, srcPos);
   }
 
@@ -788,7 +778,7 @@ class RopBuilderVisitor extends JVisitor {
     } else {
       JExpression instance = fieldRef.getInstance();
       assert instance != null;
-      assert instance instanceof JVariableRef || instance instanceof JNullLiteral;
+      assert instance instanceof JVariableRef || isNullOrReinterpretCastOfNull(instance);
       RegisterSpec instanceReg = getRegisterSpec(instance);
       RegisterSpecList sources = RegisterSpecList.make(valueReg, instanceReg);
 
@@ -853,7 +843,7 @@ class RopBuilderVisitor extends JVisitor {
 
       Insn insn =
           new ThrowingCstInsn(Rops.CHECK_CAST, sourcePosition, sources, getCatchTypes(),
-              RopHelper.getCstType(castTo));
+              RopHelper.convertTypeToDx(castTo));
       addInstruction(insn);
 
       addMoveResultPseudoAsExtraInstruction(destReg, sourcePosition);
@@ -1175,11 +1165,11 @@ class RopBuilderVisitor extends JVisitor {
 
   private void buildInvokePolymorphic(@CheckForNull RegisterSpec result,
       @Nonnull JPolymorphicMethodCall methodCall) {
-    CstType definingClass = RopHelper.getCstType(methodCall.getReceiverType());
-    String signatureWithoutName = RopHelper.getMethodSignatureWithoutName(methodCall);
-    CstNat nat = new CstNat(new CstString(methodCall.getMethodName()),
-        new CstString(signatureWithoutName));
-    CstMethodRef methodRef = new CstMethodRef(definingClass, nat);
+    CstMethodRef methodRef =
+        new CstMethodRef(RopHelper.convertTypeToDx(methodCall.getReceiverType()),
+            new CstString(methodCall.getMethodName()),
+            RopHelper.getPrototypeFromPolymorphicCall(methodCall));
+
     SourcePosition methodCallSrcPos = RopHelper.getSourcePosition(methodCall);
     Prototype prototype =
         Prototype.intern(RopHelper.getPolymorphicCallSiteSymbolicDescriptor(methodCall));
@@ -1211,7 +1201,7 @@ class RopBuilderVisitor extends JVisitor {
     if (InvokeCustomHelper.isInvokeCustom(methodCall)
         && apiLevel.getProvisionalLevel() == ProvisionalLevel.O_BETA2) {
       JAnnotation invokeCustomCallSite = InvokeCustomHelper
-          .getInvokeCustomCallsite(methodCall.getMethodId().getMethods().iterator().next());
+          .getInvokeCustomCallsite(methodCall.getMethodIdWide().getMethods().iterator().next());
       assert invokeCustomCallSite != null;
       CstCallSiteRef callSiteRef =
           InvokeCustomHelper.readInvokeCustomCallSite(invokeCustomCallSite);
@@ -1236,16 +1226,15 @@ class RopBuilderVisitor extends JVisitor {
       return;
     }
 
-    String signatureWithoutName = RopHelper.getMethodSignatureWithoutName(methodCall);
     SourcePosition methodCallSrcPos = RopHelper.getSourcePosition(methodCall);
 
-    Prototype prototype = Prototype.intern(signatureWithoutName);
+    Prototype prototype = RopHelper.getPrototype(methodCall.getMethodId());
 
     RegisterSpecList sources;
     int paramIndex = 0;
 
     Rop callOp;
-    MethodKind methodKind = methodCall.getMethodId().getKind();
+    MethodKind methodKind = methodCall.getMethodIdWide().getKind();
     if (methodKind == MethodKind.STATIC) {
       // Reserve space for the method arguments
       sources = new RegisterSpecList(methodCall.getArgs().size());
@@ -1308,9 +1297,12 @@ class RopBuilderVisitor extends JVisitor {
     if (expr instanceof JVariableRef) {
       regSpec = ropReg.getOrCreateRegisterSpec((JVariableRef) expr);
     } else {
-      assert expr instanceof JValueLiteral;
+      assert (expr instanceof JValueLiteral || isNullOrReinterpretCastOfNull(expr));
       regSpec =
           ropReg.getOrCreateTmpRegister(RopHelper.convertTypeToDx(expr.getType()));
+      if (expr instanceof JReinterpretCastOperation) {
+        expr = ((JReinterpretCastOperation) expr).getExpr();
+      }
       buildConstant(regSpec, (JValueLiteral) expr);
     }
 
@@ -1371,5 +1363,12 @@ class RopBuilderVisitor extends JVisitor {
   @Override
   public void endVisit(@Nonnull JBasicBlockElement x) {
     ropReg.resetFreeTmpRegister();
+  }
+
+  private static boolean isNullOrReinterpretCastOfNull(@Nonnull JExpression expr) {
+    if (expr instanceof JReinterpretCastOperation) {
+      return isNullOrReinterpretCastOfNull(((JReinterpretCastOperation) expr).getExpr());
+    }
+    return expr instanceof JNullLiteral;
   }
 }

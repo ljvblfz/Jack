@@ -43,22 +43,17 @@ public abstract class JAbstractMethodCall extends JExpression {
   @Nonnull
   private final List<JExpression> args = new ArrayList<JExpression>();
   @Nonnull
-  private JMethodIdWide methodId;
-  @Nonnull
-  private final JType returnType;
+  private JMethodId methodId;
 
 
   protected JAbstractMethodCall(@Nonnull SourceInfo info, @CheckForNull JExpression instance,
-      @Nonnull JClassOrInterface receiverType, @Nonnull JMethodIdWide methodId,
-      @Nonnull JType returnType) {
+      @Nonnull JClassOrInterface receiverType, @Nonnull JMethodId methodId) {
     super(info);
     assert receiverType != null;
     assert methodId != null;
-    assert returnType != null;
     this.instance = instance;
     this.receiverType = receiverType;
     this.methodId = methodId;
-    this.returnType = returnType;
   }
 
   /**
@@ -139,17 +134,22 @@ public abstract class JAbstractMethodCall extends JExpression {
   }
 
   @Nonnull
-  public JMethodIdWide getMethodId() {
+  public JMethodIdWide getMethodIdWide() {
+    return methodId.getMethodIdWide();
+  }
+
+  @Nonnull
+  public JMethodId getMethodId() {
     return methodId;
   }
 
   @Nonnull
   @Override
   public JType getType() {
-    return returnType;
+    return methodId.getType();
   }
 
-  public void resolveMethodId(@Nonnull JMethodIdWide methodId) {
+  public void resolveMethodId(@Nonnull JMethodId methodId) {
     this.methodId = methodId;
   }
 
@@ -178,19 +178,19 @@ public abstract class JAbstractMethodCall extends JExpression {
 
   @Nonnull
   public String getMethodName() {
-    return methodId.getName();
+    return methodId.getMethodIdWide().getName();
   }
 
   public abstract boolean isCallToPolymorphicMethod();
 
   static boolean isCallToPolymorphicMethod(@Nonnull JClassOrInterface receiverType,
-      @Nonnull JMethodIdWide methodId, @Nonnull JType returnType) {
+      @Nonnull JMethodId methodId) {
     UserFriendlyFormatter formatter = UserFriendlyFormatter.getFormatter();
-    String calledMethodName = methodId.getName();
-    List<JType> paramTypes = methodId.getParamTypes();
+    String calledMethodName = methodId.getMethodIdWide().getName();
+    List<JType> paramTypes = methodId.getMethodIdWide().getParamTypes();
 
     return receiverType != null
-        && formatter.getName(returnType).equals("java.lang.Object")
+        && formatter.getName(methodId.getType()).equals("java.lang.Object")
         && formatter.getName(receiverType).equals("java.lang.invoke.MethodHandle")
         && (calledMethodName.equals("invoke") || calledMethodName.equals("invokeExact"))
         && paramTypes.size() == 1

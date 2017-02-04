@@ -197,20 +197,21 @@ public class WrapperMarker implements Marker {
       } else if (!method.isStatic()){
         JParameter thisParam =
             new JParameter(sourceInfo, InnerAccessorGenerator.THIS_PARAM_NAME, accessorClass,
-                JModifier.FINAL | JModifier.SYNTHETIC, wrapper);
+                JModifier.DEFAULT, wrapper);
         wrapper.addParam(thisParam);
         id.addParam(accessorClass);
         instance = thisParam.makeRef(sourceInfo);
       }
 
-      JMethodIdWide calledMethodId = method.getMethodIdWide();
-      JMethodCall methodCall = new JMethodCall(sourceInfo, instance, mthCallReceiverType,
-          calledMethodId,
-          method.getType(), calledMethodId.canBeVirtual() && !isSuper /* isVirtualDispatch */);
+      JMethodId calledMethodId = method.getMethodId();
+      JMethodCall methodCall =
+          new JMethodCall(sourceInfo, instance, mthCallReceiverType, calledMethodId,
+              calledMethodId.getMethodIdWide().canBeVirtual() && !isSuper /* isVirtualDispatch */);
       for (JParameter param : method.getParams()) {
         JType paramType = param.getType();
+        // Do not propagate modifier from called method to the wrapper method
         JParameter newParam = new JParameter(sourceInfo, param.getName(), paramType,
-            param.getModifier(), wrapper);
+            JModifier.DEFAULT, wrapper);
         wrapper.addParam(newParam);
         id.addParam(paramType);
         methodCall.addArg(newParam.makeRef(sourceInfo));
@@ -220,7 +221,7 @@ public class WrapperMarker implements Marker {
         while (constructorExists((JConstructor) wrapper, accessorClass)) {
           JParameter newParam = new JParameter(
               sourceInfo, InnerAccessorGenerator.THIS_PARAM_NAME + wrapper.getParams().size(),
-              accessorClass, JModifier.SYNTHETIC, wrapper);
+              accessorClass, JModifier.DEFAULT, wrapper);
           wrapper.addParam(newParam);
           id.addParam(accessorClass);
         }
@@ -229,7 +230,7 @@ public class WrapperMarker implements Marker {
       JBlock bodyBlock = new JBlock(sourceInfo);
       JMethodBody body = new JMethodBody(sourceInfo, bodyBlock);
 
-      assert methodCall.getArgs().size() == methodCall.getMethodId().getParamTypes().size();
+      assert methodCall.getArgs().size() == methodCall.getMethodIdWide().getParamTypes().size();
 
       if (method.getType() == JPrimitiveTypeEnum.VOID.getType()) {
         bodyBlock.addStmt(methodCall.makeStatement());

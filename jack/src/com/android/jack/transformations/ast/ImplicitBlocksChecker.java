@@ -60,7 +60,7 @@ public class ImplicitBlocksChecker implements RunnableSchedulable<JMethod> {
       JStatement thenStmt = ifStmt.getThenStmt();
       JStatement elseStmt = ifStmt.getElseStmt();
 
-      if ((thenStmt != null && !(thenStmt instanceof JBlock)) ||
+      if ((!(thenStmt instanceof JBlock)) ||
           (elseStmt != null && !(elseStmt instanceof JBlock))) {
         throw new AssertionError("If statement with stand-alone statement.");
       }

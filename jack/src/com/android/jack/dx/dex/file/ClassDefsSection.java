@@ -17,7 +17,6 @@
 package com.android.jack.dx.dex.file;
 
 import com.android.jack.dx.rop.cst.Constant;
-import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.rop.type.TypeList;
 import com.android.jack.dx.util.AnnotatedOutput;
@@ -65,14 +64,11 @@ public final class ClassDefsSection extends UniformItemSection {
   /** {@inheritDoc} */
   @Override
   public IndexedItem get(Constant cst) {
-    if (cst == null) {
-      throw new NullPointerException("cst == null");
-    }
+    assert cst != null;
 
     throwIfNotPrepared();
 
-    Type type = ((CstType) cst).getClassType();
-    IndexedItem result = classDefs.get(type);
+    IndexedItem result = classDefs.get(cst);
 
     if (result == null) {
       throw new IllegalArgumentException("not found");
@@ -108,14 +104,9 @@ public final class ClassDefsSection extends UniformItemSection {
    * @param clazz {@code non-null;} the class def to add
    */
   public void add(ClassDefItem clazz) {
-    Type type;
+    assert clazz != null;
+    Type type = clazz.getThisClass();
 
-    try {
-      type = clazz.getThisClass().getClassType();
-    } catch (NullPointerException ex) {
-      // Elucidate the exception.
-      throw new NullPointerException("clazz == null");
-    }
 
     throwIfPrepared();
 
@@ -168,9 +159,8 @@ public final class ClassDefsSection extends UniformItemSection {
 
     maxDepth--;
 
-    CstType superclassCst = c.getSuperclass();
-    if (superclassCst != null) {
-      Type superclass = superclassCst.getClassType();
+    Type superclass = c.getSuperclass();
+    if (superclass != null) {
       idx = orderItems0(superclass, idx, maxDepth);
     }
 

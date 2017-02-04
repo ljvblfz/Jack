@@ -44,10 +44,8 @@ import com.android.jack.dx.rop.cst.CstLiteral32;
 import com.android.jack.dx.rop.cst.CstLiteral64;
 import com.android.jack.dx.rop.cst.CstLong;
 import com.android.jack.dx.rop.cst.CstMethodRef;
-import com.android.jack.dx.rop.cst.CstNat;
 import com.android.jack.dx.rop.cst.CstPrototypeRef;
 import com.android.jack.dx.rop.cst.CstString;
-import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Prototype;
 import com.android.jack.dx.rop.type.StdTypeList;
 import com.android.jack.dx.rop.type.Type;
@@ -65,7 +63,6 @@ import com.android.jack.ir.ast.JAlloc;
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JArrayLength;
 import com.android.jack.ir.ast.JArrayRef;
-import com.android.jack.ir.ast.JArrayType;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JBinaryOperation;
 import com.android.jack.ir.ast.JBinaryOperator;
@@ -92,7 +89,6 @@ import com.android.jack.ir.ast.JMethodCall.DispatchKind;
 import com.android.jack.ir.ast.JNewArray;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JNullLiteral;
-import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JPolymorphicMethodCall;
 import com.android.jack.ir.ast.JPrefixNotOperation;
 import com.android.jack.ir.ast.JPrimitiveType;
@@ -101,7 +97,6 @@ import com.android.jack.ir.ast.JReferenceType;
 import com.android.jack.ir.ast.JReinterpretCastOperation;
 import com.android.jack.ir.ast.JShortLiteral;
 import com.android.jack.ir.ast.JSsaVariableRef;
-import com.android.jack.ir.ast.JSsaVariableUseRef;
 import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JUnaryOperation;
@@ -134,6 +129,7 @@ import com.android.jack.util.AndroidApiLevel;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -303,14 +299,10 @@ class SsaRopBuilderVisitor extends JVisitor {
 
     @Override
     public boolean visit(@Nonnull JClassLiteral literal) {
-      Constant cst = RopHelper.getCstType(literal.getRefType());
-
-      JType type = literal.getType();
-
-      Rop constOp = Rops.opConst(RopHelper.convertTypeToDx(type));
+      Rop constOp = Rops.opConst(RopHelper.convertTypeToDx(literal.getType()));
       SourcePosition literalSrcPos = RopHelper.getSourcePosition(literal);
       Insn constInst = new ThrowingCstInsn(constOp, literalSrcPos,
-          RegisterSpecList.EMPTY, getCatchTypes(), cst);
+          RegisterSpecList.EMPTY, getCatchTypes(), RopHelper.convertTypeToDx(literal.getRefType()));
       addInstruction(constInst);
       addMoveResultPseudoAsExtraInstruction(destReg, literalSrcPos);
       return false;
@@ -328,8 +320,7 @@ class SsaRopBuilderVisitor extends JVisitor {
 
     @Override
     public boolean visit(@Nonnull JNewArray newArray) {
-      JArrayType type = newArray.getType();
-      CstType cstType = RopHelper.getCstType(type);
+      Type dxType = RopHelper.convertTypeToDx(newArray.getType());
       SourcePosition newArraySourcePosition = RopHelper.getSourcePosition(newArray);
       List<JExpression> valuesSize = newArray.getInitializers();
 
@@ -345,7 +336,7 @@ class SsaRopBuilderVisitor extends JVisitor {
         Rop op = Rops.opFilledNewArray(arrayType, valuesSize.size());
 
         Insn insn =
-            new ThrowingCstInsn(op, newArraySourcePosition, sources, getCatchTypes(), cstType);
+            new ThrowingCstInsn(op, newArraySourcePosition, sources, getCatchTypes(), dxType);
         addInstruction(insn);
         addMoveResultAsExtraInstruction(arrayType, destReg, newArraySourcePosition);
       } else {
@@ -357,10 +348,10 @@ class SsaRopBuilderVisitor extends JVisitor {
         RegisterSpecList sources =
             RegisterSpecList.make(getRegisterSpec(dims.get(0)));
 
-        Rop op = Rops.opNewArray(cstType.getClassType());
+        Rop op = Rops.opNewArray(dxType);
 
         Insn insn =
-            new ThrowingCstInsn(op, newArraySourcePosition, sources, getCatchTypes(), cstType);
+            new ThrowingCstInsn(op, newArraySourcePosition, sources, getCatchTypes(), dxType);
         addInstruction(insn);
         addMoveResultPseudoAsExtraInstruction(destReg, newArraySourcePosition);
 
@@ -372,7 +363,7 @@ class SsaRopBuilderVisitor extends JVisitor {
           }
           insn = new FillArrayDataInsn(
               Rops.FILL_ARRAY_DATA, newArraySourcePosition, RegisterSpecList.make(destReg),
-              initValues, cstType);
+              initValues, dxType);
           addExtraInstruction(insn);
         }
       }
@@ -461,10 +452,12 @@ class SsaRopBuilderVisitor extends JVisitor {
   }
 
   public void processBasicBlockElements() {
-    List<JBasicBlockElement> elements = this.currentBasicBlock.getElements(true);
-    instructions = Lists.newArrayListWithExpectedSize((int) (elements.size() * 1.5));
-    extraInstructions = Lists.newArrayListWithExpectedSize((int) (elements.size() * 0.5));
+    instructions = new LinkedList<>();
+    extraInstructions = new LinkedList<>();
     noMoreInstruction = false;
+
+    ArrayList<JBasicBlockElement> elements =
+        Lists.newArrayList(this.currentBasicBlock.getElements(true));
     super.accept(elements);
   }
 
@@ -477,16 +470,9 @@ class SsaRopBuilderVisitor extends JVisitor {
       Integer predLabel = labelMap.get(pred);
       assert predLabel != null;
 
-      JSsaVariableUseRef rhs = phi.getRhs(pred);
-      if (!(rhs.getTarget() instanceof JParameter)) {
-        if (rhs.getVersion() == 0) {
-          continue;
-        }
-      }
-
       // Because we don't know the predIndex until the whole CFG is traversed, we are going to
       // set the predIndex at the very end instead.
-      phiInsn.addPhiOperand(ropReg.getOrCreateRegisterSpec(rhs),
+      phiInsn.addPhiOperand(ropReg.getOrCreateRegisterSpec(phi.getRhs(pred)),
           predLabel.intValue(), predLabel.intValue());
     }
     addInstruction(phiInsn);
@@ -800,10 +786,8 @@ class SsaRopBuilderVisitor extends JVisitor {
 
   private void buildAlloc(@Nonnull RegisterSpec destReg, @Nonnull JAlloc alloc,
       @Nonnull SourcePosition sourcePosition) {
-    CstType type = RopHelper.getCstType(alloc.getInstanceType());
-    Rop rop = Rops.NEW_INSTANCE;
-    addInstruction(
-        new ThrowingCstInsn(rop, sourcePosition, RegisterSpecList.EMPTY, getCatchTypes(), type));
+    addInstruction(new ThrowingCstInsn(Rops.NEW_INSTANCE, sourcePosition, RegisterSpecList.EMPTY,
+        getCatchTypes(), RopHelper.convertTypeToDx(alloc.getInstanceType())));
     addMoveResultPseudoAsExtraInstruction(destReg, sourcePosition);
   }
 
@@ -822,10 +806,9 @@ class SsaRopBuilderVisitor extends JVisitor {
 
   private void buildInstanceOf(RegisterSpec destReg, JInstanceOf instanceOf) {
     SourcePosition srcPos = RopHelper.getSourcePosition(instanceOf);
-    RegisterSpec regExpr = getRegisterSpec(instanceOf.getExpr());
-    CstType type = RopHelper.getCstType(instanceOf.getTestType());
-    addInstruction(new ThrowingCstInsn(Rops.INSTANCE_OF, srcPos, RegisterSpecList.make(regExpr),
-        getCatchTypes(), type));
+    addInstruction(new ThrowingCstInsn(Rops.INSTANCE_OF, srcPos,
+        RegisterSpecList.make(getRegisterSpec(instanceOf.getExpr())), getCatchTypes(),
+        RopHelper.convertTypeToDx(instanceOf.getTestType())));
     addMoveResultPseudoAsExtraInstruction(destReg, srcPos);
   }
 
@@ -929,7 +912,7 @@ class SsaRopBuilderVisitor extends JVisitor {
 
       Insn insn =
           new ThrowingCstInsn(Rops.CHECK_CAST, sourcePosition, sources, getCatchTypes(),
-              RopHelper.getCstType(castTo));
+              RopHelper.convertTypeToDx(castTo));
       addInstruction(insn);
 
       addMoveResultPseudoAsExtraInstruction(destReg, sourcePosition);
@@ -1251,11 +1234,11 @@ class SsaRopBuilderVisitor extends JVisitor {
 
   private void buildInvokePolymorphic(@CheckForNull RegisterSpec result,
       @Nonnull JPolymorphicMethodCall methodCall) {
-    CstType definingClass = RopHelper.getCstType(methodCall.getReceiverType());
-    String signatureWithoutName = RopHelper.getMethodSignatureWithoutName(methodCall);
-    CstNat nat = new CstNat(new CstString(methodCall.getMethodName()),
-        new CstString(signatureWithoutName));
-    CstMethodRef methodRef = new CstMethodRef(definingClass, nat);
+    CstMethodRef methodRef =
+        new CstMethodRef(RopHelper.convertTypeToDx(methodCall.getReceiverType()),
+            new CstString(methodCall.getMethodName()),
+            RopHelper.getPrototypeFromPolymorphicCall(methodCall));
+
     SourcePosition methodCallSrcPos = RopHelper.getSourcePosition(methodCall);
     Prototype prototype =
         Prototype.intern(RopHelper.getPolymorphicCallSiteSymbolicDescriptor(methodCall));
@@ -1312,16 +1295,15 @@ class SsaRopBuilderVisitor extends JVisitor {
       return;
     }
 
-    String signatureWithoutName = RopHelper.getMethodSignatureWithoutName(methodCall);
     SourcePosition methodCallSrcPos = RopHelper.getSourcePosition(methodCall);
 
-    Prototype prototype = Prototype.intern(signatureWithoutName);
+    Prototype prototype = RopHelper.getPrototype(methodCall.getMethodId());
 
     RegisterSpecList sources;
     int paramIndex = 0;
 
     Rop callOp;
-    MethodKind methodKind = methodCall.getMethodId().getKind();
+    MethodKind methodKind = methodCall.getMethodIdWide().getKind();
     if (methodKind == MethodKind.STATIC) {
       // Reserve space for the method arguments
       sources = new RegisterSpecList(methodCall.getArgs().size());

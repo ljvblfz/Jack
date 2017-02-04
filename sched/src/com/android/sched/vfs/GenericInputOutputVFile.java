@@ -89,6 +89,7 @@ public class GenericInputOutputVFile implements InputOutputVFile {
     file.delete();
   }
 
+  @Override
   @CheckForNull
   public String getDigest() {
     return file.getDigest();

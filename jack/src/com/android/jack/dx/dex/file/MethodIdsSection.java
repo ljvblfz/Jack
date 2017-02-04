@@ -54,9 +54,7 @@ public final class MethodIdsSection extends MemberIdsSection {
   /** {@inheritDoc} */
   @Override
   public IndexedItem get(Constant cst) {
-    if (cst == null) {
-      throw new NullPointerException("cst == null");
-    }
+    assert cst != null;
 
     throwIfNotPrepared();
 
@@ -96,9 +94,7 @@ public final class MethodIdsSection extends MemberIdsSection {
    * @return {@code non-null;} the interned reference
    */
   public MethodIdItem intern(CstBaseMethodRef method) {
-    if (method == null) {
-      throw new NullPointerException("method == null");
-    }
+    assert method != null;
 
     throwIfPrepared();
 
@@ -120,9 +116,7 @@ public final class MethodIdsSection extends MemberIdsSection {
    * @return {@code >= 0;} the reference's index
    */
   public int indexOf(CstBaseMethodRef ref) {
-    if (ref == null) {
-      throw new NullPointerException("ref == null");
-    }
+    assert ref != null;
 
     throwIfNotPrepared();
 

@@ -130,9 +130,7 @@ public final class AnnotationsDirectoryItem extends OffsettedItem {
    * @param annotations {@code non-null;} annotations to set for this class
    */
   public void setClassAnnotations(Annotations annotations) {
-    if (annotations == null) {
-      throw new NullPointerException("annotations == null");
-    }
+    assert annotations != null;
 
     if (classAnnotations != null) {
       throw new UnsupportedOperationException("class annotations already set");

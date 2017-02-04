@@ -66,6 +66,7 @@ public class GenericInputVFile implements InputVFile {
     file.delete();
   }
 
+  @Override
   @CheckForNull
   public String getDigest() {
     return file.getDigest();

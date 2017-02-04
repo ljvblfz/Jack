@@ -37,40 +37,6 @@ public final class FileUtils {
 
   }
 
-  /**
-   * Returns the file separator.
-   */
-  @Nonnull
-  public static String getFileSeparator() {
-    String fileSeparator = System.getProperty("file.separator", "/");
-    return fileSeparator;
-  }
-
-  /**
-   * Returns the working directory as a {@code File}.
-   */
-  @Nonnull
-  public static File getWorkingDirectory() {
-    String workingDirectoryPath = System.getProperty("user.dir");
-    return new File(workingDirectoryPath);
-  }
-
-  /**
-   * Creates the given {@code directory} if it does not exist.
-   *
-   * @param directory the non-null directory to create if it does not exist.
-   * @throws NullPointerException if {@code directory} is null.
-   * @throws IOException if the {@code directory} cannot be created.
-   */
-  public static void createIfNotExists(@Nonnull File directory) throws IOException {
-    if (!directory.exists()) {
-      if (!directory.mkdirs()) {
-        throw new IOException("Could not create directory \"" +
-            directory.getPath() + "\"");
-      }
-    }
-  }
-
   public static void deleteDir(@Nonnull File dir) throws IOException {
     if (!dir.isDirectory()) {
       throw new AssertionError();

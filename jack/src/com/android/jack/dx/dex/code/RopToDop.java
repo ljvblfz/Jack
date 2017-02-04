@@ -27,7 +27,6 @@ import com.android.jack.dx.rop.cst.Constant;
 import com.android.jack.dx.rop.cst.CstFieldRef;
 import com.android.jack.dx.rop.cst.CstKnownNull;
 import com.android.jack.dx.rop.cst.CstString;
-import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Type;
 
 import java.util.HashMap;
@@ -598,7 +597,7 @@ public final class RopToDop {
       }
       case RegOps.CONST: {
         Constant cst = ((CstInsn) insn).getConstant();
-        if (cst instanceof CstType) {
+        if (cst instanceof Type) {
           return Dops.CONST_CLASS;
         } else if (cst instanceof CstString) {
           return Dops.CONST_STRING;

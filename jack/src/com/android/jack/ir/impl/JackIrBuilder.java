@@ -182,6 +182,7 @@ import org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression;
 import org.eclipse.jdt.internal.compiler.ast.IntLiteral;
 import org.eclipse.jdt.internal.compiler.ast.LabeledStatement;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
+import org.eclipse.jdt.internal.compiler.ast.Literal;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.LongLiteral;
 import org.eclipse.jdt.internal.compiler.ast.MarkerAnnotation;
@@ -631,7 +632,7 @@ public class JackIrBuilder {
       try {
         SourceInfo info = makeSourceInfo(x);
         JType type = getTypeMap().get(x.targetType);
-        push(new JClassLiteral(info, type, javaLangClass));
+        push(new JClassLiteral(info, type));
       } catch (JTypeLookupException e) {
         throw translateException(x, e);
       } catch (RuntimeException e) {
@@ -713,8 +714,12 @@ public class JackIrBuilder {
             value = pop(x.valueIfFalse);
             condition = pop(x.condition);
           }
-          push(new JMultiExpression(info,
-             condition,  generateImplicitConversion(x.implicitConversion, value)));
+          if (condition instanceof JBooleanLiteral) {
+            push(generateImplicitConversion(x.implicitConversion, value));
+          } else {
+            push(new JMultiExpression(info, condition,
+                generateImplicitConversion(x.implicitConversion, value)));
+          }
         } else {
           JExpression valueIfFalse = pop(x.valueIfFalse);
           JExpression valueIfTrue = pop(x.valueIfTrue);
@@ -748,8 +753,10 @@ public class JackIrBuilder {
       final int typeId = (implicitConversionCode & TypeIds.IMPLICIT_CONVERSION_MASK) >> 4;
       JPrimitiveType primitiveType = getJType(typeId);
       if (primitiveType != null) {
-        convertedExpression = new JDynamicCastOperation(convertedExpression.getSourceInfo(),
-            convertedExpression, primitiveType);
+        if (!primitiveType.isSameType(convertedExpression.getType())) {
+          convertedExpression = new JDynamicCastOperation(convertedExpression.getSourceInfo(),
+              convertedExpression, primitiveType);
+        }
 
         if ((implicitConversionCode & TypeIds.BOXING) != 0) {
           convertedExpression = TypeLegalizer.box(convertedExpression,
@@ -1503,7 +1510,7 @@ public class JackIrBuilder {
 
         JMethodCall methodCall =
             new JMethodCall(sourceInfo, instanceExpr, methodToCall.getEnclosingType(),
-                methodToCall.getMethodIdWide(), methodToCall.getType(), isVirtualDispatch);
+                methodToCall.getMethodId(), isVirtualDispatch);
 
         addArgToMethodCall(referenceExpression, argsOfLambdaMth, methodCall, firstParamIdx);
 
@@ -1559,7 +1566,7 @@ public class JackIrBuilder {
       assert constructor instanceof JConstructor;
 
       JNewInstance newInstance =
-          new JNewInstance(sourceInfo, (JClassOrInterface) type, constructor.getMethodIdWide());
+          new JNewInstance(sourceInfo, (JClassOrInterface) type, constructor.getMethodId());
 
       boolean isNestedType = referenceExpression.receiverType.isNestedType();
 
@@ -2047,19 +2054,7 @@ public class JackIrBuilder {
     public void endVisit(MessageSend x, BlockScope scope) {
       try {
         SourceInfo info = makeSourceInfo(x);
-        JMethod method;
-        if (x.actualReceiverType.isArrayType() && new String(x.selector).equals("clone")) {
-          // ECJ has replaced the clone prototype "jlo clone()" by "int[] clone()", temporarily
-          // replace int[] by jlo to be able to lookup the method.
-          TypeBinding savedReturnType = x.binding.returnType;
-          assert savedReturnType.isArrayType();
-          x.binding.returnType = scope.getJavaLangObject();
-          method = getTypeMap().get(x.binding);
-          x.binding.returnType = savedReturnType;
-        } else {
-          method = getTypeMap().get(x.binding);
-        }
-
+        JMethod method = getTypeMap().get(x.binding);
 
         List<JExpression> arguments = popCallArgs(info, x.arguments, x.binding);
         JExpression receiver = pop(x.receiver);
@@ -3150,18 +3145,22 @@ public class JackIrBuilder {
       JMethod implMethod = getTypeMap().get(jdtBridgeMethod.targetMethod);
       SourceInfo info = implMethod.getSourceInfo();
       String[] paramNames = null;
+      int [] modifiers = null;
       List<JParameter> implParams = implMethod.getParams();
       if (jdtBridgeMethod.parameters != null) {
         int paramCount = implParams.size();
         assert paramCount == jdtBridgeMethod.parameters.length;
         paramNames = new String[paramCount];
+        modifiers = new int[paramCount];
         for (int i = 0; i < paramCount; ++i) {
           paramNames[i] = implParams.get(i).getName();
+          modifiers[i] = JModifier.SYNTHETIC | JModifier.NAME_PRESENT;
         }
       }
       // bridge methods should not be flagged as VARARGS
       jdtBridgeMethod.modifiers &= ~JModifier.VARARGS;
-      JMethod bridgeMethod = createSyntheticMethodFromBinding(info, jdtBridgeMethod, paramNames);
+      JMethod bridgeMethod =
+          createSyntheticMethodFromBinding(info, jdtBridgeMethod, paramNames, modifiers);
 
       // We can't complete the bridge yet with annotations because target annotations may not be
       // created yet, so lets delay their completion for the end the conversion from ecj model to
@@ -3610,7 +3609,7 @@ public class JackIrBuilder {
       MethodBinding b = x.binding;
       assert b.isConstructor();
       JConstructor ctor = (JConstructor) getTypeMap().get(b);
-      JMethodCall call = new JNewInstance(info, ctor.getEnclosingType(), ctor.getMethodIdWide());
+      JMethodCall call = new JNewInstance(info, ctor.getEnclosingType(), ctor.getMethodId());
       JExpression qualExpr = pop(qualifier);
 
       // Enums: hidden arguments for the name and id.
@@ -3804,10 +3803,48 @@ public class JackIrBuilder {
       return result;
     }
 
+    /**
+     * This class checks to make sure if the expression contains a unary plus. If so, we will
+     * signal simplify() to not use the constant that ECJ computed since it contains a bug. It will
+     * also assert that this bug exists. Should that assertion start failing, we know the bug is
+     * fixed and this extra check is not necessary.
+     *
+     * {@link "https://bugs.eclipse.org/bugs/show_bug.cgi?id=509590"}
+     */
+    private final class EcjBugChecker extends ASTVisitor {
+      private boolean hasEcjUnaryPosBug = false;
+      @Override
+      public void endVisit(UnaryExpression x, BlockScope b) {
+        int operator = ((x.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT);
+        // We don't take the constant result from ECJ if it involves a unary + and a non-literal.
+        if (operator == OperatorIds.PLUS && !(x.expression instanceof Literal)) {
+          hasEcjUnaryPosBug = true;
+          // We have an (+ (expression))
+          Constant outer = x.constant;
+          Constant inner = x.expression.constant;
+
+          // Since the + operator is no-op, the inner and the outer constant should be exactly the
+          // same. If not, the current version of ECJ has the mentioned bug.
+          boolean hasEcjUnaryPosBug = !outer.equals(inner);
+
+          // We are going to assume there is a bug in ECJ and work around it. If this fails,
+          // we know that the bug has been fixed.
+          assert hasEcjUnaryPosBug;
+        }
+      }
+    }
+
     private JExpression simplify(JExpression result, Expression x) {
       if (x.constant != null && x.constant != Constant.NotAConstant) {
-        // Prefer JDT-computed constant value to the actual written expression.
-        result = getConstant(result.getSourceInfo(), x.constant);
+        EcjBugChecker checker = new EcjBugChecker();
+        x.traverse(checker, (BlockScope) null);
+        if (checker.hasEcjUnaryPosBug) {
+          // Don't take the result from ECJ if there is a unary pos unless the bug has been fixed.
+          return result;
+        } else {
+          // Prefer JDT-computed constant value to the actual written expression.
+          result = getConstant(result.getSourceInfo(), x.constant);
+        }
       } else if (x instanceof FieldReference) {
         FieldBinding binding = ((FieldReference) x).binding;
         Constant constant = binding.constant();
@@ -3858,7 +3895,6 @@ public class JackIrBuilder {
     private void writeEnumValueOfMethod(JDefinedEnum type, JMethod method)
         throws JTypeLookupException {
       ReferenceBinding enumType = curCud.scope.getJavaLangEnum();
-      ReferenceBinding classType = curCud.scope.getJavaLangClass();
 
       /*
        * return Enum.valueOf(<enum>.class, name);
@@ -3871,8 +3907,7 @@ public class JackIrBuilder {
         assert valueOfBindings.length == 1;
         MethodBinding valueOfBinding = valueOfBindings[0];
 
-        JClassLiteral clazz = new JClassLiteral(info, method.getEnclosingType(),
-            (JDefinedClass) getTypeMap().get(classType));
+        JClassLiteral clazz = new JClassLiteral(info, method.getEnclosingType());
         JParameterRef nameRef = method.getParams().get(0).makeRef(info);
         JMethod jValueOfBinding = getTypeMap().get(valueOfBinding);
         JMethodCall call = makeMethodCall(info, null, jValueOfBinding.getEnclosingType(),
@@ -4054,8 +4089,7 @@ public class JackIrBuilder {
     @Override
     public boolean visit(ClassLiteralAccess x, BlockScope scope) {
       try {
-        parsed =
-            new JClassLiteral(makeSourceInfo(x), getTypeMap().get(x.targetType), javaLangClass);
+        parsed = new JClassLiteral(makeSourceInfo(x), getTypeMap().get(x.targetType));
         return false;
       } catch (JTypeLookupException e) {
         throw translateException(x, e);
@@ -4192,8 +4226,6 @@ public class JackIrBuilder {
 
   CudInfo curCud = null;
 
-  JDefinedClass javaLangClass = null;
-
   JDefinedClass javaLangObject = null;
 
   JDefinedClass javaLangString = null;
@@ -4269,7 +4301,6 @@ public class JackIrBuilder {
     try {
       javaLangObject = (JDefinedClass) getTypeMap().get(cud.scope.getJavaLangObject());
       javaLangString = (JDefinedClass) getTypeMap().get(cud.scope.getJavaLangString());
-      javaLangClass = (JDefinedClass) getTypeMap().get(cud.scope.getJavaLangClass());
     } catch (JTypeLookupException e) {
       throw new AssertionError(e);
     }
@@ -4317,7 +4348,6 @@ public class JackIrBuilder {
     curCud = null;
     javaLangObject = null;
     javaLangString = null;
-    javaLangClass = null;
     getClassMethod = null;
 
     return result;
@@ -4481,12 +4511,15 @@ public class JackIrBuilder {
               binding.getExactMethod(VALUE_OF, new TypeBinding[]{x.scope.getJavaLangString()},
                   curCud.scope);
           assert valueOfBinding != null;
-          createSyntheticMethodFromBinding(info, valueOfBinding, new String[]{"name"});
+          // valueOf method of an enum is implicitly declared, consequently, their parameters are
+          // implicitly declared.
+          createSyntheticMethodFromBinding(info, valueOfBinding, new String[] {"name"},
+              new int[] {JModifier.IMPLICIT | JModifier.NAME_PRESENT});
         }
         {
           MethodBinding valuesBinding = binding.getExactMethod(VALUES, NO_TYPES, curCud.scope);
           assert valuesBinding != null;
-          createSyntheticMethodFromBinding(info, valuesBinding, null);
+          createSyntheticMethodFromBinding(info, valuesBinding, null, null);
         }
       }
 
@@ -4558,8 +4591,9 @@ public class JackIrBuilder {
 
   @Nonnull
   private JMethod createSyntheticMethodFromBinding(@Nonnull SourceInfo info,
-      @Nonnull MethodBinding binding, @CheckForNull String[] paramNames)
-      throws JTypeLookupException {
+      @Nonnull MethodBinding binding, @CheckForNull String[] paramNames,
+      @CheckForNull int[] paramModifier) throws JTypeLookupException {
+    assert paramNames == null || paramModifier == null || paramModifier.length == paramNames.length;
     JMethod method = getTypeMap().get(binding);
     method.setSourceInfo(info);
     int i = 0;
@@ -4567,8 +4601,11 @@ public class JackIrBuilder {
       param.setSourceInfo(info);
       if (paramNames != null) {
         param.setName(paramNames[i]);
-        i++;
       }
+      if (paramModifier != null) {
+        param.setModifier(paramModifier[i]);
+      }
+      i++;
     }
     method.setBody(new JMethodBody(info, new JBlock(info)));
     return method;
@@ -4612,8 +4649,8 @@ public class JackIrBuilder {
 
     JMethodIdWide methodId = targetMethod.getMethodIdWide();
     assert methodId.getKind() == MethodKind.STATIC || instance != null;
-    JMethodCall call = new JMethodCall(info, instance,
-        receiverType, methodId, targetMethod.getType(), methodId.canBeVirtual());
+    JMethodCall call = new JMethodCall(info, instance, receiverType, targetMethod.getMethodId(),
+        methodId.canBeVirtual());
     return call;
   }
 
@@ -4623,8 +4660,7 @@ public class JackIrBuilder {
       @Nonnull JDefinedClassOrInterface receiverType,
       @Nonnull JMethod targetMethod) {
 
-    JMethodCall call = new JMethodCall(info, instance,
-        receiverType, targetMethod.getMethodIdWide(), targetMethod.getType(),
+    JMethodCall call = new JMethodCall(info, instance, receiverType, targetMethod.getMethodId(),
         false /* isVirtualDispatch */);
     return call;
   }

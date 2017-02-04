@@ -40,11 +40,7 @@ public final class LocalSnapshot extends ZeroSizeInsn {
    */
   public LocalSnapshot(SourcePosition position, RegisterSpecSet locals) {
     super(position);
-
-    if (locals == null) {
-      throw new NullPointerException("locals == null");
-    }
-
+    assert locals != null;
     this.locals = locals;
   }
 

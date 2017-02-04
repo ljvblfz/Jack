@@ -31,8 +31,8 @@ import com.android.jack.dx.rop.code.AccessFlags;
 import com.android.jack.dx.rop.cst.CstIndexMap;
 import com.android.jack.dx.rop.cst.CstMethodRef;
 import com.android.jack.dx.rop.cst.CstString;
-import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.StdTypeList;
+import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.rop.type.TypeList;
 
 import java.io.IOException;
@@ -68,10 +68,10 @@ public class JackMerger extends MergerTools {
     CstIndexMap cstIndexMap = cstManager.addDexFile(dexToMerge);
 
     for (ClassDef classDefToMerge : dexToMerge.classDefs()) {
-      CstType superType = null;
+      Type superType = null;
       int supertypeIndex = classDefToMerge.getSupertypeIndex();
       if (supertypeIndex != ClassDef.NO_INDEX) {
-        superType = cstIndexMap.getCstType(supertypeIndex);
+        superType = cstIndexMap.getType(supertypeIndex);
       }
       CstString sourceFilename = null;
       int sourceFileIndex = classDefToMerge.getSourceFileIndex();
@@ -80,7 +80,7 @@ public class JackMerger extends MergerTools {
       }
 
       ClassDefItem newClassDef = new ClassDefItem(
-          cstIndexMap.getCstType(classDefToMerge.getTypeIndex()), classDefToMerge.getAccessFlags(),
+          cstIndexMap.getType(classDefToMerge.getTypeIndex()), classDefToMerge.getAccessFlags(),
           superType, getInterfacesList(classDefToMerge, cstIndexMap), sourceFilename);
 
       dexResult.add(newClassDef);
@@ -144,7 +144,7 @@ public class JackMerger extends MergerTools {
 
   public void finish(@Nonnull OutputStream out) throws IOException {
     dexResult.prepare(cstManager.getCstStrings(), cstManager.getCstFieldRefs(),
-        cstManager.getCstMethodRefs(), cstManager.getCstTypes(), cstManager.getCstPrototypeRefs());
+        cstManager.getCstMethodRefs(), cstManager.getTypes(), cstManager.getCstPrototypeRefs());
     if (!cstManager.validate(dexResult)) {
       throw new AssertionError();
     }
@@ -171,7 +171,7 @@ public class JackMerger extends MergerTools {
     StdTypeList interfaceList = new StdTypeList(interfaceCount);
     int idx = 0;
     for (int interfaceIdx : classDefToMerge.getInterfaces()) {
-      interfaceList.set(idx++, cstIndexMap.getCstType(interfaceIdx).getClassType());
+      interfaceList.set(idx++, cstIndexMap.getType(interfaceIdx));
     }
 
     return (interfaceList);

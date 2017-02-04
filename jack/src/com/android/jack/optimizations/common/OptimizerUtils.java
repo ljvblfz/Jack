@@ -139,7 +139,7 @@ public final class OptimizerUtils {
   public static boolean isConstructorDelegation(
       @Nonnull JMethodCall call, @Nonnull JConstructor constructor) {
     // Must be a constructor call on 'this'
-    if (!call.getMethodId().isInit() ||
+    if (!call.getMethodIdWide().isInit() ||
         !(call.getInstance() instanceof JThisRef)) {
       return false;
     }

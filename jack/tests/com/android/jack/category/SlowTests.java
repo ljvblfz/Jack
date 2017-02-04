@@ -19,6 +19,6 @@ package com.android.jack.category;
 /**
  * Tests that are time-consuming, so that we do not want to run them each time we submit a CL.
  */
-public interface SlowTests extends NonPreSubmitTests {
+public interface SlowTests extends FunctionalNonPreSubmitTests {
 
 }

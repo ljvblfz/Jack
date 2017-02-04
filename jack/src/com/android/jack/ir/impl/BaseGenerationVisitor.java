@@ -711,11 +711,9 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
     accept(x.getIfExpr());
     rparen();
 
-    if (x.getThenStmt() != null) {
-      nestedStatementPush(x.getThenStmt());
-      accept(x.getThenStmt());
-      nestedStatementPop(x.getThenStmt());
-    }
+    nestedStatementPush(x.getThenStmt());
+    accept(x.getThenStmt());
+    nestedStatementPop(x.getThenStmt());
 
     if (x.getElseStmt() != null) {
       if (needSemi) {
@@ -1204,7 +1202,7 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
   public boolean visit(@Nonnull JPolymorphicMethodCall x) {
     JExpression instance = x.getInstance();
     assert instance != null;
-    JMethodIdWide target = x.getMethodId();
+    JMethodIdWide target = x.getMethodIdWide();
     if (x.getInstance() instanceof JThisRef) {
         print(CHARS_THIS);
     } else {
@@ -1224,7 +1222,7 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
   @Override
   public boolean visit(@Nonnull JMethodCall x) {
     JExpression instance = x.getInstance();
-    JMethodIdWide target = x.getMethodId();
+    JMethodIdWide target = x.getMethodIdWide();
     if (instance == null) {
       // Static call.
       printTypeName(x.getReceiverType());
@@ -1299,7 +1297,7 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
   @Override
   public boolean visit(@Nonnull JNewInstance x) {
     print(CHARS_NEW);
-    JMethodIdWide target = x.getMethodId();
+    JMethodIdWide target = x.getMethodIdWide();
     printName(target);
     lparen();
     visitCollectionWithCommas(x.getArgs().iterator());
@@ -1328,7 +1326,7 @@ public class BaseGenerationVisitor extends TextOutputVisitor {
   @Override
   public boolean visit(@Nonnull JParameter x) {
     printAnnotationLiterals(x.getAnnotations());
-    print(JModifier.getStringVariableModifier(x.getModifier()));
+    print(JModifier.getStringParameterModifier(x.getModifier()));
     printType(x);
     space();
     printName(x);

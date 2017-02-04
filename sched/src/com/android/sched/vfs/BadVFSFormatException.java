@@ -22,7 +22,8 @@ import com.android.sched.util.location.Location;
 import javax.annotation.Nonnull;
 
 /**
- * Exception when a {@link VFS} has a bad format, i.e. it does not match the expected format.
+ * {@link Exception} when a {@link VFS} has a bad format, i.e. it does not match the expected
+ * format.
  */
 public class BadVFSFormatException extends SchedIOException {
   private static final long serialVersionUID = 1L;

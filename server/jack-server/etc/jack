@@ -26,7 +26,9 @@ JACK_VERSION=${JACK_VERSION:=-2.0.ENGINEERING}
 JACK_HOME="${JACK_HOME:=$HOME/.jack-server}"
 JACK_CLIENT_SETTING="${JACK_CLIENT_SETTING:=$HOME/.jack-settings}"
 TMPDIR=${TMPDIR:=/tmp}
-JACK_CONNECTION_TIMEOUT=300
+# This is half the timeout since the script will make a second attempt collecting debugs when
+# the first attempt fails on connection timeout
+JACK_CONNECTION_TIMEOUT=150
 JACK_EXTRA_CURL_OPTIONS=${JACK_EXTRA_CURL_OPTIONS:=}
 JACK_ASSERTION_ENABLED="${JACK_ASSERTION_ENABLED:=false}"
 
@@ -110,11 +112,15 @@ fi
 # Check base64 availability
 BASE64_CHECK=$((echo amFjaw==;echo LXNlcnZlcg==) | base64 --decode 2>&1)
 
+sendRequest() {
+RETRY_OPTION=$1
+shift
+
 # Launch compilation
 exec 3>&1
 exec 4>&2
 if [ "$BASE64_CHECK" = jack-server ]; then
-  HTTP_CODE=$(curl -f $JACK_EXTRA_CURL_OPTIONS \
+  HTTP_CODE=$(curl -f $JACK_EXTRA_CURL_OPTIONS $RETRY_OPTION \
        --cert "${JACK_HOME}/client.pem" \
        --cacert "${JACK_HOME}/server.pem" \
        --output >(tee >(sed -n -e 's/^E|\(.*\)$/\1/p' | base64 --decode >&4 ) | tee >(sed -n -e 's/^X|\(.*\)$/\1/p' >>$JACK_EXIT) | sed -n -e 's/^O|\(.*\)$/\1/p' | base64 --decode >&3) \
@@ -129,7 +135,7 @@ if [ "$BASE64_CHECK" = jack-server ]; then
        https://${SERVER_HOST}:$SERVER_PORT_SERVICE/jack \
        )
 else
-  HTTP_CODE=$(curl -f $JACK_EXTRA_CURL_OPTIONS \
+  HTTP_CODE=$(curl -f $JACK_EXTRA_CURL_OPTIONS $RETRY_OPTION \
        --cert "${JACK_HOME}/client.pem" \
        --cacert "${JACK_HOME}/server.pem" \
        --output >(tee >(sed -n -e 's/^E|\(.*\)$/\1/p' >&4 ) | tee >(sed -n -e 's/^X|\(.*\)$/\1/p' >>$JACK_EXIT) | sed -n -e 's/^O|\(.*\)$/\1/p' >&3) \
@@ -158,9 +164,22 @@ elif [ $CURL_CODE -eq 7 ]; then
   # Failed to connect
   echo "No Jack server running. Try 'jack-admin start-server'" >&2
   abort
+elif [ $CURL_CODE -eq 28 ]; then
+  if [ "$RETRY_OPTION" == "" ]; then
+    echo "Connection to the Jack server timeout, retrying with debug"
+    sendRequest -v $@
+  else
+    echo "Connection to the Jack server timeout" >&2
+    abort
+  fi
 elif [ $CURL_CODE -eq 35 ]; then
-  echo "SSL error when connecting to the Jack server. Try 'jack-diagnose'" >&2
-  abort
+  if [ "$RETRY_OPTION" == "" ]; then
+    echo "SSL error when connecting to the Jack server, retrying with debug"
+    sendRequest -v $@
+  else
+    echo "SSL error when connecting to the Jack server. Try 'jack-diagnose'" >&2
+    abort
+  fi
 elif [ $CURL_CODE -eq 58 ]; then
   echo "Failed to contact Jack server: Problem reading ${JACK_HOME}/client.pem. Try 'jack-diagnose'" >&2
   abort
@@ -185,3 +204,6 @@ else
   echo "Communication error with Jack server ($CURL_CODE). Try 'jack-diagnose'" >&2
   abort
 fi
+}
+
+sendRequest "" $@

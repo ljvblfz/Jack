@@ -111,6 +111,12 @@ public class ReferenceMapper {
   @Nonnull
   private final SourceInfoFactory sourceInfoFactory;
 
+  @CheckForNull
+  private ReferenceBinding ecjJlo = null;
+
+  @CheckForNull
+  private MethodBinding ecjJloCloneMth = null;
+
   public ReferenceMapper(@Nonnull JNodeLookup lookup,
       @Nonnull LookupEnvironment lookupEnvironment, @Nonnull SourceInfoFactory sourceInfoFactory) {
     this.lookup = lookup;
@@ -159,8 +165,28 @@ public class ReferenceMapper {
     return field;
   }
 
+  private boolean isCloneOfArray(@Nonnull MethodBinding binding) {
+    if (ecjJlo == null) {
+      ecjJlo = lookupEnvironment.getType(TypeConstants.JAVA_LANG_OBJECT);
+      assert ecjJlo != null;
+      MethodBinding[] methods = ecjJlo.getMethods("clone".toCharArray());
+      assert methods.length == 1;
+      ecjJloCloneMth = methods[0];
+    }
+
+    return binding.declaringClass.equals(ecjJlo) && new String(binding.selector).equals("clone")
+        && binding.returnType.isArrayType();
+  }
+
   @Nonnull
   public JMethod get(@Nonnull MethodBinding binding) throws JTypeLookupException {
+    if (isCloneOfArray(binding)) {
+      // ECJ has replaced the clone prototype "jlo clone()" by "int[] clone()", thus replace the
+      // binding by the binding of clone from jlo to be able to lookup the method.
+      binding = ecjJloCloneMth;
+      assert binding != null;
+    }
+
     binding = binding.original();
     SignatureKey key = new SignatureKey(binding);
     JMethod method = methods.get(key);
@@ -253,14 +279,16 @@ public class ReferenceMapper {
         // Enums have hidden arguments for name and value
         createParameter(info, method, "enum$name",
             lookupEnvironment.getType(TypeConstants.JAVA_LANG_STRING),
-            JModifier.FINAL | JModifier.SYNTHETIC);
+            JModifier.SYNTHETIC | JModifier.NAME_PRESENT);
         createParameter(info, method, "enum$ordinal", TypeBinding.INT,
-            JModifier.FINAL | JModifier.SYNTHETIC);
+            JModifier.SYNTHETIC | JModifier.NAME_PRESENT);
       }
       // add synthetic args for outer this
       if (isNested) {
         NestedTypeBinding nestedBinding = (NestedTypeBinding) declaringClass;
-        createParameters(nestedBinding.enclosingInstances, info, method, alreadyNamedVariables);
+        createParameters(nestedBinding.enclosingInstances, info, method, alreadyNamedVariables,
+            /* forceToImplicit= */ !nestedBinding.isAnonymousType()
+                || !nestedBinding.superclass().isLocalType());
       }
     } else {
       JType returnType = get(b.returnType);
@@ -292,7 +320,8 @@ public class ReferenceMapper {
         // add synthetic args for locals
         NestedTypeBinding nestedBinding = (NestedTypeBinding) declaringClass;
         // add synthetic args for outer this and locals
-        createParameters(nestedBinding.outerLocalVariables, info, method, alreadyNamedVariables);
+        createParameters(nestedBinding.outerLocalVariables, info, method, alreadyNamedVariables,
+            /* forceToImplicit= */ false);
       }
     }
 
@@ -338,7 +367,8 @@ public class ReferenceMapper {
 
   private void createParameters(@CheckForNull SyntheticArgumentBinding[] sab,
       @Nonnull SourceInfo info, @Nonnull JMethod method,
-      @Nonnull Set<String> alreadyNamedVariables) {
+      @Nonnull Set<String> alreadyNamedVariables,
+      boolean forceToImplicit) {
     if (sab != null) {
       for (int i = 0; i < sab.length; ++i) {
         SyntheticArgumentBinding arg = sab[i];
@@ -346,7 +376,9 @@ public class ReferenceMapper {
         if (alreadyNamedVariables.contains(argName)) {
           argName += "_" + i;
         }
-        createParameter(info, method, argName, arg.type, getModifier(arg));
+        createParameter(info, method, argName, arg.type,
+            getFinalModifier(arg) | (forceToImplicit ? JModifier.IMPLICIT : JModifier.SYNTHETIC)
+                | JModifier.NAME_PRESENT);
         alreadyNamedVariables.add(argName);
       }
     }
@@ -358,12 +390,13 @@ public class ReferenceMapper {
       for (Argument argument : x.arguments) {
         SourceInfo info = makeSourceInfo(cuInfo, argument, sourceInfoFactory);
         LocalVariableBinding binding = argument.binding;
-        createParameter(info, method, intern(binding.name), binding.type, getModifier(binding));
+        createParameter(info, method, intern(binding.name), binding.type,
+            getFinalModifier(binding) | JModifier.NAME_PRESENT);
       }
     }
   }
 
-  private int getModifier(@Nonnull LocalVariableBinding lvBinding) {
+  private int getFinalModifier(@Nonnull LocalVariableBinding lvBinding) {
     return lvBinding.isFinal() ? JModifier.FINAL : JModifier.DEFAULT;
   }
 

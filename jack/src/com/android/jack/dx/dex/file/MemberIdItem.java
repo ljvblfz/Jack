@@ -18,7 +18,6 @@ package com.android.jack.dx.dex.file;
 
 import com.android.jack.dx.dex.SizeOf;
 import com.android.jack.dx.rop.cst.CstMemberRef;
-import com.android.jack.dx.rop.cst.CstNat;
 import com.android.jack.dx.util.AnnotatedOutput;
 import com.android.jack.dx.util.Hex;
 
@@ -53,7 +52,7 @@ public abstract class MemberIdItem extends IdItem {
     super.addContents(file);
 
     StringIdsSection stringIds = file.getStringIds();
-    stringIds.intern(getRef().getNat().getName());
+    stringIds.intern(getRef().getName());
   }
 
   /** {@inheritDoc} */
@@ -61,9 +60,8 @@ public abstract class MemberIdItem extends IdItem {
   public final void writeTo(DexFile file, AnnotatedOutput out) {
     TypeIdsSection typeIds = file.getTypeIds();
     StringIdsSection stringIds = file.getStringIds();
-    CstNat nat = cst.getNat();
     int classIdx = typeIds.indexOf(getDefiningClass());
-    int nameIdx = stringIds.indexOf(nat.getName());
+    int nameIdx = stringIds.indexOf(cst.getName());
     int typoidIdx = getTypoidIdx(file);
 
     if (out.annotates()) {

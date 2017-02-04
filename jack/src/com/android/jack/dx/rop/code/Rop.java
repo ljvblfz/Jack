@@ -98,17 +98,9 @@ public final class Rop {
       int branchingness,
       boolean isCallLike,
       String nickname) {
-    if (result == null) {
-      throw new NullPointerException("result == null");
-    }
-
-    if (sources == null) {
-      throw new NullPointerException("sources == null");
-    }
-
-    if (exceptions == null) {
-      throw new NullPointerException("exceptions == null");
-    }
+    assert result != null;
+    assert sources != null;
+    assert exceptions != null;
 
     if ((branchingness < BRANCH_MIN) || (branchingness > BRANCH_MAX)) {
       throw new IllegalArgumentException("bogus branchingness");

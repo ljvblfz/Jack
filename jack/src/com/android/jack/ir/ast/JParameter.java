@@ -174,4 +174,20 @@ public class JParameter extends JVariable implements HasEnclosingMethod {
   public void removeLoader() {
     loader = NopParameterLoader.INSTANCE;
   }
+
+  public void setimplicit() {
+    modifier |= JModifier.IMPLICIT;
+  }
+
+  public boolean isImplicit() {
+    return (JModifier.isImplicit(modifier));
+  }
+
+  public void setNamePresent() {
+    modifier |= JModifier.NAME_PRESENT;
+  }
+
+  public boolean isNamePresent() {
+    return (JModifier.isNamePresent(modifier));
+  }
 }

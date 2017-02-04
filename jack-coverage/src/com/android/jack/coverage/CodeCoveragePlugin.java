@@ -106,9 +106,9 @@ public class CodeCoveragePlugin extends SchedAnnotationProcessorBasedPlugin {  /
     return set;
   }
 
-  // Plugin is compatible starting from 1.3-b4.
+  // Plugin is compatible starting from 1.3-b16.
   private static final int JACK_COMPATIBLE_VERSION_RELEASE_CODE = 4;
-  private static final int JACK_COMPATIBLE_VERSION_SUBRELEASE_CODE = 9;
+  private static final int JACK_COMPATIBLE_VERSION_SUBRELEASE_CODE = 21;
 
   @Override
   public boolean isCompatibileWithJack(@Nonnull Version jackVersion) {

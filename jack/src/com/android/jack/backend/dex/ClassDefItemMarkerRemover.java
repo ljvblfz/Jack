@@ -17,10 +17,12 @@
 package com.android.jack.backend.dex;
 
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 
@@ -35,6 +37,7 @@ import javax.annotation.Nonnull;
 @Name("ClassDefItemMarkerRemover")
 @Constraint(need = ClassDefItemMarker.class)
 @Transform(remove = ClassDefItemMarker.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class ClassDefItemMarkerRemover implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   @Override

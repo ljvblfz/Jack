@@ -26,6 +26,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 
 /**
  * JUnit test checking incremental support when files are deleted.
@@ -54,10 +55,12 @@ public class DependenciesTest014 {
 
     ite.deleteJavaFile(f);
     ite.incrementalBuildFromFolder();
-    DexBuffer db = new DexBuffer(new FileInputStream(ite.getDexFile()));
-    for (String typeName : db.typeNames()) {
-      if (typeName.equals("Ljack/incremental/B;")) {
-        Assert.fail();
+    try (InputStream is = new FileInputStream(ite.getDexFile())) {
+      DexBuffer db = new DexBuffer(is);
+      for (String typeName : db.typeNames()) {
+        if (typeName.equals("Ljack/incremental/B;")) {
+          Assert.fail();
+        }
       }
     }
   }
@@ -86,7 +89,10 @@ public class DependenciesTest014 {
     ite.deleteJavaFile(fB);
     ite.deleteJavaFile(fC);
     ite.incrementalBuildFromFolder();
-    DexBuffer db = new DexBuffer(new FileInputStream(ite.getDexFile()));
+    DexBuffer db;
+    try (InputStream is = new FileInputStream(ite.getDexFile())) {
+      db = new DexBuffer(is);
+    }
     for (String typeName : db.typeNames()) {
       if (typeName.equals("Ljack/incremental/B;") ||
           typeName.equals("Ljack/incremental/C;")) {

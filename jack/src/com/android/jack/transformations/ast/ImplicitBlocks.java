@@ -64,7 +64,7 @@ public class ImplicitBlocks implements RunnableSchedulable<JMethod> {
     @Override
     public boolean visit(@Nonnull JIfStatement ifStmt) {
       JStatement thenStmt = ifStmt.getThenStmt();
-      if (thenStmt != null && !(thenStmt instanceof JBlock)) {
+      if (!(thenStmt instanceof JBlock)) {
         moveIntoBLock(thenStmt);
       }
 

@@ -101,10 +101,7 @@ public final class RegisterSpec implements TypeBearer, ToHuman, Comparable<Regis
    * @return {@code non-null;} an appropriately-constructed instance
    */
   public static RegisterSpec make(int reg, TypeBearer type, LocalItem local) {
-    if (local == null) {
-      throw new NullPointerException("local  == null");
-    }
-
+    assert local != null;
     return intern(reg, type, local);
   }
 
@@ -148,11 +145,7 @@ public final class RegisterSpec implements TypeBearer, ToHuman, Comparable<Regis
     if (reg < 0) {
       throw new IllegalArgumentException("reg < 0");
     }
-
-    if (type == null) {
-      throw new NullPointerException("type == null");
-    }
-
+    assert type != null;
     this.reg = reg;
     this.type = type;
     this.local = local;

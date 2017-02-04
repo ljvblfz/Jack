@@ -69,58 +69,63 @@ public class JackTestRunner extends Categories {
 
     @Override
     public boolean shouldRun(@Nonnull Description description) {
-      boolean shouldRun = false;
+      boolean knownIssue = false;
+      boolean notApplicable = false;
 
       KnownIssue knownIssueAnnot = description.getAnnotation(KnownIssue.class);
       Runtime runtimeAnnot = description.getAnnotation(Runtime.class);
 
       // Special case of ecj tests that use JUnit3
-      boolean ecjTestEligibleToRun = false;
       boolean isEcjTestPostM = false;
       if (description.getClassName().contains("Ecj")) {
         isEcjTestPostM =
             (description.getClassName().contains("PostM"))
                 || description.getClassName().contains("EcjInterfaceMethodsTest");
-        shouldRun =
-            // Otherwise method of class aren't scanned and dump won't work
-            (dumpTests && description.getMethodName() == null)
-                || (isEcjTestPostM && runtimeVersion.compareTo(RuntimeVersion.N) >= 0);
+
+        notApplicable = isEcjTestPostM && runtimeVersion.compareTo(RuntimeVersion.N) < 0;
+
       } else {
         // General case
-        if (runtimeAnnot == null
-            || runtimeAnnot.from().compareTo(runtimeVersion) <= 0) {
-          if (knownIssueAnnot == null) {
-            shouldRun = true;
-          } else {
-            shouldRun =
-                (knownIssueAnnot.candidate().length > 0 || knownIssueAnnot.reference().length > 0)
-                    && (isValidToolchain(candidate, knownIssueAnnot.candidate())
-                        && isValidToolchain(reference, knownIssueAnnot.reference()));
-          }
-        }
+        knownIssue = (knownIssueAnnot != null)
+            && ((knownIssueAnnot.candidate().length == 0)
+                    || !isValidToolchain(candidate, knownIssueAnnot.candidate())
+                && (knownIssueAnnot.reference().length == 0
+                    || !isValidToolchain(reference, knownIssueAnnot.reference())));
+
+        notApplicable = runtimeAnnot != null && runtimeAnnot.from().compareTo(runtimeVersion) > 0;
       }
 
-      if (dumpTests && description.getMethodName() != null) {
-        System.out.println(
-            "  \"" + description.getClassName() + '#' + description.getMethodName() + "\": {");
-        System.out.print("    \"ignored\":" + !shouldRun);
-        if (runtimeAnnot != null) {
-          System.out.println(",");
+      if (dumpTests) {
+        if (description.getMethodName() != null) {
           System.out.println(
-              "    \"runtimePostM\":"
-                  + (runtimeAnnot.from().ordinal() > RuntimeVersion.M.ordinal()));
-        } else if (description.getClassName().contains("Ecj")) {
-          // Special case for Ecj tests that use JUnit3
-          System.out.println(",");
-          System.out.println("    \"runtimePostM\":" + isEcjTestPostM);
+              "  \"" + description.getClassName() + '#' + description.getMethodName() + "\": {");
+          System.out.println("    \"notApplicable\":" + notApplicable + ',');
+          System.out.print("    \"knownIssue\":" + knownIssue);
+          if (runtimeAnnot != null) {
+            System.out.println(",");
+            System.out.println(
+                "    \"runtimePostM\":"
+                    + (runtimeAnnot.from().ordinal() > RuntimeVersion.M.ordinal()));
+          } else if (description.getClassName().contains("Ecj")) {
+            // Special case for Ecj tests that use JUnit3
+            System.out.println(",");
+            System.out.println("    \"runtimePostM\":" + isEcjTestPostM);
+          } else {
+            System.out.println();
+          }
+          System.out.println("  },");
+
+          // Don't run test, dump only
+          return false;
+
         } else {
-          System.out.println();
+
+          // Visit types
+          return true;
         }
-        System.out.println("  },");
-        return false;
       }
 
-      return shouldRun;
+      return !knownIssue && !notApplicable;
     }
 
     private boolean isValidToolchain(

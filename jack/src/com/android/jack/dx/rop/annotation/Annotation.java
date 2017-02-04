@@ -17,7 +17,7 @@
 package com.android.jack.dx.rop.annotation;
 
 import com.android.jack.dx.rop.cst.CstString;
-import com.android.jack.dx.rop.cst.CstType;
+import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.util.MutabilityControl;
 import com.android.jack.dx.util.ToHuman;
 
@@ -33,7 +33,7 @@ import java.util.TreeMap;
  */
 public final class Annotation extends MutabilityControl implements Comparable<Annotation>, ToHuman {
   /** {@code non-null;} type of the annotation */
-  private final CstType type;
+  private final Type type;
 
   /** {@code non-null;} the visibility of the annotation */
   private final AnnotationVisibility visibility;
@@ -47,15 +47,9 @@ public final class Annotation extends MutabilityControl implements Comparable<An
    * @param type {@code non-null;} type of the annotation
    * @param visibility {@code non-null;} the visibility of the annotation
    */
-  public Annotation(CstType type, AnnotationVisibility visibility) {
-    if (type == null) {
-      throw new NullPointerException("type == null");
-    }
-
-    if (visibility == null) {
-      throw new NullPointerException("visibility == null");
-    }
-
+  public Annotation(Type type, AnnotationVisibility visibility) {
+    assert type != null;
+    assert visibility != null;
     this.type = type;
     this.visibility = visibility;
     this.elements = new TreeMap<CstString, NameValuePair>();
@@ -160,7 +154,7 @@ public final class Annotation extends MutabilityControl implements Comparable<An
    *
    * @return {@code non-null;} the type
    */
-  public CstType getType() {
+  public Type getType() {
     return type;
   }
 
@@ -181,12 +175,8 @@ public final class Annotation extends MutabilityControl implements Comparable<An
    * @param pair {@code non-null;} the (name, value) pair to place into this instance
    */
   public void put(NameValuePair pair) {
+    assert pair != null;
     throwIfImmutable();
-
-    if (pair == null) {
-      throw new NullPointerException("pair == null");
-    }
-
     elements.put(pair.getName(), pair);
   }
 
@@ -198,12 +188,8 @@ public final class Annotation extends MutabilityControl implements Comparable<An
    * @param pair {@code non-null;} the (name, value) pair to add to this instance
    */
   public void add(NameValuePair pair) {
+    assert pair != null;
     throwIfImmutable();
-
-    if (pair == null) {
-      throw new NullPointerException("pair == null");
-    }
-
     CstString name = pair.getName();
 
     if (elements.get(name) != null) {

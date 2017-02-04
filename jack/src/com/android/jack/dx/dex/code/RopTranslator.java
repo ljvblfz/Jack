@@ -80,12 +80,6 @@ public final class RopTranslator {
   private final int paramSize;
 
   /**
-   * true if the parameters to this method happen to be in proper order
-   * at the end of the frame (as the optimizer emits them)
-   */
-  private boolean paramsAreInOrder;
-
-  /**
    * Translates a {@link RopMethod}. This may modify the given
    * input.
    *
@@ -124,7 +118,6 @@ public final class RopTranslator {
     this.addresses = new BlockAddresses(method);
     this.paramSize = paramSize;
     this.order = null;
-    this.paramsAreInOrder = calculateParamsAreInOrder(method, paramSize);
 
     BasicBlockList blocks = method.getBlocks();
     int bsz = blocks.size();
@@ -151,7 +144,7 @@ public final class RopTranslator {
      * If params are not in order, we will need register space
      * for them before this is all over...
      */
-    this.regCount = blocks.getRegCount() + (paramsAreInOrder ? 0 : this.paramSize);
+    this.regCount = blocks.getRegCount() + (method.withDexCallingConvention() ? 0 : this.paramSize);
 
     this.output = new OutputCollector(dexOptions, maxInsns, bsz * 3, regCount, paramSize);
 
@@ -160,40 +153,6 @@ public final class RopTranslator {
     } else {
       this.translationVisitor = new TranslationVisitor();
     }
-  }
-
-  /**
-   * Checks to see if the move-param instructions that occur in this
-   * method happen to slot the params in an order at the top of the
-   * stack frame that matches dalvik's calling conventions. This will
-   * alway result in "true" for methods that have run through the
-   * SSA optimizer.
-   *
-   * @param paramSize size, in register units, of all the parameters
-   * to this method
-   */
-  private static boolean calculateParamsAreInOrder(RopMethod method, final int paramSize) {
-    final boolean[] paramsAreInOrder = {true};
-    final int initialRegCount = method.getBlocks().getRegCount();
-
-    /*
-     * We almost could just check the first block here, but the
-     * {@code cf} layer will put in a second move-param in a
-     * subsequent block in the case of synchronized methods.
-     */
-    method.getBlocks().forEachInsn(new Insn.BaseVisitor() {
-      @Override
-      public void visitPlainCstInsn(PlainCstInsn insn) {
-        if (insn.getOpcode().getOpcode() == RegOps.MOVE_PARAM) {
-          int param = ((CstInteger) insn.getConstant()).getValue();
-
-          paramsAreInOrder[0] = paramsAreInOrder[0]
-              && ((initialRegCount - paramSize + param) == insn.getResult().getReg());
-        }
-      }
-    });
-
-    return paramsAreInOrder[0];
   }
 
   /**
@@ -559,7 +518,7 @@ public final class RopTranslator {
       }
 
       if (ropOpcode == RegOps.MOVE_PARAM) {
-        if (!paramsAreInOrder) {
+        if (!method.withDexCallingConvention()) {
           /*
            * Parameters are not in order at the top of the reg space.
            * We need to add moves.

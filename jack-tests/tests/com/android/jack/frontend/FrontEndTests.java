@@ -188,13 +188,16 @@ public class FrontEndTests {
   @Test
   public void testInnerError001() throws Exception {
     File outDir = AbstractTestTools.createTempDir();
+    File classDir = AbstractTestTools.createTempDir();
 
-    IToolchain toolchain =
+    JackApiToolchainBase toolchain =
         AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     ByteArrayOutputStream err = new ByteArrayOutputStream();
     toolchain.setOutputStream(out);
     toolchain.setErrorStream(err);
+    toolchain.addProperty(Options.EMIT_CLASS_FILES.getName(), "true");
+    toolchain.addProperty(Options.EMIT_CLASS_FILES_FOLDER.getName(), classDir.getPath());
 
     try {
       toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
@@ -207,6 +210,7 @@ public class FrontEndTests {
       Assert.assertEquals(0, out.size());
       String errString = err.toString();
       Assert.assertTrue(errString.contains("ERROR:"));
+      Assert.assertTrue(errString.indexOf("ERROR:") == errString.lastIndexOf("ERROR:"));
       Assert.assertTrue(errString.contains("ExtendingInnerOnly"));
       Assert.assertTrue(errString.contains("Inner"));
    }
@@ -249,13 +253,16 @@ public class FrontEndTests {
   @Test
   public void testInnerError003() throws Exception {
     File outDir = AbstractTestTools.createTempDir();
+    File classDir = AbstractTestTools.createTempDir();
 
-    IToolchain toolchain =
+    JackApiToolchainBase toolchain =
         AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     ByteArrayOutputStream err = new ByteArrayOutputStream();
     toolchain.setOutputStream(out);
     toolchain.setErrorStream(err);
+    toolchain.addProperty(Options.EMIT_CLASS_FILES.getName(), "true");
+    toolchain.addProperty(Options.EMIT_CLASS_FILES_FOLDER.getName(), classDir.getPath());
 
     try {
       toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
@@ -268,6 +275,7 @@ public class FrontEndTests {
       Assert.assertEquals(0, out.size());
       String errString = err.toString();
       Assert.assertTrue(errString.contains("ERROR:"));
+      Assert.assertTrue(errString.indexOf("ERROR:") == errString.lastIndexOf("ERROR:"));
       Assert.assertTrue(errString.contains("WithOuterContextButStatic"));
       Assert.assertTrue(errString.contains("Inner"));
    }
@@ -279,13 +287,16 @@ public class FrontEndTests {
   @Test
   public void testInnerError004() throws Exception {
     File outDir = AbstractTestTools.createTempDir();
+    File classDir = AbstractTestTools.createTempDir();
 
-    IToolchain toolchain =
+    JackApiToolchainBase toolchain =
         AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     ByteArrayOutputStream err = new ByteArrayOutputStream();
     toolchain.setOutputStream(out);
     toolchain.setErrorStream(err);
+    toolchain.addProperty(Options.EMIT_CLASS_FILES.getName(), "true");
+    toolchain.addProperty(Options.EMIT_CLASS_FILES_FOLDER.getName(), classDir.getPath());
 
     try {
       toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
@@ -298,6 +309,7 @@ public class FrontEndTests {
       Assert.assertEquals(0, out.size());
       String errString = err.toString();
       Assert.assertTrue(errString.contains("ERROR:"));
+      Assert.assertTrue(errString.indexOf("ERROR:") == errString.lastIndexOf("ERROR:"));
       Assert.assertTrue(errString.contains("NoOuterContext"));
       Assert.assertTrue(errString.contains("Inner"));
    }
@@ -309,13 +321,16 @@ public class FrontEndTests {
   @Test
   public void testUnusedLocalVar001() throws Exception {
     File outDir = AbstractTestTools.createTempDir();
+    File classDir = AbstractTestTools.createTempDir();
 
-    IToolchain toolchain =
+    JackApiToolchainBase toolchain =
         AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     ByteArrayOutputStream err = new ByteArrayOutputStream();
     toolchain.setOutputStream(out);
     toolchain.setErrorStream(err);
+    toolchain.addProperty(Options.EMIT_CLASS_FILES.getName(), "true");
+    toolchain.addProperty(Options.EMIT_CLASS_FILES_FOLDER.getName(), classDir.getPath());
 
     try {
       toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
@@ -328,6 +343,7 @@ public class FrontEndTests {
       Assert.assertEquals(0, out.size());
       String errString = err.toString();
       Assert.assertTrue(errString.contains("ERROR:"));
+      Assert.assertTrue(errString.indexOf("ERROR:") == errString.lastIndexOf("ERROR:"));
       Assert.assertTrue(errString.contains("UnusedLocalVar"));
       Assert.assertTrue(errString.contains("Inner"));
    }
@@ -373,13 +389,16 @@ public class FrontEndTests {
   @Category(ExtraTests.class)
   public void testUnusedLocalVar004() throws Exception {
     File outDir = AbstractTestTools.createTempDir();
+    File classDir = AbstractTestTools.createTempDir();
 
-    IToolchain toolchain =
+    JackApiToolchainBase toolchain =
         AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     ByteArrayOutputStream err = new ByteArrayOutputStream();
     toolchain.setOutputStream(out);
     toolchain.setErrorStream(err);
+    toolchain.addProperty(Options.EMIT_CLASS_FILES.getName(), "true");
+    toolchain.addProperty(Options.EMIT_CLASS_FILES_FOLDER.getName(), classDir.getPath());
 
     try {
       toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
@@ -392,7 +411,87 @@ public class FrontEndTests {
       Assert.assertEquals(0, out.size());
       String errString = err.toString();
       Assert.assertTrue(errString.contains("ERROR:"));
+      Assert.assertTrue(errString.indexOf("ERROR:") == errString.lastIndexOf("ERROR:"));
       Assert.assertTrue(errString.contains("InvalidQualification"));
+   }
+  }
+
+  /**
+   * Test that Jack is able to compile a really big class into a jack file.
+   */
+  @Test
+  @Category(ExtraTests.class)
+  public void testTooBigClass001() throws Exception {
+    File outDir = AbstractTestTools.createTempDir();
+
+    IToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+    toolchain.setOutputStream(out);
+    toolchain.setErrorStream(err);
+
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToLib(
+        outDir,
+        /* zipFiles= */ false,
+        AbstractTestTools.getTestRootDir("com.android.jack.frontend.test019.jack"));
+  }
+
+  /**
+   * Test that Jack is able to compile a really big class into a dex file.
+   */
+  @Test
+  @Category(ExtraTests.class)
+  public void testTooBigClass002() throws Exception {
+    File outDir = AbstractTestTools.createTempDir();
+
+    IToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+    toolchain.setOutputStream(out);
+    toolchain.setErrorStream(err);
+
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(
+        outDir,
+        /* zipFiles= */ false,
+        AbstractTestTools.getTestRootDir("com.android.jack.frontend.test019.jack"));
+  }
+
+  /**
+   * Test that Jack is reporting correctly an error when compiling a too big class into a class
+   * file.
+   */
+  @Test
+  @Category(ExtraTests.class)
+  public void testTooBigClass003() throws Exception {
+    File outDir = AbstractTestTools.createTempDir();
+    File classDir = AbstractTestTools.createTempDir();
+
+    JackApiToolchainBase toolchain =
+        AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    ByteArrayOutputStream err = new ByteArrayOutputStream();
+    toolchain.setOutputStream(out);
+    toolchain.setErrorStream(err);
+    toolchain.addProperty(Options.EMIT_CLASS_FILES.getName(), "true");
+    toolchain.addProperty(Options.EMIT_CLASS_FILES_FOLDER.getName(), classDir.getPath());
+
+    try {
+      toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+      .srcToExe(
+          outDir,
+          /* zipFiles= */ false,
+          AbstractTestTools.getTestRootDir("com.android.jack.frontend.test019.jack"));
+      Assert.fail();
+    } catch (Throwable e) {
+      Assert.assertEquals(0, out.size());
+      String errString = err.toString();
+      Assert.assertTrue(errString.contains("ERROR:"));
+      Assert.assertTrue(errString.contains(
+          "Too many constants, the constant pool for TooBig would exceed 65536 entries"));
    }
   }
 }

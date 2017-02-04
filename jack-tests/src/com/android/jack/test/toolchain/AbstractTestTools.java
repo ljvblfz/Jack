@@ -34,6 +34,7 @@ import com.android.sched.util.codec.CodecContext;
 import com.android.sched.util.file.CannotChangePermissionException;
 import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.CannotReadException;
 import com.android.sched.util.file.CannotWriteException;
 import com.android.sched.util.file.Files;
@@ -98,7 +99,7 @@ public abstract class AbstractTestTools {
   @Nonnull
   private static final String TOOLCHAIN_PREBUILT_PREFIX = "toolchain.prebuilt.";
   @Nonnull
-  private static final String TMP_PREFIX                = "jacktest-";
+  private static final String TMP_PREFIX                = "test-jack-";
   @Nonnull
   private static final String LEGACY_COMPILER_KEY       = "toolchain.prebuilt.legacy-java-compiler";
   @Nonnull
@@ -434,7 +435,7 @@ public abstract class AbstractTestTools {
           try {
             deleteTempDir(tmpDir);
           } catch (IOException e) {
-            System.err.println(e.getMessage());
+            throw new RuntimeException(new CannotDeleteFileException(new FileLocation(tmpDir)));
           }
         }
       });

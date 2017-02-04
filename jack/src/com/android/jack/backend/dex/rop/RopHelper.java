@@ -19,9 +19,8 @@ package com.android.jack.backend.dex.rop;
 import com.android.jack.dx.rop.code.SourcePosition;
 import com.android.jack.dx.rop.cst.CstFieldRef;
 import com.android.jack.dx.rop.cst.CstMethodRef;
-import com.android.jack.dx.rop.cst.CstNat;
 import com.android.jack.dx.rop.cst.CstString;
-import com.android.jack.dx.rop.cst.CstType;
+import com.android.jack.dx.rop.type.Prototype;
 import com.android.jack.dx.rop.type.StdTypeList;
 import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.rop.type.TypeList;
@@ -31,6 +30,7 @@ import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JFieldId;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
+import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JNullType;
 import com.android.jack.ir.ast.JParameter;
@@ -77,9 +77,8 @@ public class RopHelper {
   @Nonnull
   public static CstMethodRef createMethodRef(@Nonnull JReferenceType type,
       @Nonnull JMethod method) {
-    CstType definingClass = RopHelper.getCstType(type);
-    CstNat nat = createSignature(method);
-    CstMethodRef methodRef = new CstMethodRef(definingClass, nat);
+    CstMethodRef methodRef = new CstMethodRef(RopHelper.convertTypeToDx(type),
+        new CstString(method.getName()), getPrototype(method.getMethodId()));
     return methodRef;
   }
 
@@ -109,11 +108,9 @@ public class RopHelper {
    */
   @Nonnull
   public static CstMethodRef createMethodRef(@Nonnull JMethodCall methodCall) {
-    CstType definingClass = RopHelper.getCstType(methodCall.getReceiverType());
-    String signatureWithoutName = getMethodSignatureWithoutName(methodCall);
-    CstNat nat =
-        new CstNat(new CstString(methodCall.getMethodName()), new CstString(signatureWithoutName));
-    CstMethodRef methodRef = new CstMethodRef(definingClass, nat);
+    Type definingClass = RopHelper.convertTypeToDx(methodCall.getReceiverType());
+    CstMethodRef methodRef = new CstMethodRef(definingClass,
+        new CstString(methodCall.getMethodName()), getPrototype(methodCall.getMethodId()));
     return methodRef;
   }
 
@@ -132,9 +129,9 @@ public class RopHelper {
   @Nonnull
   public static CstFieldRef createFieldRef(@Nonnull JFieldId field,
       @Nonnull JClassOrInterface receiverType) {
-    CstType definingClass = getCstType(receiverType);
-    CstNat nat = createSignature(field);
-    CstFieldRef fieldRef = new CstFieldRef(definingClass, nat);
+    Type definingClass = convertTypeToDx(receiverType);
+    CstString name = new CstString(field.getName());
+    CstFieldRef fieldRef = new CstFieldRef(definingClass, name, convertTypeToDx(field.getType()));
     return fieldRef;
   }
 
@@ -162,34 +159,31 @@ public class RopHelper {
     return res;
   }
 
-  @Nonnull
-  public static String getMethodSignatureWithoutName(@Nonnull JPolymorphicMethodCall call) {
-    StringBuilder sb = new StringBuilder();
-    sb.append('(');
 
-    for (JType p : call.getMethodId().getParamTypes()) {
-      sb.append(formatter.getName(p));
+  @Nonnull
+  public static Prototype getPrototype(@Nonnull JMethodId method) {
+    List<JType> parameterTypes = method.getMethodIdWide().getParamTypes();
+    StdTypeList stdTypeList = new StdTypeList(parameterTypes.size());
+
+    int idx = 0;
+    for (JType parameterType : parameterTypes) {
+      stdTypeList.set(idx++, convertTypeToDx(parameterType));
     }
 
-    sb.append(')');
-    sb.append(formatter.getName(call.getReturnTypeOfPolymorphicMethod()));
-
-    return sb.toString();
+    return Prototype.intern(stdTypeList, convertTypeToDx(method.getType()));
   }
 
   @Nonnull
-  public static String getMethodSignatureWithoutName(@Nonnull JMethodCall call) {
-    StringBuilder sb = new StringBuilder();
-    sb.append('(');
+  public static Prototype getPrototypeFromPolymorphicCall(@Nonnull JPolymorphicMethodCall call) {
+    List<JType> parameterTypes = call.getMethodIdWide().getParamTypes();
+    StdTypeList stdTypeList = new StdTypeList(parameterTypes.size());
 
-    for (JType p : call.getMethodId().getParamTypes()) {
-      sb.append(formatter.getName(p));
+    int idx = 0;
+    for (JType parameterType : parameterTypes) {
+      stdTypeList.set(idx++, convertTypeToDx(parameterType));
     }
 
-    sb.append(')');
-    sb.append(formatter.getName(call.getType()));
-
-    return sb.toString();
+    return Prototype.intern(stdTypeList, convertTypeToDx(call.getReturnTypeOfPolymorphicMethod()));
   }
 
   /**
@@ -262,39 +256,11 @@ public class RopHelper {
     }
   }
 
-  /**
-   * Builds a constant name and type ({@code CstNat}) from a {@code JMethod}
-   *
-   * @param method The {@code JMethod} used to build a {@code CstNat}.
-   * @return The built {@code CstNat}.
-   */
   @Nonnull
-  private static CstNat createSignature(@Nonnull JMethod method) {
-    CstString name = new CstString(method.getName());
-    CstString descriptor = new CstString(formatter.getName(method));
-    CstNat signature = new CstNat(name, descriptor);
-    return signature;
-  }
-
-  /**
-   * Builds a constant name and type ({@code CstNat}) from a {@code JField}
-   *
-   * @param field The {@code JField} used to build a {@code CstNat}.
-   * @return The built {@code CstNat}.
-   */
-  @Nonnull
-  public static CstNat createSignature(@Nonnull JField field) {
-    return createSignature(field.getId());
-  }
-
-  @Nonnull
-  public static CstNat createSignature(@Nonnull JFieldId field) {
-    String fieldName = field.getName();
+  public static CstString createSignature(@Nonnull JFieldId field) {
     String fieldSignature = formatter.getName(field.getType());
-    CstString name = new CstString(fieldName);
     CstString descriptor = new CstString(fieldSignature);
-    CstNat signature = new CstNat(name, descriptor);
-    return signature;
+    return descriptor;
   }
 
   /**
@@ -324,19 +290,6 @@ public class RopHelper {
       }
     }
     return typesList;
-  }
-
-  /**
-   * Converts a {@code JType} to a {@code CstType}.
-   *
-   * @param type a non-null {@code JType}.
-   * @throws NullPointerException if given type is null.
-   */
-  @Nonnull
-  public static CstType getCstType(@Nonnull JType type) {
-    Type ropType = convertTypeToDx(type);
-    CstType cstType = CstType.intern(ropType);
-    return cstType;
   }
 
   private static class RopFormatter extends InternalFormatter {

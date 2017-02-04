@@ -25,6 +25,7 @@ import javax.annotation.Nonnull;
  * Jack specialization of method coverage.
  */
 public class JackMethodCoverage extends MethodCoverageImpl {
+  @Nonnegative
   private final int id;
 
   public JackMethodCoverage(

@@ -109,7 +109,7 @@ public abstract class JackLibraryFactory {
 
     try {
       InputVFile libProp =
-          vfs.getRootInputVDir().getInputVFile(JackLibrary.LIBRARY_PROPERTIES_VPATH);
+          vfs.getRootDir().getInputVFile(JackLibrary.LIBRARY_PROPERTIES_VPATH);
       InputStream inputStream = null;
       try {
         inputStream = libProp.getInputStream();

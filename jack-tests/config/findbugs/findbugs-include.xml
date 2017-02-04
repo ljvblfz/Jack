@@ -1,0 +1,34 @@
+<FindBugsFilter>
+<Match>
+    <Package name="~com\.android\.jack\.test.*"/>
+</Match>
+
+
+<!-- TODO: move these classes in com.android.jack.test to ease filtering -->
+<Match>
+    <Class name="com.android.jack.annotations.CalledByInvokeCustom"/>
+</Match>
+<Match>
+    <Class name="com.android.jack.annotations.Constant"/>
+</Match>
+<Match>
+    <Class name="com.android.jack.annotations.LinkerFieldHandle"/>
+</Match>
+<Match>
+    <Class name="com.android.jack.annotations.LinkerMethodHandle"/>
+</Match>
+<Match>
+    <Class name="com.android.jack.annotations.MethodHandleKind"/>
+</Match>
+
+<Match>
+    <Class name="~com\.android\.jack\.shrob\.AbstractListingComparator.*"/>
+</Match>
+<Match>
+    <Class name="com.android.jack.shrob.ListingComparator"/>
+</Match>
+<Match>
+    <Class name="com.android.jack.shrob.SeedsComparator"/>
+</Match>
+
+</FindBugsFilter>

@@ -121,7 +121,8 @@ public class SsaToRop {
     removeEmptyGotos();
 
     RopMethod ropMethod = new RopMethod(convertBasicBlocks(),
-        ssaMeth.blockIndexToRopLabel(ssaMeth.getEntryBlockIndex()));
+        ssaMeth.blockIndexToRopLabel(ssaMeth.getEntryBlockIndex()),
+        /* withDexCallingConvention= */ true);
     ropMethod = new IdenticalBlockCombiner(ropMethod).process();
 
     return ropMethod;

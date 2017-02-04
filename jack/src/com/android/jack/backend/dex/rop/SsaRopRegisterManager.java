@@ -20,7 +20,6 @@ import com.android.jack.debug.DebugVariableInfoMarker;
 import com.android.jack.dx.rop.code.LocalItem;
 import com.android.jack.dx.rop.code.RegisterSpec;
 import com.android.jack.dx.rop.cst.CstString;
-import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Type;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JParameter;
@@ -33,6 +32,10 @@ import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.marker.GenericSignature;
 import com.android.jack.ir.ast.marker.ThisRefTypeInfo;
 
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -40,6 +43,19 @@ import javax.annotation.Nonnull;
 class SsaRopRegisterManager {
 
   private int nextFreeReg = 0;
+
+  /**
+   * Keep a list of temporary register for each dex type.
+   */
+  @Nonnull
+  private final Map<Type, List<RegisterSpec>> typeToTmpRegister =
+      new Hashtable<Type, List<RegisterSpec>>();
+
+  /**
+   * Keep position of the next free register into {@code typeToTmpRegister}.
+   */
+  @Nonnull
+  private final Map<Type, Integer> typeToNextPosFreeRegister = new Hashtable<Type, Integer>();
 
   @CheckForNull
   private RegisterSpec returnReg = null;
@@ -79,7 +95,7 @@ class SsaRopRegisterManager {
         cstSignature = new CstString(thisMarker.getGenericSignature());
       }
       LocalItem localItem =
-          LocalItem.make(new CstString(name), RopHelper.getCstType(type), cstSignature);
+          LocalItem.make(new CstString(name), RopHelper.convertTypeToDx(type), cstSignature);
       thisReg = RegisterSpec.make(nextFreeReg, dexRegType, localItem);
     } else {
       thisReg = RegisterSpec.make(nextFreeReg, dexRegType);
@@ -182,25 +198,35 @@ class SsaRopRegisterManager {
     JType variableType = variable.getType();
     Type regType = RopHelper.convertTypeToDx(variableType);
 
-    if (emitDebugInfo && variable.getName() != null
+    String name = variable.getName();
+    if (emitDebugInfo && name != null
         && (emitSyntheticDebugInfo || !variable.isSynthetic())) {
       if (debugInfo != null) {
         // Debug info marker exists, uses debug information from it
-        CstString cstSignature = null;
-        if (debugInfo.getGenericSignature() != null) {
-          cstSignature = new CstString(debugInfo.getGenericSignature());
+        if (debugInfo == DebugVariableInfoMarker.NO_DEBUG_INFO) {
+          // There is no debug information when coming from Jill, do not get name from JVariable
+          reg = RegisterSpec.make(regNum, regType);
+        } else {
+          CstString cstSignature = null;
+          String genericSignature = debugInfo.getGenericSignature();
+          if (genericSignature != null) {
+            cstSignature = new CstString(genericSignature);
+          }
+          String debugName = debugInfo.getName();
+          assert debugName != null;
+          JType debugType = debugInfo.getType();
+          assert debugType != null;
+          LocalItem localItem = LocalItem.make(new CstString(debugName),
+              RopHelper.convertTypeToDx(debugType), cstSignature);
+          reg = RegisterSpec.make(regNum, regType, localItem);
         }
-        LocalItem localItem = LocalItem.make(new CstString(debugInfo.getName()),
-            CstType.intern(RopHelper.convertTypeToDx(debugInfo.getType())), cstSignature);
-        reg = RegisterSpec.make(regNum, regType, localItem);
       } else {
         CstString cstSignature = null;
         GenericSignature infoMarker = variable.getMarker(GenericSignature.class);
         if (infoMarker != null) {
           cstSignature = new CstString(infoMarker.getGenericSignature());
         }
-        LocalItem localItem = LocalItem.make(new CstString(variable.getName()),
-            CstType.intern(regType), cstSignature);
+        LocalItem localItem = LocalItem.make(new CstString(name), regType, cstSignature);
         reg = RegisterSpec.make(regNum, regType, localItem);
       }
     } else {
@@ -256,6 +282,12 @@ class SsaRopRegisterManager {
     RegisterSpec regSpec = RegisterSpec.make(nextFreeReg, dexRegType);
     nextFreeReg += dexRegType.getCategory();
     return regSpec;
+  }
+
+  void resetFreeTmpRegister() {
+    for (Type type : typeToNextPosFreeRegister.keySet()) {
+      typeToNextPosFreeRegister.put(type, Integer.valueOf(0));
+    }
   }
 
   @Nonnull

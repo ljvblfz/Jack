@@ -108,10 +108,7 @@ public class ExceptionWithContext extends RuntimeException {
    * @param str {@code non-null;} new context
    */
   public void addContext(String str) {
-    if (str == null) {
-      throw new NullPointerException("str == null");
-    }
-
+    assert str != null;
     context.append(str);
     if (!str.endsWith("\n")) {
       context.append('\n');

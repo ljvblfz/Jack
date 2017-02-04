@@ -270,8 +270,6 @@ public class CfgBuilder implements RunnableSchedulable<JMethod> {
       ConditionalBasicBlock condBlock = new ConditionalBasicBlock(basicBlockId++, currentStmts);
       setBlockOfStatement(condBlock);
 
-      assert ifStmt.getThenStmt() != null;
-
       accept(ifStmt.getThenStmt());
 
       JStatement elseStmt = ifStmt.getElseStmt();

@@ -17,6 +17,8 @@
 package com.android.jack.dx.rop.cst;
 
 import com.android.jack.dx.dex.file.ValueEncoder.ValueType;
+import com.android.jack.dx.rop.type.Prototype;
+import com.android.jack.dx.rop.type.Type;
 
 import javax.annotation.Nonnull;
 
@@ -24,18 +26,22 @@ import javax.annotation.Nonnull;
  * Constants of type {@code CONSTANT_Methodref_info}.
  */
 public final class CstMethodRef extends CstBaseMethodRef {
+
   /**
    * Constructs an instance.
    *
    * @param definingClass {@code non-null;} the type of the defining class
-   * @param nat {@code non-null;} the name-and-type
+   * @param name {@code non-null;} the member reference name
+   * @param prototype {@code non-null;} the member reference prototype
    */
-  public CstMethodRef(CstType definingClass, CstNat nat) {
-    super(definingClass, nat);
+  public CstMethodRef(@Nonnull Type definingClass, @Nonnull CstString name,
+      @Nonnull Prototype prototype) {
+    super(definingClass, name, prototype);
   }
 
   /** {@inheritDoc} */
   @Override
+  @Nonnull
   public String typeName() {
     return "method";
   }

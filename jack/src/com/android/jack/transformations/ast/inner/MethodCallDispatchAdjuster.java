@@ -73,7 +73,7 @@ public class MethodCallDispatchAdjuster implements RunnableSchedulable<JMethod> 
 
     @Override
     public boolean visit(@Nonnull JMethodCall methodCall) {
-      JMethodIdWide id = methodCall.getMethodId();
+      JMethodIdWide id = methodCall.getMethodIdWide();
       if (id.containsMarker(NeedsDispatchAdjustment.class)) {
         JExpression instance = methodCall.getInstance();
         if (instance != null) {

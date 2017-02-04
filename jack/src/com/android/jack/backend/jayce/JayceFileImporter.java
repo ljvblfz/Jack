@@ -47,7 +47,6 @@ import com.android.sched.util.log.Event;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
-import com.android.sched.vfs.GenericInputVFile;
 import com.android.sched.vfs.InputVFile;
 import com.android.sched.vfs.VPath;
 
@@ -174,11 +173,11 @@ public class JayceFileImporter {
               path.substring(0, path.lastIndexOf(JAYCE_FILE_EXTENSION));
           try {
             String previousDigest =
-                ((GenericInputVFile)
-                    previousInputLibrary.getFile(
-                        FileType.PREBUILT, new VPath(pathWithoutExt, '/'))).getDigest();
+                previousInputLibrary
+                    .getFile(FileType.PREBUILT, new VPath(pathWithoutExt, '/'))
+                    .getDigest();
             if (previousDigest != null
-                && previousDigest.equals(((GenericInputVFile) jayceFile).getDigest())) {
+                && previousDigest.equals(jayceFile.getDigest())) {
               return; // both types are identical, ignore
             }
           } catch (FileTypeDoesNotExistException e) {

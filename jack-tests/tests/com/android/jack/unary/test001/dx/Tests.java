@@ -52,6 +52,17 @@ public class Tests {
   }
 
   @Test
+  public void floatPosNeg() {
+    // Note that we can't just use assertEquals directly on the floats since -0.0f == 0.0f is true.
+    Assert.assertEquals("-0.0",  "" + Unary.posNegZero());
+    Assert.assertEquals("-0.0",  "" + Unary.negPosZero());
+    Assert.assertEquals("0.0",  "" + Unary.negPosNegZero());
+    Assert.assertEquals("-0.0",  "" + Unary.posNegPosZero());
+    Assert.assertEquals("-100.0",  "" + Unary.posNegUnknown(100.0f));
+    Assert.assertEquals("100.0",  "" + Unary.posNegUnknown(-100.0f));
+  }
+
+  @Test
   public void doubleNeg() {
     Assert.assertEquals(-1.23e2,  Unary.neg(1.23e2), 0);
   }

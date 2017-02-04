@@ -71,19 +71,9 @@ public final class CodeItem extends OffsettedItem implements Code {
    */
   public CodeItem(CstMethodRef ref, DalvCode code, boolean isStatic, TypeList throwsList) {
     super(ALIGNMENT, -1);
-
-    if (ref == null) {
-      throw new NullPointerException("ref == null");
-    }
-
-    if (code == null) {
-      throw new NullPointerException("code == null");
-    }
-
-    if (throwsList == null) {
-      throw new NullPointerException("throwsList == null");
-    }
-
+    assert ref != null;
+    assert code != null;
+    assert throwsList != null;
     this.ref = ref;
     this.code = code;
     this.isStatic = isStatic;

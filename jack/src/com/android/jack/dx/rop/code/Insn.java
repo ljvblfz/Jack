@@ -49,18 +49,9 @@ public abstract class Insn implements ToHuman {
    * @param sources {@code non-null;} specs for all the sources
    */
   public Insn(Rop opcode, SourcePosition position, RegisterSpec result, RegisterSpecList sources) {
-    if (opcode == null) {
-      throw new NullPointerException("opcode == null");
-    }
-
-    if (position == null) {
-      throw new NullPointerException("position == null");
-    }
-
-    if (sources == null) {
-      throw new NullPointerException("sources == null");
-    }
-
+    assert opcode != null;
+    assert position != null;
+    assert sources != null;
     this.opcode = opcode;
     this.position = position;
     this.result = result;

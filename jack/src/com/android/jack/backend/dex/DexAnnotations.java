@@ -36,4 +36,6 @@ public interface DexAnnotations {
   final String ANNOTATION_THROWS = "Ldalvik/annotation/Throws;";
   @Nonnull
   final String ANNOTATION_SIGNATURE = "Ldalvik/annotation/Signature;";
+  @Nonnull
+  final String ANNOTATION_METHOD_PARAMETERS = "Ldalvik/annotation/MethodParameters;";
 }

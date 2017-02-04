@@ -41,14 +41,8 @@ public final class NameValuePair implements Comparable<NameValuePair> {
    * @param value {@code non-null;} the value
    */
   public NameValuePair(@Nonnull CstString name, @Nonnull Constant value) {
-    if (name == null) {
-      throw new NullPointerException("name == null");
-    }
-
-    if (value == null) {
-      throw new NullPointerException("value == null");
-    }
-
+    assert name != null;
+    assert value != null;
     this.name = name;
     this.value = value;
   }

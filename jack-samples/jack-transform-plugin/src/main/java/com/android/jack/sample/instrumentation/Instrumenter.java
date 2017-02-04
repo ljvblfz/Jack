@@ -19,7 +19,6 @@ package com.android.jack.sample.instrumentation;
 import com.android.jack.Jack;
 import com.android.jack.ir.ast.*;
 import com.android.jack.ir.formatter.BinarySignatureFormatter;
-import com.android.jack.ir.formatter.MethodFormatter;
 import com.android.jack.ir.formatter.TypeAndMethodFormatter;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.lookup.CommonTypes;
@@ -94,7 +93,7 @@ public class Instrumenter implements RunnableSchedulable<JMethod> {
    * representation.
    */
   @Nonnull
-  private final JMethodId printlnMethod;
+  private final JMethodId printlnMethodId;
 
   /**
    * The constructor used by the scheduler to build an instance of this schedulable (using
@@ -117,7 +116,7 @@ public class Instrumenter implements RunnableSchedulable<JMethod> {
     // We look for java.io.PrintStream.println(java.lang.String)
     JType javaLangStringClass = lookup.getClass(CommonTypes.JAVA_LANG_STRING);
     List<JType> methodArgTypes = Collections.singletonList(javaLangStringClass);
-    printlnMethod = javaIoPrintStreamClass.getMethodId("println", methodArgTypes,
+    printlnMethodId = javaIoPrintStreamClass.getMethodId("println", methodArgTypes,
             MethodKind.INSTANCE_VIRTUAL, JPrimitiveType.JPrimitiveTypeEnum.VOID.getType());
 
   }
@@ -189,8 +188,7 @@ public class Instrumenter implements RunnableSchedulable<JMethod> {
     // "System.out" as receiver. In other words, we create the expression
     // "System.out.println(<methodNameString>)".
     JMethodCall methodCall = new JMethodCall(sourceInfo, systemOutFieldAccess,
-            javaIoPrintStreamClass, printlnMethod.getMethodIdWide(), printlnMethod.getType(),
-            true /* virtual method */);
+            javaIoPrintStreamClass, printlnMethodId, true /* virtual method */);
     methodCall.addArg(methodNameString);
 
     // The root expression of the statement is the method call.

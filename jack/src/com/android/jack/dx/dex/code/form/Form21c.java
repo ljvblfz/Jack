@@ -24,7 +24,7 @@ import com.android.jack.dx.rop.code.RegisterSpecList;
 import com.android.jack.dx.rop.cst.Constant;
 import com.android.jack.dx.rop.cst.CstFieldRef;
 import com.android.jack.dx.rop.cst.CstString;
-import com.android.jack.dx.rop.cst.CstType;
+import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.util.AnnotatedOutput;
 
 import java.util.BitSet;
@@ -111,7 +111,7 @@ public final class Form21c extends InsnFormat {
       return false;
     }
 
-    return (cst instanceof CstType) || (cst instanceof CstFieldRef) || (cst instanceof CstString);
+    return (cst instanceof Type) || (cst instanceof CstFieldRef) || (cst instanceof CstString);
   }
 
   /** {@inheritDoc} */

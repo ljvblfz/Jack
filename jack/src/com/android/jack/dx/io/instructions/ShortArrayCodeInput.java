@@ -29,10 +29,7 @@ public final class ShortArrayCodeInput extends BaseCodeCursor implements CodeInp
    * Constructs an instance.
    */
   public ShortArrayCodeInput(short[] array) {
-    if (array == null) {
-      throw new NullPointerException("array == null");
-    }
-
+    assert array != null;
     this.array = array;
   }
 

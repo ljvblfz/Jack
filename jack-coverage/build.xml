@@ -17,18 +17,19 @@
 
 <project name="jack-coverage" default="all">
 
-  <dirname property="jack-project.dir" file="${ant.file.jack-coverage}" />
-  <property name="jack-coverage-libs.dir" value="${jack-project.dir}/libs" />
-  <property name="jack-coverage-tools.dir" value="${jack-project.dir}/tools" />
-  <property name="jack-coverage-rsc.dir" value="${jack-project.dir}/rsc" />
-  <property name="jack-coverage-build.dir" value="${jack-project.dir}/build" />
+  <dirname property="jack-coverage-project.dir" file="${ant.file.jack-coverage}" />
+  <property name="jack-coverage-libs.dir" value="${jack-coverage-project.dir}/libs" />
+  <property name="jack-coverage-tools.dir" value="${jack-coverage-project.dir}/tools" />
+  <property name="jack-coverage-rsc.dir" value="${jack-coverage-project.dir}/rsc" />
+  <property name="jack-coverage-build.dir" value="${jack-coverage-project.dir}/build" />
   <property name="jack-coverage-build-classes.dir" value="${jack-coverage-build.dir}/classes" />
   <property name="jack-coverage-build-test-classes.dir"
             value="${jack-coverage-build.dir}/testClasses" />
-  <property name="jack-coverage-dist.dir" value="${jack-project.dir}/dist" />
+  <property name="jack-coverage-dist.dir" value="${jack-coverage-project.dir}/dist" />
+  <property name="jack-coverage-doc.dir" value="${jack-coverage-dist.dir}/doc" />
   <property name="jack-coverage.execname" value="jack-coverage-plugin.jar" />
   <property name="jack-coverage-tests.execname" value="jack-coverage-tests.jar" />
-  <property name="jack-coverage-tests.output.dir" value="${jack-project.dir}/testResults" />
+  <property name="jack-coverage-tests.output.dir" value="${jack-coverage-project.dir}/testResults" />
   <property name="jack-coverage-tests.dump.dir" value="${jack-coverage-dist.dir}/dump" />
   <property name="jack-coverage-tests.suite.name"
             value="com.android.jack.coverage.AllCoverageTests" />
@@ -111,7 +112,7 @@
            debug="true"
            includeantruntime="false"
            includeDestClasses="false">
-      <exclude name="com/android/jack/coverage/test*/**" />
+      <exclude name="com/android/jack/coverage/**/test*/**" />
       <classpath>
         <filelist dir="${jack-coverage-libs.dir}">
           <file name="jsr305-lib.jar" />
@@ -203,6 +204,7 @@
     <java fork="true"
           failonerror="true"
           output="${jack-coverage-tests.dump.dir}/AllCoverageTests.js"
+          logError="true"
           classname="com.android.jack.test.junit.JackJUnitLauncher">
       <jvmarg value="-Dtests.dump=true" />
       <jvmarg value="-Dtests.config=${tests.config}" />
@@ -217,6 +219,34 @@
 
   <target name="dist" description="distribution of the code coverage plugin" depends="all">
     <!-- Placeholder for future release process -->
+  </target>
+
+  <target name="dist-doc" description="documentation of the code coverage support" depends="dist">
+      <union id="dist-doc.classpath.files">
+        <fileset dir="${jack-coverage-project.dir}/libs" />
+        <fileset file="${jack-coverage-dist.dir}/${jack-coverage.execname}" />
+      </union>
+      <pathconvert property="dist-doc.classpath.path" refid="dist-doc.classpath.files" />
+    <mkdir dir="${jack-coverage-doc.dir}" />
+      <!-- Plugin javadoc -->
+      <javadoc destdir="${jack-coverage-doc.dir}/javadoc/plugin"
+        author="true"
+        version="true"
+        use="true"
+        windowtitle="Jack's code coverage plugin"
+        classpath="${dist-doc.classpath.path}"
+        nodeprecated="true">
+          <fileset dir="${jack-coverage-project.dir}/src" includes="**/*.java" />
+      </javadoc>
+      <!-- README.md -->
+      <copy file="${jack-coverage-project.dir}/README-jack-coverage.md"
+            todir="${jack-coverage-doc.dir}" />
+      <exec executable="pandoc" failifexecutionfails="false">
+        <arg line="--from=markdown" />
+        <arg line="--to=plain" />
+        <arg line="--output=${jack-coverage-doc.dir}/README-jack-coverage.txt" />
+        <arg line="${jack-coverage-doc.dir}/README-jack-coverage.md"/>
+      </exec>
   </target>
 
 </project>

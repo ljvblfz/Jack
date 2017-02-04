@@ -23,6 +23,7 @@ import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -58,6 +59,10 @@ public class BridgeTests extends RuntimeTest {
   private RuntimeTestInfo TEST007 = new RuntimeTestInfo(
     AbstractTestTools.getTestRootDir("com.android.jack.bridge.test007"),
     "com.android.jack.bridge.test007.dx.Tests");
+
+  private RuntimeTestInfo TEST009 = new RuntimeTestInfo(
+    AbstractTestTools.getTestRootDir("com.android.jack.bridge.test009"),
+    "com.android.jack.bridge.test009.dx.Tests");
 
   @Test
   @Runtime
@@ -142,13 +147,11 @@ public class BridgeTests extends RuntimeTest {
   }
 
   @Test
+  @Runtime
   public void test009() throws Exception {
-    IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
-    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
-    .srcToExe(
-        AbstractTestTools.createTempDir(),
-        /* zipFile = */ false,
-        AbstractTestTools.getTestRootDir("com.android.jack.bridge.test009"));
+    new RuntimeTestHelper(TEST009)
+    .addIgnoredCandidateToolchain(JillBasedToolchain.class)
+    .compileAndRunTest();
   }
 
   /**

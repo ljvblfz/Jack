@@ -56,7 +56,7 @@ public class ForNameParameterRefiner extends CommonStringParameterRefiner implem
   @Override
   public boolean isApplicable(@Nonnull JMethodCall call) throws JMethodLookupException {
     if (call.getReceiverType().isSameType(javaLangClass)
-        && call.getMethodId().equals(forNameMethodId)) {
+        && call.getMethodIdWide().equals(forNameMethodId)) {
       assert call.getType().isSameType(javaLangClass);
       return true;
     }

@@ -20,7 +20,9 @@ import com.android.jack.Options;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.scheduling.feature.DropMethodBody;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.sched.item.Description;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Support;
 import com.android.sched.schedulable.Transform;
@@ -34,6 +36,7 @@ import javax.annotation.Nonnull;
 @Description("Drop method body")
 @Transform(remove = {JMethodBody.class})
 @Support(DropMethodBody.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class MethodBodyRemover implements RunnableSchedulable<JMethod> {
 
   @Nonnull

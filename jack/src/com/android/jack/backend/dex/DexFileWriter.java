@@ -21,10 +21,8 @@ import com.android.jack.Options;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.library.DumpInLibrary;
 import com.android.jack.reporting.Reporter.Severity;
-import com.android.jack.scheduling.marker.ClassDefItemMarker;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
-import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.Produce;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.util.config.HasKeyId;
@@ -41,7 +39,6 @@ import javax.annotation.Nonnull;
 @HasKeyId
 @Description("Write dex into a file")
 @Name("DexFileWriter")
-@Constraint(need = {ClassDefItemMarker.Complete.class})
 @Produce(DexFileProduct.class)
 public class DexFileWriter extends DexWriter implements RunnableSchedulable<JSession> {
 

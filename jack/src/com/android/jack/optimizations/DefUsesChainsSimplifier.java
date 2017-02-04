@@ -549,6 +549,9 @@ public class DefUsesChainsSimplifier extends DefUsesAndUseDefsChainsSimplifier
     // conditions and apply optimization if they are satisfied.
     processCandidatesWithDependencies(method, cfg, candidates, definitions);
 
-    method.removeMarker(ReachingDefsMarker.class);
+    // Remove ReachingDefsMarker on every basic block.
+    for (BasicBlock bb : cfg.getNodes()) {
+      bb.removeMarker(ReachingDefsMarker.class);
+    }
   }
 }

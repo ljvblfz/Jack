@@ -159,12 +159,10 @@ public final class PositionList extends FixedSizeList {
      * @param position {@code non-null;} corresponding source position information
      */
     public Entry(int address, SourcePosition position) {
+      assert position != null;
+
       if (address < 0) {
         throw new IllegalArgumentException("address < 0");
-      }
-
-      if (position == null) {
-        throw new NullPointerException("position == null");
       }
 
       this.address = address;

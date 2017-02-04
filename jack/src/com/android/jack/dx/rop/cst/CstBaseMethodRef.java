@@ -19,6 +19,9 @@ package com.android.jack.dx.rop.cst;
 import com.android.jack.dx.rop.type.Prototype;
 import com.android.jack.dx.rop.type.Type;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+
 /**
  * Base class for constants of "methodish" type.
  *
@@ -27,25 +30,27 @@ import com.android.jack.dx.rop.type.Type;
  */
 public abstract class CstBaseMethodRef extends CstMemberRef {
   /** {@code non-null;} the raw prototype for this method */
+  @Nonnull
   private final Prototype prototype;
 
   /**
    * {@code null-ok;} the prototype for this method taken to be an instance
    * method, or {@code null} if not yet calculated
    */
+  @CheckForNull
   private Prototype instancePrototype;
 
   /**
    * Constructs an instance.
    *
    * @param definingClass {@code non-null;} the type of the defining class
-   * @param nat {@code non-null;} the name-and-type
+   * @param name {@code non-null;} the member reference name
+   * @param prototype {@code non-null;} the member reference prototype
    */
-  /*package*/CstBaseMethodRef(CstType definingClass, CstNat nat) {
-    super(definingClass, nat);
-
-    String descriptor = getNat().getDescriptor().getString();
-    this.prototype = Prototype.intern(descriptor);
+  /* package */ CstBaseMethodRef(@Nonnull Type definingClass, @Nonnull CstString name,
+      @Nonnull Prototype prototype) {
+    super(definingClass, name);
+    this.prototype = prototype;
     this.instancePrototype = null;
   }
 
@@ -55,6 +60,7 @@ public abstract class CstBaseMethodRef extends CstMemberRef {
    *
    * @return {@code non-null;} the method prototype
    */
+  @Nonnull
   public final Prototype getPrototype() {
     return prototype;
   }
@@ -70,12 +76,13 @@ public abstract class CstBaseMethodRef extends CstMemberRef {
    * @param isStatic whether the method should be considered static
    * @return {@code non-null;} the method prototype
    */
+  @Nonnull
   public final Prototype getPrototype(boolean isStatic) {
     if (isStatic) {
       return prototype;
     } else {
       if (instancePrototype == null) {
-        Type thisType = getDefiningClass().getClassType();
+        Type thisType = getDefiningClass();
         instancePrototype = prototype.withFirstParameter(thisType);
       }
       return instancePrototype;
@@ -103,6 +110,7 @@ public abstract class CstBaseMethodRef extends CstMemberRef {
    * @return {@code non-null;} the method's return type
    */
   @Override
+  @Nonnull
   public final Type getType() {
     return prototype.getReturnType();
   }
@@ -124,27 +132,29 @@ public abstract class CstBaseMethodRef extends CstMemberRef {
     return getPrototype(isStatic).getParameterTypes().getWordCount();
   }
 
-  /**
-   * Gets whether this is a reference to an instance initialization
-   * method. This is just a convenient shorthand for
-   * {@code getNat().isInstanceInit()}.
-   *
-   * @return {@code true} iff this is a reference to an
-   * instance initialization method
-   */
-  public final boolean isInstanceInit() {
-    return getNat().isInstanceInit();
+  /** {@inheritDoc} */
+  @Override
+  public final boolean equals(Object other) {
+    if ((other == null) || (getClass() != other.getClass())) {
+      return false;
+    }
+
+    CstBaseMethodRef otherRef = (CstBaseMethodRef) other;
+    return getDefiningClass().equals(otherRef.getDefiningClass())
+        && getName().equals(otherRef.getName()) && prototype.equals(otherRef.prototype);
   }
 
-  /**
-   * Gets whether this is a reference to a class initialization
-   * method. This is just a convenient shorthand for
-   * {@code getNat().isClassInit()}.
-   *
-   * @return {@code true} iff this is a reference to an
-   * instance initialization method
-   */
-  public final boolean isClassInit() {
-    return getNat().isClassInit();
+  /** {@inheritDoc} */
+  @Override
+  public final int hashCode() {
+    return ((getDefiningClass().hashCode() * 31) + getName().hashCode() * 31)
+        + getType().hashCode();
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  @Nonnull
+  public final String toHuman() {
+    return getDefiningClass().toHuman() + '.' + getName().toHuman() + ':' + prototype.toString();
   }
 }

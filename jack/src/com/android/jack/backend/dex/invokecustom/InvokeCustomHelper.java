@@ -29,11 +29,11 @@ import com.android.jack.dx.rop.cst.CstLong;
 import com.android.jack.dx.rop.cst.CstMethodHandleRef;
 import com.android.jack.dx.rop.cst.CstMethodHandleRef.MethodHandleKind;
 import com.android.jack.dx.rop.cst.CstMethodRef;
-import com.android.jack.dx.rop.cst.CstNat;
 import com.android.jack.dx.rop.cst.CstPrototypeRef;
 import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.rop.cst.TypedConstant;
 import com.android.jack.dx.rop.type.Prototype;
+import com.android.jack.dx.rop.type.StdTypeList;
 import com.android.jack.ir.ast.JAbstractMethodCall;
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JAnnotationMethod;
@@ -53,7 +53,6 @@ import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JNameValuePair;
 import com.android.jack.ir.ast.JShortLiteral;
 import com.android.jack.ir.ast.JStringLiteral;
-import com.android.jack.ir.formatter.BinarySignatureFormatter;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -68,7 +67,7 @@ import javax.annotation.Nonnull;
 public class InvokeCustomHelper {
 
   public static boolean isInvokeCustom(@Nonnull JAbstractMethodCall call) {
-    Collection<JMethod> methods = call.getMethodId().getMethods();
+    Collection<JMethod> methods = call.getMethodIdWide().getMethods();
     Iterator<JMethod> methodsIt = methods.iterator();
     boolean isInvokeCustom = false;
     while (methodsIt.hasNext()) {
@@ -129,11 +128,8 @@ public class InvokeCustomHelper {
     assert callSiteArgumentTypes != null;
     assert callSiteReturnType != null;
 
-    Prototype callSitePrototype =
-        Prototype.intern(buildSignature(callSiteArgumentTypes, callSiteReturnType));
-
     return new CstCallSiteRef(methodHandle, callSiteMethodName.getValue(),
-        new CstPrototypeRef(callSitePrototype), extraArgs);
+        new CstPrototypeRef(buildPrototype(callSiteArgumentTypes, callSiteReturnType)), extraArgs);
   }
 
   @CheckForNull
@@ -198,7 +194,7 @@ public class InvokeCustomHelper {
             break;
           }
           case "classValue" : {
-            cst = RopHelper.getCstType(((JClassLiteral) jLiteral).getRefType());
+            cst = RopHelper.convertTypeToDx(((JClassLiteral) jLiteral).getRefType());
             break;
           }
           default: {
@@ -235,12 +231,9 @@ public class InvokeCustomHelper {
       type = (JClassLiteral) typeValuePair.getValue();
     }
     assert type != null;
-    BinarySignatureFormatter bsf = BinarySignatureFormatter.getFormatter();
 
-    CstNat nat =
-        new CstNat(new CstString(name.getValue()), new CstString(bsf.getName(type.getRefType())));
-
-    CstFieldRef fieldRef = new CstFieldRef(RopHelper.getCstType(owner.getRefType()), nat);
+    CstFieldRef fieldRef = new CstFieldRef(RopHelper.convertTypeToDx(owner.getRefType()),
+        new CstString(name.getValue()), RopHelper.convertTypeToDx(type.getRefType()));
 
     return new CstMethodHandleRef(kind, fieldRef);
   }
@@ -276,10 +269,9 @@ public class InvokeCustomHelper {
       argumentsTypes = (JArrayLiteral) argumentTypesValuePair.getValue();
     }
     assert argumentsTypes != null;
-    CstNat nat = new CstNat(new CstString(name.getValue()),
-        new CstString(buildSignature(argumentsTypes, returnType)));
 
-    CstMethodRef methodRef = new CstMethodRef(RopHelper.getCstType(owner.getRefType()), nat);
+    CstMethodRef methodRef = new CstMethodRef(RopHelper.convertTypeToDx(owner.getRefType()),
+        new CstString(name.getValue()), buildPrototype(argumentsTypes, returnType));
 
     return new CstMethodHandleRef(kind, methodRef);
   }
@@ -312,20 +304,18 @@ public class InvokeCustomHelper {
   }
 
   @Nonnull
-  private static String buildSignature(@Nonnull JArrayLiteral signature,
+  private static Prototype buildPrototype(@Nonnull JArrayLiteral signature,
       @Nonnull JClassLiteral returnType) {
-    BinarySignatureFormatter bsf = BinarySignatureFormatter.getFormatter();
+    List<JLiteral> values = signature.getValues();
+    StdTypeList stdTypeList = new StdTypeList(values.size());
 
-    StringBuilder signatureStr = new StringBuilder();
-    signatureStr.append('(');
-    for (JLiteral lit : signature.getValues()) {
+    int idx = 0;
+    for (JLiteral lit : values) {
       assert lit instanceof JClassLiteral;
       JClassLiteral classLit = (JClassLiteral) lit;
-      signatureStr.append(bsf.getName(classLit.getRefType()));
+      stdTypeList.set(idx++, RopHelper.convertTypeToDx(classLit.getRefType()));
     }
-    assert returnType != null;
-    signatureStr.append(')');
-    signatureStr.append(bsf.getName(returnType.getRefType()));
-    return signatureStr.toString();
+
+    return Prototype.intern(stdTypeList, RopHelper.convertTypeToDx(returnType.getRefType()));
   }
 }

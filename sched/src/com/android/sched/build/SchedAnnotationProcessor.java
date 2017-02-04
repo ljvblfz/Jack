@@ -143,7 +143,7 @@ public class SchedAnnotationProcessor extends AbstractProcessor {
       assert env != null;
 
       if (typeElement == null) {
-        typeElement = env.getElementUtils().getTypeElement(fqName);
+        typeElement = env.getElementUtils().getTypeElement(getCanonicalName(fqName));
         if (typeElement == null) {
           env.getMessager().printMessage(Kind.ERROR, "Can not get element type '" + fqName + "'");
           throw new AbortException();
@@ -195,7 +195,7 @@ public class SchedAnnotationProcessor extends AbstractProcessor {
         while (iter.hasNext()) {
           String name = iter.next().getName();
 
-          TypeElement te = env.getElementUtils().getTypeElement(name);
+          TypeElement te = env.getElementUtils().getTypeElement(getCanonicalName(name));
           if (te == null) {
             iter.remove();
           }
@@ -207,6 +207,10 @@ public class SchedAnnotationProcessor extends AbstractProcessor {
     public void writeResource(@Nonnull Writer writer) throws IOException {
       writeResource(writer, SchedAnnotationProcessor.class.getCanonicalName());
     }
+  }
+
+  private static String getCanonicalName(@Nonnull String name) {
+    return name.replace('$', '.');
   }
 
   @Override

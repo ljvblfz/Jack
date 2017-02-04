@@ -302,7 +302,7 @@ public class ReadZipFS extends BaseVFS<ZipVDir, ZipVFile> implements VFS {
 
   @Override
   boolean isEmpty(@Nonnull ZipVDir dir) {
-    return list(dir).isEmpty();
+    return dir.isEmpty();
   }
 
   @Override

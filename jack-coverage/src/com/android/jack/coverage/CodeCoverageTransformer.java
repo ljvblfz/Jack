@@ -39,6 +39,7 @@ import com.android.jack.ir.ast.JFieldRef;
 import com.android.jack.ir.ast.JGoto;
 import com.android.jack.ir.ast.JIfStatement;
 import com.android.jack.ir.ast.JIntLiteral;
+import com.android.jack.ir.ast.JInterface;
 import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JLongLiteral;
@@ -120,10 +121,18 @@ public class CodeCoverageTransformer  extends SourceDigestAdder
       NamingTools.getNonSourceConflictingName("jacocoData");
 
   /**
-   * The modifiers of the added field.
+   * The modifiers of the added field for a class.
    */
-  private static final int COVERAGE_DATA_FIELD_MODIFIERS =
-      JModifier.PRIVATE | JModifier.STATIC | JModifier.FINAL | JModifier.TRANSIENT;
+  private static final int CLASS_COVERAGE_DATA_FIELD_MODIFIERS = JModifier.PRIVATE
+      | JModifier.STATIC | JModifier.FINAL | JModifier.TRANSIENT | JModifier.SYNTHETIC;
+
+  /**
+   * The modifiers of the added field for an interface.
+   *
+   * Note: the ART runtime rejects the {@code transient} modifier for interfaces.
+   */
+  private static final int INTERFACE_COVERAGE_DATA_FIELD_MODIFIERS =
+      JModifier.PUBLIC | JModifier.STATIC | JModifier.FINAL | JModifier.SYNTHETIC;
 
   /**
    * The name of the method that registers (once) and returns the array of coverage probes.
@@ -135,7 +144,7 @@ public class CodeCoverageTransformer  extends SourceDigestAdder
    * The modifiers of the added method.
    */
   private static final int COVERAGE_DATA_INIT_METHOD_MODIFIERS =
-      JModifier.PRIVATE | JModifier.STATIC;
+      JModifier.PRIVATE | JModifier.STATIC | JModifier.SYNTHETIC;
 
   private static final String LOCAL_VAR_NAME_PREFIX = "cov";
 
@@ -287,8 +296,8 @@ public class CodeCoverageTransformer  extends SourceDigestAdder
   @Override
   public void run(@Nonnull JDefinedClassOrInterface declaredType) {
     CodeCoverageMarker marker = declaredType.getMarker(CodeCoverageMarker.class);
-    if (marker == null) {
-      // This class is excluded from code coverage.
+    if (marker == null || marker.getProbes().isEmpty()) {
+      // No code coverage for this class.
       return;
     }
 
@@ -319,9 +328,11 @@ public class CodeCoverageTransformer  extends SourceDigestAdder
   @Nonnull
   private JField createProbesArrayField(@Nonnull JDefinedClassOrInterface declaredType) {
     JType booleanArrayType = getCoverageDataType();
-    SourceInfo sourceInfo = declaredType.getSourceInfo();
-    return new JField(sourceInfo, COVERAGE_DATA_FIELD_NAME, declaredType, booleanArrayType,
-        COVERAGE_DATA_FIELD_MODIFIERS);
+    int modifiers = (declaredType instanceof JInterface)
+        ? INTERFACE_COVERAGE_DATA_FIELD_MODIFIERS
+        : CLASS_COVERAGE_DATA_FIELD_MODIFIERS;
+    return new JField(SourceInfo.UNKNOWN, COVERAGE_DATA_FIELD_NAME, declaredType, booleanArrayType,
+        modifiers);
   }
 
   /**
@@ -395,35 +406,23 @@ public class CodeCoverageTransformer  extends SourceDigestAdder
       // Iterates over every basic block to insert code for probe and removes the ProbeMarker.
       ControlFlowGraph controlFlowGraph = m.getMarker(ControlFlowGraph.class);
       assert controlFlowGraph != null;
-      final BasicBlock entryBlock = controlFlowGraph.getEntryNode();
-      final BasicBlock exitBlock = controlFlowGraph.getExitNode();
       for (BasicBlock bb : controlFlowGraph.getNodes()) {
         ProbeMarker probeMarker = bb.removeMarker(ProbeMarker.class);
         if (probeMarker == null) {
-          // The basic block may not have been marked.
-          assert (bb == entryBlock || bb == exitBlock);
           continue;
         }
-        if (bb == entryBlock || bb == exitBlock) {
-          continue;
+        // We must set the probe at the end of this basic block.
+        assert !bb.getStatements().isEmpty();
+        JStatement insertionPoint = bb.getLastInstruction();
+        ProbeDescription probe = probeMarker.getProbe();
+        TransformationStep transformationStep;
+        JStatement probeStatement = createProbeStatement(insertionPoint.getSourceInfo(), probe);
+        if (canInsertProbeBeforeLastStatement(bb)) {
+          transformationStep = new AppendBefore(insertionPoint, probeStatement);
+        } else {
+          transformationStep = new PrependAfter(insertionPoint, probeStatement);
         }
-        BasicBlock insertionBlock = probeMarker.getInsertionBlock();
-        assert insertionBlock != null;
-        if (bb == insertionBlock) {
-          // We must set the probe at the end of this basic block.
-          assert !bb.getStatements().isEmpty() : bb;
-          JStatement insertionPoint = bb.getLastInstruction();
-          ProbeDescription probe = probeMarker.getProbe();
-          TransformationStep transformationStep;
-          JStatement probeStatement = createProbeStatement(insertionPoint.getSourceInfo(), probe);
-          boolean insertBeforeLastStatement = canInsertProbeBeforeLastStatement(bb);
-          if (insertBeforeLastStatement) {
-            transformationStep = new AppendBefore(insertionPoint, probeStatement);
-          } else {
-            transformationStep = new PrependAfter(insertionPoint, probeStatement);
-          }
-          transformationRequest.append(transformationStep);
-        }
+        transformationRequest.append(transformationStep);
       }
       return false;
     }
@@ -438,7 +437,7 @@ public class CodeCoverageTransformer  extends SourceDigestAdder
       // Insert initialization statement as the first statement.
       JLocalRef localRef = local.makeRef(sourceInfo);
       JExpression expr = new JMethodCall(sourceInfo, null, coverageMethod.getEnclosingType(),
-          coverageMethod.getMethodIdWide(), booleanArrayType, false);
+          coverageMethod.getMethodId(), false);
       JAsgOperation assign = new JAsgOperation(sourceInfo, localRef, expr);
       transformationRequest.append(
           new PrependStatement(x.getBlock(), new JExpressionStatement(sourceInfo, assign)));
@@ -468,19 +467,18 @@ public class CodeCoverageTransformer  extends SourceDigestAdder
   private JMethod createProbesArrayInitMethod(@Nonnull JDefinedClassOrInterface declaredType,
       @Nonnegative int probeCount, @Nonnull TransformationRequest transformationRequest,
       @Nonnull JField coverageDataField, long classId) {
-    SourceInfo sourceInfo = declaredType.getSourceInfo();
     JType returnType = getCoverageDataType();
     JMethodId methodId = new JMethodId(
         new JMethodIdWide(COVERAGE_DATA_INIT_METHOD_NAME, MethodKind.STATIC),
         returnType);
     JMethod coverageInitMethod = new JMethod(
-        sourceInfo, methodId, declaredType, COVERAGE_DATA_INIT_METHOD_MODIFIERS);
+        SourceInfo.UNKNOWN, methodId, declaredType, COVERAGE_DATA_INIT_METHOD_MODIFIERS);
     fillCoverageInitMethodBody(coverageInitMethod, declaredType, probeCount, transformationRequest,
         coverageDataField, classId);
     return coverageInitMethod;
   }
 
-  /** Generates body of JaCoCo initialization method in three-adress-code form.
+  /** Generates body of JaCoCo initialization method in three-address-code form.
    *
    * @param coverageInitMethod
    * @param coverageDataField
@@ -553,8 +551,8 @@ public class CodeCoverageTransformer  extends SourceDigestAdder
       transformationRequest.append(new AppendStatement(ifBlock, probeCountInit));
 
       // Add '<local> = org.jacoco...Offline.getProbes(<classId>, <className>, <probeCount>)'
-      JMethodCall methodCall = new JMethodCall(ifBlock.getSourceInfo(), null, jacocoClass,
-          jacocoMethodId.getMethodIdWide(), JPrimitiveTypeEnum.BOOLEAN.getType().getArray(), false);
+      JMethodCall methodCall =
+          new JMethodCall(ifBlock.getSourceInfo(), null, jacocoClass, jacocoMethodId, false);
       methodCall.addArg(classIdLocal.makeRef(ifBlock.getSourceInfo()));
       methodCall.addArg(classNameLocal.makeRef(ifBlock.getSourceInfo()));
       methodCall.addArg(probeCountLocal.makeRef(ifBlock.getSourceInfo()));

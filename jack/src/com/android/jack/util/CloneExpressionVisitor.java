@@ -195,8 +195,7 @@ public class CloneExpressionVisitor extends JVisitor {
 
   @Override
   public boolean visit(@Nonnull JClassLiteral x) {
-    JClassLiteral classLiteral =
-        new JClassLiteral(x.getSourceInfo(), x.getRefType(), (JClass) x.getType());
+    JClassLiteral classLiteral = new JClassLiteral(x.getSourceInfo(), x.getRefType());
     expression = classLiteral;
     return false;
   }

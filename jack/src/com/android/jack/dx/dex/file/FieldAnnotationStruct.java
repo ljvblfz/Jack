@@ -39,14 +39,8 @@ public final class FieldAnnotationStruct implements ToHuman, Comparable<FieldAnn
    * @param annotations {@code non-null;} the associated annotations
    */
   public FieldAnnotationStruct(CstFieldRef field, AnnotationSetItem annotations) {
-    if (field == null) {
-      throw new NullPointerException("field == null");
-    }
-
-    if (annotations == null) {
-      throw new NullPointerException("annotations == null");
-    }
-
+    assert field != null;
+    assert annotations != null;
     this.field = field;
     this.annotations = annotations;
   }

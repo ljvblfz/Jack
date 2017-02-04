@@ -18,7 +18,7 @@ package com.android.jack.dx.dex.file;
 
 import com.android.jack.dx.dex.SizeOf;
 import com.android.jack.dx.rop.cst.CstString;
-import com.android.jack.dx.rop.cst.CstType;
+import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.util.AnnotatedOutput;
 import com.android.jack.dx.util.Hex;
 
@@ -29,9 +29,9 @@ public final class TypeIdItem extends IdItem {
   /**
    * Constructs an instance.
    *
-   * @param type {@code non-null;} the constant for the type
+   * @param type {@code non-null;} the type
    */
-  public TypeIdItem(CstType type) {
+  public TypeIdItem(Type type) {
     super(type);
   }
 
@@ -56,7 +56,7 @@ public final class TypeIdItem extends IdItem {
   /** {@inheritDoc} */
   @Override
   public void writeTo(DexFile file, AnnotatedOutput out) {
-    CstType type = getDefiningClass();
+    Type type = getDefiningClass();
     CstString descriptor = type.getDescriptor();
     int idx = file.getStringIds().indexOf(descriptor);
 

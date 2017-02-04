@@ -46,10 +46,7 @@ public final class ThrowingCstInsn extends CstInsn {
       throw new IllegalArgumentException("bogus branchingness");
     }
 
-    if (catches == null) {
-      throw new NullPointerException("catches == null");
-    }
-
+    assert catches != null;
     this.catches = catches;
   }
 

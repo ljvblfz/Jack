@@ -68,7 +68,6 @@ import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 import com.android.sched.schedulable.Use;
 
-import java.util.Collections;
 import java.util.Map;
 
 import javax.annotation.CheckForNull;
@@ -187,17 +186,16 @@ public class OptimizedSwitchEnumSupport implements RunnableSchedulable<JMethod> 
         // create expression representing call to synthetic switch map initializer
         JExpression getSwitchMapInvocExpr =
             new JMethodCall(switchStmt.getSourceInfo(), null /*static method*/, switchMapClass,
-                syntheticInitializer.getMethodIdWide(), syntheticInitializer.getType(),
+                syntheticInitializer.getMethodId(),
                 syntheticInitializer.canBeVirtual());
 
-        JMethod ordinalMethod =
-            Jack.getSession().getLookup().getClass("Ljava/lang/Enum;").
-            getMethod("ordinal", JPrimitiveTypeEnum.INT.getType(), Collections.<JType>emptyList());
+        JMethod ordinalMethod = Jack.getSession().getLookup().getClass("Ljava/lang/Enum;")
+            .getMethod("ordinal", JPrimitiveTypeEnum.INT.getType());
 
         transformRequest.append(
             new Replace(switchExpr, new JArrayRef(switchStmt.getSourceInfo(), getSwitchMapInvocExpr,
                     new JMethodCall(switchStmt.getSourceInfo(), switchExpr, enumType,
-                        ordinalMethod.getMethodIdWide(), ordinalMethod.getType(),
+                        ordinalMethod.getMethodId(),
                         ordinalMethod.canBeVirtual()))));
       }
       // keep traversing because case statement needs transformation as well

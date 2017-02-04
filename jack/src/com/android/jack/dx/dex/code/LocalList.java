@@ -19,7 +19,6 @@ package com.android.jack.dx.dex.code;
 import com.android.jack.dx.rop.code.RegisterSpec;
 import com.android.jack.dx.rop.code.RegisterSpecSet;
 import com.android.jack.dx.rop.cst.CstString;
-import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.util.FixedSizeList;
 
@@ -128,7 +127,7 @@ public final class LocalList extends FixedSizeList {
     private final RegisterSpec spec;
 
     /** {@code non-null;} variable type (derived from {@code spec}) */
-    private final CstType type;
+    private final Type type;
 
     /**
      * Constructs an instance.
@@ -139,21 +138,12 @@ public final class LocalList extends FixedSizeList {
      * the variable
      */
     public Entry(int address, Disposition disposition, RegisterSpec spec) {
+      assert disposition != null;
+      assert spec != null;
+      assert spec.getLocalItem() != null;
+
       if (address < 0) {
         throw new IllegalArgumentException("address < 0");
-      }
-
-      if (disposition == null) {
-        throw new NullPointerException("disposition == null");
-      }
-
-      try {
-        if (spec.getLocalItem() == null) {
-          throw new NullPointerException("spec.getLocalItem() == null");
-        }
-      } catch (NullPointerException ex) {
-        // Elucidate the exception.
-        throw new NullPointerException("spec == null");
       }
 
       this.address = address;
@@ -263,7 +253,7 @@ public final class LocalList extends FixedSizeList {
      *
      * @return {@code non-null;} the type
      */
-    public CstType getType() {
+    public Type getType() {
       return type;
     }
 
@@ -467,7 +457,7 @@ MakeState state = new MakeState(sz);
     private int[] endIndices;
 
     /** {@code >= 0;} last address seen */
-    private int lastAddress;
+    private final int lastAddress;
 
     /**
      * Constructs an instance.

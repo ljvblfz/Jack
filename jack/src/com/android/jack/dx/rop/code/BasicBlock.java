@@ -61,12 +61,8 @@ public final class BasicBlock implements LabeledItem {
       throw new IllegalArgumentException("label < 0");
     }
 
-    try {
-      insns.throwIfMutable();
-    } catch (NullPointerException ex) {
-      // Elucidate exception.
-      throw new NullPointerException("insns == null");
-    }
+    assert insns != null;
+    insns.throwIfMutable();
 
     int sz = insns.size();
 
@@ -87,12 +83,8 @@ public final class BasicBlock implements LabeledItem {
           "insns does not end with " + "a branch or throwing " + "instruction");
     }
 
-    try {
-      successors.throwIfMutable();
-    } catch (NullPointerException ex) {
-      // Elucidate exception.
-      throw new NullPointerException("successors == null");
-    }
+    assert successors != null;
+    successors.throwIfMutable();
 
     if (primarySuccessor < -1) {
       throw new IllegalArgumentException("primarySuccessor < -1");

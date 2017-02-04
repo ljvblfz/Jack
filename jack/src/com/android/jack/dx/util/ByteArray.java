@@ -45,9 +45,7 @@ public final class ByteArray {
    * the slice (exclusive)
    */
   public ByteArray(byte[] bytes, int start, int end) {
-    if (bytes == null) {
-      throw new NullPointerException("bytes == null");
-    }
+    assert bytes != null;
 
     if (start < 0) {
       throw new IllegalArgumentException("start < 0");

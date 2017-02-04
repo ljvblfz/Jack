@@ -134,7 +134,6 @@
   <property name="jack-internal-doc.dir" value="${jack.doc.dir}/jack-internal" />
   <property name="jack-external-doc.dir" value="${jack.doc.dir}/jack-external" />
   <property name="jack-server.doc.dir" value="${jack.dist-doc.dir}/server" />
-  <property name="jack.coverage.doc.dir" value="${jack.dist-doc.dir}/coverage" />
 
   <target name="dist-clean">
     <delete dir="${jack-top-dist.dir}"/>
@@ -196,7 +195,7 @@
       </javadoc>
       <!-- Jack API and Jill API -->
       <mkdir dir="${jack-external-doc.dir}/jack-api" />
-      <javadoc destdir="${jack-external-doc.dir}"
+      <javadoc destdir="${jack-external-doc.dir}/jack-api"
         author="true"
         version="true"
         use="true"
@@ -222,6 +221,17 @@
         <arg value="--sanity-checks"/>
         <arg value="on"/>
       </java>
+      <!-- Jack annotations -->
+      <mkdir dir="${jack-external-doc.dir}/jack-annotations" />
+      <javadoc destdir="${jack-external-doc.dir}/jack-annotations"
+        author="true"
+        version="true"
+        use="true"
+        windowtitle="Jack annotations"
+        classpath="${dist-doc.classpath.path}"
+        nodeprecated="true">
+        <fileset dir="${jack.dir}/src" includes="com/android/jack/annotations/**/*.java" />
+      </javadoc>
       <!-- Jack server -->
       <mkdir dir="${jack-server.doc.dir}" />
       <copy file="${jack-project.dir}/server/jack-server/README-jack-server.md"
@@ -233,13 +243,6 @@
                        encoding="UTF-8"/>
       <exec executable="pandoc" failifexecutionfails="false">
         <arg line="--from=markdown --to=plain --output=${jack-server.doc.dir}/README-jack-server.txt ${jack-server.doc.dir}/README-jack-server.md"/>
-      </exec>
-      <!-- Jack coverage -->
-      <mkdir dir="${jack.coverage.doc.dir}" />
-      <copy file="${jack-project.dir}/jacoco/README.md"
-            todir="${jack.coverage.doc.dir}" />
-      <exec executable="pandoc" failifexecutionfails="false">
-        <arg line="--from=markdown --to=plain --output=${jack.coverage.doc.dir}/README.txt ${jack.coverage.doc.dir}/README.md"/>
       </exec>
     </target>
 
@@ -326,10 +329,6 @@
 
     <mkdir dir="${jack-top-dist.dir}"/>
 
-    <jar destfile="${jack-top-dist.dir}/${jill.execname}" filesetmanifest="merge">
-      <zipfileset src="${jill.dist.dir}/${jill.execname}"
-      excludes="jill-version.properties"/>
-    </jar>
     <jar destfile="${jack-top-dist.dir}/${jill-api.name}" filesetmanifest="merge">
       <zipfileset src="${jill-api.dist.dir}/${jill-api.name}"
       excludes="jill-api-version.properties"/>
@@ -338,6 +337,25 @@
     <tempfile property="jill-sign.tmp" prefix="ant-jill-sign" destdir="${java.io.tmpdir}" deleteonexit="true"/>
     <mkdir dir="${jill-sign.tmp}"/>
     <copy file="${dist.version.file}" tofile="${jill-sign.tmp}/version.properties"/>
+
+    <jarjar jarfile="${jill-sign.tmp}/${jill.execname}" filesetmanifest="merge">
+      <zipfileset src="${jill.dist.dir}/${jill.execname}"
+      excludes="jill-version.properties"/>
+      <rule pattern="org.objectweb.**" result="com.android.jill.objectweb.@1"/>
+      <rule pattern="org.kohsuke.**" result="com.android.jill.kohsuke.@1"/>
+      <rule pattern="javax.annotation.**" result="com.android.jill.javax.annotation.@1"/>
+      <rule pattern="com.google.**" result="com.android.jill.google.@1"/>
+    </jarjar>
+    <mkdir dir="${jill-sign.tmp}/with-empty-directories" />
+    <mkdir dir="${jill-sign.tmp}/without-empty-directories" />
+    <unzip src="${jill-sign.tmp}/${jill.execname}" dest="${jill-sign.tmp}/with-empty-directories"/>
+    <copy includeemptydirs="false" todir="${jill-sign.tmp}/without-empty-directories">
+      <fileset dir="${jill-sign.tmp}/with-empty-directories" />
+    </copy>
+    <jar  destfile="${jack-top-dist.dir}/${jill.execname}" manifest="${jill.dir}/etc/manifest.txt">
+      <fileset dir="${jill-sign.tmp}/without-empty-directories"/>
+    </jar>
+
 
     <propertyfile file="${jill-sign.tmp}/version.properties">
       <entry key="releaser" default="${sign.eng.releaser}"/>
@@ -985,6 +1003,7 @@
       <exclude name="com/android/jack/frontend/test015/jack/WithOuterContextButStatic.java"/>
       <exclude name="com/android/jack/frontend/test016/jack/WithDuplicated.java"/>
       <exclude name="com/android/jack/frontend/test017/jack/InvalidQualification.java"/>
+      <exclude name="com/android/jack/frontend/test019/jack/TooBig.java"/>
       <exclude name="com/android/jack/frontend/generic/test002/jack/**"/>
       <exclude name="com/android/jack/frontend/generic/test003/jack/**"/>
       <exclude name="com/android/jack/nopackage/jack/**"/>
@@ -1000,6 +1019,7 @@
       <exclude name="com/android/jack/java8/annotation/**"/>
       <exclude name="com/android/jack/java8/variable/**"/>
       <exclude name="com/android/jack/java8/bridges/**"/>
+      <exclude name="com/android/jack/java8/parameter/**"/>
       <exclude name="com/android/jack/jarjar/test003/dontcompile/**"/>
       <exclude name="com/android/jack/jarjar/test004/dontcompile/**"/>
       <exclude name="com/android/jack/jarjar/test006/dontcompile/**"/>
@@ -2435,6 +2455,7 @@
 
     <java fork="true" failonerror="true"
       output="${jack-tests.dir}/dump/PreSubmitTests.js"
+      logError="true"
       classname="com.android.jack.test.junit.JackJUnitLauncher">
       <jvmarg value="-Dtests.dump=true" />
       <jvmarg value="-Dtests.config=${tests.config}"/>
@@ -2452,6 +2473,7 @@
 
     <java fork="true" failonerror="true"
       output="${jack-tests.dir}/dump/LongLastingTests.js"
+      logError="true"
       classname="com.android.jack.test.junit.JackJUnitLauncher">
        <jvmarg value="-Dtests.dump=true" />
        <jvmarg value="-Dtests.config=${tests.config}"/>
@@ -2469,6 +2491,7 @@
 
     <java fork="true" failonerror="true"
       output="${jack-tests.dir}/dump/SchedAllTests.js"
+      logError="true"
       classname="com.android.jack.test.junit.JackJUnitLauncher">
       <jvmarg value="-Dtests.dump=true" />
       <jvmarg value="-Dtests.config=${tests.config}"/>
@@ -2726,7 +2749,8 @@
     <delete dir="${jack-jacoco-reporter.libs.dir}" />
   </target>
 
-  <target name="jack-jacoco-reporter-copy-libs" depends="jsr305-lib,args4j-lib,asm4-lib,gson-lib,jacoco-libs">
+  <target name="jack-jacoco-reporter-copy-libs"
+    depends="jsr305-lib,args4j-lib,asm4-lib,gson-lib,junit4,jacoco-libs">
     <copy todir="${jack-jacoco-reporter.libs.dir}" flatten="true">
       <filelist dir="/" >
         <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
@@ -2736,6 +2760,7 @@
         <file name="${gson.dist.dir}/${gson.libname}"/>
         <file name="${jacoco.dist.dir}/${jacoco.core.libname}"/>
         <file name="${jacoco.dist.dir}/${jacoco.report.libname}"/>
+        <file name="${junit4.dist.dir}/${junit4.execname}"/>
       </filelist>
     </copy>
   </target>
@@ -2827,11 +2852,10 @@
             classname="com.puppycrawl.tools.checkstyle.Main"
             fork="true"
             failonerror="true">
-        <jvmarg line="-Dconfig_loc=./jack"/>
         <arg value="-f"/>
         <arg value="plain"/>
         <arg value="-c"/>
-        <arg value="./jack/jackstyle.xml"/>
+        <arg value="./jack/config/checkstyle/checkstyle.xml"/>
         <arg value="jack/src"/>
         <arg value="jack-api/src"/>
         <arg value="jack-tests/src"/>
@@ -2843,5 +2867,3 @@
       </java>
     </target>
 </project>
-
-

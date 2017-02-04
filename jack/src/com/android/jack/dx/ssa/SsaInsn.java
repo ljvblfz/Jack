@@ -41,10 +41,7 @@ public abstract class SsaInsn implements ToHuman, Cloneable {
    * never change.
    */
   protected SsaInsn(RegisterSpec result, SsaBasicBlock block) {
-    if (block == null) {
-      throw new NullPointerException("block == null");
-    }
-
+    assert block != null;
     this.block = block;
     this.result = result;
   }
@@ -85,10 +82,7 @@ public abstract class SsaInsn implements ToHuman, Cloneable {
    * @param result {@code non-null;} the new result register
    */
   protected void setResult(RegisterSpec result) {
-    if (result == null) {
-      throw new NullPointerException("result == null");
-    }
-
+    assert result != null;
     this.result = result;
   }
 

@@ -36,6 +36,7 @@ import com.android.jack.ir.ast.JFieldRef;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JMethodCall.DispatchKind;
+import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JModifier;
 import com.android.jack.ir.ast.JNewInstance;
@@ -211,7 +212,7 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClass
         JType returnType =
             x instanceof JNewInstance ? JPrimitiveTypeEnum.VOID.getType() : x.getType();
         JMethod method = getMethod((JDefinedClassOrInterface) receiverType,
-            (JDefinedClassOrInterface) receiverType, returnType, x.getMethodId());
+            (JDefinedClassOrInterface) receiverType, returnType, x.getMethodIdWide());
         // Method can be null when an interface method is implemented by a sub type of the receiver
         // type, but in this case accessors are not needed
         if (method != null) {
@@ -304,10 +305,9 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClass
     // this.this$0.field = $value => $set<id>(this.this$0, $value)
     JBinaryOperation binOp = (JBinaryOperation) fieldRef.getParent();
 
-    JMethodIdWide setterId = setter.getMethodIdWide();
-    JMethodCall setterCall =
-        new JMethodCall(binOp.getSourceInfo(), null, accessorClass, setterId,
-            setter.getType(), setterId.canBeVirtual());
+    JMethodId setterId = setter.getMethodId();
+    JMethodCall setterCall = new JMethodCall(binOp.getSourceInfo(), null, accessorClass, setterId,
+        setterId.getMethodIdWide().canBeVirtual());
 
     if (!field.isStatic()) {
       JExpression instance = fieldRef.getInstance();
@@ -334,9 +334,9 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClass
     JMethod getter = marker.getOrCreateGetter(field, (JDefinedClass) accessorClass, tr);
 
     // this.this$0.field => $get<id>(this.this$0)
-    JMethodIdWide getterId = getter.getMethodIdWide();
+    JMethodId getterId = getter.getMethodId();
     JMethodCall getterCall = new JMethodCall(fieldRef.getSourceInfo(), null, accessorClass,
-        getterId, getter.getType(), getterId.canBeVirtual());
+        getterId, getterId.getMethodIdWide().canBeVirtual());
 
     if (!field.isStatic()) {
       JExpression instance = fieldRef.getInstance();
@@ -366,22 +366,21 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClass
     SourceInfo sourceInfo = methodCall.getSourceInfo();
     if (methodCall instanceof JNewInstance) {
       assert wrapper instanceof JConstructor;
-      wrapperCall =
-          new JNewInstance(sourceInfo, wrapper.getEnclosingType(), wrapper.getMethodIdWide());
+      wrapperCall = new JNewInstance(sourceInfo, wrapper.getEnclosingType(), wrapper.getMethodId());
     } else {
 
-      JMethodIdWide wrapperId = wrapper.getMethodIdWide();
+      JMethodId wrapperId = wrapper.getMethodId();
 
       // this.this$0.method(param) => $wrap<id>(this.this$0, param)
       if (!method.isStatic() && !(wrapper instanceof JConstructor)) {
         wrapperCall = new JMethodCall(sourceInfo, null, accessorClass, wrapperId,
-            wrapper.getType(), wrapperId.canBeVirtual());
+            wrapperId.getMethodIdWide().canBeVirtual());
         JExpression instance = methodCall.getInstance();
         assert instance != null;
         wrapperCall.addArg(instance);
       } else {
         wrapperCall = new JMethodCall(sourceInfo, methodCall.getInstance(), accessorClass,
-            wrapperId, wrapper.getType(), wrapperId.canBeVirtual());
+            wrapperId, wrapperId.getMethodIdWide().canBeVirtual());
       }
     }
 

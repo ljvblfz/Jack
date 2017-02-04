@@ -46,11 +46,7 @@ public class DebugInfoItem extends OffsettedItem {
   public DebugInfoItem(DalvCode code, boolean isStatic, CstMethodRef ref) {
     // We don't know the write size yet.
     super(ALIGNMENT, -1);
-
-    if (code == null) {
-      throw new NullPointerException("code == null");
-    }
-
+    assert code != null;
     this.code = code;
     this.isStatic = isStatic;
     this.ref = ref;

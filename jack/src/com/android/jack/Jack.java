@@ -46,6 +46,7 @@ import com.android.jack.api.v03.impl.Api03Feature;
 import com.android.jack.backend.ResourceWriter;
 import com.android.jack.backend.dex.ClassAnnotationBuilder;
 import com.android.jack.backend.dex.ClassDefItemBuilder;
+import com.android.jack.backend.dex.ClassDefItemMarkerRemover;
 import com.android.jack.backend.dex.DalvikProtectedInnerChecker;
 import com.android.jack.backend.dex.DalvikProtectedInnerChecker.DalvikProtectedInnerCheck;
 import com.android.jack.backend.dex.DexFileProduct;
@@ -67,13 +68,17 @@ import com.android.jack.backend.dex.MultiDex;
 import com.android.jack.backend.dex.MultiDexAnnotationsFinder;
 import com.android.jack.backend.dex.MultiDexLegacy;
 import com.android.jack.backend.dex.MultiDexWritingTool;
+import com.android.jack.backend.dex.OrphanDexFileWriter;
 import com.android.jack.backend.dex.annotations.DefaultValueAnnotationAdder;
+import com.android.jack.backend.dex.annotations.ParameterMetadataAnnotationsAdder;
 import com.android.jack.backend.dex.annotations.ReflectAnnotationsAdder;
+import com.android.jack.backend.dex.annotations.tag.ParameterMetadataFeature;
 import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
 import com.android.jack.backend.dex.compatibility.CheckAndroidCompatibility;
 import com.android.jack.backend.dex.multidex.legacy.AnnotatedFinder;
 import com.android.jack.backend.dex.multidex.legacy.RuntimeAnnotationFinder;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
+import com.android.jack.backend.dex.rop.DexCodeMarkerRemover;
 import com.android.jack.backend.dex.rop.SsaCodeItemBuilder;
 import com.android.jack.backend.jayce.JayceFileImporter;
 import com.android.jack.backend.jayce.JayceInLibraryProduct;
@@ -157,7 +162,6 @@ import com.android.jack.optimizations.valuepropagation.field.FvpCollectFieldAssi
 import com.android.jack.optimizations.valuepropagation.field.FvpPropagateFieldValues;
 import com.android.jack.optimizations.wofr.WofrCollectFieldAccesses;
 import com.android.jack.optimizations.wofr.WofrRemoveFieldWrites;
-import com.android.jack.optimizations.wofr.WofrRemoveFields;
 import com.android.jack.plugin.PluginManager;
 import com.android.jack.plugin.v01.Plugin;
 import com.android.jack.preprocessor.PreProcessor;
@@ -326,6 +330,7 @@ import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeBuilder
 import com.android.jack.transformations.typedef.TypeDefRemover;
 import com.android.jack.transformations.typedef.TypeDefRemover.RemoveTypeDef;
 import com.android.jack.transformations.uselessif.UselessIfChecker;
+import com.android.jack.transformations.uselessif.UselessIfRemover;
 import com.android.jack.util.collect.UnmodifiableCollections;
 import com.android.sched.item.Component;
 import com.android.sched.reflections.ReflectionFactory;
@@ -779,6 +784,10 @@ public abstract class Jack {
             request.addFeature(TypeDefRemover.RemoveTypeDef.class);
           }
 
+          if (config.get(ParameterMetadataAnnotationsAdder.PARAMETER_ANNOTATION).booleanValue()) {
+            request.addFeature(ParameterMetadataFeature.class);
+          }
+
           List<InputLibrary> importedLibraries = session.getImportedLibraries();
           for (InputLibrary il : importedLibraries) {
             if (!il.containsFileType(FileType.PREBUILT)) {
@@ -831,7 +840,14 @@ public abstract class Jack {
           if (targetProduction.contains(JayceInLibraryProduct.class)) {
             planBuilder.append(LibraryMetaWriter.class);
           }
-
+          if (targetProduction.contains(JayceInLibraryProduct.class)
+              && targetProduction.contains(DexInLibraryProduct.class)) {
+            // Orphan dex files must only be copied into a Jack library when prebuilts are requested
+            // (DexInLibraryProduct). Jack must also check JayceInLibraryProduct to be sure that a
+            // Jack library is requested since DexInLibraryProduct is also used to generate an
+            // internal intermediate library that must not be take into account.
+            planBuilder.append(OrphanDexFileWriter.class);
+          }
           Plan<JSession> plan = null;
           try {
             try {
@@ -1457,153 +1473,147 @@ public abstract class Jack {
       }
     }
 
-    if (features.contains(LambdaToAnonymousConverter.class)) {
-      // Collect and group lambdas
-      planBuilder
-          .appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
-          .appendSubPlan(JMethodAdapter.class)
-          .append(LambdaCollector.class);
+    if (productions.contains(DexInLibraryProduct.class)
+        || productions.contains(DexFileProduct.class)) {
+      if (features.contains(LambdaToAnonymousConverter.class)) {
+        // Collect and group lambdas
+        planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
+            .appendSubPlan(JMethodAdapter.class).append(LambdaCollector.class);
 
-      // NOTE: wait until all lambdas are collected
+        // NOTE: wait until all lambdas are collected
 
-      // Create classes and fill in their content
-      planBuilder.append(LambdaGroupClassCreator.class);
-      planBuilder
-          .appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
-          .append(LambdaGroupClassFinalizer.class);
+        // Create classes and fill in their content
+        planBuilder.append(LambdaGroupClassCreator.class);
+        planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
+            .append(LambdaGroupClassFinalizer.class);
 
-      // NOTE: wait until all lambdas classes are created
+        // NOTE: wait until all lambdas classes are created
 
-      // Replace all references to lambdas
-      planBuilder
-          .appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
-          .appendSubPlan(JMethodAdapter.class)
-          .append(LambdaConverter.class);
+        // Replace all references to lambdas
+        planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
+            .appendSubPlan(JMethodAdapter.class).append(LambdaConverter.class);
+      }
     }
 
     boolean enableInlineAnnotatedMethods =
         features.contains(Optimizations.InlineAnnotatedMethods.class);
 
-    {
+
+    if (productions.contains(DependencyInLibraryProduct.class)) {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-      if (productions.contains(DependencyInLibraryProduct.class)) {
-        typePlan.append(TypeDependenciesCollector.class);
-        typePlan.append(FileDependenciesCollector.class);
-      }
+      typePlan.append(TypeDependenciesCollector.class);
+      typePlan.append(FileDependenciesCollector.class);
     }
 
-    if (features.contains(SourceFileRenaming.class)) {
-      planBuilder.append(SourceFileRenamer.class);
-    }
-
-    {
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-      SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
-      if (features.contains(DynamicAssertionFeature.class)) {
-        methodPlan.append(DynamicAssertionTransformer.class);
-      } else if (features.contains(EnabledAssertionFeature.class)) {
-        methodPlan.append(EnabledAssertionTransformer.class);
-      } else if (features.contains(DisabledAssertionFeature.class)) {
-        methodPlan.append(AssertionRemover.class);
-      }
-      if (features.contains(Optimizations.NotSimplifier.class)) {
-        methodPlan.append(NotSimplifier.class);
-      }
-    }
-
-    boolean enableClassFinalizer = features.contains(Optimizations.ClassFinalizer.class);
-    boolean enableMethodFinalizer = features.contains(Optimizations.MethodFinalizer.class);
-
-    if (enableClassFinalizer || enableMethodFinalizer) {
-      // Dependencies
-      planBuilder
-          .appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
-          .append(DirectlyDerivedClassesProvider.class);
-
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-      if (enableClassFinalizer) {
-        typePlan.append(ClassFinalizer.class);
-      }
-      if (enableMethodFinalizer) {
-        typePlan.append(MethodFinalizer.class);
-      }
-    }
-
-    {
-      // After this point {@link JDcoiExcludeJackFileAdapter} must not be used since
-      // schedulables are not executed into the Java to Jayce plan.
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-      if (features.contains(DynamicAssertionFeature.class)) {
-        SubPlanBuilder<JField> fieldPlan =
-            typePlan4.appendSubPlan(JFieldAdapter.class);
-        fieldPlan.append(FieldInitializer.class);
-      }
+    if (productions.contains(DexInLibraryProduct.class)
+        || productions.contains(DexFileProduct.class)) {
       {
-        SubPlanBuilder<JMethod> methodPlan = typePlan4.appendSubPlan(JMethodAdapter.class);
-        methodPlan.append(ConditionalAndOrRemover.class);
-        if (hasSanityChecks) {
-          methodPlan.append(ConditionalAndOrRemoverChecker.class);
+        SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+            planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+        SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
+        if (features.contains(DynamicAssertionFeature.class)) {
+          methodPlan.append(DynamicAssertionTransformer.class);
+        } else if (features.contains(EnabledAssertionFeature.class)) {
+          methodPlan.append(EnabledAssertionTransformer.class);
+        } else if (features.contains(DisabledAssertionFeature.class)) {
+          methodPlan.append(AssertionRemover.class);
         }
-        methodPlan.append(BooleanTestTransformer.class);
-        methodPlan.append(SplitNewInstance.class);
-        if (hasSanityChecks) {
-          methodPlan.append(SplitNewInstanceChecker.class);
+        if (features.contains(Optimizations.NotSimplifier.class)) {
+          methodPlan.append(NotSimplifier.class);
         }
-        methodPlan.append(MultiDimensionNewArrayRemover.class);
-        methodPlan.append(InitInNewArrayRemover.class);
-        methodPlan.append(PrimitiveClassTransformer.class);
-        methodPlan.append(SynchronizeTransformer.class);
-        if (features.contains(BoostLockedRegionPriorityFeature.class)) {
-          methodPlan.append(BoostLockedRegionPriority.class);
-        }
-        methodPlan.append(NestedAssignRemover.class);
-        methodPlan.append(IntersectionTypeRemover.class);
-        methodPlan.append(UselessCaseRemover.class);
-        if (hasSanityChecks) {
-          methodPlan.append(UselessCaseChecker.class);
-        }
-        methodPlan.append(UselessSwitchesRemover.class);
-        methodPlan.append(TypeLegalizer.class);
-        methodPlan.append(RopCastLegalizer.class);
-        if (features.contains(CodeStats.class)) {
-          methodPlan.append(BinaryOperationWithCst.class);
-        }
-        methodPlan.append(FinallyRemover.class);
-        methodPlan.append(ExceptionRuntimeValueAdder.class);
-        methodPlan.append(DefinitionMarkerAdder.class);
-        methodPlan.append(ThreeAddressCodeBuilder.class);
-        methodPlan.append(UselessCastRemover.class);
-        methodPlan.append(DefinitionMarkerRemover.class);
-        methodPlan.append(TryCatchRemover.class);
-        methodPlan.append(ExpressionStatementLegalizer.class);
-        if (hasSanityChecks) {
-          methodPlan.append(NumericConversionChecker.class);
-        }
-        methodPlan.append(EmptyClinitRemover.class);
       }
-    }
 
-    if (enableInlineAnnotatedMethods) {
+      boolean enableClassFinalizer = features.contains(Optimizations.ClassFinalizer.class);
+      boolean enableMethodFinalizer = features.contains(Optimizations.MethodFinalizer.class);
 
-      SubPlanBuilder<JMethod> methodPlan = planBuilder
-          .appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
-          .appendSubPlan(JMethodAdapter.class);
-      if (hasSanityChecks) {
-        methodPlan.append(InlineAnnotationSanityCheck.class);
+      if (enableClassFinalizer || enableMethodFinalizer) {
+        // Dependencies
+        planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
+            .append(DirectlyDerivedClassesProvider.class);
+
+        SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+            planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+        if (enableClassFinalizer) {
+          typePlan.append(ClassFinalizer.class);
+        }
+        if (enableMethodFinalizer) {
+          typePlan.append(MethodFinalizer.class);
+        }
       }
-      methodPlan.append(InlineAnnotatedMethods.class);
-      methodPlan.append(JMethodInliner.class);
-    }
 
-    if (features.contains(DalvikProtectedInnerCheck.class)) {
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-      SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
-      methodPlan.append(DalvikProtectedInnerChecker.class);
+      {
+        // After this point {@link JDcoiExcludeJackFileAdapter} must not be used since
+        // schedulables are not executed into the Java to Jayce plan.
+        SubPlanBuilder<JDefinedClassOrInterface> typePlan4 =
+            planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+        if (features.contains(DynamicAssertionFeature.class)) {
+          SubPlanBuilder<JField> fieldPlan = typePlan4.appendSubPlan(JFieldAdapter.class);
+          fieldPlan.append(FieldInitializer.class);
+        }
+        {
+          SubPlanBuilder<JMethod> methodPlan = typePlan4.appendSubPlan(JMethodAdapter.class);
+          methodPlan.append(ConditionalAndOrRemover.class);
+          if (hasSanityChecks) {
+            methodPlan.append(ConditionalAndOrRemoverChecker.class);
+          }
+          methodPlan.append(BooleanTestTransformer.class);
+          methodPlan.append(SplitNewInstance.class);
+          if (hasSanityChecks) {
+            methodPlan.append(SplitNewInstanceChecker.class);
+          }
+          methodPlan.append(MultiDimensionNewArrayRemover.class);
+          methodPlan.append(InitInNewArrayRemover.class);
+          methodPlan.append(PrimitiveClassTransformer.class);
+          methodPlan.append(SynchronizeTransformer.class);
+          if (features.contains(BoostLockedRegionPriorityFeature.class)) {
+            methodPlan.append(BoostLockedRegionPriority.class);
+          }
+          methodPlan.append(NestedAssignRemover.class);
+          methodPlan.append(IntersectionTypeRemover.class);
+          methodPlan.append(UselessCaseRemover.class);
+          if (hasSanityChecks) {
+            methodPlan.append(UselessCaseChecker.class);
+          }
+          methodPlan.append(UselessSwitchesRemover.class);
+          methodPlan.append(TypeLegalizer.class);
+          methodPlan.append(RopCastLegalizer.class);
+          if (features.contains(CodeStats.class)) {
+            methodPlan.append(BinaryOperationWithCst.class);
+          }
+          methodPlan.append(FinallyRemover.class);
+          methodPlan.append(ExceptionRuntimeValueAdder.class);
+          methodPlan.append(DefinitionMarkerAdder.class);
+          methodPlan.append(ThreeAddressCodeBuilder.class);
+          methodPlan.append(UselessCastRemover.class);
+          methodPlan.append(DefinitionMarkerRemover.class);
+          methodPlan.append(TryCatchRemover.class);
+          methodPlan.append(ExpressionStatementLegalizer.class);
+          if (hasSanityChecks) {
+            methodPlan.append(NumericConversionChecker.class);
+          }
+          methodPlan.append(EmptyClinitRemover.class);
+        }
+      }
+
+      if (enableInlineAnnotatedMethods) {
+
+        SubPlanBuilder<JMethod> methodPlan =
+            planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
+                .appendSubPlan(JMethodAdapter.class);
+        if (hasSanityChecks) {
+          methodPlan.append(InlineAnnotationSanityCheck.class);
+        }
+        methodPlan.append(InlineAnnotatedMethods.class);
+        methodPlan.append(JMethodInliner.class);
+      }
+
+      if (features.contains(DalvikProtectedInnerCheck.class)) {
+        SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+            planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+        SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
+        methodPlan.append(DalvikProtectedInnerChecker.class);
+      }
     }
 
     if (productions.contains(DependencyInLibraryProduct.class)) {
@@ -1622,60 +1632,60 @@ public abstract class Jack {
       planBuilder.append(ShrinkStructurePrinter.class);
     }
 
-    boolean enableArgumentValuePropagation =
-        features.contains(Optimizations.ArgumentValuePropagation.class);
+    if (productions.contains(DexInLibraryProduct.class)
+        || productions.contains(DexFileProduct.class)) {
+      boolean enableArgumentValuePropagation =
+          features.contains(Optimizations.ArgumentValuePropagation.class);
 
-    {
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-      typePlan.append(ReflectAnnotationsAdder.class);
-      if (enableArgumentValuePropagation) {
-        typePlan.append(AvpCalculateTaintedMethods.class);
+      {
+        SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+            planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+        typePlan.append(ReflectAnnotationsAdder.class);
+        if (enableArgumentValuePropagation) {
+          typePlan.append(AvpCalculateTaintedMethods.class);
+        }
+
+        {
+          SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
+          methodPlan.append(DefaultValueAnnotationAdder.class);
+        }
       }
 
       {
-        SubPlanBuilder<JMethod> methodPlan = typePlan.appendSubPlan(JMethodAdapter.class);
-        methodPlan.append(DefaultValueAnnotationAdder.class);
+        SubPlanBuilder<JDefinedClassOrInterface> typePlan =
+            planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+        typePlan.append(ClassDefItemBuilder.class);
+        typePlan.append(ContainerAnnotationAdder.TypeContainerAnnotationAdder.class);
+        typePlan.append(ClassAnnotationBuilder.class);
       }
-    }
 
-    {
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
-      typePlan.append(ClassDefItemBuilder.class);
-      typePlan.append(ContainerAnnotationAdder.TypeContainerAnnotationAdder.class);
-      typePlan.append(ClassAnnotationBuilder.class);
-    }
-
-    if (features.contains(Optimizations.FieldFinalizer.class)) {
-      // Phase 1: field assignment information collection
-      planBuilder
+      if (features.contains(Optimizations.FieldFinalizer.class)) {
+        // Phase 1: field assignment information collection
+        planBuilder
           .appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
           .appendSubPlan(JMethodAdapter.class)
           .append(FieldFinalizer.CollectionPhase.class);
 
-      // Phase 2: constructors analysis
-      SubPlanBuilder<JDefinedClassOrInterface> phase3 =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+        // Phase 2: constructors analysis
+        SubPlanBuilder<JDefinedClassOrInterface> phase3 =
+            planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
 
-      SubPlanBuilder<JMethod> phase3method =
-          phase3.appendSubPlan(JMethodAdapter.class);
-      phase3method.append(RefAsStatementRemover.class);
-      phase3method.append(CfgBuilder.class);
-      phase3method.append(FieldFinalizer.ConstructorsAnalysisPhase.class);
-      phase3method.append(CfgMarkerRemover.class);
+        SubPlanBuilder<JMethod> phase3method = phase3.appendSubPlan(JMethodAdapter.class);
+        phase3method.append(RefAsStatementRemover.class);
+        phase3method.append(CfgBuilder.class);
+        phase3method.append(FieldFinalizer.ConstructorsAnalysisPhase.class);
+        phase3method.append(CfgMarkerRemover.class);
 
-      // Phase 3: field finalization
-      phase3
+        // Phase 3: field finalization
+        phase3
           .appendSubPlan(JFieldAdapter.class)
           .append(FieldFinalizer.FinalizingPhase.class);
-    }
+      }
 
-    boolean enableFieldValuePropagation =
-        features.contains(Optimizations.FieldValuePropagation.class);
-    boolean enableWriteOnlyFieldRemoval =
-        features.contains(Optimizations.WriteOnlyFieldRemoval.class);
-
+      boolean enableFieldValuePropagation =
+          features.contains(Optimizations.FieldValuePropagation.class);
+      boolean enableWriteOnlyFieldRemoval =
+          features.contains(Optimizations.WriteOnlyFieldRemoval.class);
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan5 =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
@@ -1722,8 +1732,10 @@ public abstract class Jack {
           if (features.contains(Optimizations.ExpressionSimplifier.class)) {
             methodPlan4.append(ExpressionSimplifier.class);
           }
+          methodPlan4.append(UselessIfRemover.class);
           methodPlan4.append(CfgMarkerRemover.class);
           methodPlan4.append(CfgBuilder.class);
+          methodPlan4.append(ContainerAnnotationAdder.MethodContainerAnnotationAdder.class);
         }
       }
     }
@@ -1798,55 +1810,49 @@ public abstract class Jack {
       cfgPlan.append(DominanceFrontierRemoval.class);
     }
 
+    // The sub plan that write dex files representing type must not be split in order to remove dx
+    // IR from memory when dex file is written.
     {
-      SubPlanBuilder<JMethod> methodPlan = planBuilder
-          .appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
-          .appendSubPlan(JMethodAdapter.class);
-
-      if (features.contains(Options.UseJackSsaIR.class)) {
-        methodPlan.append(SsaCodeItemBuilder.class);
-      } else {
-        methodPlan.append(CodeItemBuilder.class);
-      }
-      methodPlan.append(EncodedMethodBuilder.class);
-      methodPlan.append(ContainerAnnotationAdder.MethodContainerAnnotationAdder.class);
-      methodPlan.append(MethodAnnotationBuilder.class);
-      if (features.contains(DropMethodBody.class)) {
-        methodPlan.append(MethodBodyRemover.class);
-      }
-    }
-    {
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan7 =
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan6 =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
 
-      if (enableWriteOnlyFieldRemoval) {
-        typePlan7
-            .appendSubPlan(JFieldAdapter.class)
-            .append(WofrRemoveFields.class);
+      {
+        SubPlanBuilder<JMethod> methodPlan5 = typePlan6.appendSubPlan(JMethodAdapter.class);
+        if (features.contains(Options.UseJackSsaIR.class)) {
+          methodPlan5.append(SsaCodeItemBuilder.class);
+        } else {
+          methodPlan5.append(CodeItemBuilder.class);
+        }
+        methodPlan5.append(EncodedMethodBuilder.class);
+        methodPlan5.append(DexCodeMarkerRemover.class);
+        if (features.contains(ParameterMetadataFeature.class)) {
+          methodPlan5.append(ParameterMetadataAnnotationsAdder.class);
+        }
+        methodPlan5.append(MethodAnnotationBuilder.class);
+        if (features.contains(DropMethodBody.class)) {
+          methodPlan5.append(MethodBodyRemover.class);
+        }
       }
 
       {
-        SubPlanBuilder<JField> fieldPlan2 =
-            typePlan7.appendSubPlan(JFieldAdapter.class);
-        fieldPlan2.append(ContainerAnnotationAdder.FieldContainerAnnotationAdder.class);
+        SubPlanBuilder<JField> fieldPlan2 = typePlan6.appendSubPlan(JFieldAdapter.class);
         fieldPlan2.append(EncodedFieldBuilder.class);
         fieldPlan2.append(FieldAnnotationBuilder.class);
       }
-      if (hasSanityChecks) {
-        typePlan7.append(TypeAstChecker.class);
-      }
-    }
 
-    if (productions.contains(DexInLibraryProduct.class)) {
+      if (hasSanityChecks) {
+        typePlan6.append(TypeAstChecker.class);
+      }
+
       // Jayce files must be copied into output library in incremental library mode or in non
       // incremental mode
-      SubPlanBuilder<JDefinedClassOrInterface> typePlan =
-          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
       if (features.contains(GenerateLibraryFromIncrementalFolder.class)
           || !features.contains(Incremental.class)) {
-        typePlan.append(DexInLibraryWriterAll.class);
+        typePlan6.append(DexInLibraryWriterAll.class);
       } else {
-        typePlan.append(DexInLibraryWriterNoPrebuilt.class);
+        typePlan6.append(DexInLibraryWriterNoPrebuilt.class);
+      }
+      typePlan6.append(ClassDefItemMarkerRemover.class);
       }
     }
 
@@ -1868,9 +1874,13 @@ public abstract class Jack {
       planBuilder.append(ResourceContentRefiner.class);
     }
     planBuilder.append(Renamer.class);
+
     if (features.contains(RemoveSourceFile.class)) {
       planBuilder.append(SourceFileRemover.class);
+    } else if (features.contains(SourceFileRenaming.class)) {
+      planBuilder.append(SourceFileRenamer.class);
     }
+
     {
       SubPlanBuilder<JDefinedClassOrInterface> typePlan =
           planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);

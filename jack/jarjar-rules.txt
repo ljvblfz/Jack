@@ -1,0 +1,9 @@
+rule com.google.common.** com.android.jack.google.common.@1
+rule com.google.thirdparty.** com.android.jack.google.thirdparty.@1
+rule com.tonicsystems.** com.android.jack.tonicsystems.@1
+rule freemarker.** com.android.jack.freemarker.@1
+rule org.antlr.** com.android.jack.antlr.@1
+rule org.kohsuke.** com.android.jack.kohsuke.@1
+rule org.objectweb.** com.android.jack.objectweb.@1
+rule org.uncommons.** com.android.jack.uncommons.@1
+rule org.eclipse.** com.android.jack.eclipse.@1

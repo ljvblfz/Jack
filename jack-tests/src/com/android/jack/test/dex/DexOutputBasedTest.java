@@ -17,6 +17,7 @@
 package com.android.jack.test.dex;
 
 import com.android.jack.backend.dex.DexFileWriter;
+import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.optimizations.Optimizations;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -127,6 +128,8 @@ public abstract class DexOutputBasedTest {
 
     toolchain.addProperty(Optimizations.REMOVE_UNUSED_NON_SYNTHETIC_DEFINITION.getName(),
         String.valueOf(false));
+    toolchain.addProperty(CodeItemBuilder.DEX_OPTIMIZE.getName(),
+        String.valueOf(true));
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
         .srcToExe(outFolder, /* zipFile = */false, allTestFolders);
 

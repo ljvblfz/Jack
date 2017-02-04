@@ -32,6 +32,10 @@ import javax.annotation.Nonnull;
 @Description("Commmon part of literal expression that evaluates to a string")
 public abstract class JAbstractStringLiteral extends JValueLiteral {
 
+  @Nonnull
+  private final JClass type =
+      Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_STRING);
+
   protected JAbstractStringLiteral(@Nonnull SourceInfo sourceInfo) {
     super(sourceInfo);
   }
@@ -39,7 +43,7 @@ public abstract class JAbstractStringLiteral extends JValueLiteral {
   @Override
   @Nonnull
   public JClass getType() {
-    return Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_STRING);
+    return type;
   }
 
   @Nonnull

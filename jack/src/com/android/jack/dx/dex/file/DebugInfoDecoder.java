@@ -116,10 +116,7 @@ public class DebugInfoDecoder {
    */
   public DebugInfoDecoder(ByteInput encoded, int regSize, boolean isStatic, Prototype desc,
       int thisIdx) {
-    if (encoded == null) {
-      throw new NullPointerException("encoded == null");
-    }
-
+    assert encoded != null;
     this.encoded = encoded;
     this.isStatic = isStatic;
     this.desc = desc;

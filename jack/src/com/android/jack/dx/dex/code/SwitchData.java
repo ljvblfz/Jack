@@ -61,19 +61,9 @@ public final class SwitchData extends VariableSizeInsn {
   public SwitchData(SourcePosition position, CodeAddress user, IntList cases,
       CodeAddress[] targets) {
     super(position, RegisterSpecList.EMPTY);
-
-    if (user == null) {
-      throw new NullPointerException("user == null");
-    }
-
-    if (cases == null) {
-      throw new NullPointerException("cases == null");
-    }
-
-    if (targets == null) {
-      throw new NullPointerException("targets == null");
-    }
-
+    assert user != null;
+    assert cases != null;
+    assert targets != null;
     int sz = cases.size();
 
     if (sz != targets.length) {

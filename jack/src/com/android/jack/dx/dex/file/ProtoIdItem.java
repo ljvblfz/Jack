@@ -49,9 +49,7 @@ public final class ProtoIdItem extends IndexedItem implements ToHuman {
    * @param prototype {@code non-null;} the constant for the prototype
    */
   public ProtoIdItem(Prototype prototype) {
-    if (prototype == null) {
-      throw new NullPointerException("prototype == null");
-    }
+    assert prototype != null;
 
     this.prototype = prototype;
     this.shortForm = makeShortForm(prototype);
@@ -87,7 +85,7 @@ public final class ProtoIdItem extends IndexedItem implements ToHuman {
    * @return the corresponding short-form character
    */
   private static char shortFormCharFor(Type type) {
-    char descriptorChar = type.getDescriptor().charAt(0);
+    char descriptorChar = type.getDescriptor().getString().charAt(0);
 
     if (descriptorChar == '[') {
       return 'L';

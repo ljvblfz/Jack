@@ -25,7 +25,7 @@ import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
-import com.android.jack.ir.ast.JMethodIdWide;
+import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JMultiExpression;
 import com.android.jack.ir.ast.JNewInstance;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
@@ -117,10 +117,11 @@ public class SplitNewInstance implements RunnableSchedulable<JMethod> {
           new JAsgOperation(srcInfos, tmp.makeRef(srcInfos), alloc);
 
       // tmp.init(args)
-      JMethodIdWide methodId = newInstance.getMethodId();
-      JMethodCall initCall = new JMethodCall(
-          srcInfos, tmp.makeRef(srcInfos), type, methodId,
-          JPrimitiveTypeEnum.VOID.getType(), methodId.canBeVirtual());
+      JMethodId methodId =
+          newInstance.getMethodIdWide().getMethodId(JPrimitiveTypeEnum.VOID.getType());
+      assert methodId != null;
+      JMethodCall initCall = new JMethodCall(srcInfos, tmp.makeRef(srcInfos), type, methodId,
+          methodId.getMethodIdWide().canBeVirtual());
       initCall.addArgs(newInstance.getArgs());
 
       // tmp

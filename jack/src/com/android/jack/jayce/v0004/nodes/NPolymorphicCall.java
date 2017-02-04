@@ -84,9 +84,9 @@ public class NPolymorphicCall extends NExpression {
     instance = (NExpression) loader.load(pmc.getInstance());
     receiverType = ImportHelper.getSignatureName(pmc.getReceiverType());
     receiverKind = getReceiverKind(pmc);
-    methodName = pmc.getMethodId().getName();
-    methodArgsType = ImportHelper.getMethodArgsSignature(pmc.getMethodId());
-    methodKind = pmc.getMethodId().getKind();
+    methodName = pmc.getMethodIdWide().getName();
+    methodArgsType = ImportHelper.getMethodArgsSignature(pmc.getMethodIdWide());
+    methodKind = pmc.getMethodIdWide().getKind();
     returnType = ImportHelper.getSignatureName(pmc.getReturnTypeOfPolymorphicMethod());
     args = loader.load(NExpression.class, pmc.getArgs());
     sourceInfo = pmc.getSourceInfo();

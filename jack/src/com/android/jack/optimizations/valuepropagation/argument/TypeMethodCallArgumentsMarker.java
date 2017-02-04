@@ -97,7 +97,7 @@ public class TypeMethodCallArgumentsMarker implements Marker {
     // it's arguments if the method is tainted at this type.
     TaintedVirtualMethodsMarker taintedMarker =
         TaintedVirtualMethodsMarker.getMarker(type);
-    if (call.getMethodId().getKind() == MethodKind.INSTANCE_VIRTUAL &&
+    if (call.getMethodIdWide().getKind() == MethodKind.INSTANCE_VIRTUAL &&
         taintedMarker != null && taintedMarker.isMethodTainted(signature)) {
       return;
     }

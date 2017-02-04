@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 class ProbeDescription {
@@ -36,7 +37,7 @@ class ProbeDescription {
 
   private static final int UNKNOWN_LINE = -1;
 
-  class Line {
+  static class Line {
     public Line(int line, int instructionsCount, int branchesCount) {
       if (line < UNKNOWN_LINE) {
         throw new IllegalArgumentException("negative line");
@@ -53,7 +54,9 @@ class ProbeDescription {
     }
 
     final int line;
+    @Nonnegative
     final int instructionsCount;
+    @Nonnegative
     final int branchesCount;
 
     @Override
@@ -75,6 +78,7 @@ class ProbeDescription {
   }
 
   @Override
+  @Nonnull
   public String toString() {
     return "Probe " + id + " lines=" + Arrays.toString(lines.toArray());
   }

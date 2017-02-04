@@ -24,7 +24,7 @@ import com.android.jack.dx.rop.code.SourcePosition;
  */
 public final class TargetInsn extends FixedSizeInsn {
   /** {@code non-null;} the branch target */
-  private CodeAddress target;
+  private final CodeAddress target;
 
   /**
    * Constructs an instance. The output address of this instance is initially
@@ -41,11 +41,7 @@ public final class TargetInsn extends FixedSizeInsn {
   public TargetInsn(Dop opcode, SourcePosition position, RegisterSpecList registers,
       CodeAddress target) {
     super(opcode, position, registers);
-
-    if (target == null) {
-      throw new NullPointerException("target == null");
-    }
-
+    assert target != null;
     this.target = target;
   }
 

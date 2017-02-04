@@ -48,11 +48,7 @@ public final class CstInsn extends FixedSizeInsn {
   public CstInsn(Dop opcode, SourcePosition position, RegisterSpecList registers,
       Constant constant) {
     super(opcode, position, registers);
-
-    if (constant == null) {
-      throw new NullPointerException("constant == null");
-    }
-
+    assert constant != null;
     this.constant = constant;
     this.index = -1;
   }

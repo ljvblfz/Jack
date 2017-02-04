@@ -111,7 +111,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
         throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
       }
       InputVFS currentSectionVFS = getSectionVFS(fileType);
-      return currentSectionVFS.getRootInputVDir().getInputVFile(
+      return currentSectionVFS.getRootDir().getInputVFile(
           buildFileVPath(fileType, typePath));
     } catch (NotFileOrDirectoryException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
@@ -127,7 +127,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
       throws FileTypeDoesNotExistException {
     try {
       InputVFS currentSectionVFS = getSectionVFS(fileType);
-      return currentSectionVFS.getRootInputVDir().getInputVDir(typePath);
+      return currentSectionVFS.getRootDir().getInputVDir(typePath);
     } catch (NotDirectoryException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);
     } catch (NoSuchFileException e) {
@@ -143,7 +143,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
     }
 
     List<InputVFile> inputVFiles = new ArrayList<InputVFile>();
-    fillFiles(getSectionVFS(fileType).getRootInputVDir(), inputVFiles);
+    fillFiles(getSectionVFS(fileType).getRootDir(), inputVFiles);
     return inputVFiles.listIterator();
   }
 
@@ -226,7 +226,7 @@ public class InputJackLibraryImpl extends InputJackLibrary {
       throws CannotDeleteFileException, FileTypeDoesNotExistException {
     try {
       InputVFS currentSectionVFS = getSectionVFS(fileType);
-      currentSectionVFS.getRootInputVDir().getInputVFile(buildFileVPath(fileType, typePath))
+      currentSectionVFS.getRootDir().getInputVFile(buildFileVPath(fileType, typePath))
           .delete();
     } catch (NotFileOrDirectoryException e) {
       throw new FileTypeDoesNotExistException(getLocation(), typePath, fileType);

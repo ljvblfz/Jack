@@ -18,7 +18,6 @@ package com.android.jack.java8;
 
 import com.android.jack.Options;
 import com.android.jack.backend.dex.DexFileWriter;
-import com.android.jack.backend.dex.compatibility.AndroidCompatibilityChecker;
 import com.android.jack.test.TestsProperties;
 import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.junit.Runtime;

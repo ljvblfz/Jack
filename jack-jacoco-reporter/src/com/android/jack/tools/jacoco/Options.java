@@ -16,12 +16,14 @@
 
 package com.android.jack.tools.jacoco;
 
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
+import org.kohsuke.args4j.ParserProperties;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
@@ -58,26 +60,31 @@ public class Options {
 
   @Option(name = "--report-name", metaVar = "<name>", usage = "the name of the report")
   @Nonnull
-  private String reportName = "Report";
+  private String reportName = Constants.DEFAULT_REPORT_NAME;
 
   @Option(name = "--report-type", metaVar = "<type>",
       usage = "the type of the report (default is HTML)")
   @Nonnull
-  private ReportType reportType = ReportType.HTML;
+  private ReportType reportType = Constants.DEFAULT_REPORT_TYPE;
 
   @Option(name = "--output-encoding", metaVar = "<encoding>",
       usage = "the encoding for output report files (default is UTF-8)")
   @Nonnull
-  private String outputReportEncoding = "UTF-8";
+  private String outputReportEncoding = Constants.DEFAULT_OUTPUT_ENCODING;
 
   @Option(name = "--input-encoding", metaVar = "<encoding>",
       usage = "the encoding for input source files (default is UTF-8)")
   @Nonnull
-  private String inputSourceFilesEncoding = "UTF-8";
+  private String inputSourceFilesEncoding = Constants.DEFAULT_INPUT_ENCODING;
 
   @Option(name = "--tab-width", metaVar = "<value>",
       usage = "the width of tabs in source code (default is 4)")
-  private int tabWidth = 4;
+  private int tabWidth = Constants.DEFAULT_TAB_WIDTH;
+
+  @Option(name = "--mapping-file", metaVar = "<file>",
+      usage = "the mapping file to support shrinking and obfuscation")
+  @CheckForNull
+  private File mappingFile;
 
   @Nonnull
   public List<File> getCoverageDescriptionFiles() {
@@ -94,8 +101,9 @@ public class Options {
     return sourceFilesDirectories;
   }
 
-  @CheckForNull
+  @Nonnull
   public File getReportOutputDirectory() {
+    assert reportOutputDirectory != null;
     return reportOutputDirectory;
   }
 
@@ -123,11 +131,26 @@ public class Options {
     return tabWidth;
   }
 
+  @CheckForNull
+  public File getMappingFile() {
+    return mappingFile;
+  }
+
   public boolean askForHelp() {
     return showHelp;
   }
 
   public boolean askForVersion() {
     return showVersion;
+  }
+
+  @Nonnull
+  public static Options parseCommandLine(@Nonnull List<String> list) throws CmdLineException {
+    Options options = new Options();
+    CmdLineParser parser =
+        new CmdLineParser(options, ParserProperties.defaults().withUsageWidth(100));
+    parser.parseArgument(list);
+    parser.stopOptionParsing();
+    return options;
   }
 }

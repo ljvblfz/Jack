@@ -34,7 +34,7 @@ public final class SizeOf {
   public static final int SIGNATURE = UBYTE * 20;
 
   @Nonnegative
-  public static final int getHeaderSize(@Nonnegative int dexVersion) {
+  public static int getHeaderSize() {
     /*
      * magic ubyte[8]
      * checksum uint
@@ -61,16 +61,6 @@ public final class SizeOf {
      * data_off uint
      */
     int headerSize = (8 * UBYTE) + UINT + SIGNATURE + (20 * UINT); // 0x70;
-
-    if (dexVersion == DexFormat.O_BETA2_DEX_VERSION) {
-      /*
-       * call_site_ids_size uint
-       * call_site_ids_off uint
-       * method_handle_ids_size uint
-       * method_handle_ids_off uint
-       */
-      headerSize += 4 * UINT; // 0x80
-    }
 
     return headerSize;
   }

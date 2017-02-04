@@ -34,7 +34,6 @@ import com.android.jack.dx.rop.code.RegisterSpec;
 import com.android.jack.dx.rop.code.SourcePosition;
 import com.android.jack.dx.rop.cst.CstMethodRef;
 import com.android.jack.dx.rop.cst.CstString;
-import com.android.jack.dx.rop.cst.CstType;
 import com.android.jack.dx.rop.type.Prototype;
 import com.android.jack.dx.rop.type.StdTypeList;
 import com.android.jack.dx.rop.type.Type;
@@ -580,7 +579,7 @@ for (LocalList.Entry arg : lastEntryForReg) {
     }
     sb.append(' ');
 
-    CstType type = e.getType();
+    Type type = e.getType();
     if (type == null) {
       sb.append("null");
     } else {
@@ -649,7 +648,7 @@ for (LocalList.Entry arg : lastEntryForReg) {
    * @param type {@code null-ok;} type to emit
    * @throws IOException
    */
-  private void emitTypeIndex(CstType type) throws IOException {
+  private void emitTypeIndex(Type type) throws IOException {
     if ((type == null) || (file == null)) {
       output.writeUleb128(0);
     } else {

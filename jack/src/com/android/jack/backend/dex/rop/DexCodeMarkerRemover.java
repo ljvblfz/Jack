@@ -17,23 +17,25 @@
 package com.android.jack.backend.dex.rop;
 
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.scheduling.marker.DexCodeMarker;
 import com.android.sched.item.Description;
 import com.android.sched.item.Name;
 import com.android.sched.schedulable.Constraint;
+import com.android.sched.schedulable.Filter;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 
 import javax.annotation.Nonnull;
 
 /**
- * A schedulable that removes {@link DexCodeMarker} from
- * a {@code JMethod}
+ * A schedulable that removes {@link DexCodeMarker} from a {@code JMethod}
  */
 @Description("Removes useless DexCodeMarker")
 @Name("DexCodeMarkerRemover")
 @Constraint(need = DexCodeMarker.class)
 @Transform(remove = DexCodeMarker.class)
+@Filter(TypeWithoutPrebuiltFilter.class)
 public class DexCodeMarkerRemover implements RunnableSchedulable<JMethod> {
 
   @Override

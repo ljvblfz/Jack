@@ -25,32 +25,28 @@ import javax.annotation.Nonnull;
  * Constants of type {@code CONSTANT_Fieldref_info}.
  */
 public final class CstFieldRef extends CstMemberRef {
-  /**
-   * Returns an instance of this class that represents the static
-   * field which should hold the class corresponding to a given
-   * primitive type. For example, if given {@link Type#INT}, this
-   * method returns an instance corresponding to the field
-   * {@code java.lang.Integer.TYPE}.
-   *
-   * @param primitiveType {@code non-null;} the primitive type
-   * @return {@code non-null;} the corresponding static field
-   */
-  public static CstFieldRef forPrimitiveType(Type primitiveType) {
-    return new CstFieldRef(CstType.forBoxedPrimitiveType(primitiveType), CstNat.PRIMITIVE_TYPE_NAT);
-  }
+
+  /** {@code non-null;} the field type */
+  @Nonnull
+  private final Type type;
 
   /**
    * Constructs an instance.
    *
    * @param definingClass {@code non-null;} the type of the defining class
-   * @param nat {@code non-null;} the name-and-type
+   * @param name {@code non-null;} the member reference name
+   * @param type {@code non-null;} the member reference type
    */
-  public CstFieldRef(CstType definingClass, CstNat nat) {
-    super(definingClass, nat);
+  public CstFieldRef(@Nonnull Type definingClass, @Nonnull CstString name,
+      @Nonnull Type type) {
+    super(definingClass, name);
+    this.type = type;
+
   }
 
   /** {@inheritDoc} */
   @Override
+  @Nonnull
   public String typeName() {
     return "field";
   }
@@ -61,8 +57,9 @@ public final class CstFieldRef extends CstMemberRef {
    * @return {@code non-null;} the field's type
    */
   @Override
+  @Nonnull
   public Type getType() {
-    return getNat().getFieldType();
+    return type;
   }
 
   /** {@inheritDoc} */
@@ -75,14 +72,38 @@ public final class CstFieldRef extends CstMemberRef {
     }
 
     CstFieldRef otherField = (CstFieldRef) other;
-    CstString thisDescriptor = getNat().getDescriptor();
-    CstString otherDescriptor = otherField.getNat().getDescriptor();
-    return thisDescriptor.compareTo(otherDescriptor);
+    return type.compareTo(otherField.type);
   }
 
   @Override
   @Nonnull
   public ValueType getEncodedValueType() {
     return ValueType.VALUE_FIELD;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public final boolean equals(Object other) {
+    if ((other == null) || (getClass() != other.getClass())) {
+      return false;
+    }
+
+    CstFieldRef otherRef = (CstFieldRef) other;
+    return getDefiningClass().equals(otherRef.getDefiningClass())
+        && getName().equals(otherRef.getName()) && type.equals(otherRef.type);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public final int hashCode() {
+    return ((getDefiningClass().hashCode() * 31) + getName().hashCode() * 31)
+        + getType().hashCode();
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  @Nonnull
+  public final String toHuman() {
+    return getDefiningClass().toHuman() + '.' + getName().toHuman() + ':' + type.toHuman();
   }
 }

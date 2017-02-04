@@ -806,6 +806,65 @@ public class LambdaTest {
     run(LAMBDA042);
   }
 
+  /**
+   * Check that lambda classes are not lost when successively importing libraries.
+   */
+  @Test
+  @Runtime
+  public void testLamba043() throws Exception {
+    List<Class<? extends IToolchain>> excludedToolchains =
+        new ArrayList<Class<? extends IToolchain>>();
+    excludedToolchains.add(JackApiV01.class);
+
+    // create a lib2 that contains a lambda
+    JackBasedToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
+    File lib2 = AbstractTestTools.createTempFile("lib2", toolchain.getLibraryExtension());
+    {
+      File sourceDir =
+          AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test043.lib2.jack");
+      File[] defaultClasspath = toolchain.getDefaultBootClasspath();
+      toolchain.setSourceLevel(SourceLevel.JAVA_8);
+      toolchain.addToClasspath(defaultClasspath).srcToLib(lib2, /* zipFiles = */ true, sourceDir);
+    }
+
+    // create a lib1 that statically imports lib2
+    toolchain =
+        AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
+    File lib1 = AbstractTestTools.createTempFile("lib1", toolchain.getLibraryExtension());
+    {
+      File sourceDir =
+          AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test043.lib1.jack");
+      File[] defaultClasspath = toolchain.getDefaultBootClasspath();
+      toolchain.setSourceLevel(SourceLevel.JAVA_8);
+      toolchain.addStaticLibs(lib2);
+      toolchain.addToClasspath(defaultClasspath).srcToLib(lib1, /* zipFiles = */ true, sourceDir);
+    }
+
+    // create a dex that statically imports lib1
+    File dexDir = AbstractTestTools.createTempDir();
+    {
+      File sourceDir =
+          AbstractTestTools.getTestRootDir("com.android.jack.java8.lambda.test043.jack");
+      toolchain =
+          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
+      File[] defaultClasspath = toolchain.getDefaultBootClasspath();
+      toolchain.addStaticLibs(lib1);
+      toolchain
+          .addToClasspath(defaultClasspath)
+          .setSourceLevel(SourceLevel.JAVA_8)
+          .srcToExe(dexDir, /* zipFiles = */ false, sourceDir);
+    }
+
+    // call the lambda
+    run(
+        "com.android.jack.java8.lambda.test043.jack.Tests",
+        new File[] {
+          new File(TestsProperties.getJackRootDir(), "jack-tests/prebuilts/junit4-hostdex.jar"),
+          new File(dexDir, DexFileWriter.DEX_FILENAME)
+        });
+  }
+
   private void run(@Nonnull String mainClass, @Nonnull File[] dexFiles) throws Exception {
     List<RuntimeRunner> runnerList = AbstractTestTools.listRuntimeTestRunners(null);
     for (RuntimeRunner runner : runnerList) {

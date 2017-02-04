@@ -44,4 +44,24 @@ public class Unary {
   public static double neg(double a) {
     return -a;
   }
+
+  public static float posNegZero() {
+    return (+(-0.0f));
+  }
+
+  public static float negPosZero() {
+    return (-(+0.0f));
+  }
+
+  public static float negPosNegZero() {
+    return (-(+(-0.0f)));
+  }
+
+  public static float posNegPosZero() {
+    return (+(-(+0.0f)));
+  }
+
+  public static float posNegUnknown(float x) {
+    return (+(-(x)));
+  }
 }

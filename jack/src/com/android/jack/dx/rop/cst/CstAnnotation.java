@@ -34,9 +34,7 @@ public final class CstAnnotation extends Constant {
    * @param annotation {@code non-null;} the annotation to hold
    */
   public CstAnnotation(Annotation annotation) {
-    if (annotation == null) {
-      throw new NullPointerException("annotation == null");
-    }
+    assert annotation != null;
 
     annotation.throwIfMutable();
 

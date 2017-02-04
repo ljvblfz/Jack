@@ -52,9 +52,7 @@ public final class LocalVariableInfo extends MutabilityControl {
    * @param method {@code non-null;} the method being represented by this instance
    */
   public LocalVariableInfo(RopMethod method) {
-    if (method == null) {
-      throw new NullPointerException("method == null");
-    }
+    assert method != null;
 
     BasicBlockList blocks = method.getBlocks();
     int maxLabel = blocks.getMaxLabel();
@@ -75,11 +73,9 @@ public final class LocalVariableInfo extends MutabilityControl {
    * @param specs {@code non-null;} the register set to associate with the block
    */
   public void setStarts(int label, RegisterSpecSet specs) {
-    throwIfImmutable();
+    assert specs != null;
 
-    if (specs == null) {
-      throw new NullPointerException("specs == null");
-    }
+    throwIfImmutable();
 
     try {
       blockStarts[label] = specs;
@@ -184,15 +180,10 @@ public final class LocalVariableInfo extends MutabilityControl {
    * @param spec {@code non-null;} the associated register spec
    */
   public void addAssignment(Insn insn, RegisterSpec spec) {
+    assert insn != null;
+    assert spec != null;
+
     throwIfImmutable();
-
-    if (insn == null) {
-      throw new NullPointerException("insn == null");
-    }
-
-    if (spec == null) {
-      throw new NullPointerException("spec == null");
-    }
 
     insnAssignments.put(insn, spec);
   }

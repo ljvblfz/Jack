@@ -15,9 +15,11 @@
  */
 package com.android.jack.ir.ast;
 
+import com.android.jack.Jack;
 import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.cfg.JReturnBlockElement;
 import com.android.jack.ir.sourceinfo.SourceInfo;
+import com.android.jack.lookup.CommonTypes;
 import com.android.sched.item.Component;
 import com.android.sched.item.Description;
 import com.android.sched.scheduler.ScheduleInstance;
@@ -36,18 +38,17 @@ import javax.annotation.Nonnull;
 public class JClassLiteral extends JLiteral {
 
   @Nonnull
-  private final JClass javaLangClass;
+  private final JClass javaLangClass =
+      Jack.getSession().getPhantomLookup().getClass(CommonTypes.JAVA_LANG_CLASS);
 
   @Nonnull
   private final JType refType;
 
-  public JClassLiteral(@Nonnull SourceInfo sourceInfo, @Nonnull JType type,
-      @Nonnull JClass javaLangClass) {
+  public JClassLiteral(@Nonnull SourceInfo sourceInfo, @Nonnull JType type) {
     super(sourceInfo);
     assert type != null;
     assert javaLangClass != null;
     refType = type;
-    this.javaLangClass = javaLangClass;
   }
 
   @Nonnull
@@ -92,7 +93,9 @@ public class JClassLiteral extends JLiteral {
         || parent instanceof JFieldInitializer
         || parent instanceof JReturnStatement
         || parent instanceof JReturnBlockElement
-        || parent instanceof JSynchronizedBlock)) {
+        || parent instanceof JSynchronizedBlock
+        || parent instanceof JLock
+        || parent instanceof JUnlock)) {
       throw new JNodeInternalError(this, "Invalid parent");
     }
   }

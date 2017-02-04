@@ -66,9 +66,7 @@ public abstract class Section {
    * must be a power of 2
    */
   public Section(String name, DexFile file, int alignment) {
-    if (file == null) {
-      throw new NullPointerException("file == null");
-    }
+    assert file != null;
 
     validateAlignment(alignment);
 
