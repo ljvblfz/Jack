@@ -566,8 +566,11 @@ public class Tracer extends JVisitor {
   @Override
   public void endVisit(@Nonnull JVariableRef x) {
     DebugVariableInfoMarker debugInfo = x.getMarker(DebugVariableInfoMarker.class);
-    if (debugInfo != null && debugInfo.getType() != null) {
-      trace(debugInfo.getType());
+    if (debugInfo != null) {
+      JType debugInfoType = debugInfo.getType();
+      if (debugInfoType != null) {
+        trace(debugInfoType);
+      }
     }
   }
 
