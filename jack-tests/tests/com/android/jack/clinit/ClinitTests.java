@@ -16,10 +16,8 @@
 
 package com.android.jack.clinit;
 
-import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
-import com.android.jack.test.toolchain.JillBasedToolchain;
 
 import org.junit.Test;
 
@@ -39,7 +37,6 @@ public class ClinitTests {
   }
 
   @Test
-  @KnownIssue(candidate=JillBasedToolchain.class)
   public void testCompileAnnotationWithClinit() throws Exception {
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
