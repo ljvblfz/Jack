@@ -213,6 +213,7 @@ public class BoostLockedRegionPriority implements RunnableSchedulable<JMethod> {
       }
 
       JStatementList list = (JStatementList) jLock.getParent();
+      assert list != null;
       int index = list.getStatements().indexOf(jLock) + 1;
       if (index >= list.getStatements().size()) {
         abortPass();

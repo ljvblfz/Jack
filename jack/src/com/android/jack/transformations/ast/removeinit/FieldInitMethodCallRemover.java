@@ -25,6 +25,7 @@ import com.android.jack.ir.ast.JFieldInitializer;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBody;
 import com.android.jack.ir.ast.JMethodCall;
+import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.lookup.JMethodLookupException;
@@ -92,12 +93,14 @@ public class FieldInitMethodCallRemover implements RunnableSchedulable<JMethod> 
         assert body instanceof JMethodBody;
         JBlock varInitMethodBLock = ((JMethodBody) body).getBlock();
 
+        final JNode methodCallParent = methodCall.getParent();
+        assert methodCallParent != null;
         if (varInitMethodBLock.getStatements().isEmpty()) {
-          tr.append(new Remove(methodCall.getParent()));
+          tr.append(new Remove(methodCallParent));
         } else {
           CloneStatementVisitor csv = new CloneStatementVisitor(tr,
               methodCall.getParent(JMethod.class));
-          tr.append(new Replace(methodCall.getParent(), csv.cloneStatement(varInitMethodBLock)));
+          tr.append(new Replace(methodCallParent, csv.cloneStatement(varInitMethodBLock)));
         }
       }
       super.endVisit(methodCall);

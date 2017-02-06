@@ -157,6 +157,7 @@ public class ConstantRefiner implements RunnableSchedulable<JMethod> {
 
           if (varRef.getParent() instanceof JCastOperation) {
             JCastOperation cast = (JCastOperation) varRef.getParent();
+            assert cast != null;
             if (cast.getType().isSameType(dm.getValue().getType())) {
               // Remove useless cast directly since it trigger new opportunities.
               tr.append(new Replace(cast, cloneExpr.cloneExpression(dm.getValue())));

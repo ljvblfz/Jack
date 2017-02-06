@@ -26,6 +26,7 @@ import com.android.jack.ir.ast.JLiteral;
 import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
+import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JParameterRef;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.transformations.SanityChecks;
@@ -74,7 +75,9 @@ public class ThreeAddressCodeChecker implements RunnableSchedulable<JMethod>{
     }
 
     private static void throwError(@Nonnull JExpression expr) {
-      throw new AssertionError(expr.getParent().toSource() + " is not three address code.");
+      final JNode parent = expr.getParent();
+      assert parent != null;
+      throw new AssertionError(parent.toSource() + " is not three address code.");
     }
 
     private boolean isValidExpressionForTac(@Nonnull JExpression expr) {

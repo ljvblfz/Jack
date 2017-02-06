@@ -116,9 +116,10 @@ public class ConcatRemover implements RunnableSchedulable<JMethod> {
       if (binary instanceof JConcatOperation) {
         TransformationRequest tr = new TransformationRequest(method);
         SourceInfo sourceInfo = binary.getSourceInfo();
-        JNode parent = binary.getParent();
-        if (isReplaceableAppend(parent)) {
-          JMethodCall toReplace = (JMethodCall) parent;
+        final JNode binaryParent = binary.getParent();
+        assert binaryParent != null;
+        if (isReplaceableAppend(binaryParent)) {
+          JMethodCall toReplace = (JMethodCall) binaryParent;
 
           JExpression instance = toReplace.getInstance();
           assert instance != null;

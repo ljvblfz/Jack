@@ -44,6 +44,7 @@ import com.android.jack.util.CloneExpressionVisitor;
 
 import java.util.List;
 import java.util.Set;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
@@ -65,7 +66,9 @@ public final class OptimizerUtils {
   @Nonnull
   public static JExpression getAssignedValue(@Nonnull JExpression expr) {
     assert isAssigned(expr);
-    return ((JAsgOperation) expr.getParent()).getRhs();
+    JAsgOperation parent = (JAsgOperation) expr.getParent();
+    assert parent != null;
+    return parent.getRhs();
   }
 
   /**

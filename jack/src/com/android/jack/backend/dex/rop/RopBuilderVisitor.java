@@ -714,8 +714,10 @@ class RopBuilderVisitor extends JVisitor {
           throws AssertionError {
     if (value instanceof JExceptionRuntimeValue) {
       assert dest instanceof JVariableRef;
-      assert declaration.getParent() instanceof JCatchBlock
-          && ((JCatchBlock) declaration.getParent()).getStatements().get(0) == declaration;
+      final JNode declarationParent = declaration.getParent();
+      assert declarationParent != null;
+      assert declarationParent instanceof JCatchBlock
+          && ((JCatchBlock) declarationParent).getStatements().get(0) == declaration;
       RegisterSpec exceptionReg = ropReg.getOrCreateRegisterSpec((JVariableRef) dest);
       addInstruction(new PlainInsn(
           Rops.opMoveException(exceptionReg.getTypeBearer()), RopHelper.getSourcePosition(dest),

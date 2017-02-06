@@ -50,21 +50,24 @@ public class PrependAfter implements TransformationStep, TransformStep {
 
   @Override
   public void apply() throws UnsupportedOperationException {
-    if (existingNode.getParent() == null) {
+    final JNode existingNodeParent = existingNode.getParent();
+    if (existingNodeParent == null) {
       throw new UnsupportedOperationException();
     }
-    existingNode.getParent().insertAfter(existingNode, newNode);
+    existingNodeParent.insertAfter(existingNode, newNode);
   }
 
   @Override
   @Nonnull
   public String toString() {
+    final JNode existingNodeParent = existingNode.getParent();
+    assert existingNodeParent != null;
     StringBuilder sb = new StringBuilder("Prepend ");
     sb.append(newNode.toSource());
     sb.append(" after ");
     sb.append(existingNode.toSource());
     sb.append(" in ");
-    sb.append(existingNode.getParent().toSource());
+    sb.append(existingNodeParent.toSource());
     return sb.toString();
   }
 

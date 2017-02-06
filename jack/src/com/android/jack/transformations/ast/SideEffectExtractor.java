@@ -23,6 +23,7 @@ import com.android.jack.ir.ast.JFieldRef;
 import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JMultiExpression;
+import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JParameterRef;
 import com.android.jack.ir.sourceinfo.SourceInfo;
@@ -87,7 +88,9 @@ public class SideEffectExtractor {
     if (!extracted.isEmpty()) {
       extracted.add((JExpression) ref.getParent());
       JMultiExpression multiExpression = new JMultiExpression(sourceInfo, extracted);
-      tr.append(new Replace(ref.getParent(), multiExpression));
+      final JNode parent = ref.getParent();
+      assert parent != null;
+      tr.append(new Replace(parent, multiExpression));
     }
 
     return new JFieldRef(sourceInfo, newInstance, ref.getFieldId(), ref.getReceiverType());
@@ -105,7 +108,9 @@ public class SideEffectExtractor {
     if (!extracted.isEmpty()) {
       extracted.add((JExpression) ref.getParent());
       JMultiExpression multiExpression = new JMultiExpression(sourceInfo, extracted);
-      tr.append(new Replace(ref.getParent(), multiExpression));
+      final JNode parent = ref.getParent();
+      assert parent != null;
+      tr.append(new Replace(parent, multiExpression));
     }
 
     assert newInstance != null;

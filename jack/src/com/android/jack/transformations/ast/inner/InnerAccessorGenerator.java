@@ -304,6 +304,7 @@ public class InnerAccessorGenerator implements RunnableSchedulable<JDefinedClass
 
     // this.this$0.field = $value => $set<id>(this.this$0, $value)
     JBinaryOperation binOp = (JBinaryOperation) fieldRef.getParent();
+    assert binOp != null;
 
     JMethodId setterId = setter.getMethodId();
     JMethodCall setterCall = new JMethodCall(binOp.getSourceInfo(), null, accessorClass, setterId,

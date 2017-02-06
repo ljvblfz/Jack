@@ -41,18 +41,21 @@ public class Remove implements TransformationStep, TransformStep {
 
   @Override
   public void apply() throws UnsupportedOperationException {
-    if (node.getParent() == null) {
+    final JNode parent = node.getParent();
+    if (parent == null) {
       throw new UnsupportedOperationException();
     }
-    node.getParent().remove(node);
+    parent.remove(node);
   }
 
   @Override
   public String toString() {
+    final JNode parent = node.getParent();
+    assert parent != null;
     StringBuilder sb = new StringBuilder("Remove ");
     sb.append(node.toSource());
     sb.append(" in ");
-    sb.append(node.getParent().toSource());
+    sb.append(parent.toSource());
     return sb.toString();
   }
 

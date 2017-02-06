@@ -18,6 +18,7 @@ package com.android.jack.transformations.request;
 
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JNameValuePair;
+import com.android.jack.ir.ast.JNode;
 import com.android.sched.transform.TransformStep;
 
 import javax.annotation.Nonnull;
@@ -54,12 +55,14 @@ public class AddNameValuePair implements TransformationStep, TransformStep {
   @Override
   @Nonnull
   public String toString() {
+    JNode annotationParent = annotation.getParent();
+    assert annotationParent != null;
     StringBuilder sb = new StringBuilder("Add ");
     sb.append(pair.toSource());
     sb.append(" in ");
     sb.append(annotation.toSource());
     sb.append(" on ");
-    sb.append(annotation.getParent().toSource());
+    sb.append(annotationParent.toSource());
     return sb.toString();
   }
 }

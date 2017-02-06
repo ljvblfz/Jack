@@ -18,6 +18,7 @@ package com.android.jack.transformations.request;
 
 import com.android.jack.ir.ast.JAnnotation;
 import com.android.jack.ir.ast.JNameValuePair;
+import com.android.jack.ir.ast.JNode;
 
 import javax.annotation.Nonnull;
 
@@ -54,12 +55,14 @@ public class PutNameValuePair implements TransformationStep {
   @Override
   @Nonnull
   public String toString() {
+    final JNode annotationParent = annotation.getParent();
+    assert annotationParent != null;
     StringBuilder sb = new StringBuilder("Put ");
     sb.append(pair.toSource());
     sb.append(" in ");
     sb.append(annotation.toSource());
     sb.append(" on ");
-    sb.append(annotation.getParent().toSource());
+    sb.append(annotationParent.toSource());
     return sb.toString();
   }
 }
