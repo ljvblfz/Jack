@@ -296,8 +296,7 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
       token.skip(this);
 
       if (nodeLevel != NodeLevel.TYPES) {
-        NNode node = token.newNode();
-        if (node instanceof HasSourceInfo) {
+        if (token.hasSourceInfo()) {
           skipCurrentFileName();
           skipCurrentLine();
         }

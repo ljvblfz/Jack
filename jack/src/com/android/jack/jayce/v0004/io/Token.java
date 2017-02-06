@@ -19,6 +19,7 @@ package com.android.jack.jayce.v0004.io;
 import com.android.jack.jayce.JayceFormatException;
 import com.android.jack.jayce.NodeLevel;
 import com.android.jack.jayce.v0004.NNode;
+import com.android.jack.jayce.v0004.nodes.HasSourceInfo;
 import com.android.jack.jayce.v0004.nodes.NAbsentArrayDimension;
 import com.android.jack.jayce.v0004.nodes.NAddOperation;
 import com.android.jack.jayce.v0004.nodes.NAlloc;
@@ -173,6 +174,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NAbsentArrayDimension> getNNodeClass() {
+      return NAbsentArrayDimension.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NAbsentArrayDimension.skipContent(reader);
     }
@@ -182,6 +189,12 @@ public enum Token {
     @Nonnull
     public NNode newNode() {
       return new NAddOperation();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NAddOperation> getNNodeClass() {
+      return NAddOperation.class;
     }
 
     @Override
@@ -197,6 +210,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NAlloc> getNNodeClass() {
+      return NAlloc.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NAlloc.skipContent(reader);
     }
@@ -206,6 +225,12 @@ public enum Token {
     @Nonnull
     public NNode newNode() {
       return new NAndOperation();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NAndOperation> getNNodeClass() {
+      return NAndOperation.class;
     }
 
     @Override
@@ -221,6 +246,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NAnnotation> getNNodeClass() {
+      return NAnnotation.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NAnnotation.skipContent(reader);
     }
@@ -230,6 +261,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NAnnotationMethod();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NAnnotationMethod> getNNodeClass() {
+      return NAnnotationMethod.class;
     }
 
     @Override
@@ -245,6 +282,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NAnnotationType> getNNodeClass() {
+      return NAnnotationType.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NAnnotationType.skipContent(reader);
     }
@@ -254,6 +297,12 @@ public enum Token {
     @Nonnull
     public NNode newNode() {
       return new NArrayLength();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NArrayLength> getNNodeClass() {
+      return NArrayLength.class;
     }
 
     @Override
@@ -269,6 +318,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NArrayLiteral> getNNodeClass() {
+      return NArrayLiteral.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NArrayLiteral.skipContent(reader);
     }
@@ -278,6 +333,12 @@ public enum Token {
     @Nonnull
     public NNode newNode() {
       return new NArrayRef();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NArrayRef> getNNodeClass() {
+      return NArrayRef.class;
     }
 
     @Override
@@ -293,6 +354,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NAsgAddOperation> getNNodeClass() {
+      return NAsgAddOperation.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NAsgAddOperation.skipContent(reader);
     }
@@ -302,6 +369,12 @@ public enum Token {
     @Nonnull
     public NNode newNode() {
       return new NAsgBitAndOperation();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NAsgBitAndOperation> getNNodeClass() {
+      return NAsgBitAndOperation.class;
     }
 
     @Override
@@ -317,6 +390,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NAsgBitOrOperation> getNNodeClass() {
+      return NAsgBitOrOperation.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NAsgBitOrOperation.skipContent(reader);
     }
@@ -326,6 +405,12 @@ public enum Token {
     @Nonnull
     public NNode newNode() {
       return new NAsgBitXorOperation();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NAsgBitXorOperation> getNNodeClass() {
+      return NAsgBitXorOperation.class;
     }
 
     @Override
@@ -341,6 +426,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NAsgConcatOperation> getNNodeClass() {
+      return NAsgConcatOperation.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NAsgConcatOperation.skipContent(reader);
     }
@@ -350,6 +441,12 @@ public enum Token {
     @Nonnull
     public NNode newNode() {
       return new NAsgDivOperation();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NAsgDivOperation> getNNodeClass() {
+      return NAsgDivOperation.class;
     }
 
     @Override
@@ -365,6 +462,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NAsgModOperation> getNNodeClass() {
+      return NAsgModOperation.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NAsgModOperation.skipContent(reader);
     }
@@ -374,6 +477,12 @@ public enum Token {
     @Nonnull
     public NNode newNode() {
       return new NAsgMulOperation();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NAsgMulOperation> getNNodeClass() {
+      return NAsgMulOperation.class;
     }
 
     @Override
@@ -389,6 +498,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NAsgOperation> getNNodeClass() {
+      return NAsgOperation.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NAsgOperation.skipContent(reader);
     }
@@ -398,6 +513,12 @@ public enum Token {
     @Nonnull
     public NNode newNode() {
       return new NAsgShlOperation();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NAsgShlOperation> getNNodeClass() {
+      return NAsgShlOperation.class;
     }
 
     @Override
@@ -413,6 +534,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NAsgShrOperation> getNNodeClass() {
+      return NAsgShrOperation.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NAsgShrOperation.skipContent(reader);
     }
@@ -422,6 +549,12 @@ public enum Token {
     @Nonnull
     public NNode newNode() {
       return new NAsgShruOperation();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NAsgShruOperation> getNNodeClass() {
+      return NAsgShruOperation.class;
     }
 
     @Override
@@ -437,6 +570,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NAsgSubOperation> getNNodeClass() {
+      return NAsgSubOperation.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NAsgSubOperation.skipContent(reader);
     }
@@ -446,6 +585,12 @@ public enum Token {
     @Nonnull
     public NNode newNode() {
       return new NAssertStatement();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NAssertStatement> getNNodeClass() {
+      return NAssertStatement.class;
     }
 
     @Override
@@ -461,6 +606,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NBitAndOperation> getNNodeClass() {
+      return NBitAndOperation.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NBitAndOperation.skipContent(reader);
     }
@@ -470,6 +621,12 @@ public enum Token {
     @Nonnull
     public NNode newNode() {
       return new NBitOrOperation();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NBitOrOperation> getNNodeClass() {
+      return NBitOrOperation.class;
     }
 
     @Override
@@ -485,6 +642,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NBitXorOperation> getNNodeClass() {
+      return NBitXorOperation.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NBitXorOperation.skipContent(reader);
     }
@@ -494,6 +657,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NBlock();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NBlock> getNNodeClass() {
+      return NBlock.class;
     }
 
     @Override
@@ -509,6 +678,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NBooleanLiteral> getNNodeClass() {
+      return NBooleanLiteral.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NBooleanLiteral.skipContent(reader);
     }
@@ -518,6 +693,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NBreakStatement();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NBreakStatement> getNNodeClass() {
+      return NBreakStatement.class;
     }
 
     @Override
@@ -533,6 +714,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NByteLiteral> getNNodeClass() {
+      return NByteLiteral.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NByteLiteral.skipContent(reader);
     }
@@ -542,6 +729,12 @@ public enum Token {
     @Nonnull
     public NNode newNode() {
       return new NCaseStatement();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NCaseStatement> getNNodeClass() {
+      return NCaseStatement.class;
     }
 
     @Override
@@ -557,6 +750,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NCatchBlock> getNNodeClass() {
+      return NCatchBlock.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NCatchBlock.skipContent(reader);
     }
@@ -566,6 +765,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NCharLiteral();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NCharLiteral> getNNodeClass() {
+      return NCharLiteral.class;
     }
 
     @Override
@@ -581,6 +786,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NClassType> getNNodeClass() {
+      return NClassType.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NClassType.skipContent(reader);
     }
@@ -590,6 +801,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NClassLiteral();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NClassLiteral> getNNodeClass() {
+      return NClassLiteral.class;
     }
 
     @Override
@@ -605,6 +822,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NConcatOperation> getNNodeClass() {
+      return NConcatOperation.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NConcatOperation.skipContent(reader);
     }
@@ -614,6 +837,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NConditionalExpression();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NConditionalExpression> getNNodeClass() {
+      return NConditionalExpression.class;
     }
 
     @Override
@@ -629,6 +858,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NConstructor> getNNodeClass() {
+      return NConstructor.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NConstructor.skipContent(reader);
     }
@@ -638,6 +873,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NContainerAnnotation();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NContainerAnnotation> getNNodeClass() {
+      return NContainerAnnotation.class;
     }
 
     @Override
@@ -653,6 +894,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NContinueStatement> getNNodeClass() {
+      return NContinueStatement.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NContinueStatement.skipContent(reader);
     }
@@ -662,6 +909,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NDebugVariableInfo();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NDebugVariableInfo> getNNodeClass() {
+      return NDebugVariableInfo.class;
     }
 
     @Override
@@ -677,6 +930,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NDivOperation> getNNodeClass() {
+      return NDivOperation.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NDivOperation.skipContent(reader);
     }
@@ -686,6 +945,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NDoStatement();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NDoStatement> getNNodeClass() {
+      return NDoStatement.class;
     }
 
     @Override
@@ -701,6 +966,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NDoubleLiteral> getNNodeClass() {
+      return NDoubleLiteral.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NDoubleLiteral.skipContent(reader);
     }
@@ -710,6 +981,12 @@ public enum Token {
     @Nonnull
     public NNode newNode() {
       return new NDynamicCastOperation();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NDynamicCastOperation> getNNodeClass() {
+      return NDynamicCastOperation.class;
     }
 
     @Override
@@ -725,6 +1002,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NEnumType> getNNodeClass() {
+      return NEnumType.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NEnumType.skipContent(reader);
     }
@@ -734,6 +1017,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NEnumField();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NEnumField> getNNodeClass() {
+      return NEnumField.class;
     }
 
     @Override
@@ -749,6 +1038,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NEnumLiteral> getNNodeClass() {
+      return NEnumLiteral.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NEnumLiteral.skipContent(reader);
     }
@@ -758,6 +1053,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NEqOperation();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NEqOperation> getNNodeClass() {
+      return NEqOperation.class;
     }
 
     @Override
@@ -773,6 +1074,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NExceptionRuntimeValue> getNNodeClass() {
+      return NExceptionRuntimeValue.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NExceptionRuntimeValue.skipContent(reader);
     }
@@ -782,6 +1089,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NExpressionStatement();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NExpressionStatement> getNNodeClass() {
+      return NExpressionStatement.class;
     }
 
     @Override
@@ -797,6 +1110,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NField> getNNodeClass() {
+      return NField.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NField.skipContent(reader);
     }
@@ -806,6 +1125,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NFieldInitializer();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NFieldInitializer> getNNodeClass() {
+      return NFieldInitializer.class;
     }
 
     @Override
@@ -821,6 +1146,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NFieldRef> getNNodeClass() {
+      return NFieldRef.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NFieldRef.skipContent(reader);
     }
@@ -830,6 +1161,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NFloatLiteral();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NFloatLiteral> getNNodeClass() {
+      return NFloatLiteral.class;
     }
 
     @Override
@@ -845,6 +1182,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NForStatement> getNNodeClass() {
+      return NForStatement.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NForStatement.skipContent(reader);
     }
@@ -854,6 +1197,12 @@ public enum Token {
     @Nonnull
     public NNode newNode() {
       return new NGenericSignature();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NGenericSignature> getNNodeClass() {
+      return NGenericSignature.class;
     }
 
     @Override
@@ -869,6 +1218,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NGoto> getNNodeClass() {
+      return NGoto.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NGoto.skipContent(reader);
     }
@@ -878,6 +1233,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NGteOperation();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NGteOperation> getNNodeClass() {
+      return NGteOperation.class;
     }
 
     @Override
@@ -893,6 +1254,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NGtOperation> getNNodeClass() {
+      return NGtOperation.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NGtOperation.skipContent(reader);
     }
@@ -902,6 +1269,12 @@ public enum Token {
     @Nonnull
     public NNode newNode() {
       return new NIfStatement();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NIfStatement> getNNodeClass() {
+      return NIfStatement.class;
     }
 
     @Override
@@ -917,6 +1290,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NInstanceOf> getNNodeClass() {
+      return NInstanceOf.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NInstanceOf.skipContent(reader);
     }
@@ -926,6 +1305,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NIntLiteral();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NIntLiteral> getNNodeClass() {
+      return NIntLiteral.class;
     }
 
     @Override
@@ -941,6 +1326,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NInterfaceType> getNNodeClass() {
+      return NInterfaceType.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NInterfaceType.skipContent(reader);
     }
@@ -950,6 +1341,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NLabeledStatement();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NLabeledStatement> getNNodeClass() {
+      return NLabeledStatement.class;
     }
 
     @Override
@@ -965,6 +1362,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NLambda> getNNodeClass() {
+      return NLambda.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NLambda.skipContent(reader);
     }
@@ -974,6 +1377,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NLambdaFromJill();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NLambdaFromJill> getNNodeClass() {
+      return NLambdaFromJill.class;
     }
 
     @Override
@@ -989,6 +1398,13 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NLocal> getNNodeClass() {
+      return NLocal.class;
+    }
+
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NLocal.skipContent(reader);
     }
@@ -998,6 +1414,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NLocalRef();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NLocalRef> getNNodeClass() {
+      return NLocalRef.class;
     }
 
     @Override
@@ -1013,6 +1435,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NLock> getNNodeClass() {
+      return NLock.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NLock.skipContent(reader);
     }
@@ -1022,6 +1450,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NLongLiteral();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NLongLiteral> getNNodeClass() {
+      return NLongLiteral.class;
     }
 
     @Override
@@ -1037,6 +1471,13 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NLteOperation> getNNodeClass() {
+      return NLteOperation.class;
+    }
+
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NLteOperation.skipContent(reader);
     }
@@ -1046,6 +1487,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NLtOperation();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NLtOperation> getNNodeClass() {
+      return NLtOperation.class;
     }
 
     @Override
@@ -1061,6 +1508,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NMethod> getNNodeClass() {
+      return NMethod.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NMethod.skipContent(reader);
     }
@@ -1070,6 +1523,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NMethodBody();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NMethodBody> getNNodeClass() {
+      return NMethodBody.class;
     }
 
     @Override
@@ -1085,6 +1544,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NMethodCall> getNNodeClass() {
+      return NMethodCall.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NMethodCall.skipContent(reader);
     }
@@ -1094,6 +1559,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NMethodId();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NMethodId> getNNodeClass() {
+      return NMethodId.class;
     }
 
     @Override
@@ -1109,6 +1580,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NMethodLiteral> getNNodeClass() {
+      return NMethodLiteral.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NMethodLiteral.skipContent(reader);
     }
@@ -1118,6 +1595,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NModOperation();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NModOperation> getNNodeClass() {
+      return NModOperation.class;
     }
 
     @Override
@@ -1133,6 +1616,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NMulOperation> getNNodeClass() {
+      return NMulOperation.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NMulOperation.skipContent(reader);
     }
@@ -1142,6 +1631,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NMultiExpression();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NMultiExpression> getNNodeClass() {
+      return NMultiExpression.class;
     }
 
     @Override
@@ -1157,6 +1652,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NNameValuePair> getNNodeClass() {
+      return NNameValuePair.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NNameValuePair.skipContent(reader);
     }
@@ -1166,6 +1667,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NNeqOperation();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NNeqOperation> getNNodeClass() {
+      return NNeqOperation.class;
     }
 
     @Override
@@ -1181,6 +1688,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NNativeMethodBody> getNNodeClass() {
+      return NNativeMethodBody.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) {
       NNativeMethodBody.skipContent(reader);
     }
@@ -1190,6 +1703,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NNewArray();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NNewArray> getNNodeClass() {
+      return NNewArray.class;
     }
 
     @Override
@@ -1205,6 +1724,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NNewInstance> getNNodeClass() {
+      return NNewInstance.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NNewInstance.skipContent(reader);
     }
@@ -1214,6 +1739,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NNullLiteral();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NNullLiteral> getNNodeClass() {
+      return NNullLiteral.class;
     }
 
     @Override
@@ -1229,6 +1760,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NOrOperation> getNNodeClass() {
+      return NOrOperation.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NOrOperation.skipContent(reader);
     }
@@ -1238,6 +1775,12 @@ public enum Token {
     @Nonnull
     public NNode newNode() {
       return new NOriginDigest();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NOriginDigest> getNNodeClass() {
+      return NOriginDigest.class;
     }
 
     @Override
@@ -1253,6 +1796,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NParameter> getNNodeClass() {
+      return NParameter.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NParameter.skipContent(reader);
     }
@@ -1262,6 +1811,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NParameterRef();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NParameterRef> getNNodeClass() {
+      return NParameterRef.class;
     }
 
     @Override
@@ -1277,6 +1832,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NPolymorphicCall> getNNodeClass() {
+      return NPolymorphicCall.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NPolymorphicCall.skipContent(reader);
     }
@@ -1286,6 +1847,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NPostfixDecOperation();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NPostfixDecOperation> getNNodeClass() {
+      return NPostfixDecOperation.class;
     }
 
     @Override
@@ -1301,6 +1868,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NPostfixIncOperation> getNNodeClass() {
+      return NPostfixIncOperation.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NPostfixIncOperation.skipContent(reader);
     }
@@ -1310,6 +1883,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NPrefixBitNotOperation();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NPrefixBitNotOperation> getNNodeClass() {
+      return NPrefixBitNotOperation.class;
     }
 
     @Override
@@ -1325,6 +1904,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NPrefixDecOperation> getNNodeClass() {
+      return NPrefixDecOperation.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NPrefixDecOperation.skipContent(reader);
     }
@@ -1334,6 +1919,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NPrefixIncOperation();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NPrefixIncOperation> getNNodeClass() {
+      return NPrefixIncOperation.class;
     }
 
     @Override
@@ -1349,6 +1940,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NPrefixNegOperation> getNNodeClass() {
+      return NPrefixNegOperation.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NPrefixNegOperation.skipContent(reader);
     }
@@ -1361,6 +1958,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NPrefixNotOperation> getNNodeClass() {
+      return NPrefixNotOperation.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NPrefixNotOperation.skipContent(reader);
     }
@@ -1369,6 +1972,12 @@ public enum Token {
     @Nonnull
     @Override
     public NNode newNode() {
+      throw new JayceFormatException("Unexpected node '" + toString() + "'");
+    }
+
+    @Override
+    @Nonnull
+    public Class<? extends NNode> getNNodeClass()  {
       throw new JayceFormatException("Unexpected node '" + toString() + "'");
     }
 
@@ -1385,6 +1994,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NReinterpretCastOperation> getNNodeClass() {
+      return NReinterpretCastOperation.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NReinterpretCastOperation.skipContent(reader);
     }
@@ -1394,6 +2009,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NReturnStatement();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NReturnStatement> getNNodeClass() {
+      return NReturnStatement.class;
     }
 
     @Override
@@ -1409,6 +2030,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NShlOperation> getNNodeClass() {
+      return NShlOperation.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NShlOperation.skipContent(reader);
     }
@@ -1418,6 +2045,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NShortLiteral();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NShortLiteral> getNNodeClass() {
+      return NShortLiteral.class;
     }
 
     @Override
@@ -1433,6 +2066,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NShrOperation> getNNodeClass() {
+      return NShrOperation.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NShrOperation.skipContent(reader);
     }
@@ -1442,6 +2081,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NShruOperation();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NShruOperation> getNNodeClass() {
+      return NShruOperation.class;
     }
 
     @Override
@@ -1457,6 +2102,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NSimpleName> getNNodeClass() {
+      return NSimpleName.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NSimpleName.skipContent(reader);
     }
@@ -1469,6 +2120,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NSubOperation> getNNodeClass() {
+      return NSubOperation.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NSubOperation.skipContent(reader);
     }
@@ -1478,6 +2135,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NStringLiteral();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NStringLiteral> getNNodeClass() {
+      return NStringLiteral.class;
     }
 
     @Override
@@ -1494,6 +2157,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NSwitchStatement> getNNodeClass() {
+      return NSwitchStatement.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NSwitchStatement.skipContent(reader);
     }
@@ -1503,6 +2172,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NSynchronizedBlock();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NSynchronizedBlock> getNNodeClass() {
+      return NSynchronizedBlock.class;
     }
 
     @Override
@@ -1518,6 +2193,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NThisRef> getNNodeClass() {
+      return NThisRef.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NThisRef.skipContent(reader);
     }
@@ -1527,6 +2208,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NThisRefTypeInfo();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NThisRefTypeInfo> getNNodeClass() {
+      return NThisRefTypeInfo.class;
     }
 
     @Override
@@ -1542,6 +2229,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NThrowStatement> getNNodeClass() {
+      return NThrowStatement.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NThrowStatement.skipContent(reader);
     }
@@ -1551,6 +2244,12 @@ public enum Token {
     @Nonnull
     public NNode newNode() {
       return new NThrownExceptionMarker();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NThrownExceptionMarker> getNNodeClass() {
+      return NThrownExceptionMarker.class;
     }
 
     @Override
@@ -1566,6 +2265,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NTryStatement> getNNodeClass() {
+      return NTryStatement.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NTryStatement.skipContent(reader);
     }
@@ -1575,6 +2280,12 @@ public enum Token {
     @Override
     public NNode newNode() {
       return new NUnlock();
+    }
+
+    @Override
+    @Nonnull
+    public Class<NUnlock> getNNodeClass() {
+      return NUnlock.class;
     }
 
     @Override
@@ -1590,6 +2301,12 @@ public enum Token {
     }
 
     @Override
+    @Nonnull
+    public Class<NWhileStatement> getNNodeClass() {
+      return NWhileStatement.class;
+    }
+
+    @Override
     public void skip(@Nonnull JayceInternalReaderImpl reader) throws IOException {
       NWhileStatement.skipContent(reader);
     }
@@ -1602,12 +2319,19 @@ public enum Token {
   @CheckForNull
   private String label;
 
+  private boolean hasSourceInfo;
+
   private Token(@CheckForNull String text) {
     this(text, NodeLevel.FULL);
   }
   private Token(@CheckForNull String text, NodeLevel nodeLevel) {
     this.label = text;
     this.nodeLevel = nodeLevel;
+    try {
+      hasSourceInfo = HasSourceInfo.class.isAssignableFrom(getNNodeClass());
+    } catch (InvalidTokenException e) {
+      hasSourceInfo = false;
+    }
   }
 
   public int getId() {
@@ -1621,7 +2345,16 @@ public enum Token {
 
   @Nonnull
   public NNode newNode() throws InvalidTokenException {
-    throw new InvalidTokenException("No node coresponding to token " + this.toString());
+    throw new InvalidTokenException("No node corresponding to token " + this.toString());
+  }
+
+  @Nonnull
+  public Class<? extends NNode> getNNodeClass() throws InvalidTokenException  {
+    throw new InvalidTokenException("No node corresponding to token " + this.toString());
+  }
+
+  public final boolean hasSourceInfo() {
+    return hasSourceInfo;
   }
 
   @SuppressWarnings("unused")
