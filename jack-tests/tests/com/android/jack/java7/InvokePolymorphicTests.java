@@ -30,6 +30,7 @@ import com.android.jack.test.helper.FileChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.junit.Runtime;
+import com.android.jack.test.junit.RuntimeVersion;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
@@ -107,42 +108,42 @@ public class InvokePolymorphicTests {
           });
 
   @Test
-  @Runtime
+  @Runtime(from=RuntimeVersion.O)
   @KnownIssue
   public void testInvokePolymorphic001() throws Exception {
     run(INVOKE_POLYMORPHIC_001);
   }
 
   @Test
-  @Runtime
+  @Runtime(from=RuntimeVersion.O)
   @KnownIssue
   public void testInvokePolymorphic002() throws Exception {
     run(INVOKE_POLYMORPHIC_002);
   }
 
   @Test
-  @Runtime
+  @Runtime(from=RuntimeVersion.O)
   @KnownIssue
   public void testInvokePolymorphic003() throws Exception {
     run(INVOKE_POLYMORPHIC_003);
   }
 
   @Test
-  @Runtime
+  @Runtime(from=RuntimeVersion.O)
   @KnownIssue
   public void testInvokePolymorphic004() throws Exception {
     run(INVOKE_POLYMORPHIC_004);
   }
 
   @Test
-  @Runtime
+  @Runtime(from=RuntimeVersion.O)
   @KnownIssue
   public void testInvokePolymorphic005() throws Exception {
     run(INVOKE_POLYMORPHIC_005);
   }
 
   @Test
-  @Runtime
+  @Runtime(from=RuntimeVersion.O)
   @KnownIssue
   public void testInvokePolymorphic006() throws Exception {
     run(INVOKE_POLYMORPHIC_006);
@@ -198,7 +199,7 @@ public class InvokePolymorphicTests {
   }
 
   @Test
-  @Runtime
+  @Runtime(from=RuntimeVersion.O)
   @KnownIssue
   public void testInvokePolymorphic007() throws Exception {
     run(INVOKE_POLYMORPHIC_007);
