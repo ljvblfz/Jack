@@ -160,13 +160,22 @@ task jarjar(type:Exec, dependsOn: [':jarjar:jar', fullJackJar]) {
   commandLine 'java', '-jar', configurations.jarjar.singleFile, 'process', "jarjar-rules.txt", fullJackJar.archivePath, file("${buildDir}/libs/jack.jar")
 }
 
+task jackDevJar (type: Jar, dependsOn: jarjar){
+  baseName 'jack'
+  classifier 'dev'
+  from (zipTree("${buildDir}/libs/jack.jar")) {
+    // Manage exclusion of packages to be hidden from plugin developers
+  }
+}
+
 compileJava.dependsOn preprocessorParserTask
 compileJava.dependsOn proguardParserTask
 jar.dependsOn createJackVersionFile
-assemble.dependsOn jarjar
+assemble.dependsOn jarjar, jackDevJar
 
 task dist (type: Copy, dependsOn: assemble) {
   from file("${buildDir}/libs/jack.jar")
+  from jackDevJar.archivePath
   into file("${rootDir}/gradle-dist/")
 }
 
