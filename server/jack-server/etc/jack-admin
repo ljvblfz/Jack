@@ -606,10 +606,20 @@ case $COMMAND in
     echo "\$ lsof -i TCP:$SERVER_PORT_SERVICE -l" >>"$REPORT_INFO"
              lsof -i TCP:$SERVER_PORT_SERVICE -l  >>"$REPORT_INFO" 2>&1
 
+    echo "Test if Jack server service port $SERVER_PORT_SERVICE is open..."
+    echo >>"$REPORT_INFO"
+    echo "\$ if (exec 6<> /dev/tcp/127.0.0.1/$SERVER_PORT_SERVICE) 2> /dev/null ; then echo port $SERVER_PORT_SERVICE is in use; else echo port $SERVER_PORT_SERVICE is available; fi" >>"$REPORT_INFO"
+            (if (exec 6<> /dev/tcp/127.0.0.1/$SERVER_PORT_SERVICE) 2> /dev/null ; then echo port $SERVER_PORT_SERVICE is in use; else echo port $SERVER_PORT_SERVICE is available; fi)  >>"$REPORT_INFO" 2>&1
+
     echo "Listing process using Jack server admin port $SERVER_PORT_ADMIN..."
     echo >>"$REPORT_INFO"
     echo "\$ lsof -i TCP:$SERVER_PORT_ADMIN -l" >>"$REPORT_INFO"
              lsof -i TCP:$SERVER_PORT_ADMIN -l  >>"$REPORT_INFO" 2>&1
+
+    echo "Test if Jack server admin port $SERVER_PORT_ADMIN is open..."
+    echo >>"$REPORT_INFO"
+    echo "\$ if (exec 6<> /dev/tcp/127.0.0.1/$SERVER_PORT_ADMIN) 2> /dev/null ; then echo port $SERVER_PORT_ADMIN is in use; else echo port $SERVER_PORT_ADMIN is available; fi" >>"$REPORT_INFO"
+            (if (exec 6<> /dev/tcp/127.0.0.1/$SERVER_PORT_ADMIN) 2> /dev/null ; then echo port $SERVER_PORT_ADMIN is in use; else echo port $SERVER_PORT_ADMIN is available; fi) >>"$REPORT_INFO" 2>&1
 
     echo "Collecting Jack client configuration..."
     echo >>"$REPORT_INFO"

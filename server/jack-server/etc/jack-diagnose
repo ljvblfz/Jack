@@ -127,6 +127,10 @@ checkKeytool() {
 checkport() {
   PID_USING_PORT=$(lsof -F p -i TCP:$1 -sTCP:LISTEN | cut -c 2-)
   if [ -z "$PID_USING_PORT" ] ; then
+    if (exec 6<> /dev/tcp/127.0.0.1/$1) 2> /dev/null ; then
+      echo "Port $1 is used by a process owned by another user. Unless this is expected, please ensure the port is free or change port configuration in '$JACK_CLIENT_SETTING' and '$JACK_HOME/config.properties'"
+      return 255
+    fi
     # port is free nothing to check
     return 0
   fi
