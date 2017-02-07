@@ -16,6 +16,7 @@
 
 package com.android.jack.optimizations.cfg;
 
+import com.android.jack.ir.ast.JMethodBodyCfg;
 import com.android.jack.ir.ast.cfg.BasicBlockLiveProcessor;
 import com.android.jack.ir.ast.cfg.JBasicBlock;
 import com.android.jack.ir.ast.cfg.JConditionalBasicBlock;
@@ -45,7 +46,7 @@ import javax.annotation.Nonnull;
 @Transform(modify = JControlFlowGraph.class)
 @Filter(TypeWithoutPrebuiltFilter.class)
 public class OptimizeConditionalPrimarySuccessor
-    implements RunnableSchedulable<JControlFlowGraph> {
+    implements RunnableSchedulable<JMethodBodyCfg> {
 
   @Nonnull
   public static final StatisticId<Counter> CONDITIONAL_BLOCKS_OPTIMIZED = new StatisticId<>(
@@ -56,9 +57,9 @@ public class OptimizeConditionalPrimarySuccessor
   private final Tracer tracer = TracerFactory.getTracer();
 
   @Override
-  public void run(@Nonnull JControlFlowGraph cfg) {
-    final TransformationRequest request = new TransformationRequest(cfg);
-    new BasicBlockLiveProcessor(cfg, /* stepIntoElements = */ false) {
+  public void run(@Nonnull JMethodBodyCfg body) {
+    final TransformationRequest request = new TransformationRequest(body);
+    new BasicBlockLiveProcessor(body.getCfg(), /* stepIntoElements = */ false) {
       @Override
       public boolean visit(@Nonnull JConditionalBasicBlock block) {
         JBasicBlock primary = block.getPrimarySuccessor();

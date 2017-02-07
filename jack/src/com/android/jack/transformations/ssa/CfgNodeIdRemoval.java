@@ -16,7 +16,7 @@
 
 package com.android.jack.transformations.ssa;
 
-import com.android.jack.ir.ast.cfg.JControlFlowGraph;
+import com.android.jack.ir.ast.JMethodBodyCfg;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.util.graph.NodeIdMarker;
 import com.android.sched.item.Description;
@@ -34,9 +34,9 @@ import com.android.sched.schedulable.Transform;
 @Constraint(need = {NodeIdMarker.class})
 @Transform(remove = {NodeIdMarker.class})
 @Filter(TypeWithoutPrebuiltFilter.class)
-public class CfgNodeIdRemoval implements RunnableSchedulable<JControlFlowGraph> {
+public class CfgNodeIdRemoval implements RunnableSchedulable<JMethodBodyCfg> {
   @Override
-  public void run(JControlFlowGraph graph) {
-    NodeIdMarker.removeIds(graph);
+  public void run(JMethodBodyCfg body) {
+    NodeIdMarker.removeIds(body.getCfg());
   }
 }

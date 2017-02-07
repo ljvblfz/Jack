@@ -16,6 +16,7 @@
 
 package com.android.jack.optimizations.cfg;
 
+import com.android.jack.ir.ast.JMethodBodyCfg;
 import com.android.jack.ir.ast.cfg.JControlFlowGraph;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.sched.item.Description;
@@ -30,10 +31,10 @@ import javax.annotation.Nonnull;
 @Transform(modify = JControlFlowGraph.class)
 @Filter(TypeWithoutPrebuiltFilter.class)
 public class RemoveUnreachableBasicBlocks
-    implements RunnableSchedulable<JControlFlowGraph> {
+    implements RunnableSchedulable<JMethodBodyCfg> {
 
   @Override
-  public void run(@Nonnull final JControlFlowGraph cfg) {
-    new CfgBasicBlockUtils(cfg).removeUnreachableBlocks();
+  public void run(@Nonnull final JMethodBodyCfg body) {
+    new CfgBasicBlockUtils(body.getCfg()).removeUnreachableBlocks();
   }
 }

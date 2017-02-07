@@ -16,6 +16,7 @@
 
 package com.android.jack.ir.ast.cfg;
 
+import com.android.jack.ir.ast.JMethodBodyCfg;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
@@ -32,9 +33,9 @@ import javax.annotation.Nonnull;
 @Description("Check that AST of JControlFlowGraph is correct.")
 @Support(SanityChecks.class)
 @Filter(TypeWithoutPrebuiltFilter.class)
-public class CfgChecker implements RunnableSchedulable<JControlFlowGraph> {
+public class CfgChecker implements RunnableSchedulable<JMethodBodyCfg> {
   @Override
-  public void run(@Nonnull JControlFlowGraph cfg) {
+  public void run(@Nonnull JMethodBodyCfg body) {
     new JVisitor(/* needLoading = */ false) {
       @Nonnull
       private final Stack<JNode> nodes = new Stack<JNode>();
@@ -63,6 +64,6 @@ public class CfgChecker implements RunnableSchedulable<JControlFlowGraph> {
         nodes.pop();
         super.endVisit(node);
       }
-    }.accept(cfg);
+    }.accept(body.getCfg());
   }
 }

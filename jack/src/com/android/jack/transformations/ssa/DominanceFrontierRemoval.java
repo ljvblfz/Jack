@@ -16,7 +16,7 @@
 
 package com.android.jack.transformations.ssa;
 
-import com.android.jack.ir.ast.cfg.JControlFlowGraph;
+import com.android.jack.ir.ast.JMethodBodyCfg;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.util.graph.DominanceFrontierInfoMarker;
 import com.android.jack.util.graph.DominatorTreeMarker;
@@ -35,10 +35,10 @@ import com.android.sched.schedulable.Transform;
 @Constraint(need = {DominanceFrontierInfoMarker.class})
 @Transform(remove = {DominanceFrontierInfoMarker.class})
 @Filter(TypeWithoutPrebuiltFilter.class)
-public class DominanceFrontierRemoval implements RunnableSchedulable<JControlFlowGraph> {
+public class DominanceFrontierRemoval implements RunnableSchedulable<JMethodBodyCfg> {
   @Override
-  public void run(JControlFlowGraph graph) {
-    DominanceFrontierInfoMarker.clearMarkers(graph);
-    DominatorTreeMarker.clearMarkers(graph);
+  public void run(JMethodBodyCfg body) {
+    DominanceFrontierInfoMarker.clearMarkers(body.getCfg());
+    DominatorTreeMarker.clearMarkers(body.getCfg());
   }
 }

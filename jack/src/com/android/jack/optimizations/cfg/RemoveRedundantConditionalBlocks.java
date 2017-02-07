@@ -18,6 +18,7 @@ package com.android.jack.optimizations.cfg;
 
 import com.android.jack.ir.ast.JBooleanLiteral;
 import com.android.jack.ir.ast.JExpression;
+import com.android.jack.ir.ast.JMethodBodyCfg;
 import com.android.jack.ir.ast.cfg.BasicBlockLiveProcessor;
 import com.android.jack.ir.ast.cfg.JConditionalBasicBlock;
 import com.android.jack.ir.ast.cfg.JConditionalBlockElement;
@@ -43,7 +44,7 @@ import javax.annotation.Nonnull;
 @Transform(modify = JControlFlowGraph.class)
 @Filter(TypeWithoutPrebuiltFilter.class)
 public class RemoveRedundantConditionalBlocks
-    implements RunnableSchedulable<JControlFlowGraph> {
+    implements RunnableSchedulable<JMethodBodyCfg> {
 
   @Nonnull
   public static final StatisticId<Counter> REMOVED_CONST_BRANCHES = new StatisticId<>(
@@ -59,8 +60,8 @@ public class RemoveRedundantConditionalBlocks
   private final Tracer tracer = TracerFactory.getTracer();
 
   @Override
-  public void run(@Nonnull final JControlFlowGraph cfg) {
-    new BasicBlockLiveProcessor(cfg, /* stepIntoElements = */ false) {
+  public void run(@Nonnull final JMethodBodyCfg body) {
+    new BasicBlockLiveProcessor(body.getCfg(), /* stepIntoElements = */ false) {
       @Override
       public boolean visit(@Nonnull JConditionalBasicBlock block) {
         JConditionalBlockElement element =
@@ -72,7 +73,7 @@ public class RemoveRedundantConditionalBlocks
 
           // Note that goto block element created reuses source
           // info of the original conditional block element
-          JSimpleBasicBlock simple = new BasicBlockBuilder(cfg)
+          JSimpleBasicBlock simple = new BasicBlockBuilder(body.getCfg())
               .append(block).removeLast()
               .append(new JGotoBlockElement(
                   element.getSourceInfo(), element.getEHContext()))

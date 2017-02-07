@@ -107,12 +107,12 @@ import com.android.jack.ir.ast.JCastOperation;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JMethodBodyCfg;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSession;
 import com.android.jack.ir.ast.JSwitchStatement;
 import com.android.jack.ir.ast.Resource;
 import com.android.jack.ir.ast.cfg.CfgChecker;
-import com.android.jack.ir.ast.cfg.JControlFlowGraph;
 import com.android.jack.ir.ast.cfg.MethodBodyCfgBuilder;
 import com.android.jack.ir.formatter.InternalFormatter;
 import com.android.jack.ir.formatter.TypePackageAndMethodFormatter;
@@ -174,7 +174,7 @@ import com.android.jack.resource.LibraryResourceWriter;
 import com.android.jack.scheduling.adapter.JDefinedClassOrInterfaceAdapter;
 import com.android.jack.scheduling.adapter.JFieldAdapter;
 import com.android.jack.scheduling.adapter.JMethodAdapter;
-import com.android.jack.scheduling.adapter.JMethodControlFlowGraphAdapter;
+import com.android.jack.scheduling.adapter.JMethodBodyCfgAdapter;
 import com.android.jack.scheduling.adapter.JPackageAdapter;
 import com.android.jack.scheduling.feature.CompiledTypeStats;
 import com.android.jack.scheduling.feature.DropMethodBody;
@@ -1756,9 +1756,9 @@ public abstract class Jack {
       }
 
       // Cfg-IR base transformations
-      SubPlanBuilder<JControlFlowGraph> cfgPlan = planBuilder
+      SubPlanBuilder<JMethodBodyCfg> cfgPlan = planBuilder
           .appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
-          .appendSubPlan(JMethodControlFlowGraphAdapter.class);
+          .appendSubPlan(JMethodBodyCfgAdapter.class);
 
       if (enableFieldValuePropagation) {
         cfgPlan.append(FvpPropagateFieldValues.class);
@@ -1805,9 +1805,9 @@ public abstract class Jack {
 
     // SSA Construction.
     if (features.contains(Options.UseJackSsaIR.class)) {
-      SubPlanBuilder<JControlFlowGraph> cfgPlan = planBuilder
+      SubPlanBuilder<JMethodBodyCfg> cfgPlan = planBuilder
           .appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
-          .appendSubPlan(JMethodControlFlowGraphAdapter.class);
+          .appendSubPlan(JMethodBodyCfgAdapter.class);
       cfgPlan.append(SsaBasicBlockSplitter.class);
       cfgPlan.append(CfgNodeIdAssignment.class);
       cfgPlan.append(CfgNodeListAssignment.class);

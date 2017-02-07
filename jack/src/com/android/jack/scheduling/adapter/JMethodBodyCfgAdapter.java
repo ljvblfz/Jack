@@ -20,7 +20,6 @@ import com.android.jack.ir.ast.JAbstractMethodBody;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodBodyCfg;
-import com.android.jack.ir.ast.cfg.JControlFlowGraph;
 import com.android.sched.item.Description;
 import com.android.sched.schedulable.AdapterSchedulable;
 
@@ -30,12 +29,12 @@ import javax.annotation.Nonnull;
 
 /**
  * Adapts a process on {@code JDefinedClassOrInterface} onto one or several processes on
- * each {@code JControlFlowGraph} of all the methods declared by this type.
+ * each {@code JMethodBodyCfg} of all the methods declared by this type.
  */
 @Description("Adapts process on JDefinedClassOrInterface to one or "
-    + "several processes on each of its methods' control flow graphs")
-public class JMethodControlFlowGraphAdapter
-    implements AdapterSchedulable<JDefinedClassOrInterface, JControlFlowGraph> {
+    + "several processes on each of its methods' control flow graphs body")
+public class JMethodBodyCfgAdapter
+    implements AdapterSchedulable<JDefinedClassOrInterface, JMethodBodyCfg> {
 
   /**
    * Returns every {@code JControlFlowGraph} of the methods declared
@@ -43,12 +42,12 @@ public class JMethodControlFlowGraphAdapter
    */
   @Override
   @Nonnull
-  public Iterator<JControlFlowGraph> adapt(@Nonnull JDefinedClassOrInterface declaredType) {
-    ArrayList<JControlFlowGraph> cfgList = new ArrayList<>();
+  public Iterator<JMethodBodyCfg> adapt(@Nonnull JDefinedClassOrInterface declaredType) {
+    ArrayList<JMethodBodyCfg> cfgList = new ArrayList<>();
     for (JMethod method : declaredType.getMethods()) {
       JAbstractMethodBody body = method.getBody();
       if (body instanceof JMethodBodyCfg) {
-        cfgList.add(((JMethodBodyCfg) body).getCfg());
+        cfgList.add((JMethodBodyCfg) body);
       }
     }
     return cfgList.iterator();

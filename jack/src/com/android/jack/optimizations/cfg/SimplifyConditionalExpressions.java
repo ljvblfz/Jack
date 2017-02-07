@@ -20,6 +20,7 @@ import com.android.jack.ir.ast.JBinaryOperation;
 import com.android.jack.ir.ast.JBinaryOperator;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JIntegralConstant32;
+import com.android.jack.ir.ast.JMethodBodyCfg;
 import com.android.jack.ir.ast.JRelationalOperation;
 import com.android.jack.ir.ast.JValueLiteral;
 import com.android.jack.ir.ast.UnsupportedOperatorException;
@@ -49,7 +50,7 @@ import javax.annotation.Nonnull;
 @Transform(modify = JControlFlowGraph.class)
 @Filter(TypeWithoutPrebuiltFilter.class)
 public class SimplifyConditionalExpressions
-    implements RunnableSchedulable<JControlFlowGraph> {
+    implements RunnableSchedulable<JMethodBodyCfg> {
 
   @Nonnull
   public static final StatisticId<Counter> CONDITIONS_SIMPLIFIED = new StatisticId<>(
@@ -98,10 +99,10 @@ public class SimplifyConditionalExpressions
   }
 
   @Override
-  public void run(@Nonnull final JControlFlowGraph cfg) {
-    final TransformationRequest request = new TransformationRequest(cfg);
+  public void run(@Nonnull final JMethodBodyCfg body) {
+    final TransformationRequest request = new TransformationRequest(body);
 
-    new BasicBlockLiveProcessor(cfg, /* stepIntoElements = */ false) {
+    new BasicBlockLiveProcessor(body.getCfg(), /* stepIntoElements = */ false) {
       @Override
       public boolean visit(@Nonnull JConditionalBasicBlock block) {
         JConditionalBlockElement element =

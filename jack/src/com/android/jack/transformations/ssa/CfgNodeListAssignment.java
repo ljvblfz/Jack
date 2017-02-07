@@ -16,7 +16,7 @@
 
 package com.android.jack.transformations.ssa;
 
-import com.android.jack.ir.ast.cfg.JControlFlowGraph;
+import com.android.jack.ir.ast.JMethodBodyCfg;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.util.graph.NodeListMarker;
 import com.android.sched.item.Description;
@@ -35,9 +35,9 @@ import com.android.sched.schedulable.Transform;
 @Constraint(need = {SsaBasicBlockSplitterMarker.class})
 @Transform(add = {NodeListMarker.class})
 @Filter(TypeWithoutPrebuiltFilter.class)
-public class CfgNodeListAssignment implements RunnableSchedulable<JControlFlowGraph> {
+public class CfgNodeListAssignment implements RunnableSchedulable<JMethodBodyCfg> {
   @Override
-  public void run(JControlFlowGraph graph) {
-    NodeListMarker.assignNodeList(graph);
+  public void run(JMethodBodyCfg body) {
+    NodeListMarker.assignNodeList(body.getCfg());
   }
 }

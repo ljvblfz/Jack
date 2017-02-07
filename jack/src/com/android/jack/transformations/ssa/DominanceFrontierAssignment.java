@@ -16,7 +16,7 @@
 
 package com.android.jack.transformations.ssa;
 
-import com.android.jack.ir.ast.cfg.JControlFlowGraph;
+import com.android.jack.ir.ast.JMethodBodyCfg;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
 import com.android.jack.util.graph.DominanceFrontier;
 import com.android.sched.item.Description;
@@ -34,9 +34,9 @@ import com.android.sched.schedulable.Use;
 @Constraint(need = {SsaBasicBlockSplitterMarker.class})
 @Use(DominanceFrontier.class)
 @Filter(TypeWithoutPrebuiltFilter.class)
-public class DominanceFrontierAssignment implements RunnableSchedulable<JControlFlowGraph> {
+public class DominanceFrontierAssignment implements RunnableSchedulable<JMethodBodyCfg> {
   @Override
-  public void run(JControlFlowGraph cfg) {
-    new DominanceFrontier<>(cfg).run();
+  public void run(JMethodBodyCfg body) {
+    new DominanceFrontier<>(body.getCfg()).run();
   }
 }

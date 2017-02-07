@@ -21,6 +21,7 @@ import com.android.jack.annotations.DisableArgumentValuePropagationOptimization;
 import com.android.jack.ir.ast.JAnnotationType;
 import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JMethodBodyCfg;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JParameterRef;
 import com.android.jack.ir.ast.JValueLiteral;
@@ -28,7 +29,6 @@ import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.cfg.JBasicBlock;
 import com.android.jack.ir.ast.cfg.JBasicBlockElement;
-import com.android.jack.ir.ast.cfg.JControlFlowGraph;
 import com.android.jack.ir.ast.cfg.JSimpleBasicBlock;
 import com.android.jack.ir.ast.cfg.JThrowingExpressionBasicBlock;
 import com.android.jack.ir.ast.cfg.JVariableAsgBlockElement;
@@ -63,7 +63,7 @@ import javax.annotation.Nonnull;
 @Use(CfgVarUtils.ReplaceWithLocal.class)
 @Name("ArgumentValuePropagation: PropagateArgumentValues")
 public class AvpPropagateArgumentValues extends AvpSchedulable
-    implements RunnableSchedulable<JControlFlowGraph> {
+    implements RunnableSchedulable<JMethodBodyCfg> {
 
   @Nonnull
   public final JAnnotationType disablingAnnotationType =
@@ -75,8 +75,8 @@ public class AvpPropagateArgumentValues extends AvpSchedulable
   private final Tracer tracer = TracerFactory.getTracer();
 
   @Override
-  public void run(@Nonnull final JControlFlowGraph cfg) {
-    final JMethod method = cfg.getMethod();
+  public void run(@Nonnull final JMethodBodyCfg body) {
+    final JMethod method = body.getMethod();
 
     LiteralValueListTracker tracker =
         MethodCallArgumentsMarker.getTrackerAndRemoveMarker(method);
@@ -112,7 +112,7 @@ public class AvpPropagateArgumentValues extends AvpSchedulable
         }
       }
     };
-    asgAnalyzer.accept(cfg);
+    asgAnalyzer.accept(body.getCfg());
 
     if (paramValues.size() == 0) {
       // All eligible parameters are mutated in the method
@@ -156,7 +156,7 @@ public class AvpPropagateArgumentValues extends AvpSchedulable
 
             // Create a new throwing expression basic block and new JThrowingEx
             JThrowingExpressionBasicBlock newBlock =
-                new BasicBlockBuilder(cfg).append(preBlock).removeLast()
+                new BasicBlockBuilder(body.getCfg()).append(preBlock).removeLast()
                     .createThrowingExprBlock(preBlock.getPrimarySuccessor());
             preBlock.detach(newBlock);
           }

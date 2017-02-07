@@ -19,6 +19,7 @@ package com.android.jack.optimizations.blockmerger;
 import com.android.jack.ir.ast.JAsgOperation;
 import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JLocalRef;
+import com.android.jack.ir.ast.JMethodBodyCfg;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVisitor;
@@ -62,7 +63,7 @@ import javax.annotation.Nonnull;
 @Transform(modify = JControlFlowGraph.class)
 @Use(CfgBasicBlockUtils.class)
 public class CfgSimpleBasicBlockMerger
-    implements RunnableSchedulable<JControlFlowGraph> {
+    implements RunnableSchedulable<JMethodBodyCfg> {
 
   @Nonnull
   public static final StatisticId<Counter> BLOCKS_MERGED = new StatisticId<>(
@@ -76,14 +77,14 @@ public class CfgSimpleBasicBlockMerger
       ThreadConfig.get(Optimizations.SimpleBasicBlockMerging.MERGE_VARIABLES);
 
   @Override
-  public void run(@Nonnull final JControlFlowGraph cfg) {
-    CfgBasicBlockUtils basicBlockUtils = new CfgBasicBlockUtils(cfg);
+  public void run(@Nonnull final JMethodBodyCfg cfg) {
+    CfgBasicBlockUtils basicBlockUtils = new CfgBasicBlockUtils(cfg.getCfg());
 
     // #1 Maximally split basic blocks
     basicBlockUtils.maximallySplitAllBasicBlocks();
 
     // #2 Merge basic blocks
-    mergeBlocks(cfg);
+    mergeBlocks(cfg.getCfg());
 
     // #3 Maximally merge simple basic blocks
     basicBlockUtils.mergeSimpleBlocks(preserveSourceInfo);

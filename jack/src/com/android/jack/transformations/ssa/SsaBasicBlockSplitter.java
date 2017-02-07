@@ -18,6 +18,7 @@ package com.android.jack.transformations.ssa;
 
 import com.google.common.collect.Lists;
 
+import com.android.jack.ir.ast.JMethodBodyCfg;
 import com.android.jack.ir.ast.cfg.ExceptionHandlingContext;
 import com.android.jack.ir.ast.cfg.JBasicBlock;
 import com.android.jack.ir.ast.cfg.JBasicBlockElement;
@@ -45,16 +46,16 @@ import javax.annotation.Nonnull;
 @Transform(add = {SsaBasicBlockSplitterMarker.class},
     modify = {JControlFlowGraph.class})
 @Filter(TypeWithoutPrebuiltFilter.class)
-public class SsaBasicBlockSplitter implements RunnableSchedulable<JControlFlowGraph> {
+public class SsaBasicBlockSplitter implements RunnableSchedulable<JMethodBodyCfg> {
 
   public static final boolean NEED_EDGE_SPLIT_PREDECESSOR = false;
 
   @Override
-  public void run(@Nonnull JControlFlowGraph cfg) {
-    assert cfg.getMarker(SsaBasicBlockSplitterMarker.class) == null;
-    removeExceptionHandlingContext(cfg);
-    edgeSplit(cfg);
-    cfg.addMarker(SsaBasicBlockSplitterMarker.INSTANCE);
+  public void run(@Nonnull JMethodBodyCfg body) {
+    assert body.getCfg().getMarker(SsaBasicBlockSplitterMarker.class) == null;
+    removeExceptionHandlingContext(body.getCfg());
+    edgeSplit(body.getCfg());
+    body.getCfg().addMarker(SsaBasicBlockSplitterMarker.INSTANCE);
   }
 
   /**

@@ -17,6 +17,7 @@
 package com.android.jack.optimizations.cfg;
 
 import com.android.jack.ir.ast.JExpression;
+import com.android.jack.ir.ast.JMethodBodyCfg;
 import com.android.jack.ir.ast.cfg.BasicBlockLiveProcessor;
 import com.android.jack.ir.ast.cfg.JBasicBlock;
 import com.android.jack.ir.ast.cfg.JBasicBlockElement;
@@ -43,11 +44,11 @@ import javax.annotation.Nonnull;
 @Transform(modify = JControlFlowGraph.class)
 @Filter(TypeWithoutPrebuiltFilter.class)
 public class RemoveRedundantGotoReturnEdges
-    implements RunnableSchedulable<JControlFlowGraph> {
+    implements RunnableSchedulable<JMethodBodyCfg> {
 
   @Override
-  public void run(@Nonnull final JControlFlowGraph cfg) {
-    new BasicBlockLiveProcessor(cfg, /* stepIntoElements = */ false) {
+  public void run(@Nonnull final JMethodBodyCfg body) {
+    new BasicBlockLiveProcessor(body.getCfg(), /* stepIntoElements = */ false) {
       @Nonnull
       private final CloneExpressionVisitor copier = new CloneExpressionVisitor();
 
@@ -75,7 +76,8 @@ public class RemoveRedundantGotoReturnEdges
         }
 
         // Move all block elements except for the trailing goto element to a new block
-        BasicBlockBuilder builder = new BasicBlockBuilder(cfg).append(block).removeLast();
+        BasicBlockBuilder builder =
+            new BasicBlockBuilder(body.getCfg()).append(block).removeLast();
         JBasicBlock newBlock;
 
         if (isThrowBlock) {

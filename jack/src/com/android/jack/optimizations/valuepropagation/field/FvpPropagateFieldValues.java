@@ -24,11 +24,11 @@ import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JFieldRef;
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JMethodBodyCfg;
 import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.JValueLiteral;
 import com.android.jack.ir.ast.cfg.BasicBlockLiveProcessor;
 import com.android.jack.ir.ast.cfg.JBasicBlockElement;
-import com.android.jack.ir.ast.cfg.JControlFlowGraph;
 import com.android.jack.ir.ast.cfg.JGotoBlockElement;
 import com.android.jack.ir.ast.cfg.JSimpleBasicBlock;
 import com.android.jack.ir.ast.cfg.JThrowingExpressionBasicBlock;
@@ -68,7 +68,7 @@ import javax.annotation.Nonnull;
 @Use(CfgJlsNullabilityChecker.class)
 @Name("FieldValuePropagation: PropagateFieldValues")
 public class FvpPropagateFieldValues extends FvpSchedulable
-    implements RunnableSchedulable<JControlFlowGraph> {
+    implements RunnableSchedulable<JMethodBodyCfg> {
 
   @Nonnull
   public final JAnnotationType disablingAnnotationType =
@@ -87,15 +87,15 @@ public class FvpPropagateFieldValues extends FvpSchedulable
       Optimizations.FieldValuePropagation.ENSURE_TYPE_INITIALIZERS).booleanValue();
 
   @Override
-  public void run(@Nonnull final JControlFlowGraph cfg) {
-    final JMethod method = cfg.getMethod();
+  public void run(@Nonnull final JMethodBodyCfg body) {
+    final JMethod method = body.getMethod();
     final boolean insideConstructor = OptimizerUtils.isConstructor(method);
     final TransformationRequest request = new TransformationRequest(method);
     final CfgJlsNullabilityChecker nullChecker = preserveNullChecks ?
-        new CfgJlsNullabilityChecker(cfg,
+        new CfgJlsNullabilityChecker(body.getCfg(),
             new LocalVarCreator(method, "fvp"), phantomLookup) : null;
 
-    new BasicBlockLiveProcessor(cfg, /* stepIntoElements: */ false) {
+    new BasicBlockLiveProcessor(body.getCfg(), /* stepIntoElements: */ false) {
       @Override
       public boolean visit(@Nonnull JThrowingExpressionBasicBlock block) {
         JBasicBlockElement element = block.getLastElement();
@@ -186,7 +186,7 @@ public class FvpPropagateFieldValues extends FvpSchedulable
         // #4: Turn the second block into a simple block in case it does not throw
         if (!value.canThrow()) {
           JSimpleBasicBlock newSecondBlock =
-              new BasicBlockBuilder(cfg)
+              new BasicBlockBuilder(body.getCfg())
                   .append(secondBlock)
                   .append(new JGotoBlockElement(
                       SourceInfo.UNKNOWN, secondBlock.getLastElement().getEHContext()))

@@ -22,6 +22,7 @@ import com.android.jack.Options;
 import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JMethodBodyCfg;
 import com.android.jack.ir.ast.JSsaVariableDefRef;
 import com.android.jack.ir.ast.JSsaVariableRef;
 import com.android.jack.ir.ast.JSsaVariableUseRef;
@@ -56,7 +57,7 @@ import javax.annotation.Nonnull;
 @Constraint(need = {JPhiBlockElement.class, JSsaVariableRef.class})
 @Transform(modify = {JPhiBlockElement.class, JSsaVariableRef.class})
 @Filter(TypeWithoutPrebuiltFilter.class)
-public class CopyPropagation implements RunnableSchedulable<JControlFlowGraph> {
+public class CopyPropagation implements RunnableSchedulable<JMethodBodyCfg> {
 
   private final boolean emitSyntheticLocalDebugInfo =
       ThreadConfig.get(CodeItemBuilder.EMIT_SYNTHETIC_LOCAL_DEBUG_INFO).booleanValue();
@@ -68,8 +69,8 @@ public class CopyPropagation implements RunnableSchedulable<JControlFlowGraph> {
       ThreadConfig.get(Options.METHOD_FILTER);
 
   @Override
-  public void run(JControlFlowGraph cfg) {
-    JMethod method = cfg.getMethod();
+  public void run(JMethodBodyCfg body) {
+    JMethod method = body.getMethod();
     if (method.isNative() || method.isAbstract() || !filter.accept(this.getClass(), method)) {
       return;
     }
@@ -77,15 +78,15 @@ public class CopyPropagation implements RunnableSchedulable<JControlFlowGraph> {
     boolean changed;
     do {
       changed = false;
-      for (JBasicBlock bb : cfg.getAllBlocksUnordered()) {
+      for (JBasicBlock bb : body.getCfg().getAllBlocksUnordered()) {
         for (JBasicBlockElement e : Lists.newArrayList(bb.getElements(true))) {
           if (e instanceof JVariableAsgBlockElement) {
-            changed = tryPropagateAssignment((JVariableAsgBlockElement) e, cfg);
+            changed = tryPropagateAssignment((JVariableAsgBlockElement) e, body.getCfg());
           } else if (e instanceof JPhiBlockElement) {
             JPhiBlockElement phi = (JPhiBlockElement) e;
             changed = tryRemoveUselessPhi(phi);
             if (!changed) {
-              changed = tryPropagatePhi(phi, cfg);
+              changed = tryPropagatePhi(phi, body.getCfg());
             }
           }
         }

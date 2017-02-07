@@ -17,6 +17,7 @@
 package com.android.jack.transformations.ssa;
 
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JMethodBodyCfg;
 import com.android.jack.ir.ast.JParameter;
 import com.android.jack.ir.ast.JSsaVariableDefRef;
 import com.android.jack.ir.ast.JSsaVariableDefRefPlaceHolder;
@@ -83,7 +84,7 @@ import java.util.Stack;
 @Constraint(need = {JPhiBlockElement.class})
 @Transform(add = JSsaVariableRef.class)
 @Filter(TypeWithoutPrebuiltFilter.class)
-public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
+public class SsaRenamer implements RunnableSchedulable<JMethodBodyCfg> {
 
   private static class GraphRenamer {
     private final JControlFlowGraph cfg;
@@ -386,8 +387,8 @@ public class SsaRenamer implements RunnableSchedulable<JControlFlowGraph> {
   }
 
   @Override
-  public void run(JControlFlowGraph cfg) {
-    new GraphRenamer(cfg).performRename();
+  public void run(JMethodBodyCfg body) {
+    new GraphRenamer(body.getCfg()).performRename();
   }
 
   private static JSsaVariableDefRef[] dupArray(JSsaVariableDefRef[] orig) {

@@ -22,6 +22,7 @@ import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JFieldRef;
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JMethodBodyCfg;
 import com.android.jack.ir.ast.JPrimitiveType;
 import com.android.jack.ir.ast.JThisRef;
 import com.android.jack.ir.ast.cfg.BasicBlockLiveProcessor;
@@ -54,7 +55,7 @@ import javax.annotation.Nonnull;
 @Name("WriteOnlyFieldRemoval: RemoveFieldWrites")
 @Use({ CfgJlsNullabilityChecker.class, LocalVarCreator.class })
 public class WofrRemoveFieldWrites extends WofrSchedulable
-    implements RunnableSchedulable<JControlFlowGraph> {
+    implements RunnableSchedulable<JMethodBodyCfg> {
 
   private final boolean preserveObjectLifetime =
       ThreadConfig.get(Optimizations.WriteOnlyFieldRemoval.PRESERVE_OBJECT_LIFETIME).booleanValue();
@@ -131,18 +132,18 @@ public class WofrRemoveFieldWrites extends WofrSchedulable
   }
 
   @Override
-  public void run(@Nonnull final JControlFlowGraph cfg) {
-    final TransformationRequest request = new TransformationRequest(cfg);
+  public void run(@Nonnull final JMethodBodyCfg body) {
+    final TransformationRequest request = new TransformationRequest(body);
     final CfgJlsNullabilityChecker nullChecker =
-        new CfgJlsNullabilityChecker(cfg,
-            new LocalVarCreator(cfg.getMethod(), "wofr"), phantomLookup);
+        new CfgJlsNullabilityChecker(body.getCfg(),
+            new LocalVarCreator(body.getMethod(), "wofr"), phantomLookup);
 
     // Create a processor to walk the cfg and remove the writes, note that
     // even though we insert the new basic blocks, we don't need to update
     // the processor to know about these newly created blocks, since they
     // don't have any field writes we might want to process.
 
-    new BasicBlockLiveProcessor(cfg, /* stepIntoElements = */ true) {
+    new BasicBlockLiveProcessor(body.getCfg(), /* stepIntoElements = */ true) {
       @Override
       public boolean visit(@Nonnull JStoreBlockElement element) {
         JFieldRef ref = element.getLhsAsFieldRef();
@@ -152,7 +153,7 @@ public class WofrRemoveFieldWrites extends WofrSchedulable
         JExpression value = element.getValueExpression();
         assert !value.canThrow();
 
-        Action action = classify(cfg.getMethod(), ref);
+        Action action = classify(body.getMethod(), ref);
         if (action == Action.None) {
           // Cannot remove field assignment
           return false;

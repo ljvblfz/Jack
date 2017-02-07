@@ -16,6 +16,7 @@
 
 package com.android.jack.optimizations.cfg;
 
+import com.android.jack.ir.ast.JMethodBodyCfg;
 import com.android.jack.ir.ast.cfg.BasicBlockLiveProcessor;
 import com.android.jack.ir.ast.cfg.JControlFlowGraph;
 import com.android.jack.ir.ast.cfg.JSimpleBasicBlock;
@@ -33,11 +34,11 @@ import javax.annotation.Nonnull;
 @Transform(modify = JControlFlowGraph.class)
 @Filter(TypeWithoutPrebuiltFilter.class)
 public class RemoveEmptyBasicBlocks
-    implements RunnableSchedulable<JControlFlowGraph> {
+    implements RunnableSchedulable<JMethodBodyCfg> {
 
   @Override
-  public void run(@Nonnull final JControlFlowGraph cfg) {
-    new BasicBlockLiveProcessor(cfg, /* stepIntoElements = */ false) {
+  public void run(@Nonnull final JMethodBodyCfg body) {
+    new BasicBlockLiveProcessor(body.getCfg(), /* stepIntoElements = */ false) {
       @Override
       public boolean visit(@Nonnull JSimpleBasicBlock block) {
         if (block.getElementCount() == 1 &&

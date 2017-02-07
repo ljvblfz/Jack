@@ -17,6 +17,7 @@
 package com.android.jack.transformations.ssa;
 
 import com.android.jack.dx.util.IntIterator;
+import com.android.jack.ir.ast.JMethodBodyCfg;
 import com.android.jack.ir.ast.JVariable;
 import com.android.jack.ir.ast.JVariableRef;
 import com.android.jack.ir.ast.cfg.JBasicBlock;
@@ -46,14 +47,14 @@ import java.util.List;
     remove = {SsaBasicBlockSplitterMarker.class})
 @Constraint(need = {DominanceFrontierInfoMarker.class})
 @Filter(TypeWithoutPrebuiltFilter.class)
-public class JPhiElementInsertion implements RunnableSchedulable<JControlFlowGraph> {
+public class JPhiElementInsertion implements RunnableSchedulable<JMethodBodyCfg> {
 
   @Override
-  public void run(JControlFlowGraph cfg) {
+  public void run(JMethodBodyCfg body) {
     // Invalidates the block split marker.
-    SsaBasicBlockSplitterMarker marker = cfg.removeMarker(SsaBasicBlockSplitterMarker.class);
+    SsaBasicBlockSplitterMarker marker = body.removeMarker(SsaBasicBlockSplitterMarker.class);
     assert marker != null;
-    placePhiFunctions(cfg);
+    placePhiFunctions(body.getCfg());
   }
 
   /**
