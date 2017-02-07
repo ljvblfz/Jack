@@ -16,6 +16,8 @@
 
 package com.android.jack.java8.parameter.test005;
 
+import com.android.jack.java8.parameter.common.ParameterTestModifier;
+
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -25,11 +27,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 public class Tests {
-
-  public static final int MODIFIER_NONE = 0;
-  public static final int MODIFIER_FINAL = 16;
-  public static final int MODIFIER_SYNTHETIC = 4096;
-  public static final int MODIFIER_IMPLICIT = 32768;
 
   public static int m1(int p1, int p2, int p3) {
     return p1 + p2 + p3;
@@ -42,13 +39,13 @@ public class Tests {
     Assert.assertEquals(3, method.getParameters().length);
 
     check(method.getParameters()[0], "p1", /* isNamePresent= */ true, /* isImplicit= */ false,
-        /* isSynthetic= */ false, MODIFIER_NONE);
+        /* isSynthetic= */ false, ParameterTestModifier.MODIFIER_NONE);
 
     check(method.getParameters()[1], "p2", /* isNamePresent= */ true, /* isImplicit= */ false,
-        /* isSynthetic= */ false, MODIFIER_NONE);
+        /* isSynthetic= */ false, ParameterTestModifier.MODIFIER_NONE);
 
     check(method.getParameters()[2], "p3", /* isNamePresent= */ true, /* isImplicit= */ false,
-        /* isSynthetic= */ false, MODIFIER_NONE);
+        /* isSynthetic= */ false, ParameterTestModifier.MODIFIER_NONE);
   }
 
   private void check(Parameter parameter, String name, boolean isNamePresent, boolean isImplicit,

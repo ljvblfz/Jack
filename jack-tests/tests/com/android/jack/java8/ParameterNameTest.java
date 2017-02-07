@@ -45,45 +45,59 @@ import javax.annotation.Nonnull;
  */
 public class ParameterNameTest {
 
+  private File extraJavaFile =
+      new File(AbstractTestTools.getTestRootDir("com.android.jack.java8.parameter.common"),
+          "ParameterTestModifier.java");
+
   private RuntimeTestInfo PARAMETER001 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.java8.parameter.test001"),
-      "com.android.jack.java8.parameter.test001.Tests").setSrcDirName("");
+      "com.android.jack.java8.parameter.test001.Tests").setSrcDirName("")
+          .addCandidateExtraSources(extraJavaFile);
 
   private RuntimeTestInfo PARAMETER002 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.java8.parameter.test002"),
-      "com.android.jack.java8.parameter.test002.Tests").setSrcDirName("");
+      "com.android.jack.java8.parameter.test002.Tests").setSrcDirName("")
+          .addCandidateExtraSources(extraJavaFile);
 
   private RuntimeTestInfo PARAMETER003 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.java8.parameter.test003"),
-      "com.android.jack.java8.parameter.test003.Tests").setSrcDirName("");
+      "com.android.jack.java8.parameter.test003.Tests").setSrcDirName("")
+          .addCandidateExtraSources(extraJavaFile);
 
   private RuntimeTestInfo PARAMETER004 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.java8.parameter.test004"),
-      "com.android.jack.java8.parameter.test004.Tests").setSrcDirName("");
+      "com.android.jack.java8.parameter.test004.Tests").setSrcDirName("")
+          .addCandidateExtraSources(extraJavaFile);
 
   private RuntimeTestInfo PARAMETER005 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.java8.parameter.test005"),
-      "com.android.jack.java8.parameter.test005.Tests").setSrcDirName("");
+      "com.android.jack.java8.parameter.test005.Tests").setSrcDirName("")
+          .addCandidateExtraSources(extraJavaFile);
 
   private RuntimeTestInfo PARAMETER006 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.java8.parameter.test006"),
-      "com.android.jack.java8.parameter.test006.Tests").setSrcDirName("");
+      "com.android.jack.java8.parameter.test006.Tests").setSrcDirName("")
+          .addCandidateExtraSources(extraJavaFile);
 
   private RuntimeTestInfo PARAMETER007 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.java8.parameter.test007"),
-      "com.android.jack.java8.parameter.test007.Tests").setSrcDirName("");
+      "com.android.jack.java8.parameter.test007.Tests").setSrcDirName("")
+          .addCandidateExtraSources(extraJavaFile);
 
   private RuntimeTestInfo PARAMETER008 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.java8.parameter.test008"),
-      "com.android.jack.java8.parameter.test008.Tests").setSrcDirName("");
+      "com.android.jack.java8.parameter.test008.Tests").setSrcDirName("")
+          .addCandidateExtraSources(extraJavaFile);
 
   private RuntimeTestInfo PARAMETER009 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.java8.parameter.test009"),
-      "com.android.jack.java8.parameter.test009.Tests").setSrcDirName("");
+      "com.android.jack.java8.parameter.test009.Tests").setSrcDirName("")
+          .addCandidateExtraSources(extraJavaFile);
 
   private RuntimeTestInfo PARAMETER010 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.java8.parameter.test010"),
-      "com.android.jack.java8.parameter.test010.Tests").setSrcDirName("");
+      "com.android.jack.java8.parameter.test010.Tests").setSrcDirName("")
+          .addCandidateExtraSources(extraJavaFile);
 
   @Test
   @Runtime(from=RuntimeVersion.O)
