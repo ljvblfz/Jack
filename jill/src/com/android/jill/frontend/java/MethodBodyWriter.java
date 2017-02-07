@@ -281,7 +281,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     annotWriter.writeAnnotations(currentMethod);
     writeMethodBody();
     writer.writeOpenNodeList(); // Markers
-    writeOriginalTypeInfoMarker();
+    writeGenericSignatureMarker();
     writeThrownExceptionMarker();
     writer.writeCloseNodeList();
     sourceInfoWriter.writeDebugEnd(currentClass, endLine);
@@ -342,7 +342,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     annotWriter.writeAnnotations(currentMethod);
     writeMethodBody();
     writer.writeOpenNodeList(); // Markers
-    writeOriginalTypeInfoMarker();
+    writeGenericSignatureMarker();
     writeThrownExceptionMarker();
     writer.writeCloseNodeList();
     sourceInfoWriter.writeDebugEnd(currentClass, endLine);
@@ -364,20 +364,18 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
       writer.writeNull();
     }
     writer.writeOpenNodeList(); // Markers
-    writeOriginalTypeInfoMarker();
+    writeGenericSignatureMarker();
     writer.writeCloseNodeList();
     sourceInfoWriter.writeDebugEnd(currentClass, endLine);
     writer.writeClose();
   }
 
-  private void writeOriginalTypeInfoMarker() throws IOException {
+  private void writeGenericSignatureMarker() throws IOException {
     if (AsmHelper.hasValidGenericSignature(currentMethod)) {
       writer.writeKeyword(Token.GENERIC_SIGNATURE);
       writer.writeOpen();
       writer.writeString(currentMethod.signature);
       writer.writeClose();
-    } else {
-      writer.writeNull();
     }
   }
 

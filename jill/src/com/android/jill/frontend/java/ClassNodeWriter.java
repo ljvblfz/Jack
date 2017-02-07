@@ -154,7 +154,6 @@ public class ClassNodeWriter extends JillWriter {
     writeAnnotationMethods(cn);
     annotWriter.writeAnnotations(cn);
     writer.writeOpenNodeList(); // Markers
-    writeGenericSignatureMarker(cn);
     writeSourceNameMarker(cn);
     writer.writeCloseNodeList();
     sourceInfoWriter.writeDebugEnd(cn);
