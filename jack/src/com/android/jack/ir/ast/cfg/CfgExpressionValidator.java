@@ -372,7 +372,12 @@ class CfgExpressionValidator extends JVisitor {
   private boolean visitNonThrowingOperation(@Nonnull JExpression expr) {
     assert !expr.canThrow();
     confirmBlockElement(expr);
-    confirmParent(expr, JConditionalBlockElement.class, JAsgOperation.class);
+    if (expr instanceof JReinterpretCastOperation) {
+      confirmParent(expr, JConditionalBlockElement.class, JAsgOperation.class,
+          JArrayRef.class, JFieldRef.class, JMethodCall.class);
+    } else {
+      confirmParent(expr, JConditionalBlockElement.class, JAsgOperation.class);
+    }
     confirmNotAssignmentTarget(expr);
     return true;
   }

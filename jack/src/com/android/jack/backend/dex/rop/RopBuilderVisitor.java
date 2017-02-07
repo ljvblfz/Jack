@@ -725,7 +725,7 @@ class RopBuilderVisitor extends JVisitor {
   private void buildArrayWrite(JArrayRef arrayRef, JExpression value,
       SourcePosition sourcePosition) {
     assert arrayRef.getInstance() instanceof JVariableRef
-        || arrayRef.getInstance() instanceof JNullLiteral;
+        || isNullOrReinterpretCastOfNull(arrayRef.getInstance());
     RegisterSpec valueReg = getRegisterSpec(value);
     RegisterSpec instanceReg = getRegisterSpec(arrayRef.getInstance());
     RegisterSpec indexReg = getRegisterSpec(arrayRef.getIndexExpr());
