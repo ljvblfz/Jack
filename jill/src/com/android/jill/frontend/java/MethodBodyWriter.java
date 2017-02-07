@@ -453,7 +453,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
         caughtType = Type.getType(Throwable.class);
       }
       String id = "-e_" + (unusedVarCount++);
-      declaringCatchVariable = new Variable(id, id, caughtType, null);
+      declaringCatchVariable = new Variable(id, id, caughtType);
       catchBlockToCatchedVariable.put(tryCatchNode, declaringCatchVariable);
     }
   }
@@ -2910,7 +2910,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
   private Variable getTempVarFromTopOfStackMinus1(@Nonnull Frame<BasicValue> frame) {
     Variable topOfStackBeforeInst = getStackVariable(frame, TOP_OF_STACK - 1);
     String tmpVarId = "-swap_tmp_" + typeToUntypedDesc(topOfStackBeforeInst.getType());
-    Variable tmpVariable = getVariable(tmpVarId, tmpVarId, topOfStackBeforeInst.getType(), null);
+    Variable tmpVariable = getVariable(tmpVarId, tmpVarId, topOfStackBeforeInst.getType());
     return tmpVariable;
   }
 
@@ -3079,17 +3079,16 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
     BasicValue bv = frame.getStack(stackHeight);
     assert bv != BasicValue.UNINITIALIZED_VALUE;
     String id = "-s_" + stackHeight + "_" + typeToUntypedDesc(bv.getType());
-    Variable variable = getVariable(id, id, typeToUntyped(bv.getType()), null);
+    Variable variable = getVariable(id, id, typeToUntyped(bv.getType()));
     return variable;
   }
 
   @Nonnull
-  private Variable getVariable(@Nonnull String id, @Nonnull String name, @Nonnull Type type,
-      @CheckForNull String signature) {
+  private Variable getVariable(@Nonnull String id, @Nonnull String name, @Nonnull Type type) {
     Variable var = nameToVar.get(id);
 
     if (var == null) {
-      var = new Variable(id, name, type, signature);
+      var = new Variable(id, name, type);
       nameToVar.put(id, var);
     }
 
