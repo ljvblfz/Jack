@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package com.android.jack.clinit.jack;
+package com.android.jack.clinit.test002.jack;
 
-public class ClInitWithVariableInit {
-
-  static {
-    int lv = 5;
-  }
+public @interface Config {
+  String s = "A String";
+  int i = 123;
+  Class<Application> DEFAULT_APPLICATION = Application.class;
 }

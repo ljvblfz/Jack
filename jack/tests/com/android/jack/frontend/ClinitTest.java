@@ -36,9 +36,9 @@ import java.util.List;
 public class ClinitTest {
 
   public static final String CLASS_WITH_VARIABLE_INIT_BINARY_NAME
-    = "com/android/jack/clinit/jack/ClInitWithVariableInit";
+    = "com/android/jack/clinit/test001/jack/ClInitWithVariableInit";
   public static final String CLASS_BINARY_NAME
-    = "com/android/jack/clinit/jack/ClInit";
+    = "com/android/jack/clinit/test001/jack/ClInit";
 
   @After
   public void tearDown() {
