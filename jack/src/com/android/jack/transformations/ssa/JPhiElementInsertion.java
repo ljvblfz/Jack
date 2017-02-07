@@ -52,7 +52,8 @@ public class JPhiElementInsertion implements RunnableSchedulable<JMethodBodyCfg>
   @Override
   public void run(JMethodBodyCfg body) {
     // Invalidates the block split marker.
-    SsaBasicBlockSplitterMarker marker = body.removeMarker(SsaBasicBlockSplitterMarker.class);
+    SsaBasicBlockSplitterMarker marker =
+        body.getCfg().removeMarker(SsaBasicBlockSplitterMarker.class);
     assert marker != null;
     placePhiFunctions(body.getCfg());
   }
