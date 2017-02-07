@@ -162,6 +162,7 @@ import com.android.jack.optimizations.valuepropagation.field.FvpCollectFieldAssi
 import com.android.jack.optimizations.valuepropagation.field.FvpPropagateFieldValues;
 import com.android.jack.optimizations.wofr.WofrCollectFieldAccesses;
 import com.android.jack.optimizations.wofr.WofrRemoveFieldWrites;
+import com.android.jack.optimizations.wofr.WofrRemoveFields;
 import com.android.jack.plugin.PluginManager;
 import com.android.jack.plugin.v01.Plugin;
 import com.android.jack.preprocessor.PreProcessor;
@@ -330,7 +331,6 @@ import com.android.jack.transformations.threeaddresscode.ThreeAddressCodeBuilder
 import com.android.jack.transformations.typedef.TypeDefRemover;
 import com.android.jack.transformations.typedef.TypeDefRemover.RemoveTypeDef;
 import com.android.jack.transformations.uselessif.UselessIfChecker;
-import com.android.jack.transformations.uselessif.UselessIfRemover;
 import com.android.jack.util.collect.UnmodifiableCollections;
 import com.android.sched.item.Component;
 import com.android.sched.reflections.ReflectionFactory;
@@ -1732,7 +1732,6 @@ public abstract class Jack {
           if (features.contains(Optimizations.ExpressionSimplifier.class)) {
             methodPlan4.append(ExpressionSimplifier.class);
           }
-          methodPlan4.append(UselessIfRemover.class);
           methodPlan4.append(CfgMarkerRemover.class);
           methodPlan4.append(CfgBuilder.class);
           methodPlan4.append(ContainerAnnotationAdder.MethodContainerAnnotationAdder.class);
@@ -1790,6 +1789,17 @@ public abstract class Jack {
 
       if (hasSanityChecks) {
         cfgPlan.append(CfgChecker.class);
+      }
+    }
+
+    {
+      SubPlanBuilder<JDefinedClassOrInterface> typePlan1 =
+          planBuilder.appendSubPlan(JDefinedClassOrInterfaceAdapter.class);
+
+      SubPlanBuilder<JField> fieldPlan = typePlan1.appendSubPlan(JFieldAdapter.class);
+      fieldPlan.append(ContainerAnnotationAdder.FieldContainerAnnotationAdder.class);
+      if (enableWriteOnlyFieldRemoval) {
+        fieldPlan.append(WofrRemoveFields.class);
       }
     }
 
