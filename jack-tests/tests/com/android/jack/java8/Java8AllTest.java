@@ -44,6 +44,8 @@ import org.junit.runners.Suite.SuiteClasses;
     ExplicitReceiverTest.class,
     GwtTest.class,
     IntersectionTypeTest.class,
+    LambdaGroupByPackageShrinkTests.class,
+    LambdaNoGroupingShrinkTests.class,
     LambdaTest.class,
     MethodRefTest.class,
     TypeInferenceTest.class,
