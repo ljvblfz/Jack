@@ -22,7 +22,9 @@ import com.android.jack.test.dex.DexMethodDalvikCodeValidator;
 import com.android.jack.test.dex.DexOutputBasedTest;
 import com.android.jack.test.dex.DexTypeMethodsValidator;
 import com.android.jack.test.dex.DexTypeMissingMethodValidator;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.junit.Runtime;
+import com.android.jack.test.toolchain.IncrementalToolchain;
 
 import org.junit.Test;
 
@@ -59,6 +61,7 @@ public class ValuePropagationTests extends DexOutputBasedTest {
 
   @Test
   @Runtime
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void test001() throws Exception {
     String test = "com.android.jack.optimizations.valuepropagation.test001";
     String aType = "Lcom/android/jack/optimizations/valuepropagation/test001/jack/A;";
@@ -80,6 +83,7 @@ public class ValuePropagationTests extends DexOutputBasedTest {
 
   @Test
   @Runtime
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void test002() throws Exception {
     String test = "com.android.jack.optimizations.valuepropagation.test002";
     String aType = "Lcom/android/jack/optimizations/valuepropagation/test002/jack/A;";
@@ -108,6 +112,7 @@ public class ValuePropagationTests extends DexOutputBasedTest {
 
   @Test
   @Runtime
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void test003() throws Exception {
     String test = "com.android.jack.optimizations.valuepropagation.test003";
     String aType = "Lcom/android/jack/optimizations/valuepropagation/test003/jack/A;";
@@ -146,6 +151,7 @@ public class ValuePropagationTests extends DexOutputBasedTest {
 
   @Test
   @Runtime
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void test004() throws Exception {
     String test = "com.android.jack.optimizations.valuepropagation.test004";
     String aType = "Lcom/android/jack/optimizations/valuepropagation/test004/jack/A;";
@@ -171,6 +177,7 @@ public class ValuePropagationTests extends DexOutputBasedTest {
 
   @Test
   @Runtime
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void test005() throws Exception {
     String test = "com.android.jack.optimizations.valuepropagation.test005";
     String aType = "Lcom/android/jack/optimizations/valuepropagation/test005/jack/A;";
@@ -192,6 +199,7 @@ public class ValuePropagationTests extends DexOutputBasedTest {
 
   @Test
   @Runtime
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void test101() throws Exception {
     String test = "com.android.jack.optimizations.valuepropagation.test101";
     String aType = "Lcom/android/jack/optimizations/valuepropagation/test101/jack/A;";
@@ -216,6 +224,7 @@ public class ValuePropagationTests extends DexOutputBasedTest {
 
   @Test
   @Runtime
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void test102() throws Exception {
     String test = "com.android.jack.optimizations.valuepropagation.test102";
     String aType = "Lcom/android/jack/optimizations/valuepropagation/test102/jack/A;";
@@ -263,6 +272,7 @@ public class ValuePropagationTests extends DexOutputBasedTest {
 
   @Test
   @Runtime
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void test103() throws Exception {
     String test = "com.android.jack.optimizations.valuepropagation.test103";
     String aType = "Lcom/android/jack/optimizations/valuepropagation/test103/jack/A;";
@@ -290,6 +300,7 @@ public class ValuePropagationTests extends DexOutputBasedTest {
 
   @Test
   @Runtime
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void test104() throws Exception {
     String test = "com.android.jack.optimizations.valuepropagation.test104";
     String aType = "Lcom/android/jack/optimizations/valuepropagation/test104/jack/A;";
@@ -320,6 +331,7 @@ public class ValuePropagationTests extends DexOutputBasedTest {
 
   @Test
   @Runtime
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void test105() throws Exception {
     String test = "com.android.jack.optimizations.valuepropagation.test105";
     String aType = "Lcom/android/jack/optimizations/valuepropagation/test105/jack/A;";
@@ -361,6 +373,7 @@ public class ValuePropagationTests extends DexOutputBasedTest {
 
   @Test
   @Runtime
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void test106() throws Exception {
     String test = "com.android.jack.optimizations.valuepropagation.test106";
     String aType = "Lcom/android/jack/optimizations/valuepropagation/test106/jack/A;";
