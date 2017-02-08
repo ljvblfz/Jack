@@ -36,8 +36,6 @@ public final class JCaseBasicBlock extends JRegularBasicBlock {
     return true;
   }
 
-  // TODO(acleung): I am temporary allowing case block splitting for now.
-  /*
   @Nonnull
   @Override
   public JSimpleBasicBlock split(int at) {
@@ -46,7 +44,6 @@ public final class JCaseBasicBlock extends JRegularBasicBlock {
     // case block. Consider splitting the only successor of the case block.
     throw new UnsupportedOperationException();
   }
-  */
 
   @Override
   public void traverse(@Nonnull JVisitor visitor) {
@@ -70,12 +67,18 @@ public final class JCaseBasicBlock extends JRegularBasicBlock {
   @Override
   public void checkValidity() {
     super.checkValidity();
-    // TODO(acleung): Allowing phi's in case for now.
-    /*
-    if (getElementCount() != 1) {
-      throw new JNodeInternalError(this, "Block must always have one single element");
+    if (getElementCount() < 1) {
+      throw new JNodeInternalError(this, "Block must always have at least one single element");
     }
-    */
+    JBasicBlockElement lastElement = getLastElement();
+    for (JBasicBlockElement element : getElements()) {
+      if (element != lastElement) {
+        if (!(element instanceof JPhiBlockElement)) {
+          throw new JNodeInternalError(this,
+              "Case block should only have Phi elements before the last element.");
+        }
+      }
+    }
     if (!(getLastElement() instanceof JCaseBlockElement)) {
       throw new JNodeInternalError(this, "The only element of the block must be case element");
     }

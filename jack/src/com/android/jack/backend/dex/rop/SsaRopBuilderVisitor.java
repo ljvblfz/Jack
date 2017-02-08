@@ -106,7 +106,6 @@ import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.ast.MethodKind;
 import com.android.jack.ir.ast.cfg.JBasicBlock;
 import com.android.jack.ir.ast.cfg.JBasicBlockElement;
-import com.android.jack.ir.ast.cfg.JCaseBasicBlock;
 import com.android.jack.ir.ast.cfg.JCaseBlockElement;
 import com.android.jack.ir.ast.cfg.JCatchBasicBlock;
 import com.android.jack.ir.ast.cfg.JConditionalBasicBlock;
@@ -660,18 +659,15 @@ class SsaRopBuilderVisitor extends JVisitor {
     IntList cases = new IntList();
     for (JBasicBlock caseBb : ((JSwitchBasicBlock) currentBasicBlock).getCases()) {
       assert caseBb.hasElements();
-      boolean hasPhi = false;
-      for (JBasicBlockElement e : caseBb.getElements(true)) {
-        if (e instanceof JPhiBlockElement) {
-          hasPhi = true;
+      JBasicBlockElement caseElement = null;
+      for (JBasicBlockElement e : caseBb.getElements()) {
+        if (!(e instanceof JPhiBlockElement)) {
+          caseElement = e;
+          break;
         }
       }
-      if (hasPhi && !(caseBb instanceof JCaseBasicBlock)) {
-        caseBb = caseBb.getSuccessors().get(0);
-      }
-      JBasicBlockElement caseElement = caseBb.getLastElement();
-      assert caseElement instanceof JCaseBlockElement;
 
+      assert caseElement instanceof JCaseBlockElement;
       JLiteral caseValue = ((JCaseBlockElement) caseElement).getLiteral();
       if (caseValue instanceof JIntLiteral) {
         cases.add(((JIntLiteral) caseValue).getValue());
@@ -1421,11 +1417,6 @@ class SsaRopBuilderVisitor extends JVisitor {
     List<JType> catchTypes = new ArrayList<JType>();
 
     for (JBasicBlock bb : block.getCatchBlocks()) {
-      if (!(bb instanceof JCatchBasicBlock)) {
-        // We must have either some Phi nodes here or just empty gotos.
-        assert bb.getSuccessors().size() == 1;
-        bb = bb.getSuccessors().get(0);
-      }
       for (JClass catchType : ((JCatchBasicBlock) bb).getCatchTypes()) {
         catchTypes.add(catchType);
       }

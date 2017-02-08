@@ -155,6 +155,21 @@ public final class PhiInsn extends SsaInsn {
     }
   }
 
+  public void changeOperandPred(SsaBasicBlock oldPred, SsaBasicBlock newPred) {
+    boolean found = false;
+    for (Operand o : operands) {
+      if (o.blockIndex == oldPred.getIndex()) {
+        assert o.ropLabel == oldPred.getRopLabel();
+        o.blockIndex = newPred.getIndex();
+        o.ropLabel = newPred.getRopLabel();
+        found = true;
+      }
+    }
+    if (!found) {
+      throw new RuntimeException("Predecessor does not exist in phi node!");
+    }
+  }
+
   /**
    * Removes all operand uses of a register from this phi instruction.
    *
@@ -399,7 +414,7 @@ for (Operand o : operands) {
   private static class Operand {
     public RegisterSpec regSpec;
     public int blockIndex;
-    public final int ropLabel; // only used for debugging
+    public int ropLabel; // only used for debugging
 
     public Operand(RegisterSpec regSpec, int blockIndex, int ropLabel) {
       this.regSpec = regSpec;

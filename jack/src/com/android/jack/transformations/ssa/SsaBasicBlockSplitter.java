@@ -27,6 +27,7 @@ import com.android.jack.ir.ast.cfg.JCatchBasicBlock;
 import com.android.jack.ir.ast.cfg.JControlFlowGraph;
 import com.android.jack.ir.ast.cfg.JEntryBasicBlock;
 import com.android.jack.ir.ast.cfg.JExitBasicBlock;
+import com.android.jack.ir.ast.cfg.JGotoBlockElement;
 import com.android.jack.ir.ast.cfg.JSimpleBasicBlock;
 import com.android.jack.optimizations.cfg.CfgBasicBlockUtils;
 import com.android.jack.scheduling.filter.TypeWithoutPrebuiltFilter;
@@ -48,7 +49,17 @@ import javax.annotation.Nonnull;
 @Filter(TypeWithoutPrebuiltFilter.class)
 public class SsaBasicBlockSplitter implements RunnableSchedulable<JMethodBodyCfg> {
 
+  // This appears to never be an issue in Jack nor DX as far as we can tell.
   public static final boolean NEED_EDGE_SPLIT_PREDECESSOR = false;
+
+  // This *IS* an issue in code gen. However, we have "delayed" it and do the splitting right
+  // before ROP is built.
+  public static final boolean NEED_EDGE_SPLIT_MV_EXCEPTION = false;
+
+  // This is like NEED_EDGE_SPLIT_MV_EXCEPTION and can be handled later.
+  public static final boolean NEED_EDGE_SPLIT_CATCH_BASIC_BLOCK = false;
+
+  public static final boolean NEED_EDGE_SPLIT_CASE_BASIC_BLOCK = false;
 
   @Override
   public void run(@Nonnull JMethodBodyCfg body) {
@@ -65,7 +76,9 @@ public class SsaBasicBlockSplitter implements RunnableSchedulable<JMethodBodyCfg
     if (NEED_EDGE_SPLIT_PREDECESSOR) {
       edgeSplitPredecessors(cfg);
     }
-    edgeSplitMoveExceptionsAndResults(cfg);
+    if (NEED_EDGE_SPLIT_MV_EXCEPTION) {
+      edgeSplitMoveExceptionsAndResults(cfg);
+    }
     edgeSplitSuccessors(cfg);
   }
 
@@ -133,8 +146,14 @@ public class SsaBasicBlockSplitter implements RunnableSchedulable<JMethodBodyCfg
           // These two type of basic block requires special case handling. Otherwise, we might
           // up with an IR that is very difficult to understand. Please refer to the design for
           // detail information.
-          if (succ instanceof JCatchBasicBlock || succ instanceof JCaseBasicBlock) {
-            block.split(-1);
+          if (succ instanceof JCatchBasicBlock) {
+            if (NEED_EDGE_SPLIT_CATCH_BASIC_BLOCK) {
+              block.split(-1);
+            }
+          } else if (succ instanceof JCaseBasicBlock) {
+            if (NEED_EDGE_SPLIT_CASE_BASIC_BLOCK) {
+              block.split(-1);
+            }
           } else {
             insertNewSimpleSuccessor(block, succ);
           }
@@ -173,6 +192,10 @@ public class SsaBasicBlockSplitter implements RunnableSchedulable<JMethodBodyCfg
    */
   private static void insertNewSimpleSuccessor(JBasicBlock block, JBasicBlock other) {
     JSimpleBasicBlock newSucc = new JSimpleBasicBlock(block.getCfg(), other);
+    // The goto itself shouldn't throw, therefore, it is ok with empty EHC.
+    JGotoBlockElement jGoto =
+        new JGotoBlockElement(other.getSourceInfo(), ExceptionHandlingContext.EMPTY);
+    newSucc.insertElement(0, jGoto);
     block.replaceAllSuccessors(other, newSucc);
   }
 

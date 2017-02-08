@@ -45,4 +45,9 @@ public class Tests {
 
     Assert.assertEquals(result, Ssa.multipleUses(x, y, z));
   }
+
+  @Test
+  public void testFallThroughCaseWithPhi() {
+    Assert.assertEquals(2, Ssa.fallThroughCaseWithPhi(2, -1));
+  }
 }

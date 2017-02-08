@@ -53,4 +53,15 @@ public class Ssa {
     int result = a + b + c + x + y + z;
     return result;
   }
+
+  public static int fallThroughCaseWithPhi(int x, int y) {
+    switch(x) {
+      case 2:
+        y = 2;
+      case 1: {
+        return y;
+      }
+    }
+    return -1;
+  }
 }

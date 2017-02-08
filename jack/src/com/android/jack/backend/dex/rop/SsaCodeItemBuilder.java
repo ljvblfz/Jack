@@ -43,6 +43,7 @@ import com.android.jack.dx.rop.type.TypeList;
 import com.android.jack.dx.ssa.NormalSsaInsn;
 import com.android.jack.dx.ssa.Optimizer;
 import com.android.jack.dx.ssa.Optimizer.OptionalStep;
+import com.android.jack.dx.ssa.PhiInsn;
 import com.android.jack.dx.ssa.SsaBasicBlock;
 import com.android.jack.dx.ssa.SsaInsn;
 import com.android.jack.dx.ssa.SsaMethod;
@@ -114,6 +115,7 @@ import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -358,6 +360,8 @@ public class SsaCodeItemBuilder implements RunnableSchedulable<JMethod> {
       ssaMethod.setRegisterCount(ropReg.getRegisterCount());
       ssaMethod.makeExitBlock();
 
+      edgeSplitMoveExceptionsAndResults(ssaMethod);
+
       RopMethod ropMethod = null;
 
       if (runDxOptimizations) {
@@ -512,5 +516,53 @@ public class SsaCodeItemBuilder implements RunnableSchedulable<JMethod> {
     }
 
     return wordCount;
+  }
+
+  private static void edgeSplitMoveExceptionsAndResults(@Nonnull SsaMethod ssaMeth) {
+    ArrayList<SsaBasicBlock> blocks = ssaMeth.getBlocks();
+    /*
+     * New blocks are added to the end of the block list during this iteration.
+     */
+    for (int i = blocks.size() - 1; i >= 0; i--) {
+      SsaBasicBlock block = blocks.get(i);
+
+      /*
+       * Any block that starts with a move-exception and has more than one predecessor...
+       */
+      if (!block.isExitBlock() && block.getPredecessors().cardinality() > 1) {
+        int moveExceptionIndex = 0;
+        while (moveExceptionIndex < block.getInsns().size()
+            && block.getInsns().get(moveExceptionIndex) instanceof PhiInsn) {
+          moveExceptionIndex++;
+        }
+
+        if (moveExceptionIndex == block.getInsns().size()
+            || !block.getInsns().get(moveExceptionIndex).isMoveException()) {
+          continue;
+        }
+
+        // block.getPredecessors() is changed in the loop below.
+        BitSet preds = (BitSet) block.getPredecessors().clone();
+        for (int j = preds.nextSetBit(0); j >= 0; j = preds.nextSetBit(j + 1)) {
+          SsaBasicBlock predecessor = blocks.get(j);
+          SsaBasicBlock zNode = predecessor.insertNewSuccessor(block);
+
+          /*
+           * Make sure to place the move-exception as the first insn.
+           */
+          zNode.getInsns().add(0, block.getInsns().get(moveExceptionIndex).clone());
+
+          for (int p = 0; p < moveExceptionIndex; p++) {
+            // It must be a phi given how moveExceptionIndex is computed.
+            PhiInsn phi = (PhiInsn) block.getInsns().get(p);
+            phi.changeOperandPred(predecessor, zNode);
+          }
+        }
+
+        // Remove the move-exception from the original block.
+        block.getInsns().remove(moveExceptionIndex);
+
+      }
+    }
   }
 }

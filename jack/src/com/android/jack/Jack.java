@@ -1818,6 +1818,10 @@ public abstract class Jack {
       cfgPlan.append(CfgNodeIdRemoval.class);
       cfgPlan.append(CfgNodeListRemoval.class);
       cfgPlan.append(DominanceFrontierRemoval.class);
+
+      if (hasSanityChecks) {
+        cfgPlan.append(CfgChecker.class);
+      }
     }
 
     // The sub plan that write dex files representing type must not be split in order to remove dx

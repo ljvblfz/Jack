@@ -98,17 +98,22 @@ public final class JCatchBasicBlock extends JRegularBasicBlock {
   @Override
   public void checkValidity() {
     super.checkValidity();
-
-    // TODO(acleung): I am removing this check for phi nodes for now.
-    /*
-    if (getElementCount() != 1) {
-      throw new JNodeInternalError(this, "Block must always have one single element");
+    if (getElementCount() < 1) {
+      throw new JNodeInternalError(this, "Block must always have at least one single element");
     }
-    */
-    if (!(getLastElement() instanceof JVariableAsgBlockElement) ||
+    JBasicBlockElement lastElement = getLastElement();
+    for (JBasicBlockElement element : getElements()) {
+      if (element != lastElement) {
+        if (!(element instanceof JPhiBlockElement)) {
+          throw new JNodeInternalError(this,
+              "Catch block should only have Phi elements before the last element.");
+        }
+      }
+    }
+    if (!(lastElement instanceof JVariableAsgBlockElement) ||
         !((JVariableAsgBlockElement) getLastElement()).isCatchVariableAssignment()) {
       throw new JNodeInternalError(this,
-          "The only element of the block must be catch variable assignment element");
+          "The last element of the block must be catch variable assignment element");
     }
   }
 }

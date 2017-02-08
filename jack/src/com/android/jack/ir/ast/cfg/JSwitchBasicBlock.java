@@ -30,7 +30,7 @@ import javax.annotation.Nonnull;
 /** Represents switch block. */
 public final class JSwitchBasicBlock extends JRegularBasicBlock {
   @Nonnull
-  private List<JBasicBlock> cases = new ArrayList<>();
+  private final List<JBasicBlock> cases = new ArrayList<>();
 
   public JSwitchBasicBlock(@Nonnull JControlFlowGraph cfg, @Nonnull JBasicBlock defaultCase) {
     super(defaultCase);
