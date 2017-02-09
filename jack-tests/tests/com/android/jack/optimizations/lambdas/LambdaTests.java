@@ -34,6 +34,7 @@ import java.io.File;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.TreeMap;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -60,7 +61,7 @@ public class LambdaTests extends DexOutputBasedTest {
 
   @Nonnull
   private static String lambda(@Nonnull String pkg, @Nonnull String sha, @Nonnegative int i) {
-    return type(pkg, "-$Lambda$" + i + "$" + sha);
+    return type(pkg, "-$Lambda$" + sha + (i == 0 ? "" : ("$" + i)));
   }
 
   @Nonnull
@@ -71,11 +72,27 @@ public class LambdaTests extends DexOutputBasedTest {
     return names;
   }
 
+  @Nonnull
+  private static String orderedByTypeName(@Nonnull Class... classes) {
+    TreeMap<String, String> name2type = new TreeMap<>();
+    for (Class cls : classes) {
+      name2type.put(cls.name, cls.toString());
+    }
+    StringBuilder builder = new StringBuilder();
+    for (String str : name2type.values()) {
+      builder.append(str);
+    }
+    return builder.toString();
+  }
+
   private static class Class {
+    @Nonnull
+    public final String name;
     @Nonnull
     private final StringBuilder builder = new StringBuilder();
 
     Class(@Nonnull String name, @Nonnull String... interfaces) {
+      this.name = name;
       builder.append(name).append("\n");
       printImpl(interfaces, "  - implements:\n", false);
     }
@@ -119,110 +136,109 @@ public class LambdaTests extends DexOutputBasedTest {
   private static final String SHA_001 = "IKUiHr1YvEGLPsKj1XVCnvkJpxY";
 
   @Nonnull
-  private static final String TEST001_NONE = "" +
+  private static final String TEST001_NONE = orderedByTypeName(
       new Class(lambda(PKG_001, SHA_001, 0), types(PKG_001, "I0"))
-          .methods("<init>()V", "foo()V", "$m$0()V") +
+          .methods("<init>()V", "foo()V", "$m$0()V"),
       new Class(lambda(PKG_001, SHA_001, 1), types(PKG_001, "I0"))
-          .methods("<init>()V", "foo()V", "$m$0()V") +
+          .methods("<init>()V", "foo()V", "$m$0()V"),
       new Class(lambda(PKG_001, SHA_001, 10), types(PKG_001, "TestB"))
           .fields("-$f0:Ljava/lang/Object;", "-$f1:Ljava/lang/Object;")
           .methods("<init>(Ljava/lang/Object;Ljava/lang/Object;)V",
               "foo(Ljava/lang/String;)Ljava/lang/String;",
-              "$m$0(Ljava/lang/String;)Ljava/lang/String;") +
+              "$m$0(Ljava/lang/String;)Ljava/lang/String;"),
       new Class(lambda(PKG_001, SHA_001, 11), types(PKG_001, "TestB"))
           .fields("-$f0:Ljava/lang/Object;", "-$f1:Ljava/lang/Object;")
           .methods("<init>(Ljava/lang/Object;Ljava/lang/Object;)V",
               "foo(Ljava/lang/String;)Ljava/lang/String;",
-              "$m$0(Ljava/lang/String;)Ljava/lang/String;") +
+              "$m$0(Ljava/lang/String;)Ljava/lang/String;"),
       new Class(lambda(PKG_001, SHA_001, 12), types(PKG_001, "TestB"))
           .fields("-$f0:I", "-$f1:Ljava/lang/Object;")
           .methods("<init>(ILjava/lang/Object;)V",
               "foo(Ljava/lang/String;)Ljava/lang/String;",
-              "$m$0(Ljava/lang/String;)Ljava/lang/String;") +
+              "$m$0(Ljava/lang/String;)Ljava/lang/String;"),
       new Class(lambda(PKG_001, SHA_001, 13), types(PKG_001, "TestB"))
           .fields("-$f0:I", "-$f1:Ljava/lang/Object;")
           .methods("<init>(ILjava/lang/Object;)V",
               "foo(Ljava/lang/String;)Ljava/lang/String;",
-              "$m$0(Ljava/lang/String;)Ljava/lang/String;") +
+              "$m$0(Ljava/lang/String;)Ljava/lang/String;"),
       new Class(lambda(PKG_001, SHA_001, 14), types(PKG_001, "TestB"))
           .fields("-$f0:Z", "-$f1:B", "-$f2:C", "-$f3:D", "-$f4:F", "-$f5:I", "-$f6:J", "-$f7:S",
               "-$f8:Ljava/lang/Object;")
           .methods("<init>(ZBCDFIJSLjava/lang/Object;)V",
               "foo(Ljava/lang/String;)Ljava/lang/String;",
-              "$m$0(Ljava/lang/String;)Ljava/lang/String;") +
+              "$m$0(Ljava/lang/String;)Ljava/lang/String;"),
       new Class(lambda(PKG_001, SHA_001, 15), types(PKG_001, "TestB"))
           .fields("-$f0:Z", "-$f1:B", "-$f2:C", "-$f3:D", "-$f4:F", "-$f5:I", "-$f6:J", "-$f7:S",
               "-$f8:Ljava/lang/Object;")
           .methods("<init>(ZBCDFIJSLjava/lang/Object;)V",
               "foo(Ljava/lang/String;)Ljava/lang/String;",
-              "$m$0(Ljava/lang/String;)Ljava/lang/String;") +
+              "$m$0(Ljava/lang/String;)Ljava/lang/String;"),
       new Class(lambda(PKG_001, SHA_001, 16), types(PKG_001, "TestB"))
           .fields("-$f0:Z", "-$f1:B", "-$f2:C", "-$f3:D", "-$f4:F", "-$f5:I", "-$f6:J", "-$f7:S",
               "-$f8:Ljava/lang/Object;")
           .methods("<init>(ZBCDFIJSLjava/lang/Object;)V",
               "foo(Ljava/lang/String;)Ljava/lang/String;",
-              "$m$0(Ljava/lang/String;)Ljava/lang/String;") +
+              "$m$0(Ljava/lang/String;)Ljava/lang/String;"),
       new Class(lambda(PKG_001, SHA_001, 2), types(PKG_001, "I0"))
-          .methods("<init>()V", "foo()V", "$m$0()V") +
+          .methods("<init>()V", "foo()V", "$m$0()V"),
       new Class(lambda(PKG_001, SHA_001, 3), types(PKG_001, "I1"))
-          .methods("<init>()V", "bar(I)I", "$m$0(I)I") +
+          .methods("<init>()V", "bar(I)I", "$m$0(I)I"),
       new Class(lambda(PKG_001, SHA_001, 4), types(PKG_001, "IA"))
-          .methods("<init>()V", "foo()Ljava/lang/Object;", "$m$0()Ljava/lang/Object;") +
+          .methods("<init>()V", "foo()Ljava/lang/Object;", "$m$0()Ljava/lang/Object;"),
       new Class(lambda(PKG_001, SHA_001, 5), types(PKG_001, "IA"))
-          .methods("<init>()V", "foo()Ljava/lang/Object;", "$m$0()Ljava/lang/Object;") +
+          .methods("<init>()V", "foo()Ljava/lang/Object;", "$m$0()Ljava/lang/Object;"),
       new Class(lambda(PKG_001, SHA_001, 6), types(PKG_001, "IA"))
-          .methods("<init>()V", "foo()Ljava/lang/Object;", "$m$0()Ljava/lang/Object;") +
+          .methods("<init>()V", "foo()Ljava/lang/Object;", "$m$0()Ljava/lang/Object;"),
       new Class(lambda(PKG_001, SHA_001, 7), types(PKG_001, "IB"))
           .methods("<init>()V", "foo()Ljava/lang/Object;", "foo()Ljava/lang/Integer;",
-              "$m$0()Ljava/lang/Integer;", "$m$1()Ljava/lang/Object;") +
+              "$m$0()Ljava/lang/Integer;", "$m$1()Ljava/lang/Object;"),
       new Class(lambda(PKG_001, SHA_001, 8), types(PKG_001, "TestB"))
           .fields("-$f0:Ljava/lang/Object;")
           .methods("<init>(Ljava/lang/Object;)V", "foo(Ljava/lang/String;)Ljava/lang/String;",
-              "$m$0(Ljava/lang/String;)Ljava/lang/String;") +
+              "$m$0(Ljava/lang/String;)Ljava/lang/String;"),
       new Class(lambda(PKG_001, SHA_001, 9), types(PKG_001, "TestB"))
           .fields("-$f0:Ljava/lang/Object;")
           .methods("<init>(Ljava/lang/Object;)V", "foo(Ljava/lang/String;)Ljava/lang/String;",
-              "$m$0(Ljava/lang/String;)Ljava/lang/String;") +
-      "";
+              "$m$0(Ljava/lang/String;)Ljava/lang/String;"));
 
   @Nonnull
-  private static final String TEST001_PACKAGE = "" +
+  private static final String TEST001_PACKAGE = orderedByTypeName(
       new Class(lambda(PKG_001, SHA_001, 0), types(PKG_001, "I0"))
           .fields("$id:B")
-          .methods("<init>(B)V", "$m$0()V", "$m$1()V", "$m$2()V", "foo()V") +
+          .methods("<init>(B)V", "$m$0()V", "$m$1()V", "$m$2()V", "foo()V"),
       new Class(lambda(PKG_001, SHA_001, 1), types(PKG_001, "I1"))
-          .methods("<init>()V", "$m$0(I)I", "bar(I)I") +
+          .methods("<init>()V", "$m$0(I)I", "bar(I)I"),
       new Class(lambda(PKG_001, SHA_001, 2), types(PKG_001, "IA"))
           .fields("$id:B")
           .methods("<init>(B)V",
               "$m$0()Ljava/lang/Object;",
               "$m$1()Ljava/lang/Object;",
               "$m$2()Ljava/lang/Object;",
-              "foo()Ljava/lang/Object;") +
+              "foo()Ljava/lang/Object;"),
       new Class(lambda(PKG_001, SHA_001, 3), types(PKG_001, "IB"))
           .methods("<init>()V",
               "$m$0()Ljava/lang/Integer;",
               "$m$1()Ljava/lang/Object;",
               "foo()Ljava/lang/Integer;",
-              "foo()Ljava/lang/Object;") +
+              "foo()Ljava/lang/Object;"),
       new Class(lambda(PKG_001, SHA_001, 4), types(PKG_001, "TestB"))
           .fields("-$f0:Ljava/lang/Object;", "$id:B")
           .methods("<init>(BLjava/lang/Object;)V",
               "$m$0(Ljava/lang/String;)Ljava/lang/String;",
               "$m$1(Ljava/lang/String;)Ljava/lang/String;",
-              "foo(Ljava/lang/String;)Ljava/lang/String;") +
+              "foo(Ljava/lang/String;)Ljava/lang/String;"),
       new Class(lambda(PKG_001, SHA_001, 5), types(PKG_001, "TestB"))
           .fields("-$f0:Ljava/lang/Object;", "-$f1:Ljava/lang/Object;", "$id:B")
           .methods("<init>(BLjava/lang/Object;Ljava/lang/Object;)V",
               "$m$0(Ljava/lang/String;)Ljava/lang/String;",
               "$m$1(Ljava/lang/String;)Ljava/lang/String;",
-              "foo(Ljava/lang/String;)Ljava/lang/String;") +
+              "foo(Ljava/lang/String;)Ljava/lang/String;"),
       new Class(lambda(PKG_001, SHA_001, 6), types(PKG_001, "TestB"))
           .fields("-$f0:I", "-$f1:Ljava/lang/Object;", "$id:B")
           .methods("<init>(BILjava/lang/Object;)V",
               "$m$0(Ljava/lang/String;)Ljava/lang/String;",
               "$m$1(Ljava/lang/String;)Ljava/lang/String;",
-              "foo(Ljava/lang/String;)Ljava/lang/String;") +
+              "foo(Ljava/lang/String;)Ljava/lang/String;"),
       new Class(lambda(PKG_001, SHA_001, 7), types(PKG_001, "TestB"))
           .fields("-$f0:Z", "-$f1:B", "-$f2:C", "-$f3:D", "-$f4:F",
               "-$f5:I", "-$f6:J", "-$f7:S", "-$f8:Ljava/lang/Object;", "$id:B")
@@ -230,10 +246,10 @@ public class LambdaTests extends DexOutputBasedTest {
               "$m$0(Ljava/lang/String;)Ljava/lang/String;",
               "$m$1(Ljava/lang/String;)Ljava/lang/String;",
               "$m$2(Ljava/lang/String;)Ljava/lang/String;",
-              "foo(Ljava/lang/String;)Ljava/lang/String;");
+              "foo(Ljava/lang/String;)Ljava/lang/String;"));
 
   @Nonnull
-  private static final String TEST001_PACKAGE_INTERFACE = "" +
+  private static final String TEST001_PACKAGE_INTERFACE = orderedByTypeName(
       new Class(lambda(PKG_001, SHA_001, 0), types(PKG_001, "I0", "I1", "IA", "IB"))
           .fields("$id:B")
           .methods("<init>(B)V",
@@ -249,25 +265,25 @@ public class LambdaTests extends DexOutputBasedTest {
               "bar(I)I",
               "foo()Ljava/lang/Integer;",
               "foo()Ljava/lang/Object;",
-              "foo()V") +
+              "foo()V"),
       new Class(lambda(PKG_001, SHA_001, 1), types(PKG_001, "TestB"))
           .fields("$id:B", "-$f0:Ljava/lang/Object;")
           .methods("<init>(BLjava/lang/Object;)V",
               "$m$0(Ljava/lang/String;)Ljava/lang/String;",
               "$m$1(Ljava/lang/String;)Ljava/lang/String;",
-              "foo(Ljava/lang/String;)Ljava/lang/String;") +
+              "foo(Ljava/lang/String;)Ljava/lang/String;"),
       new Class(lambda(PKG_001, SHA_001, 2), types(PKG_001, "TestB"))
           .fields("$id:B", "-$f0:Ljava/lang/Object;", "-$f1:Ljava/lang/Object;")
           .methods("<init>(BLjava/lang/Object;Ljava/lang/Object;)V",
               "$m$0(Ljava/lang/String;)Ljava/lang/String;",
               "$m$1(Ljava/lang/String;)Ljava/lang/String;",
-              "foo(Ljava/lang/String;)Ljava/lang/String;") +
+              "foo(Ljava/lang/String;)Ljava/lang/String;"),
       new Class(lambda(PKG_001, SHA_001, 3), types(PKG_001, "TestB"))
           .fields("$id:B", "-$f0:I", "-$f1:Ljava/lang/Object;")
           .methods("<init>(BILjava/lang/Object;)V",
               "$m$0(Ljava/lang/String;)Ljava/lang/String;",
               "$m$1(Ljava/lang/String;)Ljava/lang/String;",
-              "foo(Ljava/lang/String;)Ljava/lang/String;") +
+              "foo(Ljava/lang/String;)Ljava/lang/String;"),
       new Class(lambda(PKG_001, SHA_001, 4), types(PKG_001, "TestB"))
           .fields("$id:B", "-$f0:Z", "-$f1:B", "-$f2:C", "-$f3:D",
               "-$f4:F", "-$f5:I", "-$f6:J", "-$f7:S", "-$f8:Ljava/lang/Object;")
@@ -275,7 +291,7 @@ public class LambdaTests extends DexOutputBasedTest {
               "$m$0(Ljava/lang/String;)Ljava/lang/String;",
               "$m$1(Ljava/lang/String;)Ljava/lang/String;",
               "$m$2(Ljava/lang/String;)Ljava/lang/String;",
-              "foo(Ljava/lang/String;)Ljava/lang/String;");
+              "foo(Ljava/lang/String;)Ljava/lang/String;"));
 
   @Test
   @Runtime
@@ -301,25 +317,24 @@ public class LambdaTests extends DexOutputBasedTest {
   private static final String SHA_002 = "rK0qQUOvfPrsTJWpyc2f5mlYYJ8";
 
   @Nonnull
-  private static final String TEST002_NONE = "" +
+  private static final String TEST002_NONE = orderedByTypeName(
       new Class(lambda(PKG_002, SHA_002, 0), types(PKG_002, "I0"))
-          .methods("<init>()V", "$m$0()Ljava/lang/String;", "foo()Ljava/lang/String;") +
+          .methods("<init>()V", "$m$0()Ljava/lang/String;", "foo()Ljava/lang/String;"),
       new Class(lambda(PKG_002, SHA_002, 1), types(PKG_002, "I1"))
-          .methods("<init>()V", "$m$0()Ljava/lang/String;", "foo()Ljava/lang/String;") +
+          .methods("<init>()V", "$m$0()Ljava/lang/String;", "foo()Ljava/lang/String;"),
       new Class(lambda(PKG_002, SHA_002, 2), types(PKG_002, "I2"))
-          .methods("<init>()V", "$m$0()Ljava/lang/String;", "foo()Ljava/lang/String;") +
+          .methods("<init>()V", "$m$0()Ljava/lang/String;", "foo()Ljava/lang/String;"),
       new Class(lambda(PKG_002, SHA_002, 3), types(PKG_002, "I3"))
-          .methods("<init>()V", "$m$0()Ljava/lang/String;", "foo()Ljava/lang/String;") +
+          .methods("<init>()V", "$m$0()Ljava/lang/String;", "foo()Ljava/lang/String;"),
       new Class(lambda(PKG_002, SHA_002, 4), types(PKG_002, "I4"))
-          .methods("<init>()V", "$m$0()Ljava/lang/String;", "foo()Ljava/lang/String;") +
+          .methods("<init>()V", "$m$0()Ljava/lang/String;", "foo()Ljava/lang/String;"),
       new Class(lambda(PKG_002, SHA_002, 5), types(PKG_002, "I5"))
-          .methods("<init>()V", "$m$0()Ljava/lang/String;", "foo()Ljava/lang/String;") +
+          .methods("<init>()V", "$m$0()Ljava/lang/String;", "foo()Ljava/lang/String;"),
       new Class(lambda(PKG_002, SHA_002, 6), types(PKG_002, "I6"))
-          .methods("<init>()V", "$m$0()Ljava/lang/String;", "foo()Ljava/lang/String;") +
-      "";
+          .methods("<init>()V", "$m$0()Ljava/lang/String;", "foo()Ljava/lang/String;"));
 
   @Nonnull
-  private static final String TEST002_PACKAGE_INTERFACE = "" +
+  private static final String TEST002_PACKAGE_INTERFACE = orderedByTypeName(
       new Class(lambda(PKG_002, SHA_002, 0),
           types(PKG_002, "I0", "I1", "I2", "I3", "I4", "I5", "I6"))
           .fields("$id:B")
@@ -331,7 +346,7 @@ public class LambdaTests extends DexOutputBasedTest {
               "$m$4()Ljava/lang/String;",
               "$m$5()Ljava/lang/String;",
               "$m$6()Ljava/lang/String;",
-              "foo()Ljava/lang/String;");
+              "foo()Ljava/lang/String;"));
 
   @Test
   @Runtime
@@ -363,24 +378,23 @@ public class LambdaTests extends DexOutputBasedTest {
   private static final String SHA_003 = "ONjwHPCPJTN6WB4tZ9kgaFMFflk";
 
   @Nonnull
-  private static final String TEST003_NONE = "" +
+  private static final String TEST003_NONE = orderedByTypeName(
       new Class(lambda(PKG_003, SHA_003, 0), types(PKG_003, "I0"))
-          .methods("<init>()V", "$m$0()Ljava/lang/Object;", "foo()Ljava/lang/Object;") +
+          .methods("<init>()V", "$m$0()Ljava/lang/Object;", "foo()Ljava/lang/Object;"),
       new Class(lambda(PKG_003, SHA_003, 1), types(PKG_003, "I1"))
-          .methods("<init>()V", "$m$0()Ljava/lang/Object;", "foo()Ljava/lang/Object;") +
+          .methods("<init>()V", "$m$0()Ljava/lang/Object;", "foo()Ljava/lang/Object;"),
       new Class(lambda(PKG_003, SHA_003, 2), types(PKG_003, "I3"))
-          .methods("<init>()V", "$m$0()Ljava/lang/Object;", "foo()Ljava/lang/Object;") +
-      "";
+          .methods("<init>()V", "$m$0()Ljava/lang/Object;", "foo()Ljava/lang/Object;"));
 
   @Nonnull
   private static final String TEST003_PACKAGE = TEST003_NONE;
 
   @Nonnull
-  private static final String TEST003_PACKAGE_INTERFACE = "" +
+  private static final String TEST003_PACKAGE_INTERFACE = orderedByTypeName(
       new Class(lambda(PKG_003, SHA_003, 0), types(PKG_003, "I0", "I1", "I3"))
           .fields("$id:B")
           .methods("<init>(B)V", "$m$0()Ljava/lang/Object;",
-              "$m$1()Ljava/lang/Object;", "$m$2()Ljava/lang/Object;", "foo()Ljava/lang/Object;");
+              "$m$1()Ljava/lang/Object;", "$m$2()Ljava/lang/Object;", "foo()Ljava/lang/Object;"));
 
   @Test
   @Runtime
@@ -406,20 +420,20 @@ public class LambdaTests extends DexOutputBasedTest {
   private static final String SHA_004 = "kE8tIAUzNtiGWJ6ulIU0a1IEtL4";
 
   @Nonnull
-  private static final String TEST004_PACKAGE = "" +
+  private static final String TEST004_PACKAGE = orderedByTypeName(
       new Class(lambda(PKG_004, SHA_004, 0), types(PKG_004, "I0"))
-          .methods("<init>()V", "$m$0()Ljava/lang/String;", "foo()Ljava/lang/String;") +
+          .methods("<init>()V", "$m$0()Ljava/lang/String;", "foo()Ljava/lang/String;"),
       new Class(lambda(PKG_004, SHA_004, 1), types(PKG_004, "I0", "MarkerA"))
-          .methods("<init>()V", "$m$0()Ljava/lang/String;", "foo()Ljava/lang/String;") +
+          .methods("<init>()V", "$m$0()Ljava/lang/String;", "foo()Ljava/lang/String;"),
       new Class(lambda(PKG_004, SHA_004, 2), types(PKG_004, "I0", "MarkerA", "MarkerB"))
-          .methods("<init>()V", "$m$0()Ljava/lang/String;", "foo()Ljava/lang/String;") +
+          .methods("<init>()V", "$m$0()Ljava/lang/String;", "foo()Ljava/lang/String;"),
       new Class(lambda(PKG_004, SHA_004, 3), types(PKG_004, "I0", "MarkerB"))
-          .methods("<init>()V", "$m$0()Ljava/lang/String;", "foo()Ljava/lang/String;") +
+          .methods("<init>()V", "$m$0()Ljava/lang/String;", "foo()Ljava/lang/String;"),
       new Class(lambda(PKG_004, SHA_004, 4), types(PKG_004, "I1", "MarkerA", "MarkerB"))
-          .methods("<init>()V", "$m$0()Ljava/lang/String;", "foo()Ljava/lang/String;");
+          .methods("<init>()V", "$m$0()Ljava/lang/String;", "foo()Ljava/lang/String;"));
 
   @Nonnull
-  private static final String TEST004_LAMBDA_MERGE = "" +
+  private static final String TEST004_LAMBDA_MERGE = orderedByTypeName(
       new Class(lambda(PKG_004, SHA_004, 0), types(PKG_004, "I0", "I1", "MarkerA", "MarkerB"))
           .fields("$id:B")
           .methods("<init>(B)V",
@@ -428,10 +442,10 @@ public class LambdaTests extends DexOutputBasedTest {
               "$m$2()Ljava/lang/String;",
               "$m$3()Ljava/lang/String;",
               "$m$4()Ljava/lang/String;",
-              "foo()Ljava/lang/String;");
+              "foo()Ljava/lang/String;"));
 
   @Nonnull
-  private static final String TEST004_PACKAGE_INTERFACE_STATELESS = "" +
+  private static final String TEST004_PACKAGE_INTERFACE_STATELESS = orderedByTypeName(
       new Class(lambda(PKG_004, SHA_004, 0), types(PKG_004, "I0", "I1", "MarkerA", "MarkerB"))
           .fields("$id:B",
               "$INST$0:" + lambda(PKG_004, SHA_004, 0),
@@ -445,35 +459,35 @@ public class LambdaTests extends DexOutputBasedTest {
               "$m$2()Ljava/lang/String;",
               "$m$3()Ljava/lang/String;",
               "$m$4()Ljava/lang/String;",
-              "foo()Ljava/lang/String;");
+              "foo()Ljava/lang/String;"));
 
   @Nonnull
-  private static final String TEST004_PACKAGE_STATELESS = "" +
+  private static final String TEST004_PACKAGE_STATELESS = orderedByTypeName(
       new Class(lambda(PKG_004, SHA_004, 0), types(PKG_004, "I0"))
           .fields("$INST$0:" + lambda(PKG_004, SHA_004, 0))
           .methods("<clinit>()V", "<init>()V",
               "$m$0()Ljava/lang/String;",
-              "foo()Ljava/lang/String;") +
+              "foo()Ljava/lang/String;"),
       new Class(lambda(PKG_004, SHA_004, 1), types(PKG_004, "I0", "MarkerA"))
           .fields("$INST$0:" + lambda(PKG_004, SHA_004, 1))
           .methods("<clinit>()V", "<init>()V",
               "$m$0()Ljava/lang/String;",
-              "foo()Ljava/lang/String;") +
+              "foo()Ljava/lang/String;"),
       new Class(lambda(PKG_004, SHA_004, 2), types(PKG_004, "I0", "MarkerA", "MarkerB"))
           .fields("$INST$0:" + lambda(PKG_004, SHA_004, 2))
           .methods("<clinit>()V", "<init>()V",
               "$m$0()Ljava/lang/String;",
-              "foo()Ljava/lang/String;") +
+              "foo()Ljava/lang/String;"),
       new Class(lambda(PKG_004, SHA_004, 3), types(PKG_004, "I0", "MarkerB"))
           .fields("$INST$0:" + lambda(PKG_004, SHA_004, 3))
           .methods("<clinit>()V", "<init>()V",
               "$m$0()Ljava/lang/String;",
-              "foo()Ljava/lang/String;") +
+              "foo()Ljava/lang/String;"),
       new Class(lambda(PKG_004, SHA_004, 4), types(PKG_004, "I1", "MarkerA", "MarkerB"))
           .fields("$INST$0:" + lambda(PKG_004, SHA_004, 4))
           .methods("<clinit>()V", "<init>()V",
               "$m$0()Ljava/lang/String;",
-              "foo()Ljava/lang/String;");
+              "foo()Ljava/lang/String;"));
 
   @Test
   @Runtime
@@ -503,17 +517,17 @@ public class LambdaTests extends DexOutputBasedTest {
   private static final String SHA_005 = "mEUip-rZCi8VUKLKTaQF6NNk0aM";
 
   @Nonnull
-  private static final String TEST005_PACKAGE = "" +
+  private static final String TEST005_PACKAGE = orderedByTypeName(
       new Class(lambda(PKG_005, SHA_005, 0), types(PKG_005, "I0"))
           .fields("$id:B")
           .methods("<init>(B)V",
               "$m$0()Ljava/lang/String;",
               "$m$1()Ljava/lang/String;",
-              "foo()Ljava/lang/String;") +
+              "foo()Ljava/lang/String;"),
       new Class(lambda(PKG_005, SHA_005, 1), types(PKG_005, "I1"))
           .methods("<init>()V",
               "$m$0()Ljava/lang/String;",
-              "bar()Ljava/lang/String;") +
+              "bar()Ljava/lang/String;"),
       new Class(lambda(PKG_005, SHA_005, 2), types(PKG_005, "I0"))
           .fields("$id:B", "-$f0:Ljava/lang/Object;")
           .methods("<init>(BLjava/lang/Object;)V",
@@ -522,16 +536,16 @@ public class LambdaTests extends DexOutputBasedTest {
               "$m$2()Ljava/lang/String;",
               "$m$3()Ljava/lang/String;",
               "$m$4()Ljava/lang/String;",
-              "foo()Ljava/lang/String;") +
+              "foo()Ljava/lang/String;"),
       new Class(lambda(PKG_005, SHA_005, 3), types(PKG_005, "I1"))
           .fields("$id:B", "-$f0:Ljava/lang/Object;")
           .methods("<init>(BLjava/lang/Object;)V",
               "$m$0()Ljava/lang/String;",
               "$m$1()Ljava/lang/String;",
-              "bar()Ljava/lang/String;");
+              "bar()Ljava/lang/String;"));
 
   @Nonnull
-  private static final String TEST005_PACKAGE_INTERFACE = "" +
+  private static final String TEST005_PACKAGE_INTERFACE = orderedByTypeName(
       new Class(lambda(PKG_005, SHA_005, 0), types(PKG_005, "I0", "I1"))
           .fields("$id:B")
           .methods("<init>(B)V",
@@ -539,7 +553,7 @@ public class LambdaTests extends DexOutputBasedTest {
               "$m$1()Ljava/lang/String;",
               "$m$2()Ljava/lang/String;",
               "bar()Ljava/lang/String;",
-              "foo()Ljava/lang/String;") +
+              "foo()Ljava/lang/String;"),
       new Class(lambda(PKG_005, SHA_005, 1), types(PKG_005, "I0", "I1"))
           .fields("$id:B", "-$f0:Ljava/lang/Object;")
           .methods("<init>(BLjava/lang/Object;)V",
@@ -551,10 +565,10 @@ public class LambdaTests extends DexOutputBasedTest {
               "$m$5()Ljava/lang/String;",
               "$m$6()Ljava/lang/String;",
               "bar()Ljava/lang/String;",
-              "foo()Ljava/lang/String;");
+              "foo()Ljava/lang/String;"));
 
   @Nonnull
-  private static final String TEST005_PACKAGE_INTERFACE_STATELESS = "" +
+  private static final String TEST005_PACKAGE_INTERFACE_STATELESS = orderedByTypeName(
       new Class(lambda(PKG_005, SHA_005, 0), types(PKG_005, "I0", "I1"))
           .fields("$id:B",
               "$INST$0:" + lambda(PKG_005, SHA_005, 0),
@@ -565,7 +579,7 @@ public class LambdaTests extends DexOutputBasedTest {
               "$m$1()Ljava/lang/String;",
               "$m$2()Ljava/lang/String;",
               "bar()Ljava/lang/String;",
-              "foo()Ljava/lang/String;") +
+              "foo()Ljava/lang/String;"),
       new Class(lambda(PKG_005, SHA_005, 1), types(PKG_005, "I0", "I1"))
           .fields("$id:B", "-$f0:Ljava/lang/Object;")
           .methods("<init>(BLjava/lang/Object;)V",
@@ -577,7 +591,7 @@ public class LambdaTests extends DexOutputBasedTest {
               "$m$5()Ljava/lang/String;",
               "$m$6()Ljava/lang/String;",
               "bar()Ljava/lang/String;",
-              "foo()Ljava/lang/String;");
+              "foo()Ljava/lang/String;"));
 
   @Test
   @Runtime
@@ -605,47 +619,44 @@ public class LambdaTests extends DexOutputBasedTest {
   private static final String SHA_006_B = "N-kUn0qIgGhcb5JJeaFqgDggm3E";
 
   @Nonnull
-  private static final String TEST006_NONE = "" +
+  private static final String TEST006_NONE = orderedByTypeName(
       new Class(lambda(PKG_006, SHA_006_A, 0), types(PKG_006, "Producer"))
-          .methods("<init>()V", "$m$0()Ljava/lang/String;", "run()Ljava/lang/String;") +
+          .methods("<init>()V", "$m$0()Ljava/lang/String;", "run()Ljava/lang/String;"),
       new Class(lambda(PKG_006, SHA_006_A, 1), types(PKG_006, "Producer"))
-          .methods("<init>()V", "$m$0()Ljava/lang/String;", "run()Ljava/lang/String;") +
+          .methods("<init>()V", "$m$0()Ljava/lang/String;", "run()Ljava/lang/String;"),
       new Class(lambda(PKG_006, SHA_006_A, 2), types(PKG_006, "Producer"))
-          .methods("<init>()V", "$m$0()Ljava/lang/String;", "run()Ljava/lang/String;") +
+          .methods("<init>()V", "$m$0()Ljava/lang/String;", "run()Ljava/lang/String;"),
       new Class(lambda(PKG_006, SHA_006_A, 3), types(PKG_006, "Producer"))
-          .methods("<init>()V", "$m$0()Ljava/lang/String;", "run()Ljava/lang/String;") +
-      new Class(lambda(PKG_006, SHA_006_B, 4), types(PKG_006, "Producer"))
-          .methods("<init>()V", "$m$0()Ljava/lang/String;", "run()Ljava/lang/String;") +
-      new Class(lambda(PKG_006, SHA_006_B, 5), types(PKG_006, "Producer"))
-          .methods("<init>()V", "$m$0()Ljava/lang/String;", "run()Ljava/lang/String;") +
-      new Class(lambda(PKG_006, SHA_006_B, 6), types(PKG_006, "Producer"))
-          .methods("<init>()V", "$m$0()Ljava/lang/String;", "run()Ljava/lang/String;") +
-      "";
+          .methods("<init>()V", "$m$0()Ljava/lang/String;", "run()Ljava/lang/String;"),
+      new Class(lambda(PKG_006, SHA_006_B, 0), types(PKG_006, "Producer"))
+          .methods("<init>()V", "$m$0()Ljava/lang/String;", "run()Ljava/lang/String;"),
+      new Class(lambda(PKG_006, SHA_006_B, 1), types(PKG_006, "Producer"))
+          .methods("<init>()V", "$m$0()Ljava/lang/String;", "run()Ljava/lang/String;"),
+      new Class(lambda(PKG_006, SHA_006_B, 2), types(PKG_006, "Producer"))
+          .methods("<init>()V", "$m$0()Ljava/lang/String;", "run()Ljava/lang/String;"));
 
   @Nonnull
-  private static final String TEST006_TYPE = "" +
+  private static final String TEST006_TYPE = orderedByTypeName(
       new Class(lambda(PKG_006, SHA_006_A, 0), types(PKG_006, "Producer"))
           .fields("$id:B")
           .methods("<init>(B)V", "$m$0()Ljava/lang/String;", "$m$1()Ljava/lang/String;",
-              "$m$2()Ljava/lang/String;", "$m$3()Ljava/lang/String;", "run()Ljava/lang/String;") +
-      new Class(lambda(PKG_006, SHA_006_B, 1), types(PKG_006, "Producer"))
+              "$m$2()Ljava/lang/String;", "$m$3()Ljava/lang/String;", "run()Ljava/lang/String;"),
+      new Class(lambda(PKG_006, SHA_006_B, 0), types(PKG_006, "Producer"))
           .fields("$id:B")
           .methods("<init>(B)V", "$m$0()Ljava/lang/String;", "$m$1()Ljava/lang/String;",
-              "$m$2()Ljava/lang/String;", "run()Ljava/lang/String;") +
-      "";
+              "$m$2()Ljava/lang/String;", "run()Ljava/lang/String;"));
 
   @Nonnull
   private static final String SHA_006_ALL = "aRztprv3kbtT1k5EHkFo2yXbFfg";
 
   @Nonnull
-  private static final String TEST006_PACKAGE = "" +
+  private static final String TEST006_PACKAGE = orderedByTypeName(
       new Class(lambda(PKG_006, SHA_006_ALL, 0), types(PKG_006, "Producer"))
           .fields("$id:B")
           .methods("<init>(B)V", "$m$0()Ljava/lang/String;", "$m$1()Ljava/lang/String;",
               "$m$2()Ljava/lang/String;", "$m$3()Ljava/lang/String;",
               "$m$4()Ljava/lang/String;", "$m$5()Ljava/lang/String;",
-              "$m$6()Ljava/lang/String;", "run()Ljava/lang/String;") +
-      "";
+              "$m$6()Ljava/lang/String;", "run()Ljava/lang/String;"));
 
   @Test
   @Runtime
@@ -671,25 +682,23 @@ public class LambdaTests extends DexOutputBasedTest {
   private static final String SHA_007 = "VIf7bh4a9R2eWK07TARcQzoADH4";
 
   @Nonnull
-  private static final String TEST007_DEFAULT = "" +
+  private static final String TEST007_DEFAULT = orderedByTypeName(
       new Class(lambda(PKG_007, SHA_007, 0), types(PKG_007, "Ic", "Ia", "Ib"))
-          .methods("<init>()V", "$m$0()Ljava/lang/String;", "m()Ljava/lang/String;") +
+          .methods("<init>()V", "$m$0()Ljava/lang/String;", "m()Ljava/lang/String;"),
       new Class(lambda(PKG_007, SHA_007, 1), types(PKG_007, "Ic", "Iaa"))
-          .methods("<init>()V", "$m$0()Ljava/lang/String;", "m()Ljava/lang/String;") +
+          .methods("<init>()V", "$m$0()Ljava/lang/String;", "m()Ljava/lang/String;"),
       new Class(lambda(PKG_007, SHA_007, 2), types(PKG_007, "Ic", "Ib"))
-          .methods("<init>()V", "$m$0()Ljava/lang/String;", "m()Ljava/lang/String;") +
+          .methods("<init>()V", "$m$0()Ljava/lang/String;", "m()Ljava/lang/String;"),
       new Class(lambda(PKG_007, SHA_007, 3), types(PKG_007, "Ic", "Ib", "Ia"))
-          .methods("<init>()V", "$m$0()Ljava/lang/String;", "m()Ljava/lang/String;") +
-      "";
+          .methods("<init>()V", "$m$0()Ljava/lang/String;", "m()Ljava/lang/String;"));
 
   @Nonnull
-  private static final String TEST007_MERGE_INTERFACES = "" +
+  private static final String TEST007_MERGE_INTERFACES = orderedByTypeName(
       new Class(lambda(PKG_007, SHA_007, 0), types(PKG_007, "Ia", "Iaa", "Ib", "Ic"))
           .fields("$id:B")
           .methods("<init>(B)V", "m()Ljava/lang/String;",
               "$m$0()Ljava/lang/String;", "$m$1()Ljava/lang/String;",
-              "$m$2()Ljava/lang/String;", "$m$3()Ljava/lang/String;") +
-      "";
+              "$m$2()Ljava/lang/String;", "$m$3()Ljava/lang/String;"));
 
 
   @Test

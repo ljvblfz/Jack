@@ -45,11 +45,11 @@ import com.android.sched.util.log.stats.StatisticId;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -214,14 +214,14 @@ public final class LambdaCollection {
    * </pre>
    */
   void createLambdaClassGroups(@Nonnull JSession session) {
-    int nextId = 0;
     // Create a map sorted by key to ensure a stable order
     // of the created lambda group classes
+    Map<String, Integer> typeHashConflicts = new HashMap<>();
     TreeMap<Key, ConcurrentHashMap<String, JLambda>> sorted = new TreeMap<>(lambdaClassSets);
     for (Map.Entry<Key, ConcurrentHashMap<String, JLambda>> entry : sorted.entrySet()) {
       // Create a group class to represent lambda group
-      JDefinedClass groupClass = createGroupClass(
-          nextId++, session, entry.getKey().pkg, getLambdaTypesHash(entry.getValue().values()));
+      JDefinedClass groupClass = createGroupClass(session, entry.getKey().pkg,
+          getLambdaTypesHash(entry.getValue().values()), typeHashConflicts);
 
       LambdaGroup lambdaGroup = new LambdaGroup(
           entry.getValue(), groupClass, entry.getKey().captureSignature);
@@ -248,16 +248,28 @@ public final class LambdaCollection {
       digest.update(name.getBytes(StandardCharsets.UTF_8));
       digest.update((byte) 0);
     }
-    return BaseEncoding.base64Url().omitPadding().encode(digest.digest());
+    String encode = BaseEncoding.base64Url().omitPadding().encode(digest.digest());
+    assert encode != null;
+    return encode;
   }
 
   @Nonnull
-  private JDefinedClass createGroupClass(@Nonnegative int id,
-      @Nonnull JSession session, @Nonnull JPackage pkg, @Nonnull String typesHash) {
+  private JDefinedClass createGroupClass(@Nonnull JSession session, @Nonnull JPackage pkg,
+      @Nonnull String typesHash, @Nonnull Map<String, Integer> typeHashConflicts) {
+    String lambdaClassName =
+        NamingTools.getNonSourceConflictingName(LAMBDA_GROUP_CLASS_NAME_PREFIX + typesHash);
+    Integer count = typeHashConflicts.get(typesHash);
+    if (count == null) {
+      typeHashConflicts.put(typesHash, Integer.valueOf(0));
+    } else {
+      int nextId = count.intValue() + 1;
+      lambdaClassName += "$" + nextId;
+      typeHashConflicts.put(typesHash, Integer.valueOf(nextId));
+    }
+
     // Create a class
-    JDefinedClass groupClass = new JDefinedClass(SourceInfo.UNKNOWN,
-        NamingTools.getNonSourceConflictingName(
-            LAMBDA_GROUP_CLASS_NAME_PREFIX + id + "$" + typesHash),
+    JDefinedClass groupClass = new JDefinedClass(
+        SourceInfo.UNKNOWN, lambdaClassName,
         JModifier.FINAL | JModifier.SYNTHETIC,
         pkg, NopClassOrInterfaceLoader.INSTANCE);
     groupClass.setSuperClass(javaLangObject);
