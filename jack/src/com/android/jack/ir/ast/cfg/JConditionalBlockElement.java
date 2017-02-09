@@ -16,6 +16,7 @@
 
 package com.android.jack.ir.ast.cfg;
 
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JPrimitiveType;
@@ -75,6 +76,15 @@ public final class JConditionalBlockElement extends JBasicBlockElement {
   @Override
   public boolean isTerminal() {
     return true;
+  }
+
+  @Override
+  public void checkValidity() {
+    super.checkValidity();
+
+    if (!(super.getBasicBlock() instanceof JConditionalBasicBlock)) {
+      throw new JNodeInternalError(this, "The parent node must be JConditionalBasicBlock");
+    }
   }
 
   @Override

@@ -83,9 +83,6 @@ public final class JThrowBlockElement extends JBasicBlockElement {
     if (!(super.getBasicBlock() instanceof JThrowBasicBlock)) {
       throw new JNodeInternalError(this, "The parent node must be JThrowBasicBlock");
     }
-    if (this != getBasicBlock().getLastElement()) {
-      throw new JNodeInternalError(this, "Must be the last element of the basic block");
-    }
   }
 
   @Override

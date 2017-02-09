@@ -67,8 +67,5 @@ public final class JGotoBlockElement extends JBasicBlockElement {
     if (!(super.getBasicBlock() instanceof JSimpleBasicBlock)) {
       throw new JNodeInternalError(this, "The parent node must be JSimpleBasicBlock");
     }
-    if (this != getBasicBlock().getLastElement()) {
-      throw new JNodeInternalError(this, "Must be the last element of the basic block");
-    }
   }
 }

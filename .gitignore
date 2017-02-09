@@ -26,3 +26,9 @@ jill/rsc/jill-version.properties
 
 # Code coverage
 jack-coverage/testResults/
+
+# IDEA
+.idea
+JackCheckStyleSuppressions.xml
+JackStyleRules.xml
+**/*.iml

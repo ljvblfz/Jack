@@ -61,7 +61,12 @@ public final class JReturnBasicBlock extends JRegularBasicBlock {
 
     if (!(getLastElement() instanceof JReturnBlockElement)) {
       throw new JNodeInternalError(this,
-          "The last element of the block must be return element");
+          "JReturnBasicBlock's last element must be JReturnBlockElement");
+    }
+
+    if (!(getPrimarySuccessor() instanceof JExitBasicBlock)) {
+      throw new JNodeInternalError(this,
+          "JReturnBasicBlock's primary successor must be JExitBasicBlock");
     }
   }
 }

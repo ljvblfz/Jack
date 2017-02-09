@@ -97,6 +97,9 @@ public abstract class JBasicBlock extends JNode implements IGraphNode<JBasicBloc
    */
   public abstract void insertElement(int at, @Nonnull JBasicBlockElement element);
 
+  /** Removes the specified element from the basic block */
+  public abstract void removeElement(@Nonnull JBasicBlockElement element);
+
   /** Replace all the successors equal to 'what' with 'with' */
   public abstract void replaceAllSuccessors(@Nonnull JBasicBlock what, @Nonnull JBasicBlock with);
 
@@ -237,8 +240,6 @@ public abstract class JBasicBlock extends JNode implements IGraphNode<JBasicBloc
   }
 
   public void checkValidity() {
-    for (JBasicBlockElement element : getElements(true)) {
-      element.checkValidity();
-    }
+    // NOTE: only check basic-block validity, each block element will be validated later
   }
 }

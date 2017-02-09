@@ -17,6 +17,8 @@
 package com.android.jack.ir.ast.cfg;
 
 import com.android.jack.Jack;
+import com.android.jack.ir.JNodeInternalError;
+import com.android.jack.ir.ast.JVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,6 +87,81 @@ public abstract class JThrowingBasicBlock extends JRegularBasicBlock {
       if (catchBlocks.get(i) == what) {
         catchBlocks.set(i, resetSuccessor(what, with));
       }
+    }
+  }
+
+  @Override
+  public void checkValidity() {
+    super.checkValidity();
+
+    new JVisitor() {
+      @Override public boolean visit(@Nonnull JMethodCallBlockElement node) {
+        return false;
+      }
+
+      @Override public boolean visit(@Nonnull JPolymorphicMethodCallBlockElement node) {
+        return false;
+      }
+
+      @Override public boolean visit(@Nonnull JStoreBlockElement node) {
+        return false;
+      }
+
+      @Override public boolean visit(@Nonnull JLockBlockElement node) {
+        return false;
+      }
+
+      @Override public boolean visit(@Nonnull JUnlockBlockElement node) {
+        return false;
+      }
+
+      @Override public boolean visit(@Nonnull JThrowBlockElement node) {
+        return false;
+      }
+
+      @Override public boolean visit(@Nonnull JGotoBlockElement node) {
+        throw new JNodeInternalError(JThrowingBasicBlock.this,
+            "JThrowingBasicBlock must NOT end with JGotoBlockElement");
+      }
+
+      @Override public boolean visit(@Nonnull JSwitchBlockElement node) {
+        throw new JNodeInternalError(JThrowingBasicBlock.this,
+            "JThrowingBasicBlock must NOT end with JSwitchBlockElement");
+      }
+
+      @Override public boolean visit(@Nonnull JConditionalBlockElement node) {
+        throw new JNodeInternalError(JThrowingBasicBlock.this,
+            "JThrowingBasicBlock must NOT end with JConditionalBlockElement");
+      }
+
+      @Override public boolean visit(@Nonnull JCaseBlockElement node) {
+        throw new JNodeInternalError(JThrowingBasicBlock.this,
+            "JThrowingBasicBlock must NOT end with JCaseBlockElement");
+      }
+
+      @Override public boolean visit(@Nonnull JVariableAsgBlockElement node) {
+        if (!node.getAssignment().getRhs().canThrow()) {
+          throw new JNodeInternalError(JThrowingBasicBlock.this,
+              "JThrowingBasicBlock must NOT end with JVariableAsgBlockElement "
+                  + "which does not throw");
+        }
+        return false;
+      }
+
+      @Override public boolean visit(@Nonnull JReturnBlockElement node) {
+        throw new JNodeInternalError(JThrowingBasicBlock.this,
+            "JThrowingBasicBlock must NOT end with JReturnBlockElement");
+      }
+
+      @Override public boolean visit(@Nonnull JPhiBlockElement node) {
+        throw new JNodeInternalError(JThrowingBasicBlock.this,
+            "JThrowingBasicBlock must NOT end with JPhiBlockElement");
+      }
+    }.accept(getLastElement());
+
+    if (!(getUnhandledBlock() instanceof JExitBasicBlock)) {
+      throw new JNodeInternalError(this, "Unhandled exception block of "
+          + "JThrowingBasicBlock must always point to the exit block");
     }
   }
 }

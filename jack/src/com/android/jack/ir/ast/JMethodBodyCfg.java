@@ -18,6 +18,7 @@ package com.android.jack.ir.ast;
 
 import com.google.common.collect.Lists;
 
+import com.android.jack.Jack;
 import com.android.jack.ir.ast.cfg.JCatchBasicBlock;
 import com.android.jack.ir.ast.cfg.JControlFlowGraph;
 import com.android.jack.ir.sourceinfo.SourceInfo;
@@ -28,7 +29,6 @@ import com.android.sched.transform.TransformRequest;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -67,7 +67,13 @@ public class JMethodBodyCfg extends JConcreteMethodBody {
 
   public void addCatchLocal(@Nonnull JLocal catchLocal) {
     assert catchLocal.getParent() instanceof JCatchBasicBlock;
+    assert !catchLocals.contains(catchLocal);
     catchLocals.add(catchLocal);
+  }
+
+  public void removeCatchLocal(@Nonnull JLocal catchLocal) {
+    assert catchLocals.contains(catchLocal);
+    catchLocals.remove(catchLocal);
   }
 
   @Nonnegative
@@ -77,7 +83,7 @@ public class JMethodBodyCfg extends JConcreteMethodBody {
 
   @Nonnull
   public List<JLocal> getCatchLocals() {
-    return catchLocals;
+    return Jack.getUnmodifiableCollections().getUnmodifiableList(catchLocals);
   }
 
   public void addSsaParamDef(@Nonnull JSsaVariableDefRef param) {

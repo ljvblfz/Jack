@@ -78,7 +78,6 @@ public final class JCaseBlockElement extends JBasicBlockElement {
 
   @Override
   public boolean isTerminal() {
-    // Must terminate JCaseBasicBlock
     return true;
   }
 
@@ -88,9 +87,6 @@ public final class JCaseBlockElement extends JBasicBlockElement {
 
     if (!(super.getBasicBlock() instanceof JCaseBasicBlock)) {
       throw new JNodeInternalError(this, "The parent node must be JCaseBasicBlock");
-    }
-    if (this != getBasicBlock().getLastElement()) {
-      throw new JNodeInternalError(this, "Must be the last element of the basic block");
     }
   }
 

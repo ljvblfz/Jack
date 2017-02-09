@@ -77,7 +77,13 @@ public final class JExitBasicBlock extends JBasicBlock {
     throw new AssertionError();
   }
 
-  @Override public void insertElement(int at, @Nonnull JBasicBlockElement element) {
+  @Override
+  public void insertElement(int at, @Nonnull JBasicBlockElement element) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void removeElement(@Nonnull JBasicBlockElement element) {
     throw new UnsupportedOperationException();
   }
 

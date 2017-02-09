@@ -144,6 +144,7 @@ import com.android.jack.optimizations.cfg.RemoveRedundantConditionalBlocks;
 import com.android.jack.optimizations.cfg.RemoveRedundantGotoReturnEdges;
 import com.android.jack.optimizations.cfg.RemoveUnreachableBasicBlocks;
 import com.android.jack.optimizations.cfg.SimplifyConditionalExpressions;
+import com.android.jack.optimizations.cfg.ToggleCfgSsaFlagProcessor;
 import com.android.jack.optimizations.common.DirectlyDerivedClassesProvider;
 import com.android.jack.optimizations.inlining.InlineAnnotatedMethods;
 import com.android.jack.optimizations.inlining.InlineAnnotationSanityCheck;
@@ -1751,15 +1752,14 @@ public abstract class Jack {
       methodPlan.append(MethodBodyCfgBuilder.class);
       methodPlan.append(CfgMarkerRemover.class);
 
-      if (hasSanityChecks) {
-        planBuilder.append(AstChecker.class);
-      }
-
       // Cfg-IR base transformations
       SubPlanBuilder<JMethodBodyCfg> cfgPlan = planBuilder
           .appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
           .appendSubPlan(JMethodBodyCfgAdapter.class);
 
+      if (hasSanityChecks) {
+        cfgPlan.append(CfgChecker.class);
+      }
       if (enableFieldValuePropagation) {
         cfgPlan.append(FvpPropagateFieldValues.class);
       }
@@ -1808,6 +1808,7 @@ public abstract class Jack {
       SubPlanBuilder<JMethodBodyCfg> cfgPlan = planBuilder
           .appendSubPlan(JDefinedClassOrInterfaceAdapter.class)
           .appendSubPlan(JMethodBodyCfgAdapter.class);
+      cfgPlan.append(ToggleCfgSsaFlagProcessor.class);
       cfgPlan.append(SsaBasicBlockSplitter.class);
       cfgPlan.append(CfgNodeIdAssignment.class);
       cfgPlan.append(CfgNodeListAssignment.class);

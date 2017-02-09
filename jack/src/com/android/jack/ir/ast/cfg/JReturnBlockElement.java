@@ -16,6 +16,7 @@
 
 package com.android.jack.ir.ast.cfg;
 
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JVisitor;
@@ -64,6 +65,15 @@ public final class JReturnBlockElement extends JBasicBlockElement {
   @Override
   public void visit(@Nonnull JVisitor visitor, @Nonnull TransformRequest request) throws Exception {
     visitor.visit(this, request);
+  }
+
+  @Override
+  public void checkValidity() {
+    super.checkValidity();
+
+    if (!(super.getBasicBlock() instanceof JReturnBasicBlock)) {
+      throw new JNodeInternalError(this, "The parent node must be JReturnBasicBlock");
+    }
   }
 
   @Override

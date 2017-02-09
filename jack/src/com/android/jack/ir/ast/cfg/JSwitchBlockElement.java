@@ -86,9 +86,6 @@ public final class JSwitchBlockElement extends JBasicBlockElement {
     if (!(super.getBasicBlock() instanceof JSwitchBasicBlock)) {
       throw new JNodeInternalError(this, "The parent node must be JSwitchBasicBlock");
     }
-    if (this != getBasicBlock().getLastElement()) {
-      throw new JNodeInternalError(this, "Must be the last element of the basic block");
-    }
   }
 
   @Override

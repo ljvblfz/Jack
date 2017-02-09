@@ -44,14 +44,13 @@ import com.android.jack.ir.ast.JUnaryOperation;
 import com.android.jack.ir.ast.JVisitor;
 
 import java.util.NoSuchElementException;
-
 import javax.annotation.Nonnull;
 
 /** Validates expressions inside the CFG basic block elements */
 class CfgExpressionValidator extends JVisitor {
   @Nonnull
   private final JBasicBlockElement blockElement;
-  private final boolean isThrowingBlockElement;
+  private final boolean isThrowingExpected;
 
   private boolean seenThrowingExpression = false;
 
@@ -59,7 +58,7 @@ class CfgExpressionValidator extends JVisitor {
     this.blockElement = element;
 
     JBasicBlock basicBlock = element.getBasicBlock();
-    this.isThrowingBlockElement =
+    this.isThrowingExpected =
         basicBlock instanceof JThrowingBasicBlock &&
             basicBlock.getLastElement() == element;
   }
@@ -78,17 +77,28 @@ class CfgExpressionValidator extends JVisitor {
 
   @Override
   public void endVisit(@Nonnull JBasicBlockElement element) {
-    if (isThrowingBlockElement &&
-        (this.blockElement.getBasicBlock() instanceof JThrowingExpressionBasicBlock) &&
-        !(this.blockElement instanceof JUnlockBlockElement) &&
-        !(this.blockElement instanceof JLockBlockElement)) {
-      if (!seenThrowingExpression) {
-        throw new JNodeInternalError(element,
-            "An exception is expected to be thrown in throwing block element");
+    if (isThrowingExpected) {
+      assert this.blockElement.getBasicBlock() instanceof JThrowingBasicBlock;
+      boolean isImplicitThrow =
+          this.blockElement instanceof JUnlockBlockElement
+              || this.blockElement instanceof JLockBlockElement
+              || this.blockElement instanceof JThrowBlockElement;
+
+      if (isImplicitThrow) {
+        if (seenThrowingExpression) {
+          throw new JNodeInternalError(element,
+              "An unexpected exception is thrown in lock/unlock/throw block element");
+        }
+      } else {
+        if (!seenThrowingExpression) {
+          throw new JNodeInternalError(element,
+              "An exception is expected to be thrown in throwing block element");
+        }
       }
     } else {
       if (seenThrowingExpression) {
-        throw new JNodeInternalError(element, "An unexpected exception is thrown in block element");
+        throw new JNodeInternalError(element,
+            "An unexpected exception is thrown in block element");
       }
     }
     super.endVisit(element);
@@ -125,14 +135,21 @@ class CfgExpressionValidator extends JVisitor {
   public boolean visit(@Nonnull JBinaryOperation expr) {
     if (expr instanceof JConditionalOperation) {
       throw new JNodeInternalError(expr,
-          "JConditionalOperation is not allowed on this level");
+          "JConditionalOperation is not allowed in cfg-IR");
     }
-    if (!(expr instanceof JAsgOperation)) {
+    if (expr instanceof JAsgOperation) {
+      confirmBlockElement(expr);
+      confirmParent(expr, JVariableAsgBlockElement.class, JStoreBlockElement.class);
+
+    } else {
       // Some of binary operations can throw
-      return expr.canThrow() ? visitThrowingRValue(expr) : visitNonThrowingOperation(expr);
+      if (expr.canThrow()) {
+        visitThrowingRValue(expr);
+      } else {
+        visitNonThrowingOperation(expr);
+      }
     }
-    confirmBlockElement(expr);
-    confirmParent(expr, JVariableAsgBlockElement.class, JStoreBlockElement.class);
+
     return true;
   }
 
@@ -145,7 +162,7 @@ class CfgExpressionValidator extends JVisitor {
   public boolean visit(@Nonnull JExceptionRuntimeValue expr) {
     assert !expr.canThrow();
     confirmBlockElement(expr);
-    confirmVarAsgValue(expr, JVariableAsgBlockElement.class);
+    confirmVariableAssignmentRhs(expr, JVariableAsgBlockElement.class);
     confirmParent(expr.getParent().getParent(), JCatchBasicBlock.class);
     return true;
   }
@@ -167,17 +184,17 @@ class CfgExpressionValidator extends JVisitor {
 
   @Override
   public boolean visit(@Nonnull JLiteral expr) {
-    return expr.canThrow() ? visitThrowingRValue(expr) : visitNonThrowingPrimitiveRValue(expr);
+    return expr.canThrow() ? visitThrowingRValue(expr) : visitNonThrowingTriviaRValue(expr);
   }
 
   @Override
   public boolean visit(@Nonnull JNullLiteral expr) {
-    return visitNonThrowingPrimitiveRValue(expr);
+    return visitNonThrowingTriviaRValue(expr);
   }
 
   @Override
   public boolean visit(@Nonnull JThisRef expr) {
-    return visitNonThrowingPrimitiveRValue(expr);
+    return visitNonThrowingTriviaRValue(expr);
   }
 
   @Override
@@ -252,9 +269,9 @@ class CfgExpressionValidator extends JVisitor {
         "Expression must be in basic block element: " + this.blockElement.toSource());
   }
 
-  private void confirmThrowingPosition(@Nonnull JExpression expr) {
+  private void confirmThrowingIsAllowed(@Nonnull JExpression expr) {
     assert expr.canThrow();
-    if (!isThrowingBlockElement) {
+    if (!isThrowingExpected) {
       throw new JNodeInternalError(expr,
           "Expression must be in the last element of the trowing basic block: "
               + this.blockElement.toSource());
@@ -268,7 +285,7 @@ class CfgExpressionValidator extends JVisitor {
     this.seenThrowingExpression = true;
   }
 
-  private void confirmVarAsgValue(
+  private void confirmVariableAssignmentRhs(
       @Nonnull JExpression expr, @Nonnull Class expectedParent) {
     JNode parent = expr.getParent();
     if (!(parent instanceof JAsgOperation) ||
@@ -290,7 +307,8 @@ class CfgExpressionValidator extends JVisitor {
     }
   }
 
-  private void confirmParentForPrimitive(@Nonnull JExpression expr) {
+  private void confirmParentForTrivia(@Nonnull JExpression expr) {
+    assert !expr.canThrow();
     confirmParent(expr,
         // Methods: both arguments and receiver
         JMethodCall.class, JPolymorphicMethodCall.class,
@@ -310,7 +328,7 @@ class CfgExpressionValidator extends JVisitor {
   private boolean visitMethodCall(@Nonnull JAbstractMethodCall expr, @Nonnull Class parentClass) {
     assert expr.canThrow();
     confirmBlockElement(expr);
-    confirmThrowingPosition(expr);
+    confirmThrowingIsAllowed(expr);
 
     // Should be either in standalone method call block element
     // or in variable assignment block element
@@ -323,25 +341,25 @@ class CfgExpressionValidator extends JVisitor {
   private boolean visitFieldOrArrayRef(@Nonnull JExpression expr) {
     assert expr.canThrow();
     confirmBlockElement(expr);
-    confirmThrowingPosition(expr);
+    confirmThrowingIsAllowed(expr);
 
     // Array/field ref may be referenced either in assignment or load context
     confirmParent(expr, JAsgOperation.class);
     JAsgOperation asgExpr = (JAsgOperation) expr.getParent();
     if (asgExpr.getLhs() == expr) {
-      // Assignment context, assignment must be part of store block element
+      // Assignment context, assignment must be a child of store block element
       confirmParent(asgExpr, JStoreBlockElement.class);
 
     } else {
       // Load context, value in variable assignment block element
-      confirmVarAsgValue(expr, JVariableAsgBlockElement.class);
+      confirmVariableAssignmentRhs(expr, JVariableAsgBlockElement.class);
     }
     return true;
   }
 
   private boolean visitLocalOrParameter(@Nonnull JExpression expr) {
     confirmBlockElement(expr);
-    confirmParentForPrimitive(expr);
+    confirmParentForTrivia(expr);
 
     JNode parent = expr.getParent();
     if (parent instanceof JAsgOperation) {
@@ -356,15 +374,15 @@ class CfgExpressionValidator extends JVisitor {
   private boolean visitThrowingRValue(@Nonnull JExpression expr) {
     assert expr.canThrow();
     confirmBlockElement(expr);
-    confirmThrowingPosition(expr);
-    confirmVarAsgValue(expr, JVariableAsgBlockElement.class);
+    confirmThrowingIsAllowed(expr);
+    confirmVariableAssignmentRhs(expr, JVariableAsgBlockElement.class);
     return true;
   }
 
-  private boolean visitNonThrowingPrimitiveRValue(@Nonnull JExpression expr) {
+  private boolean visitNonThrowingTriviaRValue(@Nonnull JExpression expr) {
     assert !expr.canThrow();
     confirmBlockElement(expr);
-    confirmParentForPrimitive(expr);
+    confirmParentForTrivia(expr);
     confirmNotAssignmentTarget(expr);
     return true;
   }
@@ -373,8 +391,15 @@ class CfgExpressionValidator extends JVisitor {
     assert !expr.canThrow();
     confirmBlockElement(expr);
     if (expr instanceof JReinterpretCastOperation) {
-      confirmParent(expr, JConditionalBlockElement.class, JAsgOperation.class,
+      // It is probably not the right thing to allow reinterpret cast
+      // as an instance of array/field access or the receiver of the
+      // method call, keeping it this way until we discuss it
+      confirmParent(expr, JAsgOperation.class,
           JArrayRef.class, JFieldRef.class, JMethodCall.class);
+
+    } else if (expr instanceof JDynamicCastOperation) {
+      confirmParent(expr, JAsgOperation.class);
+
     } else {
       confirmParent(expr, JConditionalBlockElement.class, JAsgOperation.class);
     }

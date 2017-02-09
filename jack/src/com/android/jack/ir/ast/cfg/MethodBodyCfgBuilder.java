@@ -98,7 +98,6 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
-
 import javax.annotation.Nonnull;
 
 /** Builds a ControlFlowGraph body representation for all methods. */
@@ -136,7 +135,8 @@ import javax.annotation.Nonnull;
         SourceCast.class,
         JCastOperation.WithIntersectionType.class
     })
-@Transform(add = { JMethodBodyCfg.class })
+@Transform(remove = JMethodBody.class,
+    add = { JMethodBodyCfg.class, JControlFlowGraph.class })
 @Filter(TypeWithoutPrebuiltFilter.class)
 public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
   @Nonnull
@@ -212,7 +212,28 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
       JBasicBlock block = getBlockOrEnqueue(firstBlock);
       assert !(block instanceof JPlaceholderBasicBlock);
       cfg.getEntryBlock().replaceAllSuccessors(cfg.getExitBlock(), block);
+
+      // Post-build steps
       setUpCatchBlockReferences();
+      fixUpReferencesToCaseBlocks();
+    }
+
+    private void fixUpReferencesToCaseBlocks() {
+      // If the original switch statement had a fall-through case, we may
+      // end up with one case clause directly referencing another catch block,
+      // we fix this case to enforce switch block <--> case block invariants
+      // by changing the referencing block to point to the case block
+      // primary successor instead.
+      for (JBasicBlock block : processed.values()) {
+        if (block instanceof JCaseBasicBlock) {
+          for (JBasicBlock predecessor : block.getPredecessorsSnapshot()) {
+            if (!(predecessor instanceof JSwitchBasicBlock)) {
+              predecessor.replaceAllSuccessors(
+                  block, ((JCaseBasicBlock) block).getPrimarySuccessor());
+            }
+          }
+        }
+      }
     }
 
     /**
@@ -326,7 +347,6 @@ public class MethodBodyCfgBuilder implements RunnableSchedulable<JMethod> {
         JLocal catchVar = catchBlock.getCatchVar();
         newBlock = new JCatchBasicBlock(cfg, getBlockOrEnqueue(successors.get(0)),
             catchBlock.getCatchTypes(), catchVar);
-        cfg.getMethodBody().addCatchLocal(catchVar);
 
       } else if (block instanceof ReturnBasicBlock) {
         List<BasicBlock> successors = block.getSuccessors();

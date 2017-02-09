@@ -16,6 +16,7 @@
 
 package com.android.jack.ir.ast.cfg;
 
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JSsaVariableDefRef;
 import com.android.jack.ir.ast.JSsaVariableDefRefPlaceHolder;
@@ -148,5 +149,15 @@ public class JPhiBlockElement extends JBasicBlockElement {
   @Override
   public boolean isTerminal() {
     return false;
+  }
+
+  @Override
+  public void checkValidity() {
+    super.checkValidity();
+
+    if (!super.getBasicBlock().getCfg().isInSsaForm()) {
+      throw new JNodeInternalError(this,
+          "The node must not be used in non-SSA form of CFG");
+    }
   }
 }

@@ -90,6 +90,11 @@ public final class JPlaceholderBasicBlock extends JBasicBlock {
   }
 
   @Override
+  public void removeElement(@Nonnull JBasicBlockElement element) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void replaceAllSuccessors(@Nonnull JBasicBlock what, @Nonnull JBasicBlock with) {
     throw new UnsupportedOperationException();
   }

@@ -138,15 +138,6 @@ public final class JVariableAsgBlockElement extends JBasicBlockElement {
       if (!(getBasicBlock() instanceof JThrowingExpressionBasicBlock)) {
         throw new JNodeInternalError(this, "Parent block must be JThrowingExpressionBasicBlock");
       }
-      if (getBasicBlock().getLastElement() != this) {
-        throw new JNodeInternalError(this, "Element must be the last element of the block");
-      }
-
-    } else {
-      if (getBasicBlock().getLastElement() == this) {
-        throw new JNodeInternalError(this,
-            "The element must not be the last element of the parent block");
-      }
     }
   }
 

@@ -85,9 +85,6 @@ public final class JUnlockBlockElement extends JBasicBlockElement {
     if (!(super.getBasicBlock() instanceof JThrowingExpressionBasicBlock)) {
       throw new JNodeInternalError(this, "The parent node must be JThrowingExpressionBasicBlock");
     }
-    if (this != getBasicBlock().getLastElement()) {
-      throw new JNodeInternalError(this, "Must be the last element of the basic block");
-    }
   }
 
   @Override

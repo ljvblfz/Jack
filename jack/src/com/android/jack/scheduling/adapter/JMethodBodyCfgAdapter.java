@@ -31,13 +31,13 @@ import javax.annotation.Nonnull;
  * Adapts a process on {@code JDefinedClassOrInterface} onto one or several processes on
  * each {@code JMethodBodyCfg} of all the methods declared by this type.
  */
-@Description("Adapts process on JDefinedClassOrInterface to one or "
-    + "several processes on each of its methods' control flow graphs body")
+@Description("Adapts process on JDefinedClassOrInterface to one or several processes "
+    + "on each cfg method body of all the methods declared by this type")
 public class JMethodBodyCfgAdapter
     implements AdapterSchedulable<JDefinedClassOrInterface, JMethodBodyCfg> {
 
   /**
-   * Returns every {@code JControlFlowGraph} of the methods declared
+   * Returns every {@code JMethodBodyCfg} of the methods declared
    * in the given {@code JDefinedClassOrInterface}.
    */
   @Override

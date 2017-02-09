@@ -42,6 +42,7 @@ public final class JCaseBasicBlock extends JRegularBasicBlock {
     // Case blocks are referenced directly by JSwitchBasicBlock and cannot
     // be split so that there is another block in between switch block and
     // case block. Consider splitting the only successor of the case block.
+    // NOTE: this is also true in SSA form
     throw new UnsupportedOperationException();
   }
 
@@ -67,20 +68,24 @@ public final class JCaseBasicBlock extends JRegularBasicBlock {
   @Override
   public void checkValidity() {
     super.checkValidity();
-    if (getElementCount() < 1) {
-      throw new JNodeInternalError(this, "Block must always have at least one single element");
-    }
-    JBasicBlockElement lastElement = getLastElement();
-    for (JBasicBlockElement element : getElements()) {
-      if (element != lastElement) {
-        if (!(element instanceof JPhiBlockElement)) {
-          throw new JNodeInternalError(this,
-              "Case block should only have Phi elements before the last element.");
-        }
+
+    if (!getCfg().isInSsaForm()) {
+      if (getElementCount() > 1) {
+        throw new JNodeInternalError(this,
+            "JCaseBasicBlock must always have one single element");
       }
     }
+
+    for (JBasicBlock predecessor : this.getPredecessors()) {
+      if (!(predecessor instanceof JSwitchBasicBlock)) {
+        throw new JNodeInternalError(this,
+            "JCaseBasicBlock must only have JSwitchBasicBlock predecessors");
+      }
+    }
+
     if (!(getLastElement() instanceof JCaseBlockElement)) {
-      throw new JNodeInternalError(this, "The only element of the block must be case element");
+      throw new JNodeInternalError(this,
+          "The last element of the block must be case element");
     }
   }
 }

@@ -94,6 +94,11 @@ public final class JEntryBasicBlock extends JBasicBlock {
   }
 
   @Override
+  public void removeElement(@Nonnull JBasicBlockElement element) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void replaceAllSuccessors(@Nonnull JBasicBlock what, @Nonnull JBasicBlock with) {
     assert next == what;
     this.next = resetSuccessor(what, with);

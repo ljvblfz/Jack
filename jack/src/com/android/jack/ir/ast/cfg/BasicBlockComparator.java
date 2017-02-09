@@ -61,7 +61,7 @@ import javax.annotation.Nonnull;
 /** Basic implementation of the comparator for basic blocks */
 public class BasicBlockComparator {
   /** Comparator visitor implements 'shallow' comparison of two nodes */
-  protected class Comparator extends JVisitor {
+  protected static class Comparator extends JVisitor {
     private boolean differenceFound = false;
 
     @CheckForNull

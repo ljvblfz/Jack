@@ -48,6 +48,7 @@ public final class JCatchBasicBlock extends JRegularBasicBlock {
     updateParents(cfg);
     catchLocal.updateParents(this);
     catchLocal.setEnclosingMethodBody(cfg.getMethodBody());
+    cfg.getMethodBody().addCatchLocal(catchLocal);
   }
 
   @Override
@@ -61,6 +62,7 @@ public final class JCatchBasicBlock extends JRegularBasicBlock {
     // Catch blocks are referenced directly by JThrowingBasicBlock and cannot
     // be split so that there is another block in between throwing block and
     // catch block. Consider splitting the only successor of the catch block.
+    // NOTE: this is also true in SSA form
     throw new UnsupportedOperationException();
   }
 
@@ -98,19 +100,22 @@ public final class JCatchBasicBlock extends JRegularBasicBlock {
   @Override
   public void checkValidity() {
     super.checkValidity();
-    if (getElementCount() < 1) {
-      throw new JNodeInternalError(this, "Block must always have at least one single element");
-    }
-    JBasicBlockElement lastElement = getLastElement();
-    for (JBasicBlockElement element : getElements()) {
-      if (element != lastElement) {
-        if (!(element instanceof JPhiBlockElement)) {
-          throw new JNodeInternalError(this,
-              "Catch block should only have Phi elements before the last element.");
-        }
+
+    if (!getCfg().isInSsaForm()) {
+      if (getElementCount() > 1) {
+        throw new JNodeInternalError(this,
+            "JCatchBasicBlock must always have one single element");
       }
     }
-    if (!(lastElement instanceof JVariableAsgBlockElement) ||
+
+    for (JBasicBlock predecessor : this.getPredecessors()) {
+      if (!(predecessor instanceof JThrowingBasicBlock)) {
+        throw new JNodeInternalError(this,
+            "JCatchBasicBlock must only have JThrowingBasicBlock predecessors");
+      }
+    }
+
+    if (!(getLastElement() instanceof JVariableAsgBlockElement) ||
         !((JVariableAsgBlockElement) getLastElement()).isCatchVariableAssignment()) {
       throw new JNodeInternalError(this,
           "The last element of the block must be catch variable assignment element");

@@ -16,6 +16,7 @@
 
 package com.android.jack.ir.ast.cfg;
 
+import com.android.jack.ir.JNodeInternalError;
 import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JPolymorphicMethodCall;
 import com.android.jack.ir.ast.JVisitor;
@@ -73,6 +74,15 @@ public final class JPolymorphicMethodCallBlockElement extends JBasicBlockElement
       call = (JPolymorphicMethodCall) newNode;
     } else {
       super.replaceImpl(existingNode, newNode);
+    }
+  }
+
+  @Override
+  public void checkValidity() {
+    super.checkValidity();
+
+    if (!(super.getBasicBlock() instanceof JThrowingExpressionBasicBlock)) {
+      throw new JNodeInternalError(this, "The parent node must be JThrowingExpressionBasicBlock");
     }
   }
 }

@@ -44,6 +44,9 @@ public final class JControlFlowGraph extends JNode implements IGraph<JBasicBlock
   @Nonnull
   private final JExitBasicBlock exit;
 
+  /** Specifies if the CFG is in SSA form or not, used for enforcing constraints */
+  private boolean inSsaForm = false;
+
   public JControlFlowGraph(@Nonnull SourceInfo info) {
     super(info);
     this.exit = new JExitBasicBlock(this);
@@ -63,6 +66,17 @@ public final class JControlFlowGraph extends JNode implements IGraph<JBasicBlock
   @Nonnull
   public JMethod getMethod() {
     return getMethodBody().getMethod();
+  }
+
+  /** Is the CFG is in SSA form or not */
+  public boolean isInSsaForm() {
+    return inSsaForm;
+  }
+
+  /** Sets or clears CFG SSA form status */
+  public void setInSsaForm(boolean inSsaForm) {
+    assert this.inSsaForm != inSsaForm;
+    this.inSsaForm = inSsaForm;
   }
 
   @Nonnull
@@ -198,7 +212,7 @@ public final class JControlFlowGraph extends JNode implements IGraph<JBasicBlock
 
   @Override
   public void checkValidity() {
-    // NOTE: only check cfg-level validity, each basic blocks will be validated later
+    // NOTE: only check cfg-level validity, each basic block will be validated later
   }
 
   @Override

@@ -29,7 +29,6 @@ import com.android.sched.scheduler.ScheduleInstance;
 import com.android.sched.transform.TransformRequest;
 
 import java.util.List;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
@@ -106,10 +105,9 @@ public abstract class JBasicBlockElement extends JNode {
             "Terminal block element must be the last element of the block");
       }
     } else {
-      if (this.getBasicBlock() instanceof JThrowingBasicBlock
-          && this == getBasicBlock().getLastElement()) {
+      if (this == getBasicBlock().getLastElement()) {
         throw new JNodeInternalError(this,
-            "Non-terminal block element must NOT be the last element of the throwing block");
+            "Non-terminal block element must NOT be the last element of the block");
       }
     }
   }

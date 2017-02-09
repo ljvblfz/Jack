@@ -105,5 +105,35 @@ public final class JSwitchBasicBlock extends JRegularBasicBlock {
       throw new JNodeInternalError(this,
           "The last element of the block must be switch element");
     }
+
+    for (JBasicBlock successor : cases) {
+      if (!(successor instanceof JCaseBasicBlock)) {
+        throw new JNodeInternalError(this,
+            "JSwitchBasicBlock must only have JCaseBasicBlock "
+                + "case successors: " + this.toSource());
+      }
+      JBasicBlockElement lastElement = successor.getLastElement();
+      if (lastElement instanceof JCaseBlockElement) {
+        // This will be asserted case block, checking to avoid invalid cast
+        if (((JCaseBlockElement) lastElement).getLiteral() == null) {
+          throw new JNodeInternalError(this, "JSwitchBasicBlock's case "
+              + "successor JCaseBasicBlock must NOT be default case");
+        }
+      }
+    }
+
+    // Primary successor may be non-case block if there is no
+    // catch-all case in the statement
+    JBasicBlock primarySuccessor = getPrimarySuccessor();
+    if (primarySuccessor instanceof JCaseBasicBlock) {
+      JBasicBlockElement lastElement = primarySuccessor.getLastElement();
+      if (lastElement instanceof JCaseBlockElement) {
+        // This will be asserted case block, checking to avoid invalid cast
+        if (((JCaseBlockElement) lastElement).getLiteral() != null) {
+          throw new JNodeInternalError(this, "If JSwitchBasicBlock's "
+              + "primary successor is JCaseBasicBlock it must be default case");
+        }
+      }
+    }
   }
 }

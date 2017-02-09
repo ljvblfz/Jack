@@ -136,6 +136,7 @@ public abstract class JRegularBasicBlock extends JBasicBlock {
     }
   }
 
+  @Override
   public void removeElement(@Nonnull JBasicBlockElement element) {
     int index = elements.indexOf(element);
     assert index != -1;
@@ -167,7 +168,36 @@ public abstract class JRegularBasicBlock extends JBasicBlock {
     super.checkValidity();
 
     if (!hasElements()) {
-      throw new JNodeInternalError(this, "Block must not be empty");
+      throw new JNodeInternalError(this, "Regular block must not be empty");
+    }
+
+    if (!getLastElement().isTerminal()) {
+      throw new JNodeInternalError(this,
+          "The last element of the basic block must be terminal element: " + this.toSource());
+    }
+
+    // In SSA any regular block may start with arbitrary number of Phi block
+    // elements. I.e. if phi block elements are present, they must not have any
+    // non-phi block elements on the left.
+    if (getCfg().isInSsaForm()) {
+      boolean seenNonPhi = false;
+      for (JBasicBlockElement element : elements) {
+        if (element instanceof JPhiBlockElement) {
+          if (seenNonPhi) {
+            throw new JNodeInternalError(this,
+                "Phi block element must not have non-phi element before it: " + this.toSource());
+          }
+        } else {
+          seenNonPhi = true;
+        }
+      }
+    } else {
+      for (JBasicBlockElement element : elements) {
+        if (element instanceof JPhiBlockElement) {
+          throw new JNodeInternalError(this,
+              "Phi block element must NOT be present in non-SSA CFG: " + this.toSource());
+        }
+      }
     }
   }
 

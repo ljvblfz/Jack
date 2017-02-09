@@ -68,18 +68,9 @@ public final class JThrowingExpressionBasicBlock extends JThrowingBasicBlock {
   public void checkValidity() {
     super.checkValidity();
 
-    JBasicBlockElement lastElement = getLastElement();
-    boolean lastElementCanThrow = lastElement instanceof JMethodCallBlockElement
-        || lastElement instanceof JPolymorphicMethodCallBlockElement
-        || lastElement instanceof JLockBlockElement
-        || lastElement instanceof JUnlockBlockElement
-        || lastElement instanceof JStoreBlockElement
-        || (lastElement instanceof JVariableAsgBlockElement &&
-        ((JVariableAsgBlockElement) lastElement).getAssignment().getRhs().canThrow());
-
-    if (!lastElementCanThrow) {
+    if (getLastElement() instanceof JThrowBlockElement) {
       throw new JNodeInternalError(this,
-          "The last element of the block must be an element that may throw");
+          "The last element of JThrowingExpressionBasicBlock must NOT be JThrowBlockElement");
     }
   }
 }
