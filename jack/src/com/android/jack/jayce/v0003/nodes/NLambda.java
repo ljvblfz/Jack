@@ -30,7 +30,6 @@ import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0003.io.ExportSession;
 import com.android.jack.jayce.v0003.io.ImportHelper;
 import com.android.jack.jayce.v0003.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0003.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0003.io.Token;
 import com.android.jack.jayce.v0003.nodes.NMethodCall.ReceiverKind;
 import com.android.jack.lookup.JMethodLookupException;
@@ -180,25 +179,6 @@ public class NLambda extends NExpression {
     }
 
     return lambda;
-  }
-
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    assert methodRefKind != null;
-    assert receiverKind != null;
-    out.writeNodes(capturedVariables);
-    out.writeReceiverKindEnum(receiverKind);
-    out.writeId(enclosingType);
-    out.writeId(methodRefName);
-    out.writeIds(methodRefArgsType);
-    out.writeMethodKindEnum(methodRefKind);
-    out.writeId(methodRefType);
-    out.writeId(typeSig);
-    out.writeIds(boundsIds);
-    out.writeNode(mthIdWithErasure);
-    out.writeNode(mthIdWithoutErasure);
-    out.writeNodes(bridges);
-    out.writeNodes(markers);
   }
 
   @Override

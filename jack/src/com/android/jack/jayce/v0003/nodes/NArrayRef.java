@@ -23,7 +23,6 @@ import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0003.io.ExportSession;
 import com.android.jack.jayce.v0003.io.ImportHelper;
 import com.android.jack.jayce.v0003.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0003.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0003.io.Token;
 import com.android.jack.lookup.JMethodLookupException;
 
@@ -69,12 +68,6 @@ public class NArrayRef extends NExpression {
     JExpression jIndex = index.exportAsJast(exportSession);
     JArrayRef jArrayRef = new JArrayRef(jSourceInfo, jInstance, jIndex);
     return jArrayRef;
-  }
-
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    out.writeNode(instance);
-    out.writeNode(index);
   }
 
   @Override

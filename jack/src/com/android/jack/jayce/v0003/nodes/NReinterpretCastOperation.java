@@ -24,7 +24,6 @@ import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0003.io.ExportSession;
 import com.android.jack.jayce.v0003.io.ImportHelper;
 import com.android.jack.jayce.v0003.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0003.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0003.io.Token;
 import com.android.jack.lookup.JMethodLookupException;
 
@@ -71,12 +70,6 @@ public class NReinterpretCastOperation extends NExpression {
     JReinterpretCastOperation jReinterpretCastOperation =
         new JReinterpretCastOperation(jSourceInfo, jType, jExpr);
     return jReinterpretCastOperation;
-  }
-
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    out.writeId(castType);
-    out.writeNode(expr);
   }
 
   @Override

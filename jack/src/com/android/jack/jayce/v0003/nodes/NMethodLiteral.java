@@ -24,7 +24,6 @@ import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0003.io.ExportSession;
 import com.android.jack.jayce.v0003.io.ImportHelper;
 import com.android.jack.jayce.v0003.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0003.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0003.io.Token;
 import com.android.jack.lookup.JMethodLookupException;
 
@@ -72,12 +71,6 @@ public class NMethodLiteral extends NLiteral {
     SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JMethodLiteral jMethodLiteral = new JMethodLiteral(jMethod, jSourceInfo);
     return jMethodLiteral;
-  }
-
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    out.writeId(method);
-    out.writeId(methodEnclosingType);
   }
 
   @Override

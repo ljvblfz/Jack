@@ -28,7 +28,6 @@ import com.android.jack.jayce.v0003.NNode;
 import com.android.jack.jayce.v0003.io.ExportSession;
 import com.android.jack.jayce.v0003.io.ImportHelper;
 import com.android.jack.jayce.v0003.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0003.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0003.io.Token;
 import com.android.jack.lookup.JMethodLookupException;
 
@@ -84,12 +83,6 @@ public class NNameValuePair extends NNode implements HasSourceInfo {
         MethodKind.INSTANCE_VIRTUAL);
     JNameValuePair jNameValuePair = new JNameValuePair(jSourceInfo, methodId, jValue);
     return jNameValuePair;
-  }
-
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    out.writeString(name);
-    out.writeNode(value);
   }
 
   @Override

@@ -20,7 +20,6 @@ import com.android.jack.digest.OriginDigestMarker;
 import com.android.jack.jayce.v0003.io.ExportSession;
 import com.android.jack.jayce.v0003.io.ImportHelper;
 import com.android.jack.jayce.v0003.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0003.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0003.io.Token;
 import com.android.jack.jayce.v0003.util.OriginDigestDescriptorHelper;
 
@@ -67,18 +66,6 @@ public class NOriginDigest extends NMarker {
 
     return new OriginDigestMarker(OriginDigestDescriptorHelper.getValue(descriptor), algo, digest,
         emitter, major, minor);
-  }
-
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    assert digest != null;
-
-    out.writeInt(descriptor);
-    out.writeString(algo);
-    out.writeBuffer(digest);
-    out.writeString(emitter);
-    out.writeInt(major);
-    out.writeInt(minor);
   }
 
   @Override

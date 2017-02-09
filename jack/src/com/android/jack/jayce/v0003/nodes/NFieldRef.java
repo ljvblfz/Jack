@@ -26,7 +26,6 @@ import com.android.jack.jayce.v0003.NNode;
 import com.android.jack.jayce.v0003.io.ExportSession;
 import com.android.jack.jayce.v0003.io.ImportHelper;
 import com.android.jack.jayce.v0003.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0003.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0003.io.Token;
 import com.android.jack.lookup.JMethodLookupException;
 
@@ -87,16 +86,6 @@ public class NFieldRef extends NExpression {
     return new JFieldRef(sourceInfo.exportAsJast(exportSession), jInstance,
         exportSession.getFieldId((JClassOrInterface) jReceiverType, field, jFieldType, kind),
         (JClassOrInterface) jReceiverType);
-  }
-
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    assert kind != null;
-    out.writeId(field);
-    out.writeId(fieldType);
-    out.writeId(receiverType);
-    out.writeFieldRefKindEnum(kind);
-    out.writeNode(instance);
   }
 
   @Override
