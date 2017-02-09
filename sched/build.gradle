@@ -96,6 +96,7 @@ project(':sched:sched-ap') {
           java {
               srcDirs = ['../src']
               include 'com/android/sched/build/*'
+              include 'com/android/sched/util/findbugs/*'
           }
           resources {
               srcDir '../rsc-ap'
