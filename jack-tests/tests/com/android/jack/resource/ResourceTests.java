@@ -20,10 +20,8 @@ import com.android.jack.library.FileType;
 import com.android.jack.library.FileTypeDoesNotExistException;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.shrob.obfuscation.NameProviderFactory;
-import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
-import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillApiToolchainBase;
@@ -206,7 +204,6 @@ public class ResourceTests {
   }
 
   @Test
-  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testJackArchiveToJackDir() throws Exception {
     // compile source file to a Jack archive and add resources
     File jackAr = createJackArchiveWithResources();
@@ -234,7 +231,6 @@ public class ResourceTests {
   }
 
   @Test
-  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testJackDirToJackDir() throws Exception {
     // compile source file to a Jack dir
     File jackFolder = AbstractTestTools.createTempDir();

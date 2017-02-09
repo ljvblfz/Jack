@@ -30,7 +30,9 @@ import com.android.jack.resource.ResourceImporter;
 import com.android.jack.resource.ResourceReadingException;
 import com.android.jack.test.TestsProperties;
 import com.android.jack.test.helper.ErrorTestHelper;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 
 import junit.framework.Assert;
@@ -58,6 +60,7 @@ public class AnnotationProcessorErrorTest {
    * Checks that compilation succeed when running annotation processor to generate resource file.
    */
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testAnnotationProcessorError002() throws Exception {
     runAnnotProcBuildingResource(new ErrorTestHelper());
   }
@@ -67,6 +70,7 @@ public class AnnotationProcessorErrorTest {
    * exist.
    */
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testAnnotationProcessorError003() throws Exception {
     ErrorTestHelper te = new ErrorTestHelper();
 

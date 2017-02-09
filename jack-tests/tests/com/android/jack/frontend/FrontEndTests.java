@@ -160,6 +160,7 @@ public class FrontEndTests {
 
     List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
     excludeList.add(JillBasedToolchain.class);
+    // because test check exact number of output "WARNING" messages
     excludeList.add(IncrementalToolchain.class);
     IToolchain toolchain =  AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeList);
     ByteArrayOutputStream out = new ByteArrayOutputStream();
