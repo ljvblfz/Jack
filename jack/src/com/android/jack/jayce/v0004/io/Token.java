@@ -2301,7 +2301,7 @@ public enum Token {
   @CheckForNull
   private String label;
 
-  private boolean hasSourceInfo;
+  private final boolean hasSourceInfo;
 
   private Token(@CheckForNull String text) {
     this(text, NodeLevel.FULL);
@@ -2309,11 +2309,13 @@ public enum Token {
   private Token(@CheckForNull String text, NodeLevel nodeLevel) {
     this.label = text;
     this.nodeLevel = nodeLevel;
+    boolean tmpHasSourceInfo;
     try {
-      hasSourceInfo = HasSourceInfo.class.isAssignableFrom(getNNodeClass());
+      tmpHasSourceInfo = HasSourceInfo.class.isAssignableFrom(getNNodeClass());
     } catch (InvalidTokenException e) {
-      hasSourceInfo = false;
+      tmpHasSourceInfo = false;
     }
+    hasSourceInfo = tmpHasSourceInfo;
   }
 
   public int getId() {
