@@ -23,8 +23,10 @@ import com.android.jack.library.FileType;
 import com.android.jack.library.FileTypeDoesNotExistException;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.test.TestsProperties;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.util.ExecFileException;
@@ -118,6 +120,7 @@ public class AnnotationProcessorTests {
   }
 
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void compileWithAnnotationProcessorAuto_classpath() throws Exception {
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
     exclude.add(JillBasedToolchain.class);
@@ -137,6 +140,7 @@ public class AnnotationProcessorTests {
   }
 
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void compileWithAnnotationProcessorAuto_processorPath() throws Exception {
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
     exclude.add(JillBasedToolchain.class);
@@ -157,6 +161,7 @@ public class AnnotationProcessorTests {
   }
 
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void compileWithAnnotationProcessorNoAuto_processorPath() throws Exception {
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
     exclude.add(JillBasedToolchain.class);

@@ -17,9 +17,11 @@
 package com.android.jack.jill;
 
 import com.android.jack.test.TestsProperties;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runner.RuntimeRunner;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 
 import junit.framework.Assert;
@@ -35,30 +37,35 @@ public class JillTests {
 
   @Test
   @Runtime
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void test001() throws Exception {
     runJillTest("001");
   }
 
   @Test
   @Runtime
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void test002() throws Exception {
     runJillTest("002");
   }
 
   @Test
   @Runtime
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void test003() throws Exception {
     runJillTest("003");
   }
 
   @Test
   @Runtime
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void test004() throws Exception {
     runJillTest("004");
   }
 
   @Test
   @Runtime
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void test005() throws Exception {
     runJillTest("005");
   }

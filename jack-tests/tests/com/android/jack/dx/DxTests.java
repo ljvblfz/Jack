@@ -22,11 +22,13 @@ import com.android.jack.backend.dex.rop.CodeItemBuilder;
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.FileChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackApiV02;
 import com.android.jack.test.toolchain.JillBasedToolchain;
@@ -209,6 +211,7 @@ public class DxTests extends RuntimeTest {
   }
 
   @Test
+  @KnownIssue(candidate=IncrementalToolchain.class)
   public void testCarnacBinaryOr() throws Exception {
     File srcDir = AbstractTestTools.getTestRootDir("com.android.jack.dx.jacklibs");
     File carnacLib = new File(srcDir, "carnac-binary-or.jack");

@@ -26,6 +26,7 @@ import com.android.jack.test.dex.DexTypeFinalValidator;
 import com.android.jack.test.dex.DexTypeMethodsValidator;
 import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.junit.Runtime;
+import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 
 import org.junit.Test;
@@ -153,7 +154,7 @@ public class ModifiersTighteningTests extends DexOutputBasedTest {
 
   @Test
   @Runtime
-  @KnownIssue(candidate = JillBasedToolchain.class)
+  @KnownIssue(candidate = {JillBasedToolchain.class, IncrementalToolchain.class})
   public void test003() throws Exception {
     String testPackage = "com.android.jack.optimizations.modifiers.test003";
 

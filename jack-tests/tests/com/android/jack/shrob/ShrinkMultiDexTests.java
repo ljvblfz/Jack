@@ -25,9 +25,11 @@ import com.android.jack.shrob.shrink.ShrinkStructurePrinter;
 import com.android.jack.test.category.SlowTests;
 import com.android.jack.test.comparator.ComparatorMapping;
 import com.android.jack.test.helper.SourceToDexComparisonTestHelper;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.DummyToolchain;
 import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.TwoStepsToolchain;
 
@@ -151,6 +153,12 @@ public class ShrinkMultiDexTests extends AbstractTest {
     super.test1_016();
   }
 
+  @Override
+  @KnownIssue(candidate=IncrementalToolchain.class)
+  public void test5_005() throws Exception {
+    super.test5_005();
+  }
+
   @Test
   @Override
   public void test8_001() throws Exception {
@@ -164,6 +172,12 @@ public class ShrinkMultiDexTests extends AbstractTest {
   public void test11_002() throws Exception {
     checkToolchainIsNotJillBased();
     super.test11_002();
+  }
+
+  @Override
+  @KnownIssue(candidate=IncrementalToolchain.class)
+  public void test16_001() throws Exception {
+    super.test16_001();
   }
 
   @Test
