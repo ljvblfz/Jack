@@ -2185,7 +2185,7 @@ public enum Token {
       NThisRef.skipContent(reader);
     }
   },
-  THIS_REF_TYPE_INFO("this-type-info") {
+  THIS_REF_TYPE_INFO("this-type-info", NodeLevel.STRUCTURE) {
     @Nonnull
     @Override
     public NNode newNode() {
