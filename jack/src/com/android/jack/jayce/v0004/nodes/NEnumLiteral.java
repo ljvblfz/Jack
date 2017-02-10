@@ -84,6 +84,11 @@ public class NEnumLiteral extends NLiteral {
     enumFieldName = in.readId();
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipId();
+    in.skipId();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

@@ -24,7 +24,9 @@ import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.LibraryIOException;
 import com.android.jack.library.LibraryReadingException;
 import com.android.jack.test.helper.ErrorTestHelper;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.IncrementalToolchain;
 import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.sched.util.config.PropertyIdException;
 import com.android.sched.util.file.WrongPermissionException;
@@ -79,6 +81,7 @@ public class FileAccessErrorTest {
   /**
    * Checks that compilation fails correctly when a jack library folder is not readable.
    */
+  @KnownIssue(candidate=IncrementalToolchain.class)
   @Test
   public void testFileAccessError002() throws Exception {
     ErrorTestHelper helper = new ErrorTestHelper();

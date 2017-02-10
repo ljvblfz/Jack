@@ -210,7 +210,7 @@ public class CompileEncodingTests {
   private void run(@Nonnull String clazz, @Nonnull File binDirectory,
       int expected)
           throws SecurityException, IllegalArgumentException, RuntimeRunnerException {
-    for (RuntimeRunner runner : AbstractTestTools.listRuntimeTestRunners(null)) {
+    for (RuntimeRunner runner : AbstractTestTools.listRuntimeTestRunners()) {
       if (runner.runJUnit(
               new String[0],
               AbstractTestTools.JUNIT_RUNNER_NAME,

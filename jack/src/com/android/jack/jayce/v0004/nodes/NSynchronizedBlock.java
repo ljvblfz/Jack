@@ -92,6 +92,11 @@ public class NSynchronizedBlock extends NStatement {
     synchronizedBlock = in.readNode(NBlock.class);
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.readNode(NExpression.class);
+    in.readNode(NBlock.class);
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

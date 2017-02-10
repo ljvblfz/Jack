@@ -175,6 +175,19 @@ public class NPolymorphicCall extends NExpression {
     callSiteParameterStrTypes = in.readIds();
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipNode();
+    in.skipId();
+    in.skipReceiverKindEnum();
+    in.skipId();
+    in.skipIds();
+    in.skipMethodKindEnum();
+    in.skipId();
+    in.skipNodes();
+    in.skipId();
+    in.skipIds();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

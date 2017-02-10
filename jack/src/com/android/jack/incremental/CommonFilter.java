@@ -56,6 +56,7 @@ import com.android.sched.util.file.CannotChangePermissionException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.Directory;
 import com.android.sched.util.file.FileOrDirectory;
+import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.Files;
 import com.android.sched.util.file.InputZipFile;
@@ -71,6 +72,7 @@ import com.android.sched.vfs.PrefixedFS;
 import com.android.sched.vfs.ReadZipFS;
 import com.android.sched.vfs.VFS;
 import com.android.sched.vfs.VPath;
+import com.android.sched.vfs.WrongVFSTypeException;
 import com.android.sched.vfs.ZipUtils;
 
 import java.io.File;
@@ -344,11 +346,11 @@ public abstract class CommonFilter {
         File jackJar = new File(location.toURI().getPath());
         for (String prefix: JACK_DEFAULT_LIB_PATH) {
           VFS jackVfs = new PrefixedFS(new ReadZipFS(new InputZipFile(jackJar.getPath())),
-              new VPath(prefix, ZipUtils.ZIP_SEPARATOR));
+              new VPath(prefix, ZipUtils.ZIP_SEPARATOR), Existence.MUST_EXIST);
           libraries.add(JackLibraryFactory.getInputLibrary(jackVfs));
         }
         return libraries;
-      } catch (LibraryException e) {
+      } catch (LibraryException | WrongVFSTypeException e) {
         EmbeddedLibraryLoadingException reportable = new EmbeddedLibraryLoadingException(e);
         session.getReporter().report(Severity.FATAL, reportable);
         throw new JackAbortException(reportable);

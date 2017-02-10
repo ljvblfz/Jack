@@ -95,6 +95,13 @@ public class NMethodId extends NNode {
     paramTypeSigs = in.readIds();
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipId();
+    in.skipMethodKindEnum();
+    in.skipId();
+    in.skipIds();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

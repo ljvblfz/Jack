@@ -78,6 +78,10 @@ public class NGoto extends NStatement {
     target = in.readId();
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipId();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

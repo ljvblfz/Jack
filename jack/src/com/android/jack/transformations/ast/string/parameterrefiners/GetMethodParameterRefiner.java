@@ -93,7 +93,7 @@ public class GetMethodParameterRefiner extends CommonStringParameterRefiner impl
     JMethodNameLiteral strMethodLiteral = null;
     String methodName = paramToRefine.getValue();
     JDefinedClassOrInterface type = getTypeFromClassLiteralExpression(call.getInstance());
-    String methodSignature = getMethodSignature(call);
+    String methodSignature = getMethodSignature(methodName, call);
 
     if (type != null && methodSignature != null) {
       JMethod method = lookupMethod(type, methodSignature);
@@ -120,17 +120,16 @@ public class GetMethodParameterRefiner extends CommonStringParameterRefiner impl
   }
 
   @CheckForNull
-  private String getMethodSignature(@Nonnull JMethodCall call) {
+  private String getMethodSignature(@Nonnull String methodName, @Nonnull JMethodCall call) {
     JExpression instance = call.getInstance();
     assert instance != null;
 
     List<JExpression> args = call.getArgs();
     assert args.size() == 2;
-    JExpression methodName = args.get(0);
     JExpression parameters = args.get(1);
 
-    if (methodName instanceof JStringLiteral && parameters instanceof JNewArray) {
-      StringBuilder sb = new StringBuilder(((JStringLiteral) methodName).getValue());
+    if (parameters instanceof JNewArray) {
+      StringBuilder sb = new StringBuilder(methodName);
       sb.append("(");
       for (JExpression param : ((JNewArray) parameters).getInitializers()) {
         if (param instanceof JClassLiteral) {

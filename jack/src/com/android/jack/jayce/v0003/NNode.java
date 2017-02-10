@@ -23,7 +23,6 @@ import com.android.jack.jayce.Node;
 import com.android.jack.jayce.v0003.io.ExportSession;
 import com.android.jack.jayce.v0003.io.ImportHelper;
 import com.android.jack.jayce.v0003.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0003.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0003.io.Token;
 import com.android.jack.lookup.JMethodLookupException;
 
@@ -44,8 +43,6 @@ public abstract class NNode implements Node {
   @Nonnull
   public abstract Object exportAsJast(@Nonnull ExportSession exportSession)
       throws JTypeLookupException, JMethodLookupException;
-
-  public abstract void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException;
 
   public abstract void readContent(@Nonnull JayceInternalReaderImpl in) throws IOException;
 

@@ -21,7 +21,6 @@ import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0003.io.ExportSession;
 import com.android.jack.jayce.v0003.io.ImportHelper;
 import com.android.jack.jayce.v0003.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0003.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0003.io.Token;
 
 import java.io.IOException;
@@ -53,12 +52,6 @@ public class NNativeMethodBody extends NAbstractMethodBody {
     SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JNativeMethodBody jNativeMethodBody = new JNativeMethodBody(jSourceInfo);
     return jNativeMethodBody;
-  }
-
-  @SuppressWarnings("unused")
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-
   }
 
   @SuppressWarnings("unused")

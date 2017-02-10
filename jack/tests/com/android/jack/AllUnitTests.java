@@ -20,7 +20,7 @@ import com.android.jack.backend.dex.rop.RopRegisterManagerTest;
 import com.android.jack.ir.ast.JDefinedInterfaceTest;
 import com.android.jack.ir.ast.MarkerCollectorTest;
 import com.android.jack.ir.impl.ReferenceMapperTest;
-import com.android.jack.jayce.v0002.io.EscapeStringTest;
+import com.android.jack.jayce.v0004.io.EscapeStringTest;
 import com.android.jack.optimizations.ExpressionSimplifierTest;
 import com.android.jack.optimizations.tailrecursion.TailRecursionTest;
 import com.android.jack.preprocessor.PreProcessorTest;

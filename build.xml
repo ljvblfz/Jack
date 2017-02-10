@@ -36,8 +36,7 @@
     schedtests-lib,
     jill,
     jill-api,
-    jack-jar-tools,
-    jack-jacoco-reporter"/>
+    jack-jar-tools"/>
 
   <target name="clean" depends="jack-clean,
     jack-api-lib-clean,
@@ -79,10 +78,7 @@
     jill-api-lib-clean,
     jill-api-src-clean,
     jack-jar-tools-clean,
-    jack-jacoco-reporter-clean,
-    jacoco-clean,
     asm4-clean,
-    gson-clean,
     dist-clean" />
 
   <dirname property="jack-project.dir" file="${ant.file.jack}"/>
@@ -112,13 +108,10 @@
   <property name="dx-ref.dir" value="${jack-project.dir}/dx-ref"/>
   <property name="core-stubs-mini.dir" value="${jack-project.dir}/core-stubs-mini"/>
   <property name="jack-jar-tools.dir" value="${jack-project.dir}/jack-jar-tools"/>
-  <property name="jack-jacoco-reporter.dir" value="${jack-project.dir}/jack-jacoco-reporter"/>
-  <property name="jacoco.dir" value="${jack-project.dir}/jacoco"/>
 
   <property name="jill.dir" value="${jack-project.dir}/jill" />
   <property name="jill-api.dir" value="${jack-project.dir}/jill-api" />
   <property name="asm4.dir" value="${jack-project.dir}/asm4" />
-  <property name="gson.dir" value="${jack-project.dir}/gson"/>
 
   <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask"
       classpath="${jack-project.dir}/jarjar/jarjar.jar"/>
@@ -380,7 +373,6 @@
     description="package a tools distribution"
     depends="dist-check-version-files,
              jack-jar-tools,
-             jack-jacoco-reporter,
              generate-eng-signature">
 
     <mkdir dir="${jack-top-dist.dir}"/>
@@ -402,10 +394,6 @@
     <jar destfile="${jack-top-dist.dir}/${jack-jar-tools.name}" update="true"
         basedir="${tools-sign.tmp}"
         includes="jack-jar-tools-version.properties"/>
-
-    <jar destfile="${jack-top-dist.dir}/${jack-jacoco-reporter.name}" filesetmanifest="merge">
-      <zipfileset src="${jack-jacoco-reporter.dist.dir}/${jack-jacoco-reporter.name}"/>
-    </jar>
 
     <delete dir="${tools-sign.tmp}"/>
 
@@ -544,7 +532,7 @@
     </dependset>
     <javac encoding="UTF-8" srcdir="${jack.dir}/src"
       destdir="${jack.build.outdir}"
-      source="1.7" target="1.7"
+      source="1.8" target="1.8"
       debug="true" includeantruntime="false" includeDestClasses="false">
       <classpath>
         <filelist refid="jack.link.libs.fileset" />
@@ -678,7 +666,7 @@
       </targets>
     </dependset>
      <javac encoding="UTF-8" srcdir="${jack-api.dir}/src" destdir="${jack-api.lib.build.outdir}"
-          source="1.6" target="1.6" debug="true"
+          source="1.8" target="1.8" debug="true"
           includeantruntime="false"  includeDestClasses="false" nowarn="true">
           <classpath>
             <filelist dir="/" files="${jsr305.dist.dir}/${jsr305.libname}" />
@@ -753,7 +741,7 @@
      <javac encoding="UTF-8" srcdir="${jack-tests.dir}/src"
           includes="com/android/jack/annotations/**/*.java"
           destdir="${jack-test-annotations.build.outdir}"
-          source="1.6" target="1.6" debug="true"
+          source="1.8" target="1.8" debug="true"
           includeantruntime="false"  includeDestClasses="false" nowarn="true" />
 
      <copy file="${jack-project.dir}/version.properties"
@@ -809,7 +797,7 @@
      <javac encoding="UTF-8" srcdir="${jack.dir}/src"
           includes="com/android/jack/annotations/**/*.java"
           destdir="${jack-annotations.build.outdir}"
-          source="1.6" target="1.6" debug="true"
+          source="1.8" target="1.8" debug="true"
           includeantruntime="false"  includeDestClasses="false" nowarn="true" />
 
      <copy file="${jack-project.dir}/version.properties"
@@ -873,7 +861,7 @@
     <copy file="${sched-build.dist.dir}/${sched-build.execname}" todir="${jackunittests.tools.dir}" />
     <!-- compile -->
     <javac encoding="UTF-8" srcdir="${jack.dir}/tests" destdir="${jackunittests.build.outdir}"
-      source="1.7" target="1.7" debug="true"
+      source="1.8" target="1.8" debug="true"
       includeantruntime="false"  includeDestClasses="false" nowarn="true">
       <classpath>
         <filelist refid="jackunittests.link.libs.fileset"/>
@@ -983,12 +971,12 @@
     <javac
       encoding="UTF-8"
       destdir="${jack-tests.build.outdir}"
-      source="1.7" target="1.7"
+      source="1.8" target="1.8"
       debug="true" includeantruntime="false" nowarn="true">
       <src path="${jack-tests.dir}/src"/>
       <src path="${jack-tests.dir}/tests"/>
-      <exclude name="com/android/jack/annotation/processor/sample2/src/**"/>
-      <exclude name="com/android/jack/annotation/test019/jack/**"/>
+      <exclude name="com/android/jack/annotation/processor/sample2/src/"/>
+      <exclude name="com/android/jack/annotation/processor/sample2/src/"/>
       <exclude name="com/android/jack/classpath/test002/lib1override/**"/>
       <exclude name="com/android/jack/encoding/tests/**"/>
       <exclude name="com/android/jack/enums/test003/link/Other.java"/>
@@ -996,6 +984,9 @@
       <exclude name="com/android/jack/error/test001/jack/A.java"/>
       <exclude name="com/android/jack/error/test002/jack/A.java"/>
       <exclude name="com/android/jack/frontend/test002/jack/PackageName/ClassInConflictingPackage.java"/>
+      <exclude name="com/android/jack/frontend/test005/jack/**"/>
+      <exclude name="com/android/jack/frontend/test006/jack/**"/>
+      <exclude name="com/android/jack/frontend/test007/jackduplicate/"/>
       <exclude name="com/android/jack/frontend/test008/jack/NoOuterContext.java"/>
       <exclude name="com/android/jack/frontend/test010/jack/UnusedLocalVar.java"/>
       <exclude name="com/android/jack/frontend/test013/jack/ExtendingInnerOnly.java"/>
@@ -1004,46 +995,24 @@
       <exclude name="com/android/jack/frontend/test016/jack/WithDuplicated.java"/>
       <exclude name="com/android/jack/frontend/test017/jack/InvalidQualification.java"/>
       <exclude name="com/android/jack/frontend/test019/jack/TooBig.java"/>
-      <exclude name="com/android/jack/frontend/generic/test002/jack/**"/>
-      <exclude name="com/android/jack/frontend/generic/test003/jack/**"/>
-      <exclude name="com/android/jack/nopackage/jack/**"/>
-      <exclude name="com/android/jack/multidex/test004/jack/**"/>
-      <exclude name="com/android/jack/java8/lambda/**"/>
-      <exclude name="com/android/jack/java8/defaultmethod/**"/>
-      <exclude name="com/android/jack/java8/staticmethod/**"/>
-      <exclude name="com/android/jack/java8/methodref/**"/>
-      <exclude name="com/android/jack/java8/inference/**"/>
-      <exclude name="com/android/jack/java8/gwt/**"/>
-      <exclude name="com/android/jack/java8/retrolambda/**"/>
-      <exclude name="com/android/jack/java8/intersectiontype/**"/>
-      <exclude name="com/android/jack/java8/annotation/**"/>
-      <exclude name="com/android/jack/java8/variable/**"/>
-      <exclude name="com/android/jack/java8/bridges/**"/>
-      <exclude name="com/android/jack/java8/parameter/**"/>
-      <exclude name="com/android/jack/jarjar/test003/dontcompile/**"/>
-      <exclude name="com/android/jack/jarjar/test004/dontcompile/**"/>
-      <exclude name="com/android/jack/jarjar/test006/dontcompile/**"/>
-      <exclude name="com/android/jack/lookup/test001/liboverride/**"/>
-      <exclude name="com/android/jack/frontend/test005/jack/**"/>
-      <exclude name="com/android/jack/frontend/test006/jack/**"/>
-      <exclude name="com/android/jack/frontend/test007/**"/>
+      <exclude name="com/android/jack/jarjar/test003/dontcompile/"/>
+      <exclude name="com/android/jack/jarjar/test006/dontcompile/"/>
+      <exclude name="com/android/jack/jarjar/test006/dontcompile/"/>
+      <exclude name="com/android/jack/java8/gwt/test019/jack/Java8Test.java"/>
+      <exclude name="com/android/jack/java8/intersectiontype/test004/"/>
+      <exclude name="com/android/jack/java8/intersectiontype/test005/"/>
+      <exclude name="com/android/jack/java8/intersectiontype/test006/"/>
+      <exclude name="com/android/jack/java8/lambda/test019/"/>
+      <exclude name="com/android/jack/java8/methodref/test014/jack/Tests.java"/>
+      <exclude name="com/android/jack/java8/variable/test001/"/>
+      <exclude name="com/android/jack/java8/variable/test003/"/>
       <exclude name="com/android/jack/jill/test001/**"/>
       <exclude name="com/android/jack/jill/test002/**"/>
       <exclude name="com/android/jack/jill/test003/**"/>
       <exclude name="com/android/jack/jill/test004/**"/>
-      <exclude name="com/android/jack/optimizations/lambdas/test001/**"/>
-      <exclude name="com/android/jack/optimizations/lambdas/test002/**"/>
-      <exclude name="com/android/jack/optimizations/lambdas/test003/**"/>
-      <exclude name="com/android/jack/optimizations/lambdas/test004/**"/>
-      <exclude name="com/android/jack/optimizations/lambdas/test005/**"/>
-      <exclude name="com/android/jack/optimizations/lambdas/test006/**"/>
-      <exclude name="com/android/jack/optimizations/lambdas/test007/**"/>
-      <exclude name="com/android/jack/optimizations/lambdas/test008/**"/>
+      <exclude name="com/android/jack/jill/test005/**"/>
+      <exclude name="com/android/jack/lookup/test001/liboverride/"/>
       <exclude name="com/android/jack/sourcepath/test002/jack/Sourcepath002.java"/>
-      <exclude name="com/android/jack/shrob/test062/jack/**"/>
-      <exclude name="com/android/jack/shrob/test066/jack/**"/>
-      <exclude name="com/android/jack/shrob/test067/jack/**"/>
-      <exclude name="com/android/jack/shrob/test068/jack/**"/>
       <classpath>
         <filelist dir="/">
           <file name="${jill-api.dist.dir}/${jill-api.lib.name}" />
@@ -1155,7 +1124,7 @@
     <!-- compile -->
     <javac  encoding="UTF-8" srcdir="${jill.dir}/src"
           destdir="${jill.build.outdir}"
-          source="1.7" target="1.7"
+          source="1.8" target="1.8"
           debug="true" includeantruntime="false">
       <classpath>
         <filelist refid="jill.libs.filelist" />
@@ -1247,7 +1216,7 @@
     <delete dir="${jill-api.lib.build.outdir}"/>
     <mkdir dir="${jill-api.lib.build.outdir}"/>
     <javac  encoding="UTF-8" srcdir="${jill-api.dir}/src" destdir="${jill-api.lib.build.outdir}"
-          source="1.6" target="1.6" debug="true"
+          source="1.8" target="1.8" debug="true"
           includeantruntime="false"  includeDestClasses="false" nowarn="true">
       <classpath>
         <filelist dir="/" files="${jsr305.dist.dir}/${jsr305.libname}" />
@@ -1621,7 +1590,7 @@
       </targets>
     </dependset>
     <javac encoding="UTF-8" srcdir="${sched.dir}/src" destdir="${schedlib.build.outdir}"
-      source="1.7" target="1.7" debug="true" includeantruntime="false"  includeDestClasses="false">
+      source="1.8" target="1.8" debug="true" includeantruntime="false"  includeDestClasses="false">
       <classpath>
         <filelist refid="schedlib.link.libs.fileset"/>
       </classpath>
@@ -1674,7 +1643,7 @@
        encoding="UTF-8"
        srcdir="${sched.dir}/src"
        destdir="${sched-build.build.outdir}"
-       source="1.6" target="1.6"
+       source="1.8" target="1.8"
        debug="true" includeantruntime="false" includeDestClasses="false">
       <compilerarg line="-Xlint:-options"/>
       <classpath>
@@ -1763,7 +1732,7 @@
     <javac encoding="UTF-8"
       srcdir="${sched.dir}/tests"
       destdir="${schedtests.build.outdir}"
-      source="1.7" target="1.7"
+      source="1.8" target="1.8"
       debug="true" includeantruntime="false"  includeDestClasses="false">
       <compilerarg line="-Xlint:-options"/>
       <classpath>
@@ -2098,7 +2067,7 @@
     <delete dir="${dexcomparator.dist.dir}" />
   </target>
 
-  <target name="dexcomparator-compile" depends="jack-lib, dex-lib,jsr305-lib,guava-lib,args4j-lib">
+  <target name="dexcomparator-compile" depends="jack-lib, dex-lib,jsr305-lib,guava-lib,args4j-lib,sched-lib">
     <!-- project layout -->
     <mkdir dir="${dexcomparator.build.outdir}"/>
     <mkdir dir="${dexcomparator.libs.dir}"/>
@@ -2111,6 +2080,7 @@
         <file name="${guava.dist.dir}/${guava.libname}" />
         <file name="${args4j.dist.dir}/${args4j.libname}" />
         <file name="${jack.dist.dir}/${jack.libname}" />
+	<file name="${schedlib.dist.dir}/${schedlib.libname}" />
       </filelist>
     </copy>
     <!-- compile -->
@@ -2129,7 +2099,7 @@
     <javac encoding="UTF-8"
             srcdir="${dexcomparator.dir}/src"
             destdir="${dexcomparator.build.outdir}"
-            source="1.6" target="1.6"
+            source="1.8" target="1.8"
             debug="true" includeantruntime="false"  includeDestClasses="false">
       <compilerarg line="-Xlint:-options"/>
       <classpath>
@@ -2250,59 +2220,6 @@
     <jar destfile="${asm4.dist.dir}/${asm4.libname}"
           basedir="${asm4.build.outdir}"
           includes="**"/>
-  </target>
-
-  <!-- ******************* -->
-  <!-- gson                -->
-  <!-- ******************* -->
-  <property name="gson.build.dir" value="${gson.dir}/build" />
-  <property name="gson.build.outdir" value="${gson.build.dir}/classes" />
-  <property name="gson.dist.dir" value="${gson.dir}/dist" />
-  <property name="gson.libname" value="gson.jar"/>
-
-  <target name="gson-clean">
-    <delete dir="${gson.build.dir}" />
-    <delete dir="${gson.dist.dir}" />
-  </target>
-
-  <target name="gson-lib">
-    <!-- project layout -->
-    <mkdir dir="${gson.build.outdir}"/>
-    <mkdir dir="${gson.dist.dir}"/>
-    <!-- compile -->
-    <dependset>
-      <sources>
-        <fileset dir="${gson.dir}/gson/src/main/java" />
-      </sources>
-      <targets>
-        <fileset file="${gson.dist.dir}/${gson.libname}"/>
-      </targets>
-    </dependset>
-    <javac encoding="UTF-8" srcdir="${gson.dir}/gson/src/main/java"
-          destdir="${gson.build.outdir}"
-          source="1.5" target="1.5"
-          debug="true" includeantruntime="false"/>
-    <!-- package -->
-    <jar destfile="${gson.dist.dir}/${gson.libname}"
-          basedir="${gson.build.outdir}"
-          includes="**"/>
-  </target>
-
-  <!-- ******************* -->
-  <!-- jacoco              -->
-  <!-- ******************* -->
-  <property name="jacoco.dist.dir" value="${jacoco.dir}/dist" />
-  <property name="jacoco.core.libname" value="org.jacoco.core.jar"/>
-  <property name="jacoco.report.libname" value="org.jacoco.report.jar"/>
-
-  <target name="jacoco-clean">
-    <delete dir="${jacoco.dist.dir}"/>
-  </target>
-
-  <target name="jacoco-libs">
-    <mkdir dir="${jacoco.dist.dir}"/>
-    <copy file="${jacoco.dir}/org.jacoco.core-0.7.5.201505241946.jar" tofile="${jacoco.dist.dir}/${jacoco.core.libname}"/>
-    <copy file="${jacoco.dir}/org.jacoco.report-0.7.5.201505241946.jar" tofile="${jacoco.dist.dir}/${jacoco.report.libname}"/>
   </target>
 
   <!-- ******************* -->
@@ -2717,7 +2634,7 @@
     <delete dir="${jack-jar-tools.build.outdir}"/>
     <mkdir dir="${jack-jar-tools.build.outdir}"/>
     <javac encoding="UTF-8" srcdir="${jack-jar-tools.dir}/src" destdir="${jack-jar-tools.build.outdir}"
-         source="1.6" target="1.6" debug="true"
+         source="1.8" target="1.8" debug="true"
          includeantruntime="false"  includeDestClasses="false" nowarn="true">
       <classpath>
         <filelist refid="jack-jar-tools.static.libs.fileset"/>
@@ -2730,81 +2647,6 @@
           tofile="${jack-jar-tools.build.outdir}/jack-jar-tools-version.properties"/>
     <jar destfile="${jack-jar-tools.dist.dir}/${jack-jar-tools.name}" manifest="${jack-jar-tools.dir}/etc/manifest.txt">
       <fileset dir="${jack-jar-tools.build.outdir}"/>
-    </jar>
-  </target>
-
-
-  <!-- ************************* -->
-  <!-- jack-jacoco-reporter   -->
-  <!-- ************************* -->
-  <property name="jack-jacoco-reporter.build.dir" value="${jack-jacoco-reporter.dir}/build" />
-  <property name="jack-jacoco-reporter.dist.dir" value="${jack-jacoco-reporter.dir}/dist" />
-  <property name="jack-jacoco-reporter.libs.dir" value="${jack-jacoco-reporter.dir}/libs" />
-  <property name="jack-jacoco-reporter.build.outdir" value="${jack-jacoco-reporter.build.dir}/classes" />
-  <property name="jack-jacoco-reporter.name" value="jack-jacoco-reporter.jar" />
-
-  <target name="jack-jacoco-reporter-clean">
-    <delete dir="${jack-jacoco-reporter.build.dir}" />
-    <delete dir="${jack-jacoco-reporter.dist.dir}" />
-    <delete dir="${jack-jacoco-reporter.libs.dir}" />
-  </target>
-
-  <target name="jack-jacoco-reporter-copy-libs"
-    depends="jsr305-lib,args4j-lib,asm4-lib,gson-lib,junit4,jacoco-libs">
-    <copy todir="${jack-jacoco-reporter.libs.dir}" flatten="true">
-      <filelist dir="/" >
-        <file name="${jsr305.dist.dir}/${jsr305.libname}"/>
-        <file name="${schedlib.dist.dir}/${schedlib.libname}" />
-        <file name="${args4j.dist.dir}/${args4j.libname}"/>
-        <file name="${asm4.dist.dir}/${asm4.libname}"/>
-        <file name="${gson.dist.dir}/${gson.libname}"/>
-        <file name="${jacoco.dist.dir}/${jacoco.core.libname}"/>
-        <file name="${jacoco.dist.dir}/${jacoco.report.libname}"/>
-        <file name="${junit4.dist.dir}/${junit4.execname}"/>
-      </filelist>
-    </copy>
-  </target>
-
-  <target name="jack-jacoco-reporter-check">
-    <union id="jack-jacoco-reporter.uptodate.files">
-      <fileset dir="${jack-jacoco-reporter.dir}/src" />
-      <fileset dir="${jack-jacoco-reporter.dir}/etc" />
-      <filelist id="jack-jacoco-reporter.static.libs.fileset" dir="/">
-        <file name="${jack-jacoco-reporter.libs.dir}/${jsr305.libname}"/>
-        <file name="${jack-jacoco-reporter.libs.dir}/${schedlib.libname}"/>
-        <file name="${jack-jacoco-reporter.libs.dir}/${args4j.libname}"/>
-        <file name="${jack-jacoco-reporter.libs.dir}/${asm4.libname}"/>
-        <file name="${jack-jacoco-reporter.libs.dir}/${gson.libname}"/>
-        <file name="${jack-jacoco-reporter.libs.dir}/${jacoco.core.libname}"/>
-        <file name="${jack-jacoco-reporter.libs.dir}/${jacoco.report.libname}"/>
-      </filelist>
-    </union>
-
-    <uptodate property="jack-jacoco-reporter.uptodate"
-      targetfile="${jack-jacoco-reporter.dist.dir}/${jack-jacoco-reporter.name}">
-      <srcresources refid="jack-jacoco-reporter.uptodate.files" />
-    </uptodate>
-  </target>
-
-  <target name="jack-jacoco-reporter"
-      depends="jack-jacoco-reporter-copy-libs,jack-jacoco-reporter-check"
-      unless="${jack-jacoco-reporter.uptodate}">
-    <delete dir="${jack-jacoco-reporter.build.outdir}"/>
-    <mkdir dir="${jack-jacoco-reporter.build.outdir}"/>
-    <javac encoding="UTF-8" srcdir="${jack-jacoco-reporter.dir}/src" destdir="${jack-jacoco-reporter.build.outdir}"
-         source="1.6" target="1.6" debug="true"
-         includeantruntime="false"  includeDestClasses="false" nowarn="true">
-      <classpath>
-        <filelist refid="jack-jacoco-reporter.static.libs.fileset"/>
-      </classpath>
-    </javac>
-    <unzip dest="${jack-jacoco-reporter.build.outdir}">
-      <filelist refid="jack-jacoco-reporter.static.libs.fileset"/>
-    </unzip>
-    <copy file="${jack-project.dir}/version.properties"
-          tofile="${jack-jacoco-reporter.build.outdir}/jack-jacoco-reporter-version.properties"/>
-    <jar destfile="${jack-jacoco-reporter.dist.dir}/${jack-jacoco-reporter.name}" manifest="${jack-jacoco-reporter.dir}/etc/manifest.txt">
-      <fileset dir="${jack-jacoco-reporter.build.outdir}"/>
     </jar>
   </target>
 

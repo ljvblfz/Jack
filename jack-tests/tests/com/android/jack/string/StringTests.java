@@ -41,7 +41,9 @@ public class StringTests extends RuntimeTest {
     AbstractTestTools.getTestRootDir("com.android.jack.string.concat003"),
     "com.android.jack.string.concat003.dx.Tests");
 
-
+  private RuntimeTestInfo CONCAT004 = new RuntimeTestInfo(
+      AbstractTestTools.getTestRootDir("com.android.jack.string.concat004"),
+      "com.android.jack.string.concat004.jack.Tests").setSrcDirName("");
 
   @Test
   public void testCompileNewString() throws Exception {
@@ -74,10 +76,18 @@ public class StringTests extends RuntimeTest {
     new RuntimeTestHelper(CONCAT003).compileAndRunTest();
   }
 
+  @Test
+  @Runtime
+  @Category(RuntimeRegressionTest.class)
+  public void concat004() throws Exception {
+    new RuntimeTestHelper(CONCAT004).compileAndRunTest();
+  }
+
   @Override
   protected void fillRtTestInfos() {
     rtTestInfos.add(CONCAT001);
     rtTestInfos.add(CONCAT002);
     rtTestInfos.add(CONCAT003);
+    rtTestInfos.add(CONCAT004);
   }
 }

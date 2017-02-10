@@ -88,6 +88,11 @@ public class NCaseStatement extends NStatement {
     expr = in.readNode(NLiteral.class);
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipId();
+    in.skipNode();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

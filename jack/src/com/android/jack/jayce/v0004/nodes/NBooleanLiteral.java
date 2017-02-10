@@ -63,6 +63,10 @@ public class NBooleanLiteral extends NLiteral {
 
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipBoolean();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

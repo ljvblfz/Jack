@@ -20,7 +20,6 @@ import com.android.jack.ir.ast.JAbsentArrayDimension;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
 
 import java.io.IOException;
@@ -50,11 +49,6 @@ public class NAbsentArrayDimension extends NLiteral {
   public JAbsentArrayDimension exportAsJast(@Nonnull ExportSession exportSession) {
     assert sourceInfo != null;
     return new JAbsentArrayDimension(sourceInfo.exportAsJast(exportSession));
-  }
-
-  @SuppressWarnings("unused")
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
   }
 
   @SuppressWarnings("unused")

@@ -32,6 +32,7 @@ import com.android.sched.util.config.id.PropertyId;
 import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
+import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileOrDirectoryException;
@@ -51,6 +52,7 @@ import com.android.sched.vfs.OutputVFile;
 import com.android.sched.vfs.PrefixedFS;
 import com.android.sched.vfs.VFS;
 import com.android.sched.vfs.VPath;
+import com.android.sched.vfs.WrongVFSTypeException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -143,18 +145,21 @@ public class OutputJackLibraryImpl extends OutputJackLibrary {
       VPath prefixPath = InputJackLibraryImpl.getSectionPath(fileType);
       VFS outputVFS = null;
       try {
-        outputVFS = new PrefixedFS(vfs, prefixPath);
+        outputVFS = new PrefixedFS(vfs, prefixPath, Existence.MAY_EXIST);
 
         if (generateJacklibDigest && fileType == FileType.PREBUILT) {
 
           outputVFS = new MessageDigestFS(outputVFS,
               ThreadConfig.get(JackLibraryFactory.MESSAGE_DIGEST_ALGO));
         }
+      } catch (WrongVFSTypeException e) {
+        // prefix may not exist so this cannot happen
+        throw new AssertionError(e);
       } catch (BadVFSFormatException e) {
-        // if library is well formed and digest exists this exception can not be triggered
+        // if library is well formed and digest exists this exception cannot be triggered
         throw new AssertionError(e);
       } catch (NotDirectoryException e) {
-        // if library is well formed this exception can not be triggered
+        // if library is well formed this exception cannot be triggered
         throw new AssertionError(e);
       }
 

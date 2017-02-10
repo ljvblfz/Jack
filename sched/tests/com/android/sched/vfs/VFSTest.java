@@ -344,8 +344,9 @@ public class VFSTest {
   @Test
   public void testDeflatePrefixedCaseInsensitiveDirectFS()
       throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
-      NoSuchFileException, FileAlreadyExistsException, IOException, CannotDeleteFileException,
-      NotFileOrDirectoryException, CannotCloseException, BadVFSFormatException {
+          NoSuchFileException, FileAlreadyExistsException, IOException, CannotDeleteFileException,
+          NotFileOrDirectoryException, CannotCloseException, BadVFSFormatException,
+          WrongVFSTypeException {
     File file = null;
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
@@ -358,7 +359,8 @@ public class VFSTest {
           Permission.READ | Permission.WRITE));
 
       ioVFS1 =
-          new GenericInputOutputVFS(new DeflateFS(new PrefixedFS(ciFS, new VPath("stuff", '/'))));
+          new GenericInputOutputVFS(
+              new DeflateFS(new PrefixedFS(ciFS, new VPath("stuff", '/'), Existence.MAY_EXIST)));
 
       testOutputVFS(ioVFS1);
       testDelete(ioVFS1);
@@ -371,7 +373,8 @@ public class VFSTest {
           Permission.READ | Permission.WRITE));
 
       ioVFS2 =
-          new GenericInputOutputVFS(new DeflateFS(new PrefixedFS(ciFS2, new VPath("stuff", '/'))));
+          new GenericInputOutputVFS(
+              new DeflateFS(new PrefixedFS(ciFS2, new VPath("stuff", '/'), Existence.MUST_EXIST)));
       testInputVFS(ioVFS2);
       ciFS2.close();
 
@@ -453,7 +456,7 @@ public class VFSTest {
   public void testPrefixedFSWithDirectFS()
       throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
       NoSuchFileException, FileAlreadyExistsException, IOException, NotFileOrDirectoryException,
-      CannotDeleteFileException, CannotCloseException {
+      CannotDeleteFileException, CannotCloseException, WrongVFSTypeException {
     File file = null;
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
@@ -464,7 +467,7 @@ public class VFSTest {
       ioVFS1 =
           new GenericInputOutputVFS(new PrefixedFS(new DirectFS(new Directory(path, null,
               Existence.MUST_EXIST, Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ
-              | Permission.WRITE), new VPath("stuff", '/')));
+              | Permission.WRITE), new VPath("stuff", '/'), Existence.NOT_EXIST));
 
       testOutputVFS(ioVFS1);
       testDelete(ioVFS1);
@@ -475,7 +478,7 @@ public class VFSTest {
       ioVFS2 =
           new GenericInputOutputVFS(new PrefixedFS(new DirectFS(new Directory(path, null,
               Existence.MUST_EXIST, Permission.WRITE, ChangePermission.NOCHANGE), Permission.READ
-              | Permission.WRITE), new VPath("stuff", '/')));
+              | Permission.WRITE), new VPath("stuff", '/'), Existence.MUST_EXIST));
       testInputVFS(ioVFS2);
       checkFileLocations(ioVFS2);
 
@@ -493,7 +496,7 @@ public class VFSTest {
   public void testPrefixedFSWithZip()
       throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
       NoSuchFileException, FileAlreadyExistsException, IOException, ZipException,
-      NotFileOrDirectoryException, CannotCloseException {
+      NotFileOrDirectoryException, CannotCloseException, WrongVFSTypeException {
     String prefix = "stuff";
     File file = null;
     InputOutputVFS ioVFS1 = null;
@@ -505,7 +508,9 @@ public class VFSTest {
       WriteZipFS writeZipFS = new WriteZipFS(new OutputZipFile(path, null, Existence.MAY_EXIST,
           ChangePermission.NOCHANGE, Compression.COMPRESSED));
 
-      ioVFS1 = new GenericInputOutputVFS(new PrefixedFS(writeZipFS, new VPath(prefix, '/')));
+      ioVFS1 =
+          new GenericInputOutputVFS(
+              new PrefixedFS(writeZipFS, new VPath(prefix, '/'), Existence.NOT_EXIST));
 
       testOutputVFS(ioVFS1);
       ioVFS1.close();
@@ -513,7 +518,9 @@ public class VFSTest {
 
       ReadZipFS readZipFS = new ReadZipFS(new InputZipFile(path));
 
-      ioVFS2 = new GenericInputOutputVFS(new PrefixedFS(readZipFS, new VPath(prefix, '/')));
+      ioVFS2 =
+          new GenericInputOutputVFS(
+              new PrefixedFS(readZipFS, new VPath(prefix, '/'), Existence.MUST_EXIST));
       testInputVFS(ioVFS2);
       checkZipLocations(ioVFS2, prefix);
 
@@ -532,8 +539,9 @@ public class VFSTest {
   @Test
   public void testPrefixedFSWithCaseInsensitiveFS()
       throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
-      NoSuchFileException, FileAlreadyExistsException, IOException, CannotDeleteFileException,
-      NotFileOrDirectoryException, CannotCloseException, BadVFSFormatException {
+          NoSuchFileException, FileAlreadyExistsException, IOException, CannotDeleteFileException,
+          NotFileOrDirectoryException, CannotCloseException, BadVFSFormatException,
+          WrongVFSTypeException {
     File file = null;
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
@@ -545,7 +553,9 @@ public class VFSTest {
           Existence.MUST_EXIST, Permission.WRITE, ChangePermission.NOCHANGE),
           Permission.READ | Permission.WRITE));
 
-      ioVFS1 = new GenericInputOutputVFS(new PrefixedFS(ciFS, new VPath("stuff", '/')));
+      ioVFS1 =
+          new GenericInputOutputVFS(
+              new PrefixedFS(ciFS, new VPath("stuff", '/'), Existence.NOT_EXIST));
 
       testOutputVFS(ioVFS1);
       testDelete(ioVFS1);
@@ -557,7 +567,9 @@ public class VFSTest {
           Existence.MUST_EXIST, Permission.WRITE, ChangePermission.NOCHANGE),
           Permission.READ | Permission.WRITE));
 
-      ioVFS2 = new GenericInputOutputVFS(new PrefixedFS(ciFS2, new VPath("stuff", '/')));
+      ioVFS2 =
+          new GenericInputOutputVFS(
+              new PrefixedFS(ciFS2, new VPath("stuff", '/'), Existence.MUST_EXIST));
       testInputVFS(ioVFS2);
       ciFS2.close();
 
@@ -574,8 +586,9 @@ public class VFSTest {
   @Test
   public void testMessageDigestFSWithPrefixedFSAndCaseInsensitiveFS()
       throws CannotCreateFileException, WrongPermissionException, CannotChangePermissionException,
-      NoSuchFileException, FileAlreadyExistsException, IOException, CannotDeleteFileException,
-      NotFileOrDirectoryException, CannotCloseException, BadVFSFormatException {
+          NoSuchFileException, FileAlreadyExistsException, IOException, CannotDeleteFileException,
+          NotFileOrDirectoryException, CannotCloseException, BadVFSFormatException,
+          WrongVFSTypeException {
     File file = null;
     InputOutputVFS ioVFS1 = null;
     InputOutputVFS ioVFS2 = null;
@@ -598,7 +611,9 @@ public class VFSTest {
               Existence.MUST_EXIST, Permission.WRITE, ChangePermission.NOCHANGE),
               Permission.READ | Permission.WRITE), new MessageDigestFactory(sha1)));
 
-      ioVFS1 = new GenericInputOutputVFS(new PrefixedFS(ciFS, new VPath("stuff", '/')));
+      ioVFS1 =
+          new GenericInputOutputVFS(
+              new PrefixedFS(ciFS, new VPath("stuff", '/'), Existence.NOT_EXIST));
 
       testOutputVFS(ioVFS1);
       testDelete(ioVFS1);
@@ -611,7 +626,9 @@ public class VFSTest {
               Existence.MUST_EXIST, Permission.WRITE, ChangePermission.NOCHANGE),
               Permission.READ | Permission.WRITE), new MessageDigestFactory(sha1)));
 
-      ioVFS2 = new GenericInputOutputVFS(new PrefixedFS(ciFS2, new VPath("stuff", '/')));
+      ioVFS2 =
+          new GenericInputOutputVFS(
+              new PrefixedFS(ciFS2, new VPath("stuff", '/'), Existence.MUST_EXIST));
       testInputVFS(ioVFS2);
       ciFS2.close();
 
@@ -775,10 +792,11 @@ public class VFSTest {
 
   @SuppressWarnings("resource")
   @Test
-  public void testIncrementalStack() throws IOException, CannotCreateFileException,
-      WrongPermissionException, CannotChangePermissionException, NoSuchFileException,
-      FileAlreadyExistsException, ZipException, NotFileOrDirectoryException,
-      CannotDeleteFileException, CannotCloseException, BadVFSFormatException {
+  public void testIncrementalStack()
+      throws IOException, CannotCreateFileException, WrongPermissionException,
+          CannotChangePermissionException, NoSuchFileException, FileAlreadyExistsException,
+          ZipException, NotFileOrDirectoryException, CannotDeleteFileException,
+          CannotCloseException, BadVFSFormatException, WrongVFSTypeException {
     final VPath prefix = new VPath("pre", '/');
     File inputZipFile = null;
     File outputZipFile = null;
@@ -796,7 +814,8 @@ public class VFSTest {
                 ChangePermission.NOCHANGE, Compression.COMPRESSED),
             /* numGroups = */ 1, /* groupSize = */ 2, new MessageDigestFactory(getSha1Service()),
             /* debug = */ false);
-        InputOutputVFS ioVFS1 = new GenericInputOutputVFS(new PrefixedFS(writeZipVFS, prefix));
+        InputOutputVFS ioVFS1 =
+            new GenericInputOutputVFS(new PrefixedFS(writeZipVFS, prefix, Existence.NOT_EXIST));
         testOutputVFS(ioVFS1);
         ioVFS1.close();
         writeZipVFS.close();
@@ -806,7 +825,7 @@ public class VFSTest {
       VFS ciVFS = new CaseInsensitiveFS(
           new CachedDirectFS(new Directory(dirPath, null, Existence.MUST_EXIST, Permission.WRITE,
               ChangePermission.NOCHANGE), Permission.READ | Permission.WRITE));
-      VFS prefixedFS1 = new PrefixedFS(ciVFS, prefix);
+      VFS prefixedFS1 = new PrefixedFS(ciVFS, prefix, Existence.NOT_EXIST);
       prefixedFS1.close();
 
       // create R/W output zip that uses as temp dir an UnionVFS between dir and read-only zip
@@ -822,7 +841,7 @@ public class VFSTest {
         VFS unionVFS = new UnionVFS(vfsList);
         rwzfs.setWorkVFS(unionVFS);
       }
-      VFS prefixedFS = new PrefixedFS(rwzfs, prefix);
+      VFS prefixedFS = new PrefixedFS(rwzfs, prefix, Existence.MUST_EXIST);
 
       testInputVFS(new GenericInputVFS(prefixedFS));
 

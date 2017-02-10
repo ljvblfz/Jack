@@ -65,6 +65,7 @@ import javax.annotation.Nonnull;
     AtomicReferenceUpdaterParameterRefiner.class,
     GetMethodParameterRefiner.class,
     GetDeclaredMethodParameterRefiner.class})
+// Uses refiners which look up types.
 @Access(JSession.class)
 public class ReflectionStringLiteralRefiner implements RunnableSchedulable<JMethod> {
 

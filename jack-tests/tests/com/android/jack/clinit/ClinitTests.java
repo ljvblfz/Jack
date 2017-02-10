@@ -16,15 +16,17 @@
 
 package com.android.jack.clinit;
 
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
+import com.android.jack.test.toolchain.JillBasedToolchain;
 
 import org.junit.Test;
 
 public class ClinitTests {
 
   public static final String CLASS_WITH_VARIABLE_INIT_BINARY_NAME
-    = "com/android/jack/clinit/jack/ClInitWithVariableInit";
+    = "com/android/jack/clinit/test001/jack/ClInitWithVariableInit";
 
   @Test
   public void testCompileWithClinit() throws Exception {
@@ -33,7 +35,18 @@ public class ClinitTests {
     .srcToExe(
         AbstractTestTools.createTempDir(),
         /* zipFile = */ false,
-        AbstractTestTools.getTestRootDir("com.android.jack.clinit.jack"));
+        AbstractTestTools.getTestRootDir("com.android.jack.clinit.test001.jack"));
+  }
+
+  @Test
+  @KnownIssue(candidate=JillBasedToolchain.class)
+  public void testCompileAnnotationWithClinit() throws Exception {
+    IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
+    toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
+    .srcToExe(
+        AbstractTestTools.createTempDir(),
+        /* zipFile = */ false,
+        AbstractTestTools.getTestRootDir("com.android.jack.clinit.test002.jack"));
   }
 
 }

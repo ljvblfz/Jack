@@ -98,6 +98,12 @@ public class NIfStatement extends NStatement {
     elseStatement = in.readNode(NStatement.class);
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipNode();
+    in.skipNode();
+    in.skipNode();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

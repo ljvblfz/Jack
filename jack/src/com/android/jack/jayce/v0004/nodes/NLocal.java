@@ -113,6 +113,15 @@ public class NLocal extends NVariable {
 
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipId();
+    in.skipInt();
+    in.skipId();
+    in.skipId();
+    in.skipNodes();
+    in.skipNodes();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

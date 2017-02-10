@@ -18,7 +18,7 @@ package com.android.jack.reporting;
 
 import com.android.jack.Jack;
 import com.android.jack.Options;
-import com.android.jack.Options.VerbosityLevel;
+import com.android.jack.VerbosityLevel;
 import com.android.jack.ir.HasSourceInfo;
 import com.android.jack.reporting.Reportable.ProblemLevel;
 import com.android.sched.util.config.ThreadConfig;

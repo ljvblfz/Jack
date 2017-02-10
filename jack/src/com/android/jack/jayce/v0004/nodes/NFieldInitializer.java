@@ -59,6 +59,11 @@ public class NFieldInitializer extends NStatement {
     throw new UnsupportedOperationException();
   }
 
+  @SuppressWarnings("unused")
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) {
+    throw new UnsupportedOperationException();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

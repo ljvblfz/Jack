@@ -19,6 +19,7 @@ package com.android.sched.vfs;
 import com.android.sched.util.file.CannotCreateFileException;
 import com.android.sched.util.file.CannotDeleteFileException;
 import com.android.sched.util.file.CannotGetModificationTimeException;
+import com.android.sched.util.file.FileOrDirectory.Existence;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
@@ -44,16 +45,22 @@ public class PrefixedFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS {
   private final BaseVDir rootDir;
 
   @SuppressWarnings("unchecked")
-  public PrefixedFS(@Nonnull VFS vfs, @Nonnull VPath prefix)
-      throws CannotCreateFileException, NotDirectoryException {
+  public PrefixedFS(@Nonnull VFS vfs, @Nonnull VPath prefix, @Nonnull Existence existence)
+      throws CannotCreateFileException, NotDirectoryException, WrongVFSTypeException {
     this.vfs = (BaseVFS<BaseVDir, BaseVFile>) vfs;
 
     BaseVDir rootDir;
-    // let's try to get the VDir before creating it because we not have write permissions.
     try {
       rootDir = this.vfs.getRootDir().getVDir(prefix);
+      if (existence == Existence.NOT_EXIST) {
+        throw new WrongVFSTypeException(vfs, vfs.getLocation(), getDescription());
+      }
     } catch (NoSuchFileException e) {
-      rootDir = this.vfs.getRootDir().createVDir(prefix);
+      if (existence == Existence.MUST_EXIST) {
+        throw new WrongVFSTypeException(vfs, vfs.getLocation(), getDescription(), e);
+      } else {
+        rootDir = this.vfs.getRootDir().createVDir(prefix);
+      }
     }
     this.rootDir = changeVFS(rootDir);
   }

@@ -18,49 +18,65 @@
 <project name="jack-coverage" default="all">
 
   <dirname property="jack-coverage-project.dir" file="${ant.file.jack-coverage}" />
-  <property name="jack-coverage-libs.dir" value="${jack-coverage-project.dir}/libs" />
-  <property name="jack-coverage-tools.dir" value="${jack-coverage-project.dir}/tools" />
-  <property name="jack-coverage-rsc.dir" value="${jack-coverage-project.dir}/rsc" />
-  <property name="jack-coverage-build.dir" value="${jack-coverage-project.dir}/build" />
-  <property name="jack-coverage-build-classes.dir" value="${jack-coverage-build.dir}/classes" />
-  <property name="jack-coverage-build-test-classes.dir"
-            value="${jack-coverage-build.dir}/testClasses" />
   <property name="jack-coverage-dist.dir" value="${jack-coverage-project.dir}/dist" />
+  <property name="jack-coverage-rsc.dir" value="${jack-coverage-project.dir}/rsc" />
   <property name="jack-coverage-doc.dir" value="${jack-coverage-dist.dir}/doc" />
-  <property name="jack-coverage.execname" value="jack-coverage-plugin.jar" />
-  <property name="jack-coverage-tests.execname" value="jack-coverage-tests.jar" />
-  <property name="jack-coverage-tests.output.dir" value="${jack-coverage-project.dir}/testResults" />
+  <property name="jack-coverage-tests.output.dir"
+            value="${jack-coverage-project.dir}/testResults" />
   <property name="jack-coverage-tests.dump.dir" value="${jack-coverage-dist.dir}/dump" />
   <property name="jack-coverage-tests.suite.name"
             value="com.android.jack.coverage.AllCoverageTests" />
 
   <target name="all"
           description="Build plugin and tests"
-          depends="jack-coverage-plugin,jack-coverage-tests" />
+          depends="jack-coverage-plugin,jack-coverage-tests,jack-jacoco-reporter" />
 
-  <target name="clean" description="deletes files produced by all targets">
-    <delete dir="${jack-coverage-build.dir}" />
+  <target name="clean"
+          description="deletes files produced by all targets"
+          depends="plugin-clean,reporter-clean,gson-clean">
     <delete dir="${jack-coverage-dist.dir}" />
-    <delete dir="${jack-coverage-libs.dir}" />
-    <delete dir="${jack-coverage-tools.dir}" />
     <delete dir="${jack-coverage-tests.output.dir}" />
   </target>
 
+  <!-- *************** -->
+  <!-- Coverage plugin -->
+  <!-- *************** -->
+  <property name="plugin.dir" value="${jack-coverage-project.dir}/plugin"/>
+  <property name="plugin.libs.dir" value="${plugin.dir}/libs" />
+  <property name="plugin.tools.dir" value="${plugin.dir}/tools" />
+  <property name="plugin.rsc.dir" value="${plugin.dir}/rsc" />
+  <property name="plugin.build.dir" value="${plugin.dir}/build" />
+  <property name="plugin.build.src.classes.dir" value="${plugin.build.dir}/classes" />
+  <property name="plugin.build.test.classes.dir" value="${plugin.build.dir}/testClasses" />
+  <property name="plugin.execname" value="jack-coverage-plugin.jar" />
+  <property name="plugin.tests.execname" value="jack-coverage-tests.jar" />
+
+  <target name="plugin-clean" description="deletes files produced by all targets">
+    <delete dir="${plugin.build.dir}" />
+    <delete dir="${plugin.libs.dir}" />
+    <delete dir="${plugin.tools.dir}" />
+  </target>
+
   <target name="copy-jack-libs-and-tools"
-          description="update the project libraries (must be used at least once to install them)">
-    <mkdir dir="${jack-coverage-libs.dir}" />
-    <mkdir dir="${jack-coverage-tools.dir}" />
+          description="update the project libraries (must be used at least once to install them)"
+          depends="gson-lib">
+    <mkdir dir="${plugin.libs.dir}" />
+    <mkdir dir="${plugin.tools.dir}" />
 
     <!-- Copy required libraries -->
-    <copy file="../jack/dist/jack-lib.jar" todir="${jack-coverage-libs.dir}" />
-    <copy file="../jack-tests/dist/jack-tests.jar" todir="${jack-coverage-libs.dir}" />
-    <copy file="../gson/dist/gson.jar" todir="${jack-coverage-libs.dir}" />
-    <copy file="../sched/dist/sched-lib.jar" todir="${jack-coverage-libs.dir}" />
-    <copy file="../junit4/dist/junit4.jar" todir="${jack-coverage-libs.dir}" />
-    <copy file="../jsr305/dist/jsr305-lib.jar" todir="${jack-coverage-libs.dir}" />
+    <copy todir="${plugin.libs.dir}" flatten="true">
+      <filelist dir="${jack-coverage-project.dir}/../" >
+        <file name="jack/dist/jack-lib.jar"/>
+        <file name="jack-tests/dist/jack-tests.jar" />
+        <file name="sched/dist/sched-lib.jar"/>
+        <file name="junit4/dist/junit4.jar"/>
+        <file name="jsr305/dist/jsr305-lib.jar"/>
+      </filelist>
+    </copy>
+    <copy file="${gson.dist.dir}/${gson.libname}" todir="${plugin.libs.dir}" />
 
     <!-- Copy required tools for packaging -->
-    <copy file="../sched/dist/sched-build.jar" todir="${jack-coverage-tools.dir}" />
+    <copy file="../sched/dist/sched-build.jar" todir="${plugin.tools.dir}" />
 
   </target>
 
@@ -68,9 +84,9 @@
           description="build Jack code coverage support"
           depends="copy-jack-libs-and-tools">
 
-    <mkdir dir="${jack-coverage-build-classes.dir}" />
-    <javac srcdir="src"
-           destdir="${jack-coverage-build-classes.dir}"
+    <mkdir dir="${plugin.build.src.classes.dir}" />
+    <javac srcdir="${plugin.dir}/src"
+           destdir="${plugin.build.src.classes.dir}"
            source="1.7"
            target="1.7"
            encoding="UTF-8"
@@ -78,24 +94,28 @@
            includeantruntime="false"
            includeDestClasses="false">
       <classpath>
-        <filelist dir="${jack-coverage-libs.dir}">
+        <filelist dir="${plugin.libs.dir}">
           <file name="jsr305-lib.jar" />
           <file name="sched-lib.jar" />
           <file name="jack-lib.jar" />
         </filelist>
       </classpath>
-      <compilerarg line="-processorpath ${jack-coverage-tools.dir}/sched-build.jar" />
+      <compilerarg line="-processorpath ${plugin.tools.dir}/sched-build.jar" />
       <compilerarg line="-processor com.android.sched.build.SchedAnnotationProcessor" />
     </javac>
 
     <!-- copy resource files -->
-    <copy todir="${jack-coverage-build-classes.dir}">
-      <fileset dir="${jack-coverage-rsc.dir}" />
+    <copy todir="${plugin.build.src.classes.dir}">
+      <fileset dir="${plugin.rsc.dir}" />
     </copy>
 
+    <!-- Copy the version.properties -->
+    <copy file="${jack-coverage-rsc.dir}/jack-coverage-plugin-version.properties"
+          todir="${plugin.build.src.classes.dir}"/>
+
     <mkdir dir="${jack-coverage-dist.dir}" />
-    <jar basedir="${jack-coverage-build-classes.dir}"
-         destfile="${jack-coverage-dist.dir}/${jack-coverage.execname}" />
+    <jar basedir="${plugin.build.src.classes.dir}"
+         destfile="${jack-coverage-dist.dir}/${plugin.execname}" />
 
   </target>
 
@@ -103,9 +123,9 @@
           description="build coverage tests"
           depends="jack-coverage-plugin">
 
-    <mkdir dir="${jack-coverage-build-test-classes.dir}" />
-    <javac srcdir="tests"
-           destdir="${jack-coverage-build-test-classes.dir}"
+    <mkdir dir="${plugin.build.test.classes.dir}" />
+    <javac srcdir="${plugin.dir}/tests"
+           destdir="${plugin.build.test.classes.dir}"
            source="1.7"
            target="1.7"
            encoding="UTF-8"
@@ -114,27 +134,27 @@
            includeDestClasses="false">
       <exclude name="com/android/jack/coverage/**/test*/**" />
       <classpath>
-        <filelist dir="${jack-coverage-libs.dir}">
+        <filelist dir="${plugin.libs.dir}">
           <file name="jsr305-lib.jar" />
           <file name="sched-lib.jar" />
           <file name="jack-tests.jar" />
-          <file name="gson.jar" />
+          <file name="${gson.libname}" />
         </filelist>
-        <file name="${jack-coverage-dist.dir}/${jack-coverage.execname}" />
+        <file name="${jack-coverage-dist.dir}/${plugin.execname}" />
       </classpath>
     </javac>
 
     <!-- Extract jack-tests classes to embed them in the final jar -->
-    <unzip dest="${jack-coverage-build-test-classes.dir}">
-      <filelist dir="${jack-coverage-libs.dir}">
+    <unzip dest="${plugin.build.test.classes.dir}">
+      <filelist dir="${plugin.libs.dir}">
         <file name="jack-tests.jar" />
-        <file name="gson.jar" />
+        <file name="${gson.libname}" />
       </filelist>
     </unzip>
 
     <!-- TODO can we strip out Jack tests to only keep infrastrcture ? -->
-    <jar basedir="${jack-coverage-build-test-classes.dir}"
-         destfile="${jack-coverage-dist.dir}/${jack-coverage-tests.execname}"
+    <jar basedir="${plugin.build.test.classes.dir}"
+         destfile="${jack-coverage-dist.dir}/${plugin.tests.execname}"
          manifest="etc/manifest.txt" />
   </target>
 
@@ -144,7 +164,7 @@
 
 
   <filelist id="jack.junit.tests.classpath" dir="${jack-coverage-dist.dir}">
-    <file name="${jack-coverage-tests.execname}" />
+    <file name="${plugin.tests.execname}" />
   </filelist>
 
   <condition property="jack.tests.assertions" value="-da" else="-ea">
@@ -217,14 +237,94 @@
 
   </target>
 
+  <!-- ***************** -->
+  <!-- Coverage reporter -->
+  <!-- ***************** -->
+  <property name="reporter.dir" value="${jack-coverage-project.dir}/reporter"/>
+  <property name="reporter.build.dir" value="${reporter.dir}/build" />
+  <property name="reporter.libs.dir" value="${reporter.dir}/libs" />
+  <property name="reporter.build.src.classes.dir" value="${reporter.build.dir}/classes" />
+  <property name="reporter.execname" value="jack-jacoco-reporter.jar" />
+
+  <target name="reporter-clean">
+    <delete dir="${reporter.build.dir}" />
+    <delete dir="${reporter.libs.dir}" />
+  </target>
+
+  <target name="jack-jacoco-reporter-copy-libs" depends="gson-lib">
+    <copy todir="${reporter.libs.dir}" flatten="true">
+      <filelist dir="${jack-coverage-project.dir}/.." >
+        <file name="jsr305/dist/jsr305-lib.jar"/>
+        <file name="sched/dist/sched-lib.jar" />
+        <file name="args4j/dist/args4j-lib.jar"/>
+        <file name="asm4/dist/asm4-lib.jar"/>
+        <file name="junit4/dist/junit4.jar"/>
+      </filelist>
+    </copy>
+
+    <copy file="${gson.dist.dir}/${gson.libname}" todir="${reporter.libs.dir}" />
+    <copy file="../jacoco/org.jacoco.core-0.7.5.201505241946.jar"
+          tofile="${reporter.libs.dir}/org.jacoco.core.jar"/>
+    <copy file="../jacoco/org.jacoco.report-0.7.5.201505241946.jar"
+          tofile="${reporter.libs.dir}/org.jacoco.report.jar"/>
+  </target>
+
+  <target name="jack-jacoco-reporter-check">
+    <union id="jack-jacoco-reporter.uptodate.files">
+      <fileset dir="${reporter.dir}/src" />
+      <fileset dir="${reporter.dir}/etc" />
+      <filelist id="jack-jacoco-reporter.static.libs.fileset" dir="/">
+        <file name="${reporter.libs.dir}/jsr305-lib.jar"/>
+        <file name="${reporter.libs.dir}/sched-lib.jar"/>
+        <file name="${reporter.libs.dir}/args4j-lib.jar"/>
+        <file name="${reporter.libs.dir}/asm4-lib.jar"/>
+        <file name="${reporter.libs.dir}/${gson.libname}"/>
+        <file name="${reporter.libs.dir}/org.jacoco.core.jar"/>
+        <file name="${reporter.libs.dir}/org.jacoco.report.jar"/>
+      </filelist>
+    </union>
+
+    <uptodate property="jack-jacoco-reporter.uptodate"
+      targetfile="${jack-coverage-dist.dir}/${reporter.execname}">
+      <srcresources refid="jack-jacoco-reporter.uptodate.files" />
+    </uptodate>
+  </target>
+
+  <target name="jack-jacoco-reporter"
+          depends="jack-jacoco-reporter-copy-libs,jack-jacoco-reporter-check"
+          unless="${jack-jacoco-reporter.uptodate}">
+    <delete dir="${reporter.build.src.classes.dir}"/>
+    <mkdir dir="${reporter.build.src.classes.dir}"/>
+    <javac encoding="UTF-8" srcdir="${reporter.dir}/src"
+           destdir="${reporter.build.src.classes.dir}"
+           source="1.6" target="1.6" debug="true"
+           includeantruntime="false"  includeDestClasses="false" nowarn="true">
+      <classpath>
+        <filelist refid="jack-jacoco-reporter.static.libs.fileset"/>
+      </classpath>
+    </javac>
+    <unzip dest="${reporter.build.src.classes.dir}">
+      <filelist refid="jack-jacoco-reporter.static.libs.fileset"/>
+    </unzip>
+
+    <!-- Reuse the same version.properties than the plugin. -->
+    <copy file="${jack-coverage-rsc.dir}/jack-coverage-plugin-version.properties"
+          tofile="${reporter.build.src.classes.dir}/jack-jacoco-reporter-version.properties"/>
+
+    <jar destfile="${jack-coverage-dist.dir}/${reporter.execname}"
+         manifest="${reporter.dir}/etc/manifest.txt">
+      <fileset dir="${reporter.build.src.classes.dir}"/>
+    </jar>
+  </target>
+
   <target name="dist" description="distribution of the code coverage plugin" depends="all">
     <!-- Placeholder for future release process -->
   </target>
 
   <target name="dist-doc" description="documentation of the code coverage support" depends="dist">
       <union id="dist-doc.classpath.files">
-        <fileset dir="${jack-coverage-project.dir}/libs" />
-        <fileset file="${jack-coverage-dist.dir}/${jack-coverage.execname}" />
+        <fileset dir="${plugin.dir}/libs" />
+        <fileset file="${jack-coverage-dist.dir}/${plugin.execname}" />
       </union>
       <pathconvert property="dist-doc.classpath.path" refid="dist-doc.classpath.files" />
     <mkdir dir="${jack-coverage-doc.dir}" />
@@ -236,7 +336,7 @@
         windowtitle="Jack's code coverage plugin"
         classpath="${dist-doc.classpath.path}"
         nodeprecated="true">
-          <fileset dir="${jack-coverage-project.dir}/src" includes="**/*.java" />
+          <fileset dir="${plugin.dir}/src" includes="**/*.java" />
       </javadoc>
       <!-- README.md -->
       <copy file="${jack-coverage-project.dir}/README-jack-coverage.md"
@@ -247,6 +347,43 @@
         <arg line="--output=${jack-coverage-doc.dir}/README-jack-coverage.txt" />
         <arg line="${jack-coverage-doc.dir}/README-jack-coverage.md"/>
       </exec>
+  </target>
+
+  <!-- ******************* -->
+  <!-- gson                -->
+  <!-- ******************* -->
+  <property name="gson.dir" value="${jack-coverage-project.dir}/../gson"/>
+  <property name="gson.build.dir" value="${gson.dir}/build" />
+  <property name="gson.build.outdir" value="${gson.build.dir}/classes" />
+  <property name="gson.dist.dir" value="${gson.dir}/dist" />
+  <property name="gson.libname" value="gson.jar"/>
+
+  <target name="gson-clean">
+    <delete dir="${gson.build.dir}" />
+    <delete dir="${gson.dist.dir}" />
+  </target>
+
+  <target name="gson-lib">
+    <!-- project layout -->
+    <mkdir dir="${gson.build.outdir}"/>
+    <mkdir dir="${gson.dist.dir}"/>
+    <!-- compile -->
+    <dependset>
+      <sources>
+        <fileset dir="${gson.dir}/gson/src/main/java" />
+      </sources>
+      <targets>
+        <fileset file="${gson.dist.dir}/${gson.libname}"/>
+      </targets>
+    </dependset>
+    <javac encoding="UTF-8" srcdir="${gson.dir}/gson/src/main/java"
+          destdir="${gson.build.outdir}"
+          source="1.5" target="1.5"
+          debug="true" includeantruntime="false"/>
+    <!-- package -->
+    <jar destfile="${gson.dist.dir}/${gson.libname}"
+          basedir="${gson.build.outdir}"
+          includes="**"/>
   </target>
 
 </project>

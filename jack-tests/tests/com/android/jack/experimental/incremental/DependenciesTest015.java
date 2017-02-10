@@ -21,6 +21,7 @@ import com.android.jack.frontend.FrontendCompilationException;
 import com.android.jack.test.helper.IncrementalTestHelper;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackBasedToolchain.MultiDexKind;
+import com.android.sched.util.location.FileLocation;
 
 import junit.framework.Assert;
 
@@ -116,7 +117,7 @@ public class DependenciesTest015 {
 
     DexBuffer db;
     try (InputStream is = new FileInputStream(iteProg.getDexFile())) {
-      db = new DexBuffer(is);
+      db = new DexBuffer(is, new FileLocation(iteProg.getDexFile()));
     }
     Assert.assertTrue(db.typeNames().contains("Ljack/incremental/A;"));
     Assert.assertTrue(db.typeNames().contains("Ljack/incremental/B;"));
@@ -133,7 +134,7 @@ public class DependenciesTest015 {
     Assert.assertEquals(1, iteProg.getJayceCount());
 
     try (InputStream is = new FileInputStream(iteProg.getDexFile())) {
-      db = new DexBuffer(is);
+      db = new DexBuffer(is, new FileLocation(iteProg.getDexFile()));
     }
     Assert.assertTrue(db.typeNames().contains("Ljack/incremental/A;"));
     Assert.assertTrue(db.typeNames().contains("Ljack/incremental/B;"));
@@ -170,7 +171,7 @@ public class DependenciesTest015 {
 
     DexBuffer db;
     try (InputStream is = new FileInputStream(iteProg.getDexFile())) {
-      db = new DexBuffer(is);
+      db = new DexBuffer(is, new FileLocation(iteProg.getDexFile()));
     }
     Assert.assertTrue(db.typeNames().contains("Ljack/incremental/A;"));
     Assert.assertTrue(db.typeNames().contains("Ljack/incremental/B;"));
@@ -189,7 +190,7 @@ public class DependenciesTest015 {
     Assert.assertEquals(2, iteProg.getJayceCount());
 
     try (InputStream is = new FileInputStream(iteProg.getDexFile())) {
-      db = new DexBuffer(is);
+      db = new DexBuffer(is, new FileLocation(iteProg.getDexFile()));
     }
     Assert.assertTrue(db.typeNames().contains("Ljack/incremental/A;"));
     Assert.assertTrue(db.typeNames().contains("Ljack/incremental/B;"));
@@ -227,7 +228,7 @@ public class DependenciesTest015 {
 
     DexBuffer db;
     try (InputStream is = new FileInputStream(iteProg.getDexFile())) {
-      db = new DexBuffer(is);
+      db = new DexBuffer(is, new FileLocation(iteProg.getDexFile()));
     }
     Assert.assertTrue(db.typeNames().contains("Ljack/incremental/A;"));
     Assert.assertTrue(db.typeNames().contains("Ljack/incremental/B;"));
@@ -244,7 +245,7 @@ public class DependenciesTest015 {
     Assert.assertEquals(1, iteProg.getJayceCount());
 
     try (InputStream is = new FileInputStream(iteProg.getDexFile())) {
-      db = new DexBuffer(is);
+      db = new DexBuffer(is, new FileLocation(iteProg.getDexFile()));
     }
     Assert.assertTrue(db.typeNames().contains("Ljack/incremental/A;"));
     Assert.assertTrue(db.typeNames().contains("Ljack/incremental/B;"));

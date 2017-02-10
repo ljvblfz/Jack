@@ -105,6 +105,10 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
     return readString();
   }
 
+  public void skipId() throws IOException {
+    skipString();
+  }
+
   @CheckForNull
   public String readCurrentFileName() throws IOException {
     if (tokenizer.readOpenFileName()) {
@@ -119,6 +123,14 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
     return currentFileName;
   }
 
+  public void skipCurrentFileName() throws IOException {
+    if (tokenizer.readOpenFileName()) {
+      skipString();
+      currentLine = SourceInfo.UNKNOWN_LINE_NUMBER;
+      tokenizer.readCloseFileName();
+    }
+  }
+
   @Nonnegative
   public int readCurrentLine() throws IOException {
     if (tokenizer.readOpenLineInfo()) {
@@ -128,9 +140,20 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
     return currentLine;
   }
 
+  public void skipCurrentLine() throws IOException {
+    if (tokenizer.readOpenLineInfo()) {
+      skipInt();
+      tokenizer.readCloseLineInfo();
+    }
+  }
+
   @Nonnull
   public JRetentionPolicy readRetentionPolicyEnum() throws IOException {
     return RetentionPolicyIdHelper.getValue(readByte());
+  }
+
+  public void skipRetentionPolicyEnum() throws IOException {
+    skipByte();
   }
 
   @Nonnull
@@ -138,9 +161,17 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
     return FieldRefKindIdHelper.getValue(readByte());
   }
 
+  public void skipFieldRefKindEnum() throws IOException {
+    skipByte();
+  }
+
   @Nonnull
   public MethodKind readMethodKindEnum() throws IOException {
     return MethodKindIdHelper.getValue(readByte());
+  }
+
+  public void skipMethodKindEnum() throws IOException {
+    skipByte();
   }
 
   @Nonnull
@@ -148,9 +179,17 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
     return ReceiverKindIdHelper.getValue(readByte());
   }
 
+  public void skipReceiverKindEnum() throws IOException {
+    skipByte();
+  }
+
   @Nonnull
   public DispatchKind readDispatchKindEnum() throws IOException {
     return DispatchKindIdHelper.getValue(readByte());
+  }
+
+  public void skipDispatchKindEnum() throws IOException {
+    skipByte();
   }
 
   @CheckForNull
@@ -158,9 +197,17 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
     return tokenizer.readString();
   }
 
+  public void skipString() throws IOException {
+    tokenizer.skipString();
+  }
+
   @CheckForNull
   public byte[] readBuffer() throws IOException {
     return tokenizer.readBuffer();
+  }
+
+  public void skipBuffer() throws IOException {
+    tokenizer.skipBuffer();
   }
 
   @Nonnull
@@ -173,6 +220,15 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
     }
     tokenizer.readClose();
     return ids;
+  }
+
+  public void skipIds() throws IOException {
+    tokenizer.readOpen();
+    int length = readInt();
+    for (int i = 0; i < length; i++) {
+      skipId();
+    }
+    tokenizer.readClose();
   }
 
   public void readCatchBlockIds() throws IOException {
@@ -196,6 +252,63 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
     }
   }
 
+  public void skipCatchBlockIds() throws IOException {
+    if (tokenizer.readOpenCatchBlockIdAdd()) {
+      int length = tokenizer.readInt();
+      for (int i = 0; i < length; i++) {
+        skipId();
+      }
+      tokenizer.readCloseCatchBlockId();
+    }
+    if (tokenizer.readOpenCatchBlockIdRemove()) {
+      int length = tokenizer.readInt();
+      for (int i = 0; i < length; i++) {
+        skipId();
+      }
+      tokenizer.readCloseCatchBlockId();
+    }
+  }
+
+  public <T extends NNode> void skipNode()
+      throws IOException, JayceFormatException {
+
+    skipCurrentFileName();
+    skipCurrentLine();
+
+    skipCatchBlockIds();
+
+    Token token = tokenizer.next();
+
+    if (token == Token.NULL) {
+      return;
+    }
+
+    tokenizer.readOpen();
+
+    skipNodeInternal(token);
+  }
+
+  private <T extends NNode> void skipNodeInternal(@Nonnull Token token)
+      throws IOException, JayceFormatException {
+
+    try {
+
+      token.skip(this);
+
+      if (nodeLevel != NodeLevel.TYPES) {
+        if (token.hasSourceInfo()) {
+          skipCurrentFileName();
+          skipCurrentLine();
+        }
+        tokenizer.readClose();
+      }
+
+    } catch (InvalidTokenException e) {
+      throw new ParseException(
+          "Unexpected token " + token.toString() + " while expecting node.", e);
+    }
+  }
+
   @SuppressWarnings("unchecked")
   @CheckForNull
   public <T extends NNode> T readNode(@Nonnull Class<T> nodeClass) throws IOException,
@@ -214,17 +327,39 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
     tokenizer.readOpen();
     NNode node;
     try {
+
+      Percent statistic = null;
+      if (token == Token.METHOD_BODY) {
+        statistic = tracer.getStatistic(SKIPPED_BODY);
+      }
+
+      if (!nodeLevel.keep(token.getNodeLevel())) {
+
+        skipNodeInternal(token);
+
+        if (statistic != null) {
+          statistic.addTrue();
+        }
+        return null;
+      }
+
       node = token.newNode();
+
+      if (node instanceof NDeclaredType) {
+        tracer.getStatistic(SKIPPED_TYPE_STRUCTURE).add(nodeLevel == NodeLevel.TYPES);
+      }
+
+      if (statistic != null) {
+        statistic.addFalse();
+      }
+
+
     } catch (InvalidTokenException e) {
       throw new ParseException(
           "Unexpected token " + token.toString() + " while expecting node.", e);
     }
-    Percent statistic = null;
-    if (token == Token.METHOD_BODY) {
-      statistic = tracer.getStatistic(SKIPPED_BODY);
-    } else if (node instanceof NDeclaredType) {
-      tracer.getStatistic(SKIPPED_TYPE_STRUCTURE).add(nodeLevel == NodeLevel.TYPES);
-    }
+
+    assert node != null;
 
     if (!nodeClass.isAssignableFrom(node.getClass())) {
       throw new JayceFormatException("Unexpected node " + node.getClass().getSimpleName() + ", "
@@ -257,17 +392,7 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
       tokenizer.readClose();
     }
 
-    if (nodeLevel.keep(token.getNodeLevel())) {
-      if (statistic != null) {
-        statistic.addFalse();
-      }
-      return (T) node;
-    } else {
-      if (statistic != null) {
-        statistic.addTrue();
-      }
-      return null;
-    }
+    return (T) node;
   }
 
   @Nonnull
@@ -287,36 +412,78 @@ public class JayceInternalReaderImpl implements JayceInternalReader {
 
   }
 
+  public <T extends NNode> void skipNodes() throws IOException,
+      JayceFormatException {
+    tokenizer.readOpen();
+    int length = readInt();
+    for (int i = 0; i < length; i++) {
+      skipNode();
+    }
+    tokenizer.readClose();
+  }
+
   public int readInt() throws IOException {
     return tokenizer.readInt();
+  }
+
+  public void skipInt() throws IOException {
+    tokenizer.skipInt();
   }
 
   public byte readByte() throws IOException {
     return tokenizer.readByte();
   }
 
+  public void skipByte() throws IOException {
+    tokenizer.skipByte();
+  }
+
   public boolean readBoolean() throws IOException {
     return tokenizer.readBoolean();
+  }
+
+  public void skipBoolean() throws IOException {
+    tokenizer.skipBoolean();
   }
 
   public long readLong() throws IOException {
     return tokenizer.readLong();
   }
 
+  public void skipLong() throws IOException {
+    tokenizer.skipLong();
+  }
+
   public short readShort() throws IOException {
     return tokenizer.readShort();
+  }
+
+  public void skipShort() throws IOException {
+    tokenizer.skipShort();
   }
 
   public char readChar() throws IOException {
     return tokenizer.readChar();
   }
 
+  public void skipChar() throws IOException {
+    tokenizer.skipChar();
+  }
+
   public float readFloat() throws IOException {
     return tokenizer.readFloat();
   }
 
+  public void skipFloat() throws IOException {
+    tokenizer.skipFloat();
+  }
+
   public double readDouble() throws IOException {
     return tokenizer.readDouble();
+  }
+
+  public void skipDouble() throws IOException {
+    tokenizer.skipDouble();
   }
 
   @Override

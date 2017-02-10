@@ -16,8 +16,8 @@
 
 apply plugin: 'java'
 
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 apply from: "$rootDir/gradle-script/checkstyle.gradle"
 apply from: "$rootDir/gradle-script/findbugs.gradle"
@@ -34,6 +34,7 @@ dependencies {
   compile project(':args4j')
   compile project(':dexlib')
   compile project(':jack')
+  compile project(':sched')
   compileOnly libs.jsr305
   compile libs.guava
 }

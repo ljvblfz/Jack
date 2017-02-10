@@ -64,6 +64,10 @@ public class NDoubleLiteral extends NLiteral {
 
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipDouble();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

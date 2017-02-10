@@ -13,6 +13,7 @@ LOCAL_MODULE_TAGS := optional
 
 LOCAL_JAVA_LIBRARIES := \
     jack \
+    schedlib \
     dexlib-jack \
     jsr305lib-jack \
     args4j-jack
@@ -30,6 +31,7 @@ LOCAL_MODULE_TAGS := optional
 
 LOCAL_STATIC_JAVA_LIBRARIES := \
     jack \
+    schedlib \
     dexlib-jack \
     jsr305lib-jack \
     args4j-jack

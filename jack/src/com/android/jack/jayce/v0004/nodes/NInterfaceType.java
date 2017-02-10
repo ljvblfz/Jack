@@ -166,6 +166,21 @@ public class NInterfaceType extends NDeclaredType {
     }
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    NodeLevel nodeLevel = in.getNodeLevel();
+    in.skipInt();
+    in.skipId();
+    if (nodeLevel != NodeLevel.TYPES) {
+      in.skipIds();
+      in.skipId();
+      in.skipIds();
+      in.skipNodes();
+      in.skipNodes();
+      in.skipNodes();
+      in.skipNodes();
+    }
+  }
+
   @Nonnull
   @Override
   public Token getToken() {

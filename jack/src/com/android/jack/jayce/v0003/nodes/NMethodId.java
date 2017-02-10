@@ -25,7 +25,6 @@ import com.android.jack.jayce.v0003.NNode;
 import com.android.jack.jayce.v0003.io.ExportSession;
 import com.android.jack.jayce.v0003.io.ImportHelper;
 import com.android.jack.jayce.v0003.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0003.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0003.io.Token;
 import com.android.jack.lookup.JMethodLookupException;
 
@@ -76,15 +75,6 @@ public class NMethodId extends NNode {
       mthId.addParam(exportSession.getLookup().getType(paramSig));
     }
     return new JMethodId(mthId, returnType);
-  }
-
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    assert methodKind != null;
-    out.writeId(name);
-    out.writeMethodKindEnum(methodKind);
-    out.writeId(returnTypeSig);
-    out.writeIds(paramTypeSigs);
   }
 
   @Override

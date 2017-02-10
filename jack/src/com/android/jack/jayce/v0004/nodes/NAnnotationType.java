@@ -152,6 +152,22 @@ public class NAnnotationType extends NInterfaceType {
     }
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    NodeLevel level = in.getNodeLevel();
+    in.skipRetentionPolicyEnum();
+    in.skipInt();
+    in.skipId();
+    if (level != NodeLevel.TYPES) {
+      in.skipIds();
+      in.skipId();
+      in.skipIds();
+      in.skipNodes();
+      in.skipNodes();
+      in.skipNodes();
+      in.skipNodes();
+    }
+  }
+
   @Nonnull
   @Override
   public Token getToken() {

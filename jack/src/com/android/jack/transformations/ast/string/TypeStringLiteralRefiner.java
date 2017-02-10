@@ -32,6 +32,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Refine JStringLiteral in types into more specific string literals.")
 @Use(StringLiteralRefinerVisitor.class)
+// Uses StringLiteralRefinerVisitor which looks up types.
 @Access(JSession.class)
 @Transform(add = StringLiteralRefined.Type.class)
 public class TypeStringLiteralRefiner implements RunnableSchedulable<JDefinedClassOrInterface> {
@@ -40,7 +41,7 @@ public class TypeStringLiteralRefiner implements RunnableSchedulable<JDefinedCla
   public void run(@Nonnull JDefinedClassOrInterface type) {
     TransformationRequest tr = new TransformationRequest(type);
     StringLiteralRefinerVisitor visitor = new StringLiteralRefinerVisitor(tr);
-    visitor.accept(type);
+    visitor.accept(type.getAnnotations());
     tr.commit();
   }
 

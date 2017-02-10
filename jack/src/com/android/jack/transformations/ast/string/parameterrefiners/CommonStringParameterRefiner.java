@@ -25,6 +25,7 @@ import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JExpression;
 import com.android.jack.ir.ast.JMethodCall;
 import com.android.jack.ir.ast.JReferenceType;
+import com.android.jack.ir.ast.JReinterpretCastOperation;
 import com.android.jack.ir.ast.JStringLiteral;
 import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.formatter.BinarySignatureFormatter;
@@ -81,6 +82,9 @@ abstract class CommonStringParameterRefiner {
 
     if (arg instanceof JStringLiteral) {
       return (JStringLiteral) arg;
+    } else if (arg instanceof JReinterpretCastOperation
+        && ((JReinterpretCastOperation) arg).getExpr() instanceof JStringLiteral) {
+      return (JStringLiteral) ((JReinterpretCastOperation) arg).getExpr();
     }
 
     return null;

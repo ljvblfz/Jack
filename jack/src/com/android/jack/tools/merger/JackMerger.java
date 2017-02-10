@@ -34,6 +34,8 @@ import com.android.jack.dx.rop.cst.CstString;
 import com.android.jack.dx.rop.type.StdTypeList;
 import com.android.jack.dx.rop.type.Type;
 import com.android.jack.dx.rop.type.TypeList;
+import com.android.sched.util.file.CannotWriteException;
+import com.android.sched.util.location.HasLocation;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -142,13 +144,18 @@ public class JackMerger extends MergerTools {
     }
   }
 
-  public void finish(@Nonnull OutputStream out) throws IOException {
+  public void finish(@Nonnull OutputStream out, @Nonnull HasLocation locationProvider)
+      throws CannotWriteException {
     dexResult.prepare(cstManager.getCstStrings(), cstManager.getCstFieldRefs(),
         cstManager.getCstMethodRefs(), cstManager.getTypes(), cstManager.getCstPrototypeRefs());
     if (!cstManager.validate(dexResult)) {
       throw new AssertionError();
     }
-    dexResult.writeTo(out, null /* humanOut */, false /* verbose */);
+    try {
+      dexResult.writeTo(out, null /* humanOut */, false /* verbose */);
+    } catch (IOException e) {
+      throw new CannotWriteException(locationProvider);
+    }
     finished = true;
   }
 

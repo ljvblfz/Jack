@@ -51,9 +51,8 @@ public class Variable {
   /* Index of local variable, -1 means the variable does not represent a local variable. */
   private final int localIdx;
 
-  public Variable(@Nonnull String id, @CheckForNull String name, @Nonnull Type type,
-      @CheckForNull String signature) {
-    this(id, name, type, signature, NO_LOCAL_IDX, Opcodes.ACC_SYNTHETIC);
+  public Variable(@Nonnull String id, @CheckForNull String name, @Nonnull Type type) {
+    this(id, name, type, null, NO_LOCAL_IDX, Opcodes.ACC_SYNTHETIC);
   }
 
   public Variable(@Nonnull String id, @CheckForNull String name, @Nonnull Type type,

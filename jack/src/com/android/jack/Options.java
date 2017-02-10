@@ -36,8 +36,6 @@ import com.android.jack.plugin.JackPluginJarCodec;
 import com.android.jack.plugin.NotJackPluginException;
 import com.android.jack.plugin.PluginManager;
 import com.android.jack.plugin.PluginNotFoundException;
-import com.android.jack.reporting.Reportable;
-import com.android.jack.reporting.Reportable.ProblemLevel;
 import com.android.jack.reporting.Reporter;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.resource.ResourceImporter;
@@ -49,6 +47,8 @@ import com.android.jack.shrob.obfuscation.annotation.AnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.ParameterAnnotationRemover;
 import com.android.jack.shrob.seed.SeedPrinter;
 import com.android.jack.shrob.spec.Flags;
+import com.android.jack.transformations.enums.opt.OptimizedSwitchEnumSupport;
+import com.android.jack.transformations.enums.opt.SwitchEnumOptStrategy;
 import com.android.jack.transformations.lambda.LambdaGroupingScope;
 import com.android.jack.transformations.renamepackage.PackageRenamer;
 import com.android.jack.util.AndroidApiLevel;
@@ -155,28 +155,6 @@ public class Options {
   @Nonnull
   private static final Logger logger = LoggerFactory.getLogger();
 
-  private static class DeprecatedVerbosity implements Reportable {
-    @Nonnull
-    private final VerbosityLevel verbosity;
-
-    private DeprecatedVerbosity(@Nonnull VerbosityLevel verbosity) {
-      this.verbosity = verbosity;
-    }
-
-    @Override
-    @Nonnull
-    public String getMessage() {
-      return "Verbosity level '" + verbosity.name().toLowerCase() + "' is deprecated";
-    }
-
-    @Override
-    @Nonnull
-    public ProblemLevel getDefaultProblemLevel() {
-      return ProblemLevel.WARNING;
-    }
-
-  }
-
   /**
    * Assertion policies
    */
@@ -269,19 +247,6 @@ public class Options {
   public static final BooleanPropertyId GENERATE_DEX_FILE =
       BooleanPropertyId.create("jack.dex", "Generate dex file").addDefaultValue(Boolean.FALSE)
           .addCategory(DumpInLibrary.class);
-
-  /**
-   * property used to specify the kind of switch enum optimization that is enabled. See(@link
-   * SwitchEnumOptStrategy)
-   */
-  @Nonnull
-  public static final EnumPropertyId<SwitchEnumOptStrategy> OPTIMIZED_ENUM_SWITCH =
-      EnumPropertyId.create(
-              "jack.optimization.enum.switch", "Optimize enum switch", SwitchEnumOptStrategy.class)
-          .addDefaultValue(SwitchEnumOptStrategy.NEVER)
-          .ignoreCase()
-          .addCategory(DumpInLibrary.class)
-          .addCategory(PrebuiltCompatibility.class);
 
   @Nonnull
   public static final BooleanPropertyId GENERATE_DEX_IN_LIBRARY = BooleanPropertyId
@@ -430,63 +395,6 @@ public class Options {
           Collections.<String, String>emptyMap());
 
   private final File propertiesFile = null;
-
-  /**
-   * Jack verbosity level.
-   * Note: The implementation of {@link ProblemLevel} assumes that the ordinal values of
-   * {@link VerbosityLevel} are ordered from the highest severity to the lowest.
-   */
-  @VariableName("level")
-  public enum VerbosityLevel {
-    @EnumName(name = "error")
-    ERROR("error"),
-    @EnumName(name = "warning")
-    WARNING("warning"),
-    @EnumName(name = "info")
-    INFO("info"),
-    @EnumName(name = "debug", hide = true)
-    @Deprecated DEBUG("debug"),
-    @EnumName(name = "trace", hide = true)
-    @Deprecated TRACE("trace");
-
-    @Nonnull
-    private final String id;
-
-    VerbosityLevel(@Nonnull String id) {
-      this.id = id;
-    }
-
-    public String getId() {
-      return id;
-    }
-  }
-
-  /**
-   * Types of switch enum optimization strategies.
-   * 1. feedback (set on by default)
-   * 2. always
-   * 3. never
-   */
-  @VariableName("strategy")
-  public enum SwitchEnumOptStrategy {
-    // feedback-based optimization: this strategy will be enabled/disabled based on the
-    // compile time information collected, e.g., if it is detected that an enum is only
-    // used in one/few switch statements, it is useless to optimize it. Potentially enable
-    // this strategy will cost more compilation time, but save more dex code
-    @EnumName(name = "feedback")
-    FEEDBACK(),
-    // different from feedback-based optimization, always strategy doesn't collect compile-
-    // time information to guide switch enum optimization. It will always enable switch enum
-    // optimization no matter the enum is rarely/frequently used. Ideally this strategy will
-    // compile code quicker than feedback-based strategy does, but the generated dex may be
-    // larger than feedback strategy
-    @EnumName(name = "always")
-    ALWAYS(),
-    // this actually is not real strategy, but we still need it because switch enum
-    // optimization is disabled when incremental compilation is triggered
-    @EnumName(name = "never")
-    NEVER();
-  }
 
   @Nonnull
   public static final EnumPropertyId<VerbosityLevel> VERBOSITY_LEVEL = EnumPropertyId.create(
@@ -1343,7 +1251,8 @@ public class Options {
       // if the incremental compilation is enabled, the switch enum optimization cannot
       // be enabled because it will generates non-deterministic code. This has to be done after
       // -D options are set
-      configBuilder.set(OPTIMIZED_ENUM_SWITCH.getName(), SwitchEnumOptStrategy.NEVER);
+      configBuilder.set(
+          OptimizedSwitchEnumSupport.OPTIMIZED_ENUM_SWITCH.getName(), SwitchEnumOptStrategy.NEVER);
     }
 
     configBuilder.processEnvironmentVariables("JACK_CONFIG_");
@@ -1391,7 +1300,9 @@ public class Options {
     }
 
     if (verbose == VerbosityLevel.DEBUG || verbose == VerbosityLevel.TRACE) {
-      config.get(Reporter.REPORTER).report(Severity.NON_FATAL, new DeprecatedVerbosity(verbose));
+      config
+          .get(Reporter.REPORTER)
+          .report(Severity.NON_FATAL, new VerbosityLevel.DeprecatedVerbosity(verbose));
     }
   }
 

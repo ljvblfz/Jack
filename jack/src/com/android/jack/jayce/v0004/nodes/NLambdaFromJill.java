@@ -53,6 +53,10 @@ public class NLambdaFromJill extends NMarker {
   public void readContent(@Nonnull JayceInternalReaderImpl in) {
   }
 
+  @SuppressWarnings("unused")
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) {
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

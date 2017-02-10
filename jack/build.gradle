@@ -24,8 +24,8 @@ findbugs {
     excludeFilter = file("config/findbugs/findbugs-exclude.xml")
 }
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 sourceSets {
     main {
@@ -160,13 +160,22 @@ task jarjar(type:Exec, dependsOn: [':jarjar:jar', fullJackJar]) {
   commandLine 'java', '-jar', configurations.jarjar.singleFile, 'process', "jarjar-rules.txt", fullJackJar.archivePath, file("${buildDir}/libs/jack.jar")
 }
 
+task jackDevJar (type: Jar, dependsOn: jarjar){
+  baseName 'jack'
+  classifier 'dev'
+  from (zipTree("${buildDir}/libs/jack.jar")) {
+    // Manage exclusion of packages to be hidden from plugin developers
+  }
+}
+
 compileJava.dependsOn preprocessorParserTask
 compileJava.dependsOn proguardParserTask
 jar.dependsOn createJackVersionFile
-assemble.dependsOn jarjar
+assemble.dependsOn jarjar, jackDevJar
 
 task dist (type: Copy, dependsOn: assemble) {
   from file("${buildDir}/libs/jack.jar")
+  from jackDevJar.archivePath
   into file("${rootDir}/gradle-dist/")
 }
 
@@ -240,8 +249,8 @@ project(':jack:jack-annotations') {
   apply plugin: 'java'
   apply plugin: 'com.github.johnrengelman.shadow'
 
-  sourceCompatibility = 1.6
-  targetCompatibility = 1.6
+  sourceCompatibility = 1.8
+  targetCompatibility = 1.8
 
   compileJava.options.encoding = 'UTF-8'
 

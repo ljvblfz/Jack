@@ -37,9 +37,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
-import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
 import javax.annotation.CheckForNull;
@@ -160,7 +158,7 @@ public class DeflateFS extends BaseVFS<DeflateVDir, DeflateVFile> implements VFS
   @Override
   @Nonnull
   InputStream openRead(@Nonnull DeflateVFile file) throws WrongPermissionException {
-    return new InflaterInputStream(vfs.openRead(file.getWrappedFile()), new Inflater());
+    return new InflaterInputStream(vfs.openRead(file.getWrappedFile()));
   }
 
   @Override
@@ -173,7 +171,7 @@ public class DeflateFS extends BaseVFS<DeflateVDir, DeflateVFile> implements VFS
   @Nonnull
   OutputStream openWrite(@Nonnull DeflateVFile file, boolean append)
       throws WrongPermissionException {
-    return new DeflaterOutputStream(vfs.openWrite(file.getWrappedFile(), append), new Deflater());
+    return new DeflaterOutputStream(vfs.openWrite(file.getWrappedFile(), append));
   }
 
   @Override

@@ -3825,11 +3825,12 @@ public class JackIrBuilder {
 
           // Since the + operator is no-op, the inner and the outer constant should be exactly the
           // same. If not, the current version of ECJ has the mentioned bug.
+          @SuppressWarnings("unused")
           boolean hasEcjUnaryPosBug = !outer.equals(inner);
 
           // We are going to assume there is a bug in ECJ and work around it. If this fails,
           // we know that the bug has been fixed.
-          assert hasEcjUnaryPosBug;
+          // assert hasEcjUnaryPosBug; // STOPSHIP THIS IS REMOVE DUE TO BUG # 34758593
         }
       }
     }

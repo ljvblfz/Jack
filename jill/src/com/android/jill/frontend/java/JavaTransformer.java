@@ -50,6 +50,7 @@ import com.android.sched.vfs.PrefixedFS;
 import com.android.sched.vfs.VFS;
 import com.android.sched.vfs.VPath;
 import com.android.sched.vfs.WriteZipFS;
+import com.android.sched.vfs.WrongVFSTypeException;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
@@ -200,9 +201,15 @@ public class JavaTransformer {
     Service service = mdCodec.parseString(new CodecContext(), "SHA");
 
     try {
-      return new GenericOutputVFS(new DeflateFS(new MessageDigestFS(
-          new PrefixedFS(baseVFS, new VPath("jayce", '/')), new MessageDigestFactory(service))));
-    } catch (NotDirectoryException | CannotCreateFileException | BadVFSFormatException e) {
+      return new GenericOutputVFS(
+          new DeflateFS(
+              new MessageDigestFS(
+                  new PrefixedFS(baseVFS, new VPath("jayce", '/'), Existence.MAY_EXIST),
+                  new MessageDigestFactory(service))));
+    } catch (NotDirectoryException
+        | CannotCreateFileException
+        | BadVFSFormatException
+        | WrongVFSTypeException e) {
       throw new JillException(e);
     }
   }

@@ -22,7 +22,6 @@ import com.android.jack.jayce.linker.ParameterRefLinker;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
 
 import java.io.IOException;
@@ -60,11 +59,6 @@ public class NParameterRef extends NExpression {
         JParameterUnresolved.INSTANCE.makeRef(sourceInfo.exportAsJast(exportSession));
     exportSession.getParameterResolver().addLink(localId, new ParameterRefLinker(jRef));
     return jRef;
-  }
-
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    out.writeId(localId);
   }
 
   @Override

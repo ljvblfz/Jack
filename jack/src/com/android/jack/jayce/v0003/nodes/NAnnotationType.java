@@ -29,7 +29,6 @@ import com.android.jack.jayce.NodeLevel;
 import com.android.jack.jayce.v0003.io.ExportSession;
 import com.android.jack.jayce.v0003.io.ImportHelper;
 import com.android.jack.jayce.v0003.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0003.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0003.io.Token;
 import com.android.jack.util.NamingTools;
 
@@ -118,21 +117,6 @@ public class NAnnotationType extends NInterfaceType {
     for (NMarker marker : markers) {
       jInterfaceType.addMarker(marker.exportAsJast(exportSession));
     }
-  }
-
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    assert retentionPolicy != null;
-    out.writeRetentionPolicyEnum(retentionPolicy);
-    out.writeInt(modifiers);
-    out.writeId(signature);
-    out.writeIds(superInterfaces);
-    out.writeId(enclosingType);
-    out.writeIds(inners);
-    out.writeNodes(getFields());
-    out.writeNodes(getMethods());
-    out.writeNodes(annotations);
-    out.writeNodes(markers);
   }
 
   @Override

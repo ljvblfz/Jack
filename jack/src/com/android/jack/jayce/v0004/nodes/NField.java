@@ -142,6 +142,15 @@ public class NField extends NNode implements HasSourceInfo, FieldNode {
 
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipInt();
+    in.skipId();
+    in.skipId();
+    in.skipNode();
+    in.skipNodes();
+    in.skipNodes();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

@@ -75,6 +75,11 @@ public class NAsgMulOperation extends NExpression {
     rhs = in.readNode(NExpression.class);
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipNode();
+    in.skipNode();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

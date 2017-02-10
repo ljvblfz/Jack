@@ -24,7 +24,6 @@ import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
 import com.android.jack.lookup.JMethodLookupException;
 
@@ -69,12 +68,6 @@ public class NInstanceOf extends NExpression {
     SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JInstanceOf jInstanceOf = new JInstanceOf(jSourceInfo, jType, jExpr);
     return jInstanceOf;
-  }
-
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    out.writeNode(expr);
-    out.writeId(testType);
   }
 
   @Override

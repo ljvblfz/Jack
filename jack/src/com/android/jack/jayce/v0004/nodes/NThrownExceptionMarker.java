@@ -70,6 +70,10 @@ public class NThrownExceptionMarker extends NMarker {
     thrownExceptions = in.readIds();
   }
 
+  public static void skipContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
+    in.skipIds();
+  }
+
   @Override
   @Nonnull
   public Token getToken() {

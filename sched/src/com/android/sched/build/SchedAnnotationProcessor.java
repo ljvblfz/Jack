@@ -16,6 +16,8 @@
 
 package com.android.sched.build;
 
+import com.android.sched.util.findbugs.SuppressFBWarnings;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -99,9 +101,10 @@ public class SchedAnnotationProcessor extends AbstractProcessor {
     FILTER("com.android.sched.schedulable.ComponentFilter") {
       @Override
       @Nonnull
+      @SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE") // probably a FindBugs bug
       public TypeMirror getTypeMirror() throws AbortException {
         return env.getTypeUtils().getDeclaredType(getTypeElement(),
-               env.getTypeUtils().getWildcardType(null, null));
+            env.getTypeUtils().getWildcardType(null, null));
       }
     },
     PRODUCTION("com.android.sched.item.Production"),
@@ -145,6 +148,7 @@ public class SchedAnnotationProcessor extends AbstractProcessor {
       if (typeElement == null) {
         typeElement = env.getElementUtils().getTypeElement(getCanonicalName(fqName));
         if (typeElement == null) {
+          assert env != null;
           env.getMessager().printMessage(Kind.ERROR, "Can not get element type '" + fqName + "'");
           throw new AbortException();
         }

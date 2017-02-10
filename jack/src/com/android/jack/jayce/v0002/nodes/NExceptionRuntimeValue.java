@@ -22,7 +22,6 @@ import com.android.jack.ir.ast.JTypeLookupException;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
 
 import java.io.IOException;
@@ -59,11 +58,6 @@ public class NExceptionRuntimeValue extends NExpression {
     return new JExceptionRuntimeValue(
         sourceInfo.exportAsJast(exportSession),
         (JClassOrInterface) exportSession.getLookup().getType(catchedType));
-  }
-
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    out.writeId(catchedType);
   }
 
   @Override
