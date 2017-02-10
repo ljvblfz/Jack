@@ -25,7 +25,6 @@ import com.android.jack.jayce.linker.CatchBlockLinker;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
 import com.android.jack.lookup.JMethodLookupException;
 
@@ -83,12 +82,6 @@ public class NSynchronizedBlock extends NStatement {
           .addLink(catchId, new CatchBlockLinker(jSynchronizedBlock));
     }
     return jSynchronizedBlock;
-  }
-
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    out.writeNode(lockExpr);
-    out.writeNode(synchronizedBlock);
   }
 
   @Override

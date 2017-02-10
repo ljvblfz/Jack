@@ -24,7 +24,6 @@ import com.android.jack.jayce.linker.CatchBlockLinker;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
 import com.android.jack.lookup.JMethodLookupException;
 
@@ -85,13 +84,6 @@ public class NLabeledStatement extends NStatement {
       exportSession.getCatchBlockResolver().addLink(catchId, new CatchBlockLinker(jLabeled));
     }
     return jLabeled;
-  }
-
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    out.writeString(label);
-    out.writeId(id);
-    out.writeNode(body);
   }
 
   @Override

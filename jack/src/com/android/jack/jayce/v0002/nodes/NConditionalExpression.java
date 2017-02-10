@@ -23,7 +23,6 @@ import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
 import com.android.jack.lookup.JMethodLookupException;
 
@@ -76,13 +75,6 @@ public class NConditionalExpression extends NExpression {
     JConditionalExpression jConditionalExpression =
         new JConditionalExpression(jSourceInfo, jIf, jThen, jElse);
     return jConditionalExpression;
-  }
-
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    out.writeNode(ifTest);
-    out.writeNode(thenExpr);
-    out.writeNode(elseExpr);
   }
 
   @Override

@@ -22,7 +22,6 @@ import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
 
 import java.io.IOException;
@@ -60,11 +59,6 @@ public class NThisRef extends NExpression {
     assert jThis != null;
     JThisRef jThisRef = jThis.makeRef(jSourceInfo);
     return jThisRef;
-  }
-
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    out.writeId(type);
   }
 
   @Override

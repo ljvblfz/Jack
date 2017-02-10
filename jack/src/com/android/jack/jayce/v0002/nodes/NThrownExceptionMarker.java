@@ -22,7 +22,6 @@ import com.android.jack.ir.ast.marker.ThrownExceptionMarker;
 import com.android.jack.jayce.v0002.io.ExportSession;
 import com.android.jack.jayce.v0002.io.ImportHelper;
 import com.android.jack.jayce.v0002.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0002.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0002.io.Token;
 
 import java.io.IOException;
@@ -58,11 +57,6 @@ public class NThrownExceptionMarker extends NMarker {
       jThrownExceptions.add(exportSession.getLookup().getClass(exceptionName));
     }
     return new ThrownExceptionMarker(jThrownExceptions);
-  }
-
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    out.writeIds(thrownExceptions);
   }
 
   @Override
