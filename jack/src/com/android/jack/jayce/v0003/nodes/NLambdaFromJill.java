@@ -19,7 +19,6 @@ package com.android.jack.jayce.v0003.nodes;
 import com.android.jack.jayce.v0003.io.ExportSession;
 import com.android.jack.jayce.v0003.io.ImportHelper;
 import com.android.jack.jayce.v0003.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0003.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0003.io.Token;
 import com.android.jack.transformations.lambda.LambdaFromJillMarker;
 
@@ -43,10 +42,6 @@ public class NLambdaFromJill extends NMarker {
   @Nonnull
   public LambdaFromJillMarker exportAsJast(@Nonnull ExportSession exportSession) {
     return LambdaFromJillMarker.INSTANCE;
-  }
-
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) {
   }
 
   @Override

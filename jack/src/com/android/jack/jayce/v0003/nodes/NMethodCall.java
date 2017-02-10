@@ -29,7 +29,6 @@ import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0003.io.ExportSession;
 import com.android.jack.jayce.v0003.io.ImportHelper;
 import com.android.jack.jayce.v0003.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0003.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0003.io.Token;
 import com.android.jack.lookup.JMethodLookupException;
 
@@ -134,26 +133,6 @@ public class NMethodCall extends NExpression {
       jMethodCall.addArg(arg.exportAsJast(exportSession));
     }
     return jMethodCall;
-  }
-
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    assert receiverType != null;
-    assert receiverKind != null;
-    assert methodName != null;
-    assert methodKind != null;
-    assert returnType != null;
-    assert dispatchKind != null;
-    assert sourceInfo != null;
-    out.writeNode(instance);
-    out.writeId(receiverType);
-    out.writeReceiverKindEnum(receiverKind);
-    out.writeId(methodName);
-    out.writeIds(methodArgsType);
-    out.writeMethodKindEnum(methodKind);
-    out.writeId(returnType);
-    out.writeNodes(args);
-    out.writeDispatchKindEnum(dispatchKind);
   }
 
   @Override

@@ -26,7 +26,6 @@ import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0003.io.ExportSession;
 import com.android.jack.jayce.v0003.io.ImportHelper;
 import com.android.jack.jayce.v0003.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0003.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0003.io.Token;
 import com.android.jack.lookup.JMethodLookupException;
 
@@ -77,15 +76,6 @@ public class NNewInstance extends NMethodCall {
       jNewInstance.addArg(arg.exportAsJast(exportSession));
     }
     return jNewInstance;
-  }
-
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    assert instance == null;
-    assert methodKind == null;
-    out.writeId(receiverType);
-    out.writeIds(methodArgsType);
-    out.writeNodes(args);
   }
 
   @Override

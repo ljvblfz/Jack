@@ -21,7 +21,6 @@ import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0003.io.ExportSession;
 import com.android.jack.jayce.v0003.io.ImportHelper;
 import com.android.jack.jayce.v0003.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0003.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0003.io.Token;
 
 import java.io.IOException;
@@ -59,14 +58,8 @@ public class NLongLiteral extends NLiteral {
   }
 
   @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    out.writeLong(value);
-  }
-
-  @Override
   public void readContent(@Nonnull JayceInternalReaderImpl in) throws IOException {
     value = in.readLong();
-    
   }
 
   @Override

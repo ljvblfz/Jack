@@ -23,7 +23,6 @@ import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.jayce.v0003.io.ExportSession;
 import com.android.jack.jayce.v0003.io.ImportHelper;
 import com.android.jack.jayce.v0003.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0003.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0003.io.Token;
 
 import java.io.IOException;
@@ -60,11 +59,6 @@ public class NAlloc extends NExpression {
     SourceInfo jSourceInfo = sourceInfo.exportAsJast(exportSession);
     JAlloc jAlloc = new JAlloc(jSourceInfo, jType);
     return jAlloc;
-  }
-
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    out.writeId(instanceType);
   }
 
   @Override

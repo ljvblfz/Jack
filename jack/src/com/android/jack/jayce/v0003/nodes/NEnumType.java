@@ -30,7 +30,6 @@ import com.android.jack.jayce.NodeLevel;
 import com.android.jack.jayce.v0003.io.ExportSession;
 import com.android.jack.jayce.v0003.io.ImportHelper;
 import com.android.jack.jayce.v0003.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0003.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0003.io.Token;
 import com.android.jack.lookup.JMethodLookupException;
 import com.android.jack.util.NamingTools;
@@ -135,23 +134,6 @@ public class NEnumType extends NClassType {
       jEnumType.addMarker(marker.exportAsJast(exportSession));
     }
     exportSession.getFieldInitializerFieldResolver().clear();
-  }
-
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    out.writeInt(modifiers);
-    out.writeId(signature);
-    out.writeId(superClass);
-    out.writeIds(superInterfaces);
-    out.writeId(enclosingType);
-    out.writeId(enclosingMethodClass);
-    out.writeId(enclosingMethod);
-    out.writeIds(inners);
-    out.writeNodes(getFields());
-    out.writeNodes(getMethods());
-    out.writeNodes(annotations);
-    out.writeNodes(markers);
-
   }
 
   @Override

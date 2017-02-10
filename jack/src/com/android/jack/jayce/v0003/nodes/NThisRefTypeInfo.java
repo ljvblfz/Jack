@@ -20,7 +20,6 @@ import com.android.jack.ir.ast.marker.ThisRefTypeInfo;
 import com.android.jack.jayce.v0003.io.ExportSession;
 import com.android.jack.jayce.v0003.io.ImportHelper;
 import com.android.jack.jayce.v0003.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0003.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0003.io.Token;
 
 import java.io.IOException;
@@ -53,11 +52,6 @@ public class NThisRefTypeInfo extends NMarker {
     ThisRefTypeInfo marker = new ThisRefTypeInfo(genericSignature);
 
     return marker;
-  }
-
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    out.writeString(genericSignature);
   }
 
   @Override

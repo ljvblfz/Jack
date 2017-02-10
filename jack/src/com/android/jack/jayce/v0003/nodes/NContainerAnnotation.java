@@ -20,7 +20,6 @@ import com.android.jack.ir.ast.JRetentionPolicy;
 import com.android.jack.jayce.v0003.io.ExportSession;
 import com.android.jack.jayce.v0003.io.ImportHelper;
 import com.android.jack.jayce.v0003.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0003.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0003.io.Token;
 import com.android.jack.transformations.annotation.ContainerAnnotationMarker;
 
@@ -57,13 +56,6 @@ public class NContainerAnnotation extends NMarker {
     assert annotationTypeSig != null;
     return new ContainerAnnotationMarker(
         exportSession.getLookup().getAnnotationType(annotationTypeSig), retentionPolicy);
-  }
-
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    assert retentionPolicy != null;
-    out.writeRetentionPolicyEnum(retentionPolicy);
-    out.writeId(annotationTypeSig);
   }
 
   @Override

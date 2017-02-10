@@ -24,7 +24,6 @@ import com.android.jack.jayce.linker.CatchBlockLinker;
 import com.android.jack.jayce.v0003.io.ExportSession;
 import com.android.jack.jayce.v0003.io.ImportHelper;
 import com.android.jack.jayce.v0003.io.JayceInternalReaderImpl;
-import com.android.jack.jayce.v0003.io.JayceInternalWriterImpl;
 import com.android.jack.jayce.v0003.io.Token;
 import com.android.jack.lookup.JMethodLookupException;
 
@@ -95,13 +94,6 @@ public class NSwitchStatement extends NStatement {
       exportSession.getCatchBlockResolver().addLink(catchId, new CatchBlockLinker(jSwitch));
     }
     return jSwitch;
-  }
-
-  @Override
-  public void writeContent(@Nonnull JayceInternalWriterImpl out) throws IOException {
-    out.writeNode(expr);
-    out.writeIds(cases);
-    out.writeNode(body);
   }
 
   @Override
