@@ -20,6 +20,7 @@ import com.android.jack.Jack;
 import com.android.jack.JackAbortException;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.formatter.BinaryQualifiedNameFormatter;
+import com.android.jack.jayce.JayceInternalWriter;
 import com.android.jack.jayce.JayceWriterFactory;
 import com.android.jack.library.FileType;
 import com.android.jack.library.InputLibrary;
@@ -33,15 +34,13 @@ import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.file.CannotCreateFileException;
-import com.android.sched.util.file.CannotReadException;
+import com.android.sched.util.file.CannotWriteException;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
 import com.android.sched.vfs.OutputVFile;
 import com.android.sched.vfs.VPath;
 
 import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 
 import javax.annotation.Nonnull;
 
@@ -81,16 +80,12 @@ public abstract class JayceInLibraryWriter
     try {
       OutputVFile vFile = outputJackLibrary.createFile(FileType.JAYCE,
           new VPath(BinaryQualifiedNameFormatter.getFormatter().getName(type), '/'));
-      try (OutputStream out = new BufferedOutputStream(vFile.getOutputStream())) {
-        try {
-          JayceWriterFactory.get(outputJackLibrary, out).write(type);
-        } catch (IOException e) {
-          throw new CannotReadException(vFile, e);
-        }
-      } catch (IOException e) {
-        throw new CannotCloseException(vFile, e);
+      try (JayceInternalWriter jayceWriter =
+          JayceWriterFactory.get(
+              outputJackLibrary, new BufferedOutputStream(vFile.getOutputStream()), vFile)) {
+        jayceWriter.write(type);
       }
-    } catch (CannotReadException | CannotCloseException | CannotCreateFileException
+    } catch (CannotWriteException | CannotCloseException | CannotCreateFileException
         | WrongPermissionException e) {
       LibraryWritingException reportable =
           new LibraryWritingException(new LibraryIOException(outputJackLibrary.getLocation(), e));

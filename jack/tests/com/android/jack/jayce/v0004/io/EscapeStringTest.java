@@ -23,7 +23,11 @@ import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.config.ConfigurationException;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.CannotChangePermissionException;
+import com.android.sched.util.file.CannotCloseException;
 import com.android.sched.util.file.CannotCreateFileException;
+import com.android.sched.util.location.FileLocation;
+import com.android.sched.util.location.HasLocation;
+import com.android.sched.util.location.Location;
 
 import junit.framework.Assert;
 
@@ -113,7 +117,7 @@ public class EscapeStringTest {
   @Nonnull
   private String writeStringAndReadItAfter(@Nonnull String stringToWrite)
       throws CannotCreateFileException, CannotChangePermissionException, IllegalOptionsException,
-      IOException {
+      CannotCloseException, IOException {
     File tmp = TestTools.createTempFile("tmp", "");
     RunnableHooks hooks = new RunnableHooks();
     try {
@@ -122,7 +126,13 @@ public class EscapeStringTest {
       options.getConfigBuilder(hooks).getCodecContext().setDebug();
       ThreadConfig.setConfig(options.getConfig());
       FileOutputStream fos = new FileOutputStream(tmp);
-      JayceInternalWriterImpl jw = new JayceInternalWriterImpl(fos);
+      JayceInternalWriterImpl jw = new JayceInternalWriterImpl(fos, new HasLocation(){
+        @Override
+        @Nonnull
+        public Location getLocation() {
+          return new FileLocation(tmp);
+        }
+      });
       jw.writeString(stringToWrite);
       jw.close();
       FileInputStream fis = new FileInputStream(tmp);
