@@ -19,6 +19,7 @@
 
   <dirname property="jack-coverage-project.dir" file="${ant.file.jack-coverage}" />
   <property name="jack-coverage-dist.dir" value="${jack-coverage-project.dir}/dist" />
+  <property name="jack-coverage-rsc.dir" value="${jack-coverage-project.dir}/rsc" />
   <property name="jack-coverage-doc.dir" value="${jack-coverage-dist.dir}/doc" />
   <property name="jack-coverage-tests.output.dir"
             value="${jack-coverage-project.dir}/testResults" />
@@ -107,6 +108,10 @@
     <copy todir="${plugin.build.src.classes.dir}">
       <fileset dir="${plugin.rsc.dir}" />
     </copy>
+
+    <!-- Copy the version.properties -->
+    <copy file="${jack-coverage-rsc.dir}/jack-coverage-plugin-version.properties"
+          todir="${plugin.build.src.classes.dir}"/>
 
     <mkdir dir="${jack-coverage-dist.dir}" />
     <jar basedir="${plugin.build.src.classes.dir}"
@@ -303,7 +308,7 @@
     </unzip>
 
     <!-- Reuse the same version.properties than the plugin. -->
-    <copy file="${plugin.rsc.dir}/jack-coverage-plugin-version.properties"
+    <copy file="${jack-coverage-rsc.dir}/jack-coverage-plugin-version.properties"
           tofile="${reporter.build.src.classes.dir}/jack-jacoco-reporter-version.properties"/>
 
     <jar destfile="${jack-coverage-dist.dir}/${reporter.execname}"
