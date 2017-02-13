@@ -29,12 +29,11 @@ import com.android.sched.schedulable.Support;
 import javax.annotation.Nonnull;
 
 /**
- * A {@link RunnableSchedulable} that removes signatures from local variables.
+ * A {@link RunnableSchedulable} that removes signatures from variables.
  */
-@Description("Removes signatures from local variables")
-@Support(RemoveLocalVariableGenericSignature.class)
-public class LocalVariableGenericSignatureRemover implements
-    RunnableSchedulable<JMethod> {
+@Description("Removes signatures from variables")
+@Support(RemoveVariableGenericSignature.class)
+public class VariableGenericSignatureRemover implements RunnableSchedulable<JMethod> {
 
   private static class Visitor extends JVisitor {
 
