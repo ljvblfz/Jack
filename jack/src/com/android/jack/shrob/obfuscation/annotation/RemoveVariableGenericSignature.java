@@ -20,9 +20,9 @@ import com.android.sched.item.Description;
 import com.android.sched.item.Feature;
 
 /**
- * Represents the removal of the generic signatures of a local variable
+ * Represents the removal of the generic signatures of a variable
  */
-@Description("The removal of the generic signatures of a local variable")
-public class RemoveLocalVariableGenericSignature implements Feature {
+@Description("The removal of the generic signatures of a variable")
+public class RemoveVariableGenericSignature implements Feature {
 
 }

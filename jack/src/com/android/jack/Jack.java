@@ -184,7 +184,7 @@ import com.android.jack.shrob.obfuscation.annotation.FieldAnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.FieldGenericSignatureRemover;
 import com.android.jack.shrob.obfuscation.annotation.LineNumberRemover;
 import com.android.jack.shrob.obfuscation.annotation.LocalVariableAndThisNameRemover;
-import com.android.jack.shrob.obfuscation.annotation.LocalVariableGenericSignatureRemover;
+import com.android.jack.shrob.obfuscation.annotation.VariableGenericSignatureRemover;
 import com.android.jack.shrob.obfuscation.annotation.MethodAnnotationRemover;
 import com.android.jack.shrob.obfuscation.annotation.MethodGenericSignatureRemover;
 import com.android.jack.shrob.obfuscation.annotation.ParameterAnnotationRemover;
@@ -194,7 +194,7 @@ import com.android.jack.shrob.obfuscation.annotation.RemoveEnclosingMethodFeatur
 import com.android.jack.shrob.obfuscation.annotation.RemoveEnclosingType;
 import com.android.jack.shrob.obfuscation.annotation.RemoveGenericSignature;
 import com.android.jack.shrob.obfuscation.annotation.RemoveLineNumber;
-import com.android.jack.shrob.obfuscation.annotation.RemoveLocalVariableGenericSignature;
+import com.android.jack.shrob.obfuscation.annotation.RemoveVariableGenericSignature;
 import com.android.jack.shrob.obfuscation.annotation.RemoveLocalVariableName;
 import com.android.jack.shrob.obfuscation.annotation.RemoveParameterName;
 import com.android.jack.shrob.obfuscation.annotation.RemoveThrownException;
@@ -608,7 +608,7 @@ public abstract class Jack {
                 request.addFeature(RemoveAnnotationDefaultValue.class);
               }
               if (!options.flags.keepAttribute("LocalVariableTypeTable")) {
-                request.addFeature(RemoveLocalVariableGenericSignature.class);
+                request.addFeature(RemoveVariableGenericSignature.class);
               }
               if (!options.flags.keepAttribute("Exceptions")) {
                 request.addFeature(RemoveThrownException.class);
@@ -1844,8 +1844,8 @@ public abstract class Jack {
         if (features.contains(RemoveGenericSignature.class)) {
           methodPlan.append(MethodGenericSignatureRemover.class);
         }
-        if (features.contains(RemoveLocalVariableGenericSignature.class)) {
-          methodPlan.append(LocalVariableGenericSignatureRemover.class);
+        if (features.contains(RemoveVariableGenericSignature.class)) {
+          methodPlan.append(VariableGenericSignatureRemover.class);
         }
         if (features.contains(RemoveAnnotationDefaultValue.class)) {
           methodPlan.append(AnnotationDefaultValueRemover.class);
