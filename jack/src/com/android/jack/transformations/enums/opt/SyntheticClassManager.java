@@ -364,14 +364,14 @@ public class SyntheticClassManager {
           sortedEnumType.getMarker(EnumFieldMarker.class);
       assert enumFieldMarker != null;
       sb.append(Jack.getLookupFormatter().getName(sortedEnumType));
-      sb.append(":");
+      sb.append(':');
       enumFieldMarker.sortEnumFields();
       List<JEnumField> sortedEnumFields = enumFieldMarker.getEnumFields();
       for (JEnumField enumField : sortedEnumFields) {
         sb.append(enumField.getName());
-        sb.append(",");
+        sb.append(',');
       }
-      sb.append(".");
+      sb.append('.');
     }
     String sig = sb.toString();
     sb.delete(0, sb.length());

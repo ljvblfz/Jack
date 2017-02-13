@@ -62,8 +62,8 @@ public class StringLiteralRefinerVisitor extends JVisitor {
   @Override
   public boolean visit(@Nonnull JStringLiteral stringLiteral) {
     String strValue = stringLiteral.getValue();
-    boolean hasDot = strValue.contains(".");
-    boolean hasSlash = strValue.contains("/");
+    boolean hasDot = strValue.indexOf('.') != -1;
+    boolean hasSlash = strValue.indexOf('/') != -1;
 
     if (hasDot && hasSlash) {
       // String mixing '.' and '/' is not considered as type.

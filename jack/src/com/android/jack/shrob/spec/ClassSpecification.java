@@ -185,7 +185,7 @@ public class ClassSpecification implements Specification<JDefinedClassOrInterfac
       sb.append('\n');
     }
 
-    sb.append("}");
+    sb.append('}');
 
     return sb.toString();
   }
