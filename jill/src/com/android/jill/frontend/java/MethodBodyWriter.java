@@ -1116,7 +1116,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
       @Nonnull IntInsnNode intInsn) throws IOException {
     if (intInsn.getOpcode() == BIPUSH || intInsn.getOpcode() == SIPUSH) {
       varWithCstValue.put(getStackVariable(nextFrame, TOP_OF_STACK),
-          new Integer(intInsn.operand));
+          Integer.valueOf(intInsn.operand));
       return;
     }
 
@@ -1739,7 +1739,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
       case ICONST_5: {
         assert nextFrame != null;
         varWithCstValue.put(getStackVariable(nextFrame, TOP_OF_STACK),
-            new Integer(insn.getOpcode() - ICONST_0));
+            Integer.valueOf(insn.getOpcode() - ICONST_0));
         break;
       }
       case ACONST_NULL: {
@@ -1751,7 +1751,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
       case LCONST_1: {
         assert nextFrame != null;
         varWithCstValue.put(getStackVariable(nextFrame, TOP_OF_STACK),
-            new Long(insn.getOpcode() - LCONST_0));
+            Long.valueOf(insn.getOpcode() - LCONST_0));
         break;
       }
       case FCONST_0:
@@ -3095,7 +3095,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
 
   @Nonnull
   private Variable getVariableWithLocalIndex(@Nonnegative int localIdx, @Nonnull String id,
-      @Nonnull String name, @Nonnull Type type, @CheckForNull String signature, int modifier) {
+      @CheckForNull String name, @Nonnull Type type, @CheckForNull String signature, int modifier) {
     Variable var = nameToVar.get(id);
 
     if (var == null) {
