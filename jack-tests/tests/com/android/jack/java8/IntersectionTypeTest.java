@@ -27,6 +27,8 @@ import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackApiV01;
 import com.android.jack.test.toolchain.JackCliToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
+import com.android.jack.test.toolchain.LegacyJillToolchain;
+import com.android.jack.test.toolchain.LegacyToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
 import junit.framework.Assert;
@@ -100,6 +102,7 @@ public class IntersectionTypeTest {
           .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
           .addIgnoredCandidateToolchain(JackCliToolchain.class)
           .addIgnoredCandidateToolchain(JackApiV01.class)
+          .addIgnoredCandidateToolchain(LegacyToolchain.class)
           .compileAndRunTest();
       Assert.fail();
     } catch (FrontendCompilationException e) {
@@ -115,6 +118,7 @@ public class IntersectionTypeTest {
           .addProperty(Options.LAMBDA_TO_ANONYMOUS_CONVERTER.getName(), Boolean.TRUE.toString())
           .addIgnoredCandidateToolchain(JackCliToolchain.class)
           .addIgnoredCandidateToolchain(JackApiV01.class)
+          .addIgnoredCandidateToolchain(LegacyToolchain.class)
           .compileAndRunTest();
       Assert.fail();
     } catch (FrontendCompilationException e) {

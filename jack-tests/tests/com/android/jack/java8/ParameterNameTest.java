@@ -26,13 +26,14 @@ import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackApiV01;
 import com.android.jack.test.toolchain.JillBasedToolchain;
+import com.android.jack.test.toolchain.LegacyToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
 import junit.framework.Assert;
 
+import org.jf.dexlib.ClassDataItem.EncodedMethod;
 import org.jf.dexlib.DexFile;
 import org.jf.dexlib.StringIdItem;
-import org.jf.dexlib.ClassDataItem.EncodedMethod;
 import org.junit.Test;
 
 import java.io.File;
@@ -112,6 +113,7 @@ public class ParameterNameTest {
         .setSourceLevel(SourceLevel.JAVA_8)
         .addIgnoredCandidateToolchain(JackApiV01.class)
         .addIgnoredCandidateToolchain(JillBasedToolchain.class)
+        .addIgnoredCandidateToolchain(LegacyToolchain.class)
         .addProperty(ParameterMetadataAnnotationsAdder.PARAMETER_ANNOTATION.getName(), "true")
         .setWithDebugInfos(true).compileAndRunTest();
   }
@@ -129,6 +131,7 @@ public class ParameterNameTest {
         .setSourceLevel(SourceLevel.JAVA_8)
         .addIgnoredCandidateToolchain(JackApiV01.class)
         .addIgnoredCandidateToolchain(JillBasedToolchain.class)
+        .addIgnoredCandidateToolchain(LegacyToolchain.class)
         .addProperty(ParameterMetadataAnnotationsAdder.PARAMETER_ANNOTATION.getName(), "true")
         .setWithDebugInfos(true).compileAndRunTest();
   }
@@ -150,6 +153,7 @@ public class ParameterNameTest {
       }
     })).setSourceLevel(SourceLevel.JAVA_8)
        .addIgnoredCandidateToolchain(JackApiV01.class)
+       .addIgnoredCandidateToolchain(LegacyToolchain.class)
        .addProperty(ParameterMetadataAnnotationsAdder.PARAMETER_ANNOTATION.getName(), "true")
        .setWithDebugInfos(true)
        .compileAndRunTest();
@@ -172,6 +176,7 @@ public class ParameterNameTest {
       }
     })).setSourceLevel(SourceLevel.JAVA_8)
        .addIgnoredCandidateToolchain(JackApiV01.class)
+       .addIgnoredCandidateToolchain(LegacyToolchain.class)
        .addProperty(ParameterMetadataAnnotationsAdder.PARAMETER_ANNOTATION.getName(), "true")
        .setWithDebugInfos(false)
        .compileAndRunTest();
@@ -226,6 +231,7 @@ public class ParameterNameTest {
     new RuntimeTestHelper(rti)
         .setSourceLevel(SourceLevel.JAVA_8)
         .addIgnoredCandidateToolchain(JackApiV01.class)
+        .addIgnoredCandidateToolchain(LegacyToolchain.class)
         .addProperty(ParameterMetadataAnnotationsAdder.PARAMETER_ANNOTATION.getName(), "true")
         .setWithDebugInfos(true)
         .compileAndRunTest();

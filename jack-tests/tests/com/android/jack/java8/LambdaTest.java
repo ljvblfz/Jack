@@ -34,6 +34,7 @@ import com.android.jack.test.toolchain.JackApiV02;
 import com.android.jack.test.toolchain.JackApiV03;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
+import com.android.jack.test.toolchain.LegacyToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
 import junit.framework.Assert;
@@ -335,6 +336,7 @@ public class LambdaTest {
     .setSourceLevel(SourceLevel.JAVA_8)
     // This test must be exclude from the Jill tool-chain because it does not compile with it
     .addIgnoredCandidateToolchain(JillBasedToolchain.class)
+    .addIgnoredCandidateToolchain(LegacyToolchain.class)
     .addIgnoredCandidateToolchain(JackApiV01.class)
     .setWithDebugInfos(true)
     .compileAndRunTest();

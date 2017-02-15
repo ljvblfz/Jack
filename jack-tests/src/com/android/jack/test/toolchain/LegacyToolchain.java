@@ -18,9 +18,11 @@ package com.android.jack.test.toolchain;
 
 import com.google.common.base.Joiner;
 
+import com.android.jack.Options;
 import com.android.jack.test.TestsProperties;
 import com.android.jack.test.util.ExecFileException;
 import com.android.jack.test.util.ExecuteFile;
+import com.android.sched.util.codec.CodecContext;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -49,6 +51,9 @@ public class LegacyToolchain extends AndroidToolchain {
   private final File dxPrebuilt;
 
   private boolean useDxOptimization = true;
+
+  @Nonnull
+  private String minApiLevel = "1";
 
   LegacyToolchain(@Nonnull File legacyCompilerPrebuilt,
       @Nonnull List<File> legacyCompilerBootclasspath,
@@ -229,6 +234,74 @@ public class LegacyToolchain extends AndroidToolchain {
     }
   }
 
+  private void processWithDesugar(@Nonnull File input, @Nonnull File output) throws Exception {
+    boolean assertEnable = false;
+    assert true == (assertEnable = true);
+
+    List<String> commandLine = new ArrayList<String>();
+    commandLine.add("java");
+    commandLine.add(assertEnable ? "-ea" : "-da");
+    commandLine.add("-jar");
+    commandLine.add(AbstractTestTools.getPrebuilt("desugar").getAbsolutePath());
+
+    if (isVerbose) {
+      commandLine.add("--verbose");
+    }
+
+    List<File> tmpClasspath = ensureOnlyFilesOnClasspath(classpath);
+
+    if (tmpClasspath != null) {
+      for (File cpEntry : tmpClasspath) {
+        commandLine.add("--classpath_entry");
+        commandLine.add(cpEntry.getAbsolutePath());
+      }
+    }
+
+    if (Options.ANDROID_MIN_API_LEVEL.getCodec().parseString(new CodecContext(), minApiLevel)
+        .getReleasedLevel() >= 24) {
+      commandLine.add("--min_sdk_version");
+      commandLine.add(minApiLevel);
+    }
+
+    commandLine.add("--input");
+    commandLine.add(input.getAbsolutePath());
+    commandLine.add("--output");
+    commandLine.add(output.getAbsolutePath());
+
+
+    ExecuteFile execFile = new ExecuteFile(commandLine.toArray(new String[commandLine.size()]));
+    execFile.inheritEnvironment();
+    execFile.setOut(outRedirectStream);
+    execFile.setErr(errRedirectStream);
+    execFile.setVerbose(isVerbose);
+
+    try {
+      if (execFile.run() != 0) {
+        throw new RuntimeException("Desugar exited with an error");
+      }
+    } catch (ExecFileException e) {
+      throw new RuntimeException("An error occurred while running Desugar", e);
+    }
+
+  }
+
+
+  @Nonnull
+  private List<File> ensureOnlyFilesOnClasspath(@Nonnull List<File> classpath) throws Exception {
+    List<File> result = new ArrayList<>(classpath.size());
+    for (File item : classpath) {
+      File fileToAdd;
+      if (item.isDirectory()) {
+        fileToAdd = AbstractTestTools.createTempFile("zipped-cp-entry", ".jar");
+        AbstractTestTools.createjar(fileToAdd, item, isVerbose);
+      } else {
+        fileToAdd = item;
+      }
+      result.add(fileToAdd);
+    }
+    return result;
+  }
+
   private void compileWithEcj(@Nonnull File[] sources, @CheckForNull String classpath,
       @Nonnull File out) throws Exception {
     List<String> commandLine = new ArrayList<String>(4 + sources.length);
@@ -261,11 +334,30 @@ public class LegacyToolchain extends AndroidToolchain {
 
     commandLine.add("-noExit");
     commandLine.add("-preserveAllLocals");
+
+    File outputClassesDir = AbstractTestTools.createTempDir();
+
+    if (sourceLevel.compareTo(SourceLevel.JAVA_8) >= 0) {
+      outputClassesDir = AbstractTestTools.createTempDir();
+    } else {
+      outputClassesDir = out;
+    }
+
     commandLine.add("-d");
-    commandLine.add(out.getAbsolutePath());
+    commandLine.add(outputClassesDir.getAbsolutePath());
+
     addSourceList(commandLine, sources);
     org.eclipse.jdt.internal.compiler.batch.Main.main(
         commandLine.toArray(new String[commandLine.size()]));
+
+    if (sourceLevel.compareTo(SourceLevel.JAVA_8) >= 0) {
+      File tmpOutFile = AbstractTestTools.createTempFile("jack-test", "no-desugar.jar");
+      File tmpOutFileDesugared = AbstractTestTools.createTempFile("jack-test", "desugar.jar");
+      AbstractTestTools.zip(outputClassesDir, tmpOutFile, isVerbose);
+      processWithDesugar(tmpOutFile, tmpOutFileDesugared);
+      AbstractTestTools.unzip(tmpOutFileDesugared, out, isVerbose);
+    }
+
   }
 
   @Override
@@ -349,8 +441,16 @@ public class LegacyToolchain extends AndroidToolchain {
 
     addSourceList(commandLine, sources);
 
+    File outputClassesDir = AbstractTestTools.createTempDir();
+
+    if (sourceLevel.compareTo(SourceLevel.JAVA_8) >= 0) {
+      outputClassesDir = AbstractTestTools.createTempDir();
+    } else {
+      outputClassesDir = out;
+    }
+
     commandLine.add("-d");
-    commandLine.add(out.getAbsolutePath());
+    commandLine.add(outputClassesDir.getAbsolutePath());
 
     ExecuteFile execFile = new ExecuteFile(commandLine.toArray(new String[commandLine.size()]));
     execFile.inheritEnvironment();
@@ -363,6 +463,14 @@ public class LegacyToolchain extends AndroidToolchain {
       }
     } catch (ExecFileException e) {
       throw new RuntimeException("An error occurred while running reference compiler", e);
+    }
+
+    if (sourceLevel.compareTo(SourceLevel.JAVA_8) >= 0) {
+      File tmpOutFile = AbstractTestTools.createTempFile("jack-test", "no-desugar.jar");
+      File tmpOutFileDesugared = AbstractTestTools.createTempFile("jack-test", "desugar.jar");
+      AbstractTestTools.zip(outputClassesDir, tmpOutFile, isVerbose);
+      processWithDesugar(tmpOutFile, tmpOutFileDesugared);
+      AbstractTestTools.unzip(tmpOutFileDesugared, out, isVerbose);
     }
   }
 
@@ -424,7 +532,7 @@ public class LegacyToolchain extends AndroidToolchain {
   @Override
   @Nonnull
   public AndroidToolchain setAndroidMinApiLevel(@Nonnull String minApiLevel) throws Exception {
-    // Not used
+    this.minApiLevel = minApiLevel;
     return this;
   }
 }

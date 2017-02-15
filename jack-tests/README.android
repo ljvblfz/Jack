@@ -32,5 +32,7 @@ http://archive.apache.org/dist/ant/source/apache-ant-1.9.6-src.zip
 * Proguard 5.3.2, as a prebuilt jar for jack-tests
 https://sourceforge.net/projects/proguard/files/proguard/5.3/proguard5.3.2.zip/download
 
-
+* Desugar, as a prebuilt jar for jack-tests
+Build from Bazel open source project (commit 5dbb23ba44ec0037cf0944b17716ea3f08a69c27)
+https://github.com/bazelbuild/bazel.git
 

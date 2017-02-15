@@ -22,6 +22,7 @@ import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.LegacyToolchain;
 import com.android.jack.unary.UnaryTests;
 
 import org.junit.BeforeClass;
@@ -55,7 +56,8 @@ public class ReflectTests extends RuntimeTest {
   @Test
   @Runtime
   public void simpleName002() throws Exception {
-    new RuntimeTestHelper(TEST001_WITH_SHRINK_SCHEDULABLE).compileAndRunTest();
+    new RuntimeTestHelper(TEST001_WITH_SHRINK_SCHEDULABLE)
+        .addIgnoredCandidateToolchain(LegacyToolchain.class).compileAndRunTest();
   }
 
   @Override

@@ -196,7 +196,6 @@ public class Tests {
     Assert.assertNull(lambdaClass.getDeclaringClass());
     Assert.assertNull(lambdaClass.getEnclosingClass());
     Assert.assertFalse(lambdaClass.isMemberClass());
-    Assert.assertEquals(1, lambdaClass.getConstructors().length);
 
     Assert.assertNotNull(lambdaClass.getSimpleName());
     Assert.assertNotNull(lambdaClass.getCanonicalName());
