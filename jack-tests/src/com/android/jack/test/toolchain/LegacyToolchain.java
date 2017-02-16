@@ -389,4 +389,11 @@ public class LegacyToolchain extends AndroidToolchain {
     writer.close();
     commandLine.add('@' + sourceList.getAbsolutePath());
   }
+
+  @Override
+  @Nonnull
+  public AndroidToolchain setAndroidMinApiLevel(@Nonnull String minApiLevel) throws Exception {
+    // Not used
+    return this;
+  }
 }

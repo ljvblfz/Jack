@@ -16,7 +16,6 @@
 
 package com.android.jack.java8;
 
-import com.android.jack.Options;
 import com.android.jack.backend.dex.DexFileWriter;
 import com.android.jack.test.TestsProperties;
 import com.android.jack.test.junit.KnownIssue;
@@ -76,8 +75,7 @@ public class LambdaTestPostM {
     toolchain =
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludedToolchains);
     File libDexFolder = AbstractTestTools.createTempDir();
-    toolchain.addProperty(Options.ANDROID_MIN_API_LEVEL.getName(),
-        String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()));
+    toolchain.setAndroidMinApiLevel(String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()));
     toolchain.addToClasspath(defaultClasspath).setSourceLevel(SourceLevel.JAVA_8).libToExe(lib,
         libDexFolder, /* zipFiles = */ false);
 

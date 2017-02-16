@@ -40,4 +40,7 @@ public abstract class AndroidToolchain extends Toolchain {
   @Nonnull
   public abstract AndroidToolchain enableDxOptimizations();
 
+  @Nonnull
+  public abstract AndroidToolchain setAndroidMinApiLevel(@Nonnull String minApiLevel)
+      throws Exception;
 }

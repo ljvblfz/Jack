@@ -77,4 +77,11 @@ public class DummyToolchain extends AndroidToolchain {
   public String getLibraryElementsExtension() {
     return ".dummy";
   }
+
+  @Override
+  @Nonnull
+  public AndroidToolchain setAndroidMinApiLevel(@Nonnull String minApiLevel) {
+    // Do nothing
+    return this;
+  }
 }

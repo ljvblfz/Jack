@@ -16,7 +16,6 @@
 
 package com.android.jack.java8;
 
-import com.android.jack.Options;
 import com.android.jack.test.eclipse.jdt.core.tests.compiler.regression.InterfaceMethodsTest;
 import com.android.jack.test.runner.AbstractRuntimeRunner;
 import com.android.jack.test.runner.RuntimeRunner;
@@ -156,9 +155,8 @@ public class EcjInterfaceMethodsTest extends InterfaceMethodsTest {
       // Build dex file
       jackToolchain.addToClasspath(jackToolchain.getDefaultBootClasspath());
       jackToolchain.setSourceLevel(SourceLevel.JAVA_8);
-      jackToolchain.addProperty(
-          Options.ANDROID_MIN_API_LEVEL.getName(),
-          String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()));
+      jackToolchain
+          .setAndroidMinApiLevel(String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()));
       jackToolchain.srcToExe(dexOutDir, /* zipFile = */ false, sourceFolder);
     } catch (Exception e) {
       e.printStackTrace();
@@ -170,27 +168,27 @@ public class EcjInterfaceMethodsTest extends InterfaceMethodsTest {
   @Override
   public void runConformTest(String[] srcDescription, String expectedResult) {
 
-      // Build dex file
-      List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
-      excludeList.add(JackApiV01.class);
+    // Build dex file
+    List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
+    excludeList.add(JackApiV01.class);
 
-      JackBasedToolchain jackToolchain = null;
-      try {
-        jackToolchain =
-            AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeList);
-      } catch (AssumptionViolatedException e) {
-        // Handle JUnit4 feature in JUnit3 tests.
-        return;
-      }
+    JackBasedToolchain jackToolchain = null;
+    try {
+      jackToolchain =
+          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeList);
+    } catch (AssumptionViolatedException e) {
+      // Handle JUnit4 feature in JUnit3 tests.
+      return;
+    }
 
 
-      jackToolchain.addToClasspath(jackToolchain.getDefaultBootClasspath());
-      jackToolchain.setSourceLevel(SourceLevel.JAVA_8);
-      jackToolchain.addProperty(
-          Options.ANDROID_MIN_API_LEVEL.getName(),
-          String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()));
+    jackToolchain.addToClasspath(jackToolchain.getDefaultBootClasspath());
+    jackToolchain.setSourceLevel(SourceLevel.JAVA_8);
 
     try {
+      jackToolchain
+          .setAndroidMinApiLevel(String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()));
+
       File dexOutDir = AbstractTestTools.createTempDir();
       File sourceFolder = buildSourceFolder(srcDescription);
 

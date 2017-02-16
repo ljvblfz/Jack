@@ -287,4 +287,10 @@ public class JackApiV02Toolchain extends JackApiToolchainBase implements JackApi
     }
   }
 
+  @Override
+  @Nonnull
+  public AndroidToolchain setAndroidMinApiLevel(@Nonnull String minApiLevel) throws Exception {
+    apiV02Config.setProperty(Options.ANDROID_MIN_API_LEVEL.getName(), minApiLevel);
+    return this;
+  }
 }

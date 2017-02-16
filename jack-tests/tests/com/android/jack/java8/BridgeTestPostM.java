@@ -56,8 +56,7 @@ public class BridgeTestPostM {
   public void testBridge002() throws Exception {
     new RuntimeTestHelper(BRIDGE002)
         .setSourceLevel(SourceLevel.JAVA_8)
-        .addProperty(Options.ANDROID_MIN_API_LEVEL.getName(),
-            String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
+        .setAndroidMinApiLevel(String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
         .addIgnoredCandidateToolchain(JackApiV01.class).compileAndRunTest();
   }
 
@@ -93,12 +92,11 @@ public class BridgeTestPostM {
                      toolchain instanceof JackApiV03Toolchain);
     File lib23 =
         AbstractTestTools.createTempFile("lib23", toolchain.getLibraryExtension());
-    toolchain.addProperty(
-        Options.ANDROID_MIN_API_LEVEL.getName(),
-        String.valueOf(23))
-    .addProperty(Options.GENERATE_DEX_IN_LIBRARY.getName(), Boolean.toString(enablePredexing))
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .addToClasspath(toolchain.getDefaultBootClasspath());
+    toolchain.setAndroidMinApiLevel(String.valueOf(AndroidApiLevel.ReleasedLevel.M.getLevel()));
+    toolchain
+        .addProperty(Options.GENERATE_DEX_IN_LIBRARY.getName(), Boolean.toString(enablePredexing))
+        .setSourceLevel(SourceLevel.JAVA_8)
+        .addToClasspath(toolchain.getDefaultBootClasspath());
 
     if (!pre04 && enablePredexing) {
       ByteArrayOutputStream errOut = new ByteArrayOutputStream();
@@ -117,9 +115,7 @@ public class BridgeTestPostM {
 
       File dex24 = AbstractTestTools.createTempDir();
       toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeClazz);
-      toolchain.addProperty(
-          Options.ANDROID_MIN_API_LEVEL.getName(),
-          String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
+      toolchain.setAndroidMinApiLevel(String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
       .libToExe(lib23, dex24, /* zipFiles = */ false);
 
       // Run to check everything went as expected
@@ -143,9 +139,7 @@ public class BridgeTestPostM {
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeClazz);
     File lib23 =
         AbstractTestTools.createTempFile("lib23", toolchain.getLibraryExtension());
-    toolchain.addProperty(
-        Options.ANDROID_MIN_API_LEVEL.getName(),
-        String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
+    toolchain.setAndroidMinApiLevel(String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
     .setSourceLevel(SourceLevel.JAVA_8)
     .addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(lib23,
@@ -153,9 +147,7 @@ public class BridgeTestPostM {
 
     File dex24 = AbstractTestTools.createTempDir();
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeClazz);
-    toolchain.addProperty(
-        Options.ANDROID_MIN_API_LEVEL.getName(),
-        String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
+    toolchain.setAndroidMinApiLevel(String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
     .libToExe(lib23, dex24, /* zipFiles = */ false);
 
     // Run to check everything went as expected
@@ -196,10 +188,9 @@ public class BridgeTestPostM {
                      toolchain instanceof JackApiV03Toolchain);
     File lib23 =
         AbstractTestTools.createTempFile("lib23", toolchain.getLibraryExtension());
-    toolchain.addProperty(
-        Options.ANDROID_MIN_API_LEVEL.getName(),
-        String.valueOf(23))
-    .addProperty(Options.GENERATE_DEX_IN_LIBRARY.getName(), Boolean.toString(enablePredexing))
+    toolchain.setAndroidMinApiLevel(String.valueOf(AndroidApiLevel.ReleasedLevel.M.getLevel()));
+    toolchain
+        .addProperty(Options.GENERATE_DEX_IN_LIBRARY.getName(), Boolean.toString(enablePredexing))
     .setSourceLevel(SourceLevel.JAVA_8)
     .addToClasspath(toolchain.getDefaultBootClasspath());
 
@@ -221,9 +212,7 @@ public class BridgeTestPostM {
       ByteArrayOutputStream errOut = new ByteArrayOutputStream();
       File dex23 = AbstractTestTools.createTempDir();
       toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class, excludeClazz);
-      toolchain.addProperty(
-          Options.ANDROID_MIN_API_LEVEL.getName(),
-          String.valueOf(23))
+      toolchain.setAndroidMinApiLevel(String.valueOf(AndroidApiLevel.ReleasedLevel.M.getLevel()))
       .setErrorStream(errOut);
       try {
         toolchain.libToExe(lib23, dex23, /* zipFiles = */ false);
@@ -248,9 +237,7 @@ public class BridgeTestPostM {
         AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class, excludeClazz);
     File lib24 =
         AbstractTestTools.createTempFile("lib24", toolchain.getLibraryExtension());
-    toolchain.addProperty(
-        Options.ANDROID_MIN_API_LEVEL.getName(),
-        String.valueOf(24))
+    toolchain.setAndroidMinApiLevel(String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
     .setSourceLevel(SourceLevel.JAVA_8)
     .addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(lib24,
@@ -259,9 +246,7 @@ public class BridgeTestPostM {
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     File dex23 = AbstractTestTools.createTempDir();
     toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class, excludeClazz);
-    toolchain.addProperty(
-        Options.ANDROID_MIN_API_LEVEL.getName(),
-        String.valueOf(23))
+    toolchain.setAndroidMinApiLevel(String.valueOf(AndroidApiLevel.ReleasedLevel.M.getLevel()))
     .setErrorStream(errOut);
     try {
       toolchain.libToExe(lib24, dex23, /* zipFiles = */ false);

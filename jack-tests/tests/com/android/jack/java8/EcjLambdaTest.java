@@ -227,7 +227,7 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
   }
 
   protected JackBasedToolchain createToolchain(
-      @Nonnull List<Class<? extends IToolchain>> excludeList) throws AssumptionViolatedException {
+      @Nonnull List<Class<? extends IToolchain>> excludeList) throws Exception {
 
     JackBasedToolchain jackToolchain = null;
     jackToolchain =

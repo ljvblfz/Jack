@@ -65,6 +65,9 @@ public class RuntimeTestHelper {
 
   private SourceLevel level = SourceLevel.JAVA_6;
 
+  @CheckForNull
+  private String minApiLevel = null;
+
   @Nonnull
   private List<FileChecker> fileCheckers = new ArrayList<FileChecker>(0);
 
@@ -98,6 +101,12 @@ public class RuntimeTestHelper {
   @Nonnull
   public RuntimeTestHelper setSourceLevel(@Nonnull SourceLevel level) {
     this.level = level;
+    return this;
+  }
+
+  @Nonnull
+  public RuntimeTestHelper setAndroidMinApiLevel(@Nonnull String minApiLevel) {
+    this.minApiLevel = minApiLevel;
     return this;
   }
 
@@ -308,10 +317,13 @@ public class RuntimeTestHelper {
   }
 
   @Nonnull
-  private AndroidToolchain createCandidateToolchain() {
+  private AndroidToolchain createCandidateToolchain() throws Exception {
     AndroidToolchain candidateTestTools =
         AbstractTestTools.getCandidateToolchain(AndroidToolchain.class, ignoredCandidateToolchains);
     candidateTestTools.setSourceLevel(level);
+    if (minApiLevel != null) {
+      candidateTestTools.setAndroidMinApiLevel(minApiLevel);
+    }
     candidateTestTools.setWithDebugInfos(withDebugInfos);
     if (!runtimeProperties.isEmpty() && candidateTestTools instanceof JackBasedToolchain) {
       // if the tool chain is type of JackBasedToolchain and the customized properties are set,
@@ -325,10 +337,13 @@ public class RuntimeTestHelper {
   }
 
   @Nonnull
-  private AndroidToolchain createReferenceToolchain() {
+  private AndroidToolchain createReferenceToolchain() throws Exception {
     AndroidToolchain referenceTestTools =
         AbstractTestTools.getReferenceToolchain(AndroidToolchain.class);
     referenceTestTools.setSourceLevel(level);
+    if (minApiLevel != null) {
+      referenceTestTools.setAndroidMinApiLevel(minApiLevel);
+    }
     referenceTestTools.setWithDebugInfos(withDebugInfos);
     if (!runtimeProperties.isEmpty() && referenceTestTools instanceof JackBasedToolchain) {
       // if the tool chain is type of JackBasedToolchain and the customized properties are set,

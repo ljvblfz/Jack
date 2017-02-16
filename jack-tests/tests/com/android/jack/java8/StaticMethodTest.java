@@ -16,7 +16,6 @@
 
 package com.android.jack.java8;
 
-import com.android.jack.Options;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.junit.RuntimeVersion;
@@ -70,9 +69,7 @@ public class StaticMethodTest {
   private void run(@Nonnull RuntimeTestInfo rti) throws Exception {
     new RuntimeTestHelper(rti)
         .setSourceLevel(SourceLevel.JAVA_8)
-        .addProperty(
-            Options.ANDROID_MIN_API_LEVEL.getName(),
-            String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
+        .setAndroidMinApiLevel(String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
         .addIgnoredCandidateToolchain(JackApiV01.class)
         .compileAndRunTest();
   }

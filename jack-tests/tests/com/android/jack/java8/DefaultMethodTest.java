@@ -202,9 +202,7 @@ public class DefaultMethodTest {
 
     File lib24 =
         AbstractTestTools.createTempFile("lib24", toolchain.getLibraryExtension());
-    toolchain.addProperty(
-        Options.ANDROID_MIN_API_LEVEL.getName(),
-        String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
+    toolchain.setAndroidMinApiLevel(String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
     .setSourceLevel(SourceLevel.JAVA_8)
     .addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(lib24,
@@ -213,9 +211,7 @@ public class DefaultMethodTest {
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     File dex23 = AbstractTestTools.createTempDir();
     toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class, excludeClazz);
-    toolchain.addProperty(
-        Options.ANDROID_MIN_API_LEVEL.getName(),
-        String.valueOf(23))
+    toolchain.setAndroidMinApiLevel(String.valueOf(AndroidApiLevel.ReleasedLevel.M.getLevel()))
     .setErrorStream(errOut);
     try {
       toolchain.libToExe(lib24, dex23, /* zipFiles = */ false);
@@ -258,12 +254,11 @@ public class DefaultMethodTest {
                      toolchain instanceof JackApiV03);
     File lib23 =
         AbstractTestTools.createTempFile("lib23", toolchain.getLibraryExtension());
-    toolchain.addProperty(
-        Options.ANDROID_MIN_API_LEVEL.getName(),
-        String.valueOf(23))
-    .addProperty(Options.GENERATE_DEX_IN_LIBRARY.getName(), Boolean.toString(enablePredexing))
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .addToClasspath(toolchain.getDefaultBootClasspath());
+    toolchain.setAndroidMinApiLevel(String.valueOf(AndroidApiLevel.ReleasedLevel.M.getLevel()));
+    toolchain
+        .addProperty(Options.GENERATE_DEX_IN_LIBRARY.getName(), Boolean.toString(enablePredexing))
+        .setSourceLevel(SourceLevel.JAVA_8)
+        .addToClasspath(toolchain.getDefaultBootClasspath());
 
     if (enablePredexing) {
       // When enabling predexing, we should have run the checker and fail due to the presence
@@ -293,9 +288,7 @@ public class DefaultMethodTest {
       ByteArrayOutputStream errOut = new ByteArrayOutputStream();
       File dex23 = AbstractTestTools.createTempDir();
       toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class, excludeClazz);
-      toolchain.addProperty(
-          Options.ANDROID_MIN_API_LEVEL.getName(),
-          String.valueOf(23))
+      toolchain.setAndroidMinApiLevel(String.valueOf(AndroidApiLevel.ReleasedLevel.M.getLevel()))
       .setErrorStream(errOut);
       try {
         toolchain.libToExe(lib23, dex23, /* zipFiles = */ false);
@@ -334,12 +327,11 @@ public class DefaultMethodTest {
         AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class, excludeClazz);
     File lib23 =
         AbstractTestTools.createTempFile("lib23", toolchain.getLibraryExtension());
-    toolchain.addProperty(
-        Options.ANDROID_MIN_API_LEVEL.getName(),
-        String.valueOf(23))
-    .addProperty(Options.GENERATE_DEX_IN_LIBRARY.getName(), Boolean.toString(enablePredexing))
-    .setSourceLevel(SourceLevel.JAVA_8)
-    .addToClasspath(toolchain.getDefaultBootClasspath());
+    toolchain.setAndroidMinApiLevel(String.valueOf(AndroidApiLevel.ReleasedLevel.M.getLevel()));
+    toolchain
+        .addProperty(Options.GENERATE_DEX_IN_LIBRARY.getName(), Boolean.toString(enablePredexing))
+        .setSourceLevel(SourceLevel.JAVA_8)
+        .addToClasspath(toolchain.getDefaultBootClasspath());
 
     if (enablePredexing) {
       boolean pre04 = (toolchain instanceof JackApiV01 ||
@@ -368,9 +360,7 @@ public class DefaultMethodTest {
 
       File dex24 = AbstractTestTools.createTempDir();
       toolchain = AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class, excludeClazz);
-      toolchain.addProperty(
-          Options.ANDROID_MIN_API_LEVEL.getName(),
-          String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
+      toolchain.setAndroidMinApiLevel(String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
       .libToExe(lib23, dex24, /* zipFiles = */ false);
 
       // Run to check everything went as expected
@@ -395,9 +385,7 @@ public class DefaultMethodTest {
         AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeClazz);
     File lib24 =
         AbstractTestTools.createTempFile("lib24", toolchain.getLibraryExtension());
-    toolchain.addProperty(
-        Options.ANDROID_MIN_API_LEVEL.getName(),
-        String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
+    toolchain.setAndroidMinApiLevel(String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
     .setSourceLevel(SourceLevel.JAVA_8)
     .addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(lib24,
@@ -405,9 +393,7 @@ public class DefaultMethodTest {
 
     File dex24 = AbstractTestTools.createTempDir();
     toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeClazz);
-    toolchain.addProperty(
-        Options.ANDROID_MIN_API_LEVEL.getName(),
-        String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
+    toolchain.setAndroidMinApiLevel(String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
     .libToExe(lib24, dex24, /* zipFiles = */ false);
 
     // Run to check everything went as expected
@@ -527,11 +513,9 @@ public class DefaultMethodTest {
 
   private void run(@Nonnull RuntimeTestInfo rti) throws Exception {
     new RuntimeTestHelper(rti)
-        .addProperty(
-            Options.ANDROID_MIN_API_LEVEL.getName(),
-            String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
         .setSourceLevel(SourceLevel.JAVA_8)
         .addIgnoredCandidateToolchain(JackApiV01.class)
+        .setAndroidMinApiLevel(String.valueOf(AndroidApiLevel.ReleasedLevel.N.getLevel()))
         .compileAndRunTest();
   }
 }

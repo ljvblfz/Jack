@@ -467,4 +467,11 @@ public class JackCliToolchain extends JackBasedToolchain {
     writer.close();
     commandLine.add('@' + sourceList.getAbsolutePath());
   }
+
+  @Override
+  @Nonnull
+  public AndroidToolchain setAndroidMinApiLevel(@Nonnull String minApiLevel) throws Exception {
+    properties.put(Options.ANDROID_MIN_API_LEVEL.getName(), minApiLevel);
+    return this;
+  }
 }

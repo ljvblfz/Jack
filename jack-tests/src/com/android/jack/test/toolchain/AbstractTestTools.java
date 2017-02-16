@@ -862,8 +862,6 @@ public abstract class AbstractTestTools {
       }
     }
 
-    assert runtimes != null;
-
     if (properties != null) {
       String rtAsString = properties.getProperty(RUNTIME_LIST_KEY);
       if (rtAsString != null) {
@@ -871,6 +869,7 @@ public abstract class AbstractTestTools {
       }
     }
 
+    assert runtimes != null; // Make FindBugs happy
     if (runtimes.size() == 0) {
       if (Boolean.parseBoolean(System.getProperty(RUNTIME_TOLERANT, "false"))) {
         if (!hasRuntimeWarningBeenEmitted) {
@@ -884,6 +883,7 @@ public abstract class AbstractTestTools {
       }
     }
 
+    assert runtimes != null; // Make FindBugs happy
     return runtimes;
   }
 
