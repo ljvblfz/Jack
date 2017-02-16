@@ -141,8 +141,9 @@ public abstract class AbstractTestTools {
     @Override
     @Nonnull
     public LegacyToolchain build() {
-      return new LegacyToolchain(getPrebuilt("legacy-java-compiler"), getPrebuilt("jarjar"),
-          getPrebuilt("proguard"));
+      return new LegacyToolchain(getPrebuilt("legacy-java-compiler"),
+          getPrebuiltsAsClasspath("legacy-java-compiler.bootclasspath"), getPrebuilt("jarjar"),
+          getPrebuilt("proguard"), getPrebuilt("dx"));
     }
   }
 
