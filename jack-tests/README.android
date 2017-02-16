@@ -29,5 +29,8 @@ produces an XML report compatible with Ant <junitreport> task.
 Original sources can be downloaded from:
 http://archive.apache.org/dist/ant/source/apache-ant-1.9.6-src.zip
 
+* Proguard 5.3.2, as a prebuilt jar for jack-tests
+https://sourceforge.net/projects/proguard/files/proguard/5.3/proguard5.3.2.zip/download
+
 
 
