@@ -22,7 +22,7 @@ LOCAL_MODULE_CLASS := JAVA_LIBRARIES
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
-LOCAL_JAVA_RESOURCE_DIRS  := rsc
+LOCAL_JAVA_RESOURCE_DIRS := rsc ../rsc
 LOCAL_JAVACFLAGS := -processor com.android.sched.build.SchedAnnotationProcessor
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 
