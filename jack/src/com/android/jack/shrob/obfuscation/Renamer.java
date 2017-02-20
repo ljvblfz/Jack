@@ -20,14 +20,17 @@ package com.android.jack.shrob.obfuscation;
 import com.android.jack.Jack;
 import com.android.jack.frontend.MethodIdDuplicateRemover.UniqMethodIds;
 import com.android.jack.ir.ast.CanBeRenamed;
+import com.android.jack.ir.ast.HasName;
 import com.android.jack.ir.ast.JClassOrInterface;
 import com.android.jack.ir.ast.JDefinedClassOrInterface;
 import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JFieldId;
 import com.android.jack.ir.ast.JMethod;
+import com.android.jack.ir.ast.JMethodId;
 import com.android.jack.ir.ast.JMethodIdWide;
 import com.android.jack.ir.ast.JPackage;
 import com.android.jack.ir.ast.JSession;
+import com.android.jack.ir.ast.JType;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.jack.ir.sourceinfo.SourceInfo;
 import com.android.jack.library.DumpInLibrary;
@@ -59,6 +62,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -159,6 +163,49 @@ public class Renamer implements RunnableSchedulable<JSession> {
       String newName = nameProvider.getNewName(Key.getKey(node));
       ((MarkerManager) node).addMarker(new OriginalNameMarker(node.getName()));
       node.setName(newName);
+    }
+  }
+
+  @Nonnull
+  static String getFieldKey(@Nonnull JFieldId fieldId) {
+    assert !fieldId.containsMarker(OriginalNameMarker.class);
+    StringBuilder sb = new StringBuilder();
+    sb.append(fieldId.getName());
+    sb.append(':');
+    OriginalNameTools.appendOriginalQualifiedName(sb, fieldId.getType());
+    return sb.toString();
+  }
+
+  @Nonnull
+  static String getMethodKey(@Nonnull JMethodIdWide methodId) {
+    assert !methodId.containsMarker(OriginalNameMarker.class);
+    StringBuilder sb = new StringBuilder();
+    sb.append(methodId.getName());
+    sb.append('(');
+    Iterator<JType> iterator = methodId.getParamTypes().iterator();
+    while (iterator.hasNext()) {
+      JType paramType = iterator.next();
+      OriginalNameTools.appendOriginalQualifiedName(sb, paramType);
+      if (iterator.hasNext()) {
+        sb.append(',');
+      }
+    }
+    sb.append(')');
+
+    return sb.toString();
+  }
+
+  @Nonnull
+  static String getKey(@Nonnull HasName namedElement) {
+    if (namedElement instanceof JFieldId) {
+      return getFieldKey((JFieldId) namedElement);
+    } else if (namedElement instanceof JMethodIdWide) {
+      return getMethodKey((JMethodIdWide) namedElement);
+    } else {
+      assert !(namedElement instanceof JMethod
+          || namedElement instanceof JMethodId
+          || namedElement instanceof JField);
+      return namedElement.getName();
     }
   }
 
