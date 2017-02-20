@@ -90,6 +90,7 @@ public abstract class JNode extends LocalMarkerManager
   @Nonnull
   protected SourceInfo info;
 
+  @CheckForNull
   protected JNode parent = null;
 
   protected JNode(@Nonnull SourceInfo info) {
@@ -100,6 +101,7 @@ public abstract class JNode extends LocalMarkerManager
   /**
    * @return the parent
    */
+  @CheckForNull
   public JNode getParent() {
     return parent;
   }
@@ -255,14 +257,14 @@ public abstract class JNode extends LocalMarkerManager
     return false;
   }
 
-  public void updateParents(JNode parent) {
+  public void updateParents(@Nonnull JNode parent) {
     new ParentSetterVisitor(parent).accept(this);
   }
 
   /**
    * @param parent the parent to set
    */
-  private void setParent(JNode parent) {
+  private void setParent(@Nonnull JNode parent) {
     assert parent != null;
     this.parent = parent;
   }

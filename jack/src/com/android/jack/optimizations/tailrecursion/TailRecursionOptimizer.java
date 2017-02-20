@@ -213,18 +213,18 @@ public class TailRecursionOptimizer implements RunnableSchedulable<JMethod> {
             argAssignments.add(tempToArgStmt);
           }
 
+          final JStatementList returnStmtParent = (JStatementList) returnStatement.getParent();
+          assert returnStmtParent != null;
           for (JStatement asgStmt : tmpAssignments) {
-            tr.append(
-                new AppendStatement((JStatementList) returnStatement.getParent(), asgStmt));
+            tr.append(new AppendStatement(returnStmtParent, asgStmt));
           }
           for (JStatement asgStmt : argAssignments) {
-            tr.append(
-                new AppendStatement((JStatementList) returnStatement.getParent(), asgStmt));
+            tr.append(new AppendStatement(returnStmtParent, asgStmt));
           }
 
           JGoto tailCall = new JGoto(returnStatement.getSourceInfo(), labeledFirstStatement);
           tailCall.setCatchBlocks(returnStatement.getJCatchBlocks());
-          tr.append(new AppendStatement((JStatementList) returnStatement.getParent(), tailCall));
+          tr.append(new AppendStatement(returnStmtParent, tailCall));
           tr.append(new Remove(returnStatement));
         }
       }

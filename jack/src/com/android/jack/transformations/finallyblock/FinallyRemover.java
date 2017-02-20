@@ -268,6 +268,7 @@ public class FinallyRemover implements RunnableSchedulable<JMethod> {
 
         // Find the previous try statement which will catch exceptions.
         while (!(stmt instanceof JTryStatement) && !(stmt instanceof JMethodBody)) {
+          assert stmt != null;
           previous = stmt;
           stmt = stmt.getParent();
         }
@@ -402,6 +403,7 @@ public class FinallyRemover implements RunnableSchedulable<JMethod> {
     private boolean isBranchingOutsideOfTryStatement(@Nonnull JGoto gotoStatement) {
       JNode parent = gotoStatement.getTargetBlock().getParent();
       while (parent != tryStmt && !(parent instanceof JMethodBody)) {
+        assert parent != null;
         parent = parent.getParent();
       }
       if (parent == tryStmt) {

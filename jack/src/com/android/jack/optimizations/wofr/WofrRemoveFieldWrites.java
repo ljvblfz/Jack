@@ -28,6 +28,7 @@ import com.android.jack.ir.ast.JFieldRef;
 import com.android.jack.ir.ast.JLocal;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JMethodCall;
+import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JPrimitiveType;
 import com.android.jack.ir.ast.JStatement;
 import com.android.jack.ir.ast.JThisRef;
@@ -233,7 +234,9 @@ public class WofrRemoveFieldWrites extends WofrSchedulable
 
         JExpressionStatement stmt =
             new JExpressionStatement(asg.getSourceInfo(), receiver);
-        request.append(new AppendBefore(asg.getParent(), stmt));
+        final JNode parent = asg.getParent();
+        assert parent != null;
+        request.append(new AppendBefore(parent, stmt));
         return local;
       }
     }

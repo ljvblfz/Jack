@@ -29,6 +29,7 @@ import com.android.jack.ir.ast.JField;
 import com.android.jack.ir.ast.JFieldInitializer;
 import com.android.jack.ir.ast.JIntLiteral;
 import com.android.jack.ir.ast.JLiteral;
+import com.android.jack.ir.ast.JNode;
 import com.android.jack.ir.ast.JPrimitiveType;
 import com.android.jack.ir.ast.JPrimitiveType.JPrimitiveTypeEnum;
 import com.android.jack.ir.ast.JReferenceType;
@@ -97,7 +98,9 @@ public class FieldInitializerRemover implements RunnableSchedulable<JField> {
     JFieldInitializer declaration = field.getFieldInitializer();
     if (declaration != null) {
       JExpression initialValue = declaration.getInitializer();
-      TransformationRequest tr = new TransformationRequest(declaration.getParent());
+      final JNode declarationParent = declaration.getParent();
+      assert declarationParent != null;
+      TransformationRequest tr = new TransformationRequest(declarationParent);
       if (/* Field is static final and initialized by a literal */
           field.isStatic() && field.isFinal() && initialValue instanceof JLiteral
           /* Object field initialized by a String literal: don't remove unless allowed */

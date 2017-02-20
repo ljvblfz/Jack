@@ -110,7 +110,9 @@ public class UnusedDefinitionRemover implements RunnableSchedulable<JMethod> {
 
       tracer.getStatistic(UNUSED_DEFINITION_REMOVED).incValue();
 
-      tr.append(new Remove(binary.getParent()));
+      final JNode binaryParent = binary.getParent();
+      assert binaryParent != null;
+      tr.append(new Remove(binaryParent));
 
       if (binary.getRhs() instanceof JVariableRef) {
         UseDefsMarker udm = ((JVariableRef) binary.getRhs()).getMarker(UseDefsMarker.class);
