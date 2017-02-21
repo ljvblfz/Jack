@@ -31,6 +31,8 @@ import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
 import junit.framework.Assert;
 
+import org.junit.Assume;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -325,7 +327,8 @@ public class RuntimeTestHelper {
       candidateTestTools.setAndroidMinApiLevel(minApiLevel);
     }
     candidateTestTools.setWithDebugInfos(withDebugInfos);
-    if (!runtimeProperties.isEmpty() && candidateTestTools instanceof JackBasedToolchain) {
+    if (!runtimeProperties.isEmpty()) {
+      Assume.assumeTrue(candidateTestTools instanceof JackBasedToolchain);
       // if the tool chain is type of JackBasedToolchain and the customized properties are set,
       // configure the runtime testing properties
       JackBasedToolchain jackBasedToolchain = (JackBasedToolchain) candidateTestTools;
