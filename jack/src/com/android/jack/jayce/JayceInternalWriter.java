@@ -17,19 +17,20 @@
 package com.android.jack.jayce;
 
 import com.android.jack.ir.ast.JNode;
-
-import java.io.IOException;
+import com.android.sched.util.file.CannotCloseException;
+import com.android.sched.util.file.CannotWriteException;
 
 import javax.annotation.Nonnull;
 
 /**
  * Jayce internal writer.
  */
-public interface JayceInternalWriter {
+public interface JayceInternalWriter extends AutoCloseable {
 
-  public void write(@Nonnull JNode jNode) throws IOException;
+  public void write(@Nonnull JNode jNode) throws CannotWriteException;
 
   int getCurrentMinor();
 
-  public void close() throws IOException;
+  @Override
+  public void close() throws CannotCloseException;
 }

@@ -19,6 +19,7 @@ package com.android.jack.jayce;
 import com.android.jack.jayce.v0004.io.JayceInternalWriterImpl;
 import com.android.jack.library.FileType;
 import com.android.jack.library.OutputJackLibrary;
+import com.android.sched.util.location.HasLocation;
 
 import java.io.OutputStream;
 
@@ -33,8 +34,8 @@ public abstract class JayceWriterFactory {
 
   @Nonnull
   public static JayceInternalWriter get(@Nonnull OutputJackLibrary outputJackLibrary,
-      @Nonnull OutputStream out) {
-    JayceInternalWriterImpl jayceWriter = new JayceInternalWriterImpl(out);
+      @Nonnull OutputStream out, @Nonnull HasLocation locationProvider) {
+    JayceInternalWriterImpl jayceWriter = new JayceInternalWriterImpl(out, locationProvider);
 
     outputJackLibrary.putProperty(
         outputJackLibrary.buildPropertyName(FileType.JAYCE, null /* suffix */),

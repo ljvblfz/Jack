@@ -36,6 +36,9 @@ import com.android.jack.jayce.v0004.util.FieldRefKindIdHelper;
 import com.android.jack.jayce.v0004.util.MethodKindIdHelper;
 import com.android.jack.jayce.v0004.util.ReceiverKindIdHelper;
 import com.android.jack.jayce.v0004.util.RetentionPolicyIdHelper;
+import com.android.sched.util.file.CannotCloseException;
+import com.android.sched.util.file.CannotWriteException;
+import com.android.sched.util.location.HasLocation;
 import com.android.sched.util.log.Event;
 import com.android.sched.util.log.Tracer;
 import com.android.sched.util.log.TracerFactory;
@@ -71,8 +74,12 @@ public class JayceInternalWriterImpl implements JayceInternalWriter {
   @Nonnull
   private final  List<String> currentCatchBlockList = new ArrayList<String>();
 
-  public JayceInternalWriterImpl(@Nonnull OutputStream out) {
+  @Nonnull
+  private final HasLocation locationProvider;
+
+  public JayceInternalWriterImpl(@Nonnull OutputStream out, @Nonnull HasLocation locationProvider) {
     this.out = new JayceOutputStream(out);
+    this.locationProvider = locationProvider;
   }
 
   public void writeNode(@CheckForNull NNode node) throws IOException {
@@ -348,7 +355,7 @@ public class JayceInternalWriterImpl implements JayceInternalWriter {
   }
 
   @Override
-  public void write(@Nonnull JNode jNode) throws IOException {
+  public void write(@Nonnull JNode jNode) throws CannotWriteException {
     try (Event eventWriting = tracer.open(JackEventType.NNODE_WRITING)) {
       ImportHelper importHelper = new ImportHelper(new NodeFactory());
       NNode nNode;
@@ -356,7 +363,11 @@ public class JayceInternalWriterImpl implements JayceInternalWriter {
         nNode = importHelper.load(jNode);
       }
 
-      writeNode(nNode);
+      try {
+        writeNode(nNode);
+      } catch (IOException e) {
+        throw new CannotWriteException(locationProvider, e);
+      }
     }
   }
 
@@ -366,7 +377,11 @@ public class JayceInternalWriterImpl implements JayceInternalWriter {
   }
 
   @Override
-  public void close() throws IOException {
-    out.close();
+  public void close() throws CannotCloseException {
+    try {
+      out.close();
+    } catch (IOException e) {
+      throw new CannotCloseException(locationProvider, e);
+    }
   }
 }
