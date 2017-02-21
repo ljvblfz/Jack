@@ -17,8 +17,6 @@
 package com.android.jack.test.toolchain;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -40,8 +38,7 @@ public class JackApiV04IncrementalToolchain
       throws Exception {
     setIncrementalFolder(AbstractTestTools.createTempDir());
     super.srcToExe(out, zipFile, sources);
-    Thread.sleep(1000);
-    touchSourceFile(sources);
+    IncrementalToolchainUtils.touchSourceFile(sources);
     super.srcToExe(out, zipFile, sources);
   }
 
@@ -50,22 +47,8 @@ public class JackApiV04IncrementalToolchain
       throws Exception {
     setIncrementalFolder(AbstractTestTools.createTempDir());
     super.srcToLib(out, zipFiles, sources);
-    Thread.sleep(1000);
-    touchSourceFile(sources);
+    IncrementalToolchainUtils.touchSourceFile(sources);
     super.srcToLib(out, zipFiles, sources);
-  }
-
-  private void touchSourceFile(@Nonnull File... sources) throws Exception {
-    List<File> files = new ArrayList<File>();
-    for (File source : sources) {
-      AbstractTestTools.getJavaFiles(source, files, /* mustExist = */ false);
-    }
-    if (files.size() > 0) {
-      File fileToTouch = files.get(files.size() / 2);
-      if (!fileToTouch.setLastModified(System.currentTimeMillis())) {
-        throw new AssertionError("Could not touch file '" + fileToTouch.getPath() + "'");
-      }
-    }
   }
 
 }
