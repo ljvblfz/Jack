@@ -262,9 +262,7 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
   }
 
   public void write() throws IOException {
-    if (AsmHelper.isAnnotation(currentClass)
-        && AsmHelper.isAbstract(currentMethod)
-        && currentMethod.parameters.isEmpty()) {
+    if (AsmHelper.isAnnotation(currentClass)) {
       writeAnnotationMethod();
     } else if (AsmHelper.isConstructor(currentMethod)) {
       writeConstructor();
