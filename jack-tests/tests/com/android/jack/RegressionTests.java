@@ -40,9 +40,11 @@ import com.android.jack.inner.InnerTests;
 import com.android.jack.invoke.InvokeTests;
 import com.android.jack.newarray.NewarrayTests;
 import com.android.jack.opcodes.OpcodesTests;
+import com.android.jack.optimizations.defuse.DefUseTests;
 import com.android.jack.optimizations.exprsimplifier.ExprsimplifierTests;
 import com.android.jack.optimizations.ifwithconstantsimplifier.IfWithConstantSimplifierTests;
 import com.android.jack.optimizations.notsimplifier.NotsimplifierTests;
+import com.android.jack.optimizations.sideeffect.SideEffectTests;
 import com.android.jack.optimizations.tailrecursion.TailRecursionTests;
 import com.android.jack.optimizations.usedef.UseDefTests;
 import com.android.jack.order.OrderTests;
@@ -58,6 +60,7 @@ import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.threeaddress.ThreeaddressTests;
 import com.android.jack.throwstatement.ThrowstatementTests;
+import com.android.jack.transformations.boostlockregionpriority.BoostLockedRegionPriorityTests;
 import com.android.jack.trycatch.TrycatchTests;
 import com.android.jack.tryfinally.TryfinallyTests;
 import com.android.jack.unary.UnaryTests;
@@ -76,6 +79,7 @@ public class RegressionTests {
       new ArrayTests(),
       new AssertionTests(),
       new AssignTests(),
+      new BoostLockedRegionPriorityTests(),
       new BoxTests(),
       new BridgeTests(),
       new BridgeAnnotationsTests(),
@@ -83,6 +87,7 @@ public class RegressionTests {
       new ComparisonTests(),
       new ConditionalTests(),
       new ConstantTests(),
+      new DefUseTests(),
       new DxTests(),
       new EnumsTests(),
       new ExprsimplifierTests(),
@@ -102,6 +107,7 @@ public class RegressionTests {
       new ReflectTests(),
       new ReturnstatementTests(),
       new ShrobRuntimeTests(),
+      new SideEffectTests(),
       new StringTests(),
       new SwitchstatementTests(),
       new SynchronizeTests(),
