@@ -33,6 +33,8 @@ import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
 import com.android.sched.util.file.OutputZipFile;
+import com.android.sched.util.file.Statusful;
+import com.android.sched.util.file.StreamFileStatus;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.DirectoryLocation;
 import com.android.sched.util.location.Location;
@@ -51,7 +53,7 @@ import javax.annotation.Nonnull;
 /**
  * A {@link VFS} backed by a real filesystem directory, compressed into a zip archive when closed.
  */
-public class ReadWriteZipFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS {
+public class ReadWriteZipFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS, Statusful {
 
   @Nonnull
   private final VFSToVFSWrapper vfs;
@@ -272,5 +274,11 @@ public class ReadWriteZipFS extends BaseVFS<BaseVDir, BaseVFile> implements VFS 
   @Override
   public String toString() {
     return "rwZipFS >> " + vfs.toString();
+  }
+
+  @Override
+  @Nonnull
+  public StreamFileStatus getStatus() {
+    return ((Statusful) vfs.getWorkVFS()).getStatus();
   }
 }

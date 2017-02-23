@@ -29,6 +29,8 @@ import com.android.sched.util.file.FileOrDirectory.Permission;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
+import com.android.sched.util.file.Statusful;
+import com.android.sched.util.file.StreamFileStatus;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.DirectoryLocation;
 import com.android.sched.util.location.FileLocation;
@@ -55,7 +57,7 @@ import javax.annotation.Nonnull;
 /**
  * A {@link VFS} implementation backed by a real file system.
  */
-public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
+public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS, Statusful {
 
   @Nonnull
   private final Directory  dir;
@@ -65,6 +67,8 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
   private final Set<Capabilities> capabilities;
   @CheckForNull
   private String infoString;
+
+  private boolean used = false;
 
   public DirectFS(@Nonnull Directory dir, int permissions) {
     this.dir = dir;
@@ -113,6 +117,9 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
 
   @Override
   public ParentVDir getRootDir() {
+
+    used = true;
+
     return root;
   }
 
@@ -376,6 +383,18 @@ public class DirectFS extends BaseVFS<ParentVDir, ParentVFile> implements VFS {
   @Nonnull
   public VPath getPathFromRoot(@Nonnull ParentVFile file) {
     return getPathFromDir(root, file);
+  }
+
+  @Override
+  @Nonnull
+  public StreamFileStatus getStatus() {
+    if (!used) {
+      return StreamFileStatus.NOT_USED;
+    } else if (closed) {
+      return StreamFileStatus.CLOSED;
+    } else {
+      return StreamFileStatus.OPEN;
+    }
   }
 
   public void setInfoString(@CheckForNull String infoString) {

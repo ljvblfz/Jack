@@ -27,6 +27,8 @@ import com.android.sched.util.file.CannotGetModificationTimeException;
 import com.android.sched.util.file.NoSuchFileException;
 import com.android.sched.util.file.NotDirectoryException;
 import com.android.sched.util.file.NotFileException;
+import com.android.sched.util.file.Statusful;
+import com.android.sched.util.file.StreamFileStatus;
 import com.android.sched.util.file.WrongPermissionException;
 import com.android.sched.util.location.Location;
 import com.android.sched.vfs.UnionVFS.UnionVDir;
@@ -49,7 +51,7 @@ import javax.annotation.Nonnull;
  * A {@link VFS} that acts as an ordered agglomerate of other VFS. Writing is done in the top VFS
  * only, if it is supported. The VFS are ordered according to their priority.
  */
-public class UnionVFS extends BaseVFS<UnionVDir, UnionVFile> implements VFS {
+public class UnionVFS extends BaseVFS<UnionVDir, UnionVFile> implements VFS, Statusful {
 
   /**
    * Only delete the VFile that is on top, do not delete those that are under.
@@ -217,6 +219,8 @@ public class UnionVFS extends BaseVFS<UnionVDir, UnionVFile> implements VFS {
 
   private final boolean writable;
 
+  private boolean used = false;
+
   public UnionVFS(@Nonnull List<VFS> vfsList) {
     assert !vfsList.isEmpty();
     this.vfsList = vfsList;
@@ -346,6 +350,8 @@ public class UnionVFS extends BaseVFS<UnionVDir, UnionVFile> implements VFS {
   @Override
   @Nonnull
   public UnionVDir getRootDir() {
+    used = true;
+
     return rootDir;
   }
 
@@ -646,6 +652,18 @@ public class UnionVFS extends BaseVFS<UnionVDir, UnionVFile> implements VFS {
   Location getVDirLocation(@Nonnull UnionVDir parent, @Nonnull VPath path) {
     BaseVDir parentWrappedDir = parent.getWrappedDirs().get(0);
     return parentWrappedDir.getVFS().getVDirLocation(parentWrappedDir, path);
+  }
+
+  @Override
+  @Nonnull
+  public StreamFileStatus getStatus() {
+    if (!used) {
+      return StreamFileStatus.NOT_USED;
+    } else if (closed) {
+      return StreamFileStatus.CLOSED;
+    } else {
+      return StreamFileStatus.OPEN;
+    }
   }
 
   @Override
