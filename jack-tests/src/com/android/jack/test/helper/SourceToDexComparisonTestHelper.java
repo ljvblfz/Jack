@@ -16,7 +16,10 @@
 
 package com.android.jack.test.helper;
 
+import com.android.jack.test.comparator.Comparator;
+import com.android.jack.test.comparator.ComparatorComposite;
 import com.android.jack.test.comparator.ComparatorDex;
+import com.android.jack.test.comparator.ComparatorDexAnnotations;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.AndroidToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
@@ -153,6 +156,12 @@ public class SourceToDexComparisonTestHelper extends GenericComparisonTestHelper
     comparator.setCompareInstructionNumber(false);
     comparator.setInstructionNumberTolerance(0f);
     return comparator;
+  }
+
+  @Nonnull
+  public Comparator createDexFileComparatorWithAnnotations() {
+    return new ComparatorComposite(createDexFileComparator(),
+        new ComparatorDexAnnotations(refDex, candidateDex));
   }
 
   @Nonnull
