@@ -49,7 +49,6 @@ public class ImportTests {
     File jackOut = AbstractTestTools.createTempDir();
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
     exclude.add(JillApiToolchainBase.class);
-    exclude.add(LegacyToolchain.class);
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain(IToolchain.class, exclude);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(

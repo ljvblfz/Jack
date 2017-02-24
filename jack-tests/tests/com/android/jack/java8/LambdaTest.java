@@ -640,6 +640,7 @@ public class LambdaTest {
 
   @Test
   @Runtime
+  @KnownIssue(candidate=LegacyToolchain.class)
   public void testLamba038() throws Exception {
     run(LAMBDA038);
   }

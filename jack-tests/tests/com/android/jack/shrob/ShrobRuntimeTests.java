@@ -16,7 +16,6 @@
 
 package com.android.jack.shrob;
 
-import com.android.jack.shrob.shrink.MappingCollisionException;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.junit.Runtime;
@@ -25,8 +24,6 @@ import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.LegacyToolchain;
-
-import junit.framework.Assert;
 
 import org.junit.Test;
 
@@ -99,17 +96,17 @@ public class ShrobRuntimeTests extends RuntimeTest {
 
   @Test
   @Runtime
+  @KnownIssue(candidate=LegacyToolchain.class)
   public void test016() throws Exception {
     new RuntimeTestHelper(TEST016)
-    .addIgnoredCandidateToolchain(LegacyToolchain.class)
     .compileAndRunTest();
   }
 
   @Test
   @Runtime
+  @KnownIssue(candidate=LegacyToolchain.class)
   public void test016_003() throws Exception {
     new RuntimeTestHelper(TEST016_003)
-    .addIgnoredCandidateToolchain(LegacyToolchain.class)
     .compileAndRunTest();
   }
 

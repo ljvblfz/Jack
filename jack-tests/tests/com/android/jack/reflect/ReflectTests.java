@@ -18,6 +18,7 @@ package com.android.jack.reflect;
 
 import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
@@ -55,6 +56,7 @@ public class ReflectTests extends RuntimeTest {
 
   @Test
   @Runtime
+  @KnownIssue(candidate=LegacyToolchain.class)
   public void simpleName002() throws Exception {
     new RuntimeTestHelper(TEST001_WITH_SHRINK_SCHEDULABLE)
         .addIgnoredCandidateToolchain(LegacyToolchain.class).compileAndRunTest();

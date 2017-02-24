@@ -152,6 +152,7 @@ public class BridgeTests extends RuntimeTest {
   public void test009() throws Exception {
     new RuntimeTestHelper(TEST009)
     .addIgnoredCandidateToolchain(JillBasedToolchain.class)
+    // Legacy toolchain behavior difference, boolean put not present
     .addIgnoredCandidateToolchain(LegacyToolchain.class)
     .compileAndRunTest();
   }

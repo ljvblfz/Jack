@@ -90,7 +90,6 @@ public class JarjarTests {
   @Test
   public void jarjar003_1() throws Exception {
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
-    exclude.add(LegacyToolchain.class);
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class, exclude);
     toolchain.setJarjarRules(
         Collections.singletonList(new File(JARJAR003.directory, "jarjar-rules.txt")));
@@ -113,7 +112,6 @@ public class JarjarTests {
   @Runtime
   public void jarjar004() throws Exception {
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
-    exclude.add(LegacyToolchain.class);
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class, exclude);
     File libToBeRenamed =
         AbstractTestTools.createTempFile("jarjarTest004Lib", toolchain.getLibraryExtension());
@@ -201,8 +199,7 @@ public class JarjarTests {
   public void jarjar005() throws Exception {
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
     exclude.add(JillBasedToolchain.class);
-    exclude.add(LegacyToolchain.class);
-    IToolchain toolchain = AbstractTestTools.getCandidateToolchain(IToolchain.class, exclude);
+    JackBasedToolchain toolchain = AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, exclude);
     File outLib =
         AbstractTestTools.createTempFile("jarjarTest005Lib", toolchain.getLibraryExtension());
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())

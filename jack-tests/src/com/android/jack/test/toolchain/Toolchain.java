@@ -113,7 +113,10 @@ public abstract class Toolchain implements IToolchain {
 
   @Nonnull
   protected String getClasspathAsString() {
-    return AbstractTestTools.getClasspathAsString(classpath.toArray(new File[classpath.size()]));
+    List<File> completeClasspath = new ArrayList<>(classpath);
+    completeClasspath.addAll(staticLibs);
+    return AbstractTestTools.getClasspathAsString(
+        completeClasspath.toArray(new File[classpath.size()]));
   }
 
   @Override

@@ -19,6 +19,7 @@ package com.android.jack.test.toolchain;
 import com.google.common.base.Joiner;
 
 import com.android.jack.Options;
+import com.android.jack.comparator.util.BytesStreamSucker;
 import com.android.jack.test.TestsProperties;
 import com.android.jack.test.util.ExecFileException;
 import com.android.jack.test.util.ExecuteFile;
@@ -26,6 +27,8 @@ import com.android.sched.util.codec.CodecContext;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -74,28 +77,10 @@ public class LegacyToolchain extends AndroidToolchain {
 
       File tmpJarsDir = AbstractTestTools.createTempDir();
       File jarFile = new File(tmpJarsDir, "legacyLib.jar");
-      File jarFileJarjar = new File(tmpJarsDir, "legacyLibJarjar.jar");
-      File jarFileProguard = new File(tmpJarsDir, "legacyLibProguard.jar");
 
       srcToLib(jarFile, true /* zipFiles = */, sources);
 
-      if (jarjarRules.size() > 0) {
-        if (jarjarRules.size() > 1) {
-          throw new AssertionError("Not yet supported");
-        }
-        processWithJarJar(jarjarRules.get(0), jarFile, jarFileJarjar);
-      } else {
-        jarFileJarjar = jarFile;
-      }
-
-      if (proguardFlags.size() > 0) {
-        processWithProguard(getClasspathAsString(), proguardFlags, jarFileJarjar,
-            jarFileProguard);
-      } else {
-        jarFileProguard = jarFileJarjar;
-      }
-
-      libToExe(jarFileProguard, out, zipFile);
+      libToExe(jarFile, out, zipFile);
 
     } catch (IOException e) {
       throw new RuntimeException("Legacy toolchain exited with an error", e);
@@ -121,11 +106,42 @@ public class LegacyToolchain extends AndroidToolchain {
       }
       if (staticLibs.size() > 0) {
         for (File staticLib : staticLibs) {
-          AbstractTestTools.unzip(staticLib, classesDir, isVerbose);
+          if (staticLib.isFile()) {
+            AbstractTestTools.unzip(staticLib, classesDir, isVerbose);
+          } else if (staticLib.isDirectory()) {
+            AbstractTestTools.copyDirectory(staticLib, classesDir);
+          }
         }
       }
+
+      File tmpDir = AbstractTestTools.createTempDir();
+      File jarFile = new File(tmpDir, "file.jar");
+      AbstractTestTools.createjar(jarFile, classesDir, isVerbose);
+
+      File jarFileJarjar = new File(tmpDir, "file-jarjar.jar");
+      if (jarjarRules.size() > 0) {
+        if (jarjarRules.size() > 1) {
+          throw new AssertionError("Not yet supported");
+        }
+        processWithJarJar(jarjarRules.get(0), jarFile, jarFileJarjar);
+      } else {
+        jarFileJarjar = jarFile;
+      }
+
+      File jarFileProguard = new File(tmpDir, "file-proguard.jar");
+      if (proguardFlags.size() > 0) {
+        processWithProguard(getClasspathAsString(), proguardFlags, jarFileJarjar,
+            jarFileProguard);
+      } else {
+        jarFileProguard = jarFileJarjar;
+      }
+
       if (zipFiles) {
-        AbstractTestTools.createjar(out, classesDir, isVerbose);
+        new BytesStreamSucker(new FileInputStream(jarFileProguard), new FileOutputStream(out))
+            .suck();
+      } else {
+        assert out.isDirectory();
+        AbstractTestTools.unzip(jarFileProguard, out, isVerbose);
       }
     } catch (IOException e) {
       throw new RuntimeException("Legacy toolchain exited with an error", e);

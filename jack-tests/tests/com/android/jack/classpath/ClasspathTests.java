@@ -65,7 +65,6 @@ public class ClasspathTests {
   public void test002() throws Exception {
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>(1);
     exclude.add(JillApiToolchainBase.class);
-    exclude.add(LegacyToolchain.class);
 
     AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class, exclude);
 

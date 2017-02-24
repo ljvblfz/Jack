@@ -20,6 +20,7 @@ import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.AndroidToolchain;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
+import com.android.jack.test.toolchain.JillApiToolchainBase;
 import com.android.jack.test.toolchain.JillBasedToolchain;
 import com.android.jack.test.toolchain.LegacyToolchain;
 import com.android.sched.util.file.InputZipFile;
@@ -97,10 +98,10 @@ public class LibraryTests {
 
   @Nonnull
   private File createEmptyLibrary() throws IOException, Exception {
-    List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
-    excludeList.add(LegacyToolchain.class);
-    AndroidToolchain toolchain =
-        AbstractTestTools.getCandidateToolchain(AndroidToolchain.class, excludeList);
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>(1);
+    // Legacy compiler does not support compilation without sources
+    exclude.add(LegacyToolchain.class);
+    AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class, exclude);
     File emptyLib = AbstractTestTools.createTempFile("empty", toolchain.getLibraryExtension());
     toolchain.srcToLib(emptyLib, /* zipFiles = */ true);
 
