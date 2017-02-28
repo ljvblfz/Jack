@@ -27,6 +27,7 @@ import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillApiToolchainBase;
 import com.android.jack.test.toolchain.JillBasedToolchain;
+import com.android.jack.test.toolchain.LegacyToolchain;
 
 import junit.framework.Assert;
 
@@ -48,6 +49,7 @@ public class ImportTests {
     File jackOut = AbstractTestTools.createTempDir();
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
     exclude.add(JillApiToolchainBase.class);
+    exclude.add(LegacyToolchain.class);
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain(IToolchain.class, exclude);
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToLib(

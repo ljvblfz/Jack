@@ -29,6 +29,7 @@ import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillApiToolchainBase;
 import com.android.jack.test.toolchain.JillBasedToolchain;
+import com.android.jack.test.toolchain.LegacyToolchain;
 import com.android.sched.vfs.VPath;
 
 import junit.framework.Assert;
@@ -64,6 +65,7 @@ public class ClasspathTests {
   public void test002() throws Exception {
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>(1);
     exclude.add(JillApiToolchainBase.class);
+    exclude.add(LegacyToolchain.class);
 
     AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class, exclude);
 

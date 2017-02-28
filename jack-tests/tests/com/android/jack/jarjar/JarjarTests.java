@@ -26,9 +26,11 @@ import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runner.RuntimeRunner;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.AndroidToolchain;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
+import com.android.jack.test.toolchain.LegacyToolchain;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.InputZipFile;
@@ -87,7 +89,9 @@ public class JarjarTests {
 
   @Test
   public void jarjar003_1() throws Exception {
-    IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(LegacyToolchain.class);
+    IToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class, exclude);
     toolchain.setJarjarRules(
         Collections.singletonList(new File(JARJAR003.directory, "jarjar-rules.txt")));
     File lib = AbstractTestTools.createTempFile("jarjarTest003Jack", toolchain.getLibraryExtension());
@@ -108,8 +112,9 @@ public class JarjarTests {
   @Test
   @Runtime
   public void jarjar004() throws Exception {
-
-    IToolchain toolchain = AbstractTestTools.getCandidateToolchain();
+    List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
+    exclude.add(LegacyToolchain.class);
+    IToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class, exclude);
     File libToBeRenamed =
         AbstractTestTools.createTempFile("jarjarTest004Lib", toolchain.getLibraryExtension());
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
@@ -196,6 +201,7 @@ public class JarjarTests {
   public void jarjar005() throws Exception {
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
     exclude.add(JillBasedToolchain.class);
+    exclude.add(LegacyToolchain.class);
     IToolchain toolchain = AbstractTestTools.getCandidateToolchain(IToolchain.class, exclude);
     File outLib =
         AbstractTestTools.createTempFile("jarjarTest005Lib", toolchain.getLibraryExtension());

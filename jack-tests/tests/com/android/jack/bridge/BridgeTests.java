@@ -24,6 +24,7 @@ import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
+import com.android.jack.test.toolchain.LegacyToolchain;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -151,6 +152,7 @@ public class BridgeTests extends RuntimeTest {
   public void test009() throws Exception {
     new RuntimeTestHelper(TEST009)
     .addIgnoredCandidateToolchain(JillBasedToolchain.class)
+    .addIgnoredCandidateToolchain(LegacyToolchain.class)
     .compileAndRunTest();
   }
 

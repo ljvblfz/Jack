@@ -21,6 +21,7 @@ import com.android.jack.test.toolchain.AndroidToolchain;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
+import com.android.jack.test.toolchain.LegacyToolchain;
 import com.android.sched.util.file.InputZipFile;
 import com.android.sched.vfs.ReadZipFS;
 import com.android.sched.vfs.VFS;
@@ -96,7 +97,10 @@ public class LibraryTests {
 
   @Nonnull
   private File createEmptyLibrary() throws IOException, Exception {
-    AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class);
+    List<Class<? extends IToolchain>> excludeList = new ArrayList<Class<? extends IToolchain>>(1);
+    excludeList.add(LegacyToolchain.class);
+    AndroidToolchain toolchain =
+        AbstractTestTools.getCandidateToolchain(AndroidToolchain.class, excludeList);
     File emptyLib = AbstractTestTools.createTempFile("empty", toolchain.getLibraryExtension());
     toolchain.srcToLib(emptyLib, /* zipFiles = */ true);
 
