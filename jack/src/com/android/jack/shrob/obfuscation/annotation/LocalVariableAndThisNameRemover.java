@@ -16,11 +16,14 @@
 
 package com.android.jack.shrob.obfuscation.annotation;
 
+import com.android.jack.debug.DebugVariableInfoMarker;
 import com.android.jack.ir.ast.JLocal;
+import com.android.jack.ir.ast.JLocalRef;
 import com.android.jack.ir.ast.JMethod;
 import com.android.jack.ir.ast.JThis;
 import com.android.jack.ir.ast.JVisitor;
 import com.android.sched.item.Description;
+import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
 import com.android.sched.schedulable.Transform;
 
@@ -31,6 +34,7 @@ import javax.annotation.Nonnull;
  */
 @Description("Removes local variables and 'this' names")
 @Transform(modify = {JLocal.class, JThis.class})
+@Constraint(need = DebugVariableInfoMarker.class)
 public class LocalVariableAndThisNameRemover implements RunnableSchedulable<JMethod> {
 
   private static class Visitor extends JVisitor {
@@ -38,6 +42,15 @@ public class LocalVariableAndThisNameRemover implements RunnableSchedulable<JMet
     @Override
     public boolean visit(@Nonnull JLocal node) {
       node.setName(null);
+      return false;
+    }
+
+    @Override
+    public boolean visit(@Nonnull JLocalRef localRef) {
+      DebugVariableInfoMarker marker = localRef.getMarker(DebugVariableInfoMarker.class);
+      if (marker != null) {
+        marker.setName(null);
+      }
       return false;
     }
 
