@@ -39,6 +39,7 @@ import com.android.jack.lookup.JNodeLookup;
 import com.android.jack.reporting.Reporter.Severity;
 import com.android.jack.shrob.obfuscation.key.FieldKey;
 import com.android.jack.shrob.obfuscation.key.MethodKey;
+import com.android.jack.shrob.obfuscation.key.TypeKey;
 import com.android.jack.shrob.proguard.GrammarActions;
 import com.android.jack.shrob.shrink.MappingCollisionException;
 import com.android.jack.shrob.shrink.MappingCollisionPolicy;
@@ -131,10 +132,34 @@ public class MappingApplier {
     throw new JackIOException(mappingFile.getPath() + ":" + lineNumber + ":" + message);
   }
 
+  private boolean isExistingTypeName(@Nonnull String newSimpleName,
+      @Nonnull JPackage enclosingPackage) {
+    try {
+      try {
+        JClassOrInterface newType = enclosingPackage.getType(newSimpleName);
+        if (!Renamer.mustBeRenamed((MarkerManager) newType)) {
+          // A type was found that must not be renamed
+          return true;
+        }
+      } catch (JTypeLookupException e) {
+        // Ignored
+      }
+      NewTypeKeyMarker marker = enclosingPackage.getMarker(NewTypeKeyMarker.class);
+      if (marker != null) {
+        if (marker.getNewKeys().contains(new TypeKey(newSimpleName))) {
+          return true;
+        }
+      }
+    } catch (JLookupException exception) {
+      // No type was found
+    }
+    return false;
+  }
+
   @CheckForNull
   private JDefinedClassOrInterface createMappingForType(@Nonnull String oldName,
       @Nonnull String newName, @Nonnull JSession session, @Nonnull File mappingFile,
-      int lineNumber) {
+      int lineNumber) throws MappingCollisionException {
     JClassOrInterface type = null;
     JNodeLookup lookup = session.getLookup();
     try {
@@ -145,7 +170,6 @@ public class MappingApplier {
           new Object[] {mappingFile.getPath(), Integer.valueOf(lineNumber), oldName});
     }
     if (type instanceof JDefinedClassOrInterface) {
-      JDefinedClassOrInterface clOrI = (JDefinedClassOrInterface) type;
       int indexOfNewSimpleName = newName.lastIndexOf('.');
       String newSimpleName, newPackageName;
       if (indexOfNewSimpleName == -1) {
@@ -155,18 +179,36 @@ public class MappingApplier {
         newPackageName = newName.substring(0, indexOfNewSimpleName).replace('.', '/');
         newSimpleName = newName.substring(indexOfNewSimpleName + 1, newName.length());
       }
-      clOrI.addMarker(new OriginalPackageMarker(clOrI.getEnclosingPackage()));
       JPackage newEnclosingPackage = lookup.getOrCreatePackage(newPackageName);
-      request.append(new ChangeEnclosingPackage(clOrI, newEnclosingPackage));
-      while (newEnclosingPackage != null) {
-        if (!newEnclosingPackage.containsMarker(KeepNameMarker.class)) {
-          newEnclosingPackage.addMarker(KeepNameMarker.INSTANCE);
-        }
-        newEnclosingPackage = newEnclosingPackage.getEnclosingPackage();
-      }
 
-      rename(clOrI, newSimpleName);
-      return clOrI;
+      if (!oldName.equals(newName)
+          && isExistingTypeName(newSimpleName, newEnclosingPackage)) {
+        throw new MappingCollisionException(
+            new ColumnAndLineLocation(new FileLocation(mappingFile), lineNumber), type, newName);
+      } else {
+        JDefinedClassOrInterface clOrI = (JDefinedClassOrInterface) type;
+
+        clOrI.addMarker(new OriginalPackageMarker(clOrI.getEnclosingPackage()));
+
+        NewTypeKeyMarker marker = newEnclosingPackage.getMarker(NewTypeKeyMarker.class);
+        if (marker == null) {
+          marker = new NewTypeKeyMarker();
+          newEnclosingPackage.addMarker(marker);
+        }
+        assert marker != null;
+        marker.add(new TypeKey(newSimpleName));
+
+        request.append(new ChangeEnclosingPackage(clOrI, newEnclosingPackage));
+        while (newEnclosingPackage != null) {
+          if (!newEnclosingPackage.containsMarker(KeepNameMarker.class)) {
+            newEnclosingPackage.addMarker(KeepNameMarker.INSTANCE);
+          }
+          newEnclosingPackage = newEnclosingPackage.getEnclosingPackage();
+        }
+
+        rename(clOrI, newSimpleName);
+        return clOrI;
+      }
     }
     return null;
   }
@@ -252,10 +294,18 @@ public class MappingApplier {
       return createMappingForType(
           qualifiedOldClassName, newClassName, session, mappingFile, lineNumber);
     } catch (ArrayIndexOutOfBoundsException e) {
-      throwException(
-          mappingFile, lineNumber, "The mapping file is badly formatted (class mapping expected)");
-      return null;
+      throwException(mappingFile, lineNumber,
+          "The mapping file is badly formatted (class mapping expected)");
+    } catch (MappingCollisionException e) {
+      if (collisionPolicy.equals(MappingCollisionPolicy.FAIL)) {
+        MappingContextException mappingReportableExn = new MappingContextException(e);
+        Jack.getSession().getReporter().report(Severity.FATAL, mappingReportableExn);
+        throw new JackAbortException(mappingReportableExn);
+      } else {
+        Jack.getSession().getReporter().report(Severity.NON_FATAL, new MappingContextInfo(e));
+      }
     }
+    return null;
   }
 
   @CheckForNull
