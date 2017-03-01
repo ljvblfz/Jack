@@ -18,7 +18,6 @@ package com.android.jack.test.toolchain;
 
 import com.google.common.base.Joiner;
 
-import com.android.dx.command.dexer.Main.Arguments;
 import com.android.jack.test.TestsProperties;
 import com.android.jack.test.util.ExecFileException;
 import com.android.jack.test.util.ExecuteFile;
@@ -41,17 +40,25 @@ public class LegacyToolchain extends AndroidToolchain {
   @Nonnull
   private final File legacyCompilerPrebuilt;
   @Nonnull
+  private final List<File> legacyCompilerBootclasspath;
+  @Nonnull
   private final File jarjarPrebuilt;
   @Nonnull
   private final File proguardPrebuilt;
+  @Nonnull
+  private final File dxPrebuilt;
 
   private boolean useDxOptimization = true;
 
-  LegacyToolchain(@Nonnull File legacyCompilerPrebuilt, @Nonnull File jarjarPrebuilt,
-      @Nonnull File proguardPrebuilt) {
+  LegacyToolchain(@Nonnull File legacyCompilerPrebuilt,
+      @Nonnull List<File> legacyCompilerBootclasspath,
+      @Nonnull File jarjarPrebuilt,
+      @Nonnull File proguardPrebuilt,   @Nonnull File dxPrebuilt) {
     this.legacyCompilerPrebuilt = legacyCompilerPrebuilt;
+    this.legacyCompilerBootclasspath = legacyCompilerBootclasspath;
     this.jarjarPrebuilt         = jarjarPrebuilt;
     this.proguardPrebuilt       = proguardPrebuilt;
+    this.dxPrebuilt             = dxPrebuilt;
   }
 
   @Override
@@ -123,15 +130,11 @@ public class LegacyToolchain extends AndroidToolchain {
   @Override
   public void libToExe(@Nonnull File[] in, @Nonnull File out, boolean zipFile) throws Exception {
 
-    try {
-      if (in.length > 1) {
-        throw new AssertionError("Not yet supported");
-      }
-      for (File lib : in) {
-        compileWithDx(in[0], out, zipFile);
-      }
-    } catch (IOException e) {
-      throw new RuntimeException("Legacy toolchain exited with an error", e);
+    if (in.length > 1) {
+      throw new AssertionError("Not yet supported");
+    }
+    for (File lib : in) {
+      compileWithDx(in[0], out, zipFile);
     }
   }
 
@@ -143,10 +146,9 @@ public class LegacyToolchain extends AndroidToolchain {
   @Override
   @Nonnull
   public File[] getDefaultBootClasspath() {
-    return new File[] {
-        new File(TestsProperties.getJackRootDir(), "jack-tests/prebuilts/core-stubs-mini.jar"),
-        new File(TestsProperties.getJackRootDir(), "jack-tests/libs/junit4.jar")
-    };
+    List<File> result = new ArrayList<>(legacyCompilerBootclasspath);
+    result.add(new File(TestsProperties.getJackRootDir(), "jack-tests/libs/junit4.jar"));
+    return result.toArray(new File[result.size()]);
   }
 
   @Override
@@ -245,7 +247,9 @@ public class LegacyToolchain extends AndroidToolchain {
     if (isVerbose) {
       commandLine.add("-verbose");
     }
+
     addSourceLevel(sourceLevel, commandLine);
+    addTargetLevel(sourceLevel, commandLine);
 
     if (annotationProcessorClasses != null) {
       commandLine.add("-processor");
@@ -296,9 +300,26 @@ public class LegacyToolchain extends AndroidToolchain {
     }
   }
 
+  private static void addTargetLevel(
+      @Nonnull SourceLevel level, @Nonnull List<String> commandLine) {
+    commandLine.add("-target");
+    switch (level) {
+      case JAVA_6:
+        commandLine.add("1.6");
+        break;
+      case JAVA_7:
+        commandLine.add("1.7");
+        break;
+      case JAVA_8:
+        commandLine.add("1.8");
+        break;
+      default:
+        throw new AssertionError("Unkown level: '" + level.toString() + "'");
+    }
+  }
+
   private void compileWithExternalRefCompiler(@Nonnull File[] sources,
       @CheckForNull String classpath, @Nonnull File out) throws Exception {
-
     List<String> commandLine = new ArrayList<String>();
 
     commandLine.add(legacyCompilerPrebuilt.getAbsolutePath());
@@ -308,9 +329,7 @@ public class LegacyToolchain extends AndroidToolchain {
     }
 
     addSourceLevel(sourceLevel, commandLine);
-
-    commandLine.add("-target");
-    commandLine.add("1.7");
+    addTargetLevel(sourceLevel, commandLine);
 
     commandLine.add("-encoding");
     commandLine.add("utf8");
@@ -347,34 +366,46 @@ public class LegacyToolchain extends AndroidToolchain {
     }
   }
 
-  private void compileWithDx(@Nonnull File in, @Nonnull File out, boolean zipFile)
-      throws IOException {
+  private void compileWithDx(@Nonnull File in, @Nonnull File out, boolean zipFile) {
+    List<String> commandLine = new ArrayList<String>();
+
+    if (dxPrebuilt.getAbsolutePath().endsWith(".jar")) {
+      commandLine.add("java");
+      commandLine.add("-jar");
+    }
+
+    commandLine.add(dxPrebuilt.getAbsolutePath());
+
+    commandLine.add("--dex");
+
+    if (!useDxOptimization) {
+      commandLine.add("--no-optimize");
+    }
+
+    // commandLine.add("--core-library");
+
+    if (isVerbose) {
+      commandLine.add("--verbose");
+    }
+
+    commandLine.add("--output=" + out.getAbsolutePath());
+
+    commandLine.add(in.getAbsolutePath());
+
+    ExecuteFile execFile = new ExecuteFile(commandLine.toArray(new String[commandLine.size()]));
+    execFile.inheritEnvironment();
+    execFile.setOut(outRedirectStream);
+    execFile.setErr(errRedirectStream);
+    execFile.setVerbose(isVerbose);
 
     try {
-      System.setOut(outRedirectStream);
-      System.setErr(errRedirectStream);
-
-      Arguments arguments = new Arguments();
-
-      arguments.jarOutput = zipFile;
-      arguments.outName = new File(out, getBinaryFileName()).getAbsolutePath();
-
-      arguments.optimize = useDxOptimization;
-      // this only means we deactivate the check that no core classes are included
-      arguments.coreLibrary = true;
-      arguments.verbose = isVerbose;
-      arguments.parse(new String[] {in.getAbsolutePath()});
-
-      int retValue = com.android.dx.command.dexer.Main.run(arguments);
-      if (retValue != 0) {
-        throw new RuntimeException("Dx failed and returned " + retValue);
+      if (execFile.run() != 0) {
+        throw new RuntimeException("Dx exited with an error");
       }
-    } finally {
-      System.setOut(stdOut);
-      System.setErr(stdErr);
+    } catch (ExecFileException e) {
+      throw new RuntimeException("An error occurred while running dx", e);
     }
   }
-
 
   protected void addSourceList(@Nonnull List<String> commandLine, @Nonnull File... sources)
       throws Exception {
