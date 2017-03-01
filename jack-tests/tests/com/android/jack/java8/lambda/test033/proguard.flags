@@ -1,6 +1,6 @@
 -applymapping mapping.flags
 
 -keepattributes
--keep class * {
+-keep class com.android.jack.java8.lambda.test033.jack.Tests {
   *;
 }

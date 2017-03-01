@@ -22,6 +22,7 @@ import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JackApiV01;
 import com.android.jack.test.toolchain.JillBasedToolchain;
+import com.android.jack.test.toolchain.LegacyToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
 import org.junit.Test;
@@ -180,6 +181,7 @@ public class MethodRefTest {
         // This test must be exclude from the Jill tool-chain because it does not compile with it
         .addIgnoredCandidateToolchain(JillBasedToolchain.class)
         .addIgnoredCandidateToolchain(JackApiV01.class)
+        .addIgnoredCandidateToolchain(LegacyToolchain.class)
         .compileAndRunTest();
   }
 

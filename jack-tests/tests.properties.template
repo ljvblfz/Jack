@@ -16,4 +16,5 @@ runtime.location.dalvik-jit-host=
 runtime.location.art-host=
 
 toolchain.prebuilt.legacy-java-compiler=
+toolchain.prebuilt.legacy-java-compiler.bootclasspath=
 

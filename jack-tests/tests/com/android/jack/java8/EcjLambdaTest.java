@@ -20,10 +20,11 @@ import com.android.jack.test.eclipse.jdt.core.tests.compiler.regression.LambdaEx
 import com.android.jack.test.runner.AbstractRuntimeRunner;
 import com.android.jack.test.runner.RuntimeRunner;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.AndroidToolchain;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackApiV01;
-import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
+import com.android.jack.test.toolchain.LegacyToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 import com.android.sched.util.file.CannotChangePermissionException;
 import com.android.sched.util.file.CannotCreateFileException;
@@ -82,8 +83,11 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
   }
 
   @Nonnull
-  private static final List<String> testBugECJ =
-      Arrays.asList("test055");
+  private static final List<String> testBugJavac = Arrays.asList("test430035d",
+      "test430035e", "test428261a", "test044", "test051", "testReferenceExpressionInference3a");
+
+  @Nonnull
+  private static final List<String> testBugECJ = Arrays.asList("test055");
 
   @Nonnull
   private static final List<String> testWithOtherErrorMsg =
@@ -134,6 +138,7 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
     // These tests must be exclude from the Jill tool-chain because they do not compile with it
     if (getName().equals("testReferenceExpressionInference3a")) {
       excludeList.add(JillBasedToolchain.class);
+      excludeList.add(LegacyToolchain.class);
     }
     excludeList.add(JackApiV01.class);
 
@@ -142,7 +147,7 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
       File dexOutDir = AbstractTestTools.createTempDir();
 
       // Build dex file
-      JackBasedToolchain jackToolchain = createToolchain(excludeList);
+      AndroidToolchain jackToolchain = createToolchain(excludeList);
       jackToolchain.srcToExe(dexOutDir, /* zipFile = */ false, sourceFolder);
     } catch (AssumptionViolatedException e) {
       // Handle JUnit4 feature in JUnit3 tests.
@@ -169,6 +174,10 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
     if (getName().equals("test051")) {
       excludeList.add(JillBasedToolchain.class);
     }
+    if (testBugJavac.contains(getName())) {
+      // This tests does not compile with Javac exclude them
+      excludeList.add(LegacyToolchain.class);
+    }
     excludeList.add(JackApiV01.class);
 
     try {
@@ -176,7 +185,7 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
       File sourceFolder = buildSourceFolder(srcDescription);
 
       // Build dex file
-      JackBasedToolchain jackToolchain = createToolchain(excludeList);
+      AndroidToolchain jackToolchain = createToolchain(excludeList);
       jackToolchain.srcToExe(dexOutDir, /* zipFile = */ false, sourceFolder);
 
       File dexFile = new File(dexOutDir, "classes.dex");
@@ -226,12 +235,12 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
     return sourceFolder;
   }
 
-  protected JackBasedToolchain createToolchain(
+  protected AndroidToolchain createToolchain(
       @Nonnull List<Class<? extends IToolchain>> excludeList) throws Exception {
 
-    JackBasedToolchain jackToolchain = null;
+    AndroidToolchain jackToolchain = null;
     jackToolchain =
-          AbstractTestTools.getCandidateToolchain(JackBasedToolchain.class, excludeList);
+          AbstractTestTools.getCandidateToolchain(AndroidToolchain.class, excludeList);
 
     File[] bootclasspath = jackToolchain.getDefaultBootClasspath();
     jackToolchain.addToClasspath(bootclasspath);

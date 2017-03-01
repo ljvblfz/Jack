@@ -1,6 +1,6 @@
--applymapping mapping.flags
-
+-dontshrink
 -keepattributes
--keep class * {
+-applymapping mapping.flags
+-keep public class com.android.jack.java8.lambda.test010.jack.Tests {
   *;
 }

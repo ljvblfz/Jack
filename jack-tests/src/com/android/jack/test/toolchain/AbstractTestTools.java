@@ -17,6 +17,7 @@
 package com.android.jack.test.toolchain;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 
 import com.android.jack.Sourcelist;
 import com.android.jack.library.InputJackLibrary;
@@ -313,6 +314,39 @@ public abstract class AbstractTestTools {
     return result;
   }
 
+  @Nonnull
+  public static List<File> getPrebuiltsAsClasspath(@Nonnull String prebuiltClasspathName) {
+    String keyName = TOOLCHAIN_PREBUILT_PREFIX + prebuiltClasspathName;
+    String value = TestsProperties.getProperty(keyName).trim();
+
+    if (value.equals("")) {
+      throw new AssertionError("Property '" + prebuiltClasspathName + "' is not set");
+    }
+
+    List<File> result = new ArrayList<>();
+    for (String prebuiltPath : getClasspathsAsList(value)) {
+
+      File file = new File(prebuiltPath);
+      if (!file.isAbsolute()) {
+        file = new File(TestsProperties.getJackRootDir(), prebuiltPath);
+      }
+
+      if (!file.exists()) {
+        throw new TestConfigurationException(
+            "Can not find prebuilt at '"
+                + file.getPath()
+                + "' for prebuilt classpath '"
+                + prebuiltClasspathName
+                + "'");
+      }
+
+
+      result.add(file);
+    }
+
+    return result;
+  }
+
 
   @Nonnull
   private static final File getTestsRootDir() {
@@ -536,6 +570,11 @@ public abstract class AbstractTestTools {
       return concatClasspathStrings(
           getClasspathAsString(bootClasspath), getClasspathAsString(classpath));
     }
+  }
+
+  @Nonnull
+  public static List<String> getClasspathsAsList(@Nonnull String classpath) {
+    return Lists.newArrayList(Splitter.on(File.pathSeparatorChar).split(classpath));
   }
 
   @Nonnull
