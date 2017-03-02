@@ -262,22 +262,17 @@ public abstract class JLookup {
     T type;
     synchronized (cache) {
       type = cache.get(signature);
-    }
 
-    if (type == null) {
-      int typeNameLength = signature.length();
-      assert typeNameLength > 1 : "Invalid signature '" + signature + "'";
-      if (signature.charAt(0) == '[') {
-        type = (T) findArrayType(signature);
-      } else {
-        type = findClassOrInterface(signature, adapter);
-      }
-      synchronized (cache) {
-        // Model already ensures unicity of types, so the worst that could happen here would be to
-        // store the exact same type that is already stored.
-        assert cache.get(signature) == null || cache.get(signature) == type;
+      if (type == null) {
+        int typeNameLength = signature.length();
+        assert typeNameLength > 1 : "Invalid signature '" + signature + "'";
+        if (signature.charAt(0) == '[') {
+          type = (T) findArrayType(signature);
+        } else {
+          type = findClassOrInterface(signature, adapter);
+        }
         cache.put(signature, type);
-      }
+     }
     }
     return type;
   }
