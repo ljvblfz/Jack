@@ -490,7 +490,8 @@ public class LegacyToolchain extends AndroidToolchain {
       commandLine.add("--no-optimize");
     }
 
-    // commandLine.add("--core-library");
+    commandLine.add("--min-sdk-version");
+    commandLine.add(minApiLevel);
 
     if (isVerbose) {
       commandLine.add("--verbose");
