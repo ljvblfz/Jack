@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+UUID=$1
+shift
 "$@"
-echo $? > /data/jack-tests/exitStatus
+echo $? > /data/jack-tests-$UUID/exitStatus
 

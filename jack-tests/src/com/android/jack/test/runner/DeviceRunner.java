@@ -199,13 +199,17 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
 
         ensureAdbRoot(device);
 
+        String uuid = java.util.UUID.randomUUID().toString();
+
         //Remove trailing '\n' returned by emulator
         File testsRootDirFile =
-            new File(device.getMountPoint(IDevice.MNT_DATA).replace("\n", ""), "jack-tests");
+            new File(
+                device.getMountPoint(IDevice.MNT_DATA).replace("\n", ""), "jack-tests-" + uuid);
         String testsRootDir = convertToTargetPath(testsRootDirFile);
 
         String testScriptPathOnTarget =
-            convertToTargetPath(new File(testsRootDirFile, "TEST_SCRIPT_NAME"));
+            convertToTargetPath(
+                new File(testsRootDirFile, "TEST_SCRIPT_NAME"));
 
         String[] desFilePaths = new String[classpathFiles.length];
         try {
@@ -290,10 +294,10 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
           for (String args : cmdLines) {
             if (isVerbose) {
               System.out.println("adb -s " + device.getSerialNumber() + " shell "
-                  + testScriptPathOnTarget + ' ' + args);
+                  + testScriptPathOnTarget + ' ' + uuid + ' ' + args);
             }
             device.executeShellCommand(
-                testScriptPathOnTarget + ' ' + args,
+                testScriptPathOnTarget + ' ' + uuid + ' ' + args,
                 new MyShellOuputReceiver(outRedirectStream, errRedirectStream),
                 /* maxTimeToOutputResponse = */ 10000);
 
@@ -335,18 +339,17 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
             | SyncException e) {
           throw new RuntimeRunnerException(e);
         } finally {
+
+          if (isVerbose) {
+            System.out.println(
+                "adb shell -s " + device.getSerialNumber() + " rm -rf " + testsRootDir);
+          }
           try {
-            for (String pushedFile : desFilePaths) {
-              if (isVerbose) {
-                System.out.println(
-                    "adb -s " + device.getSerialNumber() + " rm " + pushedFile);
-              }
-              device.executeShellCommand("rm " + pushedFile, hostOutput);
-            }
-          } catch (IOException
-              | TimeoutException
+            device.executeShellCommand("rm -rf " + testsRootDir, hostOutput);
+          } catch (TimeoutException
               | AdbCommandRejectedException
-              | ShellCommandUnresponsiveException e) {
+              | ShellCommandUnresponsiveException
+              | IOException e) {
             throw new RuntimeRunnerException(e);
           }
         }
