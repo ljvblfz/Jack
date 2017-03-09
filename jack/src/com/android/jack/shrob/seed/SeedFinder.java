@@ -34,6 +34,7 @@ import com.android.jack.shrob.spec.KeepModifier;
 import com.android.jack.shrob.spec.MethodSpecification;
 import com.android.jack.shrob.spec.Specification;
 import com.android.sched.item.Description;
+import com.android.sched.item.Synchronized;
 import com.android.sched.schedulable.Access;
 import com.android.sched.schedulable.Constraint;
 import com.android.sched.schedulable.RunnableSchedulable;
@@ -56,6 +57,7 @@ import javax.annotation.Nonnull;
 @Transform(add = SeedMarker.class)
 // Visit super.
 @Access(JSession.class)
+@Synchronized
 public class SeedFinder implements RunnableSchedulable<JDefinedClassOrInterface> {
 
   public static final BooleanPropertyId SEARCH_SEEDS_IN_HIERARCHY = BooleanPropertyId
@@ -80,7 +82,7 @@ public class SeedFinder implements RunnableSchedulable<JDefinedClassOrInterface>
   }
 
   @Override
-  public void run(@Nonnull JDefinedClassOrInterface type) {
+  public synchronized void run(@Nonnull JDefinedClassOrInterface type) {
     for (ClassSpecification classSpec : flags.getKeepClassSpecs()) {
       if (classSpec.matches(type)) {
         KeepModifier keepModifier = classSpec.getKeepModifier();
