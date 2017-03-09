@@ -454,7 +454,7 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
     return vFile;
 
     } catch (NotFileException e) {
-      throw new CannotCreateFileException(getVFileLocation(parent, name));
+      throw new CannotCreateFileException(getVFileLocation(parent, name), e);
     }
   }
 
@@ -482,7 +482,7 @@ public class CachedDirectFS extends BaseVFS<CachedParentVDir, CachedParentVFile>
       return vDir;
 
     } catch (NotDirectoryException e) {
-      throw new CannotCreateFileException(getVDirLocation(parent, name));
+      throw new CannotCreateFileException(getVDirLocation(parent, name), e);
     }
   }
 

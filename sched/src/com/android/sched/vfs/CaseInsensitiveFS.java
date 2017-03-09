@@ -525,7 +525,7 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
     try {
       return loadVDir(parent, name);
     } catch (NotDirectoryException e) {
-      throw new CannotCreateFileException(getVDirLocation(parent, name));
+      throw new CannotCreateFileException(getVDirLocation(parent, name), e);
     }
   }
 
@@ -547,7 +547,7 @@ public class CaseInsensitiveFS extends BaseVFS<CaseInsensitiveVDir, CaseInsensit
         return original;
       }
     } catch (NotFileException e) {
-      throw new CannotCreateFileException(getVFileLocation(parent, name));
+      throw new CannotCreateFileException(getVFileLocation(parent, name), e);
     }
   }
 

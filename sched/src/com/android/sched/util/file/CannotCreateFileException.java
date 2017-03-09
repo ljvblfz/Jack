@@ -23,7 +23,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * Exception when a file or directory can not be created.
+ * Exception when a file or directory cannot be created.
  */
 public class CannotCreateFileException extends SchedIOException {
   private static final long serialVersionUID = 1L;
@@ -48,6 +48,11 @@ public class CannotCreateFileException extends SchedIOException {
 
   @Override
   protected String createMessage(@Nonnull String description) {
-    return description + " can not be created";
+    String message = description + " cannot be created";
+    Throwable cause = getCause();
+    if (cause != null) {
+      message += ": " + cause.getMessage();
+    }
+    return message;
   }
 }

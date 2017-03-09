@@ -93,7 +93,7 @@ abstract class InMemoryVDir extends BaseVDir {
 
       return dir;
     } catch (NotDirectoryException e) {
-      throw new CannotCreateFileException(vfs.getVDirLocation(this, name));
+      throw new CannotCreateFileException(vfs.getVDirLocation(this, name), e);
     }
   }
 
@@ -109,7 +109,7 @@ abstract class InMemoryVDir extends BaseVDir {
 
       return file;
     } catch (NotFileException e) {
-      throw new CannotCreateFileException(vfs.getVFileLocation(this, name));
+      throw new CannotCreateFileException(vfs.getVFileLocation(this, name), e);
     }
   }
 

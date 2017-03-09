@@ -114,7 +114,7 @@ public abstract class AbstractStreamFile extends FileOrDirectory implements Stat
         return;
       }
     } catch (IOException e) {
-      throw new CannotCreateFileException(location);
+      throw new CannotCreateFileException(location, e);
     }
 
     throw new FileAlreadyExistsException(location);
