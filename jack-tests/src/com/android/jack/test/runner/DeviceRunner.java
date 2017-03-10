@@ -356,6 +356,7 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
 
       } catch (RuntimeRunnerException e) {
         System.err.println("Error with device '" + device.getName() + "': " + e.getMessage());
+        e.printStackTrace();
         failingDevices.add(device.getName());
       }
 
