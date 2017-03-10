@@ -1,9 +1,9 @@
-URL: https://android.googlesource.com/platform/tools/base/+/0d3d4b7dc0b2948a9f8257c1176a6ea70043bf8e/ddmlib/
-Tag: gradle_2.2.2 studio-2.2.2
+URL: https://android.git.corp.google.com/platform/prebuilts/devtools/+/42f8ef3570f43414858a974ddd593ac13ab02163/tools/lib/ddmlib.jar
+Tag: AOSP master, prebuilts/devtools
 License: Apache 2
 Description: A library to control android/host operations.
 Local Modifications: None.
 
-Commit 0d3d4b7dc0b2948a9f8257c1176a6ea70043bf8e
-from studio-master-dev aosp
+Commit 42f8ef3570f43414858a974ddd593ac13ab02163
+from branch master
 
