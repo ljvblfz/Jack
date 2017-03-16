@@ -566,9 +566,11 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
           assert nextFrame != null;
           writeInsn(currentFrame, nextFrame, (TypeInsnNode) insn);
         } else if (insn instanceof TableSwitchInsnNode) {
+          forceToUseCstThroughVariable();
           assert nextFrame != null;
           writeInsn(currentFrame, nextFrame, (TableSwitchInsnNode) insn, insnIdx);
         } else if (insn instanceof LookupSwitchInsnNode) {
+          forceToUseCstThroughVariable();
           assert nextFrame != null;
           writeInsn(currentFrame, nextFrame, (LookupSwitchInsnNode) insn, insnIdx);
         } else if (insn instanceof IntInsnNode) {

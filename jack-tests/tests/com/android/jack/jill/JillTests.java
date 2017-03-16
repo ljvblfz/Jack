@@ -70,6 +70,13 @@ public class JillTests {
     runJillTest("005");
   }
 
+  @Test
+  @Runtime
+  @KnownIssue(candidate=IncrementalToolchain.class)
+  public void test006() throws Exception {
+    runJillTest("006");
+  }
+
   private static void runJillTest(@Nonnull String testNumber) throws Exception {
     String jackFolder = getJackFolder(testNumber);
     String jasminFolder = getJasminFolder(testNumber);
