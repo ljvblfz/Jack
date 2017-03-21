@@ -1,9 +1,17 @@
-URL: https://android.git.corp.google.com/platform/prebuilts/devtools/+/42f8ef3570f43414858a974ddd593ac13ab02163/tools/lib/ddmlib.jar
-Tag: AOSP master, prebuilts/devtools
+URL: manually built
+Tag: studio-2.3, tag: gradle_2.3.0
 License: Apache 2
 Description: A library to control android/host operations.
 Local Modifications: None.
 
-Commit 42f8ef3570f43414858a974ddd593ac13ab02163
-from branch master
+commit be58f822d6b8618b88be09755a4b31ec27faad97 (HEAD, tag: studio-2.3, tag: gradle_2.3.0, m/studio-master-dev, aosp/studio-master-dev)
+Author: Joe Baker-Malone <jbakermalone@google.com>
+Date:   Tue Feb 28 13:10:36 2017 -0800
+
+    Updating tools component revision
+
+    Test: n/a
+    Change-Id: I66f05fc7110d2528cbab602dbc2bff589e0f7db9
+
+from branch AOSP studio-master-dev
 

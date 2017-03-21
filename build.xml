@@ -1335,7 +1335,10 @@
 
   <target name="ddm-lib">
     <mkdir dir="${ddm-lib.dist.dir}"/>
-    <copy file="${ddm-lib.dir}/ddmlib.jar" tofile="${ddm-lib.dist.dir}/${ddm-lib.libname}"/>
+    <copy file="${ddm-lib.dir}/ddmlib-25.3.0.jar" tofile="${ddm-lib.dist.dir}/${ddm-lib.libname}"/>
+    <jar destfile="${ddm-lib.dist.dir}/${ddm-lib.libname}" update="true">
+      <zipfileset includes="**/*.class" src="${ddm-lib.dir}/common-25.3.0.jar"/>
+    </jar>
   </target>
 
   <!-- ******************* -->

@@ -17,5 +17,6 @@
 apply plugin: 'java'
 
 jar {
-    from zipTree("ddmlib.jar")
+    from zipTree("ddmlib-25.3.0.jar")
+    from zipTree("common-25.3.0.jar")
 }

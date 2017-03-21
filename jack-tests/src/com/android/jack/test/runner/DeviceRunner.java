@@ -29,8 +29,6 @@ import com.android.ddmlib.TimeoutException;
 import com.android.jack.test.TestConfigurationException;
 import com.android.jack.test.TestsProperties;
 import com.android.jack.test.toolchain.AbstractTestTools;
-import com.android.jack.test.util.ExecFileException;
-import com.android.jack.test.util.ExecuteFile;
 import com.android.sched.util.file.CannotChangePermissionException;
 import com.android.sched.util.file.CannotCreateFileException;
 
@@ -402,36 +400,67 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
 
 
   private void ensureAdbRoot(@Nonnull IDevice device) throws RuntimeRunnerException {
-    ShellOutputToStringReceiver outputToString = new ShellOutputToStringReceiver();
-    try {
-      device.executeShellCommand("id", outputToString);
+    boolean isRoot = false;
 
-      if (!outputToString.getOutput().contains("uid=0(root)")) {
-        ExecuteFile ef;
-        ef = new ExecuteFile(getAdbLocation() + " -s " + device.getSerialNumber() + " root");
-        ef.inheritEnvironment();
-        ef.setOut(System.out);
-        ef.setErr(System.err);
-        ef.setVerbose(isVerbose);
-        ef.run();
+    try {
+
+      isRoot = device.isRoot();
+
+    } catch (TimeoutException
+        | AdbCommandRejectedException
+        | IOException
+        | ShellCommandUnresponsiveException e) {
+
+      throw new RuntimeRunnerException(
+          "Cannot fetch root status for device '"
+              + device.getName()
+              + "("
+              + device.getSerialNumber()
+              + ")"
+              + "': "
+              + e.getMessage(),
+          e);
+
+    }
+
+    int nbTry = 0;
+    while (!isRoot && nbTry < 3) {
+      try {
+
+        isRoot = device.root();
+
+      } catch (TimeoutException
+          | AdbCommandRejectedException
+          | IOException
+          | ShellCommandUnresponsiveException e1) {
+        // root() seems to throw an IOException: EOF, and it tends
+        // to make the subsequent call to isRoot() fail with
+        // AdbCommandRejectedException: device offline, until adbd is
+        // restarted as root.
+      } finally {
 
         try {
           Thread.sleep(1000);
         } catch (InterruptedException e1) {
           Thread.currentThread().interrupt();
         }
+
       }
-    } catch (TimeoutException e1) {
-      throw new RuntimeRunnerException(e1);
-    } catch (AdbCommandRejectedException e1) {
-      throw new RuntimeRunnerException(e1);
-    } catch (ShellCommandUnresponsiveException e1) {
-      throw new RuntimeRunnerException(e1);
-    } catch (IOException e1) {
-      throw new RuntimeRunnerException(e1);
-    } catch (ExecFileException e) {
-      throw new RuntimeRunnerException("Error while executing 'adb root'", e);
+
+      nbTry++;
+
     }
+
+    if (!isRoot) {
+      throw new RuntimeRunnerException(
+          "Cannot switch to root on device '"
+              + device.getName()
+              + "("
+              + device.getSerialNumber()
+              + ")"
+              + "'");
+    }
+
   }
 
   @Nonnull
