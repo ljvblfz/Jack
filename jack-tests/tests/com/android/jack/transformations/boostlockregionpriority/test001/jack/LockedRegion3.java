@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,12 @@
 
 package com.android.jack.transformations.boostlockregionpriority.test001.jack;
 
-public class LockedRegion {
+/**
+ * This one does NOT get any boosting.
+ */
+public class LockedRegion3 {
 
   public static int count = 0;
-
-  private Object objectLock = new Object();
 
   private static void region() {
     count++;
@@ -28,34 +29,6 @@ public class LockedRegion {
 
   public void invokeLockThis() {
     synchronized (this) {
-      region();
-    }
-  }
-
-  public void invokeLockThisFourTimes() {
-    synchronized (this) {
-      region();
-    }
-    synchronized (this) {
-      region();
-    }
-    synchronized (this) {
-      region();
-    }
-    synchronized (this) {
-      region();
-    }
-  }
-
-  public void invokeLockThisException() {
-    synchronized (this) {
-      region();
-      throw new RuntimeException();
-    }
-  }
-
-  public void invokeLockObject() {
-    synchronized (objectLock) {
       region();
     }
   }

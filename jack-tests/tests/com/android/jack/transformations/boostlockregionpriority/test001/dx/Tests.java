@@ -17,10 +17,17 @@
 package com.android.jack.transformations.boostlockregionpriority.test001.dx;
 
 import com.android.jack.transformations.boostlockregionpriority.test001.jack.LockedRegion;
+import com.android.jack.transformations.boostlockregionpriority.test001.jack.LockedRegion2;
+import com.android.jack.transformations.boostlockregionpriority.test001.jack.LockedRegion3;
 import com.android.jack.transformations.boostlockregionpriority.test001.jack.Request;
+import com.android.jack.transformations.boostlockregionpriority.test001.jack.Request2;
+import com.android.jack.transformations.boostlockregionpriority.test001.jack.Request3;
 import com.android.jack.transformations.boostlockregionpriority.test001.jack.Reset;
+import com.android.jack.transformations.boostlockregionpriority.test001.jack.Reset2;
+import com.android.jack.transformations.boostlockregionpriority.test001.jack.Reset3;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 public class Tests {
@@ -31,6 +38,14 @@ public class Tests {
     Assert.assertEquals(1, Request.count);
     Assert.assertEquals(1, Reset.count);
     Assert.assertEquals(1, LockedRegion.count);
+
+    Assert.assertEquals(0, Request2.count);
+    Assert.assertEquals(0, Reset2.count);
+    Assert.assertEquals(0, LockedRegion2.count);
+
+    Assert.assertEquals(0, Request3.count);
+    Assert.assertEquals(0, Reset3.count);
+    Assert.assertEquals(0, LockedRegion3.count);
   }
 
   @Test
@@ -40,6 +55,14 @@ public class Tests {
     Assert.assertEquals(4, Request.count);
     Assert.assertEquals(4, Reset.count);
     Assert.assertEquals(4, LockedRegion.count);
+
+    Assert.assertEquals(0, Request2.count);
+    Assert.assertEquals(0, Reset2.count);
+    Assert.assertEquals(0, LockedRegion2.count);
+
+    Assert.assertEquals(0, Request3.count);
+    Assert.assertEquals(0, Reset3.count);
+    Assert.assertEquals(0, LockedRegion3.count);
   }
 
   /**
@@ -58,6 +81,14 @@ public class Tests {
     Assert.assertEquals(1, Request.count);
     Assert.assertEquals(1, Reset.count);
     Assert.assertEquals(1, LockedRegion.count);
+
+    Assert.assertEquals(0, Request2.count);
+    Assert.assertEquals(0, Reset2.count);
+    Assert.assertEquals(0, LockedRegion2.count);
+
+    Assert.assertEquals(0, Request3.count);
+    Assert.assertEquals(0, Reset3.count);
+    Assert.assertEquals(0, LockedRegion3.count);
   }
 
   @Test
@@ -67,5 +98,65 @@ public class Tests {
     Assert.assertEquals(0, Request.count);
     Assert.assertEquals(0, Reset.count);
     Assert.assertEquals(1, LockedRegion.count);
+
+    Assert.assertEquals(0, Request2.count);
+    Assert.assertEquals(0, Reset2.count);
+    Assert.assertEquals(0, LockedRegion2.count);
+
+    Assert.assertEquals(0, Request3.count);
+    Assert.assertEquals(0, Reset3.count);
+    Assert.assertEquals(0, LockedRegion3.count);
+  }
+
+  @Test
+  public void testLock2ThisBoost() {
+    LockedRegion2 r = new LockedRegion2();
+    r.invokeLockThis();
+    Assert.assertEquals(0, Request.count);
+    Assert.assertEquals(0, Reset.count);
+    Assert.assertEquals(0, LockedRegion.count);
+
+    Assert.assertEquals(1, Request2.count);
+    Assert.assertEquals(1, Reset2.count);
+    Assert.assertEquals(1, LockedRegion2.count);
+
+    Assert.assertEquals(0, Request3.count);
+    Assert.assertEquals(0, Reset3.count);
+    Assert.assertEquals(0, LockedRegion3.count);
+  }
+
+  @Test
+  public void testDoubleLockThisBoost() {
+    LockedRegion r = new LockedRegion();
+    LockedRegion2 r2 = new LockedRegion2();
+    r.invokeLockThis();
+    r2.invokeLockThis();
+
+    Assert.assertEquals(1, Request.count);
+    Assert.assertEquals(1, Reset.count);
+    Assert.assertEquals(1, LockedRegion.count);
+
+    Assert.assertEquals(1, Request2.count);
+    Assert.assertEquals(1, Reset2.count);
+    Assert.assertEquals(1, LockedRegion2.count);
+
+    Assert.assertEquals(0, Request3.count);
+    Assert.assertEquals(0, Reset3.count);
+    Assert.assertEquals(0, LockedRegion3.count);
+  }
+
+  @Before
+  public void clearCounts() {
+    Reset.count = 0;
+    Request.count = 0;
+    LockedRegion.count = 0;
+
+    Reset2.count = 0;
+    Request2.count = 0;
+    LockedRegion2.count = 0;
+
+    Reset3.count = 0;
+    Request3.count = 0;
+    LockedRegion3.count = 0;
   }
 }
