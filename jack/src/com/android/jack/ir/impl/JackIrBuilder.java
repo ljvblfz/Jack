@@ -1809,7 +1809,7 @@ public class JackIrBuilder {
         lambdaMethod.getMethodIdWide()
             .setName("lambda$" + ReferenceMapper.intern(NamingTools.getNonSourceConflictingName(
                 BinaryQualifiedNameFormatter.getFormatter().getName(curClass.type)
-                    + "_" + lambdaMethod.getMethodIdWide().getName())));
+                    + "_" + lambdaExpression.sourceStart())));
       } catch (JTypeLookupException e) {
         throw translateException(lambdaExpression, e);
       } catch (RuntimeException e) {
