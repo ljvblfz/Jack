@@ -24,10 +24,13 @@ import com.android.jack.util.MethodNameCodec.MethodNameValue;
 import com.android.sched.item.Description;
 import com.android.sched.item.Feature;
 import com.android.sched.item.Name;
+import com.android.sched.util.codec.ListCodec;
 import com.android.sched.util.config.HasKeyId;
 import com.android.sched.util.config.category.Private;
 import com.android.sched.util.config.id.BooleanPropertyId;
 import com.android.sched.util.config.id.PropertyId;
+
+import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -48,31 +51,31 @@ public final class BoostLockedRegionPriorityFeature implements Feature {
           .addCategory(DumpInLibrary.class);
 
   @Nonnull
-  public static final PropertyId<String> BOOST_LOCK_CLASSNAME =
+  public static final PropertyId<List<String>> BOOST_LOCK_CLASSNAME =
       PropertyId.create(
               "jack.transformations.boost-locked-region-priority.classname",
-              "The class signature where acquiring it as a lock should boost a thread's prioirty",
-              new ClassNameCodec())
+              "The class signatures where acquiring it as a lock should boost a thread's prioirty",
+              new ListCodec<String>(new ClassNameCodec()))
           .requiredIf(BoostLockedRegionPriorityFeature.ENABLE.getValue().isTrue())
           .addCategory(Private.class)
           .addCategory(DumpInLibrary.class);
 
   @Nonnull
-  public static final PropertyId<MethodNameValue> BOOST_LOCK_REQUEST_METHOD =
+  public static final PropertyId<List<MethodNameValue>> BOOST_LOCK_REQUEST_METHOD =
       PropertyId.create(
               "jack.transformations.boost-locked-region-priority.request",
-              "Static method in the specified class that can boost a thread's prioirty",
-              new MethodNameCodec())
+              "Static methods in the specified classes that can boost a thread's prioirty",
+              new ListCodec<MethodNameValue>(new MethodNameCodec()))
           .requiredIf(BoostLockedRegionPriorityFeature.ENABLE.getValue().isTrue())
           .addCategory(Private.class)
           .addCategory(DumpInLibrary.class);
 
   @Nonnull
-  public static final PropertyId<MethodNameValue> BOOST_LOCK_RESET_METHOD =
+  public static final PropertyId<List<MethodNameValue>> BOOST_LOCK_RESET_METHOD =
       PropertyId.create(
               "jack.transformations.boost-locked-region-priority.reset",
-              "Static method in the specified class that can reset a thread's prioirty",
-              new MethodNameCodec())
+              "Static methods in the specified classes that can reset a thread's prioirty",
+              new ListCodec<MethodNameValue>(new MethodNameCodec()))
           .requiredIf(BoostLockedRegionPriorityFeature.ENABLE.getValue().isTrue())
           .addCategory(Private.class)
           .addCategory(DumpInLibrary.class);

@@ -27,29 +27,29 @@ import org.junit.Test;
 
 public class BoostLockedRegionPriorityTests extends RuntimeTest {
 
-  private RuntimeTestInfo TEST001 =
-      new RuntimeTestInfo(
-          AbstractTestTools.getTestRootDir(
-              "com.android.jack.transformations.boostlockregionpriority.test001"),
-          "com.android.jack.transformations.boostlockregionpriority.test001.dx.Tests");
+  private RuntimeTestInfo TEST001 = new RuntimeTestInfo(
+      AbstractTestTools
+          .getTestRootDir("com.android.jack.transformations.boostlockregionpriority.test001"),
+      "com.android.jack.transformations.boostlockregionpriority.test001.dx.Tests");
 
   @Test
   @Runtime
   public void test001() throws Exception {
-    new RuntimeTestHelper(TEST001)
-        .addIgnoredCandidateToolchain(JillBasedToolchain.class)
+    new RuntimeTestHelper(TEST001).addIgnoredCandidateToolchain(JillBasedToolchain.class)
         .addProperty("jack.transformations.boost-locked-region-priority", "true")
-        .addProperty(
-            "jack.transformations.boost-locked-region-priority.classname",
-            "com.android.jack.transformations.boostlockregionpriority.test001.jack.LockedRegion")
-        .addProperty(
-            "jack.transformations.boost-locked-region-priority.request",
+        .addProperty("jack.transformations.boost-locked-region-priority.classname",
+            "com.android.jack.transformations.boostlockregionpriority.test001.jack.LockedRegion,"
+                + "com.android.jack.transformations.boostlockregionpriority.test001.jack.LockedRegion2,")
+        .addProperty("jack.transformations.boost-locked-region-priority.request",
             "com.android.jack.transformations.boostlockregionpriority.test001.jack."
-                + "Request#request")
-        .addProperty(
-            "jack.transformations.boost-locked-region-priority.reset",
+                + "Request#request,"
+                + "com.android.jack.transformations.boostlockregionpriority.test001.jack."
+                + "Request2#request")
+        .addProperty("jack.transformations.boost-locked-region-priority.reset",
             "com.android.jack.transformations.boostlockregionpriority.test001.jack."
-                + "Reset#reset")
+                + "Reset#reset,"
+                + "com.android.jack.transformations.boostlockregionpriority.test001.jack."
+                + "Reset2#reset,")
         .compileAndRunTest();
   }
 
