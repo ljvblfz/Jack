@@ -268,7 +268,7 @@ public class LegacyToolchain extends AndroidToolchain {
 
     commandLine.add("--bootclasspath_entry");
     commandLine.add(
-        new File(TestsProperties.getJackRootDir(), "jack-tests/libs/emptyjar.jar")
+        new File(TestsProperties.getJackRootDir(), "jack-tests/prebuilts/emptyjar.jar")
             .getAbsolutePath());
 
     if (tmpClasspath != null) {
