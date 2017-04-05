@@ -30,7 +30,6 @@ public class Tests {
   @Test
   public void test001() throws Exception {
     Callable<String> c = () -> "Hello";
-    Assert.assertEquals(2, c.getClass().getDeclaredMethods().length);
     Assert.assertEquals(Object.class, c.getClass().getMethod("call").getReturnType());
   }
 
@@ -41,7 +40,6 @@ public class Tests {
   @Test
   public void test002() throws Exception {
     Condition<String> c = String::isEmpty;
-    Assert.assertEquals(2, c.getClass().getDeclaredMethods().length);
     Method m = c.getClass().getMethod("check", Object.class);
     Assert.assertEquals(boolean.class, m.getReturnType());
     Assert.assertFalse(m.isSynthetic());
