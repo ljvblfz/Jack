@@ -16,29 +16,26 @@
 
 package com.android.jack.optimizations.usedef;
 
-import org.jf.dexlib.CodeItem;
-import org.jf.dexlib.DexFile;
-import org.jf.dexlib.Code.Instruction;
-import org.jf.dexlib.Code.Opcode;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-
-import java.io.File;
-
-import javax.annotation.Nonnull;
-
 import com.android.jack.TestTools;
-import com.android.jack.test.category.RuntimeRegressionTest;
 import com.android.jack.test.helper.FileChecker;
 import com.android.jack.test.helper.RuntimeTestHelper;
 import com.android.jack.test.junit.Runtime;
-import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 
 import junit.framework.Assert;
 
-public class UseDefTests extends RuntimeTest {
+import org.jf.dexlib.CodeItem;
+import org.jf.dexlib.DexFile;
+import org.jf.dexlib.Code.Instruction;
+import org.jf.dexlib.Code.Opcode;
+import org.junit.Test;
+
+import java.io.File;
+
+import javax.annotation.Nonnull;
+
+public class UseDefTests {
   private RuntimeTestInfo TEST001 = new RuntimeTestInfo(
       AbstractTestTools.getTestRootDir("com.android.jack.optimizations.usedef.test001"),
       "com.android.jack.optimizations.usedef.test001.dx.Tests");
@@ -72,21 +69,18 @@ public class UseDefTests extends RuntimeTest {
 
     @Test
     @Runtime
-    @Category(RuntimeRegressionTest.class)
     public void test001() throws Exception {
       runUseDefTest(TEST001);
     }
 
     @Test
     @Runtime
-    @Category(RuntimeRegressionTest.class)
     public void test002() throws Exception {
       runUseDefTest(TEST002);
     }
 
     @Test
     @Runtime
-    @Category(RuntimeRegressionTest.class)
     public void test003() throws Exception {
       runUseDefTest(TEST003);
     }
@@ -98,10 +92,4 @@ public class UseDefTests extends RuntimeTest {
         .compileAndRunTest();
     }
 
-    @Override
-    protected void fillRtTestInfos() {
-      rtTestInfos.add(TEST001);
-      rtTestInfos.add(TEST002);
-      rtTestInfos.add(TEST003);
-    }
 }
