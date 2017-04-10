@@ -139,13 +139,21 @@ public abstract class AbstractTestTools {
 
   private static class LegacyToolchainBuilder implements ToolchainBuilder {
 
+    private boolean isDesugarEnabled = true;
+
     @Override
     @Nonnull
     public LegacyToolchain build() {
       return new LegacyToolchain(getPrebuilt("legacy-java-compiler"),
           getPrebuiltsAsClasspath("legacy-java-compiler.bootclasspath"), getPrebuilt("jarjar"),
-          getPrebuilt("proguard"), getPrebuilt("dx"));
+          getPrebuilt("proguard"), getPrebuilt("dx"), isDesugarEnabled);
     }
+
+    public LegacyToolchainBuilder disableDesugar() {
+      isDesugarEnabled = false;
+      return this;
+    }
+
   }
 
   private static class JackCliToolchainBuilder implements ToolchainBuilder {
@@ -436,6 +444,7 @@ public abstract class AbstractTestTools {
       toolchainBuildersTmp.put("jack-api-inc-v04", new JackApiV04IncrementalToolchainBuilder());
       toolchainBuildersTmp.put("jack-api-2steps-v04", new JackApiV04TwoStepsToolchainBuilder());
       toolchainBuildersTmp.put("legacy", new LegacyToolchainBuilder());
+      toolchainBuildersTmp.put("legacy-no-desugar", new LegacyToolchainBuilder().disableDesugar());
       toolchainBuildersTmp.put("jill-legacy", new EmbeddedJillBasedToolchainBuilder());
       toolchainBuildersTmp.put("jill-api-v01", new JillApiV01ToolchainBuilder());
       toolchainBuildersTmp.put("jill-legacy-prebuilt", new LegacyJillToolchainBuilder());
