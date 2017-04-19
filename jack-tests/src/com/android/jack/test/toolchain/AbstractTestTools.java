@@ -144,13 +144,9 @@ public abstract class AbstractTestTools {
     @Override
     @Nonnull
     public LegacyToolchain build() {
-      return isDesugarEnabled
-          ? new LegacyToolchain(getPrebuilt("legacy-java-compiler"),
-              getPrebuiltsAsClasspath("legacy-java-compiler.bootclasspath"), getPrebuilt("jarjar"),
-              getPrebuilt("proguard"), getPrebuilt("dx"))
-          : new LegacyNoDesugarToolchain(getPrebuilt("legacy-java-compiler"),
-              getPrebuiltsAsClasspath("legacy-java-compiler.bootclasspath"), getPrebuilt("jarjar"),
-              getPrebuilt("proguard"), getPrebuilt("dx"));
+      return new LegacyToolchain(getPrebuilt("legacy-java-compiler"),
+          getPrebuiltsAsClasspath("legacy-java-compiler.bootclasspath"), getPrebuilt("jarjar"),
+          getPrebuilt("proguard"), getPrebuilt("dx"), isDesugarEnabled);
     }
 
     public LegacyToolchainBuilder disableDesugar() {
