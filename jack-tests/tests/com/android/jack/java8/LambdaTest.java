@@ -34,6 +34,7 @@ import com.android.jack.test.toolchain.JackApiV02;
 import com.android.jack.test.toolchain.JackApiV03;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
+import com.android.jack.test.toolchain.LegacyNoDesugarToolchain;
 import com.android.jack.test.toolchain.LegacyToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
@@ -278,7 +279,12 @@ public class LambdaTest {
   @Test
   @Runtime
   public void testLamba010() throws Exception {
-    run(LAMBDA010);
+    new RuntimeTestHelper(LAMBDA010)
+    .setSourceLevel(SourceLevel.JAVA_8)
+    .addIgnoredCandidateToolchain(JackApiV01.class)
+    .addIgnoredCandidateToolchain(LegacyNoDesugarToolchain.class)
+    .setWithDebugInfos(true)
+    .compileAndRunTest();
   }
 
   @Test
@@ -464,7 +470,12 @@ public class LambdaTest {
   @Test
   @Runtime
   public void testLamba033() throws Exception {
-    run(LAMBDA033);
+    new RuntimeTestHelper(LAMBDA033)
+    .setSourceLevel(SourceLevel.JAVA_8)
+    .addIgnoredCandidateToolchain(JackApiV01.class)
+    .addIgnoredCandidateToolchain(LegacyNoDesugarToolchain.class)
+    .setWithDebugInfos(true)
+    .compileAndRunTest();
   }
 
   @Test
