@@ -20,7 +20,7 @@ import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JillApiToolchainBase;
-import com.android.jack.test.toolchain.LegacyToolchain;
+import com.android.jack.test.toolchain.LegacyBasedToolchain;
 
 import org.junit.Test;
 
@@ -31,7 +31,7 @@ import java.util.List;
 public class LookupTests {
 
   @Test
-  @KnownIssue(candidate=LegacyToolchain.class)
+  @KnownIssue(candidate=LegacyBasedToolchain.class)
   public void test001() throws Exception {
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>();
     exclude.add(JillApiToolchainBase.class);

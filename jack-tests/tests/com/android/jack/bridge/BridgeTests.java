@@ -24,7 +24,7 @@ import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
-import com.android.jack.test.toolchain.LegacyToolchain;
+import com.android.jack.test.toolchain.LegacyBasedToolchain;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -153,7 +153,7 @@ public class BridgeTests extends RuntimeTest {
     new RuntimeTestHelper(TEST009)
     .addIgnoredCandidateToolchain(JillBasedToolchain.class)
     // Legacy toolchain behavior difference, boolean put not present
-    .addIgnoredCandidateToolchain(LegacyToolchain.class)
+    .addIgnoredCandidateToolchain(LegacyBasedToolchain.class)
     .compileAndRunTest();
   }
 

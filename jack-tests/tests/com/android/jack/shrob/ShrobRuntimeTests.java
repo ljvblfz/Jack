@@ -23,7 +23,7 @@ import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
 import com.android.jack.test.toolchain.JillBasedToolchain;
-import com.android.jack.test.toolchain.LegacyToolchain;
+import com.android.jack.test.toolchain.LegacyBasedToolchain;
 
 import org.junit.Test;
 
@@ -96,7 +96,7 @@ public class ShrobRuntimeTests extends RuntimeTest {
 
   @Test
   @Runtime
-  @KnownIssue(candidate=LegacyToolchain.class)
+  @KnownIssue(candidate=LegacyBasedToolchain.class)
   public void test016() throws Exception {
     new RuntimeTestHelper(TEST016)
     .compileAndRunTest();
@@ -104,7 +104,7 @@ public class ShrobRuntimeTests extends RuntimeTest {
 
   @Test
   @Runtime
-  @KnownIssue(candidate=LegacyToolchain.class)
+  @KnownIssue(candidate=LegacyBasedToolchain.class)
   public void test016_003() throws Exception {
     new RuntimeTestHelper(TEST016_003)
     .compileAndRunTest();

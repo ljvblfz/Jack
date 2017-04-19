@@ -30,7 +30,7 @@ import com.android.jack.test.toolchain.AndroidToolchain;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
-import com.android.jack.test.toolchain.LegacyToolchain;
+import com.android.jack.test.toolchain.LegacyBasedToolchain;
 import com.android.sched.util.RunnableHooks;
 import com.android.sched.util.config.ThreadConfig;
 import com.android.sched.util.file.InputZipFile;

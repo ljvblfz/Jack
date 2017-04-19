@@ -23,7 +23,7 @@ import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTest;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
-import com.android.jack.test.toolchain.LegacyToolchain;
+import com.android.jack.test.toolchain.LegacyBasedToolchain;
 import com.android.jack.unary.UnaryTests;
 
 import org.junit.BeforeClass;
@@ -56,10 +56,10 @@ public class ReflectTests extends RuntimeTest {
 
   @Test
   @Runtime
-  @KnownIssue(candidate=LegacyToolchain.class)
+  @KnownIssue(candidate=LegacyBasedToolchain.class)
   public void simpleName002() throws Exception {
     new RuntimeTestHelper(TEST001_WITH_SHRINK_SCHEDULABLE)
-        .addIgnoredCandidateToolchain(LegacyToolchain.class).compileAndRunTest();
+        .addIgnoredCandidateToolchain(LegacyBasedToolchain.class).compileAndRunTest();
   }
 
   @Override

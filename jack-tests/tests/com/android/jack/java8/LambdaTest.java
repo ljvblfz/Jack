@@ -34,7 +34,8 @@ import com.android.jack.test.toolchain.JackApiV02;
 import com.android.jack.test.toolchain.JackApiV03;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
-import com.android.jack.test.toolchain.LegacyToolchain;
+import com.android.jack.test.toolchain.LegacyBasedToolchain;
+import com.android.jack.test.toolchain.LegacyNoDesugarToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
 import junit.framework.Assert;
@@ -277,6 +278,7 @@ public class LambdaTest {
 
   @Test
   @Runtime
+  @KnownIssue(candidate=LegacyNoDesugarToolchain.class)
   public void testLamba010() throws Exception {
     run(LAMBDA010);
   }
@@ -336,7 +338,7 @@ public class LambdaTest {
     .setSourceLevel(SourceLevel.JAVA_8)
     // This test must be exclude from the Jill tool-chain because it does not compile with it
     .addIgnoredCandidateToolchain(JillBasedToolchain.class)
-    .addIgnoredCandidateToolchain(LegacyToolchain.class)
+    .addIgnoredCandidateToolchain(LegacyBasedToolchain.class)
     .addIgnoredCandidateToolchain(JackApiV01.class)
     .setWithDebugInfos(true)
     .compileAndRunTest();
@@ -463,6 +465,7 @@ public class LambdaTest {
 
   @Test
   @Runtime
+  @KnownIssue(candidate=LegacyNoDesugarToolchain.class)
   public void testLamba033() throws Exception {
     run(LAMBDA033);
   }
@@ -640,7 +643,7 @@ public class LambdaTest {
 
   @Test
   @Runtime
-  @KnownIssue(candidate=LegacyToolchain.class)
+  @KnownIssue(candidate=LegacyBasedToolchain.class)
   public void testLamba038() throws Exception {
     run(LAMBDA038);
   }

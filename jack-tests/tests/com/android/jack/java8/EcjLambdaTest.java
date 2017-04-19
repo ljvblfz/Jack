@@ -24,7 +24,7 @@ import com.android.jack.test.toolchain.AndroidToolchain;
 import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackApiV01;
 import com.android.jack.test.toolchain.JillBasedToolchain;
-import com.android.jack.test.toolchain.LegacyToolchain;
+import com.android.jack.test.toolchain.LegacyBasedToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 import com.android.sched.util.file.CannotChangePermissionException;
 import com.android.sched.util.file.CannotCreateFileException;
@@ -138,7 +138,7 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
     // These tests must be exclude from the Jill tool-chain because they do not compile with it
     if (getName().equals("testReferenceExpressionInference3a")) {
       excludeList.add(JillBasedToolchain.class);
-      excludeList.add(LegacyToolchain.class);
+      excludeList.add(LegacyBasedToolchain.class);
     }
     excludeList.add(JackApiV01.class);
 
@@ -176,7 +176,7 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
     }
     if (testBugJavac.contains(getName())) {
       // This tests does not compile with Javac exclude them
-      excludeList.add(LegacyToolchain.class);
+      excludeList.add(LegacyBasedToolchain.class);
     }
     excludeList.add(JackApiV01.class);
 

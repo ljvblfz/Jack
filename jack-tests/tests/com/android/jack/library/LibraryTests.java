@@ -22,7 +22,7 @@ import com.android.jack.test.toolchain.IToolchain;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillApiToolchainBase;
 import com.android.jack.test.toolchain.JillBasedToolchain;
-import com.android.jack.test.toolchain.LegacyToolchain;
+import com.android.jack.test.toolchain.LegacyBasedToolchain;
 import com.android.sched.util.file.InputZipFile;
 import com.android.sched.vfs.ReadZipFS;
 import com.android.sched.vfs.VFS;
@@ -100,7 +100,7 @@ public class LibraryTests {
   private File createEmptyLibrary() throws IOException, Exception {
     List<Class<? extends IToolchain>> exclude = new ArrayList<Class<? extends IToolchain>>(1);
     // Legacy compiler does not support compilation without sources
-    exclude.add(LegacyToolchain.class);
+    exclude.add(LegacyBasedToolchain.class);
     AndroidToolchain toolchain = AbstractTestTools.getCandidateToolchain(AndroidToolchain.class, exclude);
     File emptyLib = AbstractTestTools.createTempFile("empty", toolchain.getLibraryExtension());
     toolchain.srcToLib(emptyLib, /* zipFiles = */ true);

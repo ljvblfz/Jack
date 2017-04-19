@@ -38,9 +38,9 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * The legacy android toolchain.
+ * The legacy based android toolchain.
  */
-public class LegacyToolchain extends AndroidToolchain {
+public abstract class LegacyBasedToolchain extends AndroidToolchain {
 
   @Nonnull
   private final File legacyCompilerPrebuilt;
@@ -58,19 +58,15 @@ public class LegacyToolchain extends AndroidToolchain {
   @Nonnull
   private String minApiLevel = "1";
 
-  private boolean isDesugarEnabled;
-
-  LegacyToolchain(@Nonnull File legacyCompilerPrebuilt,
+  LegacyBasedToolchain(@Nonnull File legacyCompilerPrebuilt,
       @Nonnull List<File> legacyCompilerBootclasspath,
       @Nonnull File jarjarPrebuilt,
-      @Nonnull File proguardPrebuilt, @Nonnull File dxPrebuilt,
-      boolean isDesugarEnabled) {
+      @Nonnull File proguardPrebuilt, @Nonnull File dxPrebuilt) {
     this.legacyCompilerPrebuilt = legacyCompilerPrebuilt;
     this.legacyCompilerBootclasspath = legacyCompilerBootclasspath;
     this.jarjarPrebuilt = jarjarPrebuilt;
     this.proguardPrebuilt = proguardPrebuilt;
     this.dxPrebuilt = dxPrebuilt;
-    this.isDesugarEnabled = isDesugarEnabled;
   }
 
   @Override
@@ -362,7 +358,7 @@ public class LegacyToolchain extends AndroidToolchain {
 
     File outputClassesDir = AbstractTestTools.createTempDir();
 
-    if (isDesugarEnabled && sourceLevel.compareTo(SourceLevel.JAVA_8) >= 0) {
+    if (isDesugarEnabled() && sourceLevel.compareTo(SourceLevel.JAVA_8) >= 0) {
       outputClassesDir = AbstractTestTools.createTempDir();
     } else {
       outputClassesDir = out;
@@ -375,7 +371,7 @@ public class LegacyToolchain extends AndroidToolchain {
     org.eclipse.jdt.internal.compiler.batch.Main.main(
         commandLine.toArray(new String[commandLine.size()]));
 
-    if (isDesugarEnabled && sourceLevel.compareTo(SourceLevel.JAVA_8) >= 0) {
+    if (isDesugarEnabled() && sourceLevel.compareTo(SourceLevel.JAVA_8) >= 0) {
       File tmpOutFile = AbstractTestTools.createTempFile("jack-test", "no-desugar.jar");
       File tmpOutFileDesugared = AbstractTestTools.createTempFile("jack-test", "desugar.jar");
       AbstractTestTools.zip(outputClassesDir, tmpOutFile, isVerbose);
@@ -387,14 +383,14 @@ public class LegacyToolchain extends AndroidToolchain {
 
   @Override
   @Nonnull
-  public LegacyToolchain disableDxOptimizations() {
+  public LegacyBasedToolchain disableDxOptimizations() {
     useDxOptimization = false;
     return this;
   }
 
   @Override
   @Nonnull
-  public LegacyToolchain enableDxOptimizations() {
+  public LegacyBasedToolchain enableDxOptimizations() {
     useDxOptimization = true;
     return this;
   }
@@ -468,7 +464,7 @@ public class LegacyToolchain extends AndroidToolchain {
 
     File outputClassesDir = AbstractTestTools.createTempDir();
 
-    if (isDesugarEnabled && sourceLevel.compareTo(SourceLevel.JAVA_8) >= 0) {
+    if (isDesugarEnabled() && sourceLevel.compareTo(SourceLevel.JAVA_8) >= 0) {
       outputClassesDir = AbstractTestTools.createTempDir();
     } else {
       outputClassesDir = out;
@@ -490,7 +486,7 @@ public class LegacyToolchain extends AndroidToolchain {
       throw new RuntimeException("An error occurred while running reference compiler", e);
     }
 
-    if (isDesugarEnabled && sourceLevel.compareTo(SourceLevel.JAVA_8) >= 0) {
+    if (isDesugarEnabled() && sourceLevel.compareTo(SourceLevel.JAVA_8) >= 0) {
       File tmpOutFile = AbstractTestTools.createTempFile("jack-test", "no-desugar.jar");
       File tmpOutFileDesugared = AbstractTestTools.createTempFile("jack-test", "desugar.jar");
       AbstractTestTools.zip(outputClassesDir, tmpOutFile, isVerbose);
@@ -562,4 +558,5 @@ public class LegacyToolchain extends AndroidToolchain {
     return this;
   }
 
+  protected abstract boolean isDesugarEnabled();
 }
