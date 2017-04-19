@@ -140,42 +140,42 @@ public class JarjarTests {
 
 
     // Build dex files for runtime
-    File dex1 = AbstractTestTools.createTempFile("dex1", toolchain.getExeExtension());
+    File dexDir1 = AbstractTestTools.createTempDir();
     toolchain = AbstractTestTools.getCandidateToolchain();
     toolchain.setJarjarRules(
         Collections.singletonList(new File(JARJAR004.directory, "jarjar-rules.txt")));
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .addToClasspath(libToBeRenamed)
     .srcToExe(
-        dex1,
-        /* zipFiles = */ true,
+        dexDir1,
+        /* zipFiles = */ false,
         new File(JARJAR004.directory, "jack"));
 
-    File dex2 = AbstractTestTools.createTempFile("dex2", toolchain.getExeExtension());
+    File dexDir2 = AbstractTestTools.createTempDir();
     toolchain = AbstractTestTools.getCandidateToolchain();
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .addToClasspath(renamedLib)
     .addToClasspath(libReferencingLibToBeRenamed)
-    .srcToExe(dex2,
-        /* zipFiles = */ true,
+    .srcToExe(dexDir2,
+        /* zipFiles = */ false,
         new File(JARJAR004.directory, "dontcompile/TestWithRelocatedReference.java"));
 
-    File dex3 =  AbstractTestTools.createTempFile("dex3", toolchain.getExeExtension());
+    File dexDir3 =  AbstractTestTools.createTempDir();
     toolchain = AbstractTestTools.getCandidateToolchain();
     toolchain.setJarjarRules(
         Collections.singletonList(new File(JARJAR004.directory, "jarjar-rules.txt")));
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToExe(
-        dex3,
-        /* zipFiles = */ true,
+        dexDir3,
+        /* zipFiles = */ false,
         new File(JARJAR004.directory, "lib"));
 
-    File dex4 =  AbstractTestTools.createTempFile("dex4", toolchain.getExeExtension());
+    File dexDir4 =  AbstractTestTools.createTempDir();
     toolchain = AbstractTestTools.getCandidateToolchain();
     toolchain.addToClasspath(toolchain.getDefaultBootClasspath())
     .srcToExe(
-        dex4,
-        /* zipFiles = */ true,
+        dexDir4,
+        /* zipFiles = */ false,
         new File(JARJAR004.directory, "lib"));
 
     List<RuntimeRunner> runnerList = AbstractTestTools.listRuntimeTestRunners();
@@ -185,8 +185,10 @@ public class JarjarTests {
           0,
           runner.runJUnit(new String[] {}, AbstractTestTools.JUNIT_RUNNER_NAME, names, new File[] {
               new File(TestsProperties.getJackRootDir(), "jack-tests/prebuilts/junit4-hostdex.jar"),
-              dex1, dex2,
-              dex3, dex4}));
+              AbstractTestTools.getMonoDexFromDir(dexDir1),
+              AbstractTestTools.getMonoDexFromDir(dexDir2),
+              AbstractTestTools.getMonoDexFromDir(dexDir3),
+              AbstractTestTools.getMonoDexFromDir(dexDir4)}));
     }
 
   }

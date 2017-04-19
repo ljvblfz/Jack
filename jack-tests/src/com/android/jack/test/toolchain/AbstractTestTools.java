@@ -19,6 +19,7 @@ package com.android.jack.test.toolchain;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 
+import com.android.dex.DexFormat;
 import com.android.jack.Sourcelist;
 import com.android.jack.library.InputJackLibrary;
 import com.android.jack.library.InputJackLibraryCodec;
@@ -462,6 +463,12 @@ public abstract class AbstractTestTools {
       throw new TestConfigurationException("Unknown toolchain: '" + toolchainName + "'");
     }
     return toolchainBuilder;
+  }
+
+  public static File getMonoDexFromDir(@Nonnull File dir) {
+    assert dir.isDirectory();
+    assert dir.listFiles().length == 1;
+    return new File(dir, DexFormat.DEX_IN_JAR_NAME);
   }
 
   @Nonnull
