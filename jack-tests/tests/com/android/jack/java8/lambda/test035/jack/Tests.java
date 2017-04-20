@@ -19,13 +19,9 @@ package com.android.jack.java8.lambda.test035.jack;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.NotSerializableException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -48,7 +44,6 @@ public class Tests {
     assertGeneralLambdaClassCharacteristics(r1);
     assertLambdaImplementsInterfaces(r1, Callable.class);
     assertLambdaMethodCharacteristics(r1, Callable.class);
-    assertNonSerializableLambdaCharacteristics(r1);
     assertCallableBehavior(r1, "Hello World");
 
     List<Callable<String>> callables = new ArrayList<>();
@@ -70,7 +65,6 @@ public class Tests {
     assertGeneralLambdaClassCharacteristics(c);
     assertLambdaImplementsInterfaces(c, Condition.class);
     assertLambdaMethodCharacteristics(c, Condition.class);
-    assertNonSerializableLambdaCharacteristics(c);
 
     // Check the behavior of the lambda's method.
     Assert.assertTrue(c.check(""));
@@ -93,7 +87,6 @@ public class Tests {
     assertGeneralLambdaClassCharacteristics(r1);
     assertLambdaImplementsInterfaces(r1, Callable.class);
     assertLambdaMethodCharacteristics(r1, Callable.class);
-    assertNonSerializableLambdaCharacteristics(r1);
 
     assertCallableBehavior(r1, STATIC_METHOD_RESPONSE);
 
@@ -112,7 +105,6 @@ public class Tests {
     assertGeneralLambdaClassCharacteristics(r1);
     assertLambdaImplementsInterfaces(r1, Callable.class);
     assertLambdaMethodCharacteristics(r1, Callable.class);
-    assertNonSerializableLambdaCharacteristics(r1);
 
     assertCallableBehavior(r1, msg);
 
@@ -134,7 +126,6 @@ public class Tests {
     assertGeneralLambdaClassCharacteristics(r1);
     assertLambdaImplementsInterfaces(r1, Callable.class);
     assertLambdaMethodCharacteristics(r1, Callable.class);
-    assertNonSerializableLambdaCharacteristics(r1);
 
     assertCallableBehavior(r1, msg);
 
@@ -147,72 +138,12 @@ public class Tests {
   }
 
   @Test
-  public void testSerializableLambda_withoutState() throws Exception {
-    Callable<String> r1 = (Callable<String> & Serializable) () -> "No State";
-    assertGeneralLambdaClassCharacteristics(r1);
-    assertLambdaImplementsInterfaces(r1, Callable.class, Serializable.class);
-    assertLambdaMethodCharacteristics(r1, Callable.class);
-    assertSerializableLambdaCharacteristics(r1);
-
-    assertCallableBehavior(r1, "No State");
-
-    List<Callable<String>> callables = new ArrayList<>();
-    for (int i = 0; i < 2; i++) {
-      Callable<String> callable = (Callable<String> & Serializable) () -> "No State";
-      assertLambdaImplementsInterfaces(callable, Callable.class, Serializable.class);
-      callables.add(callable);
-    }
-    assertMultipleDefinitionCharacteristics(r1, callables.get(0));
-    assertMultipleInstanceCharacteristics(callables.get(0), callables.get(1));
-  }
-
-  @Test
-  public void testSerializableLambda_withState() throws Exception {
-    final long state = System.currentTimeMillis();
-    Callable<String> r1 = (Callable<String> & Serializable) () -> "State:" + state;
-    assertGeneralLambdaClassCharacteristics(r1);
-    assertLambdaImplementsInterfaces(r1, Callable.class, Serializable.class);
-    assertLambdaMethodCharacteristics(r1, Callable.class);
-    assertSerializableLambdaCharacteristics(r1);
-
-    assertCallableBehavior(r1, "State:" + state);
-
-    Callable<String> deserializedR1 = roundtripSerialization(r1);
-    Assert.assertEquals(r1.call(), deserializedR1.call());
-
-    List<Callable<String>> callables = new ArrayList<>();
-    for (int i = 0; i < 2; i++) {
-      Callable<String> callable = (Callable<String> & Serializable) () -> "State:" + state;
-      assertLambdaImplementsInterfaces(callable, Callable.class, Serializable.class);
-      callables.add(callable);
-    }
-    assertMultipleDefinitionCharacteristics(r1, callables.get(0));
-    assertMultipleInstanceCharacteristics(callables.get(0), callables.get(1));
-  }
-
-  @Test
-  public void testBadSerializableLambda() throws Exception {
-    final Object state = new Object(); // Not Serializable
-    Callable<String> r1 = (Callable<String> & Serializable) () -> "Hello world: " + state;
-    assertGeneralLambdaClassCharacteristics(r1);
-    assertLambdaMethodCharacteristics(r1, Callable.class);
-    assertLambdaImplementsInterfaces(r1, Callable.class, Serializable.class);
-
-    try {
-      serializeObject(r1);
-      Assert.fail();
-    } catch (NotSerializableException expected) {
-    }
-  }
-
-  @Test
   public void testMultipleInterfaceLambda() throws Exception {
     Callable<String> r1 = (Callable<String> & MarkerInterface) () -> "MultipleInterfaces";
     Assert.assertTrue(r1 instanceof MarkerInterface);
     assertGeneralLambdaClassCharacteristics(r1);
     assertLambdaMethodCharacteristics(r1, Callable.class);
     assertLambdaImplementsInterfaces(r1, Callable.class, MarkerInterface.class);
-    assertNonSerializableLambdaCharacteristics(r1);
 
     assertCallableBehavior(r1, "MultipleInterfaces");
 
@@ -225,32 +156,6 @@ public class Tests {
     assertLambdaImplementsInterfaces(r1, Callable.class, MarkerInterface.class);
     assertMultipleDefinitionCharacteristics(r1, callables.get(0));
     assertMultipleInstanceCharacteristics(callables.get(0), callables.get(1));
-  }
-
-  private static void assertSerializableLambdaCharacteristics(Object r1) throws Exception {
-    Assert.assertTrue(r1 instanceof Serializable);
-
-    Object deserializedR1 = roundtripSerialization(r1);
-    Assert.assertFalse(deserializedR1.equals(r1));
-    Assert.assertNotSame(deserializedR1, r1);
-  }
-
-  @SuppressWarnings("unchecked")
-  private static <T> T roundtripSerialization(T r1) throws Exception {
-    byte[] bytes = serializeObject(r1);
-    ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-    try (ObjectInputStream is = new ObjectInputStream(bais)) {
-      return (T) is.readObject();
-    }
-  }
-
-  private static <T> byte[] serializeObject(T r1) throws IOException {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    try (ObjectOutputStream os = new ObjectOutputStream(baos)) {
-      os.writeObject(r1);
-      os.flush();
-    }
-    return baos.toByteArray();
   }
 
   private static <T> void assertLambdaImplementsInterfaces(T r1, Class<?>... expectedInterfaces)
@@ -295,15 +200,6 @@ public class Tests {
     }
   }
 
-  private static void assertNonSerializableLambdaCharacteristics(Object r1) throws Exception {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    try (ObjectOutputStream os = new ObjectOutputStream(baos)) {
-      os.writeObject(r1);
-      os.flush();
-      Assert.fail();
-    } catch (NotSerializableException expected) {
-    }
-  }
 
   /**
    * Asserts that necessary conditions hold when there are two lambdas with separate but identical
@@ -406,7 +302,6 @@ public class Tests {
     Assert.assertSame(r1.getClass(), implementationMethod.getDeclaringClass());
     Assert.assertFalse(implementationMethod.isSynthetic());
     Assert.assertFalse(implementationMethod.isBridge());
-    Assert.assertFalse(implementationMethod.isDefault());
   }
 
   private static String staticMethod() {
