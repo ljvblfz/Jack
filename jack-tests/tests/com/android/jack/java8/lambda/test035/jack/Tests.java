@@ -19,16 +19,19 @@ package com.android.jack.java8.lambda.test035.jack;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
@@ -37,13 +40,23 @@ import java.util.concurrent.Callable;
  */
 public class Tests {
 
-  private static final String MSG = "Hello World";
+  private static final String STATIC_METHOD_RESPONSE = "StaticMethodResponse";
 
-  private static String staticMethod() {
-    return MSG;
-  }
+  @Test
+  public void testNonCapturingLambda() throws Exception {
+    Callable<String> r1 = () -> "Hello World";
+    assertGeneralLambdaClassCharacteristics(r1);
+    assertLambdaImplementsInterfaces(r1, Callable.class);
+    assertLambdaMethodCharacteristics(r1, Callable.class);
+    assertNonSerializableLambdaCharacteristics(r1);
+    assertCallableBehavior(r1, "Hello World");
 
-  private interface MarkerInterface {
+    List<Callable<String>> callables = new ArrayList<>();
+    for (int i = 0; i < 2; i++) {
+      callables.add(() -> "Hello World");
+    }
+    assertMultipleDefinitionCharacteristics(r1, callables.get(0));
+    assertMultipleInstanceCharacteristics(callables.get(0), callables.get(1));
   }
 
   interface Condition<T> {
@@ -51,31 +64,15 @@ public class Tests {
   }
 
   @Test
-  public void nonCapturingLambda() throws Exception {
-    Callable<String> r1 = () -> MSG;
-    Assert.assertNotNull(r1.getClass().getName());
-    assertGeneralLambdaClassCharacteristics(r1);
-    assertLambdaInterfaces(r1, Callable.class);
-    assertLambdaMethodCharacteristics(r1, Callable.class);
-    assertNonSerializableLambdaCharacteristics(r1);
-
-    assertCallableBehavior(r1, MSG);
-
-    Callable r2 = () -> MSG;
-    Assert.assertNotNull(r2.getClass().getName());
-    assertMultipleInstanceCharacteristics(r1, r2);
-  }
-
-  @Test
   public void testInstanceMethodReferenceLambda() throws Exception {
     Condition<String> c = String::isEmpty;
     Class<?> lambdaClass = c.getClass();
-    Assert.assertNotNull(lambdaClass.getName());
     assertGeneralLambdaClassCharacteristics(c);
-    assertLambdaInterfaces(c, Condition.class);
+    assertLambdaImplementsInterfaces(c, Condition.class);
     assertLambdaMethodCharacteristics(c, Condition.class);
     assertNonSerializableLambdaCharacteristics(c);
 
+    // Check the behavior of the lambda's method.
     Assert.assertTrue(c.check(""));
     Assert.assertFalse(c.check("notEmpty"));
 
@@ -93,67 +90,210 @@ public class Tests {
   @Test
   public void testStaticMethodReferenceLambda() throws Exception {
     Callable<String> r1 = Tests::staticMethod;
-    Assert.assertNotNull(r1.getClass().getName());
     assertGeneralLambdaClassCharacteristics(r1);
-    assertLambdaInterfaces(r1, Callable.class);
+    assertLambdaImplementsInterfaces(r1, Callable.class);
     assertLambdaMethodCharacteristics(r1, Callable.class);
     assertNonSerializableLambdaCharacteristics(r1);
 
-    assertCallableBehavior(r1, MSG);
+    assertCallableBehavior(r1, STATIC_METHOD_RESPONSE);
 
-    Callable<String> r2 = Tests::staticMethod;
-    Assert.assertNotNull(r2.getClass().getName());
-    assertMultipleInstanceCharacteristics(r1, r2);
+    List<Callable<String>> callables = new ArrayList<>();
+    for (int i = 0; i < 2; i++) {
+      callables.add(Tests::staticMethod);
+    }
+    assertMultipleInstanceCharacteristics(callables.get(0), callables.get(1));
   }
 
   @Test
   public void testObjectMethodReferenceLambda() throws Exception {
-    StringBuilder o = new StringBuilder(MSG);
+    String msg = "Hello";
+    StringBuilder o = new StringBuilder(msg);
     Callable<String> r1 = o::toString;
-    Assert.assertNotNull(r1.getClass().getName());
     assertGeneralLambdaClassCharacteristics(r1);
-    assertLambdaInterfaces(r1, Callable.class);
+    assertLambdaImplementsInterfaces(r1, Callable.class);
     assertLambdaMethodCharacteristics(r1, Callable.class);
     assertNonSerializableLambdaCharacteristics(r1);
 
-    assertCallableBehavior(r1, MSG);
+    assertCallableBehavior(r1, msg);
 
-    Callable<String> r2 = o::toString;
-    Assert.assertNotNull(r2.getClass().getName());
-    assertMultipleInstanceCharacteristics(r1, r2);
+    List<Callable<String>> callables = new ArrayList<>();
+    for (int i = 0; i < 2; i++) {
+      callables.add(o::toString);
+    }
+    assertMultipleDefinitionCharacteristics(r1, callables.get(0));
+    assertMultipleInstanceCharacteristics(callables.get(0), callables.get(1));
   }
 
   @Test
   public void testArgumentCapturingLambda() throws Exception {
-    String msg = MSG;
+    checkArgumentCapturingLambda("Argument");
+  }
+
+  private void checkArgumentCapturingLambda(String msg) throws Exception {
     Callable<String> r1 = () -> msg;
-    Assert.assertNotNull(r1.getClass().getName());
     assertGeneralLambdaClassCharacteristics(r1);
-    assertLambdaInterfaces(r1, Callable.class);
+    assertLambdaImplementsInterfaces(r1, Callable.class);
     assertLambdaMethodCharacteristics(r1, Callable.class);
     assertNonSerializableLambdaCharacteristics(r1);
 
-    assertCallableBehavior(r1, MSG);
+    assertCallableBehavior(r1, msg);
 
-    Callable<String> r2 = () -> msg;
-    Assert.assertNotNull(r2.getClass().getName());
-    assertMultipleInstanceCharacteristics(r1, r2);
+    List<Callable<String>> callables = new ArrayList<>();
+    for (int i = 0; i < 2; i++) {
+      callables.add(() -> msg);
+    }
+    assertMultipleDefinitionCharacteristics(r1, callables.get(0));
+    assertMultipleInstanceCharacteristics(callables.get(0), callables.get(1));
+  }
+
+  @Test
+  public void testSerializableLambda_withoutState() throws Exception {
+    Callable<String> r1 = (Callable<String> & Serializable) () -> "No State";
+    assertGeneralLambdaClassCharacteristics(r1);
+    assertLambdaImplementsInterfaces(r1, Callable.class, Serializable.class);
+    assertLambdaMethodCharacteristics(r1, Callable.class);
+    assertSerializableLambdaCharacteristics(r1);
+
+    assertCallableBehavior(r1, "No State");
+
+    List<Callable<String>> callables = new ArrayList<>();
+    for (int i = 0; i < 2; i++) {
+      Callable<String> callable = (Callable<String> & Serializable) () -> "No State";
+      assertLambdaImplementsInterfaces(callable, Callable.class, Serializable.class);
+      callables.add(callable);
+    }
+    assertMultipleDefinitionCharacteristics(r1, callables.get(0));
+    assertMultipleInstanceCharacteristics(callables.get(0), callables.get(1));
+  }
+
+  @Test
+  public void testSerializableLambda_withState() throws Exception {
+    final long state = System.currentTimeMillis();
+    Callable<String> r1 = (Callable<String> & Serializable) () -> "State:" + state;
+    assertGeneralLambdaClassCharacteristics(r1);
+    assertLambdaImplementsInterfaces(r1, Callable.class, Serializable.class);
+    assertLambdaMethodCharacteristics(r1, Callable.class);
+    assertSerializableLambdaCharacteristics(r1);
+
+    assertCallableBehavior(r1, "State:" + state);
+
+    Callable<String> deserializedR1 = roundtripSerialization(r1);
+    Assert.assertEquals(r1.call(), deserializedR1.call());
+
+    List<Callable<String>> callables = new ArrayList<>();
+    for (int i = 0; i < 2; i++) {
+      Callable<String> callable = (Callable<String> & Serializable) () -> "State:" + state;
+      assertLambdaImplementsInterfaces(callable, Callable.class, Serializable.class);
+      callables.add(callable);
+    }
+    assertMultipleDefinitionCharacteristics(r1, callables.get(0));
+    assertMultipleInstanceCharacteristics(callables.get(0), callables.get(1));
+  }
+
+  @Test
+  public void testBadSerializableLambda() throws Exception {
+    final Object state = new Object(); // Not Serializable
+    Callable<String> r1 = (Callable<String> & Serializable) () -> "Hello world: " + state;
+    assertGeneralLambdaClassCharacteristics(r1);
+    assertLambdaMethodCharacteristics(r1, Callable.class);
+    assertLambdaImplementsInterfaces(r1, Callable.class, Serializable.class);
+
+    try {
+      serializeObject(r1);
+      Assert.fail();
+    } catch (NotSerializableException expected) {
+    }
   }
 
   @Test
   public void testMultipleInterfaceLambda() throws Exception {
-    Callable<String> r1 = (Callable<String> & MarkerInterface) () -> MSG;
+    Callable<String> r1 = (Callable<String> & MarkerInterface) () -> "MultipleInterfaces";
     Assert.assertTrue(r1 instanceof MarkerInterface);
-    Assert.assertNotNull(r1.getClass().getName());
     assertGeneralLambdaClassCharacteristics(r1);
     assertLambdaMethodCharacteristics(r1, Callable.class);
-    assertLambdaInterfaces(r1, Callable.class, MarkerInterface.class);
+    assertLambdaImplementsInterfaces(r1, Callable.class, MarkerInterface.class);
     assertNonSerializableLambdaCharacteristics(r1);
 
-    assertCallableBehavior(r1, MSG);
+    assertCallableBehavior(r1, "MultipleInterfaces");
+
+    List<Callable<String>> callables = new ArrayList<>();
+    for (int i = 0; i < 2; i++) {
+      Callable<String> callable = (Callable<String> & MarkerInterface) () -> "MultipleInterfaces";
+      assertLambdaImplementsInterfaces(callable, Callable.class, MarkerInterface.class);
+      callables.add(callable);
+    }
+    assertLambdaImplementsInterfaces(r1, Callable.class, MarkerInterface.class);
+    assertMultipleDefinitionCharacteristics(r1, callables.get(0));
+    assertMultipleInstanceCharacteristics(callables.get(0), callables.get(1));
   }
 
+  private static void assertSerializableLambdaCharacteristics(Object r1) throws Exception {
+    Assert.assertTrue(r1 instanceof Serializable);
 
+    Object deserializedR1 = roundtripSerialization(r1);
+    Assert.assertFalse(deserializedR1.equals(r1));
+    Assert.assertNotSame(deserializedR1, r1);
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T> T roundtripSerialization(T r1) throws Exception {
+    byte[] bytes = serializeObject(r1);
+    ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+    try (ObjectInputStream is = new ObjectInputStream(bais)) {
+      return (T) is.readObject();
+    }
+  }
+
+  private static <T> byte[] serializeObject(T r1) throws IOException {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    try (ObjectOutputStream os = new ObjectOutputStream(baos)) {
+      os.writeObject(r1);
+      os.flush();
+    }
+    return baos.toByteArray();
+  }
+
+  private static <T> void assertLambdaImplementsInterfaces(T r1, Class<?>... expectedInterfaces)
+          throws Exception {
+    Class<?> lambdaClass = r1.getClass();
+
+    // Check directly implemented interfaces. Ordering is well-defined.
+    Class<?>[] actualInterfaces = lambdaClass.getInterfaces();
+    Assert.assertEquals(expectedInterfaces.length, actualInterfaces.length);
+    List<Class<?>> actual = Arrays.asList(actualInterfaces);
+    List<Class<?>> expected = Arrays.asList(expectedInterfaces);
+    Assert.assertEquals(expected, actual);
+
+    // Confirm that the only method declared on the lambda's class are those defined by
+    // interfaces it implements. i.e. there's no additional public contract.
+    Set<Method> declaredMethods = new HashSet<>();
+    addNonStaticPublicMethods(lambdaClass, declaredMethods);
+    Set<Method> expectedMethods = new HashSet<>();
+    for (Class<?> interfaceClass : expectedInterfaces) {
+      // Obtain methods declared by super-interfaces too.
+      while (interfaceClass != null) {
+        addNonStaticPublicMethods(interfaceClass, expectedMethods);
+        interfaceClass = interfaceClass.getSuperclass();
+      }
+    }
+    Assert.assertEquals(expectedMethods.size(), declaredMethods.size());
+
+    // Check the method signatures are compatible.
+    for (Method expectedMethod : expectedMethods) {
+      Method actualMethod =
+          lambdaClass.getMethod(expectedMethod.getName(), expectedMethod.getParameterTypes());
+      Assert.assertEquals(expectedMethod.getReturnType(), actualMethod.getReturnType());
+    }
+  }
+
+  private static void addNonStaticPublicMethods(Class<?> clazz, Set<Method> methodSet) {
+    for (Method interfaceMethod : clazz.getDeclaredMethods()) {
+      int modifiers = interfaceMethod.getModifiers();
+      if ((!Modifier.isStatic(modifiers) && Modifier.isPublic(modifiers))) {
+        methodSet.add(interfaceMethod);
+      }
+    }
+  }
 
   private static void assertNonSerializableLambdaCharacteristics(Object r1) throws Exception {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -161,73 +301,95 @@ public class Tests {
       os.writeObject(r1);
       os.flush();
       Assert.fail();
-    } catch (ObjectStreamException expected) {
+    } catch (NotSerializableException expected) {
     }
   }
 
-  private static void assertMultipleInstanceCharacteristics(Object r1, Object r2) throws Exception {
+  /**
+   * Asserts that necessary conditions hold when there are two lambdas with separate but identical
+   * definitions.
+   */
+  private static void assertMultipleDefinitionCharacteristics(
+          Callable<String> r1, Callable<String> r2) throws Exception {
+
+    // Sanity check that the lambdas do the same thing.
+    Assert.assertEquals(r1.call(), r2.call());
+
+    // Unclear if any of this is *guaranteed* to be true.
+
+    // Check the objects are not the same and do not equal. This could influence collection
+    // behavior.
     Assert.assertNotSame(r1, r2);
     Assert.assertTrue(!r1.equals(r2));
 
-    Class<?> lambda1Class = r1.getClass();
-    Class<?> lambda2Class = r2.getClass();
-    Assert.assertNotSame(lambda1Class, lambda2Class);
+    // Two lambdas from different definitions can share the same class or may not.
+    // See JLS 15.27.4.
   }
 
-  private static <T> void assertCallableBehavior(Callable<T> r1, T expectedResult)
-      throws Exception {
-    Assert.assertEquals(expectedResult, r1.call());
-    Method implCallMethod = r1.getClass().getDeclaredMethod("call");
-    Assert.assertEquals(expectedResult, implCallMethod.invoke(r1));
+  /**
+   * Asserts that necessary conditions hold when there are two lambdas created from the same
+   * definition.
+   */
+  private static void assertMultipleInstanceCharacteristics(
+          Callable<String> r1, Callable<String> r2) throws Exception {
 
-    Method interfaceCallMethod = Callable.class.getDeclaredMethod("call");
-    Assert.assertEquals(expectedResult, interfaceCallMethod.invoke(r1));
+    // Sanity check that the lambdas do the same thing.
+    Assert.assertEquals(r1.call(), r2.call());
+
+    // There doesn't appear to be anything else that is safe to assert here. Two lambdas
+    // created from the same definition can be the same, as can their class, but they can also
+    // be different. See JLS 15.27.4.
   }
 
   private static void assertGeneralLambdaClassCharacteristics(Object r1) throws Exception {
     Class<?> lambdaClass = r1.getClass();
 
-    Assert.assertFalse(lambdaClass.isAnnotation());
-    Assert.assertFalse(lambdaClass.isAnonymousClass());
-    Assert.assertFalse(lambdaClass.isInterface());
-    Assert.assertFalse(lambdaClass.isLocalClass());
-    Assert.assertNull(lambdaClass.getEnclosingMethod());
-    Assert.assertNull(lambdaClass.getEnclosingConstructor());
-    Assert.assertNull(lambdaClass.getDeclaringClass());
-    Assert.assertNull(lambdaClass.getEnclosingClass());
-    Assert.assertFalse(lambdaClass.isMemberClass());
-
+    // Lambda objects have classes that have names.
+    Assert.assertNotNull(lambdaClass.getName());
     Assert.assertNotNull(lambdaClass.getSimpleName());
     Assert.assertNotNull(lambdaClass.getCanonicalName());
-    Assert.assertEquals(0, lambdaClass.getClasses().length);
+
+    // Lambda classes are "synthetic classes" that are not arrays.
+    Assert.assertFalse(lambdaClass.isAnnotation());
+    Assert.assertFalse(lambdaClass.isInterface());
     Assert.assertFalse(lambdaClass.isArray());
     Assert.assertFalse(lambdaClass.isEnum());
     Assert.assertFalse(lambdaClass.isPrimitive());
     Assert.assertTrue(lambdaClass.isSynthetic());
     Assert.assertNull(lambdaClass.getComponentType());
-    Assert.assertTrue((Modifier.isFinal(lambdaClass.getModifiers())));
+
+    // Expected modifiers
+    int classModifiers = lambdaClass.getModifiers();
+    Assert.assertTrue(Modifier.isFinal(classModifiers));
+
     // Unexpected modifiers
-    int unexpectedModifiers = Modifier.PRIVATE | Modifier.PROTECTED
-        | Modifier.STATIC | Modifier.SYNCHRONIZED | Modifier.VOLATILE | Modifier.TRANSIENT
-        | Modifier.NATIVE | Modifier.INTERFACE | Modifier.ABSTRACT | Modifier.STRICT;
-    Assert.assertTrue((unexpectedModifiers & lambdaClass.getModifiers()) == 0);
-    Assert.assertNull(lambdaClass.getSigners());
+    Assert.assertFalse(Modifier.isPrivate(classModifiers));
+    Assert.assertFalse(Modifier.isPublic(classModifiers));
+    Assert.assertFalse(Modifier.isProtected(classModifiers));
+    Assert.assertFalse(Modifier.isStatic(classModifiers));
+    Assert.assertFalse(Modifier.isSynchronized(classModifiers));
+    Assert.assertFalse(Modifier.isVolatile(classModifiers));
+    Assert.assertFalse(Modifier.isTransient(classModifiers));
+    Assert.assertFalse(Modifier.isNative(classModifiers));
+    Assert.assertFalse(Modifier.isInterface(classModifiers));
+    Assert.assertFalse(Modifier.isAbstract(classModifiers));
+    Assert.assertFalse(Modifier.isStrict(classModifiers));
 
+    // Check the classloader, inheritance hierarchy and package.
     Assert.assertSame(Tests.class.getClassLoader(), lambdaClass.getClassLoader());
-    Assert.assertEquals(0, lambdaClass.getTypeParameters().length);
-
     Assert.assertSame(Object.class, lambdaClass.getSuperclass());
     Assert.assertSame(Object.class, lambdaClass.getGenericSuperclass());
     Assert.assertEquals(Tests.class.getPackage(), lambdaClass.getPackage());
 
+    // Check the implementation of the non-final public methods that all Objects possess.
     Assert.assertNotNull(r1.toString());
     Assert.assertTrue(r1.equals(r1));
     Assert.assertEquals(System.identityHashCode(r1), r1.hashCode());
-
   }
 
   private static <T> void assertLambdaMethodCharacteristics(T r1, Class<?> samInterfaceClass)
-      throws Exception {
+          throws Exception {
+    // Find the single abstract method on the interface.
     Method singleAbstractMethod = null;
     for (Method method : samInterfaceClass.getDeclaredMethods()) {
       if (Modifier.isAbstract(method.getModifiers())) {
@@ -237,45 +399,31 @@ public class Tests {
     }
     Assert.assertNotNull(singleAbstractMethod);
 
+    // Confirm the lambda implements the method as expected.
     Method implementationMethod = r1.getClass().getMethod(singleAbstractMethod.getName(),
         singleAbstractMethod.getParameterTypes());
     Assert.assertSame(singleAbstractMethod.getReturnType(), implementationMethod.getReturnType());
     Assert.assertSame(r1.getClass(), implementationMethod.getDeclaringClass());
     Assert.assertFalse(implementationMethod.isSynthetic());
     Assert.assertFalse(implementationMethod.isBridge());
+    Assert.assertFalse(implementationMethod.isDefault());
   }
 
-  private static <T> void assertLambdaInterfaces(T r1, Class<?>... interfaceClasses)
-      throws Exception {
-    Class<?> lambdaClass = r1.getClass();
-    Assert.assertEquals(interfaceClasses.length, lambdaClass.getInterfaces().length);
-    Set<Class<?>> actual = new HashSet<>(Arrays.asList(lambdaClass.getInterfaces()));
-    Set<Class<?>> expected = new HashSet<>(Arrays.asList(interfaceClasses));
-    Assert.assertEquals(expected, actual);
-
-    Set<Method> declaredMethods = new HashSet<>();
-    addNonStaticPublicMethods(declaredMethods, lambdaClass);
-    Set<Method> expectedMethods = new HashSet<>();
-    for (Class<?> interfaceClass : interfaceClasses) {
-      while (interfaceClass != null) {
-        addNonStaticPublicMethods(expectedMethods, interfaceClass);
-        interfaceClass = interfaceClass.getSuperclass();
-      }
-    }
-    Assert.assertEquals(expectedMethods.size(), declaredMethods.size());
-    for (Method expectedMethod : expectedMethods) {
-      Method actualMethod =
-          lambdaClass.getMethod(expectedMethod.getName(), expectedMethod.getParameterTypes());
-      Assert.assertEquals(expectedMethod.getReturnType(), actualMethod.getReturnType());
-    }
+  private static String staticMethod() {
+    return STATIC_METHOD_RESPONSE;
   }
 
-  private static void addNonStaticPublicMethods(Set<Method> methodSet, Class<?> clazz) {
-    for (Method interfaceMethod : clazz.getDeclaredMethods()) {
-      int modifiers = interfaceMethod.getModifiers();
-      if ((!Modifier.isStatic(modifiers) && Modifier.isPublic(modifiers))) {
-        methodSet.add(interfaceMethod);
-      }
-    }
+  private interface MarkerInterface {
+  }
+
+  private static <T> void assertCallableBehavior(Callable<T> r1, T expectedResult)
+          throws Exception {
+    Assert.assertEquals(expectedResult, r1.call());
+
+    Method implCallMethod = r1.getClass().getDeclaredMethod("call");
+    Assert.assertEquals(expectedResult, implCallMethod.invoke(r1));
+
+    Method interfaceCallMethod = Callable.class.getDeclaredMethod("call");
+    Assert.assertEquals(expectedResult, interfaceCallMethod.invoke(r1));
   }
 }
