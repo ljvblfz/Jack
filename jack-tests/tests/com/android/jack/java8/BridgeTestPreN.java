@@ -19,6 +19,7 @@ package com.android.jack.java8;
 import com.android.jack.JackAbortException;
 import com.android.jack.Options;
 import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
@@ -27,6 +28,7 @@ import com.android.jack.test.toolchain.JackApiToolchainBase;
 import com.android.jack.test.toolchain.JackApiV01;
 import com.android.jack.test.toolchain.JackBasedToolchain;
 import com.android.jack.test.toolchain.JillBasedToolchain;
+import com.android.jack.test.toolchain.LegacyNoDesugarToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
 import org.junit.Assert;
@@ -61,6 +63,7 @@ public class BridgeTestPreN {
 
   @Test
   @Runtime
+  @KnownIssue(candidate=LegacyNoDesugarToolchain.class)
   public void testBridge001() throws Exception {
     new RuntimeTestHelper(BRIDGE001).setSourceLevel(SourceLevel.JAVA_8)
         .addIgnoredCandidateToolchain(JackApiV01.class)
