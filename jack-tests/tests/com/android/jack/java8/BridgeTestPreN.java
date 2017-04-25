@@ -109,6 +109,7 @@ public class BridgeTestPreN {
 
   @Test
   @Runtime
+  @KnownIssue(candidate=LegacyNoDesugarToolchain.class)
   public void testBridge003() throws Exception {
     new RuntimeTestHelper(BRIDGE003).setSourceLevel(SourceLevel.JAVA_8)
         .addIgnoredCandidateToolchain(JackApiV01.class)
@@ -117,6 +118,7 @@ public class BridgeTestPreN {
 
   @Test
   @Runtime
+  @KnownIssue(candidate=LegacyNoDesugarToolchain.class)
   public void testBridge004() throws Exception {
     new RuntimeTestHelper(BRIDGE004).setSourceLevel(SourceLevel.JAVA_8)
         .addIgnoredCandidateToolchain(JackApiV01.class)
@@ -125,6 +127,7 @@ public class BridgeTestPreN {
 
   @Test
   @Runtime
+  @KnownIssue(candidate=LegacyNoDesugarToolchain.class)
   public void testBridge005() throws Exception {
     new RuntimeTestHelper(BRIDGE005).setSourceLevel(SourceLevel.JAVA_8)
         .addIgnoredCandidateToolchain(JackApiV01.class)
@@ -133,6 +136,7 @@ public class BridgeTestPreN {
 
   @Test
   @Runtime
+  @KnownIssue(candidate=LegacyNoDesugarToolchain.class)
   public void testBridge006() throws Exception {
     new RuntimeTestHelper(BRIDGE006).setSourceLevel(SourceLevel.JAVA_8)
         .addIgnoredCandidateToolchain(JackApiV01.class)

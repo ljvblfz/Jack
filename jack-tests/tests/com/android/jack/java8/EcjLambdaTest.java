@@ -65,7 +65,8 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
             if (testWithApiUsage.contains(description.getMethodName())
                 || testWithOtherErrorMsg.contains(description.getMethodName())
                 || EcjLambdaTestPostM.testForNewRuntime.contains(description.getMethodName())
-                || testBugECJ.contains(description.getMethodName())) {
+                || testBugECJ.contains(description.getMethodName())
+                || testDisabled.contains(description.getMethodName())) {
               return false;
             }
             return true;
@@ -109,6 +110,8 @@ public class EcjLambdaTest extends LambdaExpressionsTest {
       "test447119e", "test448802", "test449063", "test449063a", "test449063b", "test449063c",
       "test449063d", "test449063e", "test456395", "test459305", "test467825", "test467825a",
       "testBug419048_1", "testBug419048_2", "testBug419048_3", "testreduced432605", "test461004");
+
+  private static final List<String> testDisabled = Arrays.asList("test430035c");
 
   @Override
   protected void setUp() throws Exception {
