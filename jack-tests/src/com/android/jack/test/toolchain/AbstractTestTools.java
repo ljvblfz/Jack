@@ -101,6 +101,8 @@ public abstract class AbstractTestTools {
   @Nonnull
   private static final String TOOLCHAIN_PREBUILT_PREFIX = "toolchain.prebuilt.";
   @Nonnull
+  private static final String TOOLCHAIN_MIN_API_LEVEL   = "toolchain.legacy.min-api-level";
+  @Nonnull
   private static final String TMP_PREFIX                = "test-jack-";
   @Nonnull
   private static final String LEGACY_COMPILER_KEY       = "toolchain.prebuilt.legacy-java-compiler";
@@ -1200,6 +1202,26 @@ public abstract class AbstractTestTools {
   @CheckForNull
   public static File getAndroidSdkLocation() {
     return new File(TestsProperties.getProperty(ANDROID_SDK_KEY));
+  }
+
+  @CheckForNull
+  public static String getMinApiLevelFromTestConfiguration() {
+    String minSdkLevelValue = TestsProperties.getProperty(TOOLCHAIN_MIN_API_LEVEL);
+    if (!minSdkLevelValue.trim().equals("")) {
+      try {
+        Integer.parseInt(minSdkLevelValue);
+        return minSdkLevelValue;
+      } catch (NumberFormatException e) {
+        throw new RuntimeException(
+            "Could not parse value for property '"
+                + TOOLCHAIN_MIN_API_LEVEL
+                + "': "
+                + minSdkLevelValue,
+            e);
+      }
+    } else {
+      return null;
+    }
   }
 
 }

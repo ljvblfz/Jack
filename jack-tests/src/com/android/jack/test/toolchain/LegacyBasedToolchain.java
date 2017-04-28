@@ -278,8 +278,12 @@ public abstract class LegacyBasedToolchain extends AndroidToolchain {
       }
     }
 
-    if (Options.ANDROID_MIN_API_LEVEL.getCodec().parseString(new CodecContext(), minApiLevel)
-        .getReleasedLevel() >= 24) {
+    String minApiLevelFromConfig = AbstractTestTools.getMinApiLevelFromTestConfiguration();
+    if (minApiLevelFromConfig != null) {
+      commandLine.add("--min_sdk_version");
+      commandLine.add(minApiLevelFromConfig);
+    } else if (Options.ANDROID_MIN_API_LEVEL.getCodec().parseString(new CodecContext(), minApiLevel)
+          .getReleasedLevel() >= 24) {
       commandLine.add("--min_sdk_version");
       commandLine.add(minApiLevel);
     }
@@ -515,7 +519,12 @@ public abstract class LegacyBasedToolchain extends AndroidToolchain {
     }
 
     commandLine.add("--min-sdk-version");
-    commandLine.add(minApiLevel);
+    String minApiLevelFromConfig = AbstractTestTools.getMinApiLevelFromTestConfiguration();
+    if (minApiLevelFromConfig != null) {
+      commandLine.add(minApiLevelFromConfig);
+    } else {
+      commandLine.add(minApiLevel);
+    }
 
     if (isVerbose) {
       commandLine.add("--verbose");
