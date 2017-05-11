@@ -284,6 +284,7 @@ public abstract class LegacyBasedToolchain extends AndroidToolchain {
       commandLine.add(minApiLevel);
     }
 
+    commandLine.add("--desugar_try_with_resources_if_needed");
     commandLine.add("--input");
     commandLine.add(input.getAbsolutePath());
     commandLine.add("--output");
@@ -486,7 +487,9 @@ public abstract class LegacyBasedToolchain extends AndroidToolchain {
       throw new RuntimeException("An error occurred while running reference compiler", e);
     }
 
-    if (isDesugarEnabled() && sourceLevel.compareTo(SourceLevel.JAVA_8) >= 0) {
+    // Desugar is use for Java 8 feature such as lambda, default method or Java 7 feature such as
+    // try with resources.
+    if (isDesugarEnabled() && sourceLevel.compareTo(SourceLevel.JAVA_7) >= 0) {
       File tmpOutFile = AbstractTestTools.createTempFile("jack-test", "no-desugar.jar");
       File tmpOutFileDesugared = AbstractTestTools.createTempFile("jack-test", "desugar.jar");
       AbstractTestTools.zip(outputClassesDir, tmpOutFile, isVerbose);
