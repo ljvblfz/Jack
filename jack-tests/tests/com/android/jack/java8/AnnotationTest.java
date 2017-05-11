@@ -57,21 +57,21 @@ public class AnnotationTest {
 
   @Test
   @Runtime
-  @KnownIssue
+  @KnownIssue(candidate=JackBasedToolchain.class)
   public void testAnnotation001() throws Exception {
     compileAndRun(ANNOTATION001);
   }
 
   @Test
   @Runtime
-  @KnownIssue
+  @KnownIssue(candidate=JackBasedToolchain.class)
   public void testAnnotation002() throws Exception {
     compileAndRun(ANNOTATION002);
   }
 
   @Test
   @Runtime
-  @KnownIssue
+  @KnownIssue(candidate=JackBasedToolchain.class)
   public void testAnnotation003() throws Exception {
     compileAndRun(ANNOTATION003);
   }
@@ -83,7 +83,7 @@ public class AnnotationTest {
    */
   @Test
   @Runtime
-  @KnownIssue
+  @KnownIssue(candidate=JackBasedToolchain.class)
   public void testAnnotation004() throws Exception {
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
@@ -131,7 +131,7 @@ public class AnnotationTest {
    */
   @Test
   @Runtime
-  @KnownIssue
+  @KnownIssue(candidate=JackBasedToolchain.class)
   public void testAnnotation005() throws Exception {
     JackBasedToolchain toolchain =
         AbstractTestTools.getCandidateToolchain(JackApiToolchainBase.class);
