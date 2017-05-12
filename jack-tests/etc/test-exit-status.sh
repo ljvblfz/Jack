@@ -15,6 +15,6 @@
 
 UUID=$1
 shift
-"$@"
+eval "$@"
 echo $? > /data/jack-tests-$UUID/exitStatus
 

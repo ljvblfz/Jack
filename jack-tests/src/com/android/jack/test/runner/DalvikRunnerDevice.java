@@ -56,7 +56,10 @@ public class DalvikRunnerDevice extends DeviceRunner  implements DalvikRunner {
       @Nonnull String... classpathFiles) {
     List<String> commandLine = new ArrayList<String>();
 
-    commandLine.add(convertToTargetPath(new File(rootDir, "/bin/dalvikvm")));
+
+    commandLine.add("CLASSPATH=" + Joiner.on(PATH_SEPARATOR_CHAR).join(classpathFiles));
+
+    commandLine.add("app_process");
 
     commandLine.add(mode.getArg());
 
@@ -64,12 +67,12 @@ public class DalvikRunnerDevice extends DeviceRunner  implements DalvikRunner {
       commandLine.add(option);
     }
 
-    commandLine.add("-classpath");
-    commandLine.add(Joiner.on(PATH_SEPARATOR_CHAR).join(classpathFiles));
+    commandLine.add("/system/bin");
 
     for (String className : classes) {
       commandLine.add(className);
     }
+
     return commandLine;
   }
 
