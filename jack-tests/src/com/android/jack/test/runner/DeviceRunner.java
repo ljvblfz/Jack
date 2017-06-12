@@ -209,48 +209,26 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
 
         String testScriptPathOnTarget =
             convertToTargetPath(
-                new File(testsRootDirFile, "TEST_SCRIPT_NAME"));
+                new File(testsRootDirFile, TEST_SCRIPT_NAME));
 
         String[] desFilePaths = new String[classpathFiles.length];
         try {
-          if (isVerbose) {
-            System.out.println("adb shell -s " + device.getSerialNumber() + " mkdir "
-                + testsRootDir);
-          }
-          device.executeShellCommand("mkdir " + testsRootDir, hostOutput);
 
-          if (isVerbose) {
-            System.out.println("adb shell -s " + device.getSerialNumber() + " rm "
-                + testsRootDir + FileListingService.FILE_SEPARATOR + "*");
-          }
-          device.executeShellCommand("rm " + testsRootDir + FileListingService.FILE_SEPARATOR + "*",
-              hostOutput);
+          executeShellCommand("mkdir " + testsRootDir, device);
 
-          if (isVerbose) {
-            System.out.println("adb -s " + device.getSerialNumber() + " push  "
-                + TEST_SCRIPT_FILE.getAbsolutePath() + " "
-                + testScriptPathOnTarget);
-          }
-          device.pushFile(TEST_SCRIPT_FILE.getAbsolutePath(),
-              testScriptPathOnTarget);
+          executeShellCommand(
+              "rm " + testsRootDir + FileListingService.FILE_SEPARATOR + "*", device);
 
-          if (isVerbose) {
-            System.out.println("adb -s " + device.getSerialNumber() + " shell chmod 777 "
-                + testScriptPathOnTarget);
-          }
-          device.executeShellCommand(
-              "chmod 777 " + testScriptPathOnTarget, hostOutput);
+          executePushCommand(TEST_SCRIPT_FILE.getAbsolutePath(), testScriptPathOnTarget, device);
+          executeShellCommand("chmod 777 " + testScriptPathOnTarget, device);
 
           int i = 0;
           for (File f : classpathFiles) {
             desFilePaths[i] =
                 convertToTargetPath(new File(testsRootDirFile,  "f" + i + "_" + f.getName()));
 
-            if (isVerbose) {
-              System.out.println("adb -s " + device.getSerialNumber() + " push "
-                  + f.getAbsolutePath() + " " + desFilePaths[i]);
-            }
-            device.pushFile(f.getAbsolutePath(), desFilePaths[i]);
+            executePushCommand(f.getAbsolutePath(), desFilePaths[i], device);
+
             i++;
           }
         } catch (TimeoutException
@@ -258,6 +236,7 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
             | ShellCommandUnresponsiveException
             | IOException
             | SyncException e) {
+          deleteTestFiles(device, testsRootDirFile);
           throw new RuntimeRunnerException(e);
         }
 
@@ -292,23 +271,15 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
           // https://code.google.com/p/go/source/browse/misc/arm/a
 
           for (String args : cmdLines) {
-            if (isVerbose) {
-              System.out.println("adb -s " + device.getSerialNumber() + " shell "
-                  + testScriptPathOnTarget + ' ' + uuid + ' ' + args);
-            }
-            device.executeShellCommand(
+            executeShellCommand(
                 testScriptPathOnTarget + ' ' + uuid + ' ' + args,
+                device,
                 new MyShellOuputReceiver(outRedirectStream, errRedirectStream),
                 /* maxTimeToOutputResponse = */ 10000);
 
             File exitStatusFile = AbstractTestTools.createTempFile("exitStatus", "");
-            if (isVerbose) {
-              System.out.println("adb -s " + device.getSerialNumber() + " pull "
-                  + testsRootDir + "/exitStatus "
-                  + exitStatusFile.getAbsolutePath());
-            }
-            device.pullFile(testsRootDir + "/exitStatus",
-                exitStatusFile.getAbsolutePath());
+            executePullCommand(
+                testsRootDir + "/exitStatus", exitStatusFile.getAbsolutePath(), device);
 
             BufferedReader br = new BufferedReader(new FileReader(exitStatusFile));
             try {
@@ -339,19 +310,7 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
             | SyncException e) {
           throw new RuntimeRunnerException(e);
         } finally {
-
-          if (isVerbose) {
-            System.out.println(
-                "adb shell -s " + device.getSerialNumber() + " rm -rf " + testsRootDir);
-          }
-          try {
-            device.executeShellCommand("rm -rf " + testsRootDir, hostOutput);
-          } catch (TimeoutException
-              | AdbCommandRejectedException
-              | ShellCommandUnresponsiveException
-              | IOException e) {
-            throw new RuntimeRunnerException(e);
-          }
+          deleteTestFiles(device, testsRootDirFile);
         }
 
       } catch (RuntimeRunnerException e) {
@@ -374,6 +333,65 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
 
     return exitStatus;
   }
+
+  private void deleteTestFiles(@Nonnegative IDevice device, @Nonnull File testDir)
+      throws RuntimeRunnerException {
+    String testDirName = testDir.getName();
+    try {
+      executeShellCommand("rm -rf " + testDir.getAbsolutePath(), device);
+      executeShellCommand("find dalvik-cache -name '*" + testDirName + "*' -exec rm -rf {} +"
+          , device);
+    } catch (TimeoutException
+        | AdbCommandRejectedException
+        | ShellCommandUnresponsiveException
+        | IOException e) {
+      throw new RuntimeRunnerException(e);
+    }
+  }
+
+  private void executeShellCommand(
+      @Nonnull String command,
+      @Nonnegative IDevice device,
+      @Nonnull MyShellOuputReceiver hostOutput,
+      int maxTimeToOutputResponse)
+      throws TimeoutException, AdbCommandRejectedException, ShellCommandUnresponsiveException,
+          IOException {
+    if (isVerbose) {
+      System.out.println("adb -s " + device.getSerialNumber() + " shell " + command);
+    }
+    if (maxTimeToOutputResponse != -1) {
+      device.executeShellCommand(command, hostOutput, maxTimeToOutputResponse);
+    } else {
+      device.executeShellCommand(command, hostOutput);
+    }
+  }
+
+  private void executeShellCommand(@Nonnull String command, @Nonnegative IDevice device)
+      throws TimeoutException, AdbCommandRejectedException, ShellCommandUnresponsiveException,
+          IOException {
+    executeShellCommand(command, device, hostOutput, -1);
+  }
+
+  private void executePushCommand(
+      @Nonnull String srcFile, @Nonnull String destFile, @Nonnegative IDevice device)
+      throws SyncException, IOException, AdbCommandRejectedException, TimeoutException {
+    if (isVerbose) {
+      System.out.println(
+          "adb -s " + device.getSerialNumber() + " push " + srcFile + " " + destFile);
+    }
+    device.pushFile(srcFile, destFile);
+  }
+
+  private void executePullCommand(
+      @Nonnull String srcFile, @Nonnull String destFile, @Nonnegative IDevice device)
+      throws SyncException, IOException, AdbCommandRejectedException, TimeoutException {
+    if (isVerbose) {
+      System.out.println(
+          "adb -s " + device.getSerialNumber() + " pull " + srcFile + " " + destFile);
+    }
+    device.pullFile(srcFile, destFile);
+  }
+
 
   @Nonnull
   protected abstract List<String> buildCommandLine(@Nonnull File rootDir, @Nonnull String[] options,
