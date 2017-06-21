@@ -338,8 +338,8 @@ public abstract class DeviceRunner extends AbstractRuntimeRunner {
       throws RuntimeRunnerException {
     String testDirName = testDir.getName();
     try {
-      executeShellCommand("rm -rf " + testDir.getAbsolutePath(), device);
-      executeShellCommand("find dalvik-cache -name '*" + testDirName + "*' -exec rm -rf {} +"
+      executeShellCommand("rm -rf " + convertToTargetPath(testDir), device);
+      executeShellCommand("find /data/dalvik-cache -name '*" + testDirName + "*' -exec rm -rf {} +"
           , device);
     } catch (TimeoutException
         | AdbCommandRejectedException
