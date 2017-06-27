@@ -17,9 +17,11 @@
 package com.android.jack.java7;
 
 import com.android.jack.test.helper.RuntimeTestHelper;
+import com.android.jack.test.junit.KnownIssue;
 import com.android.jack.test.junit.Runtime;
 import com.android.jack.test.runtime.RuntimeTestInfo;
 import com.android.jack.test.toolchain.AbstractTestTools;
+import com.android.jack.test.toolchain.LegacyDesugarToolchain;
 import com.android.jack.test.toolchain.Toolchain.SourceLevel;
 
 import org.junit.Test;
@@ -55,6 +57,9 @@ public class TryWithResourcesTests {
    */
   @Test
   @Runtime
+  // Desugar no longer supports the mimic strategy, thus the array of suppressed exception
+  // must no longer be used.
+  @KnownIssue(candidate=LegacyDesugarToolchain.class)
   public void testCompile2() throws Exception {
     new RuntimeTestHelper(TEST002).setSourceLevel(SourceLevel.JAVA_7).compileAndRunTest();
   }
