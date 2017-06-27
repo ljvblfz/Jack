@@ -33,6 +33,7 @@ http://archive.apache.org/dist/ant/source/apache-ant-1.9.6-src.zip
 https://sourceforge.net/projects/proguard/files/proguard/5.3/proguard5.3.2.zip/download
 
 * Desugar, as a prebuilt jar for jack-tests
-Build from studio-master-weekly
-commit c3cd78a2f91dca65263ad26f5598304581d0e6eb
+Build from studio-master-dev
+Build ID 4113389
+commit eb67dcb516fb6bd2543a1d6c32591ba1190bd515
 
