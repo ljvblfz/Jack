@@ -285,7 +285,7 @@ case $COMMAND in
 
 
   uninstall-server)
-    SERVERS_PID=$(ps -A -o "pid args" -u `id -u -n` | grep $LAUNCHER_NAME | grep -v grep | awk '{print $1}')
+    SERVERS_PID=$(ps -o "pid args" -u `id -u -n` | grep $LAUNCHER_NAME | grep -v grep | awk '{print $1}')
     if [ -n "$SERVERS_PID" ]; then
       echo "Jack server is running, please stop it before uninstall" >&2
       echo "If you want to proceeed anyway, use '$0 force-uninstall-server'" >&2
@@ -439,7 +439,7 @@ case $COMMAND in
 
   kill-server)
     echo "Killing background server"
-    SERVERS_PID=$(ps -A -o "pid args" -u `id -u -n` | grep $LAUNCHER_NAME | grep -v grep | awk '{print $1}')
+    SERVERS_PID=$(ps -o "pid args" -u `id -u -n` | grep $LAUNCHER_NAME | grep -v grep | awk '{print $1}')
     if [ -z "$SERVERS_PID" ]; then
       echo "No Jack server to kill" >&2
       exit 2
@@ -588,8 +588,8 @@ case $COMMAND in
 
     echo "Dumping Jack server stacks..."
     echo >>"$REPORT_INFO"
-    echo "\$ ps -A -o \"pid args\" | grep $LAUNCHER_NAME | grep -v grep | awk '{print $1}' |  xargs kill -3" >>"$REPORT_INFO"
-            (ps -A -o  "pid args"  | grep $LAUNCHER_NAME | grep -v grep | awk '{print $1}' |  xargs kill -3) >>"$REPORT_INFO" 2>&1
+    echo "\$ ps -o \"pid args\" | grep $LAUNCHER_NAME | grep -v grep | awk '{print $1}' |  xargs kill -3" >>"$REPORT_INFO"
+            (ps -o  "pid args"  | grep $LAUNCHER_NAME | grep -v grep | awk '{print $1}' |  xargs kill -3) >>"$REPORT_INFO" 2>&1
 
     echo "Getting current user id..."
     echo >>"$REPORT_INFO"
