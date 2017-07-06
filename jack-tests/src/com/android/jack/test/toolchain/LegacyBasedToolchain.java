@@ -518,13 +518,11 @@ public abstract class LegacyBasedToolchain extends AndroidToolchain {
       commandLine.add("--no-optimize");
     }
 
-    commandLine.add("--min-sdk-version");
     String minApiLevelFromConfig = AbstractTestTools.getMinApiLevelFromTestConfiguration();
-    if (minApiLevelFromConfig != null) {
-      commandLine.add(minApiLevelFromConfig);
-    } else {
-      commandLine.add(minApiLevel);
-    }
+
+    commandLine.add(
+        "--min-sdk-version="
+            + (minApiLevelFromConfig != null ? minApiLevelFromConfig : minApiLevel));
 
     if (isVerbose) {
       commandLine.add("--verbose");
