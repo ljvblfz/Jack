@@ -617,7 +617,11 @@ public class MethodBodyWriter extends JillWriter implements Opcodes {
   // several path can produce different values.
   private void forceToUseCstThroughVariable() throws IOException {
     if (!varWithCstValue.isEmpty()) {
-      for (Entry<Variable, Object> entry : varWithCstValue.entrySet()) {
+      List<Entry<Variable, Object>> sortedConstants = new ArrayList<>(varWithCstValue.entrySet());
+      Collections.sort(
+          sortedConstants,
+          (o1, o2) -> o1.getKey().getId().compareTo(o2.getKey().getId()));
+      for (Entry<Variable, Object> entry : sortedConstants) {
         writeDebugBegin(currentClass, currentLine);
         writer.writeCatchBlockIds(currentCatchList);
         writer.writeKeyword(Token.EXPRESSION_STATEMENT);
