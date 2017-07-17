@@ -1,0 +1,5 @@
+Lcom/android/jack/shrob/test069/jack/I2;:
+m()Ljava/lang/String;
+Lcom/android/jack/shrob/test069/jack/I1;:
+m()Ljava/lang/String;
+m1()Ljava/lang/String;

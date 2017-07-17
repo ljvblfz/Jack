@@ -78,6 +78,7 @@ import com.android.sched.schedulable.Constraint;
 import com.android.sched.util.log.LoggerFactory;
 import com.android.sched.util.log.TracerFactory;
 
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -145,7 +146,11 @@ public class Tracer extends JVisitor {
           // no need to mark implementation in subtypes. It was already done when the method
           // was marked the first time, and for further subtypes that will be marked later,
           // the case will be managed by this method.
-          if (implementation != null && implementation != method) {
+          // Be careful, findImplementation does not return only implementation but also
+          // definition, if a found method belongs to an interface, keep only default method.
+          if (implementation != null && implementation != method
+              && (implementation.getEnclosingType() instanceof JDefinedClass
+                  || isDefaultMethod(implementation))) {
             trace(methodId, implementation.getEnclosingType(), returnType,
                 true /* mustTraceOverridingMethods */);
           }
@@ -289,18 +294,30 @@ public class Tracer extends JVisitor {
       SubClassOrInterfaceMarker marker =
           ((LocalMarkerManager) receiverType).getMarker(SubClassOrInterfaceMarker.class);
       if (marker != null) {
-        for (JDefinedClass subClass : marker.getSubClasses()) {
-          if (brush.traceMarked(subClass)) {
-            JMethod implementation = findImplementation(mid, returnType, subClass);
-            if (implementation != null) {
+        Iterator<JDefinedClassOrInterface> classOrInterfaceIterator = marker.iterator();
+        while (classOrInterfaceIterator.hasNext()) {
+          JDefinedClassOrInterface clOrI = classOrInterfaceIterator.next();
+          if (brush.traceMarked(clOrI)) {
+            JMethod implementation = findImplementation(mid, returnType, clOrI);
+            // Be careful, findImplementation does not return only implementation but also
+            // definition, if a found method belongs to an interface, keep only default method.
+            if (implementation != null
+                && (implementation.getEnclosingType() instanceof JDefinedClass
+                    || isDefaultMethod(implementation))) {
               trace(implementation);
               brush.setMustTraceOverridingMethods(implementation);
             }
-            brush.endTraceMarked(subClass);
+            brush.endTraceMarked(clOrI);
           }
         }
       }
     }
+  }
+
+  private boolean isDefaultMethod(@Nonnull JMethod jMethod) {
+    assert jMethod != null;
+    assert jMethod.getEnclosingType() instanceof JDefinedInterface;
+    return !jMethod.isAbstract() && !jMethod.isStatic();
   }
 
   private void trace(@Nonnull JMethod m) {

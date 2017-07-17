@@ -1,0 +1,7 @@
+-keep class **.I1 {
+  java.lang.String m();
+  java.lang.String m1();
+}
+
+-keep class **.I2 {
+}
